@@ -125,6 +125,14 @@
       "find": "(?<![.\\w$])env\\.[A-Z][A-Z0-9_]+\\b"
     }
   ],
+  "not_provider_calls": [
+    {
+      "file": "parts/process-session/do-work/place-cache-folder.mjs",
+      "id": "env-binding",
+      "found": "env.XDG_CACHE_HOME",
+      "why": "placeCacheFolder(env = process.env) reads the cache folder a computer names in its process environment; it is no Worker binding."
+    }
+  ],
   "calls": [
     {
       "id": "kv-get-json",

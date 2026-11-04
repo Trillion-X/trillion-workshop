@@ -1,0 +1,4 @@
+{
+  "_what": "Judging the addresses a name resolves to, at the moment of connecting (do-work/resolved-address.mjs). A name that looks public can resolve to this computer or a private network (a rebinding answer), so the numbers it resolves to are judged by the same blocked ranges as an address written out (do-work/public-address.json), plus any `deny` ranges a caller adds. `refusal` is what every refused name answers: the same text as a name that does not exist, so a refusal does not tell a caller which private names or ranges there are.",
+  "refusal": { "code": "ENOTFOUND", "text": "getaddrinfo ENOTFOUND {host}" }
+}

@@ -158,7 +158,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "verify": [
+     {"kind":"sample-run","input":{"decision_id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE"},"records":[{"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","type":"decision","value":{"source_id":"sample:class-price-1","scratchpad":[],"status":"needs_decision","decision":null,"actions":[],"checks":[],"pursuits_known":false,"created_at":"2026-11-04T01:56:42.606Z","method_id":"plain","method_identity":"1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","call_count":0,"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","input":{"source_id":"sample:class-price-1","goal":"Decide the made-up sample class price for spring","options":[{"id":"keep","label":"Keep the price"},{"id":"raise","label":"Raise the price"}]},"input_identity":"1f:9d26086010288bd06202895ce302c3d1327f99d8c0b38de5712eab18a055a548","counts":{"evidence":3,"candidates":0,"reports":0,"carried_out":0,"decision_history":0,"cited_pursuits":0,"answered_steps":3}}}]}
+    ]
    }
   },
   {
@@ -433,7 +436,244 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "pursuit",
+          "properties": {
+            "parents": "ids",
+            "children": "ids",
+            "space_id": "id"
+          },
+          "parts": [
+            {
+              "role": "parent",
+              "path": [
+                "parents"
+              ]
+            },
+            {
+              "role": "child",
+              "path": [
+                "children"
+              ]
+            },
+            {
+              "role": "space",
+              "path": [
+                "space_id"
+              ]
+            }
+          ],
+          "_read_by": "src/engine.mjs, src/pursuit-consolidate.mjs, src/pursuit-rooms.mjs",
+          "guard_properties": {
+            "after": "text",
+            "archived_at": "text",
+            "areas": "texts",
+            "changed_at": "text",
+            "drive_evidence": "text",
+            "ended_at": "text",
+            "evidence": "objects",
+            "from_room": "boolean",
+            "id": "text",
+            "kind": "text",
+            "last_seen": "text",
+            "merged_into": "text",
+            "needle_mover": "boolean",
+            "notes": "text",
+            "now": "text",
+            "open_url": "text",
+            "recorded_at": "text",
+            "room_left": "text",
+            "status": "text",
+            "title": "text",
+            "why_it_matters": "text"
+          }
+        },
+        {
+          "type": "decision",
+          "guard_properties": {
+            "actions": "list",
+            "answered_steps": "list",
+            "call_count": "number",
+            "calls": "objects",
+            "calls_with_submission": "list",
+            "carried_out": "objects",
+            "checks": "list",
+            "cited_pursuits": "object",
+            "corrected_at": "text",
+            "created_at": "text",
+            "decided_at": "text",
+            "decision": "object",
+            "decision_generation": "number",
+            "decision_history": "objects",
+            "decision_usage": "object",
+            "evidence_history": "objects",
+            "guidance": "objects",
+            "id": "text",
+            "input": "object",
+            "method": "object",
+            "method_history": "objects",
+            "original_input": "object",
+            "outcome_checks": "objects",
+            "outcome_question": "object",
+            "outcome_revision": "number",
+            "pursuits_known": "boolean",
+            "recheck_on": "text",
+            "reopened": "objects",
+            "reports": "objects",
+            "scratchpad": "list",
+            "source_id": "text",
+            "source_provenance": "object",
+            "status": "text",
+            "summary": "text",
+            "workflow_plan": "object"
+          }
+        },
+        {
+          "type": "decision-call",
+          "guard_properties": {
+            "accepted": "boolean",
+            "app": "text",
+            "at": "text",
+            "bytes": "number",
+            "problems": "texts",
+            "reason": "text",
+            "route": "text",
+            "step_id": "text",
+            "submission": "object"
+          }
+        },
+        {
+          "type": "decision-step",
+          "guard_properties": {
+            "answer": "object",
+            "answered_at": "text",
+            "checklist": "any",
+            "step_id": "text",
+            "usage": "object"
+          }
+        },
+        {
+          "type": "decision-step/checklist",
+          "guard_properties": {
+            "checks": "objects"
+          }
+        },
+        {
+          "type": "decision/method",
+          "guard_properties": {
+            "about": "text",
+            "answer_rules": "object",
+            "backbone": "objects",
+            "checks": "list",
+            "decision_fields": "list",
+            "id": "text",
+            "name": "text",
+            "observers": "objects",
+            "preset": "object",
+            "steps": "objects",
+            "workflows": "list"
+          }
+        },
+        {
+          "type": "decision/method_history/guidance/checklist",
+          "guard_properties": {
+            "checks": "objects"
+          }
+        },
+        {
+          "type": "message-case",
+          "guard_properties": {
+            "case_id": "text",
+            "joined": "boolean",
+            "message_id": "text"
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "type": "decision",
+          "name": "created_at",
+          "paths": [
+            [
+              "created_at"
+            ]
+          ],
+          "_read_by": "src/decision-store.mjs summaries, countSince, newestIds, createdPage (DecisionEngine.undecidedMessages), goals"
+        },
+        {
+          "type": "decision",
+          "name": "decided_at",
+          "paths": [
+            [
+              "decided_at"
+            ]
+          ],
+          "_read_by": "src/decision-store.mjs decidedBetween, decidedIds"
+        },
+        {
+          "type": "decision",
+          "name": "goal",
+          "paths": [
+            [
+              "input",
+              "goal"
+            ]
+          ],
+          "_read_by": "src/decision-store.mjs goals, src/message-decision.mjs carryEarlierMessageGoals"
+        },
+        {
+          "type": "decision",
+          "name": "method",
+          "paths": [
+            [
+              "method",
+              "id"
+            ]
+          ],
+          "_read_by": "src/decision-store.mjs goals"
+        },
+        {
+          "type": "decision-call",
+          "name": "step_id",
+          "paths": [
+            [
+              "step_id"
+            ]
+          ],
+          "_read_by": "src/decision-store.mjs callsAt"
+        }
+      ],
+      "links": [
+        {
+          "from": "decision",
+          "field": [
+            "cited_pursuits"
+          ],
+          "to": "pursuit"
+        },
+        {
+          "from": "plan",
+          "field": [
+            "pursuit_ids"
+          ],
+          "to": "pursuit"
+        },
+        {
+          "from": "plan",
+          "field": [
+            "decision_case_id"
+          ],
+          "to": "decision"
+        }
+      ]
+    },
+    "verify": [
+     {"kind":"sample-run","input":{"source_id":"sample:class-price-1","goal":"Decide the made-up sample class price for spring","evidence":[{"ref":"e1","claim":"Last spring twelve made-up families signed up at the old price"},{"ref":"e2","claim":"The made-up material costs went up this year"}],"options":[{"id":"keep","label":"Keep the price"},{"id":"raise","label":"Raise the price"}]},"records":[{"id":"record:method:plain","type":"record:method","value":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","default_for":["decision"],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"voice":[{"id":"plain-words","rule":"Say it in plain words","good_answer":"Short sentences a person reads once"}]}},{"id":"record:method-check:outcome-before-after","type":"record:method-check","value":{"id":"outcome-before-after","method":"plain","step":"outcome","check":"Have you named what is in which state now and which state it should end up in?","good_answer":"One before-and-after pair with the facts that show the current state."}},{"id":"record:method-check:existing-where","type":"record:method-check","value":{"id":"existing-where","method":"plain","step":"existing","when":"compare_existing","check":"Where did you look for something that already does this?","good_answer":"Names the places searched."}}]}
+    ]
    }
   },
   {
@@ -656,7 +896,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "verify": [
+     {"kind":"sample-run","input":{"decision_id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE"},"records":[{"id":"record:method:plain","type":"record:method","value":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","default_for":["decision"],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"voice":[{"id":"plain-words","rule":"Say it in plain words","good_answer":"Short sentences a person reads once"}]}},{"id":"record:method-check:outcome-before-after","type":"record:method-check","value":{"id":"outcome-before-after","method":"plain","step":"outcome","check":"Have you named what is in which state now and which state it should end up in?","good_answer":"One before-and-after pair with the facts that show the current state."}},{"id":"record:method-check:existing-where","type":"record:method-check","value":{"id":"existing-where","method":"plain","step":"existing","when":"compare_existing","check":"Where did you look for something that already does this?","good_answer":"Names the places searched."}},{"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","type":"decision","value":{"source_id":"sample:class-price-1","scratchpad":[],"status":"needs_decision","decision":null,"actions":[],"checks":[],"pursuits_known":false,"created_at":"2026-11-04T01:56:42.606Z","id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","input":{"source_id":"sample:class-price-1","goal":"Decide the made-up sample class price for spring","options":[{"id":"keep","label":"Keep the price"},{"id":"raise","label":"Raise the price"}]},"method_id":"plain","method_identity":"1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","input_identity":"1f:9d26086010288bd06202895ce302c3d1327f99d8c0b38de5712eab18a055a548","counts":{"evidence":2,"candidates":0,"reports":0,"carried_out":0,"decision_history":0,"cited_pursuits":0,"answered_steps":0},"call_count":0}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000","type":"decision-evidence","value":{"ref":"e1","claim":"Last spring twelve made-up families signed up at the old price"}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0001","type":"decision-evidence","value":{"ref":"e2","claim":"The made-up material costs went up this year"}},{"id":"decision-method:1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","type":"decision-method","value":{"method":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"preset":{},"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"workflows":[]}}}]}
+    ]
    }
   },
   {
@@ -973,7 +1216,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "verify": [
+     {"kind":"sample-run","input":{"decision_id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","step_id":"scope","answer":{"decision_context":{"worth_weighing":true,"compare_existing":false},"omission_reasons":{"compare_existing":{"searched":["the sample price list"],"evidence_refs":["e1"]}},"evidence_refs":["e1"]}},"records":[{"id":"record:method:plain","type":"record:method","value":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","default_for":["decision"],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"voice":[{"id":"plain-words","rule":"Say it in plain words","good_answer":"Short sentences a person reads once"}]}},{"id":"record:method-check:outcome-before-after","type":"record:method-check","value":{"id":"outcome-before-after","method":"plain","step":"outcome","check":"Have you named what is in which state now and which state it should end up in?","good_answer":"One before-and-after pair with the facts that show the current state."}},{"id":"record:method-check:existing-where","type":"record:method-check","value":{"id":"existing-where","method":"plain","step":"existing","when":"compare_existing","check":"Where did you look for something that already does this?","good_answer":"Names the places searched."}},{"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","type":"decision","value":{"source_id":"sample:class-price-1","scratchpad":[],"status":"needs_decision","decision":null,"actions":[],"checks":[],"pursuits_known":false,"created_at":"2026-11-04T01:56:42.606Z","id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","input":{"source_id":"sample:class-price-1","goal":"Decide the made-up sample class price for spring","options":[{"id":"keep","label":"Keep the price"},{"id":"raise","label":"Raise the price"}]},"method_id":"plain","method_identity":"1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","input_identity":"1f:9d26086010288bd06202895ce302c3d1327f99d8c0b38de5712eab18a055a548","counts":{"evidence":2,"candidates":0,"reports":0,"carried_out":0,"decision_history":0,"cited_pursuits":0,"answered_steps":0},"call_count":0}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000","type":"decision-evidence","value":{"ref":"e1","claim":"Last spring twelve made-up families signed up at the old price"}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0001","type":"decision-evidence","value":{"ref":"e2","claim":"The made-up material costs went up this year"}},{"id":"decision-method:1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","type":"decision-method","value":{"method":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"preset":{},"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"workflows":[]}}}]}
+    ]
    }
   },
   {
@@ -1223,7 +1469,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "verify": [
+     {"kind":"sample-run","input":{"decision_id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","evidence":[{"ref":"e3","claim":"A made-up nearby class costs a little more"}]},"records":[{"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","type":"decision","value":{"source_id":"sample:class-price-1","scratchpad":[],"status":"needs_decision","decision":null,"actions":[],"checks":[],"pursuits_known":false,"created_at":"2026-11-04T01:56:42.606Z","method_id":"plain","method_identity":"1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","call_count":0,"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","input":{"source_id":"sample:class-price-1","goal":"Decide the made-up sample class price for spring","options":[{"id":"keep","label":"Keep the price"},{"id":"raise","label":"Raise the price"}]},"input_identity":"1f:9d26086010288bd06202895ce302c3d1327f99d8c0b38de5712eab18a055a548","counts":{"evidence":2,"candidates":0,"reports":0,"carried_out":0,"decision_history":0,"cited_pursuits":0,"answered_steps":1}}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000","type":"decision-evidence","value":{"ref":"e1","claim":"Last spring twelve made-up families signed up at the old price"}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0001","type":"decision-evidence","value":{"ref":"e2","claim":"The made-up material costs went up this year"}},{"id":"decision-method:1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","type":"decision-method","value":{"method":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"preset":{},"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"workflows":[]}}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-step","value":{"step_id":"scope","answer":{"decision_context":{"worth_weighing":true,"compare_existing":false},"omission_reasons":{"compare_existing":{"searched":["the sample price list"],"evidence_refs":["e1"]}},"evidence_refs":["e1"]},"verdicts":{"given":[]},"judged_checks":0,"answered_at":"2026-11-04T01:56:42.931Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-answered-step","value":{"step_id":"scope","answered_at":"2026-11-04T01:56:42.931Z","checks":0,"graded":0,"graded_by":"","version":1,"needs_recheck":false}}]}
+    ]
    }
   },
   {
@@ -1519,7 +1768,25 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "decision-made",
+          "guard_properties": {
+            "app": "text",
+            "at": "text",
+            "case_id": "text",
+            "from_reader": "text",
+            "generation": "number"
+          }
+        }
+      ]
+    },
+    "verify": [
+     {"kind":"sample-run","input":{"decision_id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","decision":{"option_id":"raise","reason":"Costs went up and families still came","next_action":"Email the families the new price","success_measure":"Twelve sign ups by May","evidence_refs":["e1","e2"],"who_it_changes":"The twelve families pay a little more and keep their class"}},"records":[{"id":"record:method:plain","type":"record:method","value":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","default_for":["decision"],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"voice":[{"id":"plain-words","rule":"Say it in plain words","good_answer":"Short sentences a person reads once"}]}},{"id":"record:method-check:outcome-before-after","type":"record:method-check","value":{"id":"outcome-before-after","method":"plain","step":"outcome","check":"Have you named what is in which state now and which state it should end up in?","good_answer":"One before-and-after pair with the facts that show the current state."}},{"id":"record:method-check:existing-where","type":"record:method-check","value":{"id":"existing-where","method":"plain","step":"existing","when":"compare_existing","check":"Where did you look for something that already does this?","good_answer":"Names the places searched."}},{"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","type":"decision","value":{"source_id":"sample:class-price-1","scratchpad":[],"status":"needs_decision","decision":null,"actions":[],"checks":[],"pursuits_known":false,"created_at":"2026-11-04T01:56:42.606Z","method_id":"plain","method_identity":"1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","call_count":0,"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","input":{"source_id":"sample:class-price-1","goal":"Decide the made-up sample class price for spring","options":[{"id":"keep","label":"Keep the price"},{"id":"raise","label":"Raise the price"}]},"input_identity":"1f:9d26086010288bd06202895ce302c3d1327f99d8c0b38de5712eab18a055a548","counts":{"evidence":3,"candidates":0,"reports":0,"carried_out":0,"decision_history":0,"cited_pursuits":0,"answered_steps":3}}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000","type":"decision-evidence","value":{"ref":"e1","claim":"Last spring twelve made-up families signed up at the old price"}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0001","type":"decision-evidence","value":{"ref":"e2","claim":"The made-up material costs went up this year"}},{"id":"decision-method:1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","type":"decision-method","value":{"method":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"preset":{},"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"workflows":[]}}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-step","value":{"step_id":"scope","answer":{"decision_context":{"worth_weighing":true,"compare_existing":false},"omission_reasons":{"compare_existing":{"searched":["the sample price list"],"evidence_refs":["e1"]}},"evidence_refs":["e1"]},"verdicts":{"given":[]},"judged_checks":0,"answered_at":"2026-11-04T01:56:42.931Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-answered-step","value":{"step_id":"scope","answered_at":"2026-11-04T01:56:42.931Z","checks":0,"graded":0,"graded_by":"","version":1,"needs_recheck":false}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0002","type":"decision-evidence","value":{"ref":"e3","claim":"A made-up nearby class costs a little more","added_at":"2026-11-04T01:56:43.123Z"}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001","type":"decision-step","value":{"step_id":"outcome","answer":{"desired_result":"Twelve families sign up at a price covering the costs","current_state":"The old price no longer covers the material costs","checklist":{"outcome-before-after":{"handled":true,"how":"Before: price below costs; after: twelve families at a covering price","evidence_refs":["e2"]}},"evidence_refs":["e1","e2"]},"checklist":{"checks":[{"id":"outcome-before-after","check":"Have you named what is in which state now and which state it should end up in?","identity":"1f:6342b5e7e99919219f51bc336865775a6ac4a45f8ebe6d69b4cdb5514a1b0aef"}]},"verdicts":{"given":[{"id":"outcome-before-after","meets":true,"why":"","missing":"","by":"calling-ai","graded_by":"sample-judge"}]},"judged_checks":1,"answered_at":"2026-11-04T01:56:43.302Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001","type":"decision-answered-step","value":{"step_id":"outcome","answered_at":"2026-11-04T01:56:43.302Z","checks":1,"graded":1,"graded_by":"sample-judge","version":1,"needs_recheck":false}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002","type":"decision-step","value":{"step_id":"proof","answer":{"check_by":"2099-05-01","measure":"Count the spring sign ups","evidence_refs":["e1"]},"verdicts":{"given":[]},"judged_checks":0,"answered_at":"2026-11-04T01:56:43.453Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002","type":"decision-answered-step","value":{"step_id":"proof","answered_at":"2026-11-04T01:56:43.453Z","checks":0,"graded":0,"graded_by":"","version":1,"needs_recheck":false}}]}
+    ]
    }
   },
   {
@@ -1779,7 +2046,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "verify": [
+     {"kind":"sample-run","input":{"decision_id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","result":"met","summary":"Twelve made-up families signed up","answered_by":"person"},"records":[{"id":"record:method:plain","type":"record:method","value":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","default_for":["decision"],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"voice":[{"id":"plain-words","rule":"Say it in plain words","good_answer":"Short sentences a person reads once"}]}},{"id":"record:method-check:outcome-before-after","type":"record:method-check","value":{"id":"outcome-before-after","method":"plain","step":"outcome","check":"Have you named what is in which state now and which state it should end up in?","good_answer":"One before-and-after pair with the facts that show the current state."}},{"id":"record:method-check:existing-where","type":"record:method-check","value":{"id":"existing-where","method":"plain","step":"existing","when":"compare_existing","check":"Where did you look for something that already does this?","good_answer":"Names the places searched."}},{"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","type":"decision","value":{"source_id":"sample:class-price-1","scratchpad":[],"status":"needs_outcome","decision":{"option_id":"raise","reason":"Costs went up and families still came","next_action":"Email the families the new price","success_measure":"Twelve sign ups by May","evidence_refs":["e1","e2"],"who_it_changes":"The twelve families pay a little more and keep their class"},"actions":[],"checks":[],"pursuits_known":false,"created_at":"2026-11-04T01:56:42.606Z","method_id":"plain","method_identity":"1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","call_count":0,"decision_generation":1,"decided_at":"2026-11-04T01:56:43.754Z","id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","input":{"source_id":"sample:class-price-1","goal":"Decide the made-up sample class price for spring","options":[{"id":"keep","label":"Keep the price"},{"id":"raise","label":"Raise the price"}]},"input_identity":"1f:9d26086010288bd06202895ce302c3d1327f99d8c0b38de5712eab18a055a548","counts":{"evidence":3,"candidates":0,"reports":0,"carried_out":0,"decision_history":0,"cited_pursuits":0,"answered_steps":3}}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000","type":"decision-evidence","value":{"ref":"e1","claim":"Last spring twelve made-up families signed up at the old price"}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0001","type":"decision-evidence","value":{"ref":"e2","claim":"The made-up material costs went up this year"}},{"id":"decision-method:1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","type":"decision-method","value":{"method":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"preset":{},"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"workflows":[]}}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-step","value":{"step_id":"scope","answer":{"decision_context":{"worth_weighing":true,"compare_existing":false},"omission_reasons":{"compare_existing":{"searched":["the sample price list"],"evidence_refs":["e1"]}},"evidence_refs":["e1"]},"verdicts":{"given":[]},"judged_checks":0,"answered_at":"2026-11-04T01:56:42.931Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-answered-step","value":{"step_id":"scope","answered_at":"2026-11-04T01:56:42.931Z","checks":0,"graded":0,"graded_by":"","version":1,"needs_recheck":false}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0002","type":"decision-evidence","value":{"ref":"e3","claim":"A made-up nearby class costs a little more","added_at":"2026-11-04T01:56:43.123Z"}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001","type":"decision-step","value":{"step_id":"outcome","answer":{"desired_result":"Twelve families sign up at a price covering the costs","current_state":"The old price no longer covers the material costs","checklist":{"outcome-before-after":{"handled":true,"how":"Before: price below costs; after: twelve families at a covering price","evidence_refs":["e2"]}},"evidence_refs":["e1","e2"]},"checklist":{"checks":[{"id":"outcome-before-after","check":"Have you named what is in which state now and which state it should end up in?","identity":"1f:6342b5e7e99919219f51bc336865775a6ac4a45f8ebe6d69b4cdb5514a1b0aef"}]},"verdicts":{"given":[{"id":"outcome-before-after","meets":true,"why":"","missing":"","by":"calling-ai","graded_by":"sample-judge"}]},"judged_checks":1,"answered_at":"2026-11-04T01:56:43.302Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001","type":"decision-answered-step","value":{"step_id":"outcome","answered_at":"2026-11-04T01:56:43.302Z","checks":1,"graded":1,"graded_by":"sample-judge","version":1,"needs_recheck":false}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002","type":"decision-step","value":{"step_id":"proof","answer":{"check_by":"2099-05-01","measure":"Count the spring sign ups","evidence_refs":["e1"]},"verdicts":{"given":[]},"judged_checks":0,"answered_at":"2026-11-04T01:56:43.453Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002","type":"decision-answered-step","value":{"step_id":"proof","answered_at":"2026-11-04T01:56:43.453Z","checks":0,"graded":0,"graded_by":"","version":1,"needs_recheck":false}}]}
+    ]
    }
   },
   {
@@ -2024,7 +2294,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "verify": [
+     {"kind":"sample-run","input":{"decision_id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","state":"done","what_happened":"Sent the made-up email to the sample families","by":"sample-ai"},"records":[{"id":"record:method:plain","type":"record:method","value":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","default_for":["decision"],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"voice":[{"id":"plain-words","rule":"Say it in plain words","good_answer":"Short sentences a person reads once"}]}},{"id":"record:method-check:outcome-before-after","type":"record:method-check","value":{"id":"outcome-before-after","method":"plain","step":"outcome","check":"Have you named what is in which state now and which state it should end up in?","good_answer":"One before-and-after pair with the facts that show the current state."}},{"id":"record:method-check:existing-where","type":"record:method-check","value":{"id":"existing-where","method":"plain","step":"existing","when":"compare_existing","check":"Where did you look for something that already does this?","good_answer":"Names the places searched."}},{"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","type":"decision","value":{"source_id":"sample:class-price-1","scratchpad":[],"status":"needs_outcome","decision":{"option_id":"raise","reason":"Costs went up and families still came","next_action":"Email the families the new price","success_measure":"Twelve sign ups by May","evidence_refs":["e1","e2"],"who_it_changes":"The twelve families pay a little more and keep their class"},"actions":[],"checks":[],"pursuits_known":false,"created_at":"2026-11-04T01:56:42.606Z","method_id":"plain","method_identity":"1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","call_count":0,"decision_generation":1,"decided_at":"2026-11-04T01:56:43.754Z","id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","input":{"source_id":"sample:class-price-1","goal":"Decide the made-up sample class price for spring","options":[{"id":"keep","label":"Keep the price"},{"id":"raise","label":"Raise the price"}]},"input_identity":"1f:9d26086010288bd06202895ce302c3d1327f99d8c0b38de5712eab18a055a548","counts":{"evidence":3,"candidates":0,"reports":0,"carried_out":0,"decision_history":0,"cited_pursuits":0,"answered_steps":3}}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000","type":"decision-evidence","value":{"ref":"e1","claim":"Last spring twelve made-up families signed up at the old price"}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0001","type":"decision-evidence","value":{"ref":"e2","claim":"The made-up material costs went up this year"}},{"id":"decision-method:1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","type":"decision-method","value":{"method":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"preset":{},"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"workflows":[]}}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-step","value":{"step_id":"scope","answer":{"decision_context":{"worth_weighing":true,"compare_existing":false},"omission_reasons":{"compare_existing":{"searched":["the sample price list"],"evidence_refs":["e1"]}},"evidence_refs":["e1"]},"verdicts":{"given":[]},"judged_checks":0,"answered_at":"2026-11-04T01:56:42.931Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-answered-step","value":{"step_id":"scope","answered_at":"2026-11-04T01:56:42.931Z","checks":0,"graded":0,"graded_by":"","version":1,"needs_recheck":false}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0002","type":"decision-evidence","value":{"ref":"e3","claim":"A made-up nearby class costs a little more","added_at":"2026-11-04T01:56:43.123Z"}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001","type":"decision-step","value":{"step_id":"outcome","answer":{"desired_result":"Twelve families sign up at a price covering the costs","current_state":"The old price no longer covers the material costs","checklist":{"outcome-before-after":{"handled":true,"how":"Before: price below costs; after: twelve families at a covering price","evidence_refs":["e2"]}},"evidence_refs":["e1","e2"]},"checklist":{"checks":[{"id":"outcome-before-after","check":"Have you named what is in which state now and which state it should end up in?","identity":"1f:6342b5e7e99919219f51bc336865775a6ac4a45f8ebe6d69b4cdb5514a1b0aef"}]},"verdicts":{"given":[{"id":"outcome-before-after","meets":true,"why":"","missing":"","by":"calling-ai","graded_by":"sample-judge"}]},"judged_checks":1,"answered_at":"2026-11-04T01:56:43.302Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001","type":"decision-answered-step","value":{"step_id":"outcome","answered_at":"2026-11-04T01:56:43.302Z","checks":1,"graded":1,"graded_by":"sample-judge","version":1,"needs_recheck":false}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002","type":"decision-step","value":{"step_id":"proof","answer":{"check_by":"2099-05-01","measure":"Count the spring sign ups","evidence_refs":["e1"]},"verdicts":{"given":[]},"judged_checks":0,"answered_at":"2026-11-04T01:56:43.453Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002","type":"decision-answered-step","value":{"step_id":"proof","answered_at":"2026-11-04T01:56:43.453Z","checks":0,"graded":0,"graded_by":"","version":1,"needs_recheck":false}}]}
+    ]
    }
   },
   {
@@ -2262,7 +2535,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "verify": [
+     {"kind":"sample-run","input":{"decisions":[{"decision_id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","because":"A made-up sample decision no longer needed"}],"by":"sample-person"},"records":[{"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","type":"decision","value":{"source_id":"sample:class-price-1","scratchpad":[],"status":"needs_outcome","decision":{"option_id":"raise","reason":"Costs went up and families still came","next_action":"Email the families the new price","success_measure":"Twelve sign ups by May","evidence_refs":["e1","e2"],"who_it_changes":"The twelve families pay a little more and keep their class"},"actions":[],"checks":[],"pursuits_known":false,"created_at":"2026-11-04T01:56:42.606Z","method_id":"plain","method_identity":"1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","call_count":0,"decision_generation":1,"decided_at":"2026-11-04T01:56:43.754Z","id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","input":{"source_id":"sample:class-price-1","goal":"Decide the made-up sample class price for spring","options":[{"id":"keep","label":"Keep the price"},{"id":"raise","label":"Raise the price"}]},"input_identity":"1f:9d26086010288bd06202895ce302c3d1327f99d8c0b38de5712eab18a055a548","counts":{"evidence":3,"candidates":0,"reports":0,"carried_out":0,"decision_history":0,"cited_pursuits":0,"answered_steps":3}}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000","type":"decision-evidence","value":{"ref":"e1","claim":"Last spring twelve made-up families signed up at the old price"}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0001","type":"decision-evidence","value":{"ref":"e2","claim":"The made-up material costs went up this year"}},{"id":"decision-method:1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","type":"decision-method","value":{"method":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"preset":{},"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"workflows":[]}}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-step","value":{"step_id":"scope","answer":{"decision_context":{"worth_weighing":true,"compare_existing":false},"omission_reasons":{"compare_existing":{"searched":["the sample price list"],"evidence_refs":["e1"]}},"evidence_refs":["e1"]},"verdicts":{"given":[]},"judged_checks":0,"answered_at":"2026-11-04T01:56:42.931Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-answered-step","value":{"step_id":"scope","answered_at":"2026-11-04T01:56:42.931Z","checks":0,"graded":0,"graded_by":"","version":1,"needs_recheck":false}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0002","type":"decision-evidence","value":{"ref":"e3","claim":"A made-up nearby class costs a little more","added_at":"2026-11-04T01:56:43.123Z"}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001","type":"decision-step","value":{"step_id":"outcome","answer":{"desired_result":"Twelve families sign up at a price covering the costs","current_state":"The old price no longer covers the material costs","checklist":{"outcome-before-after":{"handled":true,"how":"Before: price below costs; after: twelve families at a covering price","evidence_refs":["e2"]}},"evidence_refs":["e1","e2"]},"checklist":{"checks":[{"id":"outcome-before-after","check":"Have you named what is in which state now and which state it should end up in?","identity":"1f:6342b5e7e99919219f51bc336865775a6ac4a45f8ebe6d69b4cdb5514a1b0aef"}]},"verdicts":{"given":[{"id":"outcome-before-after","meets":true,"why":"","missing":"","by":"calling-ai","graded_by":"sample-judge"}]},"judged_checks":1,"answered_at":"2026-11-04T01:56:43.302Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001","type":"decision-answered-step","value":{"step_id":"outcome","answered_at":"2026-11-04T01:56:43.302Z","checks":1,"graded":1,"graded_by":"sample-judge","version":1,"needs_recheck":false}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002","type":"decision-step","value":{"step_id":"proof","answer":{"check_by":"2099-05-01","measure":"Count the spring sign ups","evidence_refs":["e1"]},"verdicts":{"given":[]},"judged_checks":0,"answered_at":"2026-11-04T01:56:43.453Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002","type":"decision-answered-step","value":{"step_id":"proof","answered_at":"2026-11-04T01:56:43.453Z","checks":0,"graded":0,"graded_by":"","version":1,"needs_recheck":false}}]}
+    ]
    }
   },
   {
@@ -2504,7 +2780,315 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "verify": [
+     {"kind":"sample-run","input":{"decision_id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE"},"records":[{"id":"record:never-publish:sample-1","type":"record:never-publish","value":{"words":"Sample Studio"}},{"id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","type":"decision","value":{"source_id":"sample:class-price-1","scratchpad":[],"status":"needs_outcome","decision":{"option_id":"raise","reason":"Costs went up and families still came","next_action":"Email the families the new price","success_measure":"Twelve sign ups by May","evidence_refs":["e1","e2"],"who_it_changes":"The twelve families pay a little more and keep their class"},"actions":[],"checks":[],"pursuits_known":false,"created_at":"2026-11-04T01:56:42.606Z","method_id":"plain","method_identity":"1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","call_count":0,"decision_generation":1,"decided_at":"2026-11-04T01:56:43.754Z","id":"source:c2FtcGxlOmNsYXNzLXByaWNlLTE","input":{"source_id":"sample:class-price-1","goal":"Decide the made-up sample class price for spring","options":[{"id":"keep","label":"Keep the price"},{"id":"raise","label":"Raise the price"}]},"input_identity":"1f:9d26086010288bd06202895ce302c3d1327f99d8c0b38de5712eab18a055a548","counts":{"evidence":3,"candidates":0,"reports":0,"carried_out":0,"decision_history":0,"cited_pursuits":0,"answered_steps":3}}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000","type":"decision-evidence","value":{"ref":"e1","claim":"Last spring twelve made-up families signed up at the old price"}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0001","type":"decision-evidence","value":{"ref":"e2","claim":"The made-up material costs went up this year"}},{"id":"decision-method:1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0","type":"decision-method","value":{"method":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"preset":{},"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"workflows":[]}}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-step","value":{"step_id":"scope","answer":{"decision_context":{"worth_weighing":true,"compare_existing":false},"omission_reasons":{"compare_existing":{"searched":["the sample price list"],"evidence_refs":["e1"]}},"evidence_refs":["e1"]},"verdicts":{"given":[]},"judged_checks":0,"answered_at":"2026-11-04T01:56:42.931Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000","type":"decision-answered-step","value":{"step_id":"scope","answered_at":"2026-11-04T01:56:42.931Z","checks":0,"graded":0,"graded_by":"","version":1,"needs_recheck":false}},{"id":"decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0002","type":"decision-evidence","value":{"ref":"e3","claim":"A made-up nearby class costs a little more","added_at":"2026-11-04T01:56:43.123Z"}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001","type":"decision-step","value":{"step_id":"outcome","answer":{"desired_result":"Twelve families sign up at a price covering the costs","current_state":"The old price no longer covers the material costs","checklist":{"outcome-before-after":{"handled":true,"how":"Before: price below costs; after: twelve families at a covering price","evidence_refs":["e2"]}},"evidence_refs":["e1","e2"]},"checklist":{"checks":[{"id":"outcome-before-after","check":"Have you named what is in which state now and which state it should end up in?","identity":"1f:6342b5e7e99919219f51bc336865775a6ac4a45f8ebe6d69b4cdb5514a1b0aef"}]},"verdicts":{"given":[{"id":"outcome-before-after","meets":true,"why":"","missing":"","by":"calling-ai","graded_by":"sample-judge"}]},"judged_checks":1,"answered_at":"2026-11-04T01:56:43.302Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001","type":"decision-answered-step","value":{"step_id":"outcome","answered_at":"2026-11-04T01:56:43.302Z","checks":1,"graded":1,"graded_by":"sample-judge","version":1,"needs_recheck":false}},{"id":"decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002","type":"decision-step","value":{"step_id":"proof","answer":{"check_by":"2099-05-01","measure":"Count the spring sign ups","evidence_refs":["e1"]},"verdicts":{"given":[]},"judged_checks":0,"answered_at":"2026-11-04T01:56:43.453Z","version":1,"by":"calling-ai"}},{"id":"decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002","type":"decision-answered-step","value":{"step_id":"proof","answered_at":"2026-11-04T01:56:43.453Z","checks":0,"graded":0,"graded_by":"","version":1,"needs_recheck":false}}]}
+    ]
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:see-my-decisions",
+    "label": "See my decisions",
+    "job": "Show my decisions, what I am working toward, my plans and what has helped me decide",
+    "description": "Reads your own rows and answers the Decisions screen: your newest decisions (at most 100) as summaries with the pursuits each cites, where each stands and how far it has got (decided, next action carried out, result checked); your current pursuits as the tree they nest into (from your record-scope choice rows); your newest plans; and what has helped you (which questions changed your answers and how those decisions turned out). With native_collection_page it answers one bounded page instead: the facts what helped is counted from (helped_items, your method check questions and your AIs' recorded work), collection_coverage saying whether more decisions, pursuits or plans exist, and next_before to send as before for the next page. access and allowance are what your place reports: when your access limits deciding and does not keep decisions, the answer is free with nothing listed; none reported is no limit. metadata_only answers only access, allowance and the words for no pursuits, and reads no row. It changes nothing.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "metadata_only": {
+       "type": "boolean",
+       "description": "Answer only access, allowance and the no-pursuits words; read no row"
+      },
+      "native_collection_page": {
+       "type": "boolean",
+       "description": "One bounded page with its coverage, instead of the whole what-helped view"
+      },
+      "before": {
+       "type": "string",
+       "maxLength": 4096,
+       "description": "The next_before an earlier page answered: the page starts below this created_at"
+      },
+      "access": {
+       "type": "object",
+       "description": "What your place reports: { capabilities: [names], limits?: { [access]: [{ count, per }] } }"
+      },
+      "allowance": {
+       "type": "object",
+       "description": "What your place reports of your decision allowance: { count, per, used }"
+      },
+      "space_pursuits": {
+       "type": "array",
+       "description": "The pursuits your spaces share, shown beside your own"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "free",
+      "access"
+     ],
+     "properties": {
+      "free": {
+       "type": "boolean"
+      },
+      "summaries": {
+       "type": "array"
+      },
+      "pursuits": {
+       "type": "array"
+      },
+      "space_pursuits": {
+       "type": "array"
+      },
+      "plans": {
+       "type": "array"
+      },
+      "access": {
+       "type": "object"
+      },
+      "allowance": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "pursuits_words": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "helped": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "helped_items": {
+       "type": "array"
+      },
+      "helped_check_text": {
+       "type": "object"
+      },
+      "agent_work": {
+       "type": "array"
+      },
+      "collection_coverage": {
+       "type": "object"
+      },
+      "next_before": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/work-screen.mjs",
+      "seeMyDecisions"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-evidence",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-answered-step",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-option",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-candidate",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-report",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-carried-out",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-history",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-method",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-part",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record-scope",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "record-stance",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "plan",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method-check",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "setting",
+        "prefix": "setting:agent-work:",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method",
+    "provenance": {
+     "source": "trillion src/native-work-screen.mjs (d273ef3) with the parts it called (src/check-uses.mjs, src/decision-store.mjs, src/work-progress.mjs, src/record-scope.mjs, src/allowance.mjs, src/plan-records.mjs), moved here; trillion-rust src/local_account/decision_screen_source.rs (the engine's copy) deleted with it"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "metadata_only": true,
+       "access": {
+        "capabilities": [],
+        "limits": {}
+       }
+      },
+      "output_selector": "$.pursuits_words.text",
+      "contains": "working toward"
+     }
+    ]
    }
   }
  ]

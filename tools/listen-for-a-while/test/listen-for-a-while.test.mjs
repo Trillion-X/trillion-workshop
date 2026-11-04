@@ -195,3 +195,34 @@ test('a listener that stops early closes the microphone', async () => {
   for await (const _ of recordPieces({ device: 'default', seconds: 30, folder, end: 100_000, now: () => 10_000, start: () => child })) break;
   assert.equal(killed, 'SIGTERM');
 });
+
+test('a recording another device made is read through the door, heard as that device from `at`, and deleted here', async () => {
+  const { hearForADevice } = await import('../read-data/listen-for-a-while.mjs');
+  const { readWholeFile } = await import('../../records-door/read-data/whole-file.mjs');
+  const door = fakeDoor();
+  const asked = [];
+  door.files = async (method, request) => {
+    asked.push(method);
+    if (method === 'find_file') return { names: ['/Recordings/phone-piece.m4a'] };
+    const bytes = Buffer.from('abcdef');
+    const part = bytes.subarray(request.offset, request.offset + 4);
+    return { byte_length: bytes.length, bytes_returned: part.length, content: part.toString('base64'), encoding: 'base64' };
+  };
+  assert.deepEqual(await readWholeFile(door, 'x', { readBytes: 4 }), { title: 'phone-piece.m4a', size: 6, bytes: Buffer.from('abcdef') });
+  assert.equal((await readWholeFile(door, 'x', { readBytes: 4, mostBytes: 5 })).bytes, null);
+  let heardFile = null;
+  const hear = async file => { heardFile = file; assert.equal(existsSync(file), true); return [{ start: 1, end: 2, text: 'from the phone' }]; };
+  const name = async request => ({ speakers: [turn(1, 2, 'Someone (voice-1)', request.segments[0].text)], records: [] });
+  const at = '2026-10-31T12:00:00Z';
+  const tally = await hearForADevice({ file: '/Recordings/phone-piece.m4a', at, device: 'Phone', listening: 'p1' }, { door }, { hear, name });
+  assert.equal(heardFile.endsWith('.m4a'), true);
+  assert.equal(existsSync(heardFile), false, 'the copy read for hearing is gone');
+  assert.equal(tally.rows_written, 1);
+  const [row] = door.writes[0].records;
+  assert.equal(row.id, `heard:p1:${Date.parse(at) + 1000}`);
+  assert.equal(row.value.device, 'Phone');
+  assert.equal(row.value.text, 'from the phone');
+  assert.ok(!asked.includes('delete_file'), "the person's file is left where it is");
+  await assert.rejects(hearForADevice({ file: 'f' }, { door }, { hear, name }), /device/);
+  await assert.rejects(hearForADevice({ device: 'Phone' }, { door }, { hear, name }), /file/);
+});

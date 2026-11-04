@@ -412,6 +412,61 @@
 			}
 		},
 		{
+			"id": "is_true",
+			"label": "is true",
+			"chip": "true",
+			"icon": "check",
+			"input": "none",
+			"applies_to": [
+				"boolean"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.eq",
+						"args": {
+							"value": true
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "is_false",
+			"label": "is false",
+			"chip": "false",
+			"icon": "x",
+			"input": "none",
+			"negate": true,
+			"applies_to": [
+				"boolean"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.eq",
+						"args": {
+							"value": true
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "is_not_text",
 			"label": "is not",
 			"chip": "is not",

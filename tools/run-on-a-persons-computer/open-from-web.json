@@ -1,0 +1,53 @@
+{
+  "_what": "How a Trillion page in a browser hands what it shows to the Trillion Mac app on this computer (computer/open-from-web.mjs, started by the Mac helper). The helper listens on `host`:`port` (this computer only) and answers a page only when its Origin is exactly one of `allowed_origins` and its Host is this listener: GET /hello says the Mac app is here; POST /open { path } opens `path` inside the Mac app's menu bar panel (the trillion://panel address, macos/App/MenuBarPanel.swift). A path must start with `/`, name only the first folders in `open_folders`, hold only characters in `path_characters`, and be at most `most_path_characters` long; anything else is refused with the words in `words`. Each address carries a one-time `acknowledged.id_parameter` the app strips before it opens the screen; once the page inside the panel has taken the screen the app calls back GET `acknowledged.taken_path`?id= on this listener with the header `acknowledged.app_header` set to the app's bundle id (a web page cannot send that header: the browser's preflight is refused). The helper hands the address over again `every_ms` apart up to `most_attempts` times until that callback arrives (computer/deliver-until-acknowledged.mjs). The app's own address for the callback is in App/menu-bar-panel.json `acknowledge`, which must agree with `host`, `port` and these names (test/open-from-web.test.mjs). Origin is advisory against other programs on this computer: it keeps other web pages out, and what a program here could ask is only to open a Trillion screen the person can open anyway. `enabled` false closes the listener; `bundle_id` and `url_template` name the app and the address it takes.",
+  "enabled": true,
+  "host": "127.0.0.1",
+  "port": 47474,
+  "allowed_origins": [
+    "https://app.gettrillion.ai"
+  ],
+  "bundle_id": "ai.gettrillion.macos",
+  "url_template": "trillion://panel{path}",
+  "open_folders": [
+    "work",
+    "messages",
+    "files",
+    "lists",
+    "spaces",
+    "decisions",
+    "media",
+    "notifications",
+    "community",
+    "spend",
+    "account",
+    "use",
+    "ai",
+    "menu-bar"
+  ],
+  "path_characters": "A-Za-z0-9/_.~%?=&:,@+#-",
+  "most_path_characters": 512,
+  "most_body_bytes": 2048,
+  "preflight_max_age_seconds": 600,
+  "delivery": {
+    "every_ms": 1500,
+    "most_attempts": 3
+  },
+  "acknowledged": {
+    "id_parameter": "open_id",
+    "taken_path": "/taken",
+    "app_header": "x-trillion-app"
+  },
+  "open_with": [
+    "open",
+    "-b",
+    "{bundle_id}",
+    "{url}"
+  ],
+  "words": {
+    "not_allowed": "That page is not allowed to ask this computer to open Trillion.",
+    "bad_path": "That is not a Trillion screen this computer can open.",
+    "bad_body": "Send { \"path\": \"/...\" } as JSON.",
+    "not_found": "Nothing here.",
+    "not_taken": "The Trillion Mac app did not take it. Open Trillion and try again."
+  }
+}

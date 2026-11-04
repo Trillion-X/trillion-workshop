@@ -1,0 +1,95 @@
+{
+  "_what": "Every recording source, in the order offered, as DATA read by parts/record-audio/show/record-in-the-browser.ts. `ask` names the source opener: `record-audio` for microphone, `record-video` for camera and microphone, `screen-recording` for screen or tab audio, and `native-system-audio` for macOS ScreenCaptureKit system output mixed with microphone input. A source whose opener is unavailable is not offered. `device` fills error words; `preview` selects waveform or video; `types` are MediaRecorder formats tried in order; `file_name` names the finished recording. `problems` names errors in plain words. `listed: false` keeps a source out of general pickers while allowing a screen that names it directly. `check_quiet` enables silence feedback, and `silent_problem` can supply source-specific wording. `microphone_change`: a microphone chosen while a recording runs is listened to every `look_every_ms` and takes over the recording the moment its first sound arrives (a phone's or a headset's microphone can open some time before it sends any), the old one going on until then, or after `hand_over_within_ms` even if it stays silent.",
+  "sources": [
+    {
+      "id": "voice", "label": "Record your voice", "icon": "Mic", "ask": "record-audio", "device": "microphone", "check_quiet": true,
+      "preview": "waveform", "mirrored": false, "file_name": "Voice {when}",
+      "types": [
+        { "media_type": "audio/webm;codecs=opus", "extension": "webm" },
+        { "media_type": "audio/mp4", "extension": "m4a" },
+        { "media_type": "audio/webm", "extension": "webm" },
+        { "media_type": "audio/ogg;codecs=opus", "extension": "ogg" },
+        { "media_type": "audio/aac", "extension": "aac" }
+      ]
+    },
+    {
+      "id": "meeting-audio", "label": "Record a meeting", "icon": "Mic", "ask": "native-system-audio", "exclude_apps": [], "device": "system audio and microphone", "check_quiet": true,
+      "permission_problem": "Allow Trillion to use the microphone in System Settings > Privacy & Security, then press Record again.",
+      "silent_problem": "Trillion hears no meeting audio. Check that your microphone is not muted and that the meeting is playing sound.",
+      "preview": "waveform", "mirrored": false, "file_name": "Meeting {when}",
+      "types": [
+        { "media_type": "audio/mp4;codecs=mp4a.40.2", "extension": "m4a" },
+        { "media_type": "audio/mp4", "extension": "m4a" },
+        { "media_type": "audio/webm;codecs=opus", "extension": "webm" },
+        { "media_type": "audio/webm", "extension": "webm" },
+        { "media_type": "audio/ogg;codecs=opus", "extension": "ogg" }
+      ]
+    },
+    {
+      "id": "camera", "label": "Record a video", "icon": "Video", "ask": "record-video", "device": "camera and microphone", "check_quiet": true,
+      "preview": "video", "mirrored": true, "file_name": "Video {when}",
+      "types": [
+        { "media_type": "video/webm;codecs=vp9,opus", "extension": "webm" },
+        { "media_type": "video/webm;codecs=vp8,opus", "extension": "webm" },
+        { "media_type": "video/mp4", "extension": "mp4" },
+        { "media_type": "video/webm", "extension": "webm" }
+      ]
+    },
+    {
+      "id": "screen", "label": "Record your screen", "icon": "MonitorUp", "ask": "screen-recording", "device": "screen", "check_quiet": false,
+      "preview": "video", "mirrored": false, "file_name": "Screen {when}",
+      "types": [
+        { "media_type": "video/webm;codecs=vp9,opus", "extension": "webm" },
+        { "media_type": "video/webm;codecs=vp8,opus", "extension": "webm" },
+        { "media_type": "video/mp4", "extension": "mp4" },
+        { "media_type": "video/webm", "extension": "webm" }
+      ]
+    },
+    {
+      "id": "camera-feed", "label": "A camera, always on", "listed": false, "icon": "Video", "ask": "record-video", "device": "camera", "check_quiet": false,
+      "preview": "video", "mirrored": false, "file_name": "Camera {when}",
+      "types": [
+        { "media_type": "video/mp4;codecs=avc1.640028,mp4a.40.2", "extension": "mp4" },
+        { "media_type": "video/mp4;codecs=avc1,mp4a.40.2", "extension": "mp4" },
+        { "media_type": "video/mp4", "extension": "mp4" },
+        { "media_type": "video/webm;codecs=vp9,opus", "extension": "webm" },
+        { "media_type": "video/webm", "extension": "webm" }
+      ]
+    },
+    {
+      "id": "microphone-feed", "label": "A microphone, always on", "listed": false, "icon": "Mic", "ask": "record-audio", "device": "microphone", "check_quiet": false,
+      "preview": "waveform", "mirrored": false, "file_name": "Sound {when}",
+      "types": [
+        { "media_type": "audio/mp4;codecs=mp4a.40.2", "extension": "m4a" },
+        { "media_type": "audio/mp4", "extension": "m4a" },
+        { "media_type": "audio/webm;codecs=opus", "extension": "webm" },
+        { "media_type": "audio/webm", "extension": "webm" }
+      ]
+    }
+  ],
+  "problems": {
+    "NotAllowedError": "Trillion can't use your {device}. Allow it in your browser's site settings, then press Record again.",
+    "NotFoundError": "Trillion can't find a {device}. Connect one or turn it on, then press Record again.",
+    "OverconstrainedError": "Trillion can't find a {device}. Connect one or turn it on, then press Record again.",
+    "NotReadableError": "Another app is using your {device}, or your computer is blocking it. Close that app, then press Record again.",
+    "AbortError": "Your {device} stopped before recording began. Press Record again.",
+    "NotSupportedError": "This browser can't record here. Open Trillion in the latest Chrome, Edge or Safari, then press Record again.",
+    "system-audio-permission": "Allow Trillion to record screen and system audio in System Settings > Privacy & Security, then press Record again.",
+    "system-audio-unavailable": "Trillion could not start meeting audio capture. Check Screen & System Audio Recording in System Settings, then try again.",
+    "system-audio-in-use": "Meeting audio is already being recorded in another Trillion window. Stop that recording before starting another.",
+    "system-audio-ended": "Meeting audio capture stopped. What was recorded is kept.",
+    "unavailable": "This browser can't record here. Open Trillion in the latest Chrome, Edge or Safari, then press Record again.",
+    "ended": "Your {device} stopped, so the recording stopped. What was recorded is kept.",
+    "failed": "Recording stopped because the browser could not go on. What was recorded is kept.",
+    "silent": "Trillion hears nothing from your microphone. Check that the one you are speaking into is chosen and is not muted.",
+    "code-unreached": "Trillion could not load what it needs to record. Check your connection, then press Record again.",
+    "code-unavailable": "The code needed to record could not load. Reload this page, then press Record again.",
+    "page-updated": "Trillion updated while this page was open. Reload this page, then press Record again.",
+    "preflight-no-room": "This device has almost no room left to keep a recording. Free some space, then press Record again.",
+    "preflight-little-room": "This device is running low on room. A long recording may not fit; free some space if it will be long.",
+    "preflight-battery": "The battery is very low and not charging. Plug in before a long recording.",
+    "default": "Trillion could not start recording. Press Record again."
+  },
+  "quiet": { "after_ms": 4000, "heard_level": 0.002 },
+  "microphone_change": { "hand_over_within_ms": 3000, "look_every_ms": 20 }
+}

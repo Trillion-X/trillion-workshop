@@ -1,0 +1,23 @@
+{
+  "_what": "How a record write says the road it came by (src/write-via.mjs): every list write's actor carries `via` { app, road, basis } beside `by` (who), kept once per change in the log's actor context, never per field. `roads` turn the sign-in's kind (the text before its first colon) into words; `bases` say how the app name is known; `said` is the line a person reads. A new road or basis is one row here.",
+  "chars": 80,
+  "roads": {
+    "session": "on the Trillion page",
+    "key": "over MCP",
+    "namespace-lease": "through a file connection",
+    "service": "by Trillion itself"
+  },
+  "bases": {
+    "authenticated": "",
+    "client_declared": "(as the app says)",
+    "service": "",
+    "namespace_lease": "",
+    "unknown": ""
+  },
+  "said": {
+    "with_app": "{who} via {app} {road} {basis}",
+    "without_app": "{who} {road}",
+    "who_default": "You",
+    "_who": "A person's own store is written by them or by their AIs and apps under their sign-in, so a write names them as `who_default` unless its actor names a person (actor.person, a shared space's member)."
+  }
+}

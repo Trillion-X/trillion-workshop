@@ -1,0 +1,23 @@
+{
+  "_what": "How a person's script runs (computer/script-sandbox.mjs). The script runs in a worker thread of its own, inside a vm context whose global has no prototype and holds nothing but `pm` (built in the context from the capabilities the host hands it) and the `libraries` named here. `limits` bound it: `wall_ms` is the longest it may run (finite by default; a run that is still going is terminated, then the thread is stopped), `heap_mb` its memory. A capability is a host object with an allowlist; with none, the script has no files, no cookies and no packages. Every word is here.",
+  "limits": { "wall_ms": 30000, "heap_mb": 128, "stack_mb": 4, "result_chars": 200000 },
+  "capabilities": {
+    "files": { "read_max_bytes": 1000000 },
+    "cookies": { "domains": [] },
+    "packages": { "allowed": [], "timeout_ms": 60000 },
+    "send_request": { "strip_body_kinds": ["file", "formdata-file"] }
+  },
+  "libraries": [],
+  "words": {
+    "timeout": "The script ran longer than {ms} ms and was stopped.",
+    "no_files": "This script was not given any files.",
+    "outside": "{path} is outside the folder this script may read.",
+    "too_big": "{path} is larger than the {bytes} bytes a script may read.",
+    "no_cookies": "This script may not use cookies for {domain}.",
+    "no_package": "The package {name} is not one this script may load.",
+    "package_slow": "The package {name} did not load in {ms} ms.",
+    "no_requests": "This script was not given a way to send requests.",
+    "result_big": "The script's result is larger than {chars} characters.",
+    "threw": "The script stopped with an error: {error}"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "_what": "The visual-database views every Trillion list offers beside its own (parts/ui/show/record-views/every-list-views.ts). `kind` is the visual-database view drawn (show/VisualDatabaseSurface.tsx viewRenderers); `progress` draws how much of the list is done above a list view; `needs` names the roles a list's fields must fill for the view to be offered; `wants` names the roles it draws when the list fills them without making them a condition (read-data/visual-database-input-from-list.ts listFieldRoles). Adding a view is one row.",
+  "done": { "_what": "What marks a list's item done, for every view (the Checklist ticks it, the Outline files it under Completed): a value of a field carrying one of these tones, or named one of these words (without case).", "tones": ["success", "good"], "values": ["done", "complete", "completed", "finished"] },
+  "views": [
+    { "id": "outline", "label": "Outline", "icon": "ListTree", "kind": "list", "needs": [] },
+    { "id": "checklist", "label": "Checklist", "icon": "ListChecks", "kind": "list", "progress": true, "needs": ["done"] },
+    { "id": "timeline", "label": "Timeline", "icon": "CalendarRange", "kind": "timeline", "needs": ["date"], "zoom": "day" },
+    { "id": "gantt", "label": "Gantt", "icon": "ChartGantt", "kind": "schedule", "needs": ["date"], "wants": ["span", "dependency", "reschedule"], "zoom": "week" },
+    { "id": "swimlanes", "label": "Swimlanes", "icon": "Rows3", "kind": "swimlane", "needs": ["group"] },
+    { "id": "tree", "label": "Tree", "icon": "GitBranch", "kind": "graph", "needs": ["link"] },
+    { "id": "pictures", "label": "Pictures", "icon": "Image", "kind": "gallery", "needs": ["image"] },
+    { "id": "summary", "label": "Summary", "icon": "Gauge", "kind": "metric", "needs": [] },
+    { "id": "form", "label": "Form", "icon": "ClipboardList", "kind": "form", "needs": [] }
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "kind": "tool-rows",
+  "record_set": "suggest-connections-from-links-tool-rows",
+  "what_this_is": "The Workshop rows of tools/suggest-connections-from-links.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:suggest-connections-from-links",
+        "label": "Suggest connections from links",
+        "status": "active",
+        "job": "Offer to connect a service when words I wrote link to one I have not connected",
+        "description": "Give text (the words to read links from, with or without https://) and tools (the connection rows, each { id, invoke: { provider, connects: { domain } } }), and connected (providers already connected, left out of the answer). A link matches a domain when its host is that domain or a name under it; the longest matching domain wins, and services sharing it are all named. Returns hosts and suggestions [{ provider, host, reason }]. It only proposes: connecting stays the person's own step.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "text",
+            "tools"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "tools": {
+              "type": "array"
+            },
+            "connected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "hosts",
+            "suggestions"
+          ],
+          "properties": {
+            "hosts": {
+              "type": "array"
+            },
+            "suggestions": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/suggest-connections-from-links",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/suggest-connections-from-links/do-work/suggest-connections.mjs",
+            "suggestConnections"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "suggest-connections-from-links",
+                "paths": [
+                  "src",
+                  "do-work"
+                ],
+                "at": "/opt/suggest-connections-from-links"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:suggest-connections-from-links",
+        "provenance": {
+          "source": "Trillion-X/trillion src/connection-links.mjs at b92aa549f23873750ec918e86e7ed3896c9c4c0c, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "text": "Copy the roadmap from https://www.notion.so/launch",
+              "tools": [
+                {
+                  "id": "tool:notion",
+                  "invoke": {
+                    "provider": "notion",
+                    "connects": {
+                      "domain": "notion.so"
+                    }
+                  }
+                }
+              ]
+            },
+            "output_selector": "$.suggestions",
+            "contains": "notion.so"
+          }
+        ]
+      }
+    }
+  ]
+}

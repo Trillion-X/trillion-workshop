@@ -31,15 +31,21 @@ test('a row can reach the internet only to talk to Stripe with the person\'s own
     if (row.invoke.internet) assert.equal(mounts.length, 1, `${row.id} reaches Stripe with exactly one held key`);
     if (mounts.length) assert.ok(row.invoke.internet || row.id === 'tool:check-a-stripe-event', `${row.id} mounts a secret only to use it`);
     for (const mount of mounts) assert.match(mount.secret_name, /^stripe-[a-z-]+$/, `${row.id} names its held value`);
-    assert.doesNotMatch(JSON.stringify(row), /\b(?:sk|rk|whsec)_[A-Za-z0-9]/, `${row.id} carries no key`);
+    // A sample's held values are made up; the one a key-prefix check needs is a visibly made-up test-mode key.
+    const held = (row.verify ?? []).flatMap(item => Object.values(item.held ?? {}));
+    for (const value of held) assert.ok(!/\b(?:sk|rk|whsec)_/.test(value) || /^(?:sk|rk)_test_made_up_[a-z_]+$/.test(value), `${row.id}: a sample's held key is a made-up test key`);
+    const withoutHeld = { ...row, verify: (row.verify ?? []).map(({ held: _held, ...item }) => item) };
+    assert.doesNotMatch(JSON.stringify(withoutHeld), /\b(?:sk|rk|whsec)_[A-Za-z0-9]/, `${row.id} carries no key`);
     assert.ok(new Set(mounts.map(mount => mount.fd)).size === mounts.length && mounts.every(mount => mount.fd >= 4), `${row.id} keeps descriptor 3 for the records door`);
   }
 });
 
-const usageWriters = new Set(['tool:manage-usage-pricing', 'tool:keep-resource-usage-observation', 'tool:settle-shared-resource-cost', 'tool:correct-resource-usage-settlement', 'tool:report-resource-usage', 'tool:reconcile-resource-usage-report', 'tool:cancel-prepared-resource-usage-report']);
+const usageWriters = new Set(['tool:manage-usage-pricing', 'tool:keep-resource-usage-observation', 'tool:observe-live-usage', 'tool:settle-shared-resource-cost', 'tool:correct-resource-usage-settlement', 'tool:report-resource-usage', 'tool:reconcile-resource-usage-report', 'tool:cancel-prepared-resource-usage-report']);
 test('payment rows only read; usage writers can append only their declared accounting/configuration records', () => {
   for (const row of rows) {
     for (const right of row.invoke.records?.rights ?? []) {
+      // The one files right a payment row holds: reading the account's own usage day rows, nothing else of its files.
+      if (right.files !== undefined) { assert.ok(row.id === 'tool:observe-live-usage' && right.files === '/' && right.operations.join() === 'usage_days', `${row.id} reads only its usage rows from the files door`); continue; }
       const allowed = usageWriters.has(row.id) ? ['records:list', 'records:read', 'records:write'] : ['records:list', 'records:read'];
       assert.ok(right.operations.every(operation => allowed.includes(operation)), `${row.id} respects its record action scope`);
       if (right.operations.includes('records:write')) assert.match(right.kind, /^(usage-pricing-rule(?:-version)?|resource-usage-(observation|settlement(?:-version|-evidence)?|allocation|receipt|cash|applied-source|provider-report))$/, `${row.id} cannot write another feature's records`);
@@ -50,7 +56,9 @@ test('payment rows only read; usage writers can append only their declared accou
 test('each sample run answers what the row says it should', async () => {
   const checked = [];
   for (const row of rows) {
-    for (const sample of (row.verify ?? []).filter(item => item.kind === 'sample-run')) {
+    // A sample with an output_selector says what it should answer; one without proves only the selector, run with
+    // its seeded records and recorded replies by test/every-process-row-selector.test.mjs.
+    for (const sample of (row.verify ?? []).filter(item => item.kind === 'sample-run' && 'output_selector' in item)) {
       const [command, ...rest] = row.invoke.argv.map(onThisComputer);
       const child = promisify(execFile)(command === 'node' ? process.execPath : command, rest, { cwd: tools });
       child.child.stdin.end(JSON.stringify(sample.input));

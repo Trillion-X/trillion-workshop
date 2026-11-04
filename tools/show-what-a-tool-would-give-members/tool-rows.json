@@ -1,0 +1,186 @@
+{
+  "kind": "tool-rows",
+  "record_set": "show-what-a-tool-would-give-members-tool-rows",
+  "what_this_is": "The Workshop rows of tools/show-what-a-tool-would-give-members.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:show-what-a-tool-would-give-members",
+        "label": "Show what a tool would give members",
+        "status": "active",
+        "job": "Before I add a tool for my space's members, tell me what it would give each member beyond what they already hold, what it reaches or could cost, and whether I must decide it myself",
+        "description": "Give descriptor (the tool's row: id, placements, needs, price_ref...), toolVersion (the content identity of that definition, so exactly one immutable version is judged), members ([{ member_id, name }]), held ({ member_id: [operations their grants already give] }), and when wanted operations (some of discover, describe, run, read; all when left out) and memberId (one member; * for everyone now and later). Returns per member gains and already, reaches (what the descriptor says it does: runs on a member's computer, sends data off the device, can cost money, keeps results), needs_owner and says. Read-only: it grants nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "descriptor",
+            "members",
+            "held"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "descriptor": {
+              "type": "object"
+            },
+            "toolVersion": {
+              "type": "string"
+            },
+            "operations": {
+              "type": "array"
+            },
+            "memberId": {
+              "type": "string"
+            },
+            "members": {
+              "type": "array"
+            },
+            "held": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "members",
+            "reaches",
+            "needs_owner",
+            "says"
+          ],
+          "properties": {
+            "tool_id": {
+              "type": "string"
+            },
+            "tool_version": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "operations": {
+              "type": "array"
+            },
+            "everyone": {
+              "type": "boolean"
+            },
+            "members": {
+              "type": "array"
+            },
+            "reaches": {
+              "type": "array"
+            },
+            "needs_owner": {
+              "type": "boolean"
+            },
+            "says": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/show-what-a-tool-would-give-members",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/show-what-a-tool-would-give-members/src/access-impact.mjs",
+            "accessImpact"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "show-what-a-tool-would-give-members",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/show-what-a-tool-would-give-members"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:show-what-a-tool-would-give-members",
+        "provenance": {
+          "source": "Trillion-X/trillion src/access-impact.mjs at b92aa549f23873750ec918e86e7ed3896c9c4c0c, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "descriptor": {
+                "id": "tool:proof",
+                "placements": [
+                  "placement:your-computer"
+                ],
+                "needs": {
+                  "network_egress": true
+                }
+              },
+              "toolVersion": "v-sample",
+              "members": [
+                {
+                  "member_id": "relay:ben",
+                  "name": "Ben"
+                }
+              ],
+              "held": {
+                "relay:ben": [
+                  "discover",
+                  "describe"
+                ]
+              }
+            },
+            "output_selector": "$.says",
+            "contains": "You decide this one yourself"
+          }
+        ]
+      }
+    }
+  ]
+}

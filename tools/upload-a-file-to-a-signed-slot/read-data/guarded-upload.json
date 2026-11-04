@@ -1,0 +1,22 @@
+{
+  "_what": "Where a page may have this computer upload a file for it (read-data/guarded-upload.mjs, run by the Workshop row tool:upload-a-file-to-a-signed-slot). The page cannot send a local file anywhere itself (the browser's cross-origin rules forbid it), so it asks this program, handing over a signed storage slot (an address and the form fields the storage service signed). The program uploads only to a destination a row here names: https, exactly that host, a path inside that row's folder, no query, no credentials, no port, at most max_fields fields, and a content type the row lists. The file is read from the one folder the person granted this tool (read-a-folder) and the page never sees it, only its size. A new destination is a new row; an empty list uploads nowhere.",
+  "destinations": [],
+  "hold_minutes": 15,
+  "max_hold_bytes": 268435456,
+  "words": {
+    "no_such_hold": "That file is not held (it was sent, or its {minutes} minutes ran out).",
+    "not_https": "The upload address must be https.",
+    "bad_address": "The upload address has a query, credentials, a port or no host, so it was not used.",
+    "host_not_allowed": "This computer does not upload to {host}.",
+    "path_not_allowed": "The upload path is outside the folder this computer allows for {host}.",
+    "too_many_fields": "The upload form has {count} fields; at most {max} are allowed.",
+    "bad_field": "The upload form field {name} is not text.",
+    "type_not_allowed": "This computer does not upload files of type {type} to {host}.",
+    "too_big": "The file is {bytes} bytes; at most {max} are held.",
+    "refused": "The storage service refused the upload ({status}).",
+    "sent": "Uploaded {bytes} bytes.",
+    "no_folder": "No folder is granted to this tool, so there is no file to upload.",
+    "outside_folder": "{file} is not a file inside the folder granted to this tool.",
+    "no_such_file": "{file} is not a file in the folder granted to this tool."
+  }
+}

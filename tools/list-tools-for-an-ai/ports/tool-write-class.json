@@ -1,0 +1,87 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-LIST-TOOLS-FOR-AN-AI-WRITE-CLASS-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "move the product modules of old trillion src/ (part 5 of 5) into Trillion-X/trillion-workshop tools. Move code, never rewrite it. Port the correct parts one to one with their original tests and assertions."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/tool-write-class.mjs",
+   "multihash": "1f:0177909ee0b6163d0097849d980e2fe3025aabece7e01a73fc1d773ea8d1fbcd",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/person-spaces.mjs and src/person-store.mjs (the callers of writeClassOf); src/space-permission-rules.json (run_write_tool) stays in trillion and then deletes src/tool-write-class.mjs and src/tool-write-class.json with their moved tests"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/tool-write-class.json",
+   "multihash": "1f:e2f4fc3f028812a3556ab37dc6a8d24059a3abdedcbe5b9d29392951f2a63652",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/person-spaces.mjs and src/person-store.mjs (the callers of writeClassOf); src/space-permission-rules.json (run_write_tool) stays in trillion and then deletes src/tool-write-class.mjs and src/tool-write-class.json with their moved tests"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/list-tools-for-an-ai/read-data/tool-write-class.mjs"
+  },
+  {
+   "path": "tools/list-tools-for-an-ai/read-data/tool-write-class.json"
+  }
+ ],
+ "preserve": [
+  "derived, not declared: read_only true is the only declaration read; otherwise the operation's leading verb decides",
+  "an operation not understood is a write",
+  "the read verbs are data; nothing names a tool"
+ ],
+ "allowed_deltas": [
+  "read-data/listing-tools.mjs writeClassRow answers { write_class } for one row's tool"
+ ],
+ "banned_substitutions": [
+  "a rewritten copy of this job",
+  "a second live copy kept in Trillion-X/trillion after its deleted_by"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:0177909ee0b6163d0097849d980e2fe3025aabece7e01a73fc1d773ea8d1fbcd",
+  "target_multihash_at_baseline": "1f:0177909ee0b6163d0097849d980e2fe3025aabece7e01a73fc1d773ea8d1fbcd",
+  "recorded_at": "2026-11-03T21:00:00Z",
+  "rows": [
+   {
+    "path": "tools/list-tools-for-an-ai/read-data/tool-write-class.mjs",
+    "source_multihash": "1f:0177909ee0b6163d0097849d980e2fe3025aabece7e01a73fc1d773ea8d1fbcd",
+    "target_multihash_at_baseline": "1f:0177909ee0b6163d0097849d980e2fe3025aabece7e01a73fc1d773ea8d1fbcd"
+   },
+   {
+    "path": "tools/list-tools-for-an-ai/read-data/tool-write-class.json",
+    "source_multihash": "1f:e2f4fc3f028812a3556ab37dc6a8d24059a3abdedcbe5b9d29392951f2a63652",
+    "target_multihash_at_baseline": "1f:e2f4fc3f028812a3556ab37dc6a8d24059a3abdedcbe5b9d29392951f2a63652"
+   }
+  ],
+  "commit": "c5ed66b0e3d5fffe4ed6f8416617783be59892bc"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.8,
+  "required_mechanisms": [
+   "export function writeClassOf",
+   "new Set(rules.read_verbs)"
+  ],
+  "test_refs": [
+   "tools/list-tools-for-an-ai/test/tool-write-class.test.mjs",
+   "tools/list-tools-for-an-ai/test/listing-tools.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

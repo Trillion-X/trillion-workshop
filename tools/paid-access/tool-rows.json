@@ -87,7 +87,24 @@
             "output_selector": "$.held_access_refs",
             "contains": "access:sample-course"
           }
-        ]
+        ],
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "signed_event_effect",
+              "guard_properties": {
+                "effect_id": "text",
+                "kind": "text",
+                "material": "object",
+                "object": "text",
+                "proof": "object",
+                "source_event_ids": "list",
+                "subject": "text"
+              }
+            }
+          ]
+        }
       }
     },
     {
