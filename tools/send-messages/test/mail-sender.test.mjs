@@ -33,9 +33,9 @@ function provider(fail = null) {
   return { sends, send: async composed => { sends.push(composed); if (fail) throw fail(sends.length); return { messageId: `m${sends.length}` }; } };
 }
 
-async function senderWith(settings = settingsWith(), binding = provider()) {
+async function senderWith(settings = settingsWith(), binding = provider(), readLook = undefined) {
   const { fake, door } = await doorFor();
-  return { fake, door, binding, settings, sender: mailSender({ row: settings, door, binding, provider: 'resend' }) };
+  return { fake, door, binding, settings, sender: mailSender({ row: settings, door, binding, provider: 'resend', readLook }) };
 }
 
 const most = (settings, kind) => settings.per_person.limits.find(limit => (limit.kinds ? limit.kinds.includes(kind) : !limit.all_kinds_except.includes(kind))).most;
@@ -179,7 +179,8 @@ describe('the mail rules (older owner: mail-sender.mjs, mail-admission.mjs)', ()
       subscription: { unsubscribe_url: 'https://example.com/unsubscribe?t=abc', list_id: 'News <news.example.com>', reason: 'You signed up for the news.' } });
     assert.equal(answer.sent, true);
     assert.deepEqual(binding.sends[0].headers, { 'List-Unsubscribe': '<https://example.com/unsubscribe?t=abc>', 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click', 'List-ID': 'News <news.example.com>' });
-    assert.deepEqual(binding.sends[0].footer_lines, ['You signed up for the news.', 'Example, 1 Example Street, Example City']);
+    for (const words of ['You signed up for the news.', 'Example, 1 Example Street, Example City', 'Unsubscribe']) assert.ok(binding.sends[0].text.includes(words), words);
+    assert.match(binding.sends[0].html, /example\.com\/unsubscribe\?t=abc/);
     await assert.rejects(sender.sendWrittenEmail({ to: 'reader@example.test', subject: 'Issue 2', markdown: 'News.',
       subscription: { unsubscribe_url: 'http://example.com/u', list_id: 'News <news.example.com>', reason: 'r' } }), /HTTPS one-click/);
     const noAddress = await senderWith();
@@ -221,5 +222,70 @@ describe('the mail row and the email rows', () => {
     const answer = await sendAnEmail({ recipients: ['bad@example.com', 'lost@example.com'], subject: 'Hi', text: 'hi', html: '<p>hi</p>' }, { provider: 'resend', sender });
     assert.deepEqual(answer.sent.map(item => [item.recipient, Boolean(item.unknown)]), [['bad@example.com', false], ['lost@example.com', true]]);
     assert.match(answer.said, /Sent to 0 of 2/);
+  });
+});
+
+describe('every email is drawn in the look (older owner: test/mail-sender.test.mjs)', () => {
+  // A dark look, as a worn look's palette carries it (synthetic values).
+  const dark = { '--bg-primary': '#000000', '--bg-surface': '#111111', '--text-primary': '#f5f5f5', '--accent-primary': '#ff3b3b',
+    '--text-tertiary': 'rgba(245, 245, 245, 0.7)', '--border-secondary': 'rgba(245, 245, 245, 0.2)', '--button-primary-bg': '#ff3b3b',
+    '--button-primary-text': '#ffffff', '--font-primary': 'system-ui, sans-serif', '--font-display': 'Georgia, serif',
+    '--font-mono': 'ui-monospace, monospace', '--radius-control': '10px', '--radius-card': '14px', '--radius-pill': '999px',
+    '--button-sheen': 'linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.1))',
+    '--button-highlight': 'inset 0 0 0 1px rgba(0, 0, 0, 0.22)', '--button-shadow': '0 1px 1px rgba(0, 0, 0, 0.3)' };
+  const marked = settingsWith({ brand: { name: 'Example', image: 'https://example.com/brand/wordmark.png' },
+    made_with: { label: 'Made with', href: 'https://example.com/', image: 'https://example.com/brand/wordmark.png', alt: 'Example' } });
+
+  it('the sent email uses the worn dark look, shared button depth and Made with wordmark', async () => {
+    const { sender, binding } = await senderWith(marked, provider(), async () => ({ palette: dark }));
+    const result = await sender.sendWrittenEmail({ to: 'dark-proof@example.org', subject: 'Worn look', markdown: 'A message.', action: { label: 'Open', href: 'https://example.com/' } });
+    assert.equal(result.sent, true);
+    const [sent] = binding.sends;
+    assert.match(sent.html, /background:#000000/);
+    assert.match(sent.html, /name="color-scheme" content="dark"/);
+    assert.match(sent.html, /background-image:linear-gradient/);
+    assert.match(sent.html, /Made with/);
+    assert.match(sent.html, /brand\/wordmark\.png/);
+  });
+
+  it('an email whose brand cannot be read is not sent in other colours, and one sent before any brand is published is drawn in the shipped brand', async () => {
+    const unread = await senderWith(marked, provider(), async () => { throw new Error('the look owner is busy'); });
+    const refused = await unread.sender.sendWrittenEmail({ to: 'brand-proof@example.org', subject: 'Brand', markdown: 'A message.' });
+    assert.equal(refused.sent, false);
+    assert.match(refused.error, /could not be read, so it was not sent/);
+    assert.equal(unread.binding.sends.length, 0, 'nothing went out in colours other than the look\'s');
+    const early = await senderWith(marked, provider(), async () => null);
+    const sent = await early.sender.sendWrittenEmail({ to: 'brand-proof@example.org', subject: 'Brand', markdown: 'A message.' });
+    assert.equal(sent.sent, true, 'no email waits for the first publication');
+    assert.match(early.binding.sends[0].html, /background:#f4f0e8/, 'drawn in the shipped look');
+  });
+
+  it('an email draws every kind of block the markdown reader makes, rules and code included', async () => {
+    const { sender, binding } = await senderWith(marked);
+    const markdown = '## Heading\n\nWords with **bold**.\n\n- one\n- two\n\n1. first\n\n> a quote\n\n---\n\n```\ncode line\n```\n\nThe end.';
+    const result = await sender.sendWrittenEmail({ to: 'a@example.org', subject: 's', markdown });
+    assert.equal(result.sent, true);
+    assert.match(binding.sends[0].html, /<hr style=/);
+    assert.match(binding.sends[0].html, /<pre style="[^"]*">code line<\/pre>/);
+    assert.match(binding.sends[0].text, /---/);
+  });
+
+  it('a sign-in code given as plain words reaches the provider drawn, with its words as text', async () => {
+    const { sender, binding } = await senderWith(marked);
+    const result = await sender.sendMail(null, { kind: 'sign-in-code', to: 'code-proof@example.org', subject: 'Your sign-in code', text: 'Your sign-in code is 123456\n\nType it within 10 minutes.', idempotencyKey: 'k1' });
+    assert.equal(result.sent, true);
+    const [sent] = binding.sends;
+    assert.match(sent.html, /^<!doctype html>/);
+    assert.match(sent.html, /Your sign-in code is 123456/);
+    assert.match(sent.text, /Your sign-in code is 123456/);
+    assert.equal(sent.idempotencyKey, 'k1');
+    assert.equal(sent.markdown, undefined, 'the provider is given the drawn email, not its markdown');
+  });
+
+  it('a caller\'s own html goes as it is', async () => {
+    const { sender, binding } = await senderWith(marked);
+    await sender.sendMail(null, { to: 'own@example.org', subject: 'Own', html: '<p>Own</p>', text: 'Own' });
+    assert.equal(binding.sends[0].html, '<p>Own</p>');
+    assert.equal(binding.sends[0].text, 'Own');
   });
 });
