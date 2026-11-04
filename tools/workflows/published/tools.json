@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b9c29d06eb787fb7efeef41333e3bcf3a6e475f7a782abdda5d31907dac0ef3d"
+  "blake3": "1f:057955dececaff1318f2a4f567f24c272518caa1687279300a682a6cce210465"
  },
  "fields": [
   {
@@ -478,6 +478,22 @@
    }
   },
   {
+   "id": "tool:ask-a-command-line-mcp-server-once",
+   "values": {
+    "title": "Ask a command-line MCP server one request",
+    "job": "Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it",
+    "description": "Makes the gateway (do-work/gateway.mjs createGateway) for the one stdio MCP server the input names (cli, args, env) and hands it one POST /<app>/mcp with no session id, in this process: no port is opened. The gateway starts the server as a child process in a fresh empty working folder with only PATH, HOME, TMPDIR and LANG (plus env), sends initialize (protocol_version, 2025-06-18 when left out) and notifications/initialized, writes the request (one JSON-RPC message per line), waits at most timeout_seconds (30 when left out), answers a request the server asks back with method not found, then kills the server and removes its folder. An arg that starts with ./ or ../ names a file in the run's working folder (the tool folder) and is made absolute first. Answers the HTTP status the gateway gave (200, or 502 when the server would not start or initialize) and the JSON-RPC reply. The server runs whatever command cli names inside the run's container, with no internet; this run reads and writes nothing else and keeps nothing. Refuses a missing cli, args that are not text, an app name the gateway's path would not take, a request with no method, and initialize as the request. The hosted gateway (do-work/serve.mjs) also keeps sessions open between requests (Mcp-Session-Id), streams a server's notifications, caps and reaps idle sessions and serves on a port for the web; this run does only the one-off flow.",
+    "status": "active",
+    "maker": "maker:serve-command-line-mcp-servers-on-the-web",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "serve-command-line-mcp-servers-on-the-web"
+   }
+  },
+  {
    "id": "tool:ask-a-model",
    "values": {
     "title": "Ask a model",
@@ -691,6 +707,25 @@
     ],
     "listed_on": "2026-11-03T12:00:00Z",
     "folder": "build-a-screen-from-patches",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:build-a-sellers-payment-setup-request",
+   "values": {
+    "title": "Build the request that starts a seller's payment setup",
+    "job": "Build, without sending it, the payment provider (Stripe) request that starts a seller's payment setup and gets their hosted onboarding link, or any other request the folder's operation map names",
+    "description": "Calls buildStripeHttpRequest (process/build-stripe-http-request.mjs) with the input: operation_id names one row of data/stripe-operation-map.json (operation:create-connected-account and operation:create-account-link start a seller's setup and its hosted onboarding link; the map has every other operation too), input_facts holds what the request says (operation_subject becomes the form-encoded body of a write or the query of a search, provider_object_ref fills the address, acting_account the Stripe-Account header where the row declares it; a subject id becomes client_reference_id), idempotency_key becomes the Idempotency-Key header of a write, api_version_policy the Stripe-Version (the map's current version when left out) and required_credential_ref the name of the key a sender would use (credential-class:stripe-restricted-key when left out). Answers the finished request: method, url, headers, body, auth { scheme, credential_ref } and api_version. It holds and reads no key, puts no Authorization header on the request, sends nothing and moves no money: the request is for a sender (or a person) to look at first. Refuses an operation the map does not name and a missing provider_object_ref where the address needs one. The old screen also sent the request with the seller's own key and took the seller to the onboarding page the answer names; this run does neither.",
+    "status": "active",
+    "maker": "maker:seller-payment-setup",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "seller-payment-setup",
     "flags": [
      "read-only"
     ]
@@ -1459,6 +1494,25 @@
    }
   },
   {
+   "id": "tool:check-given-pages-at-every-width",
+   "values": {
+    "title": "Check pages at every width and device setting",
+    "job": "Open each page I give at every width and device setting and read every piece of text a person can see, refusing text that cannot be read, is drawn in a font the page did not ask for, is cut off or makes a phone scroll sideways",
+    "description": "Opens each of screens (each { id, html, route?, fonts?, ready?, steps?, widths?, modes? }) in a headless Chromium through Playwright (headless-browser/launch.mjs, with its quiet switches and one-browser-at-a-time admission), at every width of views.json (phone 390x844 with no sideways scroll, tablet, desktop) and in every mode (light, dark, forced colours, Dark Reader), or the widths and modes asked for, through runMatrix (check-screens.mjs). The page's HTML is answered by the browser itself at its route on a made-up origin; any other request the page makes is aborted, never sent. Each view is scrolled window by window and every visible text node is judged: contrast under WCAG AA against the colour really behind it, a glyph drawn by a platform font the screen does not declare in fonts (system names such as system-ui never count), text cut off or outside the window, a phone page wider than its window, and a control with no accessible name; a screen that does not open is a failure. allowlist (allowlist.json's shape, none when left out) drops a proven false positive or keeps a decided look as reported. Answers passed, failures ({ screen, width, mode, probe, selector, text, detail }), reported, counts (failures per probe) and report (views read, texts read, seconds per phase). Writes no file and keeps nothing; needs a Chromium Playwright can find. Refuses a screen without an id or html, two screens at one route, and a width or mode views.json does not name. The deploy check also opens a live origin or a Worker, takes pictures of failures, runs the real Dark Reader extension and refuses a deploy; this run checks only the pages given.",
+    "status": "active",
+    "maker": "maker:check-every-screen-at-every-width",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "check-every-screen-at-every-width",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:check-if-a-tour-step-may-advance",
    "values": {
     "title": "Check whether a tour step may move on by itself",
@@ -1751,6 +1805,25 @@
      "placement:small-container"
     ],
     "folder": "form-groups-and-matches",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:choose-how-each-file-is-shown",
+   "values": {
+    "title": "Choose how each file is shown",
+    "job": "Classify each file by its name and media type to choose how it is shown: as code, markdown, a diff, a picture, JSON or plain text, with the language, icon and label it is shown under",
+    "description": "Give files ([{ path, mime_type? }]): each file's name or path and, when known, its media type, which wins over the extension. Answers classified, one per file in the order given: renderer (code, markdown, diff, image, json or raw), language, icon, label and the mime_type it was taken as. It reads only the names and types it is given: no file is opened, nothing is drawn, nothing is sent, and the signed-in classification owner the screen asks first is not called, so the answer is the file-content renderer's deterministic fallback. Refuses an empty list or a file without a path. The screen (show/FileContentRenderer.tsx and the media player) also draws the file, plays sound and video, pages PDFs and edits the facts kept about a file; this run does none of that.",
+    "status": "active",
+    "maker": "maker:show-any-file-as-itself",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "show-any-file-as-itself",
     "flags": [
      "read-only"
     ]
@@ -2423,6 +2496,25 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:fade-live-ink-marks",
+   "values": {
+    "title": "Fade live ink marks",
+    "job": "Work out how visible each ink mark drawn live on a canvas or screen is at a given instant, so live marks fade instead of piling up, and when each is gone",
+    "description": "Give now (the instant to look at, an ISO time or milliseconds since the epoch), fade ({ hold_ms, fade_ms }: how long a mark is fully seen, then how long it takes to go) and marks ([{ ref, created_at? }]). Answers marks, one per mark in the order given, each with opacity (1 until hold_ms has passed since created_at, falling in a straight line to 0 over fade_ms, 0 after), shown and gone_at (the ISO instant it goes, or null for a mark with no usable time, which never fades), and the counts shown and gone. It reads only what it is given: no clock is read, nothing is drawn, no mark is changed or deleted. Refuses an empty list, a mark without a ref, a now that is not a time and a hold_ms or fade_ms that is not a number of zero or more. The screen (show/GraphCanvas.tsx, show/AddressedMarkLayer.tsx and the mark toolbar) also lays a list out as linked cards, takes the pen and keeps each stroke; this run does none of that. Folding, shaping, erasing and exporting marks are the tool:see-the-ink-marks-on-a-space, tool:turn-a-drawn-stroke-into-a-mark-shape, tool:find-the-ink-mark-to-erase and tool:export-ink-marks-as-svg rows in tools/draw-ink-marks.",
+    "status": "active",
+    "maker": "maker:draw-lists-on-a-canvas",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "draw-lists-on-a-canvas",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -4026,6 +4118,44 @@
    }
   },
   {
+   "id": "tool:join-what-is-being-worked-on-into-a-tree",
+   "values": {
+    "title": "Join what is being worked on into one tree",
+    "job": "Join the goals, decisions, AIs, jobs, spaces, people, automations and tool runs my records already answered into one tree of what is being worked on and who is doing it, or one goal's branch of it",
+    "description": "Give answers: what each of the work map's reads answered, by name (goals: /work/api/decisions with pursuits and summaries, work: /work/api/ai-work with agents and work, spaces: /work/api/spaces, automations: /work/api/workflows, workshop: /work/api/workshop); a read left out adds no cards. from (optional) is a card id such as goal:g1 to keep only that card and everything under it. The join is the work map's own: read-data/work-map-sources.json says where each kind's rows are, which fields are its id, title, detail, state and time, who does it and what it hangs under; a row whose parent is not shown falls to whoever does it, then to the root. Answers nodes (each card's id <source>:<row id>, source, kind, icon, title, detail, at, status, who; the rows themselves are not given back), lines (parent to child) and counts by kind. It reads nothing from the person's store, keeps nothing and sends nothing. Refuses answers that are not an object, a read name the work map does not have, or answers holding none of its reads. The screen (show/work-map-screen.tsx) also reads those answers itself, draws the cards on the board, by state, as a table and on a timeline and opens a card's screen, and the message task canvas groups message tasks; this run does none of that.",
+    "status": "active",
+    "maker": "maker:see-what-is-being-worked-on",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "see-what-is-being-worked-on",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:judge-a-new-sign-in-password",
+   "values": {
+    "title": "Say how strong a new password is",
+    "job": "Say how strong a new password is, in the words the sign-in pages show under the new password box, before I sign up with an email and a password",
+    "description": "Give password (text). It is scored as the sign-in pages score it as it is typed (password-strength.mjs, passwords.json): 0 when shorter than min_length (8), then 1, plus one for 12 characters or more and one for three kinds of character (lower case, upper case, digits, others). Answers score, said (the words for that score), min_length, max_length and too_long (whether the service would refuse it as longer than max_length). The password is judged in memory only: it is never printed back, kept or sent, and nothing is signed in, made or changed. The sign-in pages themselves (passkey.mjs, kept in this folder but not run here) do the rest of the old job: they run the passkey step through the browser's WebAuthn, send and check emailed codes and post the email-and-password form; those need a browser and the sign-in service, which this run does not have.",
+    "status": "active",
+    "maker": "maker:sign-in-with-a-passkey",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "sign-in-with-a-passkey",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:judge-against-rules",
    "values": {
     "title": "Check words or anything made against your rules",
@@ -4149,6 +4279,25 @@
    }
   },
   {
+   "id": "tool:keep-keyed-things-in-a-fixed-memory-budget",
+   "values": {
+    "title": "Keep keyed things inside a fixed memory budget",
+    "job": "Keep many keyed things inside a fixed memory budget, each read after the first being one array index, and let the least recently used go first when the budget is full",
+    "description": "Give steps, applied in order to a slot table made from capacity_bytes (the budget, 24 MB when left out) and columns (DATA: [{ kind, field, as: number | text }], the fields kept in typed arrays): set { key, kind, value, bytes? } admits or updates a key (bytes is what it costs the budget, its JSON length when left out), find { key }, read { key }, drop { key }, kind { kind } (every key of that kind still held) and clear. Answers answers (one per step: set gives its slot and version, find its slot or -1, read whether it is held and its kind, value, version and bytes) and held (slots, bytes, capacity_bytes, evictions, kinds, words). Nothing is kept after the run: send the same steps again for the same table.",
+    "status": "active",
+    "maker": "maker:slot-table",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "slot-table",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:keep-measurements-current",
    "values": {
     "title": "Collect current measurement coverage",
@@ -4206,6 +4355,25 @@
      "placement:your-computer"
     ],
     "folder": "tell-ais-how-to-act"
+   }
+  },
+  {
+   "id": "tool:keep-what-my-devices-report-about-themselves",
+   "values": {
+    "title": "Keep what my devices report about themselves",
+    "job": "Keep the facts a new person's devices report about themselves (which cameras a computer sees, whether a phone's switches are on), each report replacing that device's facts, so a setup checklist can tick itself from them",
+    "description": "Give reports (each { device, facts: { name: text }, and device_id, source and generation together for a device that reports from several sources }), devices (the devices the last run answered; omit the first time) and optionally now (an ISO time stamped on what changes). Applies each report in order with device-facts.mjs deviceFacts: a report replaces that device's (or that source's) facts whole, a report that changes nothing changes nothing, an older generation is answered stale, and at most 20 devices are kept, the least recently heard dropped first. Answers answers (one per report: device, changed, and for an identified report device_id, source, stale, current_generation) and devices (every device as kept). It refuses a report with no device name, facts that are not short lowercase names with text values within device-facts.json's bounds, and an identified report missing its id, source or generation, naming the report. It keeps nothing after the run, reads no device itself and writes nothing. It does not tick setup steps from the facts (that needs the account's checklist rules and the formula engine) and does not show the Get started, plan, account, security or business pages: those are the app's screens.",
+    "status": "active",
+    "maker": "maker:walk-a-new-person-through-setup",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "walk-a-new-person-through-setup",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -4422,6 +4590,44 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:list-ideas-for-what-to-ask-on-a-screen",
+   "values": {
+    "title": "Ideas for what to ask an AI on a screen",
+    "job": "Show the written ideas for what to ask an AI on one screen, each with the request a Do this for me button would hand over",
+    "description": "Give screen (a screen key: calendar, marketplace, home, files, spaces and the others in workspace/examples.json). Answers heading, count_words, words (the strip's words) and examples, each { id, title, detail, do_this, from: 'written' }: the ideas written for that screen (or for the screen it reuses), do_this being the request an AI would be handed. It reads only workspace/examples.json and writes nothing. It never hands a request to an AI (the screen's Do this for me button is the app's), never adds published stories or ideas from the account's current tools (those need the person's account), and refuses a screen with no written row, naming the screens it has.",
+    "status": "active",
+    "maker": "maker:suggest-what-to-ask-on-a-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "suggest-what-to-ask-on-a-screen",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:list-my-conversations-newest-first",
+   "values": {
+    "title": "List my conversations newest first",
+    "job": "List every conversation with AIs and in spaces newest first, found by words, participant or project, grouped Today, Yesterday, This Week and Older, as the messages screen's list shows them",
+    "description": "Give conversations (rows of { recordId, sessionId, participantRef, lastActivityAt, title?, projectSlug?, projectName? }; other fields are kept as given) and optionally search (words matched, ignoring case, against title, sessionId, projectSlug and recordId), participant (a participantRef) and project (a projectName). The rows are sorted by lastActivityAt newest first, filtered and grouped by date with the Messages screen's own list helpers (show/build-chat-conversation-list.ts, run by Node's type stripping); groups follow the clock of the machine the run is on. Answers groups ([{ label, conversations }]), shown, total, and participants and projects (every one named across all rows, for the filters). Refuses conversations that is not a list and a row missing recordId, sessionId, participantRef or a readable lastActivityAt. Reads no records, keeps nothing and sends nothing: the screen itself (reading the person's conversations, transcripts and the composer that sends) is not part of this run.",
+    "status": "active",
+    "maker": "maker:messages-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "messages-screen",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -5473,6 +5679,44 @@
    }
   },
   {
+   "id": "tool:open-the-document-a-pursuit-edits-together",
+   "values": {
+    "title": "Open the document a pursuit edits together",
+    "job": "Say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal",
+    "description": "Give pages: what each page of Write is opened with ({ space_id?, scene_address?, ... }). A page opened in a pursuit (space_id) opens that pursuit's one shared room (space-room:<pursuit>/package::documents::documents, from show/write-screen.json) unless it names a document of that same room; a page with no pursuit keeps its own address. Answers pages (each { opened: true, input: what the screen opens with, shared } or { opened: false, refused }, in the screen's own words: an empty pursuit name, one that is not text or holds '/', or a document of another room) and shared_rooms (each room once). It runs show/write-screen-input.mjs writeScreenInput, the rule the Write screen opens with. It reads, keeps and sends nothing; the editing itself (blocks, merges, undo, presence) is the Write screen's and is not run here.",
+    "status": "active",
+    "maker": "maker:edit-a-document-together",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "edit-a-document-together",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:order-my-goals-under-the-goals-they-serve",
+   "values": {
+    "title": "Order my goals under the goals they serve",
+    "job": "Keep my goals in the order they are shown, each one under the goal it serves, so a goal with several parents is shown once and none is hidden by a missing parent or a loop",
+    "description": "Give goals ([{ id, title?, parents?, children? }]; parents and children name other goals by id or { id }). The goals are ordered by the reader the app's goal list used (read-data/pursuit-hierarchy-view.mjs): each top goal in the order given, then the goals under it, depth first; a goal with several parents is one row, indented under the first parent reached; a goal whose parent is not among those given, or that is in a cycle, is still shown. Answers rows ([{ id, title, depth, shown_under, parents }]) and count. Refuses goals that is not a list and a goal without an id. Reads no records, keeps nothing and sends nothing. The Home screen did more than this run does: it saved goals, marked the one needle mover, focused the app on one goal or space, and greeted the person with the next step and their AIs' work in the words of home-words.json; none of that is here, and this run does not read home-words.json.",
+    "status": "active",
+    "maker": "maker:keep-goals-and-focus",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "keep-goals-and-focus",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:organize-saved-browser-tabs",
    "values": {
     "title": "Sort my saved browser tabs into folders by my rules",
@@ -5515,6 +5759,25 @@
      "placement:small-container"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:pack-my-device-copys-settle-upload",
+   "values": {
+    "title": "Pack my device copy's settle upload",
+    "job": "Work out what my device's copy of my records would send when it settles with my account: where the account's copy is kept on the device and the exact upload for one batch, compressed when that makes it smaller",
+    "description": "Give account (the signed-in account name, 1 to 256 characters) and request (one settle batch as a JSON object, the shape record-sync.mjs sends: copy, root, took_through, rows). Answers location (the private-file-system directory the account's copy is kept under, the account name's bytes in hex so two accounts never share one, and the file name records.sqlite3), sends (frame or plain), headers (content type, the x-trillion-device-account header, and for a frame its dictionary BLAKE3 id and exact expanded size), plain_bytes, sent_bytes, body (plain text) or body_base64 (the deflate frame, compressed against the sample of settle JSON in do-work/frame-dictionaries.json) and expands_back (the frame expands to exactly the batch). A batch under 1024 bytes, or one that would not shrink, goes plain. Refuses an empty, non-text or over-long account and a request that is not an object. It reads only its input: it opens no database, keeps nothing on any device, sends nothing and settles nothing. The screen's other work (the SQLite copy in the browser's private file system that survives reloads and reads offline, the outbox of small writes, the settle itself with the hosted store and sealed records) needs a browser worker and @sqlite.org/sqlite-wasm and is not done by this run.",
+    "status": "active",
+    "maker": "maker:keep-my-records-on-this-device",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "keep-my-records-on-this-device",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -5593,6 +5856,25 @@
     ],
     "listed_on": "2026-11-03T16:00:00Z",
     "folder": "pick-a-screen-as-you-type"
+   }
+  },
+  {
+   "id": "tool:pick-a-small-good-moment",
+   "values": {
+    "title": "Pick the small good moment to play",
+    "job": "Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time",
+    "description": "Give moments (the moment rows, tried in order: each { id, on: { event_kind, match?, starts_with? } or { typed }, words (one line or a list that rotates), motion?, mark?, once?, count_at? }) and exactly one of event (what happened, { event_kind, ...fields }) or typed (the text typed so far, matched by the phrase it ends with, any case); memory is the remember of the last pick (leave it out the first time). A row answers an event when its event_kind is the event's, every match field equals the event's and every starts_with field starts it; a once row is due only if it never played, a count_at row only at those running counts; {count} in words is the running count. Answers moment ({ id, motion, mark, words } or null when no row is due) and remember ({ counts, played }), the whole next memory. Nothing is played, shown, stored or sent and no clock is read. Refuses moments that are not rows with ids, neither or both of event and typed, an event without event_kind and memory that is not an object. The screens (show/mount-delight-moments.tsx, show/mount-feel.ts, show/FeelSettings.tsx, show/ambience-screen.tsx) also play the moment's motion, give it a feel in touch, sound and motion on each device under the person's show rules and move lights with music; this run does none of that.",
+    "status": "active",
+    "maker": "maker:make-things-feel-good",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "make-things-feel-good",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -5840,6 +6122,25 @@
    }
   },
   {
+   "id": "tool:plan-clock-aligned-recording-pieces",
+   "values": {
+    "title": "Plan clock-aligned recording pieces",
+    "job": "Plan how recording every camera and microphone without end is cut into clock-aligned pieces that line up across devices: when each input's pieces begin and end, what each is named, which day folder it goes in, and the list that ties them together",
+    "description": "Give started_at and until (ISO times), segment_seconds (piece length, 300 when left out), folder (Recordings when left out), inputs ([{ label, kind: camera | microphone, extension?, with_sound? }], the device's own label with browser bus numbers dropped), device, list_name and time_zone (the device's own IANA zone; the run's own when left out). Pieces are cut every segment_seconds counted from the start of the device's day, never from when an input started, so every input on every device cuts at the same instants; the first piece runs from started_at to the first cut and a new day starts a new window. Answers time_zone, list (where the session list is kept), first_cut_at, piece_count, pieces (each input's { input, folder, name, file, start_ms, end_ms, seconds }) and session_list (the list kept beside the pieces: inputs and moments, each moment the files recorded together). Refuses unreadable times, until not after started_at, no inputs, an input without a label or of another kind, an unknown time zone and a plan of more than 5000 pieces. It reads only its input: it opens no camera or microphone, records nothing, keeps nothing on a device and sends nothing to Files. The screen's other work (opening each input, recording the pieces, keeping them on the device first, sending them while recording, reopening an input that stops and pausing by rule) needs a browser and is not done by this run.",
+    "status": "active",
+    "maker": "maker:record-cameras-and-microphones-all-day",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "record-cameras-and-microphones-all-day",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:plan-my-time",
    "values": {
     "title": "Plan my time",
@@ -5852,6 +6153,44 @@
      "placement:small-container"
     ],
     "folder": "plan-my-time"
+   }
+  },
+  {
+   "id": "tool:plan-the-address-a-live-camera-streams-to",
+   "values": {
+    "title": "Plan the address a live camera streams to",
+    "job": "Work out how a live camera's stream would be received: the address this computer listens on for the camera's own key, the FFmpeg listener it is taken with, and a public RTMPS address through Tailscale Funnel that never takes a port serving something else",
+    "description": "Give key (the camera's stream key), port (1935 when left out), app (live when left out), output (the destination's FFmpeg arguments after the input, [] when left out) and optionally funnel ({ name: this computer's Tailscale name, ports: the public ports its tailnet allows, status: what tailscale funnel status --json printed }). Answers listening_address, camera_server_address, ffmpeg ({ program, arguments }: exactly what the shared listener do-work/take-a-stream.mjs starts FFmpeg with, captured from a stand-in that is never run) and, with funnel, public: the port picked the way the Funnel way in picks it (one already forwarding here, else the first free one of stream-settings.json tailscale.public_ports the tailnet allows), the rtmps:// address, whether it already forwards here and the trust anchor a camera imports for it (RTMPcert.pem, the public ISRG Root YE certificate), or why no port is free. The key is shown as <key> in every answer. Refuses a key, port or app of another shape, an output that is not a list of text and a funnel without a name or ports. It reads only its input and stream-settings.json: it starts no FFmpeg or Tailscale, opens no port, changes no Funnel setting, reads no saved login and sends nothing. The receiver's other work (taking the stream, showing the live picture, cutting it into pieces sent into the person's files, relaying it, following the person's stream rows) needs FFmpeg, a camera and the account and is not done by this run.",
+    "status": "active",
+    "maker": "maker:watch-and-keep-a-live-camera",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "watch-and-keep-a-live-camera",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:plan-what-a-sent-deal-sets-up",
+   "values": {
+    "title": "Plan what a sent deal sets up",
+    "job": "Turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in",
+    "description": "Give contract ({ id, name } of the deal being sent), facts ({ to, contract_name, contract_id, address }: contract_name and contract_id default to the contract's) and follow_ups (each { label, on: \"paid\" | { once_at }, then: { tool_id | workflow_id, input } }). Answers set: one { kind: \"rule\", input } per paid follow-up, its when the folder's paid-deal trigger (sales-contract-builder.json after_payment.trigger) with this deal's contract_id added, so one deal's payment never runs another's steps; one { kind: \"schedule\", input: { once_at } } per dated one. Words in braces in a step's input are filled only from the facts; any other brace stays as written. Also answers offered: the follow-ups the builder offers (after_payment.steps). It sets nothing itself (the person's automations owner keeps each rule and schedule) and reads no offer, customer or list: building the contract on the screen, reading the person's offers and customers, and sending the deal are not run here.",
+    "status": "active",
+    "maker": "maker:build-and-send-a-sales-contract",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "build-and-send-a-sales-contract",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -7205,6 +7544,25 @@
    }
   },
   {
+   "id": "tool:read-rows-as-marketplace-shelf-items",
+   "values": {
+    "title": "Read rows as Marketplace shelf items",
+    "job": "Show rows of one kind (tools, workflows, looks, layouts and more) as the Marketplace shelf shows everything my AI can use: title, what it does, who made it, its price and runs, whether it is mine and published, and whether I can use, publish or withdraw it",
+    "description": "Give kind (one of the kinds in marketplace-kinds.json: tool, workflow, studied-screen, design-component, look, layout, configuration), rows (the source rows of that kind, as their own owner answers them) and published (the ids of that kind this account has published to the shared shelf). Answers items, one shelf item per row: id, key, kind and its label, icon, title (a row's own title when it reads as words, else the action its id names, with the service), job, made_by in the person's words, price and its key value and unit, runs, mine, published and its badge, facts, picture, preview, a link only when it is a web page, open_target, action_input and can (use, publish or withdraw); plus kind ({ id, one, icon }) and kinds (every kind). Which fields are read and how they read is the kinds file's DATA. It reads, publishes and withdraws nothing: reading each kind's rows from the person's store and the shared shelf, paging and searching across kinds, and publishing or withdrawing are the hosted Marketplace's routes and are not run here.",
+    "status": "active",
+    "maker": "maker:browse-and-publish-what-my-ai-can-use",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "browse-and-publish-what-my-ai-can-use",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:read-spend-rails",
    "values": {
     "title": "Read spend rails",
@@ -7353,6 +7711,25 @@
      "placement:public-web-address"
     ],
     "folder": "wikimedia-commons",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:rebuild-a-screen-recording-from-its-chunks",
+   "values": {
+    "title": "Rebuild a screen recording from its chunks",
+    "job": "Keep a screen recording's chunks in order as they are recorded and rebuild the finished recording from them, with the file reference it is published with",
+    "description": "Give chunks ([{ base64 } or { text }] in the order they were recorded; at most 1000 and 8 MB in all), and optionally recording_id (screen-record:<words>; one is made when left out), media_type (video/webm when left out) and observed_at (the ISO time each chunk is stamped with). Each chunk is kept through the folder's own store (do-work/recorded-file-store.ts) under the key the browser uses (<recording_id>:chunk:<sequence>), in a stand-in IndexedDB held only in this run's memory; then the file reference a finished recording is published with (kind local-playback.indexeddb-chunks, database, store, chunk_refs, media_type, byte_length) is built and the recording read back in order. Answers file, kept_keys and rebuilt ({ byte_length, media_type, identity: 1f: and the BLAKE3 hex of the rebuilt bytes, matches_chunks }). Refuses no chunks, a chunk with neither base64 nor text, too many chunks or bytes, and a recording_id or media_type of another shape. It captures no screen, keeps nothing in any browser once the run ends, and saves, names, removes or publishes no recording. The screen's other work (asking for the screen through getDisplayMedia, the recording panel, and publishing through the workflow actions in screen-recording-requests.ts, which needs the workspace's request sender) needs a browser and is not done by this run.",
+    "status": "active",
+    "maker": "maker:record-my-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "record-my-screen",
     "flags": [
      "read-only"
     ]
@@ -9404,6 +9781,25 @@
    }
   },
   {
+   "id": "tool:share-a-record-by-a-sealed-link",
+   "values": {
+    "title": "Share a record by a sealed link",
+    "job": "Share one record by a sealed link whose key rides only in the part after the #, so the store keeps only ciphertext it cannot read, and open it again from that link",
+    "description": "op seal (the default): give id (the record id the copy is sealed under), record ({ type, value }) and address (the web address the link opens). The record is sealed with AES-GCM under a fresh 32-byte key of the link's own, the id bound as associated data; answers link (address with the key and the record id in its fragment, which a browser never sends to a server), sealed_copy ({ content_id, value }: the only thing to give the store, which cannot read it), content_id and opens (the copy opened again from the link in this run). op open: give id, link and copy (a sealed_copy); the copy is checked whole (one bounded sealed value matching its content_id) and opened with the key the link carries; answers record. Refuses, in plain words, another key, a changed or moved copy, a link with no key. It keeps and sends nothing; sealing with a device's own key, syncing ciphertext and sealed files are the device copy's and are not run here.",
+    "status": "active",
+    "maker": "maker:keep-records-only-my-devices-can-read",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "keep-records-only-my-devices-can-read",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:show-what-a-tool-would-give-members",
    "values": {
     "title": "Show what a tool would give members",
@@ -9476,6 +9872,44 @@
      "placement:small-container"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:sort-inspiration-clips-into-card-rows",
+   "values": {
+    "title": "Sort inspiration clips into rows of cards",
+    "job": "Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit",
+    "description": "Give sources: { source name: the answer it gives } for any of pick ({ pick: { clips, title?, reason? } }), library ({ rows }), recent ({ items }), formats ({ formats }), examples ({ examples }) and posts ({ posts }). Reads each source once with inspiration.mjs over card-sections.mjs and inspiration.json: each row (Make this next, You talk in these, Jump back in, Formats to steal, Swipe file, Ready to go out, Finished videos, Fresh recordings) keeps the items its tests pass, newest first where it says so, up to its limit, and turns each into a card ({ id, source, section, title, summary, detail, at, file, duration, opens, edit }); edit is true for a clip with a duration that could go into a new edit. Answers sections (each with total and cards, or failed when its source was not given), said (one sentence summing it up) and the layouts, card actions, pick actions, picture shapes and empty words the screen draws with. It refuses sources that is not an object and a source name inspiration.json does not hold. It reads no files or records itself, writes nothing, opens no card and never starts an edit: Make this and Edit these, and drawing the rows, wall or grid, are the app's Inspiration screen.",
+    "status": "active",
+    "maker": "maker:browse-inspiration-clips",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "browse-inspiration-clips",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:sort-mail-into-built-in-task-lists",
+   "values": {
+    "title": "Sort mail into my built-in task lists",
+    "job": "Say which built-in to-do list (calendar, email or other) each email would become a task in when I turn my mail into tasks",
+    "description": "Give messages (at most 50, each { subject?, from?, labels?, list_unsubscribe?, has_invite? }). Each is tested against the email_split rows of calendar-tasks.json in order (an invite or invitation subject goes to calendar; a list-unsubscribe header, a promotions, updates, social, forums or spam label, or unsubscribe in the subject goes to other; anything else to email), and the first row that matches names its list. Answers messages ({ index, subject, smart_list }) and counts per list. It reads only the messages it is given: it reads no mailbox, makes and saves no task, and sends nothing. The Calendar task screen (calendar-tasks.mjs, kept in this folder but not run here) does the rest of the old job: it keeps named task lists with counts, groups and sorts them, schedules a task onto a day or time, and saves each email as a task with its title, priority, duration, deadline and repeat rule. That needs the records store and the timed-action parts, which this run does not have.",
+    "status": "active",
+    "maker": "maker:plan-tasks-and-todo-lists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "plan-tasks-and-todo-lists",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -10077,6 +10511,44 @@
    }
   },
   {
+   "id": "tool:turn-a-presentation-plan-into-a-teleprompter-session",
+   "values": {
+    "title": "Turn a presentation plan into a teleprompter session",
+    "job": "Turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself",
+    "description": "Give plan (one compiled video presentation plan: id, title, medium video, execution.adapter capture.video, beats each with delivery speak and text, no open acquisitions, and the execution settings: countdown_seconds, auto_stop_seconds, silence_stop_seconds, silence_threshold_rms, minimum_speech_ms, stop_on_final_word, completion_grace_ms, completion_slack_words, script_end_quiet_seconds, stop_phrases, mirror_script, speech_language, follow_speech, allow_manual_nudge, completion_label), and optionally readiness (the setup pass's result for this plan), authorization (a grant: plan_id, authorized, authorized_at_ms, grant_until_ms) and nowMs (epoch milliseconds; the run's clock when left out). Answers the record-video.recording-session: session_id, title, subtitle, the stop and speech-follow settings with their defaults filled in, sentences (the teleprompter script), source_plan, requirements, plan_capabilities, readiness_state, authorization_state and auto_start, which is true only with a complete matching readiness and an unexpired grant for this plan. Refuses a plan that is not a video plan for capture.video, has open acquisitions (a gathering format), has no beats or a beat that is not spoken text, has a negative or non-numeric setting, and a grant that claims capture without fresh readiness or that does not match the plan and time. It reads only its input: it never opens a camera or microphone, never treats a plan as consent, records nothing and asks no AI to write a script. The screen's other work (the camera picture, countdown, live waveform, silence stop and speech-following teleprompter while recording, voice-only choice, and having the person's AI write the script for a format) needs a browser and is not done by this run.",
+    "status": "active",
+    "maker": "maker:record-video-with-teleprompter",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "record-video-with-teleprompter",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:turn-a-tool-into-live-controls",
+   "values": {
+    "title": "Turn a tool into live controls",
+    "job": "Turn a tool's inputs into the live controls a person moves, and check the values they moved into the input the tool would run with",
+    "description": "Give descriptor (a tool's descriptor: input_schema.properties, and its controls DATA if it has any), and optionally bind (the subject inputs: what is changed, such as a file, set once and never drawn as a control) and values ({ control key: value } as moved). Answers controls (made-controls.mjs controlRows: tool_id, label, about, subject, settings as tuning-panel rows with widget, min, max, step, options and default_value, suggested, preview, commit, result, runs) and, when bind or values are given, input: the subject bindings and every control not left at its neutral value, each checked against its row and the tool's schema. It refuses a descriptor with no input_schema.properties, controls DATA naming an input the schema does not hold, and a value outside its range or not one of its choices, saying which control and why. It reads only what it is given and writes nothing. It never runs the tool, saves an interface, keeps a person's place, draws the preview beside the controls or keeps undo and redo: those are the app's controls screen and the account's records.",
+    "status": "active",
+    "maker": "maker:tweak-live-controls",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "tweak-live-controls",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:turn-frames-into-slides",
    "values": {
     "title": "Turn frames into slides",
@@ -10089,6 +10561,25 @@
      "placement:your-computer"
     ],
     "folder": "turn-frames-into-slides"
+   }
+  },
+  {
+   "id": "tool:turn-signed-events-into-effects-once",
+   "values": {
+    "title": "Turn signed events into their effects, once each",
+    "job": "Turn signed events into the effects their installed rules name, each effect once, from a verifier answer given in the input, and list a subject's effects from a reader answer given in the input, showing every call that would be sent",
+    "description": "Runs the signed-event-effects targets with no transport. op admit (admitSignedEventEffects): descriptor_ref names an installed admission descriptor (records.json: signed-event-effects.owner-action-accepted.v1 or signed-event-effects.payment-provider-event-accepted.v1); each of events is sent to the descriptor's verifier target, whose answer must give the event's hash in evaluation.event_hashes; each fact of a verified event that matches an effect rule (relation, objects, required attributes) becomes one effect with an id made from its event, fact, relation, subject and object, so the same fact twice is one effect; each effect is then sent to the write path the dispatch policy declares. op list (listSignedEventEffects): descriptor_ref signed-event-effects.by-subject.v1 and subject; the descriptor's query is sent to its reader target and the rows it answers come back as effects. replies is DATA the caller makes up or brings: { <target>: reply | [reply, ...] }, the answers the verifier, writer and reader give (a list answers one call each, in order); this run does not check a signature itself, does not write or read any store and sends nothing anywhere: every call is answered from replies and written down in sent. Refuses a caller-given descriptor, a descriptor_ref that is not installed, a write path the dispatch policy does not declare, a verifier answer without the event's hash, a call to a target replies gives no answer for, and an op other than admit or list. The live screen sends these calls to the real verifier, workflow writer and current-items reader through its own send; this run does not.",
+    "status": "active",
+    "maker": "maker:run-a-signed-events-effects-once",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "run-a-signed-events-effects-once",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
