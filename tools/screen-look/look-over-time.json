@@ -1,0 +1,48 @@
+{
+  "_what": "How a screen look changes over the day, as DATA. A plan is { on, points, place?, time_zone?, hold?, preset? }: each point is a moment of the day and the look the screen wears at that moment, and between two points the screen moves gradually from the first point's look to the next point's, on the device itself (read-data/look-over-time.ts), so nothing is written while it changes. A point's moment is `{ clock: \"HH:MM\" }` or `{ anchor: <an anchors row id>, minutes: <minutes before (negative) or after> }`. `anchors` are the moments a point can follow besides the clock: the sun at an altitude (degrees above the horizon, negative below it), rising or setting, at the plan's `place` ({ latitude, longitude }); a new anchor (dawn, dusk, golden hour) is one row. A point whose anchor cannot be worked out (no place yet, or a day the sun never reaches that altitude there) is left out that day. `time_zone` is an IANA zone; left out, the device's own zone, so the plan follows the person wherever they are. `hold` keeps the screen still until `until`: `{ kind: \"worn\", until }` wears the look the person picked, `{ kind: \"frozen\", at, until }` keeps the look the plan showed at `at`. `presets` are starting plans offered by name. `keep_readable` keeps words readable while two looks blend: a colour that stands out from the look's `ground` colour in both looks (a see-through colour judged as it shows over that ground) (at least `least_contrast`, the contrast ratio of their brightness) and would fade into the blended ground is shown as whichever of its two colours stands out more, so dark words on a light screen become light words as the screen darkens instead of turning grey on grey. The record lives in the person's workspace records under `record_key` (workspace-preference:<record_key>), so every device reads the same plan.",
+  "record_key": "screen-look-over-time",
+  "most_points": 24,
+  "repaint_every_ms": 60000,
+  "keep_readable": { "ground": "--bg-primary", "least_contrast": 2.5 },
+  "anchors": [
+    { "id": "sunrise", "label": "Sunrise", "sun": { "altitude": -0.833, "side": "rising" } },
+    { "id": "sunset", "label": "Sunset", "sun": { "altitude": -0.833, "side": "setting" } },
+    { "id": "dawn", "label": "First light", "sun": { "altitude": -6, "side": "rising" } },
+    { "id": "dusk", "label": "Last light", "sun": { "altitude": -6, "side": "setting" } }
+  ],
+  "presets": [
+    {
+      "id": "evening-dims-to-black",
+      "label": "Evening dims to black",
+      "about": "From 7pm your screen moves from Trillion to Trillion Black by 10pm, and back between 6:30 and 7:30 in the morning.",
+      "points": [
+        { "at": { "clock": "06:30" }, "look": "trillion-black" },
+        { "at": { "clock": "07:30" }, "look": "trillion" },
+        { "at": { "clock": "19:00" }, "look": "trillion" },
+        { "at": { "clock": "22:00" }, "look": "trillion-black" }
+      ]
+    },
+    {
+      "id": "follow-the-sun",
+      "label": "Follow the sun",
+      "about": "Light while the sun is up; moving to Trillion Black from an hour before sunset until last light, and back at sunrise.",
+      "points": [
+        { "at": { "anchor": "dawn", "minutes": 0 }, "look": "trillion-black" },
+        { "at": { "anchor": "sunrise", "minutes": 30 }, "look": "trillion" },
+        { "at": { "anchor": "sunset", "minutes": -60 }, "look": "trillion" },
+        { "at": { "anchor": "dusk", "minutes": 0 }, "look": "trillion-black" }
+      ]
+    },
+    {
+      "id": "late-night-only",
+      "label": "Only late at night",
+      "about": "Trillion all day; Trillion Black from 11pm to 6am, moving over half an hour each way.",
+      "points": [
+        { "at": { "clock": "05:30" }, "look": "trillion-black" },
+        { "at": { "clock": "06:00" }, "look": "trillion" },
+        { "at": { "clock": "22:30" }, "look": "trillion" },
+        { "at": { "clock": "23:00" }, "look": "trillion-black" }
+      ]
+    }
+  ]
+}

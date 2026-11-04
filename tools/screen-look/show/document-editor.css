@@ -1,0 +1,64 @@
+/* parts/screen-look/show/document-editor.css
+ *
+ * The look of the shared block editor (parts/documents/show/DocumentEditor.tsx): plain writing that grows with its
+ * words, a placeholder in the first block while nothing is written, each block a rule made drawn by its look id
+ * (`data-look`, from parts/documents/read-data/editing-rules.json), mentions as coloured chips, marks as their
+ * elements, and selected blocks washed in the look's selection colour. Colours come only from the look's own roles;
+ * a chip's colour is the one colour attribute every coloured thing uses ([data-colour], coss-workspace.css sets
+ * --record-kind for it). After Notion and Linear's block editors (headings, quotes, callouts and code as blocks in
+ * one column) and the chips-in-the-words composers of 21st.dev "AI Input" (28303) and "AI Agent Input" (23594).
+ */
+.document-editor { position: relative; min-width: 0; outline: none; }
+.document-editor-blocks { gap: 0.15rem; max-height: 16rem; overflow-y: auto; }
+/* The caller's mention picker opens above the words, as wide as the box. */
+.document-editor-picker {
+  position: absolute; z-index: 30; bottom: calc(100% + 0.5rem); left: 0; right: 0; max-height: 20rem; overflow-y: auto;
+  padding: 0.35rem; border: 1px solid var(--border-subtle); border-radius: 0.75rem; background: var(--surface-primary);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 12%);
+}
+.document-block {
+  min-height: 1.6rem; padding: 0.2rem 0.25rem; white-space: pre-wrap; overflow-wrap: break-word; outline: none; cursor: text;
+  color: var(--text-primary); font-size: var(--font-size-body-lg, 1rem); line-height: 1.5; border-radius: var(--radius-control, 0.5rem);
+}
+.document-block[data-empty][data-placeholder]::before { content: attr(data-placeholder); color: var(--text-muted); pointer-events: none; }
+.document-block[aria-disabled] { opacity: 0.6; cursor: default; }
+.document-block[data-selected] { background: color-mix(in oklab, var(--color-primary, currentColor) 14%, transparent); }
+.document-editor[data-selecting] { caret-color: transparent; }
+/* The value layer stores nesting depth; this look supplies its visual step. */
+.document-block[data-indent-level] { margin-inline-start: min(40%, calc(var(--document-list-indent-step, 1.5rem) * var(--document-indent-level, 0))); }
+
+/* Looks a rule gives a block. A new look is one rule here and one row in the DATA. */
+.document-block[data-look="heading-1"] { font-size: 1.6em; font-weight: 700; line-height: 1.25; }
+.document-block[data-look="heading-2"] { font-size: 1.35em; font-weight: 700; line-height: 1.3; }
+.document-block[data-look="heading-3"] { font-size: 1.15em; font-weight: 600; }
+.document-block[data-look="heading-4"] { font-size: 1.05em; font-weight: 600; }
+.document-block[data-look="small"] { font-size: 0.85em; color: var(--text-muted); }
+.document-block[data-look="quote"] {
+  font-family: var(--font-display, inherit); font-size: 1.15em; line-height: 1.45; color: var(--text-secondary, var(--text-primary));
+  padding: 0.4rem 0.8rem;
+}
+.document-block[data-look="callout"] { padding: 0.65rem 0.8rem; background: color-mix(in oklab, var(--color-primary, currentColor) 12%, transparent); }
+:is(.document-block, .ca-text-node)[data-look="code"] {
+  font-family: var(--font-mono, var(--font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace)); font-size: 0.9em; padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-control, 0.5rem);
+  background: var(--surface-secondary, var(--color-muted)); border: 1px solid var(--border-subtle);
+}
+.document-block[data-look="spark"] {
+  font-weight: 600; font-style: italic; padding: 0.65rem 0.9rem; --record-kind: var(--record-kind-yellow, currentColor);
+  color: color-mix(in oklab, var(--record-kind) 70%, var(--text-primary, currentColor));
+  background: color-mix(in oklab, var(--record-kind) 14%, transparent); border: 1px solid color-mix(in oklab, var(--record-kind) 40%, transparent);
+}
+.document-block[data-look="divider"] { min-height: 0; height: 2px; margin: 0.6rem 0.25rem; padding: 0; cursor: default; background: var(--border-subtle); }
+
+/* Marks (the element each inline-mark row draws). */
+.document-block code { font-family: var(--font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace); font-size: 0.9em; padding: 0 0.25rem; border-radius: 0.3rem; background: var(--surface-secondary, var(--color-muted)); }
+
+/* Mentions. A caller that draws its own chip (renderChip) fills the host; the default is a glyph and a name. */
+.document-chip { display: inline-flex; vertical-align: baseline; white-space: nowrap; user-select: all; margin: 0 0.1rem; }
+.document-chip:not([data-colour]) { --record-kind: var(--record-kind-grey, currentColor); }
+.document-chip:not([data-drawn-by]) {
+  align-items: center; gap: 0.3rem; padding: 0 0.45rem 0 0.35rem; border-radius: var(--radius-chip, 0.375rem); font-weight: 500;
+  color: color-mix(in oklab, var(--record-kind) 70%, var(--text-primary, currentColor));
+  background: color-mix(in oklab, var(--record-kind) 14%, transparent); border: 1px solid color-mix(in oklab, var(--record-kind) 32%, transparent);
+}
+.document-chip-glyph { color: var(--record-kind); }

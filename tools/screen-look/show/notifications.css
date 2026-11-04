@@ -1,0 +1,124 @@
+/* Shared notification appearance: stacked toasts, live progress and the
+   notification center panel (an ordinary screen, and its compact hover preview). Structure and behaviour live in packages/ui/show/notifications
+   and packages/ui/show/coss/ui/toast.tsx; this file only decides how they look.
+   Tones are named by ui/show/notifications/notification-kinds.json; add a tone here, never a kind. A notification itself
+   is the shared glance row (listing-card.css draws its tile, ring, title, chips, value and buttons); this file draws the
+   toast stack, the center around the rows, the unread dot and the close control.
+   Anatomy references: 21st.dev #2527 (progress ring glyph), #28243 (tone accent,
+   inline Undo), #27135 and #8245 (All/Unread, grouped rows);
+   Mobbin Dropbox/Supabase upload trays, Linear inbox, GitHub notifications,
+   an activity feed grouped by date (full list: ui/show/notifications/README.md). */
+
+:root{
+  --notification-tone-blue:#6aa8ff;--notification-tone-green:#4fcf94;--notification-tone-red:#ff6b6b;
+  --notification-tone-yellow:#f2c14e;--notification-tone-purple:#b08cff;--notification-tone-neutral:#a3a9b1;
+  --notification-spring:var(--ease-overshoot);--notification-ease:var(--ease-enter);
+}
+[data-tone="blue"]{--notification-tone:var(--notification-tone-blue)}
+[data-tone="green"]{--notification-tone:var(--notification-tone-green)}
+[data-tone="red"]{--notification-tone:var(--notification-tone-red)}
+[data-tone="yellow"]{--notification-tone:var(--notification-tone-yellow)}
+[data-tone="purple"]{--notification-tone:var(--notification-tone-purple)}
+[data-tone="neutral"]{--notification-tone:var(--notification-tone-neutral)}
+
+/* Integrate the source viewport with app dialogs and device safe areas. The
+   stack sits above floating panels and picture-in-picture (layer-order 9998)
+   and below dialogs (10000). */
+.coss-ui [data-slot="toast-viewport"]{z-index:var(--layer-notification,9999);--toast-inset:max(16px,env(safe-area-inset-bottom));pointer-events:none}
+/* Notifications stay at the window edge. Where they would cover a docked floating
+   control, the UI owner (keepBesideFloating) gives them room beside it, or lift
+   above it only when there is no room; these turn that answer into the sides and
+   the bottom. */
+.coss-ui [data-slot="toast-viewport"]{width:calc(100% - var(--toast-inset)*2 - var(--floating-room-left,0px) - var(--floating-room-right,0px))}
+.coss-ui [data-slot="toast-viewport"][data-position*="bottom"]{bottom:calc(var(--toast-inset) + var(--floating-room-lift,0px))}
+.coss-ui [data-slot="toast-viewport"][data-position*="left"]{left:calc(var(--toast-inset) + var(--floating-room-left,0px))}
+.coss-ui [data-slot="toast-viewport"][data-position*="right"]{right:calc(var(--toast-inset) + var(--floating-room-right,0px))}
+.coss-ui [data-slot="toast-viewport"][data-position*="center"]{left:calc(50% + (var(--floating-room-left,0px) - var(--floating-room-right,0px))/2)}
+.coss-ui [data-slot="toast-viewport"]>div{pointer-events:auto}
+.coss-ui [data-slot="toast-title"]{overflow-wrap:anywhere;font-size:inherit;line-height:inherit;margin:0}
+
+/* Card */
+/* Opaque on the screen-look surface token; cards behind the front one darken
+   slightly so the stack reads as depth, never as see-through. */
+/* Its corner follows the tile in it (screen-look nested-corners.css): the tile's 8px corner plus the 16px from the card's
+   edge to the tile, so the two curves run parallel instead of a tight tile in a loose card. */
+.notification-root{overflow:hidden;--corner-held:8px;--corner-inset:16px;border-radius:var(--corner-out,24px)!important;
+  background:color-mix(in srgb,var(--surface,var(--color-popover,#13151a)) calc(100% - 4%*min(var(--toast-index,0),3)),#000)!important;
+  color:var(--text,var(--color-foreground,#eee));border-color:color-mix(in srgb,var(--color-foreground,#eee) 10%,transparent)!important;
+  box-shadow:0 1px 0 color-mix(in srgb,#fff 5%,transparent) inset,0 12px 32px -12px rgb(0 0 0/.55),0 2px 6px -2px rgb(0 0 0/.35)!important}
+.notification-root[data-expanded]{background:var(--surface,var(--color-popover,#13151a))!important}
+.notification-card{position:relative;z-index:1;padding:4px}
+/* Each notification is the shared glance row (parts/ui/show/listing-card); the toast and the center row draw its edge
+   and surface, so the row inside them is bare. */
+.notification-card [data-slot="listing-card"],.notification-center-row [data-slot="listing-card"]{border:0;background:transparent;box-shadow:none}
+/* A notification reads whole, as a notification (pairs/04-notification): its tile, then the title with when after a bar,
+   its one short line under them (up to two lines, never cut to nothing), and its buttons under that, lined up with the
+   words. The glance row stays one line everywhere else; only the toast and the center stack it. */
+:is(.notification-card,.notification-center-row) [data-form="row"]{align-items:flex-start;padding-block:10px}
+:is(.notification-card,.notification-center-row) [data-form="row"] [data-listing-line]{height:auto;min-height:36px;align-items:flex-start;flex-basis:100%;flex-wrap:wrap;row-gap:6px}
+/* The words get the line beside the tile (and the percent at its end); who has it and its state go under them. */
+:is(.notification-card,.notification-center-row) [data-form="row"] [data-listing-line]>p:not([data-listing-value]){order:1;flex:1 1 calc(100% - 112px)}
+:is(.notification-card,.notification-center-row) [data-form="row"] [data-listing-line]>[data-listing-value]{order:2}
+:is(.notification-card,.notification-center-row) [data-form="row"] [data-listing-line]>:not([data-listing-tile]):not(p){order:3;max-width:none}
+:is(.notification-card,.notification-center-row) [data-form="row"] [data-listing-line]>p:not([data-listing-value])+:not([data-listing-value]){margin-left:44px}
+/* The tile keeps its kind's icon while work goes on with no known share; its state is the badge beside the words. */
+:is(.notification-card,.notification-center-row) [data-form="row"] [data-listing-working]{display:none}
+:is(.notification-card,.notification-center-row) [data-form="row"] [data-listing-line]>p:not([data-listing-value]){flex-wrap:wrap;align-self:center;white-space:normal;row-gap:2px;column-gap:8px}
+:is(.notification-card,.notification-center-row) [data-form="row"] [data-listing-line]>p:not([data-listing-value])>span:first-child{max-width:100%;flex:0 1 auto;white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+:is(.notification-card,.notification-center-row) [data-form="row"] [data-listing-line]>p:not([data-listing-value])>span:last-child:not(:first-child):not([data-listing-when]){flex-basis:100%;white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:12.5px;line-height:18px}
+:is(.notification-card,.notification-center-row) [data-form="row"]>[data-slot="listing-actions"]{margin-left:44px;flex-basis:calc(100% - 44px)}
+
+/* Dismiss: quiet until the card is hovered or focused; always there on touch */
+.notification-dismiss{display:grid;place-items:center;width:22px;height:22px;border-radius:999px;border:0;padding:0;cursor:pointer;
+  color:var(--color-muted-foreground,#aaa);background:transparent;opacity:0;transition:opacity .15s,background-color .15s,color .15s}
+.notification-dismiss svg{width:13px;height:13px}
+.notification-root:hover .notification-dismiss,.notification-root:focus-within .notification-dismiss,.notification-dismiss:focus-visible{opacity:1}
+.notification-dismiss:hover{background:color-mix(in srgb,var(--color-foreground,#eee) 12%,transparent);color:var(--color-foreground,#eee)}
+@media (pointer:coarse){.notification-dismiss{opacity:1}}
+
+/* Notification center: the body of an ordinary screen (a floating window or a
+   tab) and, compact, the live feed of a navigation hover preview. It fills the
+   frame it is placed in; the frame (window, tab, preview card) draws the edge.
+   Every notification surface is opaque on the screen-look surface token. */
+.notification-center{box-sizing:border-box;width:100%;height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;
+  background:var(--surface,var(--color-popover,#13151a));color:var(--text,var(--color-foreground,#eee))}
+.notification-center-host{height:100%;min-height:0}
+.notification-center-count{margin:0;padding:10px 16px 0;font-size:12px;font-weight:600;color:var(--notification-tone-blue)}
+.notification-center[data-compact] .notification-center-row{padding:0 0 0 8px}
+.notification-center-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 12px 6px 16px}
+.notification-center-title{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em}
+.notification-center-header-actions{display:flex;align-items:center;gap:6px}
+.notification-center-filters{padding:4px 12px 10px;border-bottom:1px solid var(--line,color-mix(in srgb,var(--color-foreground,#eee) 8%,transparent))}
+.notification-center-scroll{overflow-y:auto;overscroll-behavior:contain;padding-bottom:8px}
+.notification-center-group-label{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:7px;margin:0;padding:10px 16px 6px;
+  font-size:11px;font-weight:650;color:var(--muted,var(--color-muted-foreground,#9298a6));background:var(--surface,var(--color-popover,#13151a))}
+/* One column that never grows past the panel: a row's one line truncates instead of pushing its value and buttons out. */
+.notification-center-list{list-style:none;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:0;padding:0 10px}
+.notification-center-row{position:relative;display:block;min-width:0;padding:0 0 0 8px;border-radius:12px;cursor:default;transition:background-color .15s}
+.notification-center-row:hover,.notification-center-row:focus-within{background:var(--surface-soft,color-mix(in srgb,var(--color-foreground,#eee) 5%,transparent))}
+.notification-center-row[data-running]{background:color-mix(in srgb,var(--notification-tone) 7%,var(--surface,#13151a))}
+.notification-center-unread{position:absolute;left:3px;top:21px;width:6px;height:6px;border-radius:999px;background:transparent;transition:background-color .2s}
+.notification-center-row[data-unread] .notification-center-unread{background:var(--notification-tone-blue)}
+.notification-center-row:not([data-unread]) [data-listing-line] p:not([data-listing-value])>span:first-child{font-weight:450;color:var(--muted,var(--color-muted-foreground,#aaa))}
+.notification-center-row-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.notification-center-row:hover .notification-center-row-actions,.notification-center-row:focus-within .notification-center-row-actions{opacity:1}
+@media (pointer:coarse){.notification-center-row-actions{opacity:1}}
+.notification-center-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:44px 24px 40px;text-align:center}
+.notification-center-empty-mark{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--surface-soft,color-mix(in srgb,var(--color-foreground,#eee) 6%,transparent));color:var(--muted,#9298a6)}
+.notification-center-empty-mark svg{width:18px;height:18px}
+.notification-center-empty-title{margin:0;font-size:13.5px;font-weight:600}
+.notification-center-empty-detail{margin:0;max-width:280px;font-size:12.5px;color:var(--muted,var(--color-muted-foreground,#9298a6))}
+
+
+
+@media(prefers-reduced-motion:reduce){
+  .coss-ui [data-slot="toast-viewport"] *,.notification-center,.notification-center *{transition:none!important;animation:none!important}
+}
+
+/* Notifications that say the same thing, listed under the row that stands for them: set in one step, a quiet line
+   joining them to it. */
+.notification-center-row[data-within]{margin-inline-start:20px;border-inline-start:1px solid var(--color-border,#e5e5e5)}
+
+/* A reply answered in place: the field over the notification, Send at its foot on the right. */
+.notification-answer{display:flex;flex-direction:column;gap:10px;width:min(320px,calc(100vw - 32px));padding:12px 12px 14px}
+.notification-answer-send{align-self:flex-end;margin-top:2px}

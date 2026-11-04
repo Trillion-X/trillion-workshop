@@ -1,0 +1,53 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SET-UP-MY-ACCOUNT-ENTRY",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:39c40fcfca547a3831c539604efe2ffd0080e3e646c70c6258e9de49e15fab96",
+  "quote": "Product behaviour lives in Workshop tools, run through running-tools: the page calls POST /work/api/door/tools:run, the engine route is deleted and the tool takes over"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "see what is left to set up: read the setup facts a request sends and answer the Get started screen",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/set-up-my-account/do-work/see-what-is-left-to-set-up.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/set-up-my-account/",
+   "why": "This tool itself: the decisions it runs are read-data/, moved byte for byte from trillion (ports/); this file only reads the request, hands the setup steps their row filter and prints the answer."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "see what is left to set up: read the setup facts a request sends and answer the Get started screen",
+    "seeWhatIsLeftToSetUp"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "seeWhatIsLeftToSetUp"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "2fbb1037e1c69f2f91b563478b4434109840c43d"
+    },
+    {
+     "repository": "trillion",
+     "commit": "d273ef3049fea1297f18533f798d4916a3832192"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/set-up-my-account/test/see-what-is-left-to-set-up.test.mjs"
+  ]
+ }
+}

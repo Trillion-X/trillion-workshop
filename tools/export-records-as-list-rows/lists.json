@@ -1,0 +1,778 @@
+{
+  "_what": "Lists as data (src/lists.mjs): the kinds of field a list can have (each with the icon its values and its column lead with), the limits every list keeps, and the words its refusals use. A new kind of field is one row here; the lists module never names a kind. A kind that says `reads_outside` works its values out from records outside the lists (progress from work references, a relationship from messages), so a read of a list holding one depends on more than the lists and is read again on every change (src/lists.mjs dependsOf). Its field_kinds (which value each field kind holds) are this tool's record_model field_kinds in tool-rows.json, joined into the record model the engine reads; the rest is here, moved unchanged from trillion-rust product/lists.json (old trillion src/lists.json).",
+  "record_type": "list",
+  "open_rows": {
+    "mark_type": "list-open-mark",
+    "fill_page": 100,
+    "_why": "A list whose field names an open_index keeps its rows not settled in that declared index (src/record-indexes.json), so reading what is open never loads the settled rows, which only grow. A row put with that field unset starts at the field's `starts` value, so the index misses none; rows written before that gain it fill_page rows at a time, and the progress is the record <mark_type>:<list>."
+  },
+  "naming": {
+    "_what": "A field that names a thing is a link to it (src/naming-fields.mjs). A text, choice or tags field whose distinct values are, at least match_share of them and at least least_values, each the title of exactly one row of one other list names that list's rows; a field named in named_by_field names the rows of the list given there (made once when missing). Either way the field becomes a link to that list and each value its row id, a row made, titled by the value, where none has it. A field that says what it names (`names: { list }`, set by the person or their AI) is moved whatever its words are, and a row it makes fills its own link fields with the rows of their lists its words name (titles of at least least_title_chars, as whole words; never the one row the words came from). A field a saved view, a public page, a start or a settle reads by its words, the title field, and a value longer than value_chars are never moved. Lists marked by a change are looked at again at idle (mark_type), one field moved per step, a look over every list starting at most once every every_minutes.",
+    "kinds": [
+      "text",
+      "choice",
+      "tags"
+    ],
+    "match_share": 0.8,
+    "least_values": 2,
+    "value_chars": 80,
+    "mark_type": "naming-fields-mark",
+    "every_minutes": 360,
+    "least_title_chars": 5,
+    "named_by_field": [],
+    "_named_by_field": "Fields that name a kind of thing by their id, with the list that keeps it: { fields: [ids], list: { id, label, row_type, title_field, fields } }. Empty until a person's own words show such a field holds names: a CRM's company field can hold how a person is known (\"Mum\", \"Running club\", \"Piano student\"), not companies, and moving it would make a list of companies named Mum."
+  },
+  "holds": {
+    "_what": "What a list holds, by what it is made of rather than what it is called (src/lists.mjs search `holds`, holders). A list holds `people` when its row type is one of row_types or any of its fields has a kind in field_kinds, so a CRM the person built under any name is found by what is in it (a name with an email or a phone), not by a row type this file would have to guess.",
+    "people": {
+      "row_types": [
+        "person",
+        "crm",
+        "customer",
+        "contact"
+      ],
+      "field_kinds": [
+        "email",
+        "phone"
+      ]
+    }
+  },
+  "aggregates": {
+    "_what": "What read_list_aggregates can work out over a list or one of its saved views without sending the rows: each row here is a measure. `rows` measures count the rows themselves; the others take a field's values (`kinds`: the rule kinds of the fields it applies to, empty for any) and run `transform` over them as the formula engine's array operators (src/list-aggregates.mjs gives the engine the values as `values`). A new measure is one row here; nothing in the code names one.",
+    "count": {
+      "answers": "number",
+      "label": "Rows",
+      "rows": true
+    },
+    "filled": {
+      "answers": "number",
+      "label": "Rows with a value",
+      "kinds": [],
+      "transform": [
+        {
+          "op": "op:core.count"
+        }
+      ]
+    },
+    "distinct": {
+      "answers": "number",
+      "label": "Different values",
+      "kinds": [],
+      "transform": [
+        {
+          "op": "op:core.array_unique"
+        },
+        {
+          "op": "op:core.array_length"
+        }
+      ]
+    },
+    "sum": {
+      "answers": "number",
+      "label": "Sum",
+      "kinds": [
+        "number"
+      ],
+      "numeric": true,
+      "transform": [
+        {
+          "op": "op:core.sum"
+        }
+      ]
+    },
+    "average": {
+      "answers": "number",
+      "label": "Average",
+      "kinds": [
+        "number"
+      ],
+      "numeric": true,
+      "transform": [
+        {
+          "op": "op:core.average"
+        }
+      ]
+    },
+    "median": {
+      "answers": "number",
+      "label": "Median",
+      "kinds": [
+        "number"
+      ],
+      "numeric": true,
+      "transform": [
+        {
+          "op": "op:core.median"
+        }
+      ]
+    },
+    "min": {
+      "answers": "number",
+      "label": "Smallest",
+      "kinds": [
+        "number"
+      ],
+      "numeric": true,
+      "transform": [
+        {
+          "op": "op:core.min"
+        }
+      ]
+    },
+    "max": {
+      "answers": "number",
+      "label": "Largest",
+      "kinds": [
+        "number"
+      ],
+      "numeric": true,
+      "transform": [
+        {
+          "op": "op:core.max"
+        }
+      ]
+    },
+    "values": {
+      "answers": "tags",
+      "label": "The linked values",
+      "kinds": [],
+      "per_row": true,
+      "transform": [
+        {
+          "op": "op:core.array_unique"
+        }
+      ],
+      "_what": "A lookup: the values themselves, each once. per_row: only a rollup field reads it (over one row's linked rows), never a total over a whole list."
+    }
+  },
+  "pairs": {
+    "_what": "Two link fields that are one relationship seen from both sides (src/list-pairs.mjs): a field names the field on the list it links to that holds the way back (`pairs_with`), and both are link fields pointing at each other's list. A write to either side changes the other in the same write: a row added to one side is added to the other, a row taken away (or removed) is taken from it. Each side keeps its own max_links, so one-to-many and many-to-many are what the two sides say, never stored. Saving a field that pairs with one that names nothing yet names it back in the same write; two fields whose pointers do not mirror each other are refused."
+  },
+  "keys": {
+    "type": "list-key",
+    "mark": "keys-",
+    "_what": "Identity keys (src/list-keys.mjs). A field marked `unique` holds a value no other row of the list holds in its shared form (src/list-identity.mjs normalizers): a second row with the same email, domain or phone is refused naming the row that has it. Each held form is a record of its own, <type>:<list>:<field>:<BLAKE3 of the form>, naming the row, written in the same write as the row, so asking whether a form is taken is one point read whatever the list's size. Rows kept before a field was unique gain theirs open_rows.fill_page at a time (the progress is <open_rows.mark_type>:<mark><list>); until that is done a write that sets a unique field is refused as being prepared, never guessed. `match_modes` are what put_list_rows match_mode may say: what a row matched by match_on may do.",
+    "match_modes": {
+      "create_or_update": {
+        "update": true,
+        "create": true
+      },
+      "update": {
+        "update": true,
+        "create": false
+      },
+      "create": {
+        "update": false,
+        "create": true
+      }
+    },
+    "key_suffix": "~key"
+  },
+  "stamps": {
+    "_what": "Who wrote each value (src/list-stamps.mjs), for a list that says `stamps: true` (none does unless asked). Every field a write sets carries { class, by, at } in the row's _stamps; a cleared field loses it. The class comes from the writer's name (actor.by, lowercased) by the first row of `classes` whose pattern it matches, else `default`. A value whose class is in `machine` reads as machine-written (`machine_written` on the row), so a person can see what a person typed and what was worked out for them. A field that says `machine: true` always reads as machine-written when it holds a value.",
+    "classes": [
+      {
+        "class": "person",
+        "by": "^(you, in trillion|person|the person)$"
+      },
+      {
+        "class": "ai",
+        "by": "claude|chatgpt|openai|codex|cursor|gemini|copilot|grok|perplexity|^ai$|ais$|agent"
+      },
+      {
+        "class": "import",
+        "by": "import|carry|migrat|placed-lists"
+      },
+      {
+        "class": "enrichment",
+        "by": "naming|enrich|guess|speaker|life-map|awareness"
+      },
+      {
+        "class": "automation",
+        "by": "workflow|trigger|schedule|done-when|index|calendar|timed|tool"
+      }
+    ],
+    "default": "unknown",
+    "machine": [
+      "ai",
+      "import",
+      "enrichment",
+      "automation"
+    ]
+  },
+  "history": {
+    "_what": "What a removed row leaves (src/lists.mjs putRows, removedRows, restoreRows). A removal writes a trash record <trash_type>:<list>:<row> { list_id, row_id, removed_at, by } beside it, so the list's recently removed rows are read newest first from the declared index (src/record-indexes.json) and a row is put back from the log, exactly as it was before its removal (restore_list_rows). A trash record older than trash_days is no longer listed, and a removal lets go of this list's oldest expired ones (limits.trash_purged_per_write at a time). A merge leaves a tombstone <tombstone_type>:<list>:<row> { merged_into }, so a read of the old id answers where it went and a link written later to the old id is written to the row it became (followed at most limits.tombstone_hops times).",
+    "trash_type": "list-trash",
+    "trash_days": 30,
+    "tombstone_type": "list-tombstone"
+  },
+  "review": {
+    "_what": "Keeping what a list says true (src/list-review.mjs): a list set up for review has an owner, a review state and a date by which it must be checked again on each row (`fields`, by role), and saved views that decide, with the formula engine's rules, which rows need review and why (`views`; a field names a role, `title` is the list's title field). `actions` are what review_list_rows may do to rows: set a state, set the date a review lasts for (expires_days, the list's own or this default), clear it, name who checked or who owns. read_rows_needing_review reads the views and answers each owner the rows they must look at, with the reasons.",
+    "expires_days": 90,
+    "fields": {
+      "owner": {
+        "id": "owner",
+        "label": "Owner",
+        "kind": "text"
+      },
+      "state": {
+        "id": "review_state",
+        "label": "Review",
+        "kind": "choice",
+        "choices": [
+          "Verified",
+          "Outdated",
+          "Verification requested"
+        ]
+      },
+      "due": {
+        "id": "review_due",
+        "label": "Check again by",
+        "kind": "date"
+      },
+      "by": {
+        "id": "verified_by",
+        "label": "Checked by",
+        "kind": "text"
+      }
+    },
+    "verified": "Verified",
+    "actions": {
+      "verify": {
+        "state": "Verified",
+        "due": "set",
+        "by": "set"
+      },
+      "flag_outdated": {
+        "state": "Outdated",
+        "due": "clear"
+      },
+      "request_verification": {
+        "state": "Verification requested",
+        "due": "clear"
+      },
+      "assign": {
+        "owner": "set"
+      }
+    },
+    "views": [
+      {
+        "id": "review-needed",
+        "label": "Needs review",
+        "reason": "not_verified",
+        "rules": {
+          "kind": "group",
+          "combinator": "or",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": {
+                "role": "state"
+              },
+              "operator": "is_empty",
+              "params": {}
+            },
+            {
+              "kind": "rule",
+              "field": {
+                "role": "state"
+              },
+              "operator": "is_none_of",
+              "params": {
+                "values": [
+                  "Verified"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "review-expired",
+        "label": "Review expired",
+        "reason": "expired",
+        "time": {
+          "field": {
+            "role": "due"
+          },
+          "before": {
+            "binding": {
+              "$kind": "binding",
+              "select": {
+                "from": "self",
+                "path": [
+                  "now"
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "review-empty",
+        "label": "Empty",
+        "reason": "empty",
+        "rules": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": {
+                "role": "title"
+              },
+              "operator": "is_empty",
+              "params": {}
+            }
+          ]
+        }
+      }
+    ],
+    "rows_listed": 200,
+    "scan_rows": 5000
+  },
+  "proposals": {
+    "_what": "Changes an AI proposes to a list and a person approves (src/list-proposals.mjs). A proposal names the rows it may change (`editable`, at most editable_most, each checked against the caller's right to write the list), the places it looked for its evidence (`scopes`, at most scopes_most: a list, or a saved view of one; with none it cites nothing) and the evidence itself (rows within those scopes), and holds the rows' new values beside what they held when it was made (`saw`). Nothing changes until a person decides: approve applies it exactly once, all or nothing, refusing it as conflicted when a row it changes was changed since; decline, withdraw (its proposer) and remove close it. A list that says review_changes: true refuses direct writes from a writer the `gated` rows name (an AI over MCP), pointing it at propose_list_changes; a list that does not say it stays open to every writer.",
+    "type": "list-proposal",
+    "editable_most": 20,
+    "scopes_most": 20,
+    "evidence_most": 50,
+    "listed_most": 50,
+    "retry_after_seconds": 30,
+    "gated": {
+      "roads": [
+        "key"
+      ],
+      "classes": [
+        "ai"
+      ]
+    },
+    "decisions": {
+      "approve": {
+        "from": [
+          "pending",
+          "conflicted"
+        ],
+        "person": true,
+        "applies": true
+      },
+      "decline": {
+        "from": [
+          "pending",
+          "conflicted"
+        ],
+        "person": true,
+        "to": "declined"
+      },
+      "withdraw": {
+        "from": [
+          "pending",
+          "conflicted"
+        ],
+        "proposer": true,
+        "to": "withdrawn"
+      },
+      "remove": {
+        "from": [
+          "applied",
+          "declined",
+          "withdrawn"
+        ],
+        "removes": true
+      }
+    }
+  },
+  "use_heat": {
+    "_what": "How much a row is used, decaying with time (src/list-review.mjs): use_list_rows adds `add` to a row's heat, which halves every half_life_days; one use keeps a row warm for one half-life (cold_below is half of add); a row is touched at most once every min_gap_minutes (a second use in that time is not written), so heat costs at most one small record per row per gap. read_cold_list_rows lists rows whose heat is below cold_below, a page at a time within scan_rows, leaving out rows whose review is current (a person said they are true).",
+    "type": "list-heat",
+    "add": 1,
+    "half_life_days": 30,
+    "min_gap_minutes": 360,
+    "cold_below": 0.5,
+    "scan_rows": 5000,
+    "rows_listed": 200
+  },
+  "value_history": {
+    "_what": "A field that says keeps_history: true keeps on its row the values it has held, each with when it began and who wrote it (src/list-value-history.mjs `_history`: { cut, steps: [{ v, at, by, via }] }), written with the value. A `history` field reads them through one of `ops`: `reduce` is the interval arithmetic (at: the value held at a moment; previous: the value before the current one; since: when the current one began; duration: time spent holding a value, in `unit`; ever: whether it was ever held), `needs` what the field must say, `answers` the kind a view compares (source: the kind of the field it reads). A field keeps at most steps_kept steps; older ones are let go and the field says cut, so an answer that needs them is null.",
+    "steps_kept": 50,
+    "units": {
+      "seconds": 1000,
+      "minutes": 60000,
+      "hours": 3600000,
+      "days": 86400000
+    },
+    "ops": {
+      "value_at": {
+        "reduce": "at",
+        "needs": "at",
+        "answers": "source"
+      },
+      "previous_value": {
+        "reduce": "previous",
+        "answers": "source"
+      },
+      "value_set_at": {
+        "reduce": "since",
+        "answers": "date"
+      },
+      "time_spent_in": {
+        "reduce": "duration",
+        "needs": "value",
+        "unit": "days",
+        "answers": "number"
+      },
+      "has_been_in": {
+        "reduce": "ever",
+        "needs": "value",
+        "answers": "boolean"
+      }
+    }
+  },
+  "view_records": {
+    "_what": "A saved view kept as a record of its own (src/lists.mjs saveView), <type>:<list>:<view> { list_id, view, order }, so adding, ordering, sharing or removing one view never rewrites the list or its other views. order is a fractional key; the declared index (src/record-indexes.json) reads a list's views in order. Views a list kept inside itself before are read as before, ahead of its own; moving a view gives every view of the list a record of its own first.",
+    "type": "list-view"
+  },
+  "filters": {
+    "_what": "A saved filter kept as a resource of its own (src/list-filters.mjs), <type>:<list>:<filter> { list_id, filter: { id, label, rules } }, apart from any view. A view or another filter uses it by putting { kind: \"filter\", filter_id } where a rule goes in a rule group; reading the view puts the filter's group there, so one change to a filter changes every view that uses it. A filter may use others down to limits.filter_depth levels; a filter that reaches itself is refused.",
+    "type": "list-filter",
+    "reference_kind": "filter"
+  },
+  "snapshots": {
+    "_what": "A view's rows held still (src/list-snapshots.mjs): a snapshot is the ids a list or saved view held when it was taken, kept as <type>:<id>, read a range at a time and totalled by its id while the list goes on changing. It lasts `minutes`, at most limits.snapshot_rows ids, and a list keeps at most limits.snapshots_kept (the oldest goes first).",
+    "type": "list-snapshot",
+    "minutes": 30
+  },
+  "file_moves": {
+    "_what": "A file field names a file by its identity (1f:...) or by its name (/Media/clip.mp4). When a file moves or is renamed, rewriteFileNames (src/list-row-operations.mjs) puts the new name in every row of every list whose file field held the old one, each row only if it still holds it, a page at a time within limits.file_scan_rows, and says how many it rewrote and whether it reached the end. Names are compared exactly; an identity never needs rewriting.",
+    "name_prefix": "/"
+  },
+  "duplicate": {
+    "_what": "How a row is copied (src/list-row-operations.mjs duplicateRows), per field, as DATA: keep copies the value, drop leaves it out, reset puts back what a new row starts with (the field's `starts`, else nothing), remap keeps a link but points it at the copy when the row it names is copied too in the same request. A field names its own with `duplicate`; otherwise its kind row here decides; otherwise `default`. A field that settles on a value (Done) or starts on one is reset, so a copy of a finished row is open. What the row carries beside its fields (the basis of its values, where earlier rows were merged from) is never copied; the copy says where it came from (_copied_from).",
+    "default": "keep",
+    "by_kind": {
+      "link": "remap"
+    },
+    "paired": "drop",
+    "_paired": "A paired link (src/list-pairs.mjs) is left out of a copy unless the field says otherwise: keeping it would add the copy to the other side, which may hold only one row.",
+    "actions": [
+      "keep",
+      "drop",
+      "reset",
+      "remap"
+    ],
+    "never_copied": [
+      "_basis",
+      "_merged_from",
+      "_copied_from",
+      "_history"
+    ]
+  },
+  "limit_notes": {
+    "_what": "The two-stage limit (limits.warn_share): a write that uses this share of a limit still succeeds and answers `warnings` naming what is nearly full and what to do; one past the limit is refused by `too_many` with the same limit. A new limit that warns is one row here.",
+    "fields_per_list": {
+      "what": "Fields in this list",
+      "remedy": "Remove a field nothing reads, or keep the rest in a second list linked to this one."
+    },
+    "lists_per_person": {
+      "what": "Lists you keep",
+      "remedy": "Remove a list you no longer use, or add a field to an existing list instead of making another."
+    },
+    "views_per_list": {
+      "what": "Saved views of this list",
+      "remedy": "Remove a view you no longer open."
+    },
+    "rows_per_write": {
+      "what": "Rows in this request",
+      "remedy": "Send rows in groups below this size; a selection (select) changes any number of rows without naming them."
+    }
+  },
+  "normalizers": {
+    "_what": "How a kind's value is reduced to the form two spellings of the same thing share (a field kind row names one in `normalize`). Each is an ordered list of steps over the text: trim, lowercase, or replace (a JavaScript pattern, with the text it becomes). A row put with `match_on` finds the row already holding the same normalized value instead of making another; the raw spelling is always the one kept. A new normalizer is one row here.",
+    "email": [
+      {
+        "op": "trim"
+      },
+      {
+        "op": "lowercase"
+      }
+    ],
+    "phone": [
+      {
+        "op": "trim"
+      },
+      {
+        "op": "replace",
+        "pattern": "[^0-9+]",
+        "with": ""
+      },
+      {
+        "op": "replace",
+        "pattern": "(?!^)\\+",
+        "with": ""
+      }
+    ],
+    "domain": [
+      {
+        "op": "trim"
+      },
+      {
+        "op": "lowercase"
+      },
+      {
+        "op": "replace",
+        "pattern": "^[a-z][a-z0-9+.-]*://",
+        "with": ""
+      },
+      {
+        "op": "replace",
+        "pattern": "^www\\.",
+        "with": ""
+      },
+      {
+        "op": "replace",
+        "pattern": "[/?#].*$",
+        "with": ""
+      },
+      {
+        "op": "replace",
+        "pattern": "/+$",
+        "with": ""
+      }
+    ],
+    "domain_root": [
+      {
+        "op": "trim"
+      },
+      {
+        "op": "lowercase"
+      },
+      {
+        "op": "replace",
+        "pattern": "^[a-z][a-z0-9+.-]*://",
+        "with": ""
+      },
+      {
+        "op": "replace",
+        "pattern": "^[^/?#]*@",
+        "with": ""
+      },
+      {
+        "op": "replace",
+        "pattern": "[/?#:].*$",
+        "with": ""
+      },
+      {
+        "op": "replace",
+        "pattern": "\\.+$",
+        "with": ""
+      },
+      {
+        "op": "registrable_root"
+      }
+    ],
+    "words": [
+      {
+        "op": "trim"
+      },
+      {
+        "op": "lowercase"
+      },
+      {
+        "op": "replace",
+        "pattern": "\\s+",
+        "with": " "
+      }
+    ]
+  },
+  "domain_suffixes": {
+    "_what": "Where a registrable domain starts (the domain_root normalizer, op registrable_root): a host ending in one of these two-label suffixes keeps three labels (shop.acme.co.uk -> acme.co.uk), any other keeps two (shop.acme.com -> acme.com). A host that is one label, or an address of numbers, is kept as it is. A new suffix is one entry here.",
+    "two_label": [
+      "co.uk",
+      "org.uk",
+      "ac.uk",
+      "gov.uk",
+      "com.au",
+      "net.au",
+      "org.au",
+      "co.nz",
+      "co.jp",
+      "ne.jp",
+      "or.jp",
+      "co.in",
+      "co.za",
+      "com.br",
+      "com.mx",
+      "com.ar",
+      "com.tr",
+      "com.cn",
+      "com.sg",
+      "com.hk",
+      "co.kr",
+      "co.id",
+      "com.my",
+      "com.ph",
+      "com.tw"
+    ]
+  },
+  "input_grammar": {
+    "_what": "How text is read as a number or a date in a field that declares it (`input` on the field): decimal is the separator between the whole part and the fraction (the other mark, or a space, may group thousands), date_order is the order of day, month and year in a date written with / . or - between the parts (a date written year first is read as ISO whatever is declared). A field that declares nothing takes numbers as numbers and dates as the text it is given, as before.",
+    "decimal": [
+      ".",
+      ","
+    ],
+    "date_order": [
+      "ymd",
+      "dmy",
+      "mdy"
+    ],
+    "date_parts": "^(\\d{1,4})[/.\\-](\\d{1,2})[/.\\-](\\d{1,4})$"
+  },
+  "source_namespaces": {
+    "_what": "Row sources whose rows name their own values by namespace and key (src/list-paths.mjs sourceNamespacesOf): a saved view of a list with such a source may name note.status or file.mtime as it names a field, and the source says what kind each is (src/lists.mjs withRowSources sourceFields). Each row says which namespace holds what.",
+    "documents": {
+      "properties": "note",
+      "facts": "file",
+      "formulas": "formula"
+    }
+  },
+  "limits": {
+    "fields_per_list": 60,
+    "rows_per_write": 200,
+    "feed_items_per_run": 20,
+    "rows_per_read": 2000,
+    "read_page_rows": 50,
+    "read_page_value_bytes": 1048576,
+    "read_page_links": 1000,
+    "text_chars": 20000,
+    "lists_per_person": 500,
+    "views_per_list": 50,
+    "search_lists": 25,
+    "search_default": 20,
+    "search_most": 50,
+    "search_detail_chars": 120,
+    "row_sources_per_list": 4,
+    "placement_earlier": 16,
+    "lists_per_make": 20,
+    "changes_kept": 32,
+    "select_rows_per_call": 1000,
+    "match_scan_rows": 20000,
+    "backlink_scan_rows": 20000,
+    "backlinks_returned": 200,
+    "path_hops": 5,
+    "warn_share": 0.8,
+    "basis_chars": 2000,
+    "basis_sources": 10,
+    "aggregate_scan_rows": 20000,
+    "aggregate_groups": 100,
+    "aggregate_measures": 20,
+    "tombstone_hops": 8,
+    "snapshot_rows": 10000,
+    "snapshots_kept": 20,
+    "snapshot_page_rows": 200,
+    "trash_listed": 100,
+    "trash_purged_per_write": 50,
+    "field_at_rows": 200,
+    "rollup_links": 1000,
+    "file_scan_rows": 20000,
+    "view_parameters": 20,
+    "filters_per_list": 100,
+    "resolve_refs": 200,
+    "filter_depth": 4
+  },
+  "words": {
+    "no_list": "There is no list {list_id}. list_lists shows the lists this person keeps.",
+    "bad_id": "A list or field id is a short name of letters, digits and dashes, like \"trillion-crm\"; {id} is not one.",
+    "bad_kind": "The field {field_id} has the kind {kind}, which is not one of: {kinds}.",
+    "bad_link": "The field {field_id} links to {links_to}, which is not a list this person keeps.",
+    "needs_link": "The field {field_id} is a link, so it needs links_to: the id of the list it links to.",
+    "bad_value": "The row {row_id} has a value for {field_id} that is not {expected}.",
+    "bad_link_constraints": "The link rules for {field_id} are invalid. Acyclic links must point to rows in the same list.",
+    "link_too_many": "The row {row_id} has too many links in {field_id}; keep at most {limit}.",
+    "link_target_missing": "The row {row_id} links {field_id} to {target_id}, which is not a row this person keeps.",
+    "link_cycle": "The link in {field_id} would make a cycle involving row {row_id}.",
+    "unknown_field": "The row {row_id} has a value for {field_id}, which is not a field of {list_id}. save_list adds a field.",
+    "bad_balanced": "The balanced rule for {list_id} needs amount_field (a number field), group_field (another field) and index (a declared index on just group_field), and cannot be used with managed rows.",
+    "balanced_index_building": "The list {list_id} is still preparing the index its balanced rule needs. Try again shortly; nothing was written.",
+    "balanced_incomplete": "The row {row_id} in {list_id} must have a number amount and an entry, because the list is balanced. An empty amount is not zero.",
+    "unbalanced_write": "That write would leave the entry {group} in {list_id} adding to {sum}, not zero. Nothing was written. Put all of an entry's lines in one write.",
+    "bad_basis": "The report basis {basis} is not one of: {bases}.",
+    "bad_limit": "The field {field_id} has a {key} that is not allowed: min and max are numbers on a number field, max_chars is a whole number on a text field, and min is not above max.",
+    "out_of_range": "The row {row_id} has a value for {field_id} outside its limits (least {min}, most {max}, at most {max_chars} characters).",
+    "bad_row": "Each row is { id?, values: { field_id: value } }; row {index} is not.",
+    "too_many": "Keep at most {limit} {what} at a time.",
+    "too_long": "The value for {field_id} in row {row_id} is longer than {limit} characters.",
+    "bad_view": "Each saved view is { label, search?, rules? }, where rules is a filter rule group; view {index} is not.",
+    "bad_ref": "A reference to a row is { address: \"<list>/<row>\" }, { list_id, row_id } or { list_id, key: { field_id, value } }, at most {limit} at a time; reference {index} is not.",
+    "bad_filter": "A saved filter is { label, rules } where rules is a filter rule group { kind: \"group\", combinator, negate, rules }; {what}.",
+    "no_filter": "The list {list_id} has no saved filter {filter_id}. Its filters are: {filters}.",
+    "filter_in_use": "The saved filter {filter_id} is used by {users}; change or remove those first.",
+    "filter_cycle": "The saved filter {filter_id} would use itself, through {through}.",
+    "no_view": "The list {list_id} has no saved view {view_id}. Its views are: {views}.",
+    "page_links_too_large": "This page has too many linked names to return at once. Request a smaller page.",
+    "needs_carried": "The field {field_id} is a {kind} field, so it needs {key}: an object saying how its value is worked out (read_list field_kinds describes it).",
+    "needs_label": "A list needs a label: the name people see, like \"Trillion CRM\".",
+    "bad_search": "Search lists with q (the words), lists (list ids, comma separated), row_types (comma separated), holds (what the lists hold: {holds}) and limit; {what} is not allowed.",
+    "settled": "The row {row_id} is {value} already, so {field_id} stays {value}: put a new row to ask again, or clear {field_id} with null to reopen it.",
+    "bad_order": "This row cannot be moved in {list_id}. Choose a declared single-field text index and the row's current neighbours.",
+    "stale_order": "The row order in {list_id} changed. Refresh the list and try the move again.",
+    "order_index_building": "The row order in {list_id} is still being prepared. Try the move again after it finishes.",
+    "missing_required": "The row {row_id} needs a value for {field_id}, which {list_id} requires. Give {field_id} a value.",
+    "required_cleared": "{field_id} is required in {list_id}, so row {row_id} cannot clear it. Give it a new value instead.",
+    "ambiguous_number": "The row {row_id} gives {field_id} the text {text}, and {field_id} does not say which mark is its decimal separator. Send a number, or set input: { decimal: \".\" } (or \",\") on the field.",
+    "bad_number": "The row {row_id} gives {field_id} the text {text}, which is not a number written with {decimal} as the decimal separator.",
+    "bad_date": "The row {row_id} gives {field_id} the text {text}, which is not a real date written {order}, or year first.",
+    "bad_input": "The field {field_id} declares input that is not { decimal: one of {decimals}, date_order: one of {orders} }.",
+    "bad_row_basis": "The row {row_id} has a basis for {field_id} that is not { reasoning?: text, sources?: [texts, at most {sources}], confidence: high, medium or low }.",
+    "bad_match": "match_on is a list of field ids of {list_id} whose kind has a normalizer or is plain text; {what} is not one.",
+    "match_ambiguous": "The row with {field_id} {value} matches {count} rows of {list_id} ({ids}). Name the one with its id.",
+    "match_too_large": "{list_id} holds more than {limit} rows, too many to match by {field_id} here. Name the row with its id.",
+    "bad_select": "A selection is { view_id?: a saved view, or snapshot_id?: a snapshot's rows, except?: [row ids], include?: [row ids], cursor? }, with values to put in every selected row or remove: true; {what} is not allowed.",
+    "bad_aggregate": "An aggregate is { view_id?, measures: [{ field?, op }] (1 to {measures}), group_by?: a field }, where op is one of: {ops}, and a measure other than count names a field of {kinds} kind it applies to; {what} is not allowed.",
+    "aggregate_unavailable": "The formula engine is not available here, so the measures cannot be worked out.",
+    "merge_same": "A row cannot be merged into itself.",
+    "bad_duplicate": "A copy is { row_ids: [the rows to copy, at most {limit}], values?: what to put in every copy }; {what} is not allowed.",
+    "bad_duplicate_rule": "The field {field_id} says duplicate: {rule}, which is not one of: {rules}.",
+    "merge_missing": "The row {row_id} is not in {list_id}.",
+    "merge_conflict": "Both rows hold a value for {field_id} ({base} and {target}). Say which to keep with prefer: \"base\" or \"target\", or give the value in values.",
+    "bad_merge": "A merge is { base_id: the row that goes, target_id: the row that stays, prefer?: \"base\" or \"target\", values? }; {what} is not allowed.",
+    "bad_path": "The view {view_id} names the field {path}, which is not links followed by a field: every step before the last must be a link field, at most {hops} steps.",
+    "limit_near": "{what}: {used} of {limit} used. {remedy}",
+    "bad_preview": "A preview takes the same rows and remove that put_list_rows takes, and writes nothing.",
+    "bad_pair": "The field {field_id} pairs with {pairs_with} on {links_to}, which is not a link field there linking back to this list and naming {field_id} (or nothing) as its pair, in the same store.",
+    "bad_unique": "The field {field_id} cannot be unique: only a text, email, phone, web address or tags field can be an identity key.",
+    "not_unique": "{value} is held by row {holder} of {list_id} already, so row {row_id} cannot hold it in {field_id}, which is unique. Put the values in row {holder}, or merge the two rows.",
+    "unique_index_building": "The identity keys of {list_id} are still being prepared, so a value cannot be checked as unique yet. Try again after they finish.",
+    "no_write_right": "This write would change {list_id}, which you may not change. Ask its owner, or change only lists you may write.",
+    "bad_view_move": "A view move is { view_id, anchor_id, placement: before or after } naming two different views of {list_id}: {views}.",
+    "bad_restore": "A restore is { row_ids: [the removed rows to put back, at most {limit}] }.",
+    "bad_field_at": "A read of a field at a moment is { field_id: a field of {list_id}, row_ids: [at most {limit} rows], at: an ISO time or a log row id }.",
+    "history_unavailable": "The history of {list_id} is not kept where it lives, so it cannot be read as it was.",
+    "bad_snapshot": "A snapshot holds at most {limit} rows; read the view with a narrower rule, or page it instead.",
+    "no_snapshot": "There is no snapshot {snapshot_id} of {list_id}. read_list_snapshot needs the id a snapshot answered.",
+    "snapshot_expired": "The snapshot {snapshot_id} lasted {minutes} minutes and is gone. Take a new one.",
+    "bad_match_mode": "match_mode is one of {modes}; {what} is not one.",
+    "match_none": "No row of {list_id} holds {value} in {field_id}, and match_mode {mode} makes no new row. Use create_or_update to make one.",
+    "match_exists": "Row {row_id} of {list_id} holds {value} in {field_id} already, and match_mode {mode} only makes new rows. Use create_or_update to change it.",
+    "missing_parameter": "The view {view_id} asks for the value {parameter} when it is read. Give it in parameters: { {parameter}: value }.",
+    "bad_relationship": "The field {field_id} shows how well you know someone: { attribute: one of {attributes} }.",
+    "bad_review": "A review action is one of {actions}: set_up takes expires_days (a number above 0), assign takes owner, the others take row_ids.",
+    "no_review": "{list_id} is not set up for review; set it up first with review_list_rows action set_up.",
+    "needs_review": "Changes to {list_id} by an AI wait for a person: propose them with propose_list_changes, and the person approves or declines them.",
+    "bad_proposal": "A proposal names the rows it changes (rows with id and values, remove), each one of editable ({editable_most} at most), the scopes it looked in ({scopes_most} at most: { list_id, view_id? }) and its evidence ({evidence_most} at most: { list_id, row_id } within those scopes); {what} is not.",
+    "no_proposal": "{list_id} has no proposal {proposal_id}.",
+    "proposal_decided": "Proposal {proposal_id} is {status}, so it cannot be {decision}; decisions are {decisions}.",
+    "person_decides": "Only a person decides on proposal {proposal_id}; an AI proposes, and may withdraw what it proposed.",
+    "bad_history": "The field {field_id} works its value out from a field's history: { field: a field of this list that says keeps_history: true, op: one of {ops}, value: for time_spent_in and has_been_in, at (an ISO time) or days_ago: for value_at, unit: one of {units} }.",
+    "bad_rollup": "The field {field_id} works its value out from linked rows: { through: a link field of this list, field: a field of the list it links to, op: one of {ops} }; {what} is not.",
+    "bad_file_name": "A file is named by where it is, a name starting with {prefix} (like /Media/clip.mp4); from and to are two different names.",
+    "bad_copy": "A copy into another list is { row_ids: [at most {limit}], to_list, map?: { field of {to_list}: field of this list }, values? }; {what} is not allowed.",
+    "not_documents": "The list {list_id} does not show a folder of documents; save it with row_sources [{ source: \"{source}\", of: <folder> }] first.",
+    "bad_document_types": "A folder's property types are { types: { <property>: one of {kinds} }, formulas: { <name>: { binding: <formula>, kind? } } } with at most {formulas} formulas; {what} is not.",
+    "formula_cycle": "The formula {formula} reads itself through {through}, so working it out would never end.",
+    "bad_document_property": "A document's own properties are written as {properties}.<key> (a key of letters, digits, - and _); {what} cannot be written: file facts and formulas are worked out, and a document is removed as a file.",
+    "bad_property_value": "The property {property} of {document} is a {kind}, and {value} is not one.",
+    "document_changed": "The document {document} changed after it was read ({expected} is now {current}); read it again and make the change on what it says now.",
+    "not_a_document": "{document} is not a text document in this folder.",
+    "bad_plain_files": "A list's plain files are a folder with {what}."
+  }
+}

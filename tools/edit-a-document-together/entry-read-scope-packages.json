@@ -1,0 +1,12 @@
+{
+  "kind": "bitfield-entry-read-scope-packages",
+  "entries": [
+    {
+      "entry_name": "documents",
+      "read_scope_package_data_packages": [
+        "sidebar",
+        "process-session"
+      ]
+    }
+  ]
+}

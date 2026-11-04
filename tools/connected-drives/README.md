@@ -1,6 +1,6 @@
 # tools/connected-drives/
 
-The drives connected to the person's Mac, what is in one folder on one of them, what is on one by kind of file, the icon Finder shows for one, and which programs are using one. It runs on the person's own Mac as `computer` rows. They hold one capability, `see-connected-drives`, and only while the person has granted it. The capability covers the Mac's drive and icon services, the `mount`, `diskutil`, `lsof` and `osascript` commands, and reads under `/Volumes` only. Nothing here writes, stops a program or ejects.
+The drives connected to the person's Mac, what is in one folder on one of them, what is on one by kind of file, the icon Finder shows for one, and which programs are using one. It runs on the person's own Mac as `computer` rows. They hold one capability, `see-connected-drives`, and only while the person has granted it. The capability covers the Mac's drive and icon services, the `mount`, `diskutil` and `lsof` commands (`osascript` is in every run's base), and reads under `/Volumes` only. Nothing here writes, stops a program or ejects.
 
 ## Files
 
@@ -14,7 +14,7 @@ The drives connected to the person's Mac, what is in one folder on one of them, 
 | `read-data/drive-processes.mjs` | The programs with files open on a drive, from `lsof -Fpcn`, and `readProcessRows`, each process named the way the person knows it (from `ps`; a script by its script). |
 | `read-data/file-kinds.mjs`, `read-data/file-kinds.json` | What kind of file a name is (videos, audio, pictures, ...), as DATA. |
 | `tool-rows.json` | `tool:list-connected-drives`, `tool:list-a-drive-folder`, `tool:see-what-is-on-a-drive`, `tool:get-a-drive-icon`, `tool:name-what-holds-a-drive`. |
-| `part.json` | `drives.mjs` (`hiddenIn`), `drive-identity.mjs`, `drive-folder.mjs`, `drive-processes.mjs` and `file-kinds.mjs`/`.json`, which `tools/work-on-connected-drives` imports. |
+| `part.json` | `drives.mjs` (`enumerateDevices`), `drive-folder.mjs` (`driveOf`) and `drive-processes.mjs`, which `tools/work-on-connected-drives` imports. |
 | `test/drives.test.mjs` | Tests against a pretend `/Volumes` and pretend commands. |
 
 ## Key Types / Functions
@@ -30,4 +30,4 @@ The drives connected to the person's Mac, what is in one folder on one of them, 
 
 **Depends on:** `tools/records-door` (`run-an-export.mjs`), Node's standard library, and the Mac's `mount`, `diskutil`, `lsof` and `osascript`.
 
-**Depended on by:** `tool-rows.json`; `tools/work-on-connected-drives` (the public files `part.json` lists). The local engine runs the rows on the person's computer (`computer` kind) after the person grants `see-connected-drives`.
+**Depended on by:** `tool-rows.json`; `tools/work-on-connected-drives` (the public files `part.json` lists). The engine sends old trillion's `tool:trillion-media-drives`, `-drive-folder`, `-drive-holders`, `-drive-kinds` and `-drive-icon` to these rows (trillion-rust `product/renamed-tools.json`). The local engine runs the rows on the person's computer (`computer` kind) after the person grants `see-connected-drives`.

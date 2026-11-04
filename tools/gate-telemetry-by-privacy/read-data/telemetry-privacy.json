@@ -1,0 +1,27 @@
+{
+  "_what": "Which telemetry sinks may receive anything about a page or event, read by the one gate src/telemetry-gate.mjs. The decision comes from the privacy class of the data being served, never from the sink. A class is a row: `rank` orders them from least to most private (when two sources name a class, the more private one wins), and `sinks` lists the sinks it may feed. A surface and path that match no `routes` row, and a declared class that is not a row here, are `unknown_class`, which feeds no sink: not known yet means private. `header` is the response header a handler sets to declare the class of the page it served. `sinks` lists each sink and who reads it.",
+  "header": "x-trillion-privacy",
+  "unknown_class": "unknown",
+  "sinks": [
+    { "id": "page_script", "label": "The page script is added to a served page", "read_by": "src/interaction-routes.mjs withInteractionScript" },
+    { "id": "page_events", "label": "Visits, clicks and scrolls a page sends", "read_by": "src/interactions.mjs admitPageBatch" },
+    { "id": "client_health", "label": "Closed-category client errors and slow loads", "read_by": "src/interactions.mjs admitPageBatch" },
+    { "id": "server_events", "label": "Steps the Worker itself saw (tool runs, checkout, sign-up)", "read_by": "src/interactions.mjs serverEvent" }
+  ],
+  "classes": [
+    { "id": "public", "rank": 0, "label": "Anyone can read it", "sinks": ["page_script", "page_events", "client_health", "server_events"] },
+    { "id": "own-account", "rank": 1, "label": "The signed-in person's own screens", "sinks": ["page_script", "page_events", "client_health", "server_events"] },
+    { "id": "shared-with-others", "rank": 2, "label": "A space other people share", "sinks": ["page_script", "client_health"] },
+    { "id": "customer-scope", "rank": 3, "label": "Another person's or a customer's records", "sinks": [] },
+    { "id": "unknown", "rank": 4, "label": "Not known yet, so treated as private", "sinks": [] }
+  ],
+  "routes": [
+    { "surface": "site", "prefix": "/", "class": "public" },
+    { "surface": "public-page", "prefix": "/", "class": "public" },
+    { "surface": "elsewhere", "prefix": "/", "class": "public" },
+    { "surface": "app", "prefix": "/", "class": "own-account" },
+    { "surface": "app", "prefix": "/spaces", "class": "shared-with-others" },
+    { "surface": "app", "prefix": "/work/customers", "class": "customer-scope" },
+    { "surface": "service", "prefix": "/", "class": "own-account" }
+  ]
+}

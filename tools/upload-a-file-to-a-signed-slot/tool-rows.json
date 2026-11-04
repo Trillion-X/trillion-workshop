@@ -1,0 +1,136 @@
+{
+  "kind": "tool-rows",
+  "record_set": "upload-a-file-to-a-signed-slot-tool-rows",
+  "what_this_is": "The Workshop row that uploads one file from a folder the person granted to a signed storage slot a hosted page hands over, only when the slot fits a destination row of read-data/guarded-upload.json; the page learns the size, never the bytes.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:upload-a-file-to-a-signed-slot",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:upload-a-file-to-a-signed-slot",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "label": "Upload a file to a signed storage slot",
+        "job": "Upload one file from a folder the person granted to a signed storage slot a page hands over, only to a destination the tool's own list allows, so the page never sees the file",
+        "description": "Give file (its name inside the folder the person granted this tool, such as reports/diag.zip), content_type (the file's media type) and slot ({ url, fields }: the https address and the text form fields the storage service signed). The slot is checked as a whole before a byte leaves: https, a host equal to a destination row's, a path inside that row's folder, no query, fragment, credentials or port, text-only fields within the row's field cap, and a content type the row lists. The file is read from the granted folder only (a name that leaves it, or a link out of it, names nothing), held once, and posted as the form's last field. Returns sent, size and said; the signed fields are never in an answer or an error. The shipped destination list is empty, so it uploads nowhere until a destination row is added to read-data/guarded-upload.json.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "file",
+            "content_type",
+            "slot"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string",
+              "minLength": 1
+            },
+            "content_type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "slot": {
+              "type": "object",
+              "required": [
+                "url"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "fields": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "sent",
+            "size",
+            "said"
+          ],
+          "properties": {
+            "sent": {
+              "type": "boolean"
+            },
+            "size": {
+              "type": "integer"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/upload-a-file-to-a-signed-slot",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/upload-a-file-to-a-signed-slot/read-data/guarded-upload.mjs",
+            "uploadFromFolder"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "folder": {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "upload-a-file-to-a-signed-slot",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/upload-a-file-to-a-signed-slot"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            ]
+          }
+        },
+        "provenance": {
+          "source": "Moved one to one from Trillion-X/trillion computer/guarded-upload.mjs and computer/guarded-upload.json (dc79bb0a87^), with test/guarded-upload.test.mjs; the Mac host that called it was dropped, and the file is now read from the folder the person grants this tool"
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}

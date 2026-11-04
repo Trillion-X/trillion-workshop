@@ -178,7 +178,8 @@
       "kind": "output-number-within",
       "output_selector": "$.count",
       "at_least": 0
-     }
+     },
+     {"kind":"sample-run","input":{},"records":[{"id":"example:0123456789abcdef0123456789abcdef","type":"saved-example","value":{"id":"example:0123456789abcdef0123456789abcdef","url":"https://example.com/posts/sample","host":"example.com","site":"Example","title":"A sample post","words":"Made-up words.","pictures":[],"why_it_worked":"A made-up reason.","collection":null,"added_from":"sample","added_at":"2026-11-01T00:00:00.000Z","updated_at":"2026-11-01T00:00:00.000Z"}}]}
     ],
     "result_selector": "$.result"
    }
@@ -294,7 +295,8 @@
       "kind": "output-contains-input",
       "output_selector": "$.id",
       "input_field": "id"
-     }
+     },
+     {"kind":"sample-run","input":{"id":"example:0123456789abcdef0123456789abcdef"},"records":[{"id":"example:0123456789abcdef0123456789abcdef","type":"saved-example","value":{"id":"example:0123456789abcdef0123456789abcdef","url":"https://example.com/posts/sample","host":"example.com","site":"Example","title":"A sample post","words":"Made-up words.","pictures":[],"why_it_worked":"A made-up reason.","collection":null,"added_from":"sample","added_at":"2026-11-01T00:00:00.000Z","updated_at":"2026-11-01T00:00:00.000Z"}}]}
     ],
     "result_selector": "$.result"
    }

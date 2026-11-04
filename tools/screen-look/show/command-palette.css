@@ -1,0 +1,25 @@
+/* parts/screen-look/show/command-palette.css
+ *
+ * Find anything (parts/command-palette drawn by src/workspace/command-palette.tsx), as a cmdk-style palette: the search
+ * field is the palette's own top line with no box or ring of its own (the window around it is the field), larger words,
+ * and a hairline under it; result rows are one compact line. Colours are the look's own tokens.
+ */
+[data-command-palette] .glass-input,
+[data-command-palette] .glass-input:focus,
+[data-command-palette] .glass-input:focus-visible {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  font-size: var(--font-size-title, 1rem);
+  padding-inline: 4px;
+}
+[data-command-palette] [role="option"] {
+  min-height: 40px;
+  padding-block: 8px;
+  align-items: center;
+}
+[data-command-palette] [role="option"] > div { align-items: center; }
+[data-command-palette] [role="option"] svg { color: var(--text-secondary); flex: none; }
+/* Rows sit close together, as a list of names; a heading keeps a little room above its group. */
+[data-command-palette] #palette-results { gap: 2px !important; }

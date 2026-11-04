@@ -1,0 +1,72 @@
+{
+  "about": "Which uses each face file in this folder is licensed for, as DATA. An app build carries a face only when its licensed_for holds \"app\" (ios/carry-licensed-faces.sh, a build phase of every Apple target that draws a title, reads this file); otherwise the app draws that role with the system face (LookFaces in ios/Shared/Look.swift, the first family the device has). A face goes into apps by one edit here (a bought licence, or the person's own choice recorded in chosen_by): add the use to licensed_for and keep the receipt named in receipt; no code changes. test/licensed-faces.test.mjs refuses a face file this file does not name and any Apple project that bundles a face file directly.",
+  "faces": [
+    {
+      "family": "Trillion",
+      "foundry": "Trillion",
+      "files": [
+        "Trillion-Regular.woff2",
+        "Trillion-Medium.woff2",
+        "Trillion-SemiBold.woff2"
+      ],
+      "licence": "OFL-1.1",
+      "licence_terms": "Trillion-OFL.txt",
+      "buy": null,
+      "licensed_for": [
+        "app",
+        "web"
+      ],
+      "receipt": null,
+      "note": "Trillion's own title face, made from Fraunces (The Fraunces Project Authors, SIL Open Font License 1.1) and tuned towards Recoleta: SOFT 75, WONK 0, opsz 48 at weights 330, 450 and 580, side bearings narrowed to Recoleta's fit, the x-height raised to Recoleta's and Recoleta's line height. The OFL lets it be used, changed and carried in apps and pages; its notice travels in each file's name table and in Trillion-OFL.txt beside them."
+    },
+    {
+      "family": "Recoleta",
+      "foundry": "Latinotype",
+      "files": [
+        "Recoleta-Regular.woff2",
+        "Recoleta-Medium.woff2",
+        "Recoleta-SemiBold.woff2"
+      ],
+      "licence_terms": "https://www.latinotype.com/licensing",
+      "buy": "https://www.latinotype.com/font/recoleta",
+      "licensed_for": [
+        "app",
+        "web"
+      ],
+      "receipt": null,
+      "note": "The person chose Recoleta and accepted the licence risk himself (2026-10-06); no AI removes it or asks to buy it. The files came from a free-font site; a Latinotype licence or an original Trillion face drawn alike are optional later choices, never a gate.",
+      "chosen_by": {
+        "kind": "person",
+        "accepted_risk": true,
+        "on": "2026-10-06",
+        "words": "The owner picked Recoleta, is fine with the foundry noticing it is used, and accepts the consequences."
+      }
+    },
+    {
+      "family": "SF Pro Text",
+      "foundry": "Apple",
+      "files": [
+        "SF-Pro-Text-Regular.woff2",
+        "SF-Pro-Text-Medium.woff2",
+        "SF-Pro-Text-Semibold.woff2"
+      ],
+      "licence_terms": "https://developer.apple.com/fonts/",
+      "buy": null,
+      "licensed_for": [
+        "app",
+        "web",
+        "video",
+        "social"
+      ],
+      "receipt": null,
+      "note": "Apple's system face. Its licence covers designing for Apple's platforms, not carrying the file; every Apple device already draws it as the system font, so an app never needs the file.",
+      "chosen_by": {
+        "kind": "person",
+        "accepted_risk": true,
+        "on": "2026-10-17",
+        "words": "i would prefer we use sf pro text bc i like that font i think it works well for videos and stuff sf pro display and sf pro text i like a lot ... i would use it for everything else too of course the gettrillion ai and app gettrillion ai",
+        "known_licence_limit": "Apple's licence covers designing for Apple platforms; carrying the file in web, app or video is the owner's accepted risk."
+      }
+    }
+  ]
+}

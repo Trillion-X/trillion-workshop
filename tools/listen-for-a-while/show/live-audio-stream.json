@@ -1,0 +1,13 @@
+{
+  "_what": "How the live-words stream survives a dropped connection and which codec row it speaks (tools/listen-for-a-while/show/live-audio-stream.ts). `resend`: the audio kept for replay, the overlap replayed before the last confirmed turn, and how many reconnects are tried. `duplicates`: how many recent lines are remembered so a replayed stretch is not shown twice. `codecs` are rows best first: the first row that is enabled and whose needs hold is spoken; fec_extra_percent is the extra loss protection a row asks for (a row, not a code branch); `layers` names extra layers on top of the base codec; `last_rung_only` rows are used only on the last step of the adaptation ladder. Turning a row on is flipping `enabled`; the route takes 16-bit sound only today, so the others are off.",
+  "resend": { "seconds": 20, "overlap_chunks": 2, "most_reconnects": 3, "reconnect_ms": 750 },
+  "duplicates": { "remember": 24 },
+  "ladder": ["full", "reduced", "lowest"],
+  "codecs": [
+    { "id": "opus-neural-layer", "enabled": false, "bitrate_kbps": 24, "fec_extra_percent": 20, "layers": ["neural"], "last_rung_only": true, "needs": { "browser_opus": true, "route_opus": true, "layer_ready": true } },
+    { "id": "opus-fec", "enabled": false, "bitrate_kbps": 32, "fec_extra_percent": 20, "layers": [], "needs": { "browser_opus": true, "route_opus": true } },
+    { "id": "opus", "enabled": false, "bitrate_kbps": 32, "fec_extra_percent": 0, "layers": [], "needs": { "browser_opus": true, "route_opus": true } },
+    { "id": "pcm16", "enabled": true, "bitrate_kbps": 256, "fec_extra_percent": 0, "layers": [], "needs": {} }
+  ],
+  "layer_states": { "off": "no flag", "enabled": "flag on, model not ready", "ready": "flag on, model ready" }
+}
