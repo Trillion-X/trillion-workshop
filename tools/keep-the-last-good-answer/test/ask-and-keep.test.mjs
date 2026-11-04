@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import { askAndKeep, KIND, retryAfterSeconds } from '../read-data/ask-and-keep.mjs';
@@ -30,7 +30,7 @@ test('the row asks the public web, may only read and write its own kept answers,
 
 test('a live answer is returned and kept; the next ask, with the address down, gives the kept answer and when it was kept', async t => {
   const web = await source(t);
-  const first = await runRow(row, { address: web.address, key: 'daily-prices' });
+  const first = await answerOf(row, { address: web.address, key: 'daily-prices' });
   assert.equal(first.status, 0, first.error);
   assert.equal(first.result.origin, 'from-the-source');
   assert.deepEqual(first.result.answer, { price: 3 });
@@ -40,7 +40,7 @@ test('a live answer is returned and kept; the next ask, with the address down, g
   assert.equal(first.kept[0].value.address, web.address);
 
   web.answer({ status: 503, type: 'text/plain', body: 'down' });
-  const second = await runRow(row, { address: web.address, key: 'daily-prices' }, { records: first.kept });
+  const second = await answerOf(row, { address: web.address, key: 'daily-prices' }, { records: first.kept });
   assert.equal(second.result.origin, 'from-what-was-kept');
   assert.deepEqual(second.result.answer, { price: 3 });
   assert.equal(second.result.kept_at, first.kept[0].value.kept_at);
@@ -51,12 +51,12 @@ test('a live answer is returned and kept; the next ask, with the address down, g
 
 test('an address that answers with nothing never replaces a good kept answer, and with nothing kept there is nothing to give', async t => {
   const web = await source(t);
-  const first = await runRow(row, { address: web.address, key: 'k' });
+  const first = await answerOf(row, { address: web.address, key: 'k' });
   web.answer({ status: 200, type: 'application/json', body: '  ' });
-  const empty = await runRow(row, { address: web.address, key: 'k' }, { records: first.kept });
+  const empty = await answerOf(row, { address: web.address, key: 'k' }, { records: first.kept });
   assert.equal(empty.result.origin, 'from-what-was-kept');
   assert.deepEqual(empty.result.answer, { price: 3 });
-  const nothing = await runRow(row, { address: web.address, key: 'never-kept' });
+  const nothing = await answerOf(row, { address: web.address, key: 'never-kept' });
   assert.equal(nothing.result.origin, 'nothing-to-give');
   assert.equal(nothing.result.answer, null);
   assert.equal(nothing.kept.length, 0);
@@ -138,7 +138,7 @@ test('a source that says "not now" with Retry-After has the wait returned and sa
 test('the row carries the wait through the container run', async t => {
   const web = await source(t);
   web.answer({ status: 429, type: 'text/plain', body: 'slow down', headers: { 'retry-after': '45' } });
-  const run = await runRow(row, { address: web.address, key: 'busy' });
+  const run = await answerOf(row, { address: web.address, key: 'busy' });
   assert.equal(run.status, 0, run.error);
   assert.equal(run.result.origin, 'nothing-to-give');
   assert.equal(run.result.retry_after_seconds, 45);

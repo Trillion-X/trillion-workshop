@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { rowOf, runRow } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { rowOf, answerOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import {
   KEY_FIRST_DESCRIPTOR, enrollInEmailCourse, heldKeysFrom, saveEmailInterest, sendDueEmailLessons, unsubscribeFromEmailCourse, whoAgreedToGetEmails,
@@ -204,21 +204,21 @@ describe('interest in one update, and who agreed', () => {
 describe('the rows as the container runs them', () => {
   it('tool:save-interest-in-an-email-update saves the agreement through the real command and door client', async () => {
     const row = rowOf(rows, 'tool:save-interest-in-an-email-update');
-    const run = await runRow(row, { email: 'asker@example.com', consent: true, course: interestCourse, source: '/update' });
+    const run = await answerOf(row, { email: 'asker@example.com', consent: true, course: interestCourse, source: '/update' });
     assert.equal(run.status, 0, run.error);
     assert.deepEqual(run.result, { status: 'interest_saved', already_saved: false });
     assert.deepEqual(run.kept.map(record => record.type), ['email-course-interest']);
   });
 
   it('tool:who-agreed-to-get-which-emails reads them back through the real command', async () => {
-    const saved = await runRow(rowOf(rows, 'tool:save-interest-in-an-email-update'), { email: 'asker@example.com', consent: true, course: interestCourse });
-    const run = await runRow(rowOf(rows, 'tool:who-agreed-to-get-which-emails'), {}, { records: saved.kept });
+    const saved = await answerOf(rowOf(rows, 'tool:save-interest-in-an-email-update'), { email: 'asker@example.com', consent: true, course: interestCourse });
+    const run = await answerOf(rowOf(rows, 'tool:who-agreed-to-get-which-emails'), {}, { records: saved.kept });
     assert.equal(run.status, 0, run.error);
     assert.deepEqual(run.result.agreed, ['asker@example.com']);
   });
 
   it('a refusal says why and sends nothing', async () => {
-    const run = await runRow(rowOf(rows, 'tool:save-interest-in-an-email-update'), { email: 'asker@example.com', consent: false, course: interestCourse });
+    const run = await answerOf(rowOf(rows, 'tool:save-interest-in-an-email-update'), { email: 'asker@example.com', consent: false, course: interestCourse });
     assert.equal(run.status, 1);
     assert.match(run.error, /agree/);
   });

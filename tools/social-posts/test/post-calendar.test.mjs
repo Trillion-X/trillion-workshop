@@ -1,7 +1,7 @@
 // tool:read-post-calendar run as the container runs it, against the fake records door with exactly the row's rights.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const row = rowOf(rows, 'tool:read-post-calendar');
@@ -16,7 +16,7 @@ const records = [
 ];
 
 test('posts in the span come earliest first with whether each can move, and unscheduled drafts newest first', async () => {
-  const ran = await runRow(row, { from: '2026-10-01T00:00:00Z', to: '2026-11-01T00:00:00Z' }, { records });
+  const ran = await answerOf(row, { from: '2026-10-01T00:00:00Z', to: '2026-11-01T00:00:00Z' }, { records });
   assert.equal(ran.status, 0, ran.error);
   assert.deepEqual(ran.result.posts.map(item => [item.post_id, item.at, item.can_move]), [['p2', '2026-10-05T10:00:00Z', false], ['p1', '2026-10-20T09:00:00Z', true]]);
   assert.deepEqual(ran.result.posts[0].platform_urls, { x: 'https://x.example/1' });
@@ -26,10 +26,10 @@ test('posts in the span come earliest first with whether each can move, and unsc
 });
 
 test('a span that is backwards or longer than the limit is refused with what to give', async () => {
-  const backwards = await runRow(row, { from: '2026-11-01T00:00:00Z', to: '2026-10-01T00:00:00Z' });
+  const backwards = await answerOf(row, { from: '2026-11-01T00:00:00Z', to: '2026-10-01T00:00:00Z' });
   assert.equal(backwards.status, 1);
   assert.match(backwards.error, /from before to/);
-  assert.match((await runRow(row, { from: '2020-01-01T00:00:00Z', to: '2026-01-01T00:00:00Z' })).error, /at most 400 days/);
+  assert.match((await answerOf(row, { from: '2020-01-01T00:00:00Z', to: '2026-01-01T00:00:00Z' })).error, /at most 400 days/);
 });
 
 test('the row only lists post records', () => {

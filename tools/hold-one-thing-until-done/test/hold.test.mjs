@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { runRow, rowOf } from '../../records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { DEFAULT_COVER_KEY, requiredCover, requiredCoverOfRows, setupScreenComplete } from '../read-data/required-cover.mjs';
 import { changeWhatHoldsMe, seeWhatHoldsMe } from '../do-work/hold.mjs';
 
@@ -49,7 +49,7 @@ test('the cover stands until required setup is proved, and a gate row with no ke
 
 test('while a required setup row is not done the cover stands and nothing else is held', async () => {
   const records = [...PERSON, step('connect', { required: true, status: 'Waiting' }), step('extra', { required: false })];
-  const { status, result } = await runRow(SEE, { now: NOW }, { records });
+  const { status, result } = await answerOf(SEE, { now: NOW }, { records });
   assert.equal(status, 0);
   assert.deepEqual(result.cover, { covered: true, key: 'sample-gate' });
   assert.equal(result.hold.held, null);
@@ -58,7 +58,7 @@ test('while a required setup row is not done the cover stands and nothing else i
 
 test('once setup is done the one row held is the one that unblocks the most; finished rows wait no longer', async () => {
   const records = [...PERSON, step('connect', { required: true, status: 'Done' })];
-  const { status, result } = await runRow(SEE, { now: NOW }, { records });
+  const { status, result } = await answerOf(SEE, { now: NOW }, { records });
   assert.equal(status, 0);
   assert.equal(result.cover.covered, false);
   assert.equal(result.hold.held.key, 'record:waiting-on-you:sign-in', 'the upload waits on the sign-in, so the sign-in is held');
@@ -69,33 +69,33 @@ test('once setup is done the one row held is the one that unblocks the most; fin
 });
 
 test('a person with no setup rows gets covered null from the rows, and the Get started answer they send decides', async () => {
-  const none = await runRow(SEE, { now: NOW }, { records: PERSON });
+  const none = await answerOf(SEE, { now: NOW }, { records: PERSON });
   assert.equal(none.result.cover.covered, null);
-  const sent = await runRow(SEE, { now: NOW, setup: { progress: { done: 1, total: 2 } } }, { records: PERSON });
+  const sent = await answerOf(SEE, { now: NOW, setup: { progress: { done: 1, total: 2 } } }, { records: PERSON });
   assert.equal(sent.result.cover.covered, true);
 });
 
 test('setting the held row aside writes the setting on condition of what was read; it then leaves the hold', async () => {
   const records = [...PERSON, setting('setting:needs_you_hold', { on: true })];
   const change = { change: 'set-aside', request_key: 'aside-1', key: 'record:waiting-on-you:sign-in', title: 'Sign in', reason: 'the sample site is down today', now: NOW };
-  const { status, result, kept } = await runRow(CHANGE, change, { records });
+  const { status, result, kept } = await answerOf(CHANGE, change, { records });
   assert.equal(status, 0);
   assert.equal(result.changed, true);
   assert.equal(result.jobs.length, 1);
   assert.match(result.jobs[0].job, /the sample site is down today/);
   const written = kept.find(record => record.id === 'setting:needs_you_hold');
   assert.ok(written.value.value.aside['record:waiting-on-you:sign-in']);
-  const after = await runRow(SEE, { now: NOW, setup: { ready: true } }, { records: kept });
+  const after = await answerOf(SEE, { now: NOW, setup: { ready: true } }, { records: kept });
   assert.notEqual(after.result.hold.held.key, 'record:waiting-on-you:sign-in');
   assert.equal(after.result.hold.asides_left, 0);
 });
 
 test('a refused change writes nothing: too few words, or no asides left today', async () => {
   const records = [...PERSON, setting('setting:needs_you_hold', { asides: { day: '2026-01-10', count: 1 } })];
-  const short = await runRow(CHANGE, { change: 'set-aside', request_key: 'k1', key: 'x', reason: 'busy', now: NOW }, { records });
+  const short = await answerOf(CHANGE, { change: 'set-aside', request_key: 'k1', key: 'x', reason: 'busy', now: NOW }, { records });
   assert.equal(short.status, 1);
   assert.match(short.error, /at least 3 words/);
-  const spent = await runRow(CHANGE, { change: 'set-aside', request_key: 'k2', key: 'x', reason: 'one two three four', now: NOW }, { records });
+  const spent = await answerOf(CHANGE, { change: 'set-aside', request_key: 'k2', key: 'x', reason: 'one two three four', now: NOW }, { records });
   assert.equal(spent.error, 'Nothing more can be set aside today.');
   assert.deepEqual(spent.kept, records);
 });
@@ -137,7 +137,7 @@ test('the rows reach only the records they name, and the sample run answers what
   assert.ok(SEE.invoke.records.rights.every(right => !right.operations.includes('records:write')), 'seeing changes nothing');
   for (const row of [SEE, CHANGE]) {
     for (const sample of row.verify ?? []) {
-      const { status, result } = await runRow(row, sample.input);
+      const { status, result } = await answerOf(row, sample.input);
       assert.equal(status, 0);
       const value = sample.output_selector.slice(2).split('.').reduce((at, key) => at?.[key], result);
       assert.ok(JSON.stringify(value).includes(sample.contains));

@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { after, describe, it } from 'node:test';
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import lookRows from '../../screen-looks/tool-rows.json' with { type: 'json' };
 import { REJECTED, SETTINGS, SETTINGS_ID, SHIPPED, bindingFor, mailSender, mailSettings, sendAnEmail } from '../do-work/mail-sender.mjs';

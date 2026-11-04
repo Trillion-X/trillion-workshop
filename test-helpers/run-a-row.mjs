@@ -18,6 +18,31 @@ import { dirname, join } from 'node:path';
 import { root, tools } from './tool-rows.mjs';
 import { settings as egress, startStandInEgress } from './stand-in-egress.mjs';
 import { startFakeDoor } from '../tools/records-door/test/fake-door.mjs';
+import { createServer } from 'node:http';
+
+// A stand-in model server on loopback answering Ollama's embedding replies with one made-up `vector`: POST
+// /api/embeddings answers { embedding }, POST /api/embed answers { embeddings } with one vector per input. Anything
+// else is a 404. Answers { endpoint, requests, close }.
+export async function startStandInModelServer({ vector }) {
+  if (!Array.isArray(vector) || !vector.length || !vector.every(Number.isFinite)) throw new Error('model_server needs a vector of numbers');
+  const requests = [];
+  const server = createServer((request, response) => {
+    let body = '';
+    request.on('data', chunk => { body += chunk; });
+    request.on('end', () => {
+      let asked = {};
+      try { asked = JSON.parse(body || '{}'); } catch { /* not JSON: answered as an empty ask */ }
+      requests.push({ method: request.method, path: request.url, body: asked });
+      const reply = request.method !== 'POST' ? null
+        : request.url === '/api/embeddings' ? { embedding: vector }
+        : request.url === '/api/embed' ? { embeddings: [asked.input ?? []].flat().map(() => vector) } : null;
+      response.writeHead(reply ? 200 : 404, { 'content-type': 'application/json' });
+      response.end(JSON.stringify(reply ?? { error: `the stand-in model server answers no ${request.method} ${request.url}` }));
+    });
+  });
+  await new Promise(done => server.listen(0, '127.0.0.1', done));
+  return { endpoint: `http://127.0.0.1:${server.address().port}`, requests, close: () => new Promise(done => server.close(done)) };
+}
 
 // The fact at a dotted path ("a.b", "list.0") of a value.
 const at = (value, path) => (path ? String(path).split('.').reduce((node, key) => node?.[key], value) : value);
@@ -130,7 +155,8 @@ function heldPipe(path, value) {
 // computer (a message, a print) answers from the sample instead: { code, stdout, stderr, last, kept, calls, unanswered }
 // or { cannot }. `doorOptions` reach the stand-in records door. A string anywhere in the input or the sample may name
 // a granted folder as {grant:<capability>}; it is that folder's path for this run. `laid_files` ([{ path, text }])
-// replaces a file the row packs, at its absolute place, for this run only.
+// replaces a file the row packs, at its absolute place, for this run only. `model_server` ({ vector }) starts a stand-in
+// model server (startStandInModelServer) whose address any string names as {model_endpoint}.
 export async function runRow(row, sampleInput, sample = {}) {
   const why = cannotRun(row);
   if (why) return { cannot: why };
@@ -139,14 +165,18 @@ export async function runRow(row, sampleInput, sample = {}) {
   // The real path of the temp folder: on macOS it is reached through the /var link, and a program that runs only when
   // it is the started script (argv[1] equal to its own module path) would otherwise do nothing and print nothing.
   const there = mkdtempSync(join(realpathSync(tmpdir()), 'workshop-row-'));
-  let fake = null, outside = null, heldFolder = null;
+  let fake = null, outside = null, heldFolder = null, modelServer = null;
   const piped = [];
   try {
     lay(specs, there);
     // A task no page started; a capability the row asks for is granted on a folder of its own.
     const grants = Object.fromEntries((invoke.capabilities ?? []).map(name => [name, { folder: mkdtempSync(join(there, 'granted-')) }]));
     // A sample names a granted folder it cannot know beforehand as {grant:<capability>}, in any string it holds.
+    // A sample's `model_server: { vector }` is a stand-in model server on loopback that answers every embedding with
+    // that made-up vector; any string of the sample names its address as {model_endpoint}.
+    if (sample.model_server) modelServer = await startStandInModelServer(sample.model_server);
     const placedGrants = value => (typeof value === 'string' ? value.replace(/\{grant:([^}]+)\}/g, (whole, name) => grants[name]?.folder ?? whole)
+        .replace(/\{model_endpoint\}/g, whole => modelServer?.endpoint ?? whole)
       : Array.isArray(value) ? value.map(placedGrants)
       : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, placedGrants(item)])) : value);
     const input = placedGrants(sampleInput);
@@ -224,7 +254,21 @@ export async function runRow(row, sampleInput, sample = {}) {
     for (const [, read] of piped) closeSync(read);
     await fake?.close();
     await outside?.close();
+    await modelServer?.close();
     rmSync(there, { recursive: true, force: true });
     if (heldFolder) rmSync(heldFolder, { recursive: true, force: true });
   }
+}
+
+/** The row with this id in a tool-rows.json file. */
+export const rowOf = (file, id) => file.records.find(record => record.payload.id === id).payload;
+
+// A tool folder's own test reads one run as the answer it gives: the exit code as `status`, the fields of the parsed
+// last JSON line, and the records the stand-in door holds afterwards (`kept`) and its calls. A run that cannot start
+// here, or prints no JSON line, throws with why.
+export async function answerOf(row, sampleInput, sample = {}) {
+  const run = await runRow(row, sampleInput, sample);
+  if (run.cannot) throw new Error(`${row.id} cannot run here: ${run.cannot}`);
+  if (run.last === undefined || run.last === null || typeof run.last !== 'object') throw new Error(`${row.id} printed no JSON line (exit ${run.code}): ${run.stderr.trim().slice(-400)}`);
+  return { status: run.code, ...run.last, kept: run.kept, calls: run.calls };
 }

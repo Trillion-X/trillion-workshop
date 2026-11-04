@@ -2,7 +2,7 @@
 // of the relate row, which is everything the read rows have and more. Every test record is made up.
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
-import { rowOf } from '../../records-door/test/run-row.mjs';
+import { rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 export const rightsOf = id => rowOf(rows, id).invoke.records.rights;

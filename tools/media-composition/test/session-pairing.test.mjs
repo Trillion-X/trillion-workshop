@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { apply, newSession } from '../read-data/session-pairing.mjs';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 test('devices share one session id and one primary; wrong-session, unknown-device and rule-breaking messages are ignored with a reason', () => {
@@ -31,20 +31,20 @@ test('devices share one session id and one primary; wrong-session, unknown-devic
 const row = rowOf(rows, 'tool:apply-a-pair-state-message');
 
 test('the row starts a session from its id and states, applies one message, and hands the session back for the next', async () => {
-  const joined = await runRow(row, { session: { id: 'S1', states: ['idle', 'recording'] }, message: { session: 'S1', type: 'join', device: 'cam1', role: 'primary' } });
+  const joined = await answerOf(row, { session: { id: 'S1', states: ['idle', 'recording'] }, message: { session: 'S1', type: 'join', device: 'cam1', role: 'primary' } });
   assert.equal(joined.status, 0);
   assert.equal(joined.result.ignored, undefined);
   assert.deepEqual(joined.result.session, { id: 'S1', states: ['idle', 'recording'], primary: 'cam1', devices: { cam1: { state: 'idle', role: 'primary' } } });
-  const second = await runRow(row, { session: joined.result.session, message: { session: 'S1', type: 'join', device: 'cam2', role: 'primary' } });
+  const second = await answerOf(row, { session: joined.result.session, message: { session: 'S1', type: 'join', device: 'cam2', role: 'primary' } });
   assert.equal(second.result.ignored.reason, 'primary_taken');
   assert.deepEqual(second.result.session, joined.result.session, 'an ignored message changes nothing');
-  const recording = await runRow(row, { session: joined.result.session, message: { session: 'S1', type: 'state', device: 'cam1', state: 'recording' } });
+  const recording = await answerOf(row, { session: joined.result.session, message: { session: 'S1', type: 'state', device: 'cam1', state: 'recording' } });
   assert.equal(recording.result.session.devices.cam1.state, 'recording');
 });
 
 test('the row refuses a session with no id or no states in words', async () => {
-  const noStates = await runRow(row, { session: { id: 'S1' }, message: { session: 'S1', type: 'join', device: 'cam1' } });
+  const noStates = await answerOf(row, { session: { id: 'S1' }, message: { session: 'S1', type: 'join', device: 'cam1' } });
   assert.match(noStates.error, /session\.states/);
-  const noId = await runRow(row, { session: { states: ['idle'] }, message: { session: 'S1', type: 'join', device: 'cam1' } });
+  const noId = await answerOf(row, { session: { states: ['idle'] }, message: { session: 'S1', type: 'join', device: 'cam1' } });
   assert.match(noId.error, /its id/);
 });

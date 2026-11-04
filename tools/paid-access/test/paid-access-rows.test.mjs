@@ -10,7 +10,7 @@ import { mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { encryptPrivateObjectCtr } from '../read-data/encrypt-private-object.mjs';
@@ -80,21 +80,21 @@ test('a sealed file opens only for a buyer whose payments give the access, a ref
     assert.deepEqual(sealed.kept.map(item => [item.id, item.type]), [['chapter-one.pdf', 'paid-file']]);
 
     const records = [...sealed.kept, offer, paid];
-    const granted = await runRow(link, { object_key: 'chapter-one.pdf', subject: ANA }, { records });
+    const granted = await answerOf(link, { object_key: 'chapter-one.pdf', subject: ANA }, { records });
     assert.equal(granted.status, 0, granted.error);
     assert.equal(granted.result.status, 'grant');
     const token = granted.result.delivery_url.split('/').pop();
-    const opened = await runRow(open, { token, subject: ANA }, { records });
+    const opened = await answerOf(open, { token, subject: ANA }, { records });
     assert.deepEqual([opened.result.authorized, opened.result.cas_hash, opened.result.enc_key_ref], [true, row.cas_hash, 'paid-files-key']);
 
-    const stranger = await runRow(open, { token, subject: 'bo@example.com' }, { records });
+    const stranger = await answerOf(open, { token, subject: 'bo@example.com' }, { records });
     assert.equal(stranger.result.authorized, false, 'a link passed to someone who has not paid does not open');
-    const unpaid = await runRow(link, { object_key: 'chapter-one.pdf', subject: 'bo@example.com' }, { records });
+    const unpaid = await answerOf(link, { object_key: 'chapter-one.pdf', subject: 'bo@example.com' }, { records });
     assert.deepEqual(unpaid.result, { status: 'denied', reason: 'not-entitled' });
-    const anonymous = await runRow(link, { object_key: 'chapter-one.pdf', subject: '' }, { records });
+    const anonymous = await answerOf(link, { object_key: 'chapter-one.pdf', subject: '' }, { records });
     assert.deepEqual(anonymous.result, { status: 'denied', reason: 'anonymous' });
 
-    const refunded = await runRow(open, { token, subject: ANA }, { records: [...records, refund] });
+    const refunded = await answerOf(open, { token, subject: ANA }, { records: [...records, refund] });
     assert.equal(refunded.result.authorized, false, 'the refund stops the very next open');
   } finally { await file.close(); }
 });
@@ -113,10 +113,10 @@ test('sealing refuses with no key handed, and a file anyone could open is not a 
 });
 
 test('see-who-holds answers from the person\'s records through the row\'s own rights', async () => {
-  const answer = await runRow(see, { subject: ANA }, { records: [offer, paid] });
+  const answer = await answerOf(see, { subject: ANA }, { records: [offer, paid] });
   assert.equal(answer.status, 0, answer.error);
   assert.deepEqual(answer.result.held_access_refs, ['access:course-a']);
-  const after = await runRow(see, { subject: ANA }, { records: [offer, paid, refund] });
+  const after = await answerOf(see, { subject: ANA }, { records: [offer, paid, refund] });
   assert.deepEqual(after.result.held_access_refs, []);
   assert.deepEqual(after.result.episodes.map(episode => episode.state), ['ended']);
   assert.deepEqual(after.kept.map(item => item.id).sort(), ['offer:class', 'payment-event:evt_1', 'payment-event:evt_2'], 'nothing is written');
@@ -124,14 +124,14 @@ test('see-who-holds answers from the person\'s records through the row\'s own ri
 
 test('the scope check runs as its row runs it', async () => {
   const scope = { schema: 'addressed-expiring-value-scope/v1', value_ref: 'page:class', instance_ref: 'page:class:1', required_access_refs: ['access:course-a'] };
-  assert.deepEqual((await runRow(mayOpen, { subject: ANA, scope }, { records: [offer, paid] })).result, { authorized: true });
-  assert.deepEqual((await runRow(mayOpen, { subject: 'bo@example.com', scope }, { records: [offer, paid] })).result, { authorized: false });
+  assert.deepEqual((await answerOf(mayOpen, { subject: ANA, scope }, { records: [offer, paid] })).result, { authorized: true });
+  assert.deepEqual((await answerOf(mayOpen, { subject: 'bo@example.com', scope }, { records: [offer, paid] })).result, { authorized: false });
 });
 
 test('the sample runs answer as the rows say, with no records at all', async () => {
   for (const row of rows.records.map(item => item.payload).filter(item => item.verify?.[0]?.output_selector)) {
     const [sample] = row.verify;
-    const answer = await runRow(row, sample.input);
+    const answer = await answerOf(row, sample.input);
     assert.equal(answer.status, 0, answer.error);
     assert.ok(String(answer.result[sample.output_selector.slice(2)]).includes(sample.contains), `${row.id}: ${JSON.stringify(answer.result)}`);
   }
