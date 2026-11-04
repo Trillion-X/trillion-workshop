@@ -1,0 +1,34 @@
+{
+  "id": "tool:1000x-architecture-patterns",
+  "label": "Find production architecture patterns",
+  "job": "Find reusable production architecture patterns for a coding task, browse all 105 separately, or read the preserved original Rust example for one pattern",
+  "input_schema": {
+    "type": "object",
+    "required": ["query"],
+    "additionalProperties": false,
+    "properties": {
+      "query": {
+        "type": "string",
+        "minLength": 1,
+        "description": "A coding problem, 'index' for all 105 patterns, or '#42' for one full original pattern"
+      }
+    }
+  },
+  "output_schema": {
+    "type": "object",
+    "required": ["query", "total", "patterns", "usage"],
+    "properties": {
+      "query": { "type": "string" },
+      "total": { "type": "integer", "const": 105 },
+      "patterns": { "type": "array", "items": { "type": "object", "required": ["number", "title", "summary"] } },
+      "usage": { "type": "string" }
+    }
+  },
+  "invoke": { "kind": "container", "argv": ["python3", "main.py", { "from": "query" }], "stdout": "json" },
+  "result_selector": "$.result",
+  "placements": ["placement:deployed-container"],
+  "licence_class": "licence:maker-own",
+  "verify": [
+    { "kind": "sample-run", "input": { "query": "#1" }, "output_selector": "$.patterns[0].title", "contains": "Structured Error Taxonomy" }
+  ]
+}

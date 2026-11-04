@@ -38,6 +38,20 @@
       "to": "tools/run-rules-and-schedules-by-themselves/test/events-continuity.test.mjs",
       "source_identity": "1f:53532163431b2c2605f33ad56096bbeb6f1c6535ee166ffee91f1ec8785e7313",
       "identity": "1f:9df40f0c4fcb9383e3ddc96e65d34e3b93002170895c9da6e0cc1163670cabc2"
+    },
+    {
+      "from": "records/workshop-automation-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-rules-and-schedules-by-themselves/from-old-trillion/records/workshop-automation-tool-records.json",
+      "source_identity": "1f:7586aa668a4b183123f3bb8970ecdb48e303d38efb41f4f9c62300f388f4d1fe",
+      "identity": "1f:7586aa668a4b183123f3bb8970ecdb48e303d38efb41f4f9c62300f388f4d1fe"
+    },
+    {
+      "from": "records/workshop-engine-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-rules-and-schedules-by-themselves/from-old-trillion/records/workshop-engine-tool-records.json",
+      "source_identity": "1f:b5d9cbe51ba3310940b56a6aa9b3b53bea9246462bd60b06fd921204768ad43e",
+      "identity": "1f:b5d9cbe51ba3310940b56a6aa9b3b53bea9246462bd60b06fd921204768ad43e"
     }
   ]
 }

@@ -1,0 +1,354 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-automation-tool-records",
+  "what_this_is": "\"When this happens\" rules and \"at a time\" schedules as two account-owned Workshop tools, so any screen, workflow, rule or AI that runs Workshop tools can set, list, remove and run them now. Both call src/automations.mjs, the same owner as the set_rule/set_schedule MCP tools and the Automations screen.",
+  "records": [
+    {
+      "id": "package::trillion::tool::run-when-something-happens",
+      "address": "package::trillion::tool::run-when-something-happens",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:run-when-something-happens",
+        "listed_on": "2026-10-02T10:47:08Z",
+        "label": "When this happens, run a tool or workflow",
+        "job": "Set, list, remove or run now this person's rules: when something is recorded in their Trillion (a message, a decision, a commercial event such as a paid deal, any kind they keep), an item is added to a pursuit they are in, or an event arrives from outside, a tool runs or a workflow starts by itself",
+        "description": "The same rules as set_rule, list_rules, remove_rule and run_now. when: { recorded: <kind>, where: [{ field, equals | one_of | starts_with | contains | present }] } for a record, { space_id, kind, where } for a space item, or { source_id, event, words } for an outside event. A paid negotiated offer is recorded as kind commercial-event with event negotiated_offer_paid, contract_id and buyer_ref. Each rule runs once per thing that sets it off, only for what happens after it is set.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "type": "string",
+              "enum": [
+                "set",
+                "list",
+                "remove",
+                "run-now",
+                "reset"
+              ],
+              "description": "set (also changes or turns on and off one with its id), list (when left out), remove, run-now (runs it once, now), or reset (puts one of Trillion's own back as Trillion has it now)"
+            },
+            "rule_id": {
+              "type": "string",
+              "description": "A rule_id from list; set with it changes that rule, remove, run-now and reset need it"
+            },
+            "when": {
+              "type": "object",
+              "description": "What sets it off: { recorded, where }, { space_id, kind, where } or { source_id, event, words, whole_word, field, once_per, skip, batch }"
+            },
+            "then": {
+              "type": "object",
+              "description": "What runs: { \"tool_id\": \"tool:...\", \"input\": {...} } or { \"workflow_id\": \"workflow:...\", \"input\": {...} }. An input value { \"fill\": { \"from\": \"record\", \"field\": \"text\" } } is taken from what set it off.",
+              "properties": {
+                "tool_id": {
+                  "type": "string"
+                },
+                "workflow_id": {
+                  "type": "string"
+                },
+                "input": {
+                  "type": "object"
+                }
+              }
+            },
+            "label": {
+              "type": "string",
+              "description": "What the rule is for, in plain words"
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "On (true) or off (false)"
+            },
+            "input": {
+              "type": "object",
+              "description": "run-now: values laid over the then's own input"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "run-when-something-happens"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "provenance": {
+          "source": "src/automations.mjs automationToolActions, the owner the MCP tools in src/automation-tools.mjs and the /automations routes reach"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "list"
+            },
+            "output_selector": "$.rules",
+            "contains": "["
+          }
+        ],
+        "screen": {
+          "group": "automations",
+          "kind": "described",
+          "icon": "Zap",
+          "label": "When this happens",
+          "about": "Run a tool or workflow by itself when something is recorded or arrives.",
+          "inputs": {
+            "operation": {
+              "label": "Do",
+              "choices": [
+                {
+                  "value": "",
+                  "label": "List them"
+                },
+                {
+                  "value": "set",
+                  "label": "Set one"
+                },
+                {
+                  "value": "remove",
+                  "label": "Remove one"
+                },
+                {
+                  "value": "run-now",
+                  "label": "Run one now"
+                },
+                {
+                  "value": "reset",
+                  "label": "Put Trillion's version back"
+                }
+              ]
+            },
+            "rule_id": {
+              "label": "Rule"
+            },
+            "when": {
+              "label": "When"
+            },
+            "then": {
+              "label": "Then"
+            },
+            "label": {
+              "label": "Name"
+            },
+            "enabled": {
+              "label": "On"
+            },
+            "input": {
+              "hidden": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::run-at-a-time",
+      "address": "package::trillion::tool::run-at-a-time",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:run-at-a-time",
+        "listed_on": "2026-10-02T10:47:08Z",
+        "label": "At a time, run a tool or workflow",
+        "job": "Set, list, remove or run now this person's schedules: at one time, or every day or week at a local time in a time zone, a tool runs or a workflow starts by itself",
+        "description": "The same schedules as set_schedule, list_schedules, remove_schedule and run_now. every: { unit: day | week, at: \"09:00\", time_zone, on: [monday, ...], interval } repeats; once_at: \"2026-10-01T09:00:00-04:00\" runs once. starts_on is the first day it may run. list shows each schedule's next run and last_run.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "type": "string",
+              "enum": [
+                "set",
+                "list",
+                "remove",
+                "run-now",
+                "reset"
+              ],
+              "description": "set (also changes or turns on and off one with its id), list (when left out), remove, run-now (runs it once, now), or reset (puts one of Trillion's own back as Trillion has it now)"
+            },
+            "schedule_id": {
+              "type": "string",
+              "description": "A schedule_id from list; set with it changes that schedule, remove, run-now and reset need it"
+            },
+            "every": {
+              "type": "object",
+              "description": "{ unit: day | week, at: 24-hour local time, time_zone, on: days of the week, interval }",
+              "properties": {
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "day",
+                    "week"
+                  ]
+                },
+                "at": {
+                  "type": "string"
+                },
+                "time_zone": {
+                  "type": "string"
+                },
+                "on": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "interval": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 52
+                }
+              }
+            },
+            "once_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "One time, with its zone"
+            },
+            "starts_on": {
+              "type": "string",
+              "description": "First day it may run, like 2026-10-01"
+            },
+            "overlap": {
+              "type": "string",
+              "enum": ["allow", "wait"],
+              "description": "allow (default) starts at each time; wait retains an unfinished prior run until it ends. Run now still starts a new run. An existing schedule keeps its setting when omitted."
+            },
+            "then": {
+              "type": "object",
+              "description": "What runs: { \"tool_id\": \"tool:...\", \"input\": {...} } or { \"workflow_id\": \"workflow:...\", \"input\": {...} }. An input value { \"fill\": { \"from\": \"record\", \"field\": \"text\" } } is taken from what set it off.",
+              "properties": {
+                "tool_id": {
+                  "type": "string"
+                },
+                "workflow_id": {
+                  "type": "string"
+                },
+                "input": {
+                  "type": "object"
+                }
+              }
+            },
+            "label": {
+              "type": "string",
+              "description": "What the schedule is for, in plain words"
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "On (true) or off (false)"
+            },
+            "input": {
+              "type": "object",
+              "description": "run-now: values laid over the then's own input"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "run-at-a-time"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "provenance": {
+          "source": "src/automations.mjs automationToolActions, the owner the MCP tools in src/automation-tools.mjs and the /automations routes reach"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "list"
+            },
+            "output_selector": "$.schedules",
+            "contains": "["
+          }
+        ],
+        "screen": {
+          "group": "automations",
+          "kind": "described",
+          "icon": "Clock",
+          "label": "At a time",
+          "about": "Run a tool or workflow by itself at a time, or every day or week.",
+          "inputs": {
+            "operation": {
+              "label": "Do",
+              "choices": [
+                {
+                  "value": "",
+                  "label": "List them"
+                },
+                {
+                  "value": "set",
+                  "label": "Set one"
+                },
+                {
+                  "value": "remove",
+                  "label": "Remove one"
+                },
+                {
+                  "value": "run-now",
+                  "label": "Run one now"
+                },
+                {
+                  "value": "reset",
+                  "label": "Put Trillion's version back"
+                }
+              ]
+            },
+            "schedule_id": {
+              "label": "Schedule"
+            },
+            "once_at": {
+              "label": "Once at"
+            },
+            "every": {
+              "label": "Every"
+            },
+            "starts_on": {
+              "label": "Starts on"
+            },
+            "then": {
+              "label": "Then"
+            },
+            "label": {
+              "label": "Name"
+            },
+            "enabled": {
+              "label": "On"
+            },
+            "input": {
+              "hidden": true
+            }
+          }
+        }
+      }
+    }
+  ]
+}

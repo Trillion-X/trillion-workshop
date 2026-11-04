@@ -1,0 +1,226 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-harness-setup-tool-records",
+  "records": [
+    {
+      "id": "package::trillion::tool::manage-harness",
+      "address": "package::trillion::tool::manage-harness",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:manage-harness",
+        "listed_on": "2026-10-08T00:00:00Z",
+        "label": "Set up an AI harness on a computer",
+        "job": "Inspect, apply or remove Trillion hooks for one chosen AI harness on an exact owned computer",
+        "description": "Runs the shared signed-app harness installer on the exact recorded computer. Inspect is observational; apply and remove require authorization. Preserves other settings, disabled hooks, managed policies, models and permissions. A configured hook is not evidence of execution. Codex trust requires explicit review of all current definition hashes and refuses changed definitions before writing. Returns the original typed report with computer attribution. Requires the installed computer host to advertise this tool and its exact computer scope; old or offline hosts remain unavailable. No shell, arbitrary module, download, model launch or personal-file import can be selected. After apply, run inspect again to obtain current evidence.",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 45,
+          "network_egress": true
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "computer_id",
+            "harness",
+            "action"
+          ],
+          "properties": {
+            "computer_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$"
+            },
+            "harness": {
+              "type": "string",
+              "enum": [
+                "claude-code",
+                "codex"
+              ]
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "inspect",
+                "apply",
+                "remove"
+              ]
+            },
+            "trust_hooks": {
+              "type": "boolean",
+              "description": "Only true for an explicitly authorized Codex apply after reviewing the exact current definitions."
+            },
+            "reviewed_definition_hashes": {
+              "type": "array",
+              "minItems": 7,
+              "maxItems": 7,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "description": "All seven configuration.evidence.hooks definition_hash values from the reviewed inspect report; required only when trust_hooks is true."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "schema",
+            "computer_id",
+            "scope_id",
+            "observed_at",
+            "owner_reported_at",
+            "verification_basis",
+            "report"
+          ],
+          "properties": {
+            "schema": {
+              "const": "trillion.native-harness-setup/v1"
+            },
+            "computer_id": {
+              "type": "string"
+            },
+            "scope_id": {
+              "type": "string"
+            },
+            "observed_at": {
+              "type": "string"
+            },
+            "owner_reported_at": {
+              "type": "string"
+            },
+            "verification_basis": {
+              "const": "authenticated-mac-tool-local-inspector"
+            },
+            "report": {
+              "type": "object",
+              "required": [
+                "schema",
+                "scope",
+                "evidence_level",
+                "action",
+                "harness",
+                "status",
+                "ready",
+                "checks",
+                "changes"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer-tool",
+          "tool_id": "tool:manage-harness"
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::keep-trillion-in-your-instructions",
+      "address": "package::trillion::tool::keep-trillion-in-your-instructions",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-trillion-in-your-instructions",
+        "listed_on": "2026-10-08T00:00:00Z",
+        "label": "Keep Trillion in your AI's standing instructions",
+        "job": "Put Trillion's standing instructions into the instruction file your AI reads at the start of every conversation on this computer, check that they are there, or take them out",
+        "description": "Run this when you connect to Trillion on the person's computer: action apply writes Trillion's current standing instructions as one marked block in this AI's own global instruction file (Claude Code ~/.claude/CLAUDE.md, Codex ~/.codex/AGENTS.md, Gemini CLI ~/.gemini/GEMINI.md) and creates the file if it is missing. The words come from Trillion each time, so a change at Trillion reaches the file the next time you apply. Only the block between the two marker lines is ever changed: every other line of the file stays exactly as it was, applying twice changes nothing, and remove takes out only the block. inspect says whether the block is absent, present or out of date without writing. A file whose markers are damaged is left alone and reported. For a hosted app with no file (ChatGPT, Claude, Gemini, Grok, Cursor) nothing is written: the report returns status use-host-control with the exact words and the app's own memory or custom-instructions control to put them in; use that control and say plainly what you did. No other path, text, command or harness can be named.",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "harness",
+            "action"
+          ],
+          "properties": {
+            "harness": {
+              "type": "string",
+              "enum": [
+                "claude-code",
+                "codex",
+                "gemini-cli",
+                "hermes",
+                "muse",
+                "chatgpt",
+                "claude",
+                "gemini",
+                "grok",
+                "cursor"
+              ],
+              "description": "The AI app or harness you are, as in src/harnesses.json"
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "inspect",
+                "apply",
+                "remove"
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "schema",
+            "observed_at",
+            "text_from",
+            "report"
+          ],
+          "properties": {
+            "schema": {
+              "const": "trillion.standing-instructions-result/v1"
+            },
+            "observed_at": {
+              "type": "string"
+            },
+            "text_from": {
+              "enum": [
+                "service",
+                "this app"
+              ]
+            },
+            "report": {
+              "type": "object",
+              "required": [
+                "schema",
+                "harness",
+                "action",
+                "status",
+                "changed",
+                "text"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer-tool",
+          "tool_id": "tool:keep-trillion-in-your-instructions"
+        }
+      }
+    }
+  ]
+}

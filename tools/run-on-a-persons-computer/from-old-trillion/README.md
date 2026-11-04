@@ -12,3 +12,11 @@ Files old trillion deleted with no home and no backlog row, whose job is this to
 | `computer/loopback-executor.mjs` | dc79bb0a87 (The Mac app stops carrying dead Node code: 55 tools no Workshop row na...) | `computer/loopback-executor.mjs.held` | held: imports ../parts/http-client/do-work/*, ./secret-references.mjs, ./script-sandbox.mjs, in no tree now |
 | `test/computer-host-tools.test.mjs` | dc79bb0a87 (The Mac app stops carrying dead Node code: 55 tools no Workshop row na...) | `test/computer-host-tools.test.mjs.held` | held: ERR_MODULE_NOT_FOUND |
 | `test/confined-run.test.mjs` | 5b55ce22b2 (Delete what moved to trillion-workshop tools/run-on-a-persons-computer...) | `test/confined-run.test.mjs` | runs here: 1/1 pass |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/workshop-mac-program-tool-records.json` | `records/workshop-mac-program-tool-records.json` |

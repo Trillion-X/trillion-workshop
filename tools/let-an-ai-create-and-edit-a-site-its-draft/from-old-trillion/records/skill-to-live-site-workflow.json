@@ -1,0 +1,584 @@
+{
+  "id": "workflow:skill-to-live-site",
+  "kind": "workflow-recipe",
+  "label": "Turn a skill and a brief into a live site",
+  "job": "Use any available skill, tool or creative method with a brief to build a reusable site or interactive app, publish it at a live trillion.run link, inspect the actual result, and keep the reusable method in the Trillion marketplace. Supports both new sites and edits to the same installation.",
+  "input_schema": {
+    "type": "object",
+    "required": [
+      "brief",
+      "skill_source",
+      "app_id",
+      "site_name"
+    ],
+    "properties": {
+      "brief": {
+        "type": "string",
+        "minLength": 1
+      },
+      "skill_source": {
+        "type": "string",
+        "minLength": 1,
+        "description": "A Marketplace workflow id, public repository or skill URL, or an available skill/file reference. Do not put a credential here."
+      },
+      "app_id": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]{1,79}$"
+      },
+      "site_name": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$"
+      },
+      "context": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "private"
+            ]
+          },
+          {
+            "type": "object",
+            "required": [
+              "kind",
+              "id"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "space"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        ],
+        "default": "private"
+      },
+      "installation_id": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{32}$",
+        "description": "When editing, keep this installation and its data/history."
+      },
+      "marketplace_visibility": {
+        "type": "string",
+        "enum": [
+          "global",
+          "account"
+        ],
+        "default": "global"
+      },
+      "expected_behaviors": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "source_owner": {
+        "type": "string",
+        "description": "Existing owned repository/project or saved Sites project; discover it when omitted."
+      }
+    },
+    "additionalProperties": false
+  },
+  "source": {
+    "from": "completed work generalized into a reusable method",
+    "license": "MIT",
+    "note": "The method preserves live hosting, same-origin scripts, licensed source, comparable visual proof, retries and saved workflow execution. Example-specific copy, credentials and installation identities are inputs, never instructions."
+  },
+  "show_on_public_site": true,
+  "steps": [
+    {
+      "id": "resolve",
+      "title": "Load the skill and define the result",
+      "do": "Read the brief and skill_source. Use find_workflow and describe_workflow for an existing method before creating a duplicate. Otherwise read the actual source and support files, pin the source revision, resolve license and redistribution permission, and keep attribution. Discover the existing product/source owner and use its supported build/hosting actions. Trillion is standalone: never attach its work to a retired runtime. Use the selected customer AI; do not silently substitute a provider. Describe the promised visitor behavior and the required success checks, including all expected_behaviors. For missing capability, discover or extend the smallest shared owner. Keep credentials with their owner and out of the site and workflow. A failed transport is not a missing credential. Do not ask routine approvals already covered by the request.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "skill_reference",
+          "source_revision",
+          "license",
+          "license_evidence",
+          "source_owner",
+          "brief",
+          "expected_behaviors",
+          "credential_values_in_output"
+        ],
+        "properties": {
+          "skill_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "license": {
+            "type": "string",
+            "minLength": 1
+          },
+          "license_evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "source_owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "brief": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected_behaviors": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "credential_values_in_output": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": [
+        {
+          "kind": "mentioned-in",
+          "path": [
+            "input",
+            "brief"
+          ],
+          "in": [
+            "this",
+            "brief"
+          ],
+          "says": "The resolved brief keeps the actual requested outcome."
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "title": "Build from reusable parts",
+      "do": "Apply the actual skill to this run's brief. Build behavior in shared UI/components and appearance in the shared look owner; callers supply data and copy. Keep the generator, data, dependency/license references and a repeatable build command with the source owner. Never author executable source in an instruction/history folder. For an existing installation, first read its revision and retain an authentic live baseline. Keep the same installation and data; use revision-checked edits, not a replacement site. New work records that no earlier baseline exists. Produce a site files map or saved site-file identity with index.html. Serve animation/behavior as same-origin JS files: the host enforces CSP; never weaken it or rely on blocked inline scripts. Avoid fabricated business results or live feeds. Add genuine backend/visitor actions only when the brief needs them, through the existing declared owners. Worker modules must be self-contained, from pinned source and the supported source manifest; the site host does not run repository build scripts.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "source_reference",
+          "build_command",
+          "site_files_reference",
+          "file_paths",
+          "attribution_paths",
+          "baseline",
+          "all_promised_behaviors",
+          "same_origin_scripts"
+        ],
+        "properties": {
+          "source_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "build_command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "site_files_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "file_paths": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "attribution_paths": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "baseline": {
+            "type": "string",
+            "minLength": 1
+          },
+          "all_promised_behaviors": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "same_origin_scripts": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": [
+        {
+          "kind": "covers",
+          "path": [
+            "this",
+            "all_promised_behaviors"
+          ],
+          "of": [
+            "steps",
+            "resolve",
+            "expected_behaviors"
+          ],
+          "says": "The build covers each promised behavior."
+        },
+        {
+          "kind": "covers",
+          "path": [
+            "this",
+            "file_paths"
+          ],
+          "values": [
+            "index.html"
+          ],
+          "says": "The site contains an entry page."
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Check the complete preview",
+      "do": "Build and open the real preview with one browser at a time. Inspect the whole page at phone and desktop widths, all collection kinds, first/middle/last items where applicable, keyboard/focus, reduced motion, actual interaction and console errors. Use the chosen skill's own geometry/craft checks where applicable. Verify actual media previews, links and declared visitor actions; placeholders and an HTTP 200 are insufficient. For each promised operation, check successful use and relevant denial/retry behavior without deleting real user data. Fix every found issue through the shared owner. Preserve genuine screenshots/recording and a complete checked file manifest. A not-applicable check needs a domain reason. Do not publish an unfinished preview as ready.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "verified_checks",
+          "evidence_refs",
+          "manifest_reference",
+          "ready_for_publication"
+        ],
+        "properties": {
+          "verified_checks": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "desktop",
+                "phone",
+                "keyboard",
+                "reduced-motion",
+                "interaction",
+                "browser-errors"
+              ]
+            },
+            "minItems": 6
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "manifest_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ready_for_publication": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": [
+        {
+          "kind": "covers",
+          "path": [
+            "this",
+            "verified_checks"
+          ],
+          "values": [
+            "desktop",
+            "phone",
+            "keyboard",
+            "reduced-motion",
+            "interaction",
+            "browser-errors"
+          ],
+          "says": "The preview covers all six required inspection areas."
+        }
+      ]
+    },
+    {
+      "id": "publish",
+      "title": "Publish through Trillion and keep the address",
+      "do": "Discover the live public-app tool schemas rather than copying obsolete payloads. For a new site call publish_public_app_definition with id=input.app_id, the checked files or files_from, and actual actions (an empty list for an illustrative site). Call install_public_app with the returned version, input.context (private when omitted), a stable installation_id for safe retries, and input.site_name. Keep the installation response and live URL. For edits use read_public_app_installation, write_public_app_file/edit_public_app_draft with fresh revisions, then publish_public_app_draft; keep the same installation, address, database and version history. Rename only through name_public_app. Attach/enable a backend only through the supported source owner when needed. A timeout after mutation is an unknown result: read back the known app/installation before retrying. Never generate a second installation to hide a failed read. Preserve recovery evidence. Return the actual live owner response, not a guessed URL.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "app_id",
+          "installation_id",
+          "revision",
+          "public_url",
+          "owner_response_reference",
+          "same_installation_on_retry"
+        ],
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "installation_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "public_url": {
+            "type": "string",
+            "pattern": "^https://[^/]+/"
+          },
+          "owner_response_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "same_installation_on_retry": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": []
+    },
+    {
+      "id": "verify",
+      "title": "Exercise the actual hosted result",
+      "do": "Read the installation and fetch the live URL and every required script/asset/route. Compare the actual served content with the checked manifest, allowing only documented host transforms. Repeat the promised visitor behavior on the hosted page: complete desktop and phone page, keyboard/focus, reduced-motion stillness, real motion/interaction, themes if present and no uncaught page errors. Check backend/visitor actions against the owning records when present. Capture fresh comparable after visuals and label changes without fabricating pixels; retain the authentic baseline or say none existed. Use a short real screen recording for motion. An uploaded definition, installed row, loading shell or passing route is not completion. Fix CSP/asset/action/layout failures and republish through the same installation until the live outcome passes; if a real external boundary remains, retain it and do not submit a successful result.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "public_url",
+          "http_status",
+          "verified_checks",
+          "verified_behaviors",
+          "evidence_refs",
+          "uncaught_page_errors",
+          "all_required_assets_served",
+          "actual_result_verified"
+        ],
+        "properties": {
+          "public_url": {
+            "type": "string",
+            "minLength": 1
+          },
+          "http_status": {
+            "type": "integer",
+            "enum": [
+              200
+            ]
+          },
+          "verified_checks": {
+            "type": "array",
+            "minItems": 6,
+            "items": {
+              "type": "string",
+              "enum": [
+                "desktop",
+                "phone",
+                "keyboard",
+                "reduced-motion",
+                "interaction",
+                "browser-errors"
+              ]
+            }
+          },
+          "verified_behaviors": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "uncaught_page_errors": {
+            "type": "integer",
+            "enum": [
+              0
+            ]
+          },
+          "all_required_assets_served": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "actual_result_verified": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": [
+        {
+          "kind": "covers",
+          "path": [
+            "this",
+            "verified_checks"
+          ],
+          "values": [
+            "desktop",
+            "phone",
+            "keyboard",
+            "reduced-motion",
+            "interaction",
+            "browser-errors"
+          ],
+          "says": "The hosted page passes the complete inspection."
+        },
+        {
+          "kind": "covers",
+          "path": [
+            "this",
+            "verified_behaviors"
+          ],
+          "of": [
+            "steps",
+            "resolve",
+            "expected_behaviors"
+          ],
+          "says": "Every promised behavior is verified live."
+        },
+        {
+          "kind": "subset-of",
+          "path": [
+            "this",
+            "public_url"
+          ],
+          "of": [
+            "steps",
+            "publish",
+            "public_url"
+          ],
+          "says": "The checked page is the published installation."
+        }
+      ]
+    },
+    {
+      "id": "keep-process",
+      "title": "Keep the skill, reusable method and final result",
+      "do": "Keep the skill findable with license and pinned support-file retrieval: use skill_repositories for a shareable public source or save_workflow for an admissible skill recipe. For global visibility publish the same saved workflow identity with publish_workflow; an account-only source registration is not global publication. Do not duplicate an existing source/workflow. This generic workflow is the shared end-to-end method; improve it in place only for a reusable discovery. Save output-specific methods only when they add a distinct reusable job. Remove example URLs, private facts, paths and secrets from every globally published recipe. Keep the built source in the right repository/project, land source through that owner's supported API with a fresh expected-head lease when applicable, and independently read back the exact bytes. Read describe_workflow and find_workflow to verify findability, declared inputs and all steps; record global publish separately from a separate-account/UI check, which must never be invented. Return the actual live URL, workflow/skill references and real screenshots/video in plain language. A native-tool job without run_tool task records must explicitly save/publish its generic method; learn_workflow cannot infer work it never recorded.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "workflow_id",
+          "skill_workflow_reference",
+          "visibility",
+          "findable",
+          "source_readback_reference",
+          "public_url",
+          "visual_evidence_refs",
+          "private_data_in_public_recipe"
+        ],
+        "properties": {
+          "workflow_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "skill_workflow_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "global",
+              "account"
+            ]
+          },
+          "findable": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "source_readback_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "public_url": {
+            "type": "string",
+            "minLength": 1
+          },
+          "visual_evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "private_data_in_public_recipe": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": [
+        {
+          "kind": "subset-of",
+          "path": [
+            "this",
+            "public_url"
+          ],
+          "of": [
+            "steps",
+            "publish",
+            "public_url"
+          ],
+          "says": "The final link names the verified installation."
+        }
+      ]
+    }
+  ]
+}

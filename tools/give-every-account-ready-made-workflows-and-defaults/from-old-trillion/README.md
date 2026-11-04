@@ -5,3 +5,11 @@ Files of old trillion whose job is this tool's (give every account ready made wo
 | Old path | Here | Status |
 |---|---|---|
 | `src/shipped-workflows.mjs` | `src/shipped-workflows.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/execution-modes.mjs (at the tag, not moved here yet), records/workflow-recipe-records.json (at the tag, not moved here yet), records/setup-workflow-records.json (at the tag, not moved here yet) |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/setup-workflow-records.json` | `records/setup-workflow-records.json` |

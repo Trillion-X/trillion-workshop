@@ -1,0 +1,515 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-gateway-records",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::gateway::treg",
+      "address": "package::ai-tool-catalog::gateway::treg",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-gateway",
+        "id": "gateway:treg",
+        "label": "treg",
+        "allowed_hosts": [
+          "treg.to"
+        ],
+        "credential": {
+          "secret_name": "treg-api-token",
+          "placement": {
+            "kind": "header",
+            "name": "X-Treg-Token",
+            "prefix": ""
+          }
+        },
+        "meta": {
+          "header": "X-Treg-Meta",
+          "key": "customer"
+        },
+        "markup": {
+          "percent": 0
+        },
+        "resale": {
+          "allowed": true,
+          "source": {
+            "url": "https://treg.to/integrate.md",
+            "read_on": "2026-09-26",
+            "says": "using the hosted treg.to API inside your own product with your own billing layer: no special agreement is needed"
+          }
+        },
+        "settings": {
+          "query_groups": [
+            "query",
+            "path"
+          ],
+          "query_groups_source": {
+            "url": "https://treg.to/catalog/endpoints/google-ai.music-gen.lyria-3-clip",
+            "read_on": "2026-09-30",
+            "says": "call_template: treg call google-ai.music-gen.lyria-3-clip --query model=lyria-3-clip-preview (the endpoint's pathParams.model sent as a query field; a live call that way answered 200)"
+          },
+          "cost_header": "X-Treg-Cost-Micro",
+          "call_id_header": "X-Treg-Call-Id",
+          "max_cost_header": "X-Treg-Route-Max-Cost",
+          "max_cost_usd_when_unquoted": 0.05
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::gateway::monid",
+      "address": "package::ai-tool-catalog::gateway::monid",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-gateway",
+        "id": "gateway:monid",
+        "label": "Monid",
+        "allowed_hosts": [
+          "api.monid.ai"
+        ],
+        "credential": {
+          "secret_name": "monid-api-key",
+          "placement": {
+            "kind": "header",
+            "name": "Authorization",
+            "prefix": "Bearer "
+          }
+        },
+        "markup": {
+          "percent": 0
+        },
+        "resale": {
+          "allowed": false,
+          "source": {
+            "url": "https://monid.ai/llms.txt",
+            "read_on": "2026-09-26",
+            "says": "No terms page is published (monid.ai/terms answered 404), so calls on behalf of Trillion's customers are not allowed until they are read."
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::search-source::treg-catalog",
+      "address": "package::ai-tool-catalog::search-source::treg-catalog",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-search-source",
+        "id": "source:treg-catalog",
+        "label": "treg",
+        "gateway": "gateway:treg",
+        "search": {
+          "url": "https://treg.to/catalog/search",
+          "method": "GET",
+          "query_param": "q",
+          "limit_param": "limit",
+          "items_field": "results"
+        },
+        "get": {
+          "url": "https://treg.to/catalog/endpoints/{id}",
+          "item_field": "endpoint"
+        },
+        "entry": {
+          "id": "id",
+          "label": "name",
+          "job": "summary",
+          "method": "method",
+          "input": "input",
+          "cost": "cost",
+          "verified": "verified",
+          "works": "works",
+          "provider": "provider_display",
+          "test_request": "test_request"
+        },
+        "id_prefix": "tool:treg:",
+        "input_dialect": {
+          "groups": {
+            "queryParams": "query",
+            "body": "body",
+            "pathParams": "path"
+          },
+          "types": {
+            "str": "string",
+            "string": "string",
+            "int": "integer",
+            "integer": "integer",
+            "float": "number",
+            "number": "number",
+            "bool": "boolean",
+            "boolean": "boolean",
+            "list": "array",
+            "array": "array",
+            "dict": "object",
+            "object": "object"
+          }
+        },
+        "price": {
+          "field": "cost",
+          "usd": "usd",
+          "per": "unit"
+        },
+        "row": {
+          "invoke": {
+            "kind": "gateway-call",
+            "gateway": "gateway:treg",
+            "url": "https://treg.to/call/{id}",
+            "method": {
+              "fill": {
+                "from": "entry",
+                "field": "method"
+              }
+            }
+          },
+          "placements": [
+            "placement:public-web-address"
+          ],
+          "licence_class": "licence:maker-own",
+          "billing": {
+            "payers": [
+              "own-account",
+              "gateway-account"
+            ],
+            "gateway": "gateway:treg"
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::search-source::github-repositories",
+      "address": "package::ai-tool-catalog::search-source::github-repositories",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-search-source",
+        "id": "source:github-repositories",
+        "label": "GitHub repositories",
+        "surface": "alongside",
+        "search": {
+          "url": "https://api.github.com/search/repositories",
+          "method": "GET",
+          "query_param": "q",
+          "limit_param": "per_page",
+          "items_field": "items",
+          "headers": {
+            "accept": "application/vnd.github+json",
+            "user-agent": "trillion-tool-discovery"
+          }
+        },
+        "get": {
+          "url": "https://api.github.com/repos/{id}",
+          "id_path_segments": 2,
+          "headers": {
+            "accept": "application/vnd.github+json",
+            "user-agent": "trillion-tool-discovery"
+          }
+        },
+        "entry": {
+          "id": "full_name",
+          "label": "name",
+          "job": "description",
+          "repo_url": "html_url"
+        },
+        "id_prefix": "tool:repo:github:",
+        "row": {
+          "description": "A repository found on GitHub. Its first run checks the source licence, explores a pinned commit, and keeps a working tool only when the sample succeeds. The repository is a candidate until then.",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "job",
+              "sample_input",
+              "expect_contains"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "job": {
+                "type": "string",
+                "minLength": 3,
+                "description": "What this repository should do as a tool, in plain words"
+              },
+              "sample_input": {
+                "type": "object",
+                "description": "One example input to check the tool against"
+              },
+              "expect_contains": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Text the sample run's output must contain"
+              }
+            }
+          },
+          "invoke": {
+            "kind": "repo-explorer",
+            "input": {
+              "repo_url": {
+                "fill": {
+                  "from": "entry",
+                  "field": "repo_url"
+                }
+              },
+              "job": {
+                "fill": {
+                  "from": "input",
+                  "field": "job"
+                }
+              },
+              "sample_input": {
+                "fill": {
+                  "from": "input",
+                  "field": "sample_input"
+                }
+              },
+              "expect_contains": {
+                "fill": {
+                  "from": "input",
+                  "field": "expect_contains"
+                }
+              }
+            },
+            "settings": {
+              "planner": {
+                "model": "@cf/qwen/qwen2.5-coder-32b-instruct"
+              },
+              "max_rounds": 4,
+              "unknown_licence_class": "licence:no-hosting-rights",
+              "tool_placement": "placement:deployed-container",
+              "kept_paths": [
+                "/work"
+              ],
+              "kept_changes_under": [
+                "/usr/local"
+              ],
+              "max_kept_bytes": 40000000
+            }
+          },
+          "needs": {
+            "expected_seconds": 240,
+            "network_egress": true,
+            "memory_mb": 2048
+          },
+          "result_saved_as_tool": true,
+          "licence_class": "licence:maker-own",
+          "placements": [
+            "placement:deployed-container"
+          ],
+          "verify": [
+            {
+              "kind": "output-contains",
+              "output_selector": "$.job_check.passed",
+              "text": "true"
+            },
+            {
+              "kind": "output-contains-input",
+              "output_selector": "$.job_check.output",
+              "input_field": "expect_contains"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::search-source::official-mcp-registry",
+      "address": "package::ai-tool-catalog::search-source::official-mcp-registry",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-search-source",
+        "id": "source:official-mcp-registry",
+        "label": "the official MCP Registry",
+        "finds": "tool-servers",
+        "search": {
+          "url": "https://registry.modelcontextprotocol.io/v0/servers",
+          "method": "GET",
+          "query_param": "search",
+          "limit_param": "limit",
+          "fixed_query": {
+            "version": "latest"
+          },
+          "items_field": "servers",
+          "paging": {
+            "param": "cursor",
+            "next_field": [
+              "metadata",
+              "nextCursor"
+            ]
+          },
+          "timeout_ms": 30000
+        },
+        "entry": {
+          "id": [
+            "server",
+            "name"
+          ],
+          "label": [
+            "server",
+            "title"
+          ],
+          "job": [
+            "server",
+            "description"
+          ],
+          "remote": [
+            "server",
+            "remotes",
+            0,
+            "url"
+          ],
+          "logo": [
+            "server",
+            "icons",
+            0,
+            "src"
+          ],
+          "website": [
+            "server",
+            "websiteUrl"
+          ],
+          "repository": [
+            "server",
+            "repository",
+            "url"
+          ]
+        },
+        "id_prefix": "connector:official-mcp-registry:",
+        "connector": {
+          "connect": [
+            "{remote}"
+          ],
+          "page": [
+            "{website}",
+            "{repository}"
+          ]
+        },
+        "row": {},
+        "provenance": {
+          "read_on": "2026-09-29",
+          "source": "https://registry.modelcontextprotocol.io/docs"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::search-source::smithery-servers",
+      "address": "package::ai-tool-catalog::search-source::smithery-servers",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-search-source",
+        "id": "source:smithery-servers",
+        "label": "Smithery",
+        "finds": "tool-servers",
+        "search": {
+          "url": "https://registry.smithery.ai/servers",
+          "method": "GET",
+          "query_param": "q",
+          "limit_param": "pageSize",
+          "items_field": "servers",
+          "total_field": [
+            "pagination",
+            "totalCount"
+          ],
+          "paging": {
+            "param": "page",
+            "first": 1,
+            "step": 1
+          },
+          "timeout_ms": 20000
+        },
+        "entry": {
+          "id": "qualifiedName",
+          "label": "displayName",
+          "job": "description",
+          "logo": "iconUrl",
+          "remote": "remote",
+          "used_by": "useCount"
+        },
+        "id_prefix": "connector:smithery:",
+        "connector": {
+          "connect": [
+            "https://server.smithery.ai/{id}/mcp"
+          ],
+          "connect_when": {
+            "field": "remote",
+            "equals": true
+          },
+          "page": [
+            "https://smithery.ai/server/{id}"
+          ]
+        },
+        "row": {},
+        "provenance": {
+          "read_on": "2026-09-29",
+          "source": "https://smithery.ai/docs"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::search-source::apify-store",
+      "address": "package::ai-tool-catalog::search-source::apify-store",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-search-source",
+        "id": "source:apify-store",
+        "label": "Apify Store",
+        "finds": "tool-servers",
+        "search": {
+          "url": "https://api.apify.com/v2/store",
+          "method": "GET",
+          "query_param": "search",
+          "limit_param": "limit",
+          "items_field": [
+            "data",
+            "items"
+          ],
+          "total_field": [
+            "data",
+            "total"
+          ],
+          "paging": {
+            "param": "offset",
+            "first": 0,
+            "step": "page_size"
+          },
+          "timeout_ms": 20000
+        },
+        "entry": {
+          "id": "id",
+          "owner": "username",
+          "name": "name",
+          "label": "title",
+          "job": "description",
+          "logo": "pictureUrl",
+          "page": "url"
+        },
+        "id_prefix": "connector:apify-store:",
+        "connector": {
+          "key": "{owner}/{name}",
+          "connect": [
+            "https://mcp.apify.com/?tools={owner}/{name}"
+          ],
+          "page": [
+            "{page}"
+          ]
+        },
+        "row": {},
+        "provenance": {
+          "read_on": "2026-09-29",
+          "source": "https://docs.apify.com/api/v2/store-get"
+        }
+      }
+    }
+  ]
+}

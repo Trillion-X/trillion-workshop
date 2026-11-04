@@ -1,0 +1,359 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-sales-contract-tool-records",
+  "what_this_is": "The sales contract builder as one account-owned Workshop tool. The descriptor is the AI surface, `screen` opens the same Trillion builder used by people, and `sales-contracts` stores drafts in that person's account. Contract terms including prices, intervals, access grants, limits and negotiated overrides are supplied per contract; no sales price is fixed here.",
+  "records": [
+    {
+      "id": "package::trillion::tool::manage-sales-contracts",
+      "address": "package::trillion::tool::manage-sales-contracts",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:manage-sales-contracts",
+        "listed_on": "2026-09-30T18:33:42Z",
+        "label": "Create and manage sales contracts",
+        "job": "Create, read, list or send sales contracts with their customer, pricing, access grants, usage limits, negotiated terms and follow-ups after payment, and read what the person's business really has (their offers and prices on their own Stripe, their customers, saved deals, rules, schedules and workflows) to build one from; sending emails the person a private link they open with a one-time email code, review and sign without an account, and pay when the deal has a price",
+        "description": "Keeps each contract in this account. Supply the agreed terms for each contract, including any price or schedule negotiated on a sales call. Send one person a link only their proved email address can open. They can review and sign without a Trillion account; a priced deal then uses this account's Stripe connection for payment.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "operation"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "type": "string",
+              "enum": [
+                "list",
+                "read",
+                "save",
+                "send",
+                "resources"
+              ],
+              "description": "resources answers what the builder can build from: each source in src/sales-contract-builder.json with its items (offers with amount_cents, currency and interval; customers with name and email; saved deals; rules; schedules; workflows) and whether it could be read."
+            },
+            "contract_id": {
+              "type": "string",
+              "description": "The id returned when a draft was saved."
+            },
+            "contract": {
+              "type": "object",
+              "description": "Contract terms supplied for this customer. Preserve pricing rules and entitlements as structured data. follow_ups: [{ label, on: \"paid\" | { once_at }, then: { tool_id or workflow_id, input } }] are set as the person's own rules (when the deal is paid) and schedules (at that time) when it is sent; {to}, {contract_name}, {contract_id} and {address} in their words are filled then."
+            },
+            "name": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string",
+              "format": "email",
+              "description": "send: the email address of the person the deal is for. Only someone who proves this address with a one-time code can open it."
+            },
+            "scope": {
+              "type": "object",
+              "description": "send without to: who may open the link, as share links take it ({ kind: public | private | email | phone | code, value })."
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "send: your own words to them, shown in the email."
+            },
+            "expires_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "send: when the link stops working; leave out for no end."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "sales-contracts"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "screen": {
+          "group": "business",
+          "new_until": "2026-10-09T00:00:00Z",
+          "kind": "app-entry",
+          "entry": "sales-contract-builder",
+          "label": "Sales contracts",
+          "icon": "FileSignature",
+          "about": "Build a deal and send it to one person, a list, or each new person who joins one.",
+          "input": {}
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::send-to-an-audience",
+      "address": "package::trillion::tool::send-to-an-audience",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:send-to-an-audience",
+        "listed_on": "2026-10-04T10:00:00Z",
+        "label": "Send to an audience",
+        "job": "Send a sales contract or anything you can share to one person, people you name, everyone in a list or a list view, or the people an earlier send reached (who opened it, did not open it, signed or paid), by email, text, a link, a phone call, a letter or any Workshop tool, now, at a time or to each new person who joins the list, each person's link open until a time you choose and letting them view, run (a tool) or sign, with up to six prices tested against each other, and read who it reached and who opened, signed and paid at each price",
+        "description": "Each person gets their own link, reached once however often the send runs. With two or more prices, each person stays on one price and the results show money per price. Text goes from your own Mac or phone's Messages or WhatsApp. Timing uses your own rules and schedules, so a list keeps its offer live for everyone who joins it. Tool-backed sources use declared field bindings and current eligibility rules; subscription delivery and imported receipts use this same audience ledger.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "operation"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "type": "string",
+              "enum": [
+                "save",
+                "run",
+                "results",
+                "stop",
+                "list",
+                "read",
+                "do_not_send",
+                "audience",
+                "import_receipts"
+              ],
+              "description": "save keeps a send; when manual it does not dispatch or schedule, and when now it sends its first page. run starts a saved manual send or sends the next page; results reads sent, opened, signed and paid per price; stop ends it and its rules; list reads every send with the channels you can use; audience lists who it would reach now; do_not_send keeps an address no send reaches again. import_receipts keeps actual earlier delivery evidence in this same ledger without overwriting or retrying it."
+            },
+            "send_id": {
+              "type": "string",
+              "description": "The send's id, from save or list."
+            },
+            "record": {
+              "type": "string",
+              "description": "save: what is sent: a sales contract id (sales-contract:...) or any record you can share by link."
+            },
+            "title": {
+              "type": "string"
+            },
+            "audience": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "save: who gets it, any mix of { list_id, view_id?, rules? } (a list, one of its saved views, or a rule tree), { people: [{ name?, email?, phone?, postal? }] }, and { send_id, state } with state sent, opened, not_opened, signed, paid or not_paid. A current tool-backed source is { tool_id, input, rows_path, bindings: { key, email?, name?, other_fact: exact.path }, page?: { next_cursor, complete, cursor_input }, rules?, fields? }; pages must report completeness and each row its stable source key. Recipient addresses are normalized and deduplicated across all sources."
+            },
+            "except": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "save: who never gets it, in the same shapes as audience."
+            },
+            "channels": {
+              "type": "array",
+              "items": {},
+              "description": "save: how it reaches them: email, text, link, phone-call, letter (list answers which are ready), or { road: \"tool\", tool_id, address: email | phone | postal, input } to send through any Workshop tool, where {to}, {link}, {text}, {title} and {name} in input are filled per person. Tool channels accept outcome: { sent: exact.output.path, unknown?: exact.output.path }; defaults are sent and unknown. A completed tool run alone is never delivery proof. Input placeholders can use bound facts and person/send paths; an exact placeholder preserves its value type."
+            },
+            "when": {
+              "description": "save: \"manual\" (keeps the send without dispatch or scheduling until run), \"now\", { kind: \"at\", at: ISO time } or \"each_new\" (each new person who joins the list). Timing strings may also be { kind }. Use manual to import actual earlier delivery receipts before the first run."
+            },
+            "prices": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "description": "save, sales contracts only: 2 to 6 prices in cents to test; each person stays on one."
+            },
+            "currency": {
+              "type": "string"
+            },
+            "experiment_id": {
+              "type": "string",
+              "description": "save: share one price test across several sends."
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "save: your own words, in the email and the text."
+            },
+            "until": {
+              "type": "string",
+              "format": "date-time",
+              "description": "save: when each person's link stops opening, like 2026-10-05T09:00:00Z; left out, links stay open until stopped."
+            },
+            "can": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "save: what each person's link lets them do beyond seeing it (view, run for a tool, sign and pay for a contract, add_files for a folder); left out, what that kind of thing gives."
+            },
+            "funnel_id": {
+              "type": "string"
+            },
+            "address": {
+              "type": "string",
+              "description": "do_not_send: the email or phone number."
+            },
+            "eligibility": {
+              "type": "object",
+              "required": [
+                "tool_id",
+                "rows_path",
+                "bindings"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "tool_id": {
+                  "type": "string"
+                },
+                "input": {
+                  "type": "object"
+                },
+                "rows_path": {
+                  "type": "string"
+                },
+                "bindings": {
+                  "type": "object",
+                  "required": [
+                    "key"
+                  ],
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "page": {
+                  "type": "object",
+                  "required": [
+                    "next_cursor",
+                    "complete",
+                    "cursor_input"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "next_cursor": {
+                      "type": "string"
+                    },
+                    "complete": {
+                      "type": "string"
+                    },
+                    "cursor_input": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "rules": {
+                  "type": "object"
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "kind"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "description": "save: a current tool-backed projection re-read before each channel dispatch. Use exact identity bindings and rules for current consent/suppression/timing. Input placeholders read current person facts; a failed or incomplete read sends nothing and retries through the same schedule owner."
+            },
+            "receipts": {
+              "type": "array",
+              "maxItems": 100,
+              "items": {
+                "type": "object",
+                "required": [
+                  "key",
+                  "source_ref",
+                  "at",
+                  "state"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "description": "The same normalized recipient address used by this send, or the source key for an addressless row."
+                  },
+                  "source_ref": {
+                    "type": "string",
+                    "description": "The exact earlier delivery record."
+                  },
+                  "at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "sent",
+                      "unknown",
+                      "failed",
+                      "skipped"
+                    ]
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "postal": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "import_receipts: one bounded page of actual historical observations. Existing attempts are retained; imported evidence is never blindly retried."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "audience-sends"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        }
+      }
+    }
+  ]
+}

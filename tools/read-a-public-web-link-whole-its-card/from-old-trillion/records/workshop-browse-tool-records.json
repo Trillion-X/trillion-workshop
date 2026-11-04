@@ -1,0 +1,400 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-browse-tool-records",
+  "records": [
+    {
+      "id": "package::trillion::tool::critique-a-public-page",
+      "address": "package::trillion::tool::critique-a-public-page",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:critique-a-public-page",
+        "label": "Critique a public page",
+        "listed_on": "2026-10-06T06:00:00Z",
+        "status": "active",
+        "job": "Judge public web pages (one page, or every page a sitemap lists) against the saved craft rules at phone and desktop width, with a marked picture of each",
+        "description": "Opens the page (url), or every page a sitemap lists (pages_from, less the paths skip names), at 390 and 1280 pixels (the widths are DATA in parts/page-critic/read-data/page-craft-rules.json) and checks it against the craft rules: headings wider than their measure, body text wider than about half the page, small label lines above headings, text too close to the browser's edge, links to anchors that are not on the page, links that do not open, cards that look openable but are not, a page whose newest date is older than fresh_within_days (one number, or { \"/path\": days } for some pages), a page many screens long, and controls that look the same with a pointer on them. Each finding says what to change, in plain words, and where; each width is kept as a whole-page picture in your files with every finding boxed and numbered. The page is only read.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "One page to judge, like https://gettrillion.ai/"
+            },
+            "pages_from": {
+              "type": "string",
+              "format": "uri",
+              "description": "A sitemap whose every page is judged, like https://gettrillion.ai/sitemap.xml"
+            },
+            "skip": {
+              "type": "string",
+              "description": "Paths a sitemap's pages starting with these are left out, separated by commas, like /articles"
+            },
+            "fresh_within_days": {
+              "description": "How old the newest date on a page may be: one number of days for every page, or { \"/changelog\": 3 } for some pages",
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "object",
+              "required": [
+                "said",
+                "findings_count",
+                "findings",
+                "pictures"
+              ],
+              "properties": {
+                "said": {
+                  "type": "string"
+                },
+                "pages": {
+                  "type": "number"
+                },
+                "findings_count": {
+                  "type": "number"
+                },
+                "findings": {
+                  "type": "array"
+                },
+                "pictures": {
+                  "type": "array"
+                }
+              }
+            },
+            "files": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "page-critic",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/page-critic"
+              },
+              {
+                "package": "headless-browser",
+                "paths": [
+                  "quiet-switches.json",
+                  "devtools.mjs"
+                ],
+                "at": "/opt/headless-browser"
+              }
+            ]
+          },
+          "workdir": "/opt/page-critic",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "do-work/critique-a-page.mjs",
+            {
+              "$when": "url",
+              "value": "--url"
+            },
+            {
+              "from": "url",
+              "optional": true
+            },
+            {
+              "$when": "pages_from",
+              "value": "--pages-from"
+            },
+            {
+              "from": "pages_from",
+              "optional": true
+            },
+            {
+              "$when": "skip",
+              "value": "--skip"
+            },
+            {
+              "from": "skip",
+              "optional": true
+            },
+            {
+              "$when": "fresh_within_days",
+              "value": "--fresh-within-days"
+            },
+            {
+              "from": "fresh_within_days",
+              "optional": true
+            },
+            "--out",
+            "/opt/page-critic/out"
+          ],
+          "outputs": [
+            {
+              "name": "pictures",
+              "folder": "/opt/page-critic/out/pictures",
+              "keep_in": "files"
+            }
+          ]
+        },
+        "placements": [
+          "placement:deployed-container"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "verify": [
+          {
+            "kind": "output-number-within",
+            "output_selector": "$.result.findings_count",
+            "at_least": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::read-a-link",
+      "address": "package::trillion::tool::read-a-link",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "id": "tool:read-a-link",
+        "listed_on": "2026-09-30T06:18:09Z",
+        "label": "Read a link",
+        "job": "Read one public link into a card: its title, picture, description, site and the words on the page",
+        "description": "Reads one public http or https page (at most 2 MB, 6 seconds) and returns its title, picture (image, and every picture in images), videos, description, site name and icon from the page's own tags and structured data (data, its schema.org JSON-LD), and its readable text. A link that is itself a picture or video is that picture or video. A page that does not answer or says nothing about itself returns the bare address with unread saying why. It does not sign in.",
+        "needs": {
+          "expected_seconds": 6,
+          "network_egress": true
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "url"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "title": "Link",
+              "description": "One public http or https address."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "url",
+            "final_url",
+            "host",
+            "text"
+          ],
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "final_url": {
+              "type": "string"
+            },
+            "host": {
+              "type": "string"
+            },
+            "site": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "title": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "description": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "image": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "icon": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "text": {
+              "type": "string"
+            },
+            "unread": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "images": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "videos": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "read-link"
+        },
+        "screen": {
+          "group": "saving-links",
+          "kind": "described",
+          "icon": "Link",
+          "label": "Read a link",
+          "about": "Reads a web page's title, picture and words.",
+          "inputs": {
+            "url": {
+              "label": "Link",
+              "placeholder": "https://"
+            }
+          }
+        },
+        "provenance": {
+          "source": "src/read-link.mjs over parts/browse-public-page/do-work/page-facts.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "url": "https://example.com"
+            },
+            "output_selector": "$.title",
+            "contains": "Example Domain"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::read-a-page-in-my-browser",
+      "address": "package::trillion::tool::read-a-page-in-my-browser",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-browser"
+        ],
+        "maker": "maker:trillion",
+        "id": "tool:read-a-page-in-my-browser",
+        "listed_on": "2026-10-05T23:00:00Z",
+        "label": "Read a page in my browser",
+        "job": "Read a web page through the person's own browser, signed in as them: pages behind their sign-in, or pages that refuse servers",
+        "description": "Runs in the person's browser with Send to Trillion signed in (placement:your-browser): opens the page in a window of its own that is not brought forward, waits for it to load, reads its address, title, text and links as the person would see them, and closes it. Use it when tool:read-a-link or tool:read-public-web-page cannot read a page (it needs a sign-in, or refuses requests from servers). A page that cannot be read fails with why.",
+        "needs": {
+          "expected_seconds": 15,
+          "network_egress": true
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "url"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "title": "Page",
+              "description": "One http or https address."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "url",
+            "text"
+          ],
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "title": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "text": {
+              "type": "string"
+            },
+            "links": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer-tool",
+          "tool_id": "tool:read-a-page-in-my-browser"
+        },
+        "provenance": {
+          "source": "extension/src/browser-runs.mjs readPage, run by Send to Trillion on the agent this-browser"
+        }
+      }
+    }
+  ]
+}

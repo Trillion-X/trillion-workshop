@@ -1,0 +1,61 @@
+{
+  "comment": "The price experiments this service runs on its own offers, started from these rows (src/book-handlers.mjs 'price-experiments'): a row the service's book does not hold yet is started as written the next time the book opens; from then on the book keeps it, and tool:run-price-experiments on the operator account settles, stops or changes it. Each row is one experiment in the one record shape (src/price-experiments.mjs save input): every person shown its `surface` sees one arm, the same one every time, by `weight`; an arm is an offer row in src/sales.json, served only once its payment link exists. Results (people shown each arm, people who paid, money per person shown) are on Funnels and /billing/plan. Like any small shop's offer tests, each arm differs from the plan it tests in one thing: the price, the margin on usage, or the button. An arm's label is what the person sees that the other arms do not: its price, its usage margin or its button.",
+  "experiments": [
+    {
+      "experiment_id": "experiment:hosted-site-monthly-price",
+      "label": "Publishing site monthly price",
+      "surface": "hosted-site",
+      "optimizing_for": "Money collected per person shown the publishing site in their first 90 days; how many still have a site at 90 days breaks ties.",
+      "arms": [
+        {
+          "offer_id": "offer:hosted-site-monthly-900",
+          "label": "$9 a month"
+        },
+        {
+          "offer_id": "offer:hosted-site-monthly-1900",
+          "label": "$19 a month"
+        }
+      ]
+    },
+    {
+      "experiment_id": "experiment:trillion-plan",
+      "label": "Trillion plan: spot price, usage margin, first week and button",
+      "surface": "paid-plan",
+      "optimizing_for": "Money collected per person shown the plan in their first 90 days, usage included.",
+      "arms": [
+        {
+          "offer_id": "offer:trillion",
+          "label": "$100 a spot"
+        },
+        {
+          "offer_id": "offer:trillion-spot-150",
+          "label": "$150 a spot"
+        },
+        {
+          "offer_id": "offer:trillion-spot-50",
+          "label": "$50 a spot"
+        },
+        {
+          "offer_id": "offer:trillion-margin-50",
+          "label": "Usage at cost + 50%"
+        },
+        {
+          "offer_id": "offer:trillion-start-free",
+          "label": "Start 7 days free"
+        },
+        {
+          "offer_id": "offer:trillion-ten-today",
+          "label": "$10 today, $90 next week"
+        },
+        {
+          "offer_id": "offer:trillion-five-today",
+          "label": "$5 today, $95 next week"
+        },
+        {
+          "offer_id": "offer:trillion-two-today",
+          "label": "$2 today, $98 next week"
+        }
+      ]
+    }
+  ]
+}

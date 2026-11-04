@@ -1,0 +1,52 @@
+{
+ "kind": "package-set-records",
+ "package_set": "trillion",
+ "record_set": "workshop-mac-program-tool-records",
+ "what_this_is": "Programs the Trillion computer app runs on the person's computer, as Workshop tools on placement:your-computer. Installing one of these (inside a configuration the account follows, such as trillion-your-computer) is the switch that makes the computer's helper start that program; uninstalling it stops it (computer/program-host.mjs). The recipe for each program (the module it runs, its arguments, how it restarts) is data in computer/mac-tools.json `programs`, carried inside the signed app and never taken from the server; invoke.program names that recipe, and invoke.needs_build names the app capability a computer must carry (mac-program-host) for the installation to take effect, so an older app simply keeps running its programs as before. Running either tool only says how its program is going on this computer. An account with no such installation keeps every program running, as before.",
+ "records": [
+  {
+   "id": "package::trillion::tool::read-a-computer",
+   "address": "package::trillion::tool::read-a-computer",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:trillion",
+    "needs": { "expected_seconds": 2, "network_egress": false },
+    "id": "tool:read-a-computer",
+    "listed_on": "2026-10-08T00:00:00Z",
+    "label": "Read a computer",
+    "job": "Read this computer's places (its messages, notes, browsers, drives and folders) for the person's Trillion, so they appear in Connections and the new items reach the person's files, and keep doing it while the computer is on",
+    "description": "Says how reading this computer is going: program reader, whether it is running on this computer, and whether the person's installed set wants it. Installing this tool turns reading on for this computer; removing it stops it. Takes no input.",
+    "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
+    "output_schema": { "type": "object" },
+    "invoke": { "kind": "computer-tool", "tool_id": "tool:read-a-computer", "program": "reader", "needs_build": "mac-program-host" },
+    "provenance": { "source": "computer/read-this-computer.mjs, started by computer/program-host.mjs from computer/mac-tools.json programs.reader and answered through computer/mac-tools.mjs on the agent computer-tools" }
+   }
+  },
+  {
+   "id": "package::trillion::tool::carry-connections",
+   "address": "package::trillion::tool::carry-connections",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:trillion",
+    "needs": { "expected_seconds": 2, "network_egress": false },
+    "id": "tool:carry-connections",
+    "listed_on": "2026-10-08T00:00:00Z",
+    "label": "Carry connections from a computer",
+    "job": "Carry iMessage and the other connections only this computer reaches (WhatsApp and similar) to the person's Trillion, sending what arrives and what the person's AIs ask to send, while the computer is on",
+    "description": "Says how carrying this computer's connections is going: program connections, whether it is running on this computer, and whether the person's installed set wants it. Installing this tool turns carrying on for this computer; removing it stops it. Takes no input.",
+    "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
+    "output_schema": { "type": "object" },
+    "invoke": { "kind": "computer-tool", "tool_id": "tool:carry-connections", "program": "connections", "needs_build": "mac-program-host" },
+    "provenance": { "source": "computer/carry-connections.mjs, started by computer/program-host.mjs from computer/mac-tools.json programs.connections and answered through computer/mac-tools.mjs on the agent computer-tools" }
+   }
+  }
+ ]
+}

@@ -1,0 +1,18 @@
+{
+  "comment": "The geometric price rules this service holds for its own offers (src/geometric-pricing.mjs), each naming the price experiment it reads for (records/service-price-experiments.json). A rule says what the price should be from what people did; it never changes what a customer is charged, because each plan price is a payment link set by whoever owns the offer. tool:run-price-experiments on the operator account reads one with operation price_now (and results carries the same reading as `geometric`). The Trillion plan rule is the variable speed controller: the price starts at the spot price, doubles with each purchase and eases for each person who reached it and did not buy, holding still when about one in twenty buys; it never goes below half the spot price. Prices stay flat until the first sales, so before then it reads the starting price.",
+  "rules": [
+    {
+      "applies_to": "experiment:trillion-plan",
+      "rule": {
+        "mode": "controller",
+        "start_cents": 10000,
+        "floor_cents": 5000,
+        "sales_to_double": 1,
+        "target_win_rate": 0.05,
+        "currency": "usd",
+        "interval": "month",
+        "suggested_multiples": [1, 1.5, 2]
+      }
+    }
+  ]
+}

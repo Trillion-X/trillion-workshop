@@ -146,6 +146,13 @@
       "to": "tools/connect-a-service-and-seal-its-key/work-contract.json",
       "source_identity": "1f:98c6e8f33dd3009f0695bb6cdc0a0abb664953a608202e13b9b3ed6d719f61fb",
       "identity": "1f:98c6e8f33dd3009f0695bb6cdc0a0abb664953a608202e13b9b3ed6d719f61fb"
+    },
+    {
+      "from": "records/workshop-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json",
+      "source_identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9",
+      "identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9"
     }
   ],
   "not_matched": []

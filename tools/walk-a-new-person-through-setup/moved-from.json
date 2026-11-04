@@ -18,6 +18,13 @@
       "source_identity": "1f:79e1390d4921dfc8b3b144169260eba04bd333074725427e5412c0b61f0f047d",
       "identity": "1f:79e1390d4921dfc8b3b144169260eba04bd333074725427e5412c0b61f0f047d",
       "reused": true
+    },
+    {
+      "from": "skills/setup/SKILL.md",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/walk-a-new-person-through-setup/from-old-trillion/skills/setup/SKILL.md",
+      "source_identity": "1f:0547cc6912089ab42ca476dcead25462eafe97b0eea344b4020df372a8827966",
+      "identity": "1f:0547cc6912089ab42ca476dcead25462eafe97b0eea344b4020df372a8827966"
     }
   ]
 }

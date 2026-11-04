@@ -9,3 +9,12 @@ Files of old trillion whose job is this tool's (draft, approve and publish my so
 | `test/social-posts.test.mjs` | `test/social-posts.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/local-store.mjs (at the tag, not moved here yet), src/social-posts.json (at the tag, not moved here yet), records/workshop-publishing-tool-records.json (at the tag, not moved here yet), records/post-place-records.json (at the tag, not moved here yet) |
 | `test/social-posts-for-tests.mjs` | `test/social-posts-for-tests.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/local-store.mjs (at the tag, not moved here yet), src/social-posts.json (at the tag, not moved here yet) |
 | `test/social-posts-publish-through-tool.test.mjs` | `test/social-posts-publish-through-tool.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/activity.mjs (already gone at the tag), src/social-posts.json (at the tag, not moved here yet) |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/post-place-records.json` | `records/post-place-records.json` |
+| `records/workshop-publishing-tool-records.json` | `records/workshop-publishing-tool-records.json` |

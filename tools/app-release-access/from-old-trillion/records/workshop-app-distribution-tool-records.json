@@ -1,0 +1,132 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-app-distribution-tool-records",
+  "records": [
+    {
+      "id": "package::trillion::tool::read-app-distribution",
+      "address": "package::trillion::tool::read-app-distribution",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-app-distribution",
+        "listed_on": "2026-10-08T00:00:00Z",
+        "label": "Check app installation access",
+        "job": "Verify whether the configured native app has a usable distribution route and publish fresh public availability for onboarding",
+        "description": "Reads the configured Apple app on the release owner's Mac with its existing App Store Connect key. Checks external testing, group access, active unexpired builds and public recruitment requirements; an older active build remains a route while a new build waits for review. Optionally publishes a short-lived public observation through the operator-only API with conflict checks. No tester is invited and no tester identity or credential is returned. Installation is still verified by the account's native sign-in. An offline or outdated Mac leaves the observation unknown until this tool actually runs.",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source_id"
+          ],
+          "properties": {
+            "source_id": {
+              "type": "string",
+              "description": "Configured release source, such as native-ios"
+            },
+            "publish": {
+              "type": "boolean",
+              "description": "Publish the fresh public observation to the release owner's Trillion"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source_id",
+            "observation",
+            "published"
+          ],
+          "properties": {
+            "source_id": {
+              "type": "string"
+            },
+            "observation": {
+              "type": "object"
+            },
+            "published": {
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer-tool",
+          "tool_id": "tool:read-app-distribution"
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::fulfill-setup-access",
+      "address": "package::trillion::tool::fulfill-setup-access",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:fulfill-setup-access",
+        "listed_on": "2026-10-08T00:00:00Z",
+        "label": "Arrange required app access",
+        "job": "Fulfill one authorized account setup access request through its configured app provider",
+        "description": "The release owner Mac claims one existing account/source/request from the authenticated server. The server resolves the verified recipient and recorded mandate, and the Mac checks current provider eligibility before enrolling or inviting. Provider checkpoints and readback prevent duplicate sends after uncertain outcomes. Operator policy, requirements, recipient and cancellation are rechecked before provider actions. An invitation is not completion of Trillion setup. Input cannot name an email or choose a group.",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id",
+            "source_id",
+            "request_id"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "request_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer-tool",
+          "tool_id": "tool:fulfill-setup-access"
+        }
+      }
+    }
+  ]
+}

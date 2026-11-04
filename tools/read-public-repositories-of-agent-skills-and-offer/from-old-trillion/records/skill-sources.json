@@ -1,0 +1,59 @@
+{
+  "about": "Public repositories whose agent skills (folders holding a SKILL.md) are Marketplace workflows for every account, read from the repository itself by src/skill-sources.mjs in the shared pool: nothing is copied into this repository. Each source row names a git host row, the kind of thing the repository holds (a row in kinds; default_kind when left out), the owner, the repository, the branch and the folder its skills sit under (\"\" for the whole repository). Every check_every_minutes the branch's commit is read from the host (one small read, git's own reference list); only when it moved is the archive of that commit read again, so a new or changed skill appears by itself and a removed one leaves. A skill shows only when its own folder, else its repository, names an open licence (records/skill-import-rules.json). Adding a repository for every account is a row in sources (a person's AI adds one for that person alone with the skill_repositories tool); a read nobody lists for forget_after_days is forgotten; adding a git host is a row in hosts, whose addresses take {owner}, {repository}, {commit} and {path}.",
+  "check_every_minutes": 60,
+  "forget_after_days": 30,
+  "max_archive_bytes": 25000000,
+  "default_kind": "skills",
+  "kinds": {
+    "skills": {
+      "label": "Agent skills",
+      "entry": "SKILL.md",
+      "becomes": "workflow",
+      "comment": "Each folder holding this file is one workflow (src/skill-rows.mjs). A kind is what a repository holds: another kind of repository whose units are folders holding a named file with front matter (name, description) and instructions is one row here, and a source row names it with kind."
+    }
+  },
+  "hosts": [
+    {
+      "id": "github",
+      "label": "GitHub",
+      "refs": "https://github.com/{owner}/{repository}.git/info/refs?service=git-upload-pack",
+      "archive": "https://codeload.github.com/{owner}/{repository}/tar.gz/{commit}",
+      "page": "https://github.com/{owner}/{repository}/tree/{commit}/{path}",
+      "repository_page": "https://github.com/{owner}/{repository}"
+    },
+    {
+      "id": "gitlab",
+      "label": "GitLab",
+      "refs": "https://gitlab.com/{owner}/{repository}.git/info/refs?service=git-upload-pack",
+      "archive": "https://gitlab.com/{owner}/{repository}/-/archive/{commit}/{repository}-{commit}.tar.gz",
+      "page": "https://gitlab.com/{owner}/{repository}/-/tree/{commit}/{path}",
+      "repository_page": "https://gitlab.com/{owner}/{repository}"
+    }
+  ],
+  "sources": [
+    {
+      "id": "emilkowalski-skills",
+      "host": "github",
+      "owner": "emilkowalski",
+      "repository": "skills",
+      "branch": "main",
+      "folder": "skills"
+    },
+    {
+      "id": "morluto-rea",
+      "host": "github",
+      "owner": "morluto",
+      "repository": "rea",
+      "branch": "main",
+      "folder": "skill-src"
+    },
+    {
+      "id": "wheresryan22-anatomy",
+      "host": "github",
+      "owner": "wheresryan22",
+      "repository": "anatomy",
+      "branch": "main",
+      "folder": ""
+    }
+  ]
+}

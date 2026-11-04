@@ -1,0 +1,17 @@
+{
+  "_what": "The edge inbox (src/share-inbox.mjs): what a share or an emailed arrival waits in when the person's store cannot answer, how long it waits, how often it is tried again, and the words the person reads. Read by src/share-inbox.mjs only.",
+  "keep_days": 30,
+  "max_bytes": 20000000,
+  "drain_every_seconds": 30,
+  "resume_wait_at_most_seconds": 86400,
+  "kept_per_drain": 25,
+  "listed_as_waiting": 50,
+  "give_up_after_tries": 2000,
+  "mark_days": 31,
+  "kept_words": "Kept. Trillion will deliver it as soon as your account answers.",
+  "too_big_words": "This is too big to hold until your account can take it. Send it again later.",
+  "waiting_status": "waiting to deliver",
+  "refused_status": "could not deliver: {reason}",
+  "gave_up_reason": "your account did not answer for a long time",
+  "no_reason": "your account refused it"
+}

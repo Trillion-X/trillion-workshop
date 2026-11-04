@@ -1,0 +1,124 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-sharing-tool-records",
+  "what_this_is": "Shared with me as a Workshop tool that runs inside the person's own store (placement:this-account; src/record-sharing.mjs sharedWithMe and readSharedWithMe through src/person-store.mjs accountActions): what other people shared with this person one by one, newest first, and one of them read at the moment of asking, while its owner still shares it. Its screen is the Shared with me screen (entry shared-with-me, src/workspace/shared-with-me-screen.tsx). The same reads are the MCP tools shared_with_me and read_shared.",
+  "records": [
+    {
+      "id": "package::trillion::tool::shared-with-me",
+      "address": "package::trillion::tool::shared-with-me",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "id": "tool:shared-with-me",
+        "listed_on": "2026-09-30T23:56:03Z",
+        "label": "Shared with me",
+        "job": "List what other people shared with this person one by one, newest first, or read one of them",
+        "description": "With no input, returns shared_with_you (each { offer_id, from, kind, title, offered_at }, newest first; from is the name the sharer shows in a space you share). With offer_id, returns shared: the copy its owner shares (kind, title, body, preview { title, fields }, provenance { from, shared_at, read_at }), refused once they stop sharing it. It changes nothing.",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "offer_id": {
+              "type": "string",
+              "title": "Which one",
+              "description": "An offer_id from the list, to read that one"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "shared_with_you": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "offer_id",
+                  "from",
+                  "kind",
+                  "offered_at"
+                ],
+                "properties": {
+                  "offer_id": {
+                    "type": "string"
+                  },
+                  "from": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "offered_at": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "shared": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "preview": {
+                  "type": "object"
+                },
+                "provenance": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "shared-with-me"
+        },
+        "screen": {
+          "kind": "app-entry",
+          "entry": "shared-with-me",
+          "icon": "Inbox",
+          "label": "Shared with me",
+          "about": "What people shared with you, one by one."
+        },
+        "provenance": {
+          "source": "src/record-sharing.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$",
+            "contains": "shared_with_you"
+          }
+        ]
+      }
+    }
+  ]
+}

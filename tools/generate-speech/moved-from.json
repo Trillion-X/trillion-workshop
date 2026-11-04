@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion (old main, commit 5dc302be37) by the old-trillion sweep. Each names its source path and commit and the BLAKE3 identity of its bytes there and here.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "records/speech-engine-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/generate-speech/from-old-trillion/records/speech-engine-records.json",
+      "source_identity": "1f:54301f7d8075a0f9e2da303068efb07cc936116eccd44815c689a89e54424e36",
+      "identity": "1f:54301f7d8075a0f9e2da303068efb07cc936116eccd44815c689a89e54424e36"
+    }
+  ]
+}

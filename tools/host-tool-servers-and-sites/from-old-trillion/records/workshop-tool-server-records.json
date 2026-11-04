@@ -1,0 +1,205 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-tool-server-records",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool-row-source::cloudflare-documentation",
+      "address": "package::ai-tool-catalog::tool-row-source::cloudflare-documentation",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-row-source",
+        "id": "source:cloudflare-documentation",
+        "label": "Cloudflare documentation",
+        "list": {
+          "mcp": {
+            "url": "https://docs.mcp.cloudflare.com/mcp"
+          }
+        },
+        "entry": {
+          "id": "name",
+          "label": "title",
+          "job": "description",
+          "input_schema": "inputSchema",
+          "output_schema": "outputSchema"
+        },
+        "id_prefix": "tool:cloudflare-docs:",
+        "row": {
+          "invoke": {
+            "kind": "mcp-tool-call",
+            "url": "https://docs.mcp.cloudflare.com/mcp",
+            "tool": {
+              "fill": {
+                "from": "entry",
+                "field": "id"
+              }
+            }
+          },
+          "licence_class": "licence:maker-own",
+          "placements": [
+            "placement:public-web-address"
+          ],
+          "provenance": {
+            "server": "https://docs.mcp.cloudflare.com/mcp",
+            "read_from": "the server's own tools/list, read at each deploy"
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool-row-source::treg-tool-server",
+      "address": "package::ai-tool-catalog::tool-row-source::treg-tool-server",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-row-source",
+        "id": "source:treg-tool-server",
+        "label": "treg",
+        "list": {
+          "mcp": {
+            "url": "https://treg.to/mcp/",
+            "sign_in": "per-person"
+          }
+        },
+        "entry": {
+          "id": "name",
+          "label": "title",
+          "job": "description",
+          "input_schema": "inputSchema",
+          "output_schema": "outputSchema"
+        },
+        "id_prefix": "tool:treg-server:",
+        "row": {
+          "invoke": {
+            "kind": "mcp-tool-call",
+            "url": "https://treg.to/mcp/",
+            "tool": {
+              "fill": {
+                "from": "entry",
+                "field": "id"
+              }
+            },
+            "sign_in": true
+          },
+          "licence_class": "licence:maker-own",
+          "placements": [
+            "placement:public-web-address"
+          ],
+          "provenance": {
+            "server": "https://treg.to/mcp/",
+            "read_from": "the server's own tools/list, read with each person's own treg sign-in"
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::add-a-tool-server",
+      "address": "package::ai-tool-catalog::tool::add-a-tool-server",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:add-a-tool-server",
+        "listed_on": "2026-10-02T05:27:45Z",
+        "label": "Add a tool server",
+        "job": "Add a remote tool server (an MCP server) to this account by its address, so its tools can be found and run from here, signing in to it when it asks",
+        "description": "An open server's tools are listed at once. A server that asks each person to sign in answers with the address to open; after you sign in there, its tools are listed for this account and run with your own sign-in, kept in this account's locked box. A server that takes a key gets the key you give it.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "server"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "server": {
+              "type": "string",
+              "format": "uri",
+              "description": "The tool server's https address, for example https://mcp.facebook.com/whatsapp_business_tools"
+            },
+            "name": {
+              "type": "string",
+              "description": "What to call it in this account; its host when left out",
+              "x-free-text-because": "What to call the tool server being added: the name of the very thing this run makes."
+            },
+            "key": {
+              "type": "string",
+              "description": "Only for a server that takes a key instead of a sign-in"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "tool-server-add"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "provenance": {
+          "source": "hand-typed: OAuth 2.1 as the Model Context Protocol authorization section describes"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool-row-source::meta-ads-tool-server",
+      "address": "package::ai-tool-catalog::tool-row-source::meta-ads-tool-server",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-row-source",
+        "id": "source:meta-ads-tool-server",
+        "label": "Meta Ads tools",
+        "list": {
+          "mcp": {
+            "url": "https://mcp.facebook.com/ads",
+            "connection": {
+              "connection_id": "service_connection:meta-ads",
+              "field_id": "access_token"
+            }
+          }
+        },
+        "entry": {
+          "id": "name",
+          "label": "title",
+          "job": "description",
+          "input_schema": "inputSchema",
+          "output_schema": "outputSchema"
+        },
+        "id_prefix": "tool:meta-ads-server:",
+        "row": {
+          "invoke": {
+            "kind": "mcp-tool-call",
+            "url": "https://mcp.facebook.com/ads",
+            "tool": {
+              "fill": {
+                "from": "entry",
+                "field": "id"
+              }
+            },
+            "connection": {
+              "connection_id": "service_connection:meta-ads",
+              "field_id": "access_token"
+            }
+          },
+          "licence_class": "licence:maker-own",
+          "placements": [
+            "placement:public-web-address"
+          ],
+          "provenance": {
+            "server": "https://mcp.facebook.com/ads",
+            "read_from": "the server's own tools/list, read with each person's own Meta Ads connection (developers.facebook.com/documentation/ads-commerce/ads-ai-connectors/ads-mcp-server/ads-mcp-server-get-started, read 2026-10-05)"
+          }
+        }
+      }
+    }
+  ]
+}

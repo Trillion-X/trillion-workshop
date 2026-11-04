@@ -8,3 +8,11 @@ Files of old trillion whose job is this tool's (keep anything sent to Trillion, 
 | `src/share-inbox.mjs` | `src/share-inbox.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/share-inbox.json (at the tag, not moved here yet), src/resource-host.mjs (at the tag, not moved here yet), src/inbound-own-records.mjs (at the tag, not moved here yet), src/namespace.mjs (at the tag, not moved here yet) |
 | `src/share-input-limits.mjs` | `src/share-input-limits.mjs` | loads here |
 | `test/share-inbox.test.mjs` | `test/share-inbox.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/mcp-failure-boundary.mjs (at the tag, not moved here yet), records/share-inbox.json (at the tag, not moved here yet), src/marketplace-content-section.mjs (at the tag, not moved here yet), src/marketplace-defaults.mjs (at the tag, not moved here yet) and 1 more |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/share-inbox.json` | `records/share-inbox.json` |

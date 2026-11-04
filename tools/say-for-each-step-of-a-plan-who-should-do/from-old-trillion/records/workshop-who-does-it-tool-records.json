@@ -1,0 +1,585 @@
+{
+ "kind": "package-set-records",
+ "package_set": "trillion",
+ "record_set": "workshop-who-does-it-tool-records",
+ "records": [
+  {
+   "id": "package::trillion::tool::who-does-each-step",
+   "address": "package::trillion::tool::who-does-each-step",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-06T16:00:00Z",
+    "id": "tool:who-does-each-step",
+    "placements": [
+     "placement:this-worker"
+    ],
+    "needs": {
+     "expected_seconds": 1,
+     "network_egress": false
+    },
+    "label": "Who should do each step of a plan",
+    "job": "For each step of my plan, protocol, checklist or workflow, say who should do it instead of me: Trillion itself (a tool, a workflow or my AIs), Trillion after one tap with its price (it spends money or reaches someone), me (only for a reason no one else can meet, with every helping doer attached), or nobody yet (a doer to build, never a to-do), so Trillion does the steps for me. Use it on every plan before telling a person to do anything",
+    "description": "Give steps, each { words, needs?: [what the step needs, in a few words each, such as \"print at shelf scale\", \"choose a store\", \"directions\", \"observe shoppers\"], only_a_person_because?: one of the reasons tool:what-can-trillion-do lists, given_in?: the id of the person's own message that already gave the consent the step needs (the step is then Trillion's and never asked again), input?: what the doer would be given }. approved lists doer ids the person already said yes to (then Trillion does them without a tap); past lists { doer, result: met | failed } from earlier runs, so doers that worked rise. Returns each step with who (trillion, one-tap, you, nobody-yet), the doers that do it (each with its tool_id, workflow_id or hand_off, cost, and whether it needs a tap), the needs nothing covers yet, and said in plain words, plus counts. Then run every trillion step's doer, offer every one-tap step as one button with its price, and hand every nobody-yet need to the person's AIs to build. Never send a person a list of things to do or bring: a step that is theirs carries its reason.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "steps"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "steps": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "anyOf": [
+         {
+          "type": "string",
+          "minLength": 1
+         },
+         {
+          "type": "object",
+          "required": [
+           "words"
+          ],
+          "properties": {
+           "id": {
+            "type": "string"
+           },
+           "words": {
+            "type": "string",
+            "minLength": 1
+           },
+           "needs": {
+            "type": "array",
+            "items": {
+             "type": "string",
+             "minLength": 1
+            }
+           },
+           "only_a_person_because": {
+            "type": "string"
+           },
+           "given_in": {
+            "type": "string",
+            "description": "The id of the person's own message that already gave the consent this step needs; such a step is Trillion's, never asked again"
+           },
+           "input": {
+            "type": "object"
+           }
+          }
+         }
+        ]
+       }
+      },
+      "approved": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "past": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "doer",
+         "result"
+        ],
+        "properties": {
+         "doer": {
+          "type": "string"
+         },
+         "result": {
+          "enum": [
+           "met",
+           "failed",
+           "unknown"
+          ]
+         }
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "steps",
+      "counts",
+      "said"
+     ],
+     "properties": {
+      "steps": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "words",
+         "who",
+         "doers",
+         "uncovered",
+         "said"
+        ],
+        "properties": {
+         "who": {
+          "enum": [
+           "trillion",
+           "one-tap",
+           "you",
+           "nobody-yet"
+          ]
+         }
+        }
+       }
+      },
+      "counts": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "worker-module",
+     "module": "who-does-it",
+     "export": "whoDoesEachStep"
+    },
+    "provenance": {
+     "source": "src/who-does-it.mjs over src/who-does-it.json (doers, reasons only a person can meet, words)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "steps": [
+        {
+         "words": "Print the packaging at shelf scale",
+         "needs": [
+          "print at shelf scale"
+         ]
+        },
+        {
+         "words": "Pick the nearest Target",
+         "needs": [
+          "choose a store"
+         ]
+        },
+        {
+         "words": "Drive there",
+         "needs": [
+          "directions"
+         ]
+        },
+        {
+         "words": "Reply to Mom",
+         "only_a_person_because": "their-own-relationship"
+        }
+       ]
+      },
+      "output_selector": "$.steps[1].who",
+      "contains": "trillion"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::trillion::tool::what-can-trillion-do",
+   "address": "package::trillion::tool::what-can-trillion-do",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-06T16:00:00Z",
+    "id": "tool:what-can-trillion-do",
+    "placements": [
+     "placement:this-worker"
+    ],
+    "needs": {
+     "expected_seconds": 1,
+     "network_egress": false
+    },
+    "label": "Everything Trillion can do for you",
+    "job": "List everything Trillion can do for a person (print, find the nearest store, routes, calendars, email, hiring help, buying supplies, their AIs), what each costs, and the only reasons something stays theirs",
+    "description": "Returns doers, each { id, label, does: the needs it covers, cost, spends, reaches_others }, and only_a_person, the reasons a step may stay the person's. Read it before writing any plan or protocol, and give tool:who-does-each-step needs in these words.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "doers",
+      "only_a_person"
+     ],
+     "properties": {
+      "doers": {
+       "type": "array",
+       "minItems": 1
+      },
+      "only_a_person": {
+       "type": "array",
+       "minItems": 1
+      }
+     }
+    },
+    "invoke": {
+     "kind": "worker-module",
+     "module": "who-does-it",
+     "export": "whoCanDo"
+    },
+    "provenance": {
+     "source": "src/who-does-it.mjs over src/who-does-it.json"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "output_selector": "$.doers[0].id",
+      "contains": "your-ais"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::trillion::tool::route-buttons",
+   "address": "package::trillion::tool::route-buttons",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-06T16:00:00Z",
+    "id": "tool:route-buttons",
+    "placements": [
+     "placement:this-worker"
+    ],
+    "needs": {
+     "expected_seconds": 1,
+     "network_egress": false
+    },
+    "label": "Route buttons for Apple Maps and Google Maps",
+    "job": "Give one-tap buttons that open the route to a place in Apple Maps and Google Maps, from a start and through stops on the way (a print shop on the way to a store), so the person never types an address",
+    "description": "Give destination (an address, a place name, or { lat, lon }), and origin, stops (in order) and mode (drive, walk, transit or cycle) when known. Returns buttons, each { id, label, url }; show each as a button or link the person taps.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "destination"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "destination": {
+       "description": "An address or place name as words, or { lat, lon }",
+       "anyOf": [
+        {
+         "type": "string",
+         "minLength": 1
+        },
+        {
+         "type": "object",
+         "properties": {
+          "lat": {
+           "type": "number"
+          },
+          "lon": {
+           "type": "number"
+          },
+          "address": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       ]
+      },
+      "origin": {
+       "description": "An address or place name as words, or { lat, lon }",
+       "anyOf": [
+        {
+         "type": "string",
+         "minLength": 1
+        },
+        {
+         "type": "object",
+         "properties": {
+          "lat": {
+           "type": "number"
+          },
+          "lon": {
+           "type": "number"
+          },
+          "address": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       ]
+      },
+      "stops": {
+       "type": "array",
+       "items": {
+        "description": "An address or place name as words, or { lat, lon }",
+        "anyOf": [
+         {
+          "type": "string",
+          "minLength": 1
+         },
+         {
+          "type": "object",
+          "properties": {
+           "lat": {
+            "type": "number"
+           },
+           "lon": {
+            "type": "number"
+           },
+           "address": {
+            "type": "string"
+           },
+           "name": {
+            "type": "string"
+           }
+          }
+         }
+        ]
+       }
+      },
+      "mode": {
+       "type": "string"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "buttons"
+     ],
+     "properties": {
+      "buttons": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "label",
+         "url"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "url": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "worker-module",
+     "module": "getting-there",
+     "export": "routeButtons"
+    },
+    "provenance": {
+     "source": "src/getting-there.mjs over src/getting-there.json (maps apps and their address shapes)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "origin": "Venice, Los Angeles, CA",
+       "destination": "Target, 10820 Jefferson Boulevard, Culver City, CA",
+       "stops": [
+        "FedEx Office, Culver City, CA"
+       ]
+      },
+      "output_selector": "$.buttons[1].url",
+      "contains": "google.com/maps/dir"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::trillion::tool::find-nearest-places",
+   "address": "package::trillion::tool::find-nearest-places",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-06T16:00:00Z",
+    "id": "tool:find-nearest-places",
+    "placements": [
+     "placement:this-worker"
+    ],
+    "needs": {
+     "expected_seconds": 8,
+     "network_egress": true
+    },
+    "label": "Find the nearest stores of a brand",
+    "job": "Find the nearest stores or places of a brand or name (the nearest Target, Walmart, FedEx Office, UPS Store) around an address or a point, nearest first, each with its address, distance and route buttons for Apple Maps and Google Maps",
+    "description": "Give name (a brand or place name) and near (an address, a place name, or { lat, lon }); radius_km, most and mode when wanted. Reads OpenStreetMap's open address and places services. Returns places nearest first, each { name, address, lat, lon, km, opening_hours, buttons }, the start point and said.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "name",
+      "near"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "name": {
+       "type": "string",
+       "minLength": 1,
+       "x-record": {"from": {"row_types": ["place", "company", "brand"]}, "new": {"list": "places", "label": "place", "list_label": "Places", "title_field": "name"}}
+      },
+      "near": {
+       "description": "An address or place name as words, or { lat, lon }",
+       "anyOf": [
+        {
+         "type": "string",
+         "minLength": 1
+        },
+        {
+         "type": "object",
+         "properties": {
+          "lat": {
+           "type": "number"
+          },
+          "lon": {
+           "type": "number"
+          },
+          "address": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       ]
+      },
+      "radius_km": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "maximum": 100
+      },
+      "most": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 20
+      },
+      "mode": {
+       "type": "string"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "places",
+      "said"
+     ],
+     "properties": {
+      "places": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "name",
+         "lat",
+         "lon",
+         "km",
+         "buttons"
+        ],
+        "properties": {
+         "buttons": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "id",
+            "label",
+            "url"
+           ],
+           "properties": {
+            "id": {
+             "type": "string"
+            },
+            "label": {
+             "type": "string"
+            },
+            "url": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "worker-module",
+     "module": "getting-there",
+     "export": "findNearestPlaces"
+    },
+    "provenance": {
+     "source": "src/getting-there.mjs over src/getting-there.json (OpenStreetMap Nominatim and Overpass, no account)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "name": "Target",
+       "near": {
+        "lat": 33.995,
+        "lon": -118.4669
+       },
+       "most": 3
+      },
+      "output_selector": "$.places[0].buttons[0].label",
+      "contains": "Open in Apple Maps"
+     }
+    ]
+   }
+  }
+ ]
+}

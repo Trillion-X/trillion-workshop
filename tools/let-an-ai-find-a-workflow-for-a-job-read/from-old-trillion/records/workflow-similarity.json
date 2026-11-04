@@ -1,0 +1,7 @@
+{
+ "similar_at_least": {
+  "about": "How close another workflow's job must be before save_workflow names it as already doing that job: meaning is the cosine similarity of the two jobs' embeddings (candidate_scorer's model in src/pool-settings.json), words the share of the new job's words found in the other. Measured live 2026-09-27 (see scripts/prove-workflows.mjs).",
+  "meaning": 0.85,
+  "words": 0.5
+ }
+}
