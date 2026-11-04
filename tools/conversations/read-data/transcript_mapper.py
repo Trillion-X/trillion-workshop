@@ -34,7 +34,10 @@
 #    position in the FULL thread (so an atom's identity is stable whether it is
 #    produced by map_transcript or by a paged map_window).
 # 4. Non-text messages (media-only / reactions: text is None/empty) are skipped
-#    for the text transcript. A thread with zero text atoms is dropped.
+#    for the text transcript, unless the message names the files it carried
+#    (`attachments`): a photo sent without words is still a message the person
+#    sent, so it is kept with no text and its attachments, and an importer links
+#    its files. A thread with zero atoms is dropped.
 # 5. Callable as a library (import) AND as a CLI so a non-Python adapter (e.g. a
 #    Baileys Node worker) invokes the SAME mapper — there is never a 2nd mapper.
 #
@@ -142,7 +145,9 @@ def _build_atoms(source_ref, thread_ref, batch_ref, messages, default_rank=AUTHO
     renderable content — text present, OR it is a reaction, OR it carries
     lifecycle `state_events` (a retracted/unsent tombstone has no text but must
     still render). A pure media-only utterance (no text, no events) is still not
-    part of the text transcript. Each atom carries its self-describing
+    part of the text transcript, unless it names the files it carried
+    (`attachments`, a non-empty list): then it is kept with text None and its
+    attachments, so a photo sent without words is not lost. Each atom carries its self-describing
     `state_events` (lifecycle: sent/delivered/read/failed/edited/retracted) and
     `relations` (a reaction's `reaction_target`) verbatim — the host maps event
     keys to glyphs from DATA; the mapper never enumerates them. A second pass
@@ -156,8 +161,9 @@ def _build_atoms(source_ref, thread_ref, batch_ref, messages, default_rank=AUTHO
         kind = message.get("kind") or "utterance"
         state_events = message.get("state_events") or []
         native_ref = message.get("native_ref")
-        if text is None and kind == "utterance" and not state_events:
-            continue  # media-only utterance: not part of the text transcript
+        carries_files = isinstance(message.get("attachments"), list) and bool(message["attachments"])
+        if text is None and kind == "utterance" and not state_events and not carries_files:
+            continue  # media-only utterance naming no file: not part of the text transcript
         index = message.get("index", position)
         speaker = message.get("speaker") or "them"
         at = message.get("at")
@@ -260,6 +266,10 @@ def content_key(atom):
     the same actor all have empty text and would otherwise share one key. So a
     non-utterance atom gets a unique key (its own atom_ref) and stands alone."""
     if (atom.get("kind") or "utterance") != "utterance":
+        return ("__nonconverging__", atom.get("atom_ref"))
+    # An utterance of only files has no body to compare: two photos sent without
+    # words are two messages, so it stands alone like a non-utterance atom.
+    if not _norm_text((atom.get("content") or {}).get("text")):
         return ("__nonconverging__", atom.get("atom_ref"))
     return (
         atom.get("thread_ref"),
