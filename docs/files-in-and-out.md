@@ -42,16 +42,15 @@ files declares a `files` rights item and calls `door.files(...)`. No engine chan
 
 ## What is still open
 
-Updated 2026-11-04 by trillion-rust #108 and trillion-apps #21 (after trillion-rust #83 and trillion-apps #15).
+Updated 2026-11-04 by trillion-rust #107, trillion-apps #27 and trillion-apps #21 (after trillion-rust #83 and trillion-apps #15).
 
 1. **The person's own page reaches files.** Done in trillion-rust #83: one `owner-routes.json` row (`@namespace`,
    prefix `/files/`) and the files door's own `page_call`. `GET /work/api/files/<operation>?input=<JSON>` serves the
    door's `page.reads`, and `POST /work/api/files/<operation>` with the input as its body serves the rest. The page's
    session admits the call, and it runs through `AccountFilesDoor::call_while`, the same call an AI's key makes.
-   trillion-apps #15 moved uploads, `keepText`, removing names and folder listings to it. trillion-apps #21 moves
-   the rest that the door answers (`web/src/workspace/files-door.mjs`):
-   - transcripts, summaries, facts, previews and meeting results: `read_file_results` (a page read since
-     trillion-rust #108), `read_file_results_many`, `record_file_results`, `merge_file_result`
+   trillion-apps #15 moved uploads, `keepText`, removing names and folder listings to it. trillion-apps #27 and
+   #21 move the rest that the door answers (`web/src/workspace/files-door.mjs`):
+   - transcripts, summaries, facts, previews and meeting results: `read_file_results` (a page GET), (trillion-apps #27), `read_file_results_many`, `record_file_results`, `merge_file_result`
    - a file by its name or identity: `find_file`
    - text and small JSON files: `read_file`, one 256 KiB window at a time
    - saving an edit list: `write_file`
@@ -59,10 +58,10 @@ Updated 2026-11-04 by trillion-rust #108 and trillion-apps #21 (after trillion-r
      The door keeps one set-aside tree, so Delete and Archive differ only in their words for now.
 2. **Recent files and kept file facts are account rows.** trillion-rust #83 ports old `src/recent-files.mjs` one to
    one (`@account-files/recent/files`, `@account-files/recent/order`; `recent_files`, `record_file_use`).
-   trillion-rust #108 removes the separate `@account-files/facts` rows: `set_file_facts` and `read_file_facts` are
-   now the file's result of kind `facts` in the one results owner (`src/account_files/results.rs`), as old
-   `src/file-tools.mjs:135` merged them into `src/namespace-results.mjs:424`. An AI's facts and the page's facts
-   are one value.
+   trillion-rust #107 removes the separate `@account-files/facts` rows: `set_file_facts` is now the results merge
+   of kind `facts` in the one results owner (`src/account_files/results.rs`), and `read_file_results` with kind
+   `facts` reads them, as old `src/file-tools.mjs:135` merged them into `src/namespace-results.mjs:424`. An AI's
+   facts and the page's facts are one value.
 3. **Still open: these page calls name routes the engine does not answer.** Each needs an owner first. None is a
    rename.
    - Media shown by address (`<img>`, `<video>`, `<audio>` with HTTP Range, and `bytesAddress` in
