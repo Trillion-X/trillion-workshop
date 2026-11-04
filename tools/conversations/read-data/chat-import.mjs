@@ -18,16 +18,20 @@
 // it. attachmentFinder finds each one among the person's own files: by the name or identity the person gave for that
 // id, or by that id at the start of a file's name in the export's folder (or the folder the person names) and the
 // folders under it. Bytes are never copied: a private message links the file, a space gets a file item whose bytes
-// stay in the importer's store. A file that cannot be found is reported, never an error.
+// stay in the importer's store. A file that cannot be found is reported, never an error. Over the records door (the run
+// on the person's computer below), the export's files are on the computer beside it: each one a message names is found
+// there and copied into the person's files through the files door (fileKeeper, exportFilesBeside), and an image pasted
+// into a local AI app's session is copied the way old Trillion's recorder kept it (/messages/<conversation>/<message>-<n>).
 import { spawn } from 'node:child_process';
 import { closeSync, openSync, readFileSync, readSync, readdirSync, realpathSync, statSync } from 'node:fs';
-import { join, relative, resolve, sep } from 'node:path';
+import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { conversationFrom } from './chat-archives.mjs';
 import { messages } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
 import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { RecordsDoorError } from '../../records-door/read-data/records-door.mjs';
+import { writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import conversationList from './ai-conversations-list.json' with { type: 'json' };
 import places from './conversation-sources-on-this-computer.json' with { type: 'json' };
@@ -98,12 +102,13 @@ export async function keepConversationRow(lists, chat, conversationId, { totals 
  * conversation's row (keep_row false leaves that to the caller, which knows the whole conversation's facts).
  */
 export const CHAT_RECEIPTED_WRITES = ['chats:import'];
-export async function importConversation({ conversation, space_id: spaceId = null, reach, app = 'ChatGPT', attachments, attachments_folder: folder, preserve_conversation_id = false, most_text, keep_row = true, original_file }, { eeaf, namespace, addSpaceItems, relay, commit = change => change(), lists, now = () => new Date() }) {
+export async function importConversation({ conversation, space_id: spaceId = null, reach, app = 'ChatGPT', attachments, attachments_folder: folder, preserve_conversation_id = false, most_text, keep_row = true, original_file }, { eeaf, namespace, addSpaceItems, relay, commit = change => change(), lists, now = () => new Date(), find: findFile = null }) {
   const chat = conversationFrom(conversation, app, most_text ? { most_text } : {});
   const label = chat.title ?? chat.conversation_id;
   if (!spaceId && !reach.private) throw new Error('This sign-in reaches shared pursuits only, so it cannot keep messages in the private Trillion.');
   // Finding a file reads the private files, so a sign-in held to shared spaces finds none.
-  const find = reach.private && namespace ? attachmentFinder(namespace, { attachments, folder }) : () => null;
+  // Over the records door the run hands its own finder (the export's files on this computer, copied through the door).
+  const find = findFile ?? (reach.private && namespace ? attachmentFinder(namespace, { attachments, folder }) : () => null);
   const files = new Map();
   const missing = [];
   for (const ref of chat.messages.flatMap(message => message.attachments)) {
@@ -227,6 +232,9 @@ export function patientDoor(door, { rules = settings, wait = waitFor } = {}) {
   return {
     read: (type, id) => patiently('read', () => door.read(type, id)),
     write: (records, options) => patiently('write', () => door.write(records, options)),
+    // The person's files (find_file, write_file_start, write_file_piece, write_file_finish): a piece sent again lands at
+    // its own offset, so a retried piece is the same piece.
+    files: (method, input) => patiently(method, () => door.files(method, input)),
     // A list is read again from its start when a page fails, up to `most` records; the caller sees each once.
     async *list(query, { most = Infinity } = {}) {
       const seen = [];
@@ -314,6 +322,124 @@ export function stagedRecords(door, { rules = settings } = {}) {
       }
     },
   };
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The files a message carried, copied into the person's files through the files door
+// ---------------------------------------------------------------------------------------------------------------------
+
+const safePart = value => String(value ?? '').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 100) || 'file';
+const extensionOf = (mediaType, rules = settings) => Object.entries(rules.media_types).find(([, type]) => type === mediaType)?.[0]
+  ?? rules.magic.find(item => item.media_type === mediaType)?.extension ?? '.bin';
+
+/** What a file is, by its extension, else by the bytes it starts with (settings.media_types, settings.magic). */
+export function mediaTypeOf(name, bytes, rules = settings) {
+  const byName = rules.media_types[extname(String(name ?? '')).toLowerCase()];
+  if (byName) return byName;
+  const hex = Buffer.from(bytes.subarray(0, 16)).toString('hex');
+  const magic = rules.magic.find(item => hex.startsWith(item.starts) && (!item.then || hex.slice(item.then_at * 2).startsWith(item.then)));
+  return magic?.media_type ?? 'application/octet-stream';
+}
+
+/**
+ * Keeps bytes as one of the person's files at `name` through the run's files door. A file already there with the same
+ * identity (BLAKE3 of its bytes) is not written again, so a rerun copies nothing twice; otherwise it is written in pieces
+ * (records-door whole-file.mjs writeWholeFile) under an upload id made of its name and identity, so a write sent again
+ * resumes the same upload. Returns async ({ name, bytes, media_type }) => { identity, name, byte_length, media_type, already }.
+ */
+export function fileKeeper(door) {
+  return async function keepFile({ name, bytes, media_type: mediaType }) {
+    const identity = makeHashCodeHexFromBytes(bytes);
+    let there = null;
+    try { there = await door.files('find_file', { name_or_identity: name }); }
+    catch (error) { if (error instanceof ImportStopped) throw error; }
+    const thereIdentity = there?.identity ?? there?.names?.[0]?.identity ?? null;
+    if (thereIdentity === identity) return { identity, name, byte_length: bytes.length, media_type: mediaType, already: true };
+    const uploadId = `conversations-${makeHashCodeHexFromBytes(new TextEncoder().encode(`${name}\n${identity}`)).slice(3, 35)}`;
+    const finished = await writeWholeFile(door, name, bytes, { mediaType, uploadId });
+    return { identity: finished?.identity ?? identity, name, byte_length: bytes.length, media_type: mediaType, already: false };
+  };
+}
+
+/**
+ * The files beside an export on this computer: its folder and the folders under it, settings.attachment_depth deep.
+ * locate(id) is the file an attachment id names: one whose name starts with the id and goes on with no further letter or
+ * digit (file-AB never finds file-ABC-photo.png, as attachmentFinder above), or one in a folder named the id (a Grok
+ * asset's <id>/content).
+ */
+export function exportFilesBeside(home, exportPath, rules = settings) {
+  let index = null;
+  const build = () => {
+    index = [];
+    const budget = { left: rules.attachment_index_files };
+    const visit = (path, left) => {
+      let entries;
+      try { entries = readdirSync(path, { withFileTypes: true }); } catch { return; }
+      for (const entry of entries) {
+        if (budget.left-- <= 0) return;
+        const child = join(path, entry.name);
+        if (entry.isDirectory()) { if (left > 0 && !entry.name.startsWith('.')) visit(child, left - 1); }
+        else if (entry.isFile() && child !== exportPath && !entry.name.startsWith('.')) index.push({ path: child, name: entry.name, folder: basename(path) });
+      }
+    };
+    visit(dirname(exportPath), rules.attachment_depth);
+  };
+  return {
+    locate(id) {
+      if (!id) return null;
+      if (!index) build();
+      const hit = index.find(file => file.name.startsWith(id) && !/[A-Za-z0-9]/.test(file.name.charAt(id.length)))
+        ?? index.find(file => file.folder === id);
+      return hit && inside(home, hit.path) ? hit : null;
+    },
+  };
+}
+
+/** The finder importConversation takes for one export's messages: each attachment found beside the export and copied to
+ *  <attachments_folder>/<app>/<its name>; a file not found, too large or refused by the door is missing. */
+function exportAttachmentFinder(home, exportPath, keepFile, app, count, rules = settings) {
+  const beside = exportFilesBeside(home, exportPath, rules);
+  const kept = new Map();
+  return async ref => {
+    if (kept.has(ref.id)) return kept.get(ref.id);
+    const hit = beside.locate(ref.id);
+    let file = null;
+    if (hit) {
+      if (statSync(hit.path).size > rules.most_attachment_bytes) count.attachments_too_large += 1;
+      else {
+        const bytes = readFileSync(hit.path);
+        const media = ref.mime_type ?? mediaTypeOf(hit.name, bytes, rules);
+        // A file with no extension (Grok's <id>/content) is kept under its id, with the extension its bytes say.
+        const name = extname(hit.name) ? hit.name : `${ref.id}${extensionOf(media, rules)}`;
+        try { file = await keepFile({ name: `${rules.attachments_folder}/${safePart(app)}/${safePart(name)}`, bytes, media_type: media }); }
+        catch (error) {
+          if (error instanceof ImportStopped) throw error;
+          count.attachments_refused.push({ id: ref.id, reason: String(error.message).slice(0, 200) });
+        }
+      }
+    }
+    kept.set(ref.id, file);
+    return file;
+  };
+}
+
+/** The images pasted into one session message (the harness rules' attachment_sources), copied the way old Trillion's
+ *  recorder kept them: <attachments_folder>/<conversation>/<message>-<n><extension>. Returns the message's attachment refs. */
+async function keepPastedFiles(message, conversationId, keepFile, count, rules = settings) {
+  const refs = [];
+  for (const [index, source] of (message.attachment_sources ?? []).entries()) {
+    const bytes = Buffer.from(source.data, 'base64');
+    const name = `${rules.attachments_folder}/${safePart(conversationId)}/${safePart(message.source_ref ?? message.at)}-${index + 1}${extensionOf(source.media_type, rules)}`;
+    if (bytes.length > rules.most_attachment_bytes) { count.attachments_too_large += 1; continue; }
+    try {
+      const file = await keepFile({ name, bytes, media_type: source.media_type });
+      refs.push({ id: file.identity, name: source.name ?? basename(name), mime_type: source.media_type, file });
+    } catch (error) {
+      if (error instanceof ImportStopped) throw error;
+      count.attachments_refused.push({ id: name, reason: String(error.message).slice(0, 200) });
+    }
+  }
+  return refs;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -442,17 +568,19 @@ const tally = (count, answer) => {
   count.conversations_kept += 1;
   count.messages_added += answer.added;
   count.messages_already_kept += answer.already_there;
+  count.attachments_kept += answer.attachments_found;
   count.attachments_not_kept += answer.missing_attachments.length;
 };
 
 /** An account export of conversation trees (read-data/chat-archives.mjs): next is the next conversation's place. */
-async function readArchiveFile({ path, file, source, cursor, keep, save, deadline, count }) {
+async function readArchiveFile({ home, path, file, source, cursor, keep, keepFile, save, deadline, count }) {
   const all = exportedConversations(readFileSync(path));
+  const find = exportAttachmentFinder(home, path, keepFile, source.app, count);
   let next = cursor.next ?? 0;
   let since = 0;
   while (next < all.length) {
     if (Date.now() >= deadline) return { done: false, next };
-    try { tally(count, await keep({ conversation: all[next], app: source.app, original_file: file })); }
+    try { tally(count, await keep({ conversation: all[next], app: source.app, original_file: file }, find)); }
     catch (error) {
       if (error instanceof ImportStopped) throw error;
       count.conversations_refused.push({ at: next, reason: String(error.message).slice(0, 200) });
@@ -468,7 +596,14 @@ async function readArchiveFile({ path, file, source, cursor, keep, save, deadlin
  * A conversation that reaches the end of a page waits for the next page before it is kept whole; next is the page a
  * conversation not yet kept starts in, so a stopped run reads that page again (what it already kept adds nothing).
  */
-async function readDecodedFile({ home, file, source, cursor, keep, save, deadline, count }) {
+async function readDecodedFile({ home, path, file, source, cursor, keep, keepFile, save, deadline, count }) {
+  const find = exportAttachmentFinder(home, path, keepFile, source.app, count);
+  // The files the source named for a message (sources.json `attachments`) go as the page shape's metadata.attachments.
+  const withFiles = message => {
+    const { attachments, ...rest } = message;
+    const ids = (Array.isArray(attachments) ? attachments : []).map(item => (item && typeof item === 'object' ? item.id ?? item.file_id ?? item.name : item)).filter(item => typeof item === 'string' && item);
+    return ids.length ? { ...rest, metadata: { attachments: ids.map(id => ({ id })) } } : rest;
+  };
   let next = cursor.next ?? 0;
   let waiting = null;
   let waitingFrom = next;
@@ -476,14 +611,14 @@ async function readDecodedFile({ home, file, source, cursor, keep, save, deadlin
     if (Date.now() >= deadline) return { done: false, next: waiting ? waitingFrom : next };
     const page = await decodePage(home, { file, source: source.decode_source, mode: 'all', cursor: next, limit: settings.decode_page_atoms, descriptor: { source_ref: source.id, app: source.app } });
     const idOf = new Map((page.threads ?? []).map(thread => [thread.thread_ref, thread.session_id]));
-    const chats = (page.conversations ?? []).map(chat => ({ conversation_id: idOf.get(chat.conversation_id) ?? chat.conversation_id, title: chat.title, messages: chat.messages }));
+    const chats = (page.conversations ?? []).map(chat => ({ conversation_id: idOf.get(chat.conversation_id) ?? chat.conversation_id, title: chat.title, messages: chat.messages.map(withFiles) }));
     if (waiting && chats[0]?.conversation_id === waiting.conversation_id) { waiting.messages.push(...chats.shift().messages); }
     const ready = [];
     if (waiting && (chats.length || page.next_cursor === null)) { ready.push(waiting); waiting = null; }
     if (page.next_cursor !== null && chats.length) { const last = chats.pop(); if (!waiting) { waiting = last; waitingFrom = next; } }
     ready.push(...chats);
     for (const conversation of ready) {
-      try { tally(count, await keep({ conversation, app: source.app, original_file: file })); }
+      try { tally(count, await keep({ conversation, app: source.app, original_file: file }, find)); }
       catch (error) {
         if (error instanceof ImportStopped) throw error;
         count.conversations_refused.push({ at: conversation.conversation_id, reason: String(error.message).slice(0, 200) });
@@ -502,7 +637,7 @@ async function readDecodedFile({ home, file, source, cursor, keep, save, deadlin
  * session) the cursor holds. Its conversation is `<app id>:<session id>`, as the recorder kept it, and its row's facts
  * are the whole session's, carried in the cursor.
  */
-async function readTranscriptFile({ path, file, source, cursor, keep, save, deadline, count, lists }) {
+async function readTranscriptFile({ path, file, source, cursor, keep, keepFile, save, deadline, count, lists }) {
   const rules = { ...harnessRules, transcript_read_bytes: settings.transcript_read_bytes, transcript_row_bytes: settings.transcript_row_bytes };
   const session = sessionOfTranscript(path, rules);
   if (!session || session.harness.id !== source.harness) return { done: true, next: null, note: 'not a session of this app' };
@@ -515,14 +650,20 @@ async function readTranscriptFile({ path, file, source, cursor, keep, save, dead
     if (read.blocked_row) return { done: true, next: state, note: `a row longer than ${read.blocked_row.byte_limit} bytes at byte ${read.blocked_row.offset}; the rest of this session is not read` };
     const waiting = state.deferred ?? [];
     const parsed = messagesOf([...waiting.map(item => item.row), ...read.rows], harness, { sessionId, context: state.context, ends: [...waiting.map(item => item.offset), ...read.ends], personSpeaks: personSpeaksIn(path, harness, rules) }, rules);
-    // A message of only files is counted, not kept (its files are not copied); a row the transcript holds twice (a
-    // session resumed from another copies its rows) is one message.
+    // The images pasted into a message are copied first, so the message names them; a message of only files is kept with
+    // them. A row the transcript holds twice (a session resumed from another copies its rows) is one message.
     const ids = new Set();
-    const said = parsed.messages.filter(message => message.source_ref && message.text.trim() && !ids.has(message.source_ref) && ids.add(message.source_ref));
-    count.attachments_not_kept += parsed.messages.reduce((sum, message) => sum + (message.attachment_sources?.length ?? 0), 0);
-    if (said.length) {
-      const answer = await keep({ conversation: { conversation_id: conversationId, messages: said.map(message => ({ id: message.source_ref, speaker: message.speaker, text: message.text, at: message.at, ...(message.model ? { model: message.model } : {}) })) },
-        app: harness.app, preserve_conversation_id: true, keep_row: false });
+    const said = parsed.messages.filter(message => message.source_ref && (message.text.trim() || message.attachment_sources?.length) && !ids.has(message.source_ref) && ids.add(message.source_ref));
+    const pasted = new Map();
+    for (const message of said) if (message.attachment_sources?.length) pasted.set(message.source_ref, await keepPastedFiles(message, conversationId, keepFile, count));
+    const files = new Map([...pasted.values()].flat().map(ref => [ref.id, ref.file]));
+    const spoken = said.filter(message => message.text.trim() || pasted.get(message.source_ref)?.length);
+    if (spoken.length) {
+      const answer = await keep({ conversation: { conversation_id: conversationId, messages: spoken.map(message => ({ id: message.source_ref, speaker: message.speaker, text: message.text, at: message.at, ...(message.model ? { model: message.model } : {}),
+        ...(pasted.get(message.source_ref)?.length ? { metadata: { attachments: pasted.get(message.source_ref).map(({ id, name, mime_type }) => ({ id, name, mime_type })) } } : {}) })) },
+        app: harness.app, preserve_conversation_id: true, keep_row: false }, async ref => files.get(ref.id) ?? null);
+      count.attachments_kept += answer.attachments_found;
+      count.attachments_not_kept += answer.missing_attachments.length;
       count.messages_added += answer.added;
       count.messages_already_kept += answer.already_there;
       state = { ...state, totals: mergeTotals(state.totals, answer) };
@@ -533,7 +674,7 @@ async function readTranscriptFile({ path, file, source, cursor, keep, save, dead
     const end = read.offset;
     const finished = !read.more;
     state = { offset: end, context: parsed.context, deferred, totals: state.totals };
-    if (state.totals && (said.length || finished)) {
+    if (state.totals && (spoken.length || finished)) {
       await keepConversationRow(lists, { conversation_id: conversationId, title: null, app: harness.app, messages: [] }, conversationId, { totals: state.totals });
     }
     if (finished) { if (state.totals) count.conversations_kept += 1; return { done: true, next: state }; }
@@ -543,7 +684,8 @@ async function readTranscriptFile({ path, file, source, cursor, keep, save, dead
 
 const READERS = { 'chat-archive': readArchiveFile, decode: readDecodedFile, harness: readTranscriptFile };
 
-const freshCount = () => ({ conversations_kept: 0, messages_added: 0, messages_already_kept: 0, attachments_not_kept: 0, rows_let_go: 0, conversations_refused: [] });
+const freshCount = () => ({ conversations_kept: 0, messages_added: 0, messages_already_kept: 0, attachments_kept: 0, attachments_not_kept: 0, attachments_too_large: 0, rows_let_go: 0, conversations_refused: [], attachments_refused: [] });
+const COUNTED = ['conversations_kept', 'messages_added', 'messages_already_kept', 'attachments_kept', 'attachments_not_kept', 'attachments_too_large'];
 
 /** The cursor rows of every source (or one), by id. */
 async function cursorsOf(door, source) {
@@ -561,8 +703,9 @@ async function importOneSource(home, door, { source, files }, { deadline, now })
   const staged = stagedRecords(patient);
   const lists = listsOverDoor(patient);
   const cursors = await cursorsOf(patient, source.id);
-  const keep = input => importConversation({ ...input, reach: { private: true }, most_text: settings.most_text },
-    { eeaf: staged.eeaf, commit: step => staged.commit(step), lists, now });
+  const keep = (input, find) => importConversation({ ...input, reach: { private: true }, most_text: settings.most_text },
+    { eeaf: staged.eeaf, commit: step => staged.commit(step), lists, now, find });
+  const keepFile = fileKeeper(patient);
   const result = { source: source.id, app: source.app, files_found: files.length, files_done: 0, files_skipped: 0, ...freshCount(), files: [] };
   let stopped = null;
   for (const found of files) {
@@ -575,19 +718,20 @@ async function importOneSource(home, door, { source, files }, { deadline, now })
     const cursor = before && (!before.done || grows) ? before : { next: null };
     const count = freshCount();
     const row = done => ({ source: source.id, app: source.app, file: found.file, bytes: found.bytes, changed_ms: found.changed_ms, done,
-      conversations_kept: (before?.conversations_kept ?? 0) + count.conversations_kept, messages_added: (before?.messages_added ?? 0) + count.messages_added,
-      messages_already_kept: (before?.messages_already_kept ?? 0) + count.messages_already_kept, attachments_not_kept: (before?.attachments_not_kept ?? 0) + count.attachments_not_kept,
-      conversations_refused: [...(before?.conversations_refused ?? []), ...count.conversations_refused].slice(-20), updated_at: now().toISOString() });
+      ...Object.fromEntries(COUNTED.map(field => [field, (before?.[field] ?? 0) + count[field]])),
+      conversations_refused: [...(before?.conversations_refused ?? []), ...count.conversations_refused].slice(-20),
+      attachments_refused: [...(before?.attachments_refused ?? []), ...count.attachments_refused].slice(-20), updated_at: now().toISOString() });
     const save = async ({ next, done }) => { await patient.write([{ id, type: CURSOR_TYPE, value: { ...row(done), next } }], { key: keyOfWrite([id, next, done, count]) }); };
     let outcome;
     try {
-      outcome = await READERS[source.reader]({ home, path: join(home, found.file), file: found.file, source, cursor, keep, save, deadline, count, lists });
+      outcome = await READERS[source.reader]({ home, path: join(home, found.file), file: found.file, source, cursor, keep, keepFile, save, deadline, count, lists });
     } catch (error) {
       if (!(error instanceof ImportStopped)) { count.conversations_refused.push({ at: 'file', reason: String(error.message).slice(0, 200) }); outcome = { done: true, next: cursor.next, note: error.message }; }
       else { stopped = error.reason; outcome = null; }
     }
-    for (const field of ['conversations_kept', 'messages_added', 'messages_already_kept', 'attachments_not_kept', 'rows_let_go']) result[field] += count[field];
+    for (const field of [...COUNTED, 'rows_let_go']) result[field] += count[field];
     result.conversations_refused.push(...count.conversations_refused.map(item => ({ file: found.file, ...item })));
+    result.attachments_refused.push(...count.attachments_refused.map(item => ({ file: found.file, ...item })));
     if (!outcome) break;
     try { await save({ next: outcome.next, done: outcome.done }); }
     catch (error) { if (error instanceof ImportStopped) { stopped = error.reason; break; } throw error; }
@@ -596,6 +740,7 @@ async function importOneSource(home, door, { source, files }, { deadline, now })
     if (!outcome.done) break;
   }
   result.conversations_refused = result.conversations_refused.slice(0, 50);
+  result.attachments_refused = result.attachments_refused.slice(0, 50);
   const done = !stopped && result.files_done === result.files_found;
   const summary = { source: source.id, app: source.app, files_found: result.files_found, files_done: result.files_done, state: done ? 'done' : stopped ? 'stopped' : 'more', ...(stopped ? { stopped: stopped } : {}), updated_at: now().toISOString() };
   try { await patient.write([{ id: cursorId(source.id), type: CURSOR_TYPE, value: summary }], { key: keyOfWrite([summary]) }); }
@@ -668,12 +813,12 @@ export async function conversationImportProgress(request, context = {}) {
   const cursors = await cursorsOf(door);
   const bySource = new Map();
   for (const [id, value] of cursors) {
-    const entry = bySource.get(value.source) ?? { source: value.source, app: value.app, files_seen: 0, files_done: 0, conversations_kept: 0, messages_added: 0, messages_already_kept: 0, attachments_not_kept: 0, state: null, updated_at: null };
+    const entry = bySource.get(value.source) ?? { source: value.source, app: value.app, files_seen: 0, files_done: 0, ...Object.fromEntries(COUNTED.map(field => [field, 0])), state: null, updated_at: null };
     if (id === cursorId(value.source)) Object.assign(entry, { state: value.state, files_found: value.files_found, ...(value.stopped ? { stopped: value.stopped } : {}) });
     else {
       entry.files_seen += 1;
       if (value.done) entry.files_done += 1;
-      for (const field of ['conversations_kept', 'messages_added', 'messages_already_kept', 'attachments_not_kept']) entry[field] += value[field] ?? 0;
+      for (const field of COUNTED) entry[field] += value[field] ?? 0;
     }
     if (!entry.updated_at || value.updated_at > entry.updated_at) entry.updated_at = value.updated_at;
     bySource.set(value.source, entry);

@@ -169,7 +169,7 @@ test('each source keeps one row per conversation and its messages, and a second 
   const progress = await conversationImportProgress({ input: {} }, context);
   assert.equal(progress.sources.length, SOURCES.length);
   assert.ok(progress.sources.every(source => source.state === 'done' && source.files_done === source.files_seen));
-  assert.deepEqual(progress.sources.find(source => source.source === 'chatgpt-export'), { source: 'chatgpt-export', app: 'ChatGPT', files_seen: 1, files_done: 1, conversations_kept: 3, messages_added: 10, messages_already_kept: 0, attachments_not_kept: 0, state: 'done', updated_at: NOW.toISOString(), files_found: 1 });
+  assert.deepEqual(progress.sources.find(source => source.source === 'chatgpt-export'), { source: 'chatgpt-export', app: 'ChatGPT', files_seen: 1, files_done: 1, conversations_kept: 3, messages_added: 10, messages_already_kept: 0, attachments_kept: 0, attachments_not_kept: 0, attachments_too_large: 0, state: 'done', updated_at: NOW.toISOString(), files_found: 1 });
 });
 
 test('a session that grew is read on from its byte offset, and only the new rows are kept', async t => {
