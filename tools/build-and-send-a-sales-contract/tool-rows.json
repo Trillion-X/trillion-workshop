@@ -1,0 +1,232 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:build-and-send-a-sales-contract",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:plan-what-a-sent-deal-sets-up",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Plan what a sent deal sets up",
+        "job": "Turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in",
+        "description": "Give contract ({ id, name } of the deal being sent), facts ({ to, contract_name, contract_id, address }: contract_name and contract_id default to the contract's) and follow_ups (each { label, on: \"paid\" | { once_at }, then: { tool_id | workflow_id, input } }). Answers set: one { kind: \"rule\", input } per paid follow-up, its when the folder's paid-deal trigger (sales-contract-builder.json after_payment.trigger) with this deal's contract_id added, so one deal's payment never runs another's steps; one { kind: \"schedule\", input: { once_at } } per dated one. Words in braces in a step's input are filled only from the facts; any other brace stays as written. Also answers offered: the follow-ups the builder offers (after_payment.steps). It sets nothing itself (the person's automations owner keeps each rule and schedule) and reads no offer, customer or list: building the contract on the screen, reading the person's offers and customers, and sending the deal are not run here.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "contract",
+            "follow_ups"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "contract": {
+              "type": "object",
+              "required": [
+                "id",
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            },
+            "facts": {
+              "type": "object",
+              "properties": {
+                "to": {
+                  "type": "string"
+                },
+                "contract_name": {
+                  "type": "string"
+                },
+                "contract_id": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "string"
+                }
+              }
+            },
+            "follow_ups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "on",
+                  "then"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "on": {},
+                  "then": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "set",
+            "offered"
+          ],
+          "properties": {
+            "set": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "input"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "rule",
+                      "schedule"
+                    ]
+                  },
+                  "input": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "offered": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/build-and-send-a-sales-contract",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/build-and-send-a-sales-contract/do-work/plan-deal-follow-ups.mjs",
+            "planDealFollowUps"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "build-and-send-a-sales-contract",
+                "paths": [
+                  "do-work",
+                  "sales-contract-builder.json"
+                ],
+                "at": "/opt/build-and-send-a-sales-contract"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/sales-contract-builder.mjs at 4ffa1dc4a2^ (moved-from.json, ports/sales-contract-builder.json); sales-contract-builder.json moved in a9ee258 (#76); old capability row capabilities.json:413 at 4ffa1dc4a2^"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "contract": {
+                "id": "deal-1",
+                "name": "Spring coaching"
+              },
+              "facts": {
+                "to": "client-1",
+                "address": "https://shop.example/d/deal-1"
+              },
+              "follow_ups": [
+                {
+                  "label": "Send the welcome email",
+                  "on": "paid",
+                  "then": {
+                    "tool_id": "tool:send-an-email",
+                    "input": {
+                      "to": "{to}",
+                      "subject": "Welcome to {contract_name}"
+                    }
+                  }
+                },
+                {
+                  "label": "Check in",
+                  "on": {
+                    "once_at": "2026-11-11T10:00:00Z"
+                  },
+                  "then": {
+                    "tool_id": "tool:send-an-email",
+                    "input": {
+                      "to": "{to}",
+                      "subject": "How is {contract_name} going?"
+                    }
+                  }
+                }
+              ]
+            },
+            "output_selector": "$.offered",
+            "contains": "welcome-email"
+          }
+        ]
+      }
+    }
+  ]
+}
