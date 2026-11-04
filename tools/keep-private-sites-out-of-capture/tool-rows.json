@@ -188,7 +188,16 @@
         "result_selector": "$.result",
         "provenance": {
           "source": "Moved from Trillion-X/trillion capture-exclusion (computer/, deleted in dc79bb0a87)"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "check",
+              "address": "https://www.chase.com/accounts"
+            }
+          }
+        ]
       }
     }
   ]

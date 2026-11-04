@@ -66,6 +66,7 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [{"kind": "needs-a-machine", "requires": "macOS with a screen, Accessibility permission granted, and /usr/bin/swift (the tool runs it by absolute path, so no stand-in program can replace it)", "proved_on": null}],
         "needs": {"expected_seconds": 60, "network_egress": false},
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
@@ -198,6 +199,18 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "app": "Notes Example",
+              "elements": [
+                { "role": "AXStaticText", "label": "Meeting notes for Ada Example" },
+                { "role": "AXButton", "label": "Share" }
+              ]
+            }
+          }
+        ],
         "provenance": {
           "source": "Moved from Trillion-X/trillion snapshot-triggers (computer/, deleted in dc79bb0a87)"
         }

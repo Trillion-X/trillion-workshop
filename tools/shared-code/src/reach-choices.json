@@ -1,0 +1,8 @@
+{
+  "what_this_is": "What a person can let an AI app reach when it connects through the consent page (src/reach.mjs reachForChoice). The first row is the default. `spaces: \"picked\"` means the person picks pursuits after signing in, and the app reaches each through its room (src/pursuit-rooms.mjs).",
+  "choices": [
+    { "id": "all", "label": "Everything in my account", "private": true, "spaces": "all" },
+    { "id": "private", "label": "Only my private Trillion", "private": true, "spaces": [] },
+    { "id": "spaces", "label": "Only pursuits I pick", "private": false, "spaces": "picked" }
+  ]
+}

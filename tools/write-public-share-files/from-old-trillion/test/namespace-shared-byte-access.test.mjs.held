@@ -1,0 +1,164 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { sqliteHost } from '../src/local-store.mjs';
+import { namespaceStore } from '../src/namespace-store.mjs';
+import { answerRecordShare } from '../src/record-share-pages.mjs';
+import { SharingError } from '../src/record-sharing.mjs';
+import { parseByteRange } from '../src/byte-range.mjs';
+import { MAX_ORIGINAL_COVER_BYTES, rasterImageTypeFor } from '../src/share-image-cover.mjs';
+
+// The share page reads through an installed grant owner (answerRecordShare shareOwnerFor). This one is the old
+// account stub with the Namespace carrier it supplies, so these checks reach the same byte and edge-cache path.
+const installedGrantOwner = env => async () => {
+  const account = env.PERSON.get(env.PERSON.idFromString('owner-store'));
+  return Object.assign(Object.create(account), { withSharedNamespace: async ({ access }, use) => use({ env, namespace: account, access }) });
+};
+
+// Execute the current owner method against actual SQLite and the public byte route.
+// The grant stub controls admission; existing owner/share tests prove grant resolution.
+const source = readFileSync(new URL('../src/person-store.mjs', import.meta.url), 'utf8');
+const from = source.indexOf('  async sharedFileForLink(');
+const method = source.slice(from, source.indexOf('  // Where a file this person shared', from));
+const sharedFileForLink = new Function('parseByteRange', 'beginShareReadProbe', 'SharingError',
+  'MAX_ORIGINAL_COVER_BYTES', 'rasterImageTypeFor', `return ({${method}}).sharedFileForLink;`)(
+  parseByteRange, () => () => {}, SharingError, MAX_ORIGINAL_COVER_BYTES, rasterImageTypeFor);
+const identityOf = bytes => `1f:${bytesToHex(blake3(bytes))}`;
+
+function fixture(t, spanCount = 2) {
+  const host = sqliteHost(':memory:');
+  t.after(() => host.db.close());
+  const index = namespaceStore(host.sql);
+  const bytes = new TextEncoder().encode(Array.from({ length: spanCount }, (_, i) => `span${String(i).padStart(4, '0')}abcdefgh`).join(''));
+  const identity = identityOf(bytes);
+  index.keepWholeFiles([{ identity, byte_length: bytes.length, media_type: 'video/mp4', name: '/clip.mp4', origin: 'first', key: 'whole' }]);
+  host.sql.exec('DELETE FROM namespace_spans WHERE file = ?', identity);
+  const objects = new Map();
+  for (let ordinal = 0; ordinal < spanCount; ordinal += 1) {
+    const offset = ordinal * 16, body = bytes.slice(offset, offset + 16), chunk = identityOf(body), origin = ordinal ? 'later' : 'first', key = `chunk-${ordinal}`;
+    objects.set(key, body);
+    host.sql.exec('INSERT OR REPLACE INTO namespace_chunks (chunk, byte_length, origin, key, stored_at) VALUES (?, ?, ?, ?, ?)', chunk, 16, origin, key, '2026-10-10');
+    host.sql.exec('INSERT INTO namespace_spans (file, ordinal, offset, length, chunk) VALUES (?, ?, ?, ?, ?)', identity, ordinal, offset, 16, chunk);
+  }
+  for (const id of ['first', 'later']) host.sql.exec('INSERT INTO namespace_secrets (name, value) VALUES (?, ?)', `origin:${id}`,
+    JSON.stringify({ id, interface: 'object-bucket', binding: 'BYTES', key: { key_id: 'plain-id', key: 'legacy-secret-must-not-leave' } }));
+  let admitted = true;
+  const calls = [], originReads = [];
+  const owner = {
+    namespace: index,
+    fact: () => 'owner',
+    async resolveRecordShare() {
+      calls.push(['grant']);
+      if (!admitted) throw new SharingError('This share link has ended.');
+      return { kind: 'file', title: 'clip.mp4', body: { identity } };
+    },
+    sharedFileForLink(...args) { return sharedFileForLink.apply(this, args); },
+    async namespaceSpansObserved(...args) { calls.push(['later-spans', ...args]); return { spans: index.spans(...args), lookup_ms: 0 }; },
+    async namespaceSpans(...args) { calls.push(['later-spans', ...args]); return index.spans(...args); },
+    async namespaceAttachedOrigins(...args) { calls.push(['later-origins', ...args]); return index.attachedOrigins(...args); },
+  };
+  const kv = { get: async () => ({ person_ref: 'owner-store' }) };
+  const env = { APP_KV: kv, PERSON: { idFromString: id => id, idFromName: id => id, get: () => owner }, NAMESPACE_ORIGINS: '[]',
+    BYTES: { async get(key, { range }) { originReads.push({ key, ...range }); return { body: objects.get(key).slice(range.offset, range.offset + range.length) }; } } };
+  const code = 'd'.repeat(32);
+  return { host, index, bytes, identity, calls, originReads, owner,
+    set admitted(value) { admitted = value; },
+    access(range = 'bytes=0-3', includeSpans = true) { return owner.sharedFileForLink(code, {}, 'file', range, includeSpans); },
+    read(range = 'bytes=0-3', method = 'GET', ctx = null) { return answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}/file`,
+      { method, headers: { range } }), { env, kv, origin: 'https://app.gettrillion.ai', ctx, shareOwnerFor: installedGrantOwner(env) }); },
+  };
+}
+
+test('public range access reads one indexed origin at N and 4N unrelated origins', async t => {
+  const costs = [];
+  for (const count of [500, 2000]) {
+    const f = fixture(t);
+    for (let i = 0; i < count; i += 1) f.host.sql.exec('INSERT INTO namespace_secrets (name, value) VALUES (?, ?)', `origin:unrelated-${i}`, 'not-json');
+    const execute = f.host.sql.exec.bind(f.host.sql), reads = [];
+    f.host.sql.exec = (query, ...values) => {
+      const cursor = execute(query, ...values);
+      if (/^SELECT value FROM namespace_secrets/.test(query)) reads.push({ query, values, rows: cursor.toArray() });
+      return cursor;
+    };
+    const access = await f.access();
+    assert.deepEqual(access.attached_origin_ids, ['first']);
+    assert.equal(access.attached_origins.length, 1);
+    assert.ok(!JSON.stringify(access).includes('legacy-secret-must-not-leave'));
+    assert.equal(reads.length, 1);
+    assert.deepEqual(JSON.parse(reads[0].values[0]), ['origin:first']);
+    const plan = execute(`EXPLAIN QUERY PLAN ${reads[0].query}`, ...reads[0].values).toArray().map(row => row.detail);
+    assert.ok(plan.some(detail => /SEARCH namespace_secrets USING INDEX .*\(name=\?\)/.test(detail)), plan.join('\n'));
+    assert.ok(!plan.some(detail => /^SCAN namespace_secrets\b/.test(detail)), plan.join('\n'));
+    costs.push({ statements: reads.length, returned: reads[0].rows.length });
+    const response = await f.read();
+    assert.equal(response.status, 206);
+    assert.deepEqual(new Uint8Array(await response.arrayBuffer()), f.bytes.slice(0, 4));
+    assert.deepEqual(f.calls.filter(call => call[0] === 'later-origins'), []);
+  }
+  assert.deepEqual(costs, [{ statements: 1, returned: 1 }, { statements: 1, returned: 1 }]);
+});
+
+test('later multipart origins are read by exact ID after the first member, with current grant refusal', async t => {
+  const f = fixture(t);
+  const response = await f.read('bytes=0-3,20-23');
+  assert.equal(response.status, 206);
+  assert.equal(f.originReads.length, 1, 'later members do not fetch bytes before consumption');
+  assert.deepEqual(f.calls.filter(call => call[0] === 'later-origins'), []);
+  const body = await response.text();
+  assert.ok(body.includes(new TextDecoder().decode(f.bytes.slice(0, 4))));
+  assert.ok(body.includes(new TextDecoder().decode(f.bytes.slice(20, 24))));
+  assert.deepEqual(f.calls.filter(call => call[0] === 'later-origins'), [['later-origins', ['later']]]);
+  assert.deepEqual(f.originReads, [{ key: 'chunk-0', offset: 0, length: 4 }, { key: 'chunk-1', offset: 4, length: 4 }]);
+  f.admitted = false;
+  assert.equal((await f.read()).status, 404);
+  assert.equal(f.originReads.length, 2, 'a revoked grant starts no storage read');
+});
+
+test('public multipart edge misses share one lazy chunk-cache opening and exact later origins', async t => {
+  const f = fixture(t);
+  const previous = globalThis.caches;
+  t.after(() => { globalThis.caches = previous; });
+  const opens = [];
+  globalThis.caches = { async open(name) { opens.push(name); return { match: async () => undefined }; } };
+  const response = await f.read('bytes=0-3,20-23', 'GET', { waitUntil() { assert.fail('Partial reads must not copy origin bytes.'); } });
+  assert.equal(response.status, 206);
+  assert.equal(f.originReads.length, 1, 'the second member opens only on consumption');
+  await response.arrayBuffer();
+  assert.equal(opens.filter(name => name === 'trillion-namespace-bytes').length, 2);
+  assert.equal(opens.filter(name => name === 'trillion-namespace-chunks').length, 1, 'both misses share the request-local cache promise');
+  assert.deepEqual(f.calls.filter(call => call[0] === 'later-origins'), [['later-origins', ['later']]]);
+  assert.deepEqual(f.originReads, [{ key: 'chunk-0', offset: 0, length: 4 }, { key: 'chunk-1', offset: 4, length: 4 }]);
+});
+
+test('HEAD, malformed ranges and metadata-only access do not fetch attached origins', async t => {
+  const f = fixture(t), calls = [];
+  const attached = f.index.attachedOrigins;
+  f.index.attachedOrigins = (...args) => { calls.push(args); return attached(...args); };
+  assert.equal((await f.read('bytes=0-3', 'HEAD')).status, 206);
+  assert.equal((await f.read('bytes=wrong')).status, 416);
+  assert.equal((await f.access('bytes=0-3', false)).attached_origins, null);
+  assert.deepEqual(calls, []);
+  assert.deepEqual(f.originReads, []);
+});
+
+test('a public open range snapshots at most 64 spans and lazily resolves later origins', async t => {
+  const f = fixture(t, 80);
+  const access = await f.access('bytes=0-');
+  assert.equal(access.first_spans.length, 64);
+  assert.deepEqual(access.attached_origin_ids, ['first', 'later']);
+  assert.equal(access.attached_origins.length, 2);
+  const response = await f.read('bytes=0-');
+  assert.equal(response.status, 206);
+  assert.deepEqual(new Uint8Array(await response.arrayBuffer()), f.bytes);
+  assert.ok(f.calls.some(call => call[0] === 'later-spans'));
+});
+
+test('a failed later span lookup errors the public stream instead of silently ending it', async t => {
+  const f = fixture(t, 80);
+  f.owner.namespaceSpans = async () => { throw new Error('later span lookup failed'); };
+  const response = await f.read('bytes=0-');
+  assert.equal(response.status, 206);
+  await assert.rejects(response.arrayBuffer(), /later span lookup failed/);
+});

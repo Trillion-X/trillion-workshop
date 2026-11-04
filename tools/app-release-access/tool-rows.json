@@ -145,6 +145,9 @@
      ]
     },
     "result_selector": "$.result",
+    "verify": [
+      {"kind": "sample-run", "input": {"source_id": "native-ios", "bundle_identifier": "com.example.sample", "testflight_groups": []}, "held": {"app-store-connect-key": "{\"key_id\": \"SAMPLEKEY01\", \"issuer_id\": \"00000000-0000-0000-0000-000000000000\", \"private_key\": \"[held value: app-store-connect-key private_key]\\n\"}"}, "replies": [{"request": {"method": "GET", "url": "https://api.appstoreconnect.apple.com/v1/apps"}, "status": 200, "body": {"data": [{"type": "apps", "id": "1000000001", "attributes": {"bundleId": "com.example.sample"}}], "links": {"self": "https://api.appstoreconnect.apple.com/v1/apps"}}}, {"request": {"method": "GET", "url": "https://api.appstoreconnect.apple.com/v1/betaGroups"}, "status": 200, "body": {"data": [], "links": {"self": "https://api.appstoreconnect.apple.com/v1/betaGroups"}}}, {"request": {"method": "GET", "url": "https://api.appstoreconnect.apple.com/v1/builds"}, "status": 200, "body": {"data": [], "links": {"self": "https://api.appstoreconnect.apple.com/v1/builds"}}}], "shape_read_at": "2026-11-04"}
+    ],
     "needs": {
      "expected_seconds": 20,
      "network_egress": true,
@@ -170,6 +173,9 @@
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:fulfill-setup-access",
+    "verify": [
+     {"kind": "needs-a-machine", "requires": "a Trillion engine whose records door serves the release owner's setup-access claim, checkpoint and finish operations (not built yet; README Not yet), plus the release owner's App Store Connect key on fd 4: until then every run refuses before any provider call, on any computer, so no sample can exit 0", "proved_on": null}
+    ],
     "label": "Arrange a person's beta app access",
     "status": "active",
     "job": "Arrange the TestFlight access a person's setup requires, through the release owner's Apple account, without sending a second invitation",

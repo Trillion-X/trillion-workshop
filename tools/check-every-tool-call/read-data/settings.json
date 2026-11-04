@@ -19,6 +19,10 @@
     },
     {
       "type": "record:check",
+      "id_prefix": "record:check:"
+    },
+    {
+      "type": "record:check",
       "where": {
         "kind": "check"
       },

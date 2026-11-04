@@ -1,0 +1,26 @@
+{
+  "missing": {
+    "title": "Page not found",
+    "heading": "This page is not here",
+    "body": "Check the address, or return to the app's home page.",
+    "action": "Go to home page"
+  },
+  "busy": {
+    "title": "Please wait",
+    "heading": "This app is busy right now",
+    "body": "Wait a moment, then try again.",
+    "action": "Try again"
+  },
+  "unavailablePage": {
+    "title": "Page unavailable",
+    "heading": "This page is not available",
+    "body": "Check the address or try again later.",
+    "action": "Try again"
+  },
+  "unavailable": {
+    "title": "Temporarily unavailable",
+    "heading": "This app is temporarily unavailable",
+    "body": "Try again in a moment.",
+    "action": "Try again"
+  }
+}

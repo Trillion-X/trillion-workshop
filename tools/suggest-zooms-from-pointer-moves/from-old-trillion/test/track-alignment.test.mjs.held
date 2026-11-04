@@ -1,0 +1,37 @@
+// Measuring the alignment of separate recording tracks (computer/track-alignment.mjs), with a real ffprobe.
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdtempSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+import { alignmentSettings, clockOf, measure, offsetsOf } from '../computer/track-alignment.mjs';
+
+const settings = alignmentSettings();
+
+test('offsets are from the earliest measured track, out-of-line tracks are marked, and an unclocked track is unmeasured, not zero', () => {
+  const clock = wall => ({ wall_clock_ms: wall, first_timestamp_ms: 0 });
+  const out = offsetsOf([{ id: 'screen', clock: clock(1000) }, { id: 'mic', clock: clock(1050) }, { id: 'camera', clock: clock(1300) }, { id: 'system', clock: null }], settings);
+  assert.deepEqual(out.map(t => [t.id, t.offset_ms, t.in_line]), [['screen', 0, true], ['mic', 50, false], ['camera', 300, false], ['system', null, null]]);
+  assert.match(out[3].why, /system has no wall-clock time/);
+  assert.deepEqual(clockOf({ format: { start_time: '0.5', tags: { creation_time: '2026-10-19T09:00:00.000000Z' } } }), { wall_clock_ms: Date.parse('2026-10-19T09:00:00Z'), first_timestamp_ms: 500 });
+  assert.equal(clockOf({ format: {} }), null);
+  assert.equal(settings.tolerance_ms, 40, 'the tolerance is the pure measure\'s, in one place');
+});
+
+test('real files with different creation times are measured with the real ffprobe and ffmpeg seeks', { skip: !existsSync('/opt/homebrew/bin/ffprobe') }, async () => {
+  const folder = mkdtempSync(path.join(os.tmpdir(), 'align-'));
+  const make = (name, created) => {
+    const file = path.join(folder, name);
+    execFileSync('/opt/homebrew/bin/ffmpeg', ['-v', 'error', '-f', 'lavfi', '-i', 'sine=f=440:d=2', '-metadata', `creation_time=${created}`, '-y', file]);
+    return file;
+  };
+  const files = [{ id: 'screen', file: make('a.m4a', '2026-10-19T09:00:00.000000Z') }, { id: 'mic', file: make('b.m4a', '2026-10-19T09:00:02.000000Z') }, { id: 'plain', file: path.join(folder, 'c.wav') }];
+  execFileSync('/opt/homebrew/bin/ffmpeg', ['-v', 'error', '-f', 'lavfi', '-i', 'sine=f=300:d=1', '-y', files[2].file]);
+  const done = await measure(files);
+  assert.deepEqual(done.tracks.map(t => [t.id, t.offset_ms, t.in_line]), [['screen', 0, true], ['mic', 2000, false], ['plain', null, null]]);
+  assert.equal(done.spread_ms, 2000);
+  assert.ok(done.tracks.every(t => t.seek_ms.length === settings.seek_points.length && t.seek_ms.every(ms => ms >= 0)));
+  console.log('REAL readback of the probe:', JSON.stringify(done));
+  await assert.rejects(measure([]), /Give tracks/);
+});

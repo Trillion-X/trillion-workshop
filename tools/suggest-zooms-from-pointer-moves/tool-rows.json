@@ -139,7 +139,49 @@
         "result_selector": "$.result",
         "provenance": {
           "source": "Moved from Trillion-X/trillion auto-zoom (computer/, deleted in dc79bb0a87)"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "sidecar": {
+                "space": "normalized-source",
+                "samples": [
+                  {
+                    "type": "move",
+                    "t": 0,
+                    "x": 0.2,
+                    "y": 0.2
+                  },
+                  {
+                    "type": "move",
+                    "t": 100,
+                    "x": 0.5,
+                    "y": 0.5
+                  },
+                  {
+                    "type": "click",
+                    "t": 700,
+                    "x": 0.5,
+                    "y": 0.5
+                  },
+                  {
+                    "type": "move",
+                    "t": 1500,
+                    "x": 0.51,
+                    "y": 0.5
+                  },
+                  {
+                    "type": "move",
+                    "t": 2000,
+                    "x": 0.9,
+                    "y": 0.9
+                  }
+                ]
+              }
+            }
+          }
+        ]
       }
     }
   ]

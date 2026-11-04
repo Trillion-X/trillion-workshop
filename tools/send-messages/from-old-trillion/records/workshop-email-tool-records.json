@@ -1,0 +1,258 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-email-tool-records",
+  "what_this_is": "Email from Trillion's own address as a Workshop tool that runs in the account that runs Trillion (placement:this-account; src/mail-sender.mjs sendWrittenEmail through src/person-store.mjs accountActions). Every email is drawn by the shared email part in Trillion's look and sent from the sender src/mail-settings.json names; any other account's AI is told it cannot send from that address. What each email went out as is kept in the account's Sent (src/sent.mjs), through invoke.external_effect.sent.",
+  "records": [
+    {
+      "id": "package::trillion::tool::send-an-email",
+      "address": "package::trillion::tool::send-an-email",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "id": "tool:send-an-email",
+        "listed_on": "2026-09-30T09:47:35Z",
+        "label": "Send an email as Trillion",
+        "job": "Send one personal email to one person from Trillion's own address (user-51d1f203@example.com), in Trillion's branded email look, with an optional button",
+        "description": "Runs only in the account that runs Trillion. When emailing a person from contacts, read their current row and pass recipient as that row's name with its email address as to; a mismatch or ambiguous address is refused. The words are markdown (bold, links, lists); `action` adds one button with a label and a link; `reply_to` sends replies somewhere else. Returns whether it went out. Every email also goes as a BCC to the account owner's own address, and is kept in the account's Sent. Subscription emails use subscription fields for one-click unsubscribe and the visible footer; sender and postal address stay owned by the shared sender. The current consent source must establish eligibility.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "to",
+            "subject",
+            "markdown"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "to": {
+              "type": "string",
+              "description": "The one email address it goes to"
+            },
+            "recipient": {
+              "type": "string",
+              "description": "The intended person's name from their current contact row; required when to belongs to a saved contact",
+              "x-record": {
+                "from": {
+                  "row_types": [
+                    "person",
+                    "crm",
+                    "customer",
+                    "contact"
+                  ]
+                },
+                "new": {
+                  "list": "people",
+                  "label": "person",
+                  "list_label": "People",
+                  "title_field": "name"
+                }
+              }
+            },
+            "subject": {
+              "type": "string",
+              "description": "The subject line"
+            },
+            "markdown": {
+              "type": "string",
+              "description": "The words of the email, in markdown"
+            },
+            "preheader": {
+              "type": "string",
+              "description": "The short line an inbox shows after the subject"
+            },
+            "action": {
+              "type": "object",
+              "required": [
+                "label",
+                "href"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "href": {
+                  "type": "string",
+                  "description": "An https link"
+                }
+              },
+              "description": "One button under the words"
+            },
+            "reply_to": {
+              "type": "string",
+              "description": "Where replies go, when not to the sender"
+            },
+            "subscription": {
+              "type": "object",
+              "required": [
+                "unsubscribe_url",
+                "list_id",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "unsubscribe_url": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "Current recipient HTTPS endpoint accepting RFC8058 one-click POST. Obtain from the consent owner immediately before sending."
+                },
+                "list_id": {
+                  "type": "string",
+                  "description": "The subscription list identity, for example Updates <updates.example.com>."
+                },
+                "reason": {
+                  "type": "string",
+                  "maxLength": 1000,
+                  "description": "The actual reason this recipient receives the subscription."
+                },
+                "unsubscribe_label": {
+                  "type": "string",
+                  "maxLength": 100
+                }
+              },
+              "description": "Adds RFC8058 List-Unsubscribe/List-Unsubscribe-Post and List-ID headers plus visible unsubscribe, reason and the sending owner\u2019s postal address. Use the audience tool\u2019s current eligibility rule; it does not infer consent from an address."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "sent",
+            "said"
+          ],
+          "properties": {
+            "sent": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "error": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            },
+            "sent_copy": {
+              "type": "object",
+              "description": "Exactly what went out, present when it was sent: to, from, reply_to, bcc, subject, preheader, markdown, text, html, sent_at, provider; subscription mail also keeps exact headers, footer_lines and footer_links."
+            },
+            "recipient_resolution": {
+              "type": "object",
+              "description": "The current contact list and row whose name and address matched, or that the address was not in contacts"
+            },
+            "unknown": {
+              "type": "boolean",
+              "description": "The provider may have sent it; do not retry blindly."
+            },
+            "suppressed": {
+              "type": "boolean",
+              "description": "The provider refused this suppressed recipient; the shared audience owner retains do-not-send for this address."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "send-an-email",
+          "external_effect": {
+            "kind": "message",
+            "what": "an email to one person",
+            "sent": {
+              "kind": "email",
+              "only_when": {
+                "from": "output",
+                "path": "$.sent",
+                "equals": true
+              },
+              "fields": {
+                "to": {
+                  "from": "output",
+                  "path": "$.sent_copy.to"
+                },
+                "from": {
+                  "from": "output",
+                  "path": "$.sent_copy.from"
+                },
+                "reply_to": {
+                  "from": "output",
+                  "path": "$.sent_copy.reply_to"
+                },
+                "subject": {
+                  "from": "output",
+                  "path": "$.sent_copy.subject"
+                },
+                "preheader": {
+                  "from": "output",
+                  "path": "$.sent_copy.preheader"
+                },
+                "body_markdown": {
+                  "from": "output",
+                  "path": "$.sent_copy.markdown"
+                },
+                "body_text": {
+                  "from": "output",
+                  "path": "$.sent_copy.text"
+                },
+                "body_html": {
+                  "from": "output",
+                  "path": "$.sent_copy.html"
+                },
+                "sent_at": {
+                  "from": "output",
+                  "path": "$.sent_copy.sent_at"
+                },
+                "provider": {
+                  "from": "output",
+                  "path": "$.sent_copy.provider"
+                },
+                "provider_id": {
+                  "from": "output",
+                  "path": "$.id"
+                },
+                "copies": {
+                  "from": "output",
+                  "path": "$.sent_copy.bcc",
+                  "each": {
+                    "to": {
+                      "from": "item",
+                      "path": "$"
+                    },
+                    "how": {
+                      "value": "bcc"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "provenance": {
+          "source": "src/mail-sender.mjs sendWrittenEmail"
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.said",
+            "input_field": "to"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "_what": "Joining a browser extension to a program on this computer through the browser's own native-messaging manifest (computer/native-messaging.mjs). `browsers` are rows: where that browser looks for manifests (`folder`, under the home folder), and which key names the extensions it allows (`allow_key`: Chrome-family `allowed_origins` takes chrome-extension://<id>/ addresses, Firefox `allowed_extensions` takes ids). A new browser is a new row. A manifest's `name` must match `name_pattern`. `bridge` is the program the browser starts (computer/browser-bridge.mjs): its manifest `name`, the `launcher` file it writes, and `tools`, the only tool ids a browser extension may have this Mac run (none by default).",
+  "name_pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)+$",
+  "browsers": [
+    {
+      "id": "chrome",
+      "folder": "Library/Application Support/Google/Chrome/NativeMessagingHosts",
+      "allow_key": "allowed_origins",
+      "allow_format": "chrome-extension://{id}/"
+    },
+    {
+      "id": "chromium",
+      "folder": "Library/Application Support/Chromium/NativeMessagingHosts",
+      "allow_key": "allowed_origins",
+      "allow_format": "chrome-extension://{id}/"
+    },
+    {
+      "id": "edge",
+      "folder": "Library/Application Support/Microsoft Edge/NativeMessagingHosts",
+      "allow_key": "allowed_origins",
+      "allow_format": "chrome-extension://{id}/"
+    },
+    {
+      "id": "brave",
+      "folder": "Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts",
+      "allow_key": "allowed_origins",
+      "allow_format": "chrome-extension://{id}/"
+    },
+    {
+      "id": "arc",
+      "folder": "Library/Application Support/Arc/User Data/NativeMessagingHosts",
+      "allow_key": "allowed_origins",
+      "allow_format": "chrome-extension://{id}/"
+    },
+    {
+      "id": "firefox",
+      "folder": "Library/Application Support/Mozilla/NativeMessagingHosts",
+      "allow_key": "allowed_extensions",
+      "allow_format": "{id}"
+    }
+  ],
+  "words": {
+    "bad_name": "{name} is not a valid native host name (lower case words joined by dots, like com.example.host).",
+    "bad_path": "The host program must be an absolute path to a file that exists.",
+    "no_extensions": "Name at least one extension that may talk to this host.",
+    "unknown_browser": "There is no browser named {browser} in this list.",
+    "installed": "Joined {name} to {browsers}.",
+    "removed": "Removed {name} from {browsers}.",
+    "refused_foreign": "{file} was not written by this program, so it was left as it is."
+  },
+  "bridge": {
+    "name": "ai.trillion.mac",
+    "description": "Trillion on this Mac",
+    "launcher": ".trillion/bridge/trillion-bridge",
+    "tools": [],
+    "max_message_bytes": 1048576,
+    "words": {
+      "bad_request": "Send { id, tool_id, input }.",
+      "not_allowed": "This Mac does not run {tool} for a browser extension.",
+      "foreign_launcher": "There is already a file at {path} that this Mac did not write, so it was left as it is."
+    }
+  }
+}

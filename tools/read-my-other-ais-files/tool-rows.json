@@ -123,6 +123,7 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [{"kind":"sample-run","input":{"source":"claude-code","read":["claude-code/instructions/CLAUDE.md"]},"files":[{"grant":"read-a-folder","path":".claude/CLAUDE.md","text":"Always greet Ada Example by name.\n"}]}],
         "needs": {
           "expected_seconds": 2,
           "network_egress": false

@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:935b2b5f95f269adcdf8556f9c4a82a45171b0e98054ea9178e3d6d70d0f4895"
+  "blake3": "1f:ebd31c184e1a85b146b22aa00750289db634cdf0d72f91cf4be0a46a8f578369"
  },
  "fields": [
   {
@@ -9067,11 +9067,26 @@
    }
   },
   {
+   "id": "tool:search-everything-in-a-small-container",
+   "values": {
+    "title": "Search everything I keep with one question (runs in a small container)",
+    "job": "Search every list, record and file name I keep with one question, in one ranked list, without my own computer",
+    "description": "Searches everything this person keeps with one question, as a Workshop run: every kind of record (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first. Each result has found_in (written for a record's text, name for a file's name), said (the words around the match), score and address (records:read for a record, find_file for a file). The run holds two read-only rights and nothing else: records:search over every kind ({kind: \"*\"}, which covers only a search that names no kind and never a write) and the files' name search over every name. unavailable names a lane that could not answer and why; pending names one still working.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "search-everything-with-one-question"
+   }
+  },
+  {
    "id": "tool:search-everything-with-one-question",
    "values": {
     "title": "Search everything I keep with one question (runs on your computer)",
     "job": "Search everything I keep with one question: every list and record, and my files by name, best match first",
-    "description": "Searches everything this person keeps with one question: every list and record they keep (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first. Ask it the person's own question (\"what is my EIN\") or the words to find. Each result is one thing with found_in (the places it matched: written for a record's text, name for a file's name), said (the words around the match, which hold the answer), score, and address: the door call that opens it (records:read for a record, find_file for a file). type (optional) keeps only records of that kind and leaves the files out. unavailable names a place or source that could not answer and why (a file search the caller may not make is named here, never guessed); pending names one still working: ask again in a few seconds. It runs through the person's own MCP client, so it reaches every kind; a Workshop run can be granted one kind only (tool:search-one-of-my-lists).",
+    "description": "Searches everything this person keeps with one question: every list and record they keep (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first. Ask it the person's own question (\"what is my EIN\") or the words to find. Each result is one thing with found_in (the places it matched: written for a record's text, name for a file's name), said (the words around the match, which hold the answer), score, and address: the door call that opens it (records:read for a record, find_file for a file). type (optional) keeps only records of that kind and leaves the files out. unavailable names a place or source that could not answer and why (a file search the caller may not make is named here, never guessed); pending names one still working: ask again in a few seconds. It runs through the person's own MCP client, so it reaches every kind; the same search as a Workshop run, with no client, is tool:search-everything-in-a-small-container.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -10127,7 +10142,7 @@
    "values": {
     "title": "Split a document into its pieces",
     "job": "Split a document into its smallest self-contained pieces and keep each as the row a person keeps, so every check can name the piece it came from",
-    "description": "Give one of the person's files by name (as /folder/file.md, read through their files door page by page, so a file of any size up to 4 MB is never sent in one request body), or the text of a short document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block (``` or ~~~, as CommonMark fences them) under its headings is one piece; titles, rules and table headers are not. Every piece is kept in one call as a row of the person's Checks list (record:check:piece- and the first 24 hex of its identity, kind piece): says (its lead), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line where it starts), and empty groups, kinds and checked_by for the person to fill. A piece already kept keeps its checked_by, no_check, groups and kinds and gains this file as a source; the same text twice is one row with two sources. Every write is conditional on what was read and fits one door message. The answer counts the pieces (new, found again as a source, unchanged), names the first ids and any piece too large for one write; tool:check-every-piece-is-covered then says what each piece lacks.",
+    "description": "Give one of the person's files by name (as /folder/file.md, read through their files door page by page, so a file of any size up to 4 MB is never sent in one request body), or the text of a short document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block (``` or ~~~, as CommonMark fences them) under its headings is one piece; titles, rules and table headers are not. Every piece is kept in one call as a row of the person's Checks list (record:check:piece- and the first 24 hex of its identity, kind piece): says (its lead), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line where it starts), and empty tags, kinds and checked_by for the person to fill. A piece already kept keeps its checked_by, no_check, tags and kinds and gains this file as a source; the same text twice is one row with two sources. Every write is conditional on what was read and fits one door message. The answer counts the pieces (new, found again as a source, unchanged), names the first ids and any piece too large for one write; tool:check-every-piece-is-covered then says what each piece lacks.",
     "status": "active",
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
     "licence_class": "licence:maker-own",

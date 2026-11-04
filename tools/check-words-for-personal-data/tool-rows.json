@@ -142,6 +142,7 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [{"kind":"sample-run","input":{"text":"Please write to Ada Example at ada@example.invalid about the invoice."}}],
         "provenance": {
           "source": "Moved from Trillion-X/trillion personal-data (computer/, deleted in dc79bb0a87)"
         }

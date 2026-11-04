@@ -1,0 +1,148 @@
+// test/agent-display.test.mjs
+//
+// Working in the background on this Mac (computer/drive-the-screen.mjs, computer/screen-driver.swift) on a pretend Mac:
+// background drives post input to the process and never bring it forward; an agent display moves an app's windows onto
+// a held display after keeping their frames; returning puts each back, reads it again and names each typed failure;
+// a session with a failure stays open, with its display, until a later return succeeds, including after a restart.
+// With SCREEN_DRIVING_LIVE=1 the last test moves and returns a REAL window (test/fixtures/screen-probe-app.swift).
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { mkdtempSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { makeScreenDriver, screenSettings } from '../computer/drive-the-screen.mjs';
+import { run } from '../computer/observe-visual.mjs';
+
+const settings = screenSettings();
+const APP = { name: 'Probe', bundle_id: 'test.probe', pid: 4242 };
+const DISPLAY = { index: 0, main: true, x: 0, y: 0, width: 1000, height: 500, scale: 2 };
+const BOUNDS = { x: 1000, y: 0, width: 1920, height: 1080 };
+
+// A pretend Mac with one app of two windows. `stuck` names windows that refuse to go back; `shrink` ones that come
+// back at another size; `gone` ones closed meanwhile.
+function pretendMac({ stuck = new Set(), shrink = new Set(), gone = new Set() } = {}) {
+  const frames = new Map([['Main', { x: 100, y: 100, width: 400, height: 300 }], ['Tools', { x: 600, y: 80, width: 200, height: 2000 }]]);
+  const state = { asked: [], stopped: 0 };
+  const program = async request => {
+    state.asked.push(request);
+    if (request.command === 'windows') return { app: APP, ax_trusted: true, windows: [...frames].map(([title, frame], index) => ({ index, title, frame })) };
+    if (request.command === 'place') {
+      return { app: APP, windows: request.windows.map(row => {
+        if (gone.has(row.title)) return { index: -1, title: row.title, found: false };
+        const returning = row.x < BOUNDS.x;
+        const got = returning && stuck.has(row.title) ? frames.get(row.title)
+          : { x: row.x, y: row.y, width: returning && shrink.has(row.title) ? row.width - 50 : row.width, height: row.height };
+        frames.set(row.title, got);
+        return { index: -1, title: row.title, found: true, got, position_ok: got.x === row.x && got.y === row.y, size_ok: got.width === row.width && got.height === row.height };
+      }) };
+    }
+    if (request.command === 'read') {
+      return { readiness: { ax_trusted: true, screen_capture: true }, displays: [DISPLAY], frontmost: { name: 'Mail', pid: 1 }, app: APP, truncated: false,
+        elements: request.max_nodes === 0 ? [] : [{ path: [0], depth: 1, role: 'AXWindow', title: 'Main', frame: frames.get('Main') },
+          { path: [0, 0], depth: 2, role: 'AXButton', title: 'Go', actions: ['AXPress'], frame: { x: 120, y: 120, width: 60, height: 20 } }] };
+    }
+    return { events: request.events.map(event => ({ event: event.event, ok: true, detail: '' })), completed: true };
+  };
+  const hold = async request => { state.held = request; return { answer: { available: true, display_id: 77, bounds: BOUNDS }, stop: () => { state.stopped += 1; } }; };
+  return { state, frames, program, hold };
+}
+
+const driver = (mac, home = mkdtempSync(join(tmpdir(), 'agent-display-'))) => ({ home,
+  screen: makeScreenDriver({ settings, home, program: mac.program, hold: mac.hold, capture: async () => Buffer.from(''), ocr: async () => ({ width: 2000, height: 1000, lines: [] }), wait: async () => {} }) });
+
+test('a background drive posts to the process and leaves out bringing the app forward', async () => {
+  const mac = pretendMac();
+  const { screen } = driver(mac);
+  const action = Object.entries(settings.actions).find(([, row]) => row.steps.some(step => step.event === 'app_activate'));
+  assert.ok(action, 'the DATA has an action that brings its app forward');
+  const done = await screen.drive({ action: action[0], target: 'Go', app: 'Probe', background: true, ...Object.fromEntries(Object.entries(action[1].inputs ?? {}).filter(([, spec]) => spec.required).map(([name, spec]) => [name, spec.type === 'chord' ? 'return' : spec.type === 'string' ? 'x' : 1])) });
+  const act = mac.state.asked.find(request => request.command === 'act');
+  assert.equal(act.deliver, settings.background.deliver);
+  assert.equal(act.events.some(event => settings.background.skip_events.includes(event.event)), false);
+  assert.equal(done.background, true);
+  await assert.rejects(screen.drive({ action: action[0], target: 'Go', background: 'yes' }), /background must be true or false/);
+  await screen.drive({ action: 'press', target: 'Go', app: 'Probe' });
+  assert.equal(mac.state.asked.filter(request => request.command === 'act').at(-1).deliver, undefined, 'a foreground drive is unchanged');
+});
+
+test('opening moves every window onto the held display after keeping its frame; returning puts each back and ends the display', async () => {
+  const mac = pretendMac();
+  const { screen, home } = driver(mac);
+  const opened = await screen.display_open({ app: 'Probe' });
+  assert.deepEqual(mac.state.held, settings.background.display);
+  assert.equal(opened.display.display_id, 77);
+  assert.deepEqual(opened.moved.map(row => [row.window, row.moved]), [['Main', true], ['Tools', true]]);
+  const inset = settings.background.window_inset_points;
+  assert.deepEqual(mac.frames.get('Tools'), { x: BOUNDS.x + inset, y: inset, width: 200, height: BOUNDS.height - 2 * inset }, 'a window taller than the display is fitted');
+  const kept = JSON.parse(readFileSync(join(home, settings.background.sessions_file), 'utf8')).sessions[opened.session_id];
+  assert.deepEqual(kept.windows.map(window => window.frame), [{ x: 100, y: 100, width: 400, height: 300 }, { x: 600, y: 80, width: 200, height: 2000 }]);
+  await assert.rejects(screen.display_open({ app: 'Probe' }), /already works on an agent display/);
+  assert.deepEqual(screen.display_sessions().sessions.map(row => [row.session_id, row.held_here]), [[opened.session_id, true]]);
+
+  const back = await screen.display_return({ session_id: opened.session_id });
+  assert.equal(back.ended, true);
+  assert.deepEqual(back.receipts[0].returned.map(row => row.window), ['Main', 'Tools']);
+  assert.deepEqual(mac.frames.get('Main'), { x: 100, y: 100, width: 400, height: 300 });
+  assert.equal(mac.state.stopped, 1, 'the display ends once every window is back');
+  assert.deepEqual(screen.display_sessions().sessions, []);
+  await assert.rejects(screen.display_return({ session_id: opened.session_id }), /No agent display is open \(/);
+});
+
+test('each window that does not go back is a typed failure, and the session stays open for a later return, even after a restart', async () => {
+  const stuck = new Set(['Main']), shrink = new Set(['Tools']);
+  const mac = pretendMac({ stuck, shrink });
+  const { screen, home } = driver(mac);
+  const opened = await screen.display_open({ app: 'Probe' });
+  const first = await screen.display_return({});
+  assert.equal(first.ended, false);
+  assert.deepEqual(first.receipts[0].failures.map(row => [row.window, row.code]), [['Main', 'window_not_returned'], ['Tools', 'size_not_recovered']]);
+  assert.match(first.receipts[0].said, /2 window\(s\) did not go back/);
+  assert.equal(mac.state.stopped, 0, 'the display is kept while a window is still on it');
+  assert.deepEqual(screen.display_sessions().sessions[0].failures, ['window_not_returned', 'size_not_recovered']);
+
+  // A new host process (restart) reads the kept frames and retries.
+  stuck.clear(); shrink.clear();
+  const again = driver(mac, home).screen;
+  assert.equal(again.display_sessions().sessions[0].held_here, false);
+  const second = await again.display_return({ session_id: opened.session_id });
+  assert.equal(second.ended, true);
+  assert.deepEqual(mac.frames.get('Tools'), { x: 600, y: 80, width: 200, height: 2000 });
+
+  const closed = pretendMac({ gone: new Set(['Tools']) });
+  const other = driver(closed).screen;
+  await other.display_open({ app: 'Probe' });
+  const receipt = await other.display_return({});
+  assert.deepEqual(receipt.receipts[0].failures.map(row => row.code), ['window_gone']);
+});
+
+test('no display, no permission and carried consent are refused before anything moves', async () => {
+  const mac = pretendMac();
+  const none = makeScreenDriver({ settings, home: mkdtempSync(join(tmpdir(), 'agent-display-')), program: mac.program, hold: async () => ({ answer: { available: false, detail: 'This Mac has no virtual display classes.' } }) });
+  await assert.rejects(none.display_open({ app: 'Probe' }), /could not hold an agent display \(This Mac has no virtual display classes\.\)/);
+  assert.equal(mac.state.asked.some(request => request.command === 'place'), false);
+  const untrusted = makeScreenDriver({ settings, home: mkdtempSync(join(tmpdir(), 'agent-display-')), program: async () => ({ app: APP, ax_trusted: false, windows: [] }), hold: mac.hold });
+  await assert.rejects(untrusted.display_open({ app: 'Probe' }), /Accessibility/);
+  await assert.rejects(driver(mac).screen.display_open({ app: 'Probe', consent: true }), /Consent is never carried/);
+  const gated = makeScreenDriver({ settings: { ...settings, consent: { ...settings.consent, require_grant: true } }, home: mkdtempSync(join(tmpdir(), 'agent-display-')), program: mac.program, hold: mac.hold });
+  await assert.rejects(gated.display_open({ app: 'Probe' }), /has not allowed work_in_background/);
+});
+
+test('a real window is moved and put back through the screen program', { skip: process.env.SCREEN_DRIVING_LIVE !== '1' }, async () => {
+  const probe = spawn('/usr/bin/swift', [join(import.meta.dirname, 'fixtures/screen-probe-app.swift')], { stdio: 'ignore' });
+  try {
+    const ask = async request => JSON.parse(await run('/usr/bin/swift', [join(import.meta.dirname, '../computer/screen-driver.swift')], { input: JSON.stringify(request), timeout: 60_000 }));
+    let listed;
+    // The probe runs as swift-frontend; its window is found by its own title.
+    for (let tries = 0; tries < 90 && !listed?.windows?.some(row => row.title === 'Screen Probe'); tries += 1) {
+      await new Promise(done => setTimeout(done, 1000));
+      listed = await ask({ command: 'windows', app: 'swift-frontend' }).catch(() => null);
+    }
+    assert.equal(listed.ax_trusted, true, 'Accessibility is allowed for this terminal');
+    const window = listed.windows.find(row => row.title === 'Screen Probe');
+    const moved = await ask({ command: 'place', pid: listed.app.pid, windows: [{ title: window.title, x: window.frame.x + 40, y: window.frame.y + 30 }] });
+    assert.equal(moved.windows[0].position_ok, true);
+    const back = await ask({ command: 'place', pid: listed.app.pid, windows: [{ title: window.title, ...window.frame }] });
+    assert.deepEqual([back.windows[0].found, back.windows[0].position_ok, back.windows[0].size_ok], [true, true, true]);
+  } finally { probe.kill(); }
+});

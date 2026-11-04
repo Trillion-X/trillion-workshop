@@ -1,0 +1,6 @@
+{
+  "fill_page_bytes": 400000,
+  "fill_page_bytes_why": "Input bytes one fill page reads. json_tree counts each JSON node as a row read, about one node per 17 bytes of a shared command's input (measured in workerd, 2026-10-22), so 400 KB is about 24,000 rows read, well inside the 67,584 rows a forget dependency page is admitted for.",
+  "fill_page_commands": 1000,
+  "fill_page_commands_why": "Commands one fill page reads at most, whatever their size: about 3,000 subject rows written at most, inside the page's 16,896 rows written."
+}

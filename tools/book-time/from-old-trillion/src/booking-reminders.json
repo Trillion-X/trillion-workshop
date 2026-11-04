@@ -1,0 +1,6 @@
+{
+  "what_this_is": "How a booking's reminder emails are retried when the mail sender refuses one (src/host-bookings.mjs remind(), src/booking.mjs dueReminders). A reminder that some of its emails did not reach is due again `retry_after_minutes` after the try, and only the people who did not get it are sent to. Once `most_tries` tries have gone by it is stamped sent, so it stops and is not sent again. An email the mail sender could not confirm either way counts as reached, so it is not repeated. `most_per_wake` is how many due reminders one wake sends; any left are due at once, so the alarm wakes again for them.",
+  "retry_after_minutes": 15,
+  "most_tries": 4,
+  "most_per_wake": 50
+}

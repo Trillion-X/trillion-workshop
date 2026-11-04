@@ -151,7 +151,7 @@ test('the runner reads check rows with the door\'s where, and a staged capabilit
   const passed = await call(where, bash(root, 'git commit -m literals'));
   assert.equal(passed.status, 0, passed.stderr);
   assert.deepEqual(passed.answer, {});
-  assert.deepEqual(asked.find(input => input.type === 'record:check').where, { kind: 'check' });
+  assert.ok(asked.some(input => input.type === 'record:check' && JSON.stringify(input.where) === JSON.stringify({ kind: 'check' })), 'check rows are read with where { kind: "check" }');
   write('capabilities.json', capabilities(['public-key', 'foo']));
   git('add', '-A');
   const refused = await call(where, bash(root, 'git add -A && git commit -m literals'));

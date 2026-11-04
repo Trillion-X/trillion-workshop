@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/record-stance.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-where-i-stand-on-one-of-my-records-agree/src/record-stance.json",
+      "source_identity": "1f:7d4e8b32cc6c763e6e59703bda1191a92f1af8e72a4972bd952dae0d003e9f8a",
+      "identity": "1f:7d4e8b32cc6c763e6e59703bda1191a92f1af8e72a4972bd952dae0d003e9f8a"
+    },
+    {
+      "from": "src/record-stance.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-where-i-stand-on-one-of-my-records-agree/src/record-stance.mjs",
+      "source_identity": "1f:53cbeb037670f1e01c13bb791e65a652e9d1a4e1998478047c5f83754b36583a",
+      "identity": "1f:fca2eb785239849140b6b52422bde1349b5eb45c28913876eb8df92d3deebf5a"
+    }
+  ]
+}

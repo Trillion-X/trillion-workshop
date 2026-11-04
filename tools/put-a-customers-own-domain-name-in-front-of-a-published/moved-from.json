@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/saas-domain-provider.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/put-a-customers-own-domain-name-in-front-of-a-published/src/saas-domain-provider.mjs",
+      "source_identity": "1f:9928ea8cd57e54e1c504f3cf99b54d0bbfc79420dac3b7bcd9c994b63a492b8d",
+      "identity": "1f:2e4d1997307f09c74e64bd1bde4827054e5e544e86be7c43038a9ad716140bb4"
+    }
+  ]
+}

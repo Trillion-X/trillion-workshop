@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { buildReceptionist } from '../scripts/portable-receptionist-build.mjs';
+const config = { address: '192.0.2.34', user: 'trillion-identity', remotePort: 18789, localPort: 8789, knownHostsFile: '/private/hosts', adminKeyFile: '/private/key' };
+test('host build streams only the immutable Git source archive to a pinned host', () => {
+  const commit = 'a'.repeat(40), archive = Buffer.from('archive'), calls = [];
+  const result = buildReceptionist(config, { repository: '/source/engine', run: (program, args, options) => {
+    calls.push({ program, args, options });
+    if (args.includes('rev-parse')) return commit;
+    if (args.includes('archive')) return archive;
+    return 'ELF64\nMachine: Advanced Micro Devices X86-64';
+  } });
+  assert.equal(result.commit, commit);
+  assert.deepEqual(calls[1].args, ['-C', '/source/engine', 'archive', '--format=tar', commit]);
+  assert.equal(calls[2].options.input, archive);
+  assert.ok(calls[2].args.includes('StrictHostKeyChecking=yes'));
+  assert.match(calls[2].args.at(-1), /cargo build --locked --bin trillion-mcp-receptionist --release/);
+  assert.ok(!calls[2].args.at(-1).includes('account'));
+});
+test('a malformed commit cannot become a host command', () => {
+  let calls = 0;
+  assert.throws(() => buildReceptionist(config, { repository: '/source/engine', run: () => { calls++; return 'bad; command'; } }), /commit was refused/);
+  assert.equal(calls, 1);
+});
+test('a named revision is resolved to its commit; one shaped like an option never reaches git', () => {
+  const calls = [];
+  buildReceptionist(config, { repository: '/source/engine', revision: 'origin/main', run: (program, args) => {
+    calls.push(args);
+    return args.includes('rev-parse') ? 'b'.repeat(40) : args.includes('archive') ? Buffer.from('archive') : 'ELF64';
+  } });
+  assert.deepEqual(calls[0], ['-C', '/source/engine', 'rev-parse', '--verify', 'origin/main^{commit}']);
+  for (const revision of ['--output=/tmp/x', '', 'main;id']) assert.throws(() => buildReceptionist(config, { repository: '/source/engine', revision, run: () => { throw new Error('reached git'); } }), /revision was refused/);
+});

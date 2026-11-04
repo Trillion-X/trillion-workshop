@@ -986,7 +986,7 @@
     "label": "Split a document into its pieces",
     "status": "active",
     "job": "Split a document into its smallest self-contained pieces and keep each as the row a person keeps, so every check can name the piece it came from",
-    "description": "Give one of the person's files by name (as /folder/file.md, read through their files door page by page, so a file of any size up to 4 MB is never sent in one request body), or the text of a short document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block (``` or ~~~, as CommonMark fences them) under its headings is one piece; titles, rules and table headers are not. Every piece is kept in one call as a row of the person's Checks list (record:check:piece- and the first 24 hex of its identity, kind piece): says (its lead), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line where it starts), and empty groups, kinds and checked_by for the person to fill. A piece already kept keeps its checked_by, no_check, groups and kinds and gains this file as a source; the same text twice is one row with two sources. Every write is conditional on what was read and fits one door message. The answer counts the pieces (new, found again as a source, unchanged), names the first ids and any piece too large for one write; tool:check-every-piece-is-covered then says what each piece lacks.",
+    "description": "Give one of the person's files by name (as /folder/file.md, read through their files door page by page, so a file of any size up to 4 MB is never sent in one request body), or the text of a short document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block (``` or ~~~, as CommonMark fences them) under its headings is one piece; titles, rules and table headers are not. Every piece is kept in one call as a row of the person's Checks list (record:check:piece- and the first 24 hex of its identity, kind piece): says (its lead), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line where it starts), and empty tags, kinds and checked_by for the person to fill. A piece already kept keeps its checked_by, no_check, tags and kinds and gains this file as a source; the same text twice is one row with two sources. Every write is conditional on what was read and fits one door message. The answer counts the pieces (new, found again as a source, unchanged), names the first ids and any piece too large for one write; tool:check-every-piece-is-covered then says what each piece lacks.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -1506,7 +1506,7 @@
            "at": 1
           }
          ],
-         "groups": [],
+         "tags": [],
          "kinds": [],
          "checked_by": [
           "made-up-check"
@@ -1531,7 +1531,7 @@
            "at": 1
           }
          ],
-         "groups": [],
+         "tags": [],
          "kinds": [],
          "checked_by": [],
          "no_check": {
@@ -1557,7 +1557,7 @@
            "at": 1
           }
          ],
-         "groups": [],
+         "tags": [],
          "kinds": [],
          "checked_by": []
         }
