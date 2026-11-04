@@ -131,6 +131,10 @@ settlement or any amount beyond the original reservation. All records remain on
 the invoking seller's own records door; a payer field never selects another
 account. Customer-facing views project only that customer's authorized lines.
 
+## Open
+
+- A buyer who comes back from checkout before their account has a passkey: the older owner answered a signed-out visit to the root, carrying the buyer cookie of a payment its signed event confirmed, with the account page's paid step (`/account?paid`; older owner src/worker.mjs:4225, `confirmedBuyer` :365-371, `heldBuyer` :335). The engine's signed-out root now goes to its sign-in page; the buyer cookie, the confirmed-payment check and that redirect have no owner yet. `post_purchase_route_path` already opens the row's page after paying.
+
 ## Not carried, with the reason
 
 - `stripe-payment-elements`: the secure-field mount, the section list for a screen and the browser Stripe.js confirmation are drawing and browser glue; they belong with the screens, and the only logic in them (redacting key-shaped words) is in `stripe-response-redactor.mjs`.
