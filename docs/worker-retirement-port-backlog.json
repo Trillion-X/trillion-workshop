@@ -3307,8 +3307,8 @@
   {
    "path": "src/box-name.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/secrets.rs",
-   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 467); its one-to-one gaps are listed or still to check there"
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/box-name.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/brand-assets.mjs",
@@ -4825,9 +4825,9 @@
   },
   {
    "path": "src/kept-reads.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/kept-reads.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/layouts-tools.mjs",
@@ -5316,15 +5316,15 @@
   },
   {
    "path": "src/mcp-events.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/mcp-events.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/mcp-events.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/mcp-events.mjs",
+   "why": "the same bytes but for import lines"
   },
   {
    "path": "src/mcp-failure-boundary.mjs",
@@ -5670,8 +5670,8 @@
   {
    "path": "src/namespace-name-counts.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/account_files/names.rs",
-   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 712); its one-to-one gaps are listed or still to check there"
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/namespace-name-counts.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/namespace-name-retirement.mjs",
@@ -5760,9 +5760,9 @@
   },
   {
    "path": "src/namespace-set-aside.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/namespace-set-aside.json, trillion-apps:web/src/namespace-set-aside.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/namespace-sqlite-target.mjs",
@@ -5779,20 +5779,20 @@
   {
    "path": "src/namespace-store.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/account_files/mod.rs",
-   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 710); its one-to-one gaps are listed or still to check there"
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/namespace-store.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/namespace-view.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/namespace-view.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/namespace-view.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/account_files/names.rs",
-   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 712); its one-to-one gaps are listed or still to check there"
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/namespace-view.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/namespace.mjs",
@@ -7166,9 +7166,9 @@
   },
   {
    "path": "src/passkey-authority.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/passkey-authority.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/passkey-authority.mjs",
@@ -7202,15 +7202,15 @@
   },
   {
    "path": "src/password-strength.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/sign-in-with-a-passkey/password-strength.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/passwords.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/sign-in-with-a-passkey/passwords.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/passwords.mjs",
@@ -7985,9 +7985,9 @@
   },
   {
    "path": "src/record-copies.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/record-copies.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/record-copies.mjs",
@@ -8004,9 +8004,9 @@
   },
   {
    "path": "src/record-find.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/record-find.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/record-history.json",
@@ -8056,9 +8056,9 @@
   },
   {
    "path": "src/record-reference.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/record-reference.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/record-replica.mjs",
@@ -9894,8 +9894,8 @@
   {
    "path": "src/time-cursor.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/record_value/list.rs",
-   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1119); its one-to-one gaps are listed or still to check there"
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/time-cursor.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/tool-allowlist.json",
