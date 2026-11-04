@@ -696,6 +696,28 @@
       "source_identity": "1f:c24a0a59a7bef2fbdded783c841c670b8fc50247312adf29712bb65d5c06596e",
       "identity": "1f:c24a0a59a7bef2fbdded783c841c670b8fc50247312adf29712bb65d5c06596e",
       "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-composition/do-work/measure-loudness.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/media-composition/do-work/measure-loudness.mjs",
+      "source_identity": "1f:65668e15efd47b8f0e61750ccb36d3c5688cb0c5cf75c141c46ed31adbdd904e",
+      "identity_at_move": "1f:65668e15efd47b8f0e61750ccb36d3c5688cb0c5cf75c141c46ed31adbdd904e",
+      "byte_copy_commit": "adcf6a5237f07b0ea896d105f9cde2dac24c4e93",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-composition/do-work/render-an-edit.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/media-composition/do-work/render-an-edit.mjs",
+      "source_identity": "1f:e41d4abc92a5ef92d2e2012621f471ca4bf48ffcd78eb593d065c4c60a4d7d63",
+      "identity_at_move": "1f:e41d4abc92a5ef92d2e2012621f471ca4bf48ffcd78eb593d065c4c60a4d7d63",
+      "byte_copy_commit": "adcf6a5237f07b0ea896d105f9cde2dac24c4e93",
+      "changed": true,
+      "found_by": "same bytes"
     }
   ],
   "values": [
