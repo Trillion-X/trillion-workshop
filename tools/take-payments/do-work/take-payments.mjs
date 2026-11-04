@@ -225,4 +225,5 @@ export async function rehearseASchedule(input, context) {
   return rehearseAPaymentSchedule(input, context.send ?? makeStripeSender({ key }));
 }
 
+export { observeLiveUsage } from './live-usage.mjs';
 export { reportResourceUsage, readResourceUsageReport, reconcileResourceUsageReport, cancelPreparedResourceUsageReport } from './resource-usage-reporting.mjs';

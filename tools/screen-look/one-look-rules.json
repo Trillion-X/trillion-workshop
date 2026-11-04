@@ -1,0 +1,1081 @@
+{
+  "about": "What every screen, page, widget and native view must take from the selected screen look, read by scripts/check-one-look.mjs on every commit, every deploy and every UI edit an AI makes. A rule is DATA: kind says which reading applies (a declaration's value, a style block, or a line), the patterns say what is refused, says is the words the refusal shows. A file kept apart on purpose is a row in kept, with why; a kept row whose file no longer breaks the rule is itself a finding, so the list cannot rot.",
+  "roots": [
+    "parts",
+    "computer",
+    "src",
+    "extension",
+    "ios",
+    "macos",
+    "records"
+  ],
+  "file_pattern": "\\.(?:css|mjs|js|ts|tsx|html|json|swift)$",
+  "skip_pattern": "(?:^|/)(?:node_modules|dist|vendor|third_party|\\.build|build|DerivedData)/|\\.test\\.|\\.d\\.ts$|(?:^|/)test/|-tests\\.json$|package(?:-lock)?\\.json$|^parts/ui/show/private-copy-guard/accepted-existing\\.json$",
+  "rules": [
+    {
+      "id": "font-not-from-look",
+      "kind": "declaration",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "html"
+      ],
+      "property": "(?<![\\w-])font-family\\s*:\\s*",
+      "allowed_value": "^\\s*(?:var\\(--|inherit\\b|\\$\\{)",
+      "says": "A font is taken from the screen look: font-family: var(--font-primary) for text, var(--font-display) for titles and quotes (var(--page-font) / var(--page-display) on server pages), never a face named in place.",
+      "skip_within": "@font-face\\s*$"
+    },
+    {
+      "id": "font-not-from-look",
+      "kind": "declaration",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "html"
+      ],
+      "property": "(?<![\\w-])fontFamily\\s*(?::|=(?!=))\\s*",
+      "allowed_value": "^(?!['\"`])|^['\"`]\\s*(?:var\\(--|inherit\\b|\\$\\{)",
+      "says": "A font is taken from the screen look: font-family: var(--font-primary) for text, var(--font-display) for titles and quotes (var(--page-font) / var(--page-display) on server pages), never a face named in place.",
+      "skip_within": "@font-face\\s*$"
+    },
+    {
+      "id": "font-not-from-look",
+      "kind": "declaration",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "html"
+      ],
+      "property": "(?<![\\w-])font\\s*:\\s*",
+      "allowed_value": "^\\s*(?:inherit|initial|unset|var\\(--)|^[^;}\\n'\"`]*var\\(--font-",
+      "refused_value": "^[^;}\\n]*?(?:'[A-Z]|\"[A-Z]|\\b(?:serif|sans-serif|monospace|cursive|system-ui|ui-serif|ui-sans-serif|ui-monospace|-apple-system|Georgia|Arial|Helvetica|Menlo|Times)\\b)",
+      "says": "A font shorthand takes its face from the screen look too: font: 600 1rem var(--font-primary), never a face named in place."
+    },
+    {
+      "id": "font-not-from-look",
+      "kind": "json-value",
+      "languages": [
+        "json"
+      ],
+      "key": "^(?:font|fontFamily|font_family|[a-z_]+_font)$",
+      "allowed_value": "^(?:var\\(--|--font-|inherit$)",
+      "says": "A font named in DATA is taken from the screen look (var(--font-primary) or var(--font-display)); only the look's own themes name faces."
+    },
+    {
+      "id": "font-not-from-look",
+      "kind": "line",
+      "languages": [
+        "swift"
+      ],
+      "pattern": "Font\\.custom\\(|\\.font\\(\\.custom\\(|UIFont\\(name:|NSFont\\(name:|design:\\s*\\.(?:serif|rounded|monospaced)|\\.fontDesign\\(",
+      "says": "A native font comes from the look's type scale (Typeface in ios/Shared/Look.swift): never Font.custom, a named UIFont/NSFont, or a serif/rounded/monospaced system design."
+    },
+    {
+      "id": "accent-bar-card",
+      "kind": "declaration",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "html"
+      ],
+      "property": "(?<![\\w-])(?:border-left|border-inline-start|borderLeft|borderInlineStart)\\s*:\\s*|(?<![\\w-])(?:border-left-width|border-inline-start-width|borderLeftWidth)\\s*:\\s*",
+      "says": "No card wears a coloured bar down its left side. Show what matters with the look's own surfaces: a tinted card, a status mark, a count, or the nesting guide beside an open list (ui/show/nesting-guide).",
+      "min_width_px": 2
+    },
+    {
+      "id": "accent-bar-card",
+      "kind": "line",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "html"
+      ],
+      "pattern": "(?<![\\w-])border-[ls]-(?:[2-9]|\\[[2-9])|box-shadow\\s*:\\s*inset\\s+[2-9]\\d*(?:px)?\\s+0\\s+0|\\[box-shadow:inset_[2-9]",
+      "says": "No card wears a coloured bar down its left side. Show what matters with the look's own surfaces: a tinted card, a status mark, a count, or the nesting guide beside an open list (ui/show/nesting-guide)."
+    },
+    {
+      "id": "accent-bar-card",
+      "kind": "block",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "html"
+      ],
+      "selector": "::?(?:before|after)\\b",
+      "all": [
+        "(?<![\\w-])width\\s*:\\s*[3-6]px",
+        "(?<![\\w-])(?:top|inset-block)\\s*:",
+        "(?<![\\w-])(?:bottom|inset-block)\\s*:",
+        "(?<![\\w-])background(?:-color)?\\s*:"
+      ],
+      "says": "No card or row wears a coloured bar down its side (here drawn as a ::before/::after strip). Mark it with the look's own surfaces instead."
+    },
+    {
+      "id": "accent-bar-card",
+      "kind": "line",
+      "languages": [
+        "swift"
+      ],
+      "pattern": "\\.fill\\([^)]*\\)\\s*\\.frame\\(width:\\s*[1-6](?:\\.\\d+)?\\s*\\)",
+      "says": "No native card wears a coloured bar down its side. Mark it with the look's own surfaces (Glass, a status symbol)."
+    },
+    {
+      "id": "raw-coloured-button",
+      "kind": "block",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "html"
+      ],
+      "selector": "(?:button|-btn\\b|\\bbtn\\b|-action\\b|-cta\\b|-do-form\\b|\\[role=['\"]?button)",
+      "unless": "var\\(--button-(?:highlight|primary-bg)",
+      "says": "A filled button is drawn by the shared button (parts/ui Button, or a server page's .page-action), which wears the look's face: its fill, the highlight line along the top and the shadow under it. Never paint a raw colour onto a button.",
+      "declaration": "(?<![\\w-])background(?:-color)?\\s*:\\s*([^;}]*)",
+      "allowed_value": "^\\s*(?:transparent|none|inherit|initial|unset|currentColor|var\\(--(?:button-|page-accent|page-good|page-bad))",
+      "refused_value": "^\\s*(?:#[0-9a-fA-F]{3,8}\\b|rgba?\\((?!\\s*(?:255\\s*,\\s*255\\s*,\\s*255|0\\s*,\\s*0\\s*,\\s*0)\\s*,)|hsla?\\(|(?:red|crimson|tomato|black|white)\\b|var\\(--(?:color-(?:primary|destructive|danger|error)|accent-primary|primary|accent|danger|error|red)\\b)"
+    },
+    {
+      "id": "raw-coloured-button",
+      "kind": "swift-type",
+      "languages": [
+        "swift"
+      ],
+      "declares": "struct\\s+\\w+\\s*:\\s*(?:Primitive)?ButtonStyle",
+      "fills": "\\.background\\(|\\.fill\\(",
+      "unless": "\\.buttonFace\\(",
+      "says": "A native button style that fills its button draws the look's face with .buttonFace() (ios/Shared/ButtonFace.swift): fill, border, the highlight line along the top and the shadow."
+    },
+    {
+      "id": "raw-coloured-button",
+      "kind": "tag",
+      "languages": [
+        "tsx",
+        "jsx"
+      ],
+      "tag": "<button\\b(?:=>|[^>])*>",
+      "refused": "(?<![\\w-])(?:[a-z-]+:)*bg-(?:(?:primary|destructive)(?![\\w-])(?!/)|(?:red|rose|pink|orange|amber|yellow|lime|green|emerald|teal|cyan|blue|sky|indigo|violet|purple|fuchsia|slate|gray|zinc|neutral|stone)-\\d+|\\[(?:#|rgb|hsl|var\\(--(?:accent-primary|color-primary|primary|color-destructive|accent)\\b))",
+      "says": "A filled button is the shared Button (parts/ui/show/button), which wears the look's face: its fill, the highlight line along the top and the shadow. A hand-built <button> never paints a raw or accent colour of its own; status tints use the look's status tokens (bg-status-error/10)."
+    },
+    {
+      "id": "raw-coloured-button",
+      "kind": "line",
+      "languages": [
+        "ts",
+        "tsx"
+      ],
+      "pattern": "^\\s*['\"]?[\\w-]+['\"]?\\s*:\\s*'(?=[^']*hover:)(?![^']*--button-highlight)[^']*(?<![\\w:/\\[-])bg-(?:status-error|status-success|status-warning|primary|destructive|(?:red|rose|green|emerald|blue)-\\d+)(?![\\w/-])[^']*'",
+      "says": "A filled button variant wears the look's face: its fill with bg-[image:var(--button-sheen)] and shadow-[var(--button-highlight),var(--button-shadow)], never a bare colour."
+    },
+    {
+      "id": "face-erased-by-focus",
+      "kind": "line",
+      "languages": [
+        "ts",
+        "tsx",
+        "mjs",
+        "js"
+      ],
+      "pattern": "\\[box-shadow:\\s*var\\(--button-",
+      "says": "A button's face is Tailwind's shadow, shadow-[var(--button-highlight),var(--button-shadow)], never a raw [box-shadow:...]: a focus ring replaces a raw box-shadow, so every autofocused or keyboard-focused button turns flat."
+    },
+    {
+      "id": "label-keeps-its-case",
+      "kind": "declaration",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "jsx",
+        "html"
+      ],
+      "property": "(?<![\\w-])text-transform\\s*:\\s*",
+      "refused_value": "^\\s*['\"`]?uppercase",
+      "says": "A label keeps the case its words were written in: never text-transform: uppercase, a Tailwind uppercase class, textTransform 'uppercase' or Swift .uppercased()/.textCase(.uppercase) on shown words. Write the label in sentence case and let the look set its size and colour."
+    },
+    {
+      "id": "label-keeps-its-case",
+      "kind": "declaration",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "jsx",
+        "html"
+      ],
+      "property": "(?<![\\w-])textTransform\\s*(?::|=(?!=))\\s*",
+      "refused_value": "^\\s*['\"`]uppercase",
+      "says": "A label keeps the case its words were written in: never text-transform: uppercase, a Tailwind uppercase class, textTransform 'uppercase' or Swift .uppercased()/.textCase(.uppercase) on shown words. Write the label in sentence case and let the look set its size and colour."
+    },
+    {
+      "id": "label-keeps-its-case",
+      "kind": "line",
+      "languages": [
+        "tsx",
+        "jsx",
+        "ts",
+        "mjs",
+        "js",
+        "html"
+      ],
+      "pattern": "['\"`][^'\"`\\n]*(?<![\\w:/-])uppercase(?![\\w-])[^'\"`\\n]*['\"`]",
+      "says": "A label keeps the case its words were written in: never text-transform: uppercase, a Tailwind uppercase class, textTransform 'uppercase' or Swift .uppercased()/.textCase(.uppercase) on shown words. Write the label in sentence case and let the look set its size and colour."
+    },
+    {
+      "id": "label-keeps-its-case",
+      "kind": "line",
+      "languages": [
+        "tsx",
+        "jsx",
+        "ts"
+      ],
+      "pattern": "variant=[\"']overline[\"']|variant:\\s*['\"]overline['\"]",
+      "says": "A label keeps the case its words were written in: never text-transform: uppercase, a Tailwind uppercase class, textTransform 'uppercase' or Swift .uppercased()/.textCase(.uppercase) on shown words. Write the label in sentence case and let the look set its size and colour."
+    },
+    {
+      "id": "label-keeps-its-case",
+      "kind": "line",
+      "languages": [
+        "swift"
+      ],
+      "pattern": "Text\\([^)]*\\.uppercased\\(\\)|\\.textCase\\(\\s*\\.uppercase\\s*\\)",
+      "says": "A label keeps the case its words were written in: never text-transform: uppercase, a Tailwind uppercase class, textTransform 'uppercase' or Swift .uppercased()/.textCase(.uppercase) on shown words. Write the label in sentence case and let the look set its size and colour."
+    },
+    {
+      "id": "label-keeps-its-case",
+      "kind": "json-value",
+      "languages": [
+        "json"
+      ],
+      "key": "^(?:text_transform|textTransform|text-transform)$",
+      "allowed_value": "^(?!uppercase)",
+      "says": "A label keeps the case its words were written in: never text-transform: uppercase, a Tailwind uppercase class, textTransform 'uppercase' or Swift .uppercased()/.textCase(.uppercase) on shown words. Write the label in sentence case and let the look set its size and colour."
+    },
+    {
+      "id": "no-eyebrow",
+      "kind": "line",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "jsx",
+        "html",
+        "json",
+        "swift"
+      ],
+      "pattern": "[Ee]yebrow|EYEBROW",
+      "says": "No eyebrow: a small line above a heading only restates or labels it. Say it in the heading, or leave it out; a component never offers an eyebrow slot and DATA never carries one."
+    },
+    {
+      "id": "values-through-the-value-view",
+      "kind": "line",
+      "languages": [
+        "tsx",
+        "jsx"
+      ],
+      "pattern": "JSON\\.stringify\\([^\\n]*,\\s*null\\s*,\\s*(?:\\d|['\"])|(?:value|defaultValue|title|label|detail|description|placeholder|children)=\\{[^}\\n]*JSON\\.stringify|>\\s*\\{\\s*JSON\\.stringify|\\?\\?\\s*JSON\\.stringify\\(|`[^`\\n]*\\$\\{[^}\\n]*JSON\\.stringify\\([^`\\n]*`\\)\\s*$|: JSON\\.stringify\\((?:value|error|row\\[key\\]|outcome)\\)",
+      "says": "Values are shown through the shared value view (parts/ui SchemaValueView, which picks a designed view from the value's shape in result-views.json), never as JSON text: no pretty-printed JSON.stringify and no JSON.stringify in shown words. There is no raw-data disclosure; a machine field is not shown."
+    },
+    {
+      "id": "values-through-the-value-view",
+      "kind": "line",
+      "languages": [
+        "mjs",
+        "ts",
+        "js",
+        "html"
+      ],
+      "pattern": "<pre[^>]*>\\$\\{[^}\\n]*JSON\\.stringify|escape\\w*\\(JSON\\.stringify\\([^)\\n]*,\\s*null",
+      "says": "Values are shown through the shared value view (parts/ui SchemaValueView, which picks a designed view from the value's shape in result-views.json), never as JSON text: no pretty-printed JSON.stringify and no JSON.stringify in shown words. There is no raw-data disclosure; a machine field is not shown."
+    },
+    {
+      "id": "initials-only-from-the-person-mark",
+      "kind": "line",
+      "languages": [
+        "tsx",
+        "jsx",
+        "ts",
+        "mjs",
+        "js"
+      ],
+      "pattern": "\\binitials(?:Of)?\\s*\\(|AvatarFallback[^>\\n]*>\\s*\\{",
+      "says": "Initials are drawn only for people and only by the shared person mark (parts/ui/show/display-mark/DisplayMark.tsx), whose shape and colour come from the look. A thing (a tool, a run, a course, a space) shows its picture or icon, never letters in a circle, and no screen styles its own round avatar."
+    },
+    {
+      "id": "initials-only-from-the-person-mark",
+      "kind": "block",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "html"
+      ],
+      "selector": "avatar|initials|monogram",
+      "all": [
+        "(?<![\\w-])border-radius\\s*:\\s*(?:50%|100%|9{3,4}px|999rem)"
+      ],
+      "says": "Initials are drawn only for people and only by the shared person mark (parts/ui/show/display-mark/DisplayMark.tsx), whose shape and colour come from the look. A thing (a tool, a run, a course, a space) shows its picture or icon, never letters in a circle, and no screen styles its own round avatar."
+    },
+    {
+      "id": "initials-only-from-the-person-mark",
+      "kind": "line",
+      "languages": [
+        "swift"
+      ],
+      "pattern": "initials",
+      "says": "Initials are drawn only for people and only by the shared person mark (parts/ui/show/display-mark/DisplayMark.tsx), whose shape and colour come from the look. A thing (a tool, a run, a course, a space) shows its picture or icon, never letters in a circle, and no screen styles its own round avatar."
+    },
+    {
+      "id": "strong-action-wears-the-accent",
+      "kind": "json-tokens",
+      "languages": [
+        "json"
+      ],
+      "when_token": "--accent-primary",
+      "token": "--button-primary-bg",
+      "says": "A look that names an accent fills its strong action with exactly that accent: --button-primary-bg is the --accent-primary value itself (Trillion's thread red), never a deeper red, ink or white, and its words (--button-primary-text) are white when white reaches 3 to 1 on it (the bar for bold text, so the strong label is semibold), else black. Destructive actions never fill (destructive-is-never-a-fill) and wear --color-error, a different red, so the two never look alike.",
+      "equals_token": "--accent-primary",
+      "contrast_with_token": "--button-primary-text",
+      "min_contrast": 3
+    },
+    {
+      "id": "destructive-is-never-a-fill",
+      "kind": "line",
+      "languages": [
+        "ts",
+        "tsx"
+      ],
+      "pattern": "^\\s*['\"]?(?:danger|destructive)['\"]?\\s*:\\s*['\"][^'\"]*(?<![\\w:/\\[-])bg-(?:status-error|destructive|red-\\d+)(?![\\w/-])",
+      "says": "A destructive button is the look's danger colour in its words and edge on a neutral face, never a fill: the only filled button is the strong action, which wears the look's accent."
+    },
+    {
+      "id": "step-mark-from-the-shared-part",
+      "kind": "line",
+      "languages": [
+        "tsx",
+        "jsx"
+      ],
+      "pattern": "\\?\\s*<(?:Check|CheckIcon|CircleCheck|CheckCircle\\w*)\\b[^>]*/>\\s*:\\s*\\(?\\s*(?:index|idx|i|n|number|position)\\b",
+      "says": "A step's number-or-tick mark is the shared step mark (parts/ui/show/step-mark StepMark) or, for steps the person ticks, the shared steps checklist; no screen draws its own circle, tick or colour for a step."
+    },
+    {
+      "id": "step-mark-from-the-shared-part",
+      "kind": "line",
+      "languages": [
+        "css"
+      ],
+      "pattern": "^\\s*[^{]*\\.[\\w-]*step-?(?:marker|number|bullet|circle)\\b[^{]*\\{",
+      "says": "A step's number-or-tick mark is the shared step mark (parts/ui/show/step-mark StepMark, its look screen-look/show/step-mark.css); no screen styles its own step circle."
+    },
+    {
+      "id": "step-mark-from-the-shared-part",
+      "kind": "line",
+      "languages": [
+        "css"
+      ],
+      "pattern": "^\\s*[^{]*guide-status\\[data-tone=\"good\"\\][^{]*\\{[^}]*(?::\\s*|srgb,\\s*)#[0-9a-fA-F]{3,8}\\b",
+      "says": "A guide row's done status (tone good) wears the shared step mark (StepMark, state done) and the look's success token; no screen paints its own green dot, circle or tick."
+    },
+    {
+      "id": "colour-literal-outside-the-look",
+      "kind": "literal",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "html"
+      ],
+      "files": "scan",
+      "files_also": [
+        "^parts/screen-look/show/[^/]+\\.css$"
+      ],
+      "pattern": "(?<!var\\(--[\\w-]+,[^;{})]*)(?<![\\w&(\"'/-])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\\w-])|(?<!var\\(--[\\w-]+,[^;{})]*)\\b(?:rgba?|hsla?|hwb|oklch|oklab|lab|lch)\\(\\s*[\\d.][^)]*\\)|(?<![\\w-])(?:color|background(?:-color)?|border(?:-(?:top|right|bottom|left))?(?:-color)?|outline(?:-color)?|fill|stroke|caret-color|accent-color)\\s*:\\s*(?:white|black|red|green|blue|gray|grey|orange|yellow|purple|pink|navy|silver)\\b",
+      "says": "A colour is taken from the screen look: var(--bg-primary), var(--text-primary), var(--border-primary), var(--button-primary-bg), var(--color-success) and the other look variables (a tint is color-mix(in srgb, var(--text-primary) 12%, transparent)), never a hex, rgb(), hsl() or named colour written in place. If this surface truly has no look variable, add a kept row with why."
+    },
+    {
+      "id": "font-literal-outside-the-look",
+      "kind": "literal",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "html"
+      ],
+      "files": "scan",
+      "pattern": "(?<![\\w-])(?:fontFamily\\s*:\\s*['\"`](?!var\\()[^'\"`]*|font-family\\s*:(?!\\s*(?:var\\(--|inherit\\b|\\$\\{|initial\\b|unset\\b))[^;}\\n]+|font\\s*:\\s*[^;}\\n]*['\"][^;}\\n]*)",
+      "says": "A font is taken from the screen look: var(--font-primary) for text, var(--font-display) for titles, var(--font-mono) for code, never a face named in place, in a font-family, fontFamily or font shorthand."
+    },
+    {
+      "id": "button-corner-literal-outside-the-look",
+      "kind": "block",
+      "languages": [
+        "css",
+        "mjs",
+        "js",
+        "ts",
+        "tsx",
+        "html"
+      ],
+      "files": "scan",
+      "selector": "(?:^|[\\s,>+~])(?:button\\b|a\\.btn\\b|input\\[type=\"?(?:submit|button)\"?\\])|\\[role=\"?button\"?\\]|\\.[\\w-]*(?:btn|button|-send|-cta|-action)(?![\\w-]*__)[\\w-]*(?:\\s*[:{,]|$)|\\.[\\w-]*(?:btn|button)[\\w-]*",
+      "declaration": "(?<![\\w-])border-radius\\s*:\\s*([^;}]+)",
+      "refused_value": "^\\s*(?!var\\(|inherit\\b|\\$\\{|0\\s*$)[\\d.]",
+      "says": "A button wears the look's corner: border-radius: var(--radius-control) (var(--radius-pill) for a pill), never a radius written in px, rem or %. If it truly has none, add a kept row with why."
+    },
+    {
+      "id": "check-shape-not-from-look",
+      "kind": "block",
+      "languages": [
+        "css"
+      ],
+      "files": [
+        "^parts/screen-look/show/[^/]+\\.css$"
+      ],
+      "selector": "(?:\\[data-slot=['\"]?(?:checkbox|radio|switch)\\b|-(?:check|checkbox|radio|switch)(?![\\w-]))",
+      "declaration": "(?<![\\w-])border-radius\\s*:\\s*([^;}]*)",
+      "allowed_value": "^\\s*(?:var\\(--|inherit\\b|0(?![\\d.]))",
+      "refused_value": "^\\s*-?[\\d.]",
+      "says": "A check, radio or switch takes its corner from the screen look: border-radius: var(--radius-check) (a token of the look, set per look by its checkBorderRadius; var(--radius-pill) for a deliberate circle), never a length typed on one screen."
+    },
+    {
+      "id": "check-offset-not-from-look",
+      "kind": "block",
+      "languages": [
+        "css"
+      ],
+      "files": [
+        "^parts/screen-look/show/[^/]+\\.css$"
+      ],
+      "selector": "(?:\\[data-slot=['\"]?(?:checkbox|radio|switch)\\b|-(?:check|checkbox|radio|switch)(?![\\w-]))",
+      "declaration": "(?<![\\w-])margin(?:-(?:top|bottom|block|block-start|block-end))?\\s*:\\s*([^;}]*)",
+      "allowed_value": "^\\s*(?:var\\(--|inherit\\b|0(?![\\d.])|(?:calc|max|min)\\([^;}]*var\\(--)",
+      "refused_value": "^\\s*-?[\\d.]*[1-9]",
+      "says": "A check beside text is centred on the text's first line by the shared rule in control-beside-text.css: mark the row data-control-row and set --first-line-size / --first-line-leading on it. Never type a margin offset on the control."
+    },
+    {
+      "id": "no-randomness-at-module-load",
+      "kind": "module-load",
+      "languages": [
+        "mjs",
+        "js",
+        "ts",
+        "tsx"
+      ],
+      "files": [
+        "^(?:src|parts|computer)/"
+      ],
+      "pattern": "\\bcrypto\\.randomUUID\\s*\\(|\\bMath\\.random\\s*\\(|\\bgetRandomValues\\s*\\(",
+      "says": "A module makes no random value when it loads: the Worker refuses crypto.randomUUID(), Math.random() and getRandomValues() outside a request, so a new account's deploy breaks at load. Make the id on first use (a function that makes it once and keeps it), never in a top-level const."
+    }
+  ],
+  "kept": [
+    {
+      "file": "parts/page-critic/do-work/critique-a-page.mjs",
+      "rule": "label-keeps-its-case",
+      "why": "The page critic looks for shouting labels on a page; it names the uppercase transform to find it, it never draws one."
+    },
+    {
+      "file": "parts/page-critic/do-work/critique-a-page.mjs",
+      "rule": "no-eyebrow",
+      "why": "The page critic finds eyebrows on a page and refuses them; naming them is how it finds them."
+    },
+    {
+      "file": "parts/page-critic/read-data/page-craft-rules.json",
+      "rule": "no-eyebrow",
+      "why": "The page critic's own rule that refuses eyebrows on a page."
+    },
+    {
+      "file": "parts/screen-look/one-look-rules.json",
+      "rule": "no-eyebrow",
+      "why": "This file holds the rule that refuses eyebrows, so it names them."
+    },
+    {
+      "file": "parts/ui/show/display-mark/DisplayMark.tsx",
+      "rule": "initials-only-from-the-person-mark",
+      "why": "The shared person mark: the one place a person's initials are made."
+    },
+    {
+      "file": "parts/ui/show/structured-value-editor/StructuredValueEditor.tsx",
+      "rule": "values-through-the-value-view",
+      "why": "The shared field editor: its raw text is the explicit Edit as text disclosure, for shapes fields cannot express."
+    },
+    {
+      "file": "src/workspace/media-edit-screen.tsx",
+      "rule": "values-through-the-value-view",
+      "why": "Writes an edit list into the person's files as a JSON file; the text is the file's bytes, never shown on a screen."
+    },
+    {
+      "file": "src/workspace/public-app-assembly-panel.tsx",
+      "rule": "values-through-the-value-view",
+      "why": "Downloads a site project as a JSON file; the text is the file's bytes, never shown on a screen."
+    },
+    {
+      "file": "src/workspace/public-app-source-panel.tsx",
+      "rule": "values-through-the-value-view",
+      "why": "Downloads a site project as a JSON file; the text is the file's bytes, never shown on a screen."
+    },
+    {
+      "file": "records/client-examples/longevity/index.html",
+      "rule": "no-eyebrow",
+      "why": "A client's own site, in the design made with them for their business: their page's look, not Trillion's screen."
+    },
+    {
+      "file": "records/client-examples/longevity/styles.css",
+      "rule": "no-eyebrow",
+      "why": "A client's own site, in the design made with them for their business: their page's look, not Trillion's screen."
+    },
+    {
+      "file": "records/client-examples/longevity/styles.css",
+      "rule": "label-keeps-its-case",
+      "why": "A client's own site, in the design made with them for their business: their page's look, not Trillion's screen."
+    },
+    {
+      "file": "records/client-examples/bakery/index.html",
+      "rule": "no-eyebrow",
+      "why": "A client's own site, in the design made with them for their business: their page's look, not Trillion's screen."
+    },
+    {
+      "file": "records/client-examples/bakery/styles.css",
+      "rule": "no-eyebrow",
+      "why": "A client's own site, in the design made with them for their business: their page's look, not Trillion's screen."
+    },
+    {
+      "file": "records/client-examples/bakery/styles.css",
+      "rule": "label-keeps-its-case",
+      "why": "A client's own site, in the design made with them for their business: their page's look, not Trillion's screen."
+    },
+    {
+      "file": "records/client-examples/sports-club/index.html",
+      "rule": "no-eyebrow",
+      "why": "A client's own site, in the design made with them for their business: their page's look, not Trillion's screen."
+    },
+    {
+      "file": "records/client-examples/sports-club/styles.css",
+      "rule": "no-eyebrow",
+      "why": "A client's own site, in the design made with them for their business: their page's look, not Trillion's screen."
+    },
+    {
+      "file": "records/client-examples/sports-club/styles.css",
+      "rule": "label-keeps-its-case",
+      "why": "A client's own site, in the design made with them for their business: their page's look, not Trillion's screen."
+    },
+    {
+      "file": "parts/media-composition/read-data/caption-styles.json",
+      "rule": "font-not-from-look",
+      "why": "The faces a person can burn into their own video's captions: their video's look, chosen per video, not Trillion's screen."
+    },
+    {
+      "file": "parts/group/show/appearance-preset-catalog.ts",
+      "rule": "font-not-from-look",
+      "why": "A hand-drawn board preset a person picks for their own board's contents (like a whiteboard marker), not Trillion's screen."
+    },
+    {
+      "file": "parts/page-critic/do-work/critique-a-page.mjs",
+      "rule": "font-not-from-look",
+      "why": "Numbers drawn onto any page being critiqued (someone else's site) for the critic's picture; it never shows on a Trillion screen."
+    },
+    {
+      "file": "parts/ui/show/date-picker/DatePicker.tsx",
+      "rule": "raw-coloured-button",
+      "why": "The chosen day of the shared date picker is marked in the look's accent; it is a selection mark inside a grid, not a button that does something."
+    },
+    {
+      "file": "records/client-examples/sign-up/styles.css",
+      "rule": "font-not-from-look",
+      "why": "A client's own site, set in the client's own brand faces, not Trillion's look."
+    },
+    {
+      "file": "records/client-examples/bakery/styles.css",
+      "rule": "font-not-from-look",
+      "why": "A client's own site, set in the client's own brand faces, not Trillion's look."
+    },
+    {
+      "file": "ios/Shared/Look.swift",
+      "rule": "font-not-from-look",
+      "why": "The look's own type scale: LookFaces names the face the palette's faces carry (Recoleta for titles), the one place a native screen's font is decided."
+    },
+    {
+      "file": "parts/public-sales-page/read-data/sales-page.mjs",
+      "rule": "colour-literal-outside-the-look",
+      "values": [
+        "#111111"
+      ],
+      "why": "A sample colour written inside the words an author reads when a palette entry is not a colour; it is never painted. The sales page itself wears the business's own three colours (--page-bg, --page-ink, --page-accent), not a Trillion look."
+    },
+    {
+      "file": "parts/screen-look/show/coss-workspace.css",
+      "rule": "colour-literal-outside-the-look",
+      "values": [
+        "#6b9cf2",
+        "#4fbf8a",
+        "#a98bf2",
+        "#e2b340",
+        "#3fc1b0",
+        "#9aa0a6",
+        "#e8736b",
+        "#ec9a4c",
+        "#e27bb4"
+      ],
+      "why": "The nine record-kind hues (--record-kind-blue .. pink). A kind's colour names the kind, the same in every look, so no look variable carries it; the look owns only the neutral ground they sit on."
+    },
+    {
+      "file": "parts/screen-look/show/public-share.css",
+      "rule": "colour-literal-outside-the-look",
+      "values": [
+        "rgba(255, 255, 255, .88)",
+        "#fff",
+        "rgba(255, 255, 255, .22)",
+        "rgba(255, 255, 255, .18)",
+        "rgba(15, 15, 15, .85)",
+        "rgba(255, 255, 255, .82)",
+        "rgba(255, 255, 255, .15)"
+      ],
+      "why": "The transcript and caption chrome drawn over the video in the full-screen player. The media player part paints that ground dark itself (parts/media-playback), and no look variable is always-dark, so white-over-video cannot follow a light look."
+    },
+    {
+      "file": "src/workspace/workspace.css",
+      "rule": "colour-literal-outside-the-look",
+      "values": [
+        "#101714"
+      ],
+      "why": "The dark letterbox behind a photo or video in the file carousel. A picture is judged on a dark ground whatever the look, and no look variable is always-dark."
+    },
+    {
+      "file": "parts/screen-look/show/app-navigation.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#6c4cf4",
+        "#eee9ff",
+        "#2fb69b",
+        "#cc645e",
+        "rgba(66,57,44,.08)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/candidate-field.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#0001"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/canvas-dock.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#000"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/card-layouts.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#000c",
+        "#000a",
+        "#000d",
+        "#000"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/catch-up.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#16865c",
+        "#0f6b48",
+        "#d97706",
+        "#92400e",
+        "#b42318",
+        "#2563eb",
+        "#1d4ed8"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/chart.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#eb6834",
+        "#1baf7a",
+        "#eda100",
+        "#e87ba4",
+        "#008300",
+        "#4a3aa7",
+        "#e34948",
+        "#0ca30c",
+        "#fab219",
+        "#d03b3b",
+        "#2a78d6",
+        "#b9b8b2",
+        "#d95926",
+        "#199e70",
+        "#c98500",
+        "#d55181",
+        "#9085e9",
+        "#e66767",
+        "rgb(0 0 0 / 0.12)",
+        "#fff",
+        "#000"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/chat-thread.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "rgb(0 0 0 / 0.04)",
+        "rgb(0 0 0 / 0.08)",
+        "rgb(0 0 0 / 0.12)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/composer.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "rgb(46 35 85 / 8%)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/dashboard.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#16865c",
+        "#d97706",
+        "rgb(0 0 0 / 0.06)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/delight-moment.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "rgba(0,0,0,.45)",
+        "#1b1c1f",
+        "#f2c14e",
+        "#ff8a5b",
+        "#b08cff",
+        "#4fcf94"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/document-editor.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "rgb(0 0 0 / 12%)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/edge-fade.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#000"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/file-preview.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#fff",
+        "rgb(0 0 0 / 0.08)",
+        "#f4f4f5"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/floating-menus.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "rgb(0 0 0 / 0.12)",
+        "rgb(0 0 0 / 0.32)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/frames-canvas.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "rgb(0 0 0 / 0.08)",
+        "rgb(0 0 0 / 0.25)",
+        "color: white",
+        "rgb(0 0 0 / 0.12)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/guide.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#d97706",
+        "#92400e",
+        "#b42318",
+        "#2563eb",
+        "#f5b400",
+        "#7a5a00",
+        "#9aa4b2",
+        "#4a5361",
+        "#c7773a",
+        "#7a3f12",
+        "#16865c",
+        "rgba(0, 0, 0, 0.06)",
+        "rgba(0, 0, 0, 0.1)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/hover-preview.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#000"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/listing-card.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#16865c",
+        "#d97706",
+        "#b42318",
+        "#2563eb",
+        "#0f6b48",
+        "#92400e",
+        "#1d4ed8"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/live-composition.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#000",
+        "#0009"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/media-preview.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "rgb(255 255 255 / 0.42)",
+        "#fff",
+        "rgb(255 255 255 / 0.08)",
+        "rgb(255 255 255 / 0.9)",
+        "rgb(0 0 0 / 0.25)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/media-review.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#171717",
+        "#0009",
+        "#fff7",
+        "#e4ae4e",
+        "#000",
+        "#252525",
+        "#fff",
+        "#922",
+        "#138457",
+        "color:white",
+        "#b83239",
+        "#0002",
+        "#a999ff",
+        "#2228",
+        "#222d",
+        "#7662dd",
+        "#222"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/mention-field.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "rgb(0 0 0 / 12%)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/mention-picker.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#000"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/navigation-preview.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "rgb(0 0 0/.55)",
+        "rgb(0 0 0/.28)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/notifications.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#6aa8ff",
+        "#4fcf94",
+        "#ff6b6b",
+        "#f2c14e",
+        "#b08cff",
+        "#a3a9b1",
+        "#000",
+        "#fff",
+        "rgb(0 0 0/.55)",
+        "rgb(0 0 0/.35)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/public-app-editor.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "rgb(0 0 0 / 0.08)",
+        "rgb(0 0 0 / 0.25)",
+        "color: white",
+        "rgb(0 0 0 / 0.12)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/scan-code.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#fff"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/step-mark.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#fff"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/switch.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "oklch(0 0 0 / 0.05)",
+        "oklch(0 0 0 / 0.1)",
+        "#fff",
+        "oklch(0 0 0 / 0.08)",
+        "oklch(0 0 0 / 0.12)",
+        "oklch(0 0 0 / 0.18)"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/usage-meter.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#3b82f6",
+        "#8b5cf6",
+        "#ec4899",
+        "#f59e0b",
+        "#10b981",
+        "#06b6d4",
+        "#ef4444",
+        "#84cc16",
+        "#a16207",
+        "#64748b"
+      ]
+    },
+    {
+      "file": "parts/screen-look/show/use-mark.css",
+      "rule": "colour-literal-outside-the-look",
+      "why": "Written before the colour-literal rule reached the show styles (2026-10-20). A listed literal is held until it moves to a look variable; the list only shrinks.",
+      "values": [
+        "#fff",
+        "rgb(0 0 0 / .46)",
+        "rgb(0 0 0 / .28)"
+      ]
+    },
+    {
+      "file": "parts/page-critic/do-work/measure-page-craft.mjs",
+      "rule": "no-eyebrow",
+      "why": "The shared measurement names the forbidden shape to detect it; it does not render a user interface."
+    },
+    {
+      "file": "parts/screen-matrix/views.json",
+      "rule": "no-eyebrow",
+      "why": "Release-check DATA selects the shared measurement by its exact rule id; it contains no displayed copy."
+    }
+  ],
+  "in_page": {
+    "about": "What scripts/visual-check.mjs reads in every view it opens before a deploy (readOffLook): text must be set in a face the look names (the first face of each of faces_from, plus also_faces), no element may wear a bar of bar_min_px or more down its left side only (a left border or an inset shadow from the left edge), and a filled button (buttons) whose fill is a colour of raw_fill_saturation or more must wear the look's button face (its sheen over the fill and its shadow). Never accepted: the deploy stops until it is fixed.",
+    "faces_from": [
+      "--font-primary",
+      "--font-display",
+      "--font-mono"
+    ],
+    "also_faces": [],
+    "bar_min_px": 2,
+    "buttons": "button,[role=button],a[data-slot=button],.page-action",
+    "raw_fill_saturation": 0.35
+  },
+  "scan": {
+    "about": "The files that draw a surface the person sees as a page, a card, a widget or a workspace screen, and so take every colour, face and corner from the look's variables. A rule with files:\"scan\" reads these globs (regexes on the repository path) and leaves out the owner. The owner of every look literal is src/workspace/looks.json and parts/screen-look/read-data/*, with the theme files that bind the look to CSS. A page that is not drawn in the look on purpose (the sales page wears the business's own three colours) is a kept row with why, never a glob left out.",
+    "files": [
+      "^parts/ui/show/server-rendered-page/[^/]+\\.mjs$",
+      "^parts/ui/show/document-page/[^/]+\\.mjs$",
+      "^src/(?:html-page|browser-pages|public-site-pages|link-page-screen|photograph-page|alone-page)\\.mjs$",
+      "^src/[^/]+-pages?\\.mjs$",
+      "^src/(?:mail-sender|sign-in-email|space-mail|follow-up-emails|money-out-mail)\\.mjs$",
+      "^parts/screen-look/show/(?:plan-card-style\\.mjs|screen-state\\.css|public-share\\.css)$",
+      "^parts/screen-look/show/[^/]*workspace[^/]*\\.css$",
+      "^src/workspace/[^/]+\\.css$",
+      "^parts/public-sales-page/(?:read-data|do-work)/[^/]+\\.mjs$"
+    ],
+    "owner": [
+      "^src/workspace/looks\\.json$",
+      "^parts/screen-look/read-data/",
+      "^parts/screen-look/show/(?:onyx-root|look-bridges|assistant-ui-theme|beautiful-ui-controls|fonts|surfaces)\\.css$"
+    ]
+  }
+}

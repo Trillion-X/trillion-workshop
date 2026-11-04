@@ -1,0 +1,19 @@
+{
+  "_what": "How a file named in a tool call's input is read at this Mac's tool boundary (computer/file-arguments.mjs, called by computer/mac-tools.mjs runHere before the tool runs). A cloud AI names a file with a string that starts with one of the `prefixes`; the bytes are read here and put in its place, so a large file never travels through the AI's context or the account's payload. `roots` are the folders a name may point into (a leading ~ is the person's home); a path outside every root, through a link that leads outside, or with a segment in `protected_names` is refused, whatever else holds. `max_bytes` bounds all the files of one call together. Editable rows: a new prefix, a root, a protected name or a different cap changes this and nothing else.",
+  "prefixes": [
+    { "prefix": "$file:", "as": "text" },
+    { "prefix": "$file-base64:", "as": "base64" }
+  ],
+  "roots": ["~"],
+  "protected_names": [".ssh", ".aws", ".gnupg", ".kube", ".docker", ".netrc", ".npmrc", ".pgpass", ".env", "id_rsa", "id_ed25519", "Keychains", "credentials", "credentials.json", "secrets", "secrets.json"],
+  "protected_extensions": [".pem", ".key", ".p12", ".pfx", ".keychain", ".keychain-db"],
+  "max_bytes": 16777216,
+  "words": {
+    "not_absolute": "{reference} is not a full path. Name the file with its full path from the root or from ~.",
+    "outside_roots": "{reference} is outside the folders this Mac lets a tool call name.",
+    "protected": "{reference} names a protected file (credentials or keys) that a tool call may not name.",
+    "missing": "{reference} is not a file on this Mac.",
+    "too_big": "{reference} would take this call past {limit} bytes of files. Name smaller files or fewer.",
+    "not_text": "{reference} is not text. Name it with $file-base64: to send its bytes."
+  }
+}

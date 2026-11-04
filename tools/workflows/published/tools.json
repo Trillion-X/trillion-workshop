@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:ff77ac1e8abf43a420a3027ae177bd51b21bbd9868290dc892c39f75b8d733b5"
+  "blake3": "1f:048a3e5f2115bfb3143c742f13ec659ac0ea8196719b834f6550bd3f2be79937"
  },
  "fields": [
   {
@@ -364,6 +364,44 @@
    }
   },
   {
+   "id": "tool:apply-a-pair-state-message",
+   "values": {
+    "title": "Apply a device's message to a recording session",
+    "job": "Update a multi-camera recording session when one device (a camera, a watch, a remote control) joins, leaves, reports its state or hands over the primary role",
+    "description": "Give session ({ id, states, primary?, devices? }: states are the states a device can report, the first being where a joining device starts; leave out primary and devices for a new session) and message ({ session, device, type }): type join (role primary or secondary, default secondary), leave, state (state: one of the session's states) or handover (from: the current primary, device: the one taking over). Returns the session after the message. A message for another session, with no device, from a device that never joined, joining twice, taking a primary that is held, handing over from a device that is not primary, naming an unknown state or type, changes nothing and returns the session as it was with ignored { reason, message }. Exactly one device is primary; the primary leaving leaves none. Nothing is kept: hand the returned session in with the next message.",
+    "status": "active",
+    "maker": "maker:media-composition",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "media-composition",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:apply-a-view-patch",
+   "values": {
+    "title": "Rebuild an answer from its changes",
+    "job": "Rebuild the answer a screen should show from the answer it holds and the changes it was sent",
+    "description": "Give answer (what tool:make-a-view-patch returned: whole with text, or with patch) and previous, the JSON text the screen holds. Returns { text, held } where held is { identity, text } to keep for the next ask, or { stale: true } when the patch was made against a different answer, cannot be applied, or does not rebuild its stated identity, so the screen should read the whole answer again.",
+    "status": "active",
+    "maker": "maker:build-a-screen-from-patches",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "build-a-screen-from-patches",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:apply-new-titles-to-my-plans",
    "values": {
     "title": "Put new titles into my video plans and the cards that name them (runs on your computer)",
@@ -376,6 +414,22 @@
      "placement:your-computer"
     ],
     "folder": "assemble-a-plan-into-a-cut"
+   }
+  },
+  {
+   "id": "tool:approve-a-pairing-code",
+   "values": {
+    "title": "Approve a pairing code",
+    "job": "Let a waiting sender's messages through by approving the pairing code they were given",
+    "description": "Give code (case and spaces do not matter) and, optionally, source_id. A code works once, only before it expires, and only for the source it was issued for. Returns source_id, sender and said; an unknown, used or expired code is refused with what to do.",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders"
    }
   },
   {
@@ -406,6 +460,22 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:ask-a-model",
+   "values": {
+    "title": "Ask a model",
+    "job": "Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word",
+    "description": "Runs on the person's computer with the models it serves (read-data/models-on-this-computer.json: Ollama for conversations, a small classifier for yes-or-no questions). messages asks a conversation and answers in the chat-completions shape; job picks a job row (which models, how many words, what answer format); tools optionally supplies the functions it may call, whose calls are returned for the caller to execute through its normal permissions; parts true also returns the answer as keyed parts. state and questions ask the classifier and answer its probabilities. Answers error in words, with each model tried and why it did not answer, when no model on the computer is running.",
+    "status": "active",
+    "maker": "maker:models-on-this-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T05:00:00Z",
+    "folder": "models-on-this-computer"
    }
   },
   {
@@ -593,6 +663,25 @@
    }
   },
   {
+   "id": "tool:build-a-screen-spec-from-a-patch-stream",
+   "values": {
+    "title": "Build a screen from lines of changes",
+    "job": "Build a screen made of shared parts from the lines of JSON changes an AI wrote for it, and say which lines or parts did not fit",
+    "description": "Give text: lines, each one RFC 6902 change (add, replace or remove), a list of changes, or a whole spec, to { root, elements, state, reads }; optionally requests, the screen's declared requests by name. Every complete line is applied in order; a line that is not JSON, uses another op, changes another path or is too long is left out and said without stopping the rest. Returns spec (each element checked against its part's declared props and fixed where it can be), said (the lines left out), fixes and problems (an unknown part, a missing required prop, no root or a root never sent).",
+    "status": "active",
+    "maker": "maker:build-a-screen-from-patches",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "build-a-screen-from-patches",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:build-records-to-write",
    "values": {
     "title": "Prepare records for my lists with their sources and basis (runs on your computer)",
@@ -605,6 +694,37 @@
      "placement:your-computer"
     ],
     "folder": "export-records-as-list-rows"
+   }
+  },
+  {
+   "id": "tool:build-the-public-receptionist",
+   "values": {
+    "title": "Build the public receptionist",
+    "job": "Build the public receptionist on my rented Linux server from one committed version of its source",
+    "description": "Sends git archive of one commit of a local trillion-rust checkout (declared source only: no home folder, Git settings, credentials or local state) to the host, builds trillion-mcp-receptionist there with the given Rust toolchain, and runs its bootstrap-credential test. Answers the commit, its folder, the built file and the build's last lines.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
+   }
+  },
+  {
+   "id": "tool:calibrate-a-camera-frame",
+   "values": {
+    "title": "Calibrate a camera frame",
+    "job": "Calibrate a camera's view of a court, table or screen once from four corners, so every later point is measured in that frame",
+    "description": "Give min_confidence (the floor an automatic result must reach) and detected ({ corners: four [x, y] in the order top-left, top-right, bottom-right, bottom-left, confidence }) as a corner detector gave it, or null; manual_corners (four [x, y] from a guided manual adjustment) are used when the automatic result is missing, too unsure or unusable. points ([[x, y]]) are mapped into the frame. Answers state (calibrated or needs_manual), source (auto or manual), the confidence seen, h (the projective map to the unit square) and failures: each failed automatic attempt with its reason, for the caller to keep as training data. Corners that are repeated or in a line are refused in words. It runs no detector and keeps nothing.",
+    "status": "active",
+    "maker": "maker:calibrate-a-camera-frame",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "calibrate-a-camera-frame"
    }
   },
   {
@@ -875,6 +995,38 @@
      "placement:your-computer"
     ],
     "folder": "check-a-folder-against-my-rules"
+   }
+  },
+  {
+   "id": "tool:check-a-model-loops-calls",
+   "values": {
+    "title": "Check a model loop's calls for spinning",
+    "job": "Say, from the tool calls a model loop made in order, when it should be nudged for repeating itself and when the job should be given back because it keeps repeating or its tools keep failing",
+    "description": "Give calls (each { name, args, failed, malformed }) in the order they were made and, if wanted, rules ({ repeat_nudge_after, repeat_give_back_after, error_budget, words }; the shipped ones in read-data/loop-guards.json otherwise). A call is the same call when its name and its arguments match, whatever their key order. A malformed call (arguments that were not JSON, a tool the loop may not call) never counts. Failures count only in a row; one success clears them. Answers steps (each { at, nudge } or { at, give_back }) and, when the job should go back, give_back and the call index at.",
+    "status": "active",
+    "maker": "maker:keep-an-ai-loop-from-spinning",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "keep-an-ai-loop-from-spinning"
+   }
+  },
+  {
+   "id": "tool:check-a-packages-declared-permissions",
+   "values": {
+    "title": "Check a package's declared permissions",
+    "job": "Say whether a package's manifest names only permissions the host has a row for, and what each permission it names lets it do",
+    "description": "Give manifest ({ permissions: [ids] }) and, if wanted, permissions (the host's own rows, each { id, says, calls }; the shipped rows otherwise: network_egress, read_files, write_files, run_programs, use_microphone, read_screen). A permission with no row is refused, never ignored. Answers ok, unknown (the ids with no row), needs (the rows of the ids it named) and why when one is unknown.",
+    "status": "active",
+    "maker": "maker:check-a-packages-declared-permissions",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "check-a-packages-declared-permissions"
    }
   },
   {
@@ -1646,6 +1798,22 @@
    }
   },
   {
+   "id": "tool:credit-kept-lines-to-their-writer",
+   "values": {
+    "title": "Credit the kept lines to who wrote them",
+    "job": "Credit each line of a text's newest version to whoever first wrote it, an AI or a person, from its versions, and count how many kept lines are each writer's",
+    "description": "Give versions, oldest first, each { by, text } (by is the writer: ai, person, or any name). Answers by ({ writer: lines }), kept (lines in the newest version) and versions. It counts kept work, not generated work: a line edited away is not counted, a line a person rewrote is the person's, and spacing alone is not a rewrite (lines compare by the BLAKE3 identity of their normalized text, src/kept-work.json). It keeps nothing.",
+    "status": "active",
+    "maker": "maker:credit-kept-lines-to-their-writer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "credit-kept-lines-to-their-writer"
+   }
+  },
+  {
    "id": "tool:credit-outcomes-to-candidates",
    "values": {
     "title": "Credit what visitors did to the version they saw",
@@ -1722,6 +1890,22 @@
    }
   },
   {
+   "id": "tool:decide-a-video-at-ingest",
+   "values": {
+    "title": "Decide what happens to a video at ingest",
+    "job": "Decide whether an uploaded video is kept as it came, converted to the one playable format (MP4), or kept with the reason it could not be converted, and give the conversion's arguments",
+    "description": "Give name (the file's name), media_type and byte_length. Answers action (keep or convert), said (the plain sentence for the person or the AI, null for a file that is not a video) and, for a conversion, plan: from, to, output_name and the ffmpeg args (with {input} and {output} for the runner to fill). converts lists the types it converts. An upload is never refused: a type with no conversion row, or a file over the size one conversion takes, is kept and said says why. It runs nothing: a computer's ffmpeg or a container does the work.",
+    "status": "active",
+    "maker": "maker:make-a-video-playable-at-ingest",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "make-a-video-playable-at-ingest"
+   }
+  },
+  {
    "id": "tool:decide-an-agent-action",
    "values": {
     "title": "Decide whether my AI may take this action",
@@ -1749,6 +1933,21 @@
      "placement:your-computer"
     ],
     "folder": "office-files"
+   }
+  },
+  {
+   "id": "tool:describe-a-tool",
+   "values": {
+    "title": "Describe a tool",
+    "job": "Show me one tool's whole row, so I can see how it is written and how to call it",
+    "description": "Give the tool's id and the rows the Workshop answered (tools:list) as shared. Reads your own saved row of that tool (record type tool, id tool:<tool id>), or takes it as saved. Your saved row, unless deleted, replaces the shared row of the same id. Answers the tool's descriptor, who made it (this account or shared), the sample rule of the place it runs (read-only or dry-run samples on a person's own computer, owed until a computer connects), the sample-run checks of your own runnable tool, and the next call to make: save_tool for your own, run_tool for a shared tool that runs, nothing for a screen. A tool there is nothing of to describe answers an error naming find_tool_for_job. It reads one row and changes nothing.",
+    "status": "active",
+    "maker": "maker:describe-the-workshop",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "describe-the-workshop"
    }
   },
   {
@@ -2041,6 +2240,22 @@
    }
   },
   {
+   "id": "tool:fill-screen-inputs-from-words",
+   "values": {
+    "title": "Fill a screen's inputs from my words",
+    "job": "Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model",
+    "description": "Give schema (the screen's input schema, { properties }), words, and now (the device's time, ISO) for words like tomorrow or in 20 minutes; used ([[start, end]]) are the spans of the words that picked the screen, which are not values; choices names labels for enum values. Answers values (only what the words give and the schema accepts; anything uncertain is left for the person) with how each was read. Parsers and their words are src/input-parsers.json.",
+    "status": "active",
+    "maker": "maker:pick-a-screen-as-you-type",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "pick-a-screen-as-you-type"
+   }
+  },
+  {
    "id": "tool:filter-rows-by-rules",
    "values": {
     "title": "Keep the rows that match my rules",
@@ -2113,6 +2328,22 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:find-cold-rows",
+   "values": {
+    "title": "Find the rows nobody uses",
+    "job": "List the rows of a list that nobody uses any more, so they can be cleaned up, leaving out rows a person verified and whose review is still current",
+    "description": "Give list ({ id, title_field, fields }), rows ([{ id, title, values }]) and heats ({ <row id>: { heat, at } }, the use-heat records kept for the rows). Heat halves every 30 days; a row is cold below 0.5. Rows whose review_state is Verified and whose review_due is still ahead are left out. owner narrows to one owner. Answers rows [{ id, title, heat, last_used }] and complete, with next_cursor when it stopped early.",
+    "status": "active",
+    "maker": "maker:review-what-a-list-says",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "review-what-a-list-says"
    }
   },
   {
@@ -2360,6 +2591,21 @@
    }
   },
   {
+   "id": "tool:find-snippets",
+   "values": {
+    "title": "Find snippets",
+    "job": "Find the snippets I saved, by a word in them or a tag, so I can put one into what I am writing",
+    "description": "Give query (every word must be in the title, words or tags) and tag, both optional, and limit (at most 100). Returns snippets, most recently used or saved first, each with snippet_id, title, text, tags, blanks (the {name} blanks in it), set_at, uses and used_at; and more, how many matched beyond limit. Changes nothing.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
+   }
+  },
+  {
    "id": "tool:find-the-event-that-starts-one-tour",
    "values": {
     "title": "Find the event that starts or replays one guided tour",
@@ -2417,6 +2663,25 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:fit-a-tool-list-in-a-budget",
+   "values": {
+    "title": "Fit a tool list in a budget",
+    "job": "Shrink a list of tools for an AI so it fits in a number of characters, keeping as much detail as fits",
+    "description": "Give tools (MCP tool entries: name, description, inputSchema), budget_chars (a positive number of characters of the JSON list) and, optionally, names (tools to keep in full whatever the budget). The list is tried at levels full, brief (first sentence of each description), schema-only (no descriptions) and names (schemas reduced to an open object); the first whose whole list fits is sent, and the last when none fit. No tool is renamed, reordered or dropped. Returns tools and listing { level, chars, budget_chars, fits, tools, said when shortened, unknown and unknown_said for names no tool has }. Without a positive budget_chars the list comes back unchanged with an empty listing.",
+    "status": "active",
+    "maker": "maker:list-tools-for-an-ai",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "list-tools-for-an-ai",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -2514,6 +2779,25 @@
    }
   },
   {
+   "id": "tool:gate-telemetry-by-privacy",
+   "values": {
+    "title": "May telemetry send about this page",
+    "job": "Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is",
+    "description": "Give surface (site, public-page, elsewhere, app or service) and path of the served page, optionally declared (the privacy class its handler declared) and sink (page_script, page_events, client_health or server_events). The class is the longest matching route's; a declared class can only make it more private. A surface and path no route names, or a declared class that is not known, is 'unknown', which feeds no sink. Returns class and sinks (the sinks that class may feed); with sink, also sink and may_send. A sink that is not one of the four is refused.",
+    "status": "active",
+    "maker": "maker:gate-telemetry-by-privacy",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "gate-telemetry-by-privacy",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:generate-a-checklist-from-my-text",
    "values": {
     "title": "Turn my written checklist into the checklist file the gate reads, and check that file (runs on your computer)",
@@ -2571,6 +2855,22 @@
      "placement:your-computer"
     ],
     "folder": "connected-drives"
+   }
+  },
+  {
+   "id": "tool:get-free-models",
+   "values": {
+    "title": "Free AI models that fit my device",
+    "job": "See which free AI models fit the person's computer (its chip, memory and free space) and which it already has, and have its model server download them",
+    "description": "Runs on the person's computer. Without input it answers the computer's chip, memory and free space, whether its model server runs, and each model offered for it (read-data/models-on-this-computer.json offer) with whether it fits and whether the computer has it. With get \"fitting\" it has the running model server download every model that fits and is missing; with get as a list of offer ids, those. A model got here answers tool:ask-a-model at once. When the model server is not running it says so in words; it does not install the server.",
+    "status": "active",
+    "maker": "maker:models-on-this-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T22:00:00Z",
+    "folder": "models-on-this-computer"
    }
   },
   {
@@ -2797,6 +3097,36 @@
      "placement:small-container"
     ],
     "folder": "paid-access"
+   }
+  },
+  {
+   "id": "tool:give-a-place-a-new-release",
+   "values": {
+    "title": "Give a place a new release",
+    "job": "Put a new engine release on a running place and restart it",
+    "description": "Installs the request's engine release beside the old ones, points the place at it, restarts the service and reads back the sign-up page. The old release stays on the machine, so going back is the same command with the old release_name.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-place"
+   }
+  },
+  {
+   "id": "tool:give-back-a-place",
+   "values": {
+    "title": "Give back a place",
+    "job": "Stop paying for a place's machine: remove its public name and give the machine back",
+    "description": "Removes the public name the lease made, then deletes the machine and the SSH key the lease made, each only after reading it back and finding this lease's own label. A machine the person already runs is only forgotten, never touched. Move the place's accounts to another place first: this deletes the machine's disk.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-place"
    }
   },
   {
@@ -3206,6 +3536,22 @@
    }
   },
   {
+   "id": "tool:heat-of-a-row",
+   "values": {
+    "title": "Say how warm a row is",
+    "job": "Say how much a row is used as of a moment, its use heat halving with time, and the heat record one more use leaves",
+    "description": "Give kept (the row's heat record { heat, at }, or nothing for a row never used), now (an ISO time; the current time otherwise) and used: true to also get the record a use leaves now (null when the row was used within the last 360 minutes, so nothing is written).",
+    "status": "active",
+    "maker": "maker:review-what-a-list-says",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "review-what-a-list-says"
+   }
+  },
+  {
    "id": "tool:hold-a-device-quiet",
    "values": {
     "title": "Keep a device quiet until a time",
@@ -3312,6 +3658,21 @@
    }
   },
   {
+   "id": "tool:install-the-built-receptionist",
+   "values": {
+    "title": "Install the built receptionist",
+    "job": "Install the receptionist I just built on my rented Linux server so it can run",
+    "description": "Checks that the receptionist built from the given commit is on the host, makes it runnable and, when install_path is given, puts a copy there in one rename. It starts and stops nothing.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
+   }
+  },
+  {
    "id": "tool:join-a-waitlist",
    "values": {
     "title": "Join a waitlist",
@@ -3372,6 +3733,21 @@
      "placement:small-container"
     ],
     "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
+   "id": "tool:keep-a-thread-summary",
+   "values": {
+    "title": "Keep a conversation summary",
+    "job": "Keep a short summary of this conversation, so the next AI that opens it reads a few lines instead of every message",
+    "description": "Give conversation_id (and app), summary (at most 4000 characters) and latest: { id, at } of the conversation's newest message now, as the messages owner shows it (its newest message from reading the conversation). The summary covers through that message; keeping again replaces it. Returns summary (summary_id, app, conversation_id, summary, through_message_id, through_at, set_at) and said. Refuses a missing conversation_id, an empty summary, and a conversation with no latest message. The messages themselves are not touched; the words it says name trillion's read_messages and save_thread_summary tools.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
    }
   },
   {
@@ -3678,6 +4054,25 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:list-paired-senders",
+   "values": {
+    "title": "Paired senders and waiting codes",
+    "job": "List which senders are paired and which pairing codes are waiting, for one source or all",
+    "description": "Optional source_id narrows to one source. With source_id and sender, also answers is_paired for that sender. Returns waiting [{ source_id, sender, code, expires_at }] (expired codes left out) and paired [{ source_id, sender, paired_at }]. It changes nothing.",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -4030,6 +4425,25 @@
    }
   },
   {
+   "id": "tool:make-a-view-patch",
+   "values": {
+    "title": "Send only what changed in an answer",
+    "job": "Turn the next JSON answer a screen will read into just the changes from the answer it already holds, when that is smaller",
+    "description": "Give previous and next, each the JSON text of one answer. Returns the next answer as { status, content_type, identity, patch: { from, to, ops } } (ops are RFC 6902 add, remove and replace; from and to are the BLAKE3 identities of the canonical JSON before and after) when the patch is under 0.6 of the whole; otherwise the whole answer with its text (and its identity). An answer under 2000 or over 400000 characters, or one that is not JSON, is answered whole without an identity. Text that is not a string is refused.",
+    "status": "active",
+    "maker": "maker:build-a-screen-from-patches",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "build-a-screen-from-patches",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:make-a-word-template",
    "values": {
     "title": "Turn something I made or copied into a word-for-word template (runs on your computer)",
@@ -4323,6 +4737,22 @@
    }
   },
   {
+   "id": "tool:merge-a-streamed-answer",
+   "values": {
+    "title": "Merge a streamed answer's parts",
+    "job": "Merge the events of a streamed answer into keyed parts: text that appends, sources and related questions as parts of their own, patches to parts already sent, and a snapshot to pick up an interrupted stream",
+    "description": "Give events, each { seq, type, key?, ... } as the stream sent it (types and how each merges are src/keyed-parts.json), and entry when continuing one an earlier call answered. Answers entry (seq, order, parts, drift, stalls) and resume ({ seq, identity }), the token a re-attach continues from. An event at or below the entry's seq is already held and adds nothing; a patch that does not apply is kept under drift and as a part of its own, never losing the answer.",
+    "status": "active",
+    "maker": "maker:stream-an-answer-in-keyed-parts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "stream-an-answer-in-keyed-parts"
+   }
+  },
+  {
    "id": "tool:mix-sound-layers",
    "values": {
     "title": "Mix sounds under a video",
@@ -4552,6 +4982,21 @@
    }
   },
   {
+   "id": "tool:observe-live-usage",
+   "values": {
+    "title": "Observe my live usage",
+    "job": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
+    "description": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
+   }
+  },
+  {
    "id": "tool:observe-something-i-watched-or-read",
    "values": {
     "title": "Observe something I watched or read",
@@ -4597,6 +5042,21 @@
    }
   },
   {
+   "id": "tool:open-in-ai",
+   "values": {
+    "title": "Open a prompt in a local AI app",
+    "job": "Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex",
+    "description": "Opens the prompt in the app named by `app`, one of the rows of read-data/open-in-ai.json (the rows are the allowlist; an app not in them is refused). A url row opens its URL with the prompt percent-encoded, an argv row runs its list as it is with the prompt as one argument; nothing goes through a shell. `folder` must be a folder that exists; the app's own config is never read or written. The outcome is launched, app_missing or refused; the prompt is never echoed, only its length. `dry_run` shows the launch without running it.",
+    "status": "active",
+    "maker": "maker:open-a-prompt-in-a-local-ai-app",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "open-a-prompt-in-a-local-ai-app"
+   }
+  },
+  {
    "id": "tool:organize-saved-browser-tabs",
    "values": {
     "title": "Sort my saved browser tabs into folders by my rules",
@@ -4609,6 +5069,21 @@
      "placement:your-computer"
     ],
     "folder": "browser-saved-items"
+   }
+  },
+  {
+   "id": "tool:other-ai-files",
+   "values": {
+    "title": "Read the files I keep for my other AI apps",
+    "job": "Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them",
+    "description": "Lists every entry the rows of read-data/other-ai-files.json name that exists under the folder the person granted (their home folder), as source/kind/name with its app label and size and no contents; `source` and `kind` narrow the list. `read` names entries to return whole, up to most_chars, each labelled with its app and kind. Read only: nothing is written into those folders or imported, a link inside a folder is never followed, and an MCP server another app lists comes back as its command or address with the NAMES of its environment variables and headers, never their values; nothing switches a server on.",
+    "status": "active",
+    "maker": "maker:read-my-other-ais-files",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "read-my-other-ais-files"
    }
   },
   {
@@ -4627,6 +5102,22 @@
    }
   },
   {
+   "id": "tool:pair-an-unknown-sender",
+   "values": {
+    "title": "Give an unknown sender a pairing code",
+    "job": "Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve",
+    "description": "Give source_id (the event source the message came in on) and sender (the sender's own id on that source). Returns { paired: true } when the sender is already paired; otherwise code (8 characters with no 0, O, 1 or I), expires_at (an hour from now) and said. Asking again for the same sender gives the same code; a source with 3 codes waiting gives no more ({ full: true, said }).",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders"
+   }
+  },
+  {
    "id": "tool:pay-someone-a-share-through-stripe",
    "values": {
     "title": "Pay someone a share through Stripe",
@@ -4639,6 +5130,22 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:pick-a-screen-for-typed-words",
+   "values": {
+    "title": "Pick the screen for what I am typing",
+    "job": "Pick, as a person types, the screen that already does what their words ask from the screens they are offered, the interfaces made for them and the screens they kept, with no model, and keep the shown screen calm",
+    "description": "Give words (what is typed so far) and the catalog: rows (offered screens, each { id, label, description?, asked?, source? }), made (interfaces, each { interface_id, title, intent }) and asks (kept screens, each { id, words, screen, input? }). memory is the last call's memory (omit it the first time). Answers picks (ranked, each with its entry and score) and memory: shown is the screen to show, which a challenger replaces only after winning twice in a row or with a certain score. Weights, thresholds and bounds are src/instant-screens.json; it names no screen.",
+    "status": "active",
+    "maker": "maker:pick-a-screen-as-you-type",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "pick-a-screen-as-you-type"
    }
   },
   {
@@ -4684,6 +5191,25 @@
      "placement:your-computer"
     ],
     "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
+   "id": "tool:pick-the-release-a-host-runs",
+   "values": {
+    "title": "Pick the release a host version runs",
+    "job": "Tell which release of a published tool a given Trillion version runs, or which version it needs",
+    "description": "Give row (a published tool row, optionally with minimum_host_version and earlier_releases, newest first) and host_version (the version of the Trillion that will run it, like 2026.10.1). Versions compare part by part, missing parts are zero. Returns release: the row itself when its minimum is met, else the first earlier release whose minimum is met (without its earlier_releases); when none runs, release is null and oldest_needed names the oldest version any release runs on. A missing host_version is refused.",
+    "status": "active",
+    "maker": "maker:list-tools-for-an-ai",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "list-tools-for-an-ai",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -4885,6 +5411,22 @@
    }
   },
   {
+   "id": "tool:post-balanced-entries",
+   "values": {
+    "title": "Post entries whose lines add to zero",
+    "job": "Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero",
+    "description": "action post takes lines { amount_field, group_field }, entry_id and rows [{ values }] (two or more); lines that do not add to zero are refused and nothing is written; the same entry_id posts once. reverse takes entry_id and reverse_id and posts the negated lines; the original lines stay. balance reads every line and answers the entries that do not add to zero and the lines with no amount or no entry (unplaced, never counted as zero). It reads only.",
+    "status": "active",
+    "maker": "maker:settle-amounts-and-reconcile",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "settle-amounts-and-reconcile"
+   }
+  },
+  {
    "id": "tool:post-to-slack",
    "values": {
     "title": "Post to Slack",
@@ -4943,6 +5485,21 @@
      "placement:small-container"
     ],
     "folder": "opponent-game-plan"
+   }
+  },
+  {
+   "id": "tool:prepare-a-receptionist-build-host",
+   "values": {
+    "title": "Prepare a receptionist build host",
+    "job": "Make my rented Linux server able to build the public receptionist",
+    "description": "Installs the build packages given, makes the source folder, adds a swap file if there is none and installs the exact Rust toolchain given, over SSH as the host's administrator with the held key. It sets up no service user, DNS, TLS or public route.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
    }
   },
   {
@@ -5247,6 +5804,25 @@
    }
   },
   {
+   "id": "tool:quote-untrusted-words",
+   "values": {
+    "title": "Quote a stranger's words safely",
+    "job": "Make someone else's words safe to quote into what an AI reads, so hidden characters or a fake tag cannot sneak instructions in",
+    "description": "Give text (another party's words: mail, an imported chat, a web page, a title) and, optionally, max (the most code points the quote may hold, ellipsis included; 8000 when left out). The text is normalised to NFC; control and format characters are removed (bidi overrides, zero-width characters, the byte order mark), except newline and tab; '<' and its full-width and angle-bracket lookalikes become '&lt;'; then it is cut by code points, never inside a surrogate pair or an escape, ending with an ellipsis. Returns quoted and code_points. Never give the person's own words: only the copy handed to an AI is quoted, the original is not changed.",
+    "status": "active",
+    "maker": "maker:quote-untrusted-words",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "quote-untrusted-words",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:randomize-a-result",
    "values": {
     "title": "Make the private bit for a result",
@@ -5367,6 +5943,21 @@
    }
   },
   {
+   "id": "tool:read-a-fields-history",
+   "values": {
+    "title": "Read a field's history as lines",
+    "job": "Read one field's history of one row as lines a person reads: each value it held, from when until when, who changed it and by which road",
+    "description": "Send list ({ id, fields }, the field naming keeps_history: true), row_id, field_id and kept (the row, with its _history). Answers steps [{ value, from, until, by, said }] oldest first, said being who changed it and by which road in plain words (\"You via <app> over MCP\"), and complete: false when older steps were let go or the first step's start is not known.",
+    "status": "active",
+    "maker": "maker:formulas",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "formulas"
+   }
+  },
+  {
    "id": "tool:read-a-funnel-definition",
    "values": {
     "title": "Read a funnel definition",
@@ -5425,6 +6016,66 @@
      "placement:small-container"
     ],
     "folder": "person-profile"
+   }
+  },
+  {
+   "id": "tool:read-a-place",
+   "values": {
+    "title": "Read a place",
+    "job": "See whether a place's machine is running and its sign-up page answers",
+    "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the place's public name.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-place"
+   }
+  },
+  {
+   "id": "tool:read-a-place-price",
+   "values": {
+    "title": "Read a place's price",
+    "job": "See what a machine for a place would cost each month before renting it",
+    "description": "Reads the monthly price of the request's machine size at its location from the provider row's price request. Rents nothing.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-place"
+   }
+  },
+  {
+   "id": "tool:read-a-receptionist-build-host",
+   "values": {
+    "title": "Read a receptionist build host",
+    "job": "See what my receptionist build server has now: its Rust version, builds running, built copies and listening ports",
+    "description": "Reads the host's kernel, Rust version, memory, running compilers, source folders and built receptionists, which of the given ports are listening, and the given service user's sign-in state. Changes nothing.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
+   }
+  },
+  {
+   "id": "tool:read-a-thread-summary",
+   "values": {
+    "title": "Read a conversation summary",
+    "job": "Read the summary kept of this conversation and whether newer messages have come since it was written",
+    "description": "Give conversation_id (and app) and message_times: the times of the conversation's newest messages as the messages owner shows them (its newest page, like the last 100, is enough). Returns summary (null when none is kept yet), newer_messages (how many of message_times come after the message the summary covers through), stale (newer_messages above 0) and said, so a stale summary is never taken for the conversation's present. Changes nothing.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
    }
   },
   {
@@ -6214,6 +6865,22 @@
    }
   },
   {
+   "id": "tool:reconcile-lines-against-a-statement",
+   "values": {
+    "title": "Reconcile lines against a statement",
+    "job": "Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close",
+    "description": "action close takes lines { amount_field, closed_in_field? }, row_ids, period, opening_balance, statement_balance, request_key and residual_reason when the lines do not add up to the statement; it marks each line closed in the receipt and keeps the receipt in \"<lines>-reconciliations\". The same request_key returns the same receipt; a line already closed elsewhere is refused. check lists every line that changed or was removed after its close (record: true keeps each as a discrepancy row once). undo reopens the lines of the latest close and marks its receipt undone; the receipt stays.",
+    "status": "active",
+    "maker": "maker:settle-amounts-and-reconcile",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "settle-amounts-and-reconcile"
+   }
+  },
+  {
    "id": "tool:reconcile-resource-usage-report",
    "values": {
     "title": "Reconcile resource usage report",
@@ -6557,6 +7224,36 @@
    }
   },
   {
+   "id": "tool:remove-a-snippet",
+   "values": {
+    "title": "Remove a snippet",
+    "job": "Remove one of my saved snippets",
+    "description": "Give snippet_id (from tool:find-snippets). The snippet record is removed; words already sent are not touched. Returns removed, snippet_id and said. Refuses an unknown snippet_id.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:remove-a-thread-summary",
+   "values": {
+    "title": "Remove a conversation summary",
+    "job": "Remove the summary kept of this conversation",
+    "description": "Give conversation_id (and app). Only the summary record is removed; the messages are not touched. Returns removed and said. Refuses a conversation with no summary kept.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
+   }
+  },
+  {
    "id": "tool:remove-my-notification-device",
    "values": {
     "title": "Remove my notification device",
@@ -6696,6 +7393,22 @@
    }
   },
   {
+   "id": "tool:report-on-accrual-or-cash",
+   "values": {
+    "title": "Report on an accrual or a cash basis",
+    "job": "Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it",
+    "description": "action basis takes targets { amount_field, date_field }, allocations { list_id }, from, to and basis (accrual, cash or both; the list's saved report_basis, else both, when left out). Answers each basis asked with its total, count and the rows behind it (capped, with truncated said). It reads only.",
+    "status": "active",
+    "maker": "maker:settle-amounts-and-reconcile",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "settle-amounts-and-reconcile"
+   }
+  },
+  {
    "id": "tool:report-resource-usage",
    "values": {
     "title": "Report resource usage",
@@ -6783,6 +7496,22 @@
      "placement:your-computer"
     ],
     "folder": "screen-looks"
+   }
+  },
+  {
+   "id": "tool:review-rows-of-a-list",
+   "values": {
+    "title": "Review the rows of a list",
+    "job": "Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner",
+    "description": "Give list_id (one of the person's lists), row_kind (record:<its row_type>, the records its rows are) and action. set_up (expires_days optional, 90 as shipped) adds the review fields (owner, review_state, review_due, verified_by) and the views review-needed, review-expired and review-empty a list lacks; fields it already has stay as they are. verify (row_ids, by: who checked) sets Verified and a check-again date expires_days ahead; flag_outdated and request_verification set their state and clear the date; assign (row_ids, owner) names the owner. Answers what changed. An unknown action, or a row action on a list not set up, is refused with the words saying what to send. Every write is conditional on the rows as read, so a row changed meanwhile refuses the write.",
+    "status": "active",
+    "maker": "maker:review-what-a-list-says",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "review-what-a-list-says"
    }
   },
   {
@@ -6921,6 +7650,21 @@
    }
   },
   {
+   "id": "tool:save-a-snippet",
+   "values": {
+    "title": "Save a snippet",
+    "job": "Save words I send again and again as a snippet, with blanks like {name} to fill each time, or change one I saved",
+    "description": "Give title (what you call it) and text (the words, with {name} where something changes each time; a blank is a lowercase name in braces), and tags (short words) if you like. Without snippet_id it makes a new snippet; with snippet_id (from tool:find-snippets) it changes that one, keeping the fields left out. Give expected_set_at (the set_at tool:find-snippets showed) to refuse the change when it was saved again since. Returns snippet: snippet_id, title, text, tags, blanks, set_at, uses. Refuses a snippet with no title or no words, an unknown snippet_id, and a 501st snippet. A snippet is the person's own snippet record; saving sends nothing anywhere.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
+   }
+  },
+  {
    "id": "tool:save-interest-in-an-email-update",
    "values": {
     "title": "Save someone's interest in one email update",
@@ -6951,6 +7695,40 @@
    }
   },
   {
+   "id": "tool:say-a-tools-hints-in-its-description",
+   "values": {
+    "title": "Say a tool's hints in its description",
+    "job": "Make a tool's description say in words what its read-only, destructive, idempotent and open-world hints say",
+    "description": "Give tool (an MCP tool entry with description and annotations: readOnlyHint, destructiveHint, idempotentHint, openWorldHint). Returns the same tool with one sentence added after its description for each matching rule (reads only; confirm with the person before removing; adds or sets only; reaches outside), in rule order. A sentence the description already says is not added again, and a tool with no annotations comes back as it is.",
+    "status": "active",
+    "maker": "maker:list-tools-for-an-ai",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "list-tools-for-an-ai",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:say-how-this-device-stands",
+   "values": {
+    "title": "Say how this device stands",
+    "job": "Keep how this device of mine stands: caught up, offline or still holding changes",
+    "description": "Keeps one device's report in your device rows (setting:catch_up_devices): device_id (the id the device keeps for itself), state, waiting (the changes it still holds), at (when its writes last reached your store), title, kind and copy_id (the copy of your records it keeps). The row is written only when what you would see changed, or when its last catch-up moved by more than an hour; at most 40 devices are kept, newest first. One write, only while the rows are still what was read: rows changed meanwhile answer conflict and nothing is written.",
+    "status": "active",
+    "maker": "maker:keep-copies-in-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-copies-in-step"
+   }
+  },
+  {
    "id": "tool:say-lines-in-a-candidate-voice-model",
    "values": {
     "title": "Say some lines in a voice model I am trying out, cloned from my reference recording (runs on your Mac)",
@@ -6978,6 +7756,21 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:say-where-file-sync-stands",
+   "values": {
+    "title": "Say where file sync stands",
+    "job": "Say where the sync of a person's files on one computer stands: starting, synced, syncing, offline, conflict or error, why Trillion was not reached, and how many saves are still moving",
+    "description": "Gives one typed sync status record from what the computer's change feed and write journal observed. The state is the first DATA row (sync-files.json sync_status) whose every condition holds; a failed ask is filed under the cause its answer status names (no_network, signed_out, storage_full, busy, trillion_unavailable, else refused). A feed that was never answered is starting, never read as empty or synced. Names, file identities and keys never enter the record: only counts, a cause and a status.",
+    "status": "active",
+    "maker": "maker:sync-files-between-my-computers",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "sync-files-between-my-computers"
    }
   },
   {
@@ -7262,6 +8055,21 @@
    }
   },
   {
+   "id": "tool:see-if-my-copies-are-in-step",
+   "values": {
+    "title": "See if my copies are in step",
+    "job": "Show me whether every copy of my things is in step, and which records two of my devices changed apart",
+    "description": "Reads your device rows (setting:catch_up_devices) and every record two copies changed apart (kept-apart records) of the kind you name as thing_type, and answers devices (each device's state, waiting changes and when it last caught up; a copy of your records you send in positions is shown once, as the device that named it or as a copy of its own) and versions (each record kept apart: the record as it is now first, then one side per other version, with the words of its keep button). other_kinds names the kinds of other records kept apart, to ask about next. It reads and changes nothing.",
+    "status": "active",
+    "maker": "maker:keep-copies-in-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-copies-in-step"
+   }
+  },
+  {
    "id": "tool:see-my-ais",
    "values": {
     "title": "See my AIs: which are live, what each can do and how many jobs each holds",
@@ -7274,6 +8082,21 @@
      "placement:small-container"
     ],
     "folder": "hand-work-to-ais"
+   }
+  },
+  {
+   "id": "tool:see-my-decisions",
+   "values": {
+    "title": "See my decisions",
+    "job": "Show my decisions, what I am working toward, my plans and what has helped me decide",
+    "description": "Reads your own rows and answers the Decisions screen: your newest decisions (at most 100) as summaries with the pursuits each cites, where each stands and how far it has got (decided, next action carried out, result checked); your current pursuits as the tree they nest into (from your record-scope choice rows); your newest plans; and what has helped you (which questions changed your answers and how those decisions turned out). With native_collection_page it answers one bounded page instead: the facts what helped is counted from (helped_items, your method check questions and your AIs' recorded work), collection_coverage saying whether more decisions, pursuits or plans exist, and next_before to send as before for the next page. access and allowance are what your place reports: when your access limits deciding and does not keep decisions, the answer is free with nothing listed; none reported is no limit. metadata_only answers only access, allowance and the words for no pursuits, and reads no row. It changes nothing.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
    }
   },
   {
@@ -7304,6 +8127,21 @@
      "placement:small-container"
     ],
     "folder": "hold-one-thing-until-done"
+   }
+  },
+  {
+   "id": "tool:see-what-is-left-to-set-up",
+   "values": {
+    "title": "See what is left to set up",
+    "job": "Show me what is left to set up in my account, who does each step and what to do next",
+    "description": "Draws the Get started screen from your setup facts: which setup steps apply to your account (picked by the setup show rules, yours and the operator's), which are done, which only you can do, whether your workspace is ready, and the steps for connecting your AI. A step whose facts were not sent is unknown, never done, and a rule set or setup context the request leaves out is unknown too, so the screen stays not ready rather than opening on a guess. It reads and changes nothing.",
+    "status": "active",
+    "maker": "maker:set-up-my-account",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "set-up-my-account"
    }
   },
   {
@@ -7826,6 +8664,22 @@
    }
   },
   {
+   "id": "tool:settle-amounts-between-lists",
+   "values": {
+    "title": "Apply an amount across rows of another list",
+    "job": "Apply the amount one row holds (a payment, a credit, a grant) across the open amounts of rows of another list (invoices, bills, budgets) as allocation rows, propose it first, take an allocation back, or read what is applied and open on a row",
+    "description": "action propose works out, writing nothing, how the source row's amount would go across the targets in an order (oldest_first by default, or as read-data/list-settlements.json orders say) and what is left unapplied as a credit. apply keeps one allocation row per target (source, target, amount, date, request) in the allocations list \"<source>-to-<target>-allocations\"; give items [{ target_id, amount }] or leave them out to apply the proposal; request_key makes it apply once. Every item is answered done, already_done or refused with why, and the outcome says all, some or none. remove takes allocation_ids back, reopening exactly those targets. position reads one row ({ row: { row_id, amount_field }, role, allocations: { list_id } }): its amount, applied, open and the allocations behind it. A row with no amount is refused: empty is not zero. Body: source { row_id, amount_field }, targets { list_id, amount_field, order_field?, row_ids? }, order, allocations { list_id?, *_field? }.",
+    "status": "active",
+    "maker": "maker:settle-amounts-and-reconcile",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "settle-amounts-and-reconcile"
+   }
+  },
+  {
    "id": "tool:settle-field-values",
    "values": {
     "title": "Say who set each value and which source wins",
@@ -7853,6 +8707,21 @@
      "placement:small-container"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:settle-two-versions",
+   "values": {
+    "title": "Settle two versions",
+    "job": "Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
+    "description": "Writes what you chose for one record kept apart (id, from see-if-my-copies-are-in-step): keep one (side, the id of the version to keep), both (each other version is kept as a record of its own, named after it with -kept- and a number that no record holds yet), or merged (value, the merged record). What you chose is written first and the kept versions are removed in the same write, so every copy takes it like any change. thing_type is the kind of the record. Every write stands only on what was read: a record changed meanwhile answers conflict and nothing is written.",
+    "status": "active",
+    "maker": "maker:keep-copies-in-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-copies-in-step"
    }
   },
   {
@@ -7989,6 +8858,21 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:start-a-place",
+   "values": {
+    "title": "Start a place",
+    "job": "Make a machine into a place that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
+    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the place config with the machine's address and price, starts it, and answers the place id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-place"
    }
   },
   {
@@ -8203,6 +9087,25 @@
    }
   },
   {
+   "id": "tool:tell-if-a-tool-changes-anything",
+   "values": {
+    "title": "Tell if a tool changes anything",
+    "job": "Tell whether a tool only reads or changes things, from its own operation name",
+    "description": "Give tool (a tool descriptor: id, and optionally read_only and invoke.action). read_only: true is a read; otherwise the operation (invoke.action, or the id without tool:) is a read when it starts with a read verb such as read, list, find, show, check, search, get or view followed by -. Anything else, including an operation not understood, is a write. Returns write_class: 'read' or 'write'.",
+    "status": "active",
+    "maker": "maker:list-tools-for-an-ai",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "list-tools-for-an-ai",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:tell-it-when-it-was-wrong",
    "values": {
     "title": "Tell a judge it was wrong, so it is tested on that case from now on (runs on your computer)",
@@ -8215,6 +9118,22 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:total-quote-lines",
+   "values": {
+    "title": "Total the lines of a quote or invoice",
+    "job": "Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base",
+    "description": "action totals takes lines { kind_field?, value_field?, base_field?, order_field? } and row_ids or every row. A line's kind is a row of read-data/list-settlements.json line_totals.kinds (amount, percent, subtotal); a percent line must name its base. Answers each line with its amount, the base it used and the running total, and the total. It reads only.",
+    "status": "active",
+    "maker": "maker:settle-amounts-and-reconcile",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "settle-amounts-and-reconcile"
    }
   },
   {
@@ -8245,86 +9164,6 @@
      "placement:your-computer"
     ],
     "folder": "audio-transcription"
-   }
-  },
-  {
-   "id": "tool:trillion-media-drive-folder",
-   "values": {
-    "title": "Look inside a folder on a drive",
-    "job": "List the files and folders in one folder on a drive connected to this person's computer, a page at a time",
-    "description": "Runs on the person's computer. hidden \"1\" includes hidden files; offset and limit page through a long folder.",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:trillion-media-drive-holders",
-   "values": {
-    "title": "What is using a drive",
-    "job": "Name the programs on this person's computer that are using one drive right now, which would stop it from ejecting",
-    "description": "Runs on the person's computer. Returns mount and processes (each pid and name).",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:trillion-media-drive-icon",
-   "values": {
-    "title": "A drive's icon",
-    "job": "Get the icon Finder shows for one drive connected to this person's computer, as a PNG picture",
-    "description": "Runs on the person's computer. Returns mount, media_type and base64 (the PNG).",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:trillion-media-drive-kinds",
-   "values": {
-    "title": "What is on a drive",
-    "job": "Tell what is on one drive connected to this person's computer by kind of file (videos, pictures, sound, documents), with how many of each and how much space they take",
-    "description": "Runs on the person's computer; the first read of a drive runs in the background, and a kept read is used for 6 hours.",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:trillion-media-drives",
-   "values": {
-    "title": "Drives on my computers",
-    "job": "List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected",
-    "description": "Runs on the person's computer while the Trillion app is open there. Returns devices: each with name, mount, size_bytes, free_bytes, kind, internal, ejectable and state.",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
    }
   },
   {
@@ -8438,6 +9277,22 @@
    }
   },
   {
+   "id": "tool:unpair-a-sender",
+   "values": {
+    "title": "Unpair a sender",
+    "job": "Stop letting a paired sender's messages through, so they are unknown again",
+    "description": "Give source_id and sender. The sender is no longer paired for that source; their next message gets a new code. Returns source_id, sender and said.",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders"
+   }
+  },
+  {
    "id": "tool:unstage-changes",
    "values": {
     "title": "Take files out of the next commit",
@@ -8451,6 +9306,21 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "git-changes"
+   }
+  },
+  {
+   "id": "tool:use-a-snippet",
+   "values": {
+    "title": "Use a snippet",
+    "job": "Fill in one of my snippets with this time's names and give me its words to put in what I am writing",
+    "description": "Give snippet_id (from tool:find-snippets) and values: { name: words } for each {name} blank. Returns snippet_id, title, text (the words with every given blank filled wherever it appears), left_blank (the blanks given no value, left exactly as written) and said naming them, so nothing is sent with a hole unseen. It counts the use (uses, used_at) and never changes the snippet's words. It sends nothing. Refuses an unknown snippet_id.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
    }
   },
   {
@@ -8698,6 +9568,21 @@
    }
   },
   {
+   "id": "tool:work-out-history-values",
+   "values": {
+    "title": "Work out values from a field's history",
+    "job": "Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one",
+    "description": "Send kept (the row, with _history: { <field id>: { cut, steps: [{ v, at, by?, via? }] } }, the steps a history-keeping field kept), fields ([{ id, history: { field, op, value?, at?, days_ago?, unit? } }], op one of value_at, previous_value, value_set_at, time_spent_in, has_been_in; unit seconds, minutes, hours or days) and now_ms. Answers values { <field id>: value }. An answer that needs history that was not kept (steps let go, or a first value whose start is not known) is null, never a guess. A field that is not finished (no op, no value for time_spent_in or has_been_in, no at or days_ago for value_at, an unknown unit) is refused with a sentence.",
+    "status": "active",
+    "maker": "maker:formulas",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "formulas"
+   }
+  },
+  {
    "id": "tool:work-out-measures",
    "values": {
     "title": "Work out measures from my records",
@@ -8770,6 +9655,25 @@
      "placement:your-computer"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:write-a-post-for-a-place",
+   "values": {
+    "title": "Write a post for one place",
+    "job": "Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show",
+    "description": "Give blocks (heading, paragraph, code, list, checklist, image with an optional dark_url, collapsible holding more blocks) and exactly one of surface (github_comment, gitlab_note, bitbucket_comment or plain_message), capability (a record with html, collapsibles, checkboxes, dialect 'markdown' or 'plain', max_chars or null, theme { strategy 'picture', 'suffix' or 'single' } and unproven) or place (a post place whose format may carry caption_max_characters and source). Optional marker is put first and kept through any cut. Returns body, degraded (the capabilities the place lacked, so the body did without them), unproven_used (capabilities relied on that nobody has confirmed for that place), truncated (a body over max_chars is cut at a block boundary and says so) and the capability record used. An unknown surface, more or fewer than one of surface, capability or place, or an unknown block type is refused. It posts nothing.",
+    "status": "active",
+    "maker": "maker:write-a-post-for-each-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "write-a-post-for-each-place",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {

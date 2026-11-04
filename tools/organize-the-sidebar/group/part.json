@@ -1,0 +1,19 @@
+{
+  "public": [
+    "do-work/group-membership-actions.ts",
+    "do-work/group-mutation-writes.ts",
+    "do-work/group-op-transitions.ts",
+    "read-data/group-board-model.ts",
+    "read-data/group-eeaf.ts",
+    "read-data/presence.ts",
+    "show/BoardMarkLayers.tsx",
+    "show/GroupBoardPanel.tsx",
+    "show/presence-channel.ts",
+    "read-data/kept-library.ts",
+    "show/camera-frame.ts",
+    "show/use-surface-presence.ts",
+    "do-work/board-source.ts",
+    "do-work/board-source-picture.ts",
+    "show/use-elapsed.ts"
+  ]
+}

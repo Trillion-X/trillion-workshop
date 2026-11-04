@@ -1,0 +1,5 @@
+{
+  "_what": "The words under a link in a message while its card is not ready (parts/chat/show/MessageLinks.tsx). `pending` is said while the link is being read; `failed` when it could not be, in which case it is tried again by itself later.",
+  "pending": "Reading this link",
+  "failed": "This link could not be read yet"
+}

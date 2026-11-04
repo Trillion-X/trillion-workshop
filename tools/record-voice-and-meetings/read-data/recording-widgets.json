@@ -1,0 +1,58 @@
+{
+  "_what": "The words and rules of the widgets a recording in progress shows wherever the person is (DATA, read by show/recording-notices.ts, show/RecordingPill.tsx and show/processing-steps.ts). card: the notification kept while a recording runs (title is the meeting's own title when the recording belongs to one, else `adhoc_title`; `detail` is said by phase; each action is a button on it, `when` the phases it shows in, `phase` the recording phases it is offered in). preparing: the card shown from Stop until the recording is kept, and `ready` / `failed` the cards that end it. pill: the small dark pill with the time, Stop and the microphone menu that shows while this window is not the one in front (`shown_when`: `window-not-focused`); `microphone_preference` is the saved preference the chosen microphone is kept in, `default_microphone` the menu's first row; a microphone chosen while a recording runs is fed into it at once with no gap (`microphone_now` heads the menu then) and is also kept for the next recording, and one that cannot be opened leaves the recording on the microphone it had (`microphone_not_changed`). The pill is drawn on the look's island ground (dark in every look). window: where an app that hosts this page floats the pill over other apps (Trillion for Mac, macos/App/RecordingWindow.swift, which bundles this file): the page opens `address` (named `name`) only when the host offers the `channel` message handler, draws the pill in it, and tells the host its size through `channel` ({ kind: 'size', width, height }, points); the host shows exactly that, centred `below_menu_bar` points under the menu bar of the screen in use, over every app and space, and closes it when the page closes it. `width` and `height` are its first size; while the microphone menu is open it is `menu_width` by `menu_height`, so the menu opens inside it. adhoc_title is also the name of the note made the moment a recording starts without a meeting; the note keeps what the person types while recording. steps: the stages a kept recording goes through, in order, each read from a fact the screen holds (`fact`), looked at again every `look_again_ms` while the words are being made, drawn as hollow while waiting, turning while working and checked when done.",
+  "adhoc_title": "Ad-hoc meeting",
+  "card": {
+    "key": "record-audio:live",
+    "kind": "recording",
+    "detail": { "recording": "Recording ongoing", "paused": "Paused", "stopping": "Stopping", "requesting": "Waiting for the microphone" },
+    "actions": [
+      { "id": "pause", "label": "Pause", "icon": "Pause", "when": ["recording"] },
+      { "id": "resume", "label": "Resume", "icon": "Play", "when": ["paused"] },
+      { "id": "stop", "label": "Stop recording", "icon": "Square", "danger": true, "when": ["recording", "paused"] }
+    ],
+    "open_note": "Open note"
+  },
+  "preparing": {
+    "key": "record-audio:preparing",
+    "kind": "transcription",
+    "title": "Preparing meeting note",
+    "detail": "Keeping the recording",
+    "ready": "Your meeting note is ready",
+    "ready_action": "Open note",
+    "failed": "The recording could not be kept"
+  },
+  "pill": {
+    "shown_when": "window-not-focused",
+    "label": "Recording",
+    "stop": "Stop",
+    "pause": "Pause",
+    "resume": "Resume",
+    "microphone_menu": "Choose a microphone",
+    "default_microphone": "Default microphone",
+    "microphone_preference": "record-audio-microphone",
+    "microphone_next": "Applies to your next recording",
+    "microphone_now": "Changes the microphone now, without stopping",
+    "microphone_not_changed": "That microphone could not be opened, so the recording goes on with the one it had.",
+    "microphones_unavailable": "Microphones could not be listed"
+  },
+  "window": {
+    "address": "about:blank#trillion-recording-window",
+    "name": "trillion-recording-window",
+    "channel": "trillionRecordingWindow",
+    "width": 360,
+    "height": 56,
+    "menu_width": 360,
+    "menu_height": 320,
+    "below_menu_bar": 6
+  },
+  "steps": {
+    "label": "Preparing this recording",
+    "look_again_ms": 5000,
+    "rows": [
+      { "id": "upload", "label": "Upload", "fact": "file" },
+      { "id": "transcript", "label": "Transcript", "fact": "transcript" },
+      { "id": "summary", "label": "Summary", "fact": "summary" }
+    ],
+    "states": { "done": "done", "working": "in progress", "waiting": "waiting" }
+  }
+}

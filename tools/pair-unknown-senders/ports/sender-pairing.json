@@ -1,0 +1,93 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-PAIR-UNKNOWN-SENDERS-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "move the product modules of old trillion src/ (part 5 of 5) into Trillion-X/trillion-workshop tools. Move code, never rewrite it. Port the correct parts one to one with their original tests and assertions."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/sender-pairing.mjs",
+   "multihash": "1f:de808904c47202db5a194341c09d51a465132a1a47ea9d13511398efeee36e93",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/events.mjs (the caller) and then deletes src/sender-pairing.mjs, src/sender-pairing.json and test/sender-pairing.test.mjs"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/sender-pairing.json",
+   "multihash": "1f:f9c7b055ef667da1774e708e89a8547e95fe1d24f0a6cfc54de27d9c5ca74e2e",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/events.mjs (the caller) and then deletes src/sender-pairing.mjs, src/sender-pairing.json and test/sender-pairing.test.mjs"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/pair-unknown-senders/read-data/sender-pairing.mjs"
+  },
+  {
+   "path": "tools/pair-unknown-senders/read-data/sender-pairing.json"
+  }
+ ],
+ "preserve": [
+  "alphabet, length, lifetime and the cap on waiting codes are data",
+  "a sender with a code waiting gets the same code again",
+  "a source with max_pending waiting codes issues no more",
+  "a code works once, only before it expires, and only for the source it was issued for",
+  "pairing is per source and sender, kept as facts the person can list and revoke",
+  "the clock and the randomness are injected"
+ ],
+ "allowed_deltas": [
+  "the facts are the person's own sender-pairing records, read and written through the records door by read-data/pairing-tools.mjs"
+ ],
+ "banned_substitutions": [
+  "a rewritten copy of this job",
+  "a second live copy kept in Trillion-X/trillion after its deleted_by"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:de808904c47202db5a194341c09d51a465132a1a47ea9d13511398efeee36e93",
+  "target_multihash_at_baseline": "1f:de808904c47202db5a194341c09d51a465132a1a47ea9d13511398efeee36e93",
+  "recorded_at": "2026-11-03T21:00:00Z",
+  "rows": [
+   {
+    "path": "tools/pair-unknown-senders/read-data/sender-pairing.mjs",
+    "source_multihash": "1f:de808904c47202db5a194341c09d51a465132a1a47ea9d13511398efeee36e93",
+    "target_multihash_at_baseline": "1f:de808904c47202db5a194341c09d51a465132a1a47ea9d13511398efeee36e93"
+   },
+   {
+    "path": "tools/pair-unknown-senders/read-data/sender-pairing.json",
+    "source_multihash": "1f:f9c7b055ef667da1774e708e89a8547e95fe1d24f0a6cfc54de27d9c5ca74e2e",
+    "target_multihash_at_baseline": "1f:f9c7b055ef667da1774e708e89a8547e95fe1d24f0a6cfc54de27d9c5ca74e2e"
+   }
+  ],
+  "commit": "7e511c3ce67d9c0952a44d5e9728452c46ee339a"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.8,
+  "required_mechanisms": [
+   "export function makeSenderPairing",
+   "async request",
+   "async approve",
+   "async revoke",
+   "async list",
+   "async isPaired"
+  ],
+  "test_refs": [
+   "tools/pair-unknown-senders/test/sender-pairing.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

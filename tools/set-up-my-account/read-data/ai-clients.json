@@ -1,0 +1,662 @@
+{
+  "_what": "How to add Trillion to each AI app people use, and the jobs a person can hand their AI once it is added. Connecting is one flow for every app: `stages` lists its stages in order, with the words every app shares written once (signing in on Trillion's page with a passkey or an emailed code, what to do when it took too long, checking, running without asking, connecting it in every account the person has in that app, asking). One row per AI app (a tile on the \"Use Trillion in your AI\" screen and on the public /docs page, in this order; its `domain` is the app's own web address, whose logo the tile shows, and `icon` names a picture for a row with no single app) gives only what is its own under `stages`: its own steps for open and add, naming the app's own menus and buttons in order, and the parts of the shared stages ({start}, {again}, see, its setting to run without asking, where to ask). `app` is the app's name in sentences; `terminal` marks an app an AI with a terminal can set up itself by running its add step. `open_chat` is the web address that opens a new chat in that app, `{prompt}` filled with what the person is asking (src/ask-your-ai.mjs: the Ask your AI button of every failure and the Open button beside each app's steps); `paste: true` marks an app whose address takes no words, so the words are copied for the person to paste. In a step, `leave` is what to leave alone, `see` is what shows when the step worked, `fix` is the most common failure and its fix. src/ai-app-guides.mjs composes the rows into steps for every place instructions appear: the connect screens, /docs, the setup prompt and start_setup; no other file carries connect steps (test/one-connect-flow.test.mjs). {mcp} is filled with this service's MCP address when the screen is drawn, {origin} with the address the page was reached at (the place's own reach, or the account's places row) and {host} with that address's host, never a fixed host name, {cursor_config} with the Add to Cursor link's server line. `step_notes` names how `leave`, `see` and `fix` are labelled. `setup_prompt` is what a person pastes into any AI so it runs the setup itself or walks them through it; {terminal_setup} and {app_guides} are composed from the rows. `places` lists where people work with Trillion through their own AI (the connect screens show them beside the steps). `open_chat` is how a press reaches the app holding the words: `href` ({prompt} filled with the words), `bare` (the app's address without words, used when the words are copied instead), `paste` (the address takes no words, so they are copied), `max_chars` (the most words the address takes before they are copied instead) and `connect_words` (the line to hand this app when connecting it, in place of the general setup message; {mcp} filled). `connect_open` is the one press that does the connecting itself when the app has one (Add to Cursor): `href` and `label`. Picking an app on the connect screens copies its words and opens it at once. A new AI app, place or job is one row here; nothing that draws the screen changes.",
+  "step_notes": [
+    {
+      "key": "leave",
+      "label": "Leave as it is:"
+    },
+    {
+      "key": "see",
+      "label": "When it worked:"
+    },
+    {
+      "key": "fix",
+      "label": "If not:"
+    }
+  ],
+  "stages": [
+    {
+      "id": "open",
+      "_what": "Where this app adds a server or connector: the app's own steps, when it has any."
+    },
+    {
+      "id": "add",
+      "required": true,
+      "_what": "Giving the app Trillion's address: the app's own steps."
+    },
+    {
+      "id": "sign_in",
+      "required": true,
+      "title": "Sign in on Trillion's page",
+      "body": "{start} On the Trillion page, sign in with your email and password, or choose Sign in with a passkey, then allow {app}. No password yet? Choose Email me a code and type the code we email you.",
+      "fix": "If the Trillion page says your app took too long, or it closed before you finished: {again}. No Trillion account yet? Choose Sign up under Don't have an account? on that page.",
+      "_what": "The same for every app. The row gives start (what the person does in the app to open Trillion's page), app (the app's name here), again (how to start signing in again from the app) and see."
+    },
+    {
+      "id": "check",
+      "required": true,
+      "title": "Check it is connected",
+      "_what": "The row gives body, code and see: where the app shows Trillion connected."
+    },
+    {
+      "id": "allow",
+      "required": true,
+      "title": "Let Trillion run without asking",
+      "body": "If {app} asks before a Trillion tool runs, choose to always allow it, so it stops asking each time.",
+      "_what": "The row gives its app's own setting as body, code, link, leave, see and fix; an app with no such setting shows these words."
+    },
+    {
+      "id": "every_account",
+      "required": true,
+      "title": "Connect it in every account you use",
+      "body": "Use {app} with more than one account, such as a personal one and a work one? Each account keeps its own connectors, so sign in to each one in turn and do these steps again, signing in to the same Trillion every time.",
+      "_what": "The same for every app: Trillion is added per account, so a person with several accounts in one app adds it in each. A row whose app keeps Trillion per computer instead gives its own body."
+    },
+    {
+      "id": "ask",
+      "required": true,
+      "title": "Ask for something",
+      "_what": "The row gives body (where to ask) and code (an example)."
+    }
+  ],
+  "clients": [
+    {
+      "id": "grok",
+      "label": "Grok",
+      "domain": "grok.com",
+      "show_in_fan": true,
+      "open_chat": {
+        "href": "https://grok.com/?q={prompt}"
+      },
+      "lead": "Connect Trillion to Grok with a custom connector. Grok Business and Enterprise accounts need an admin to add it first.",
+      "stages": {
+        "open": [
+          {
+            "title": "Open Grok Connectors",
+            "body": "Sign in to Grok and open Connectors.",
+            "link": {
+              "label": "Open Grok Connectors",
+              "href": "https://grok.com/connectors"
+            }
+          }
+        ],
+        "add": [
+          {
+            "title": "Add a custom connector",
+            "body": "Choose New Connector, then Custom. On Grok Business or Enterprise, ask your admin to add an Other connector under Grok Business, Connectors in console.x.ai first.",
+            "fix": "If New Connector is unavailable in a Business or Enterprise workspace, the workspace admin must add it first."
+          },
+          {
+            "title": "Paste Trillion's address",
+            "body": "Name the connector Trillion and paste this server address:",
+            "code": "{mcp}"
+          }
+        ],
+        "sign_in": {
+          "app": "Grok",
+          "start": "Save the connector, then choose Connect or Authenticate when Grok offers it.",
+          "again": "go back to Grok Connectors and connect Trillion again",
+          "see": "Trillion appears as a connected connector in Grok."
+        },
+        "check": {
+          "body": "Open Grok Connectors.",
+          "see": "Trillion is listed as connected."
+        },
+        "every_account": {
+          "link": {
+            "label": "Connect another Grok account",
+            "href": "https://grok.com/connectors"
+          }
+        },
+        "ask": {
+          "body": "Ask Grok to use Trillion, for example:",
+          "code": "Use Trillion to help me decide what to focus on this week."
+        }
+      },
+      "app": "Grok"
+    },
+    {
+      "id": "claude",
+      "label": "Claude",
+      "domain": "claude.ai",
+      "show_in_fan": true,
+      "open_chat": {
+        "href": "https://claude.ai/new?q={prompt}"
+      },
+      "lead": "For claude.ai and the Claude desktop app, on any plan (the Free plan allows one custom connector). Each claude.ai account keeps its own list of connectors, so a second Claude account adds Trillion once too and signs in with the same passkey, reaching the same Trillion. Claude Code keeps its own list on each computer instead (see the Claude Code tab).",
+      "stages": {
+        "open": [
+          {
+            "title": "Open your Connectors",
+            "body": "Sign in to claude.ai, or open the Claude desktop app. In the left sidebar click Customize, then Connectors. The button below opens that page.",
+            "link": {
+              "label": "Open Claude connectors",
+              "href": "https://claude.ai/settings/connectors"
+            },
+            "fix": "On a Team or Enterprise plan only the owner can add connectors. Ask them to add Trillion in Organization settings, Connectors, Add, Custom, Web, with the address in step 3. Then you open Customize, Connectors and click Connect next to Trillion, and skip to step 5."
+          }
+        ],
+        "add": [
+          {
+            "title": "Click + and then Add custom connector",
+            "body": "The + is at the top of the Connectors list. A window called Add custom connector opens."
+          },
+          {
+            "title": "Type the name and paste the address",
+            "body": "In the name box type Trillion. Copy the address below and paste it in the URL box. Then click the button at the bottom right to go on.",
+            "code": "{mcp}",
+            "fix": "If Claude says the address is not valid, check that it starts with https:// and ends with /mcp, with no space before or after."
+          },
+          {
+            "title": "Click Add",
+            "body": "The next part of the window shows Claude's sign-in choices. Claude has already picked the right ones for Trillion, so do not change anything. Scroll down and click Add.",
+            "leave": "Authentication: Sign in now (Detected). OAuth client: Use Claude's published identity (Detected). Request headers: none. Advanced, Transport: Streamable HTTP.",
+            "see": "Trillion in your Connectors list."
+          }
+        ],
+        "sign_in": {
+          "app": "Claude",
+          "start": "Next to Trillion click Connect.",
+          "again": "click Connect next to Trillion in Customize, Connectors again",
+          "see": "The page closes by itself and Trillion shows as connected."
+        },
+        "check": {
+          "body": "In Customize, Connectors, look at Trillion.",
+          "see": "Trillion shows as connected."
+        },
+        "allow": {
+          "body": "Still in Customize, Connectors, click Trillion. Under Tool permissions, set Interactive tools, Read-only tools and Write/delete tools each to Always allow. Claude then uses Trillion without stopping to ask you each time.",
+          "link": {
+            "label": "Open Claude connectors",
+            "href": "https://claude.ai/customize/connectors"
+          },
+          "see": "Always allow next to Interactive tools, Read-only tools and Write/delete tools.",
+          "fix": "If Claude still asks before a Trillion tool, click Always allow on that prompt; it stays that way for that tool. A Team or Enterprise owner can stop Always allow for everyone; then ask them to allow it."
+        },
+        "every_account": {
+          "body": "Have more than one Claude account, such as a personal one and a work one? Each keeps its own connectors. Sign in to the other account at claude.ai, press the button below and do these steps again there, signing in to the same Trillion every time.",
+          "link": {
+            "label": "Connect another Claude account",
+            "href": "https://claude.ai/settings/connectors"
+          }
+        },
+        "ask": {
+          "body": "Start a new chat. Click the + at the bottom left of the message box, choose Connectors and switch Trillion on. Then ask for what you want, for example:",
+          "code": "Use Trillion to help me decide what to focus on this week.",
+          "fix": "If Claude answers without using Trillion, write \"Use Trillion\" at the start of your message."
+        }
+      },
+      "app": "Claude"
+    },
+    {
+      "id": "chatgpt",
+      "label": "ChatGPT",
+      "domain": "chatgpt.com",
+      "show_in_fan": true,
+      "open_chat": {
+        "href": "https://chatgpt.com/?q={prompt}"
+      },
+      "lead": "For ChatGPT on the web. Pro can connect custom MCP servers with read/fetch permissions only. Full MCP, including write actions, is available on Business, Enterprise and Edu. For other plans, check availability in ChatGPT. Workspace settings can also limit access. The phone app cannot add a server.",
+      "stages": {
+        "open": [
+          {
+            "title": "Open Plugins and add a custom MCP server",
+            "body": "Sign in at chatgpt.com. Open Plugins, select +, then choose Add custom MCP server.",
+            "link": {
+              "label": "Open ChatGPT Plugins",
+              "href": "https://chatgpt.com/plugins"
+            },
+            "fix": "If you cannot add a server, check your account and workspace permissions. In Business, only admins and owners can create and publish custom MCP server plugins. Enterprise and Edu admins can allow selected members. Pro connections have read/fetch permissions only."
+          }
+        ],
+        "add": [
+          {
+            "title": "Type the name and paste the address",
+            "body": "In Name enter Trillion. Under Connection, paste the public HTTPS MCP address below.",
+            "code": "{mcp}",
+            "leave": "Icon and Description are optional."
+          },
+          {
+            "title": "Keep OAuth, tick the box, create the plugin",
+            "body": "Authentication: OAuth. Tick “I understand and want to continue”, then select Create as a plugin.",
+            "leave": "Leave Advanced OAuth settings unchanged; ChatGPT finds Trillion’s settings itself.",
+            "fix": "If Create as a plugin is unavailable, check that the address, authentication and required fields are complete and that your account or workspace allows this connection."
+          }
+        ],
+        "sign_in": {
+          "app": "ChatGPT",
+          "start": "ChatGPT opens a Trillion page by itself after Create.",
+          "again": "open Plugins, click Trillion and connect it again",
+          "see": "The page closes by itself."
+        },
+        "check": {
+          "body": "Open ChatGPT's Plugins page.",
+          "see": "Trillion in your plugins, with its list of tools."
+        },
+        "allow": {
+          "body": "When ChatGPT asks before a Trillion tool that changes something, choose to remember your answer: it stops asking for the rest of that chat. ChatGPT does not offer a setting that keeps it for every chat."
+        },
+        "every_account": {
+          "link": {
+            "label": "Connect another account",
+            "href": "https://chatgpt.com/plugins"
+          }
+        },
+        "ask": {
+          "body": "Start a new chat. Type @ and select Trillion. Then ask for what you want, for example:",
+          "code": "Use Trillion to help me decide whether to launch this week or next."
+        }
+      },
+      "app": "ChatGPT"
+    },
+    {
+      "id": "chat",
+      "label": "Muse and other AIs you connect in chat",
+      "domain": "meta.ai",
+      "lead": "For Muse (Meta's AI) and any AI that has no settings screen for this: you connect it by sending it a message. It runs on its own computer in the cloud, so it only ever uses Trillion's web address. Do this once for each account you use it with.",
+      "stages": {
+        "add": [
+          {
+            "title": "Paste this message into Muse",
+            "body": "Open a chat with Muse, paste the message below and send it.",
+            "code": "Connect Trillion to yourself with your own \"Add a custom connector\" sheet, using OAuth. Do not give me a link to open in a browser, do not use a 127.0.0.1 address, and do not ask me for a key. Use exactly these values: name custom.trillion; domain {host}; authorization_url {origin}/authorize; token_url {origin}/oauth/token; client_id muse; redirect_uri https://agent.meta.ai/api/hatch/oauth/callback; token_endpoint_auth_method none; scope decisions. Trillion's MCP server is {mcp}. Then send me the Add a custom connector link.",
+            "fix": "If Muse replies with a link to open in Safari, a 127.0.0.1 address, or asks for a key or a client id, paste the message again and add: Use the Add a custom connector sheet with client_id muse."
+          }
+        ],
+        "sign_in": {
+          "app": "Muse",
+          "start": "Muse answers with a blue link called Add a custom connector. Tap it: a Meta sheet names Trillion and {host}. Tap Connect. Every box on the sheet is already filled in: if it shows a Client ID box, it says muse. Stay in the sheet; do not open any link from it in Safari.",
+          "again": "tap the Add a custom connector link again, or if the Client ID box was empty, tell Muse: Put client_id muse in the connector and send the link again",
+          "see": "You are back in the chat and Muse says Trillion is connected."
+        },
+        "check": {
+          "body": "Send Muse this message.",
+          "code": "List your Trillion tools.",
+          "see": "Muse lists Trillion's tools, such as decisions, files and people."
+        },
+        "ask": {
+          "body": "Ask in plain words, for example:",
+          "code": "Use Trillion to help me decide what to focus on this week."
+        }
+      },
+      "app": "Muse"
+    },
+    {
+      "id": "claude-code",
+      "label": "Claude Code",
+      "domain": "claude.ai",
+      "open_chat": {
+        "href": "claude-cli://open?q={prompt}",
+        "bare": "claude-cli://open",
+        "max_chars": 600,
+        "connect_words": "Connect Trillion to Claude Code on this computer. Run this line yourself: claude mcp add --transport http --scope user trillion {mcp} && claude mcp login trillion. Keep it running while I sign in on the Trillion page it opens, then run claude mcp list to check it says Connected and verify the MCP connection. {setup_continuation}"
+      },
+      "lead": "For Claude Code in your terminal. Claude Code keeps its own list on each computer, separate from your claude.ai account: do this once on each computer you use, and it covers every Claude account you use there, including several accounts a local proxy such as CLIProxyAPI switches between.",
+      "terminal": true,
+      "stages": {
+        "open": [
+          {
+            "title": "Open Terminal",
+            "body": "On a Mac press Command and Space, type Terminal and press Return. On Windows open PowerShell."
+          }
+        ],
+        "add": [
+          {
+            "title": "Paste this line and press Return",
+            "body": "It adds Trillion for every folder on this computer.",
+            "code": "claude mcp add --transport http --scope user trillion {mcp} && claude mcp login trillion",
+            "fix": "\"command not found: claude\" means Claude Code is not installed on this computer. Install it from claude.com/claude-code, then paste the line again."
+          }
+        ],
+        "sign_in": {
+          "app": "Claude Code",
+          "start": "The line you pasted opens a Trillion page in your browser.",
+          "again": "paste claude mcp login trillion and press Return, or in Claude Code type /mcp, choose trillion and choose Authenticate",
+          "see": "Terminal says the sign-in worked."
+        },
+        "check": {
+          "body": "Paste this and press Return.",
+          "code": "claude mcp list",
+          "see": "A line that starts with trillion and says Connected."
+        },
+        "allow": {
+          "body": "Open the file ~/.claude/settings.json and add \"mcp__trillion\" to the list under permissions, allow, as below. Claude Code then uses every Trillion tool without asking you each time.",
+          "code": "{\n  \"permissions\": {\n    \"allow\": [\"mcp__trillion\"]\n  }\n}",
+          "leave": "Everything else already in the file: add the line to the allow list that is there, or add the permissions part if there is none."
+        },
+        "every_account": {
+          "body": "Claude Code keeps Trillion on each computer, not in your Claude account: do this once on every computer you use Claude Code on. It then works for every Claude account you use there."
+        },
+        "ask": {
+          "body": "Start Claude Code by typing claude, then ask in plain words, for example:",
+          "code": "Use Trillion to help me decide which bug to fix first."
+        }
+      },
+      "app": "Claude Code"
+    },
+    {
+      "id": "codex",
+      "label": "Codex",
+      "domain": "openai.com",
+      "open_chat": {
+        "href": "codex://new?prompt={prompt}",
+        "connect_words": "Connect Trillion to Codex on this computer. Run this line yourself: codex mcp add trillion --url {mcp}. Keep it running while I sign in on the Trillion page it opens, then run codex mcp list to check it shows trillion and verify the MCP connection. {setup_continuation}"
+      },
+      "lead": "For Codex in an editor, the Codex app or Terminal. They read the same server list on this computer, so add Trillion once per computer.",
+      "terminal": true,
+      "stages": {
+        "open": [
+          {
+            "title": "Use Codex or open Terminal",
+            "body": "If you use Codex inside an editor, ask it to run the command below on this computer. Otherwise, on a Mac press Command and Space, type Terminal and press Return; on Windows open PowerShell."
+          }
+        ],
+        "add": [
+          {
+            "title": "Add Trillion to Codex",
+            "body": "Ask Codex to run this line, or paste it in Terminal and press Return. It adds the server and starts sign-in. Keep that command running while you finish in the browser.",
+            "code": "codex mcp add trillion --url {mcp}",
+            "fix": "\"command not found: codex\" means Codex is not installed on this computer. Install it from developers.openai.com/codex, then paste the line again."
+          }
+        ],
+        "sign_in": {
+          "app": "Codex",
+          "start": "Codex may open a Trillion page or print a Trillion authorization URL. If it prints the URL, open that HTTPS Trillion page while the command is still running.",
+          "again": "run codex mcp login trillion and open the NEW Trillion authorization URL it prints while that command is running",
+          "see": "Codex says \"Successfully logged in\"."
+        },
+        "check": {
+          "body": "Paste this and press Return.",
+          "code": "codex mcp list",
+          "see": "A row for trillion with its address."
+        },
+        "allow": {
+          "body": "Open the file ~/.codex/config.toml, find the part that starts with [mcp_servers.trillion] and add the line below under it. Codex then uses every Trillion tool without asking you each time.",
+          "code": "default_tools_approval_mode = \"approve\""
+        },
+        "every_account": {
+          "body": "Codex keeps Trillion on each computer: do this once on every computer you use Codex on. It then works for every account you use Codex with there."
+        },
+        "ask": {
+          "body": "Start Codex by typing codex, then ask in plain words, for example:",
+          "code": "Use Trillion to find a tool that transcribes my recording, then run it."
+        }
+      },
+      "app": "Codex"
+    },
+    {
+      "id": "gemini",
+      "label": "Gemini",
+      "domain": "gemini.google.com",
+      "show_in_fan": true,
+      "open_chat": {
+        "href": "https://gemini.google.com/app",
+        "paste": true
+      },
+      "lead": "For the Gemini app at gemini.google.com, with a personal Google Account, for people 18 or over in the US, in English. Add it in the web app; it then works in the Gemini phone app too. Work and school Google Accounts cannot add it.",
+      "stages": {
+        "open": [
+          {
+            "title": "Open Connected Apps",
+            "body": "Sign in at gemini.google.com. At the bottom left click Settings, then Connected Apps.",
+            "link": {
+              "label": "Open Gemini",
+              "href": "https://gemini.google.com/"
+            },
+            "fix": "No Connected Apps there? Click Personal Intelligence first, then Connected Apps. Custom apps are hidden while Keep Activity is off, so switch Keep Activity on."
+          }
+        ],
+        "add": [
+          {
+            "title": "Add a custom app",
+            "body": "Under Custom apps click Add a custom app, paste the address below and click Next.",
+            "code": "{mcp}",
+            "leave": "Advanced features: do not open it; Gemini finds Trillion's sign-in settings itself."
+          }
+        ],
+        "sign_in": {
+          "app": "Gemini",
+          "start": "Follow Gemini's on-screen steps until a Trillion page opens.",
+          "again": "go back to Settings, Connected Apps and add Trillion again",
+          "see": "Trillion listed under Custom apps, switched on."
+        },
+        "check": {
+          "body": "Open Settings, Connected Apps.",
+          "see": "Trillion listed under Custom apps, switched on."
+        },
+        "every_account": {
+          "link": {
+            "label": "Connect another Google account",
+            "href": "https://gemini.google.com/"
+          }
+        },
+        "ask": {
+          "body": "In a chat, type @ and pick Trillion, then ask for what you want, for example:",
+          "code": "@Trillion help me decide whether to launch this week or next.",
+          "fix": "To turn it off later: Settings, Connected Apps, then switch Trillion off under Custom apps, or More details, Disconnect."
+        }
+      },
+      "app": "Gemini"
+    },
+    {
+      "id": "gemini-cli",
+      "label": "Gemini CLI",
+      "domain": "google.com",
+      "show_in_fan": false,
+      "lead": "For Gemini in your terminal (the Gemini CLI). For the Gemini app in a browser, use the Gemini tile.",
+      "terminal": true,
+      "stages": {
+        "add": [
+          {
+            "title": "Add Trillion",
+            "body": "In Terminal, paste this line and press Return. It adds Trillion as a remote server.",
+            "code": "gemini mcp add --transport http trillion {mcp}"
+          }
+        ],
+        "sign_in": {
+          "app": "Gemini",
+          "start": "Gemini opens a Trillion page in your browser when it first needs you to sign in.",
+          "again": "in a Gemini CLI session type /mcp auth trillion",
+          "see": "Gemini says Trillion is authenticated."
+        },
+        "check": {
+          "body": "Paste this and press Return.",
+          "code": "gemini mcp list",
+          "see": "Trillion appears in the list of connected MCP servers.",
+          "fix": "In a Gemini CLI session, type /mcp list to see the connection."
+        },
+        "allow": {
+          "body": "Open the file ~/.gemini/settings.json, find trillion under mcpServers and add the line below inside it. Gemini then uses every Trillion tool without asking you each time.",
+          "code": "\"trust\": true",
+          "leave": "Everything else already in the file.",
+          "fix": "Adding Trillion with gemini mcp add --trust does the same."
+        },
+        "every_account": {
+          "body": "The Gemini CLI keeps Trillion on each computer: do this once on every computer you use it on. It then works for every Google account you sign in with there."
+        },
+        "ask": {
+          "body": "Start Gemini by typing gemini, then ask in plain words, for example:",
+          "code": "Use Trillion to help me decide what to focus on this week."
+        }
+      },
+      "app": "Gemini CLI"
+    },
+    {
+      "id": "cursor",
+      "label": "Cursor",
+      "domain": "cursor.com",
+      "show_in_fan": true,
+      "open_chat": {
+        "href": "cursor://anysphere.cursor-deeplink/prompt?text={prompt}",
+        "connect_words": "Connect Trillion to Cursor on this computer: add an MCP server called trillion with the address {mcp} to my Cursor MCP settings (mcp.json), then tell me to press Connect next to trillion in Cursor Settings, MCP, and verify the MCP connection. {setup_continuation}"
+      },
+      "connect_open": {
+        "href": "cursor://anysphere.cursor-deeplink/mcp/install?name=trillion&config={cursor_config}",
+        "label": "Add Trillion to Cursor"
+      },
+      "lead": "For the Cursor editor. Do it once on each computer you use.",
+      "stages": {
+        "add": [
+          {
+            "title": "Click Add to Cursor",
+            "body": "Cursor opens and asks whether to install trillion. Confirm it.",
+            "link": {
+              "label": "Add to Cursor",
+              "href": "cursor://anysphere.cursor-deeplink/mcp/install?name=trillion&config={cursor_config}"
+            },
+            "see": "trillion in Cursor Settings, in the MCP section.",
+            "fix": "If nothing opened, do the next step instead."
+          },
+          {
+            "title": "Only if nothing opened: add it by hand",
+            "body": "Open Cursor Settings (Command and comma), go to the MCP section and add a new MCP server. Cursor opens a file called mcp.json. Replace what is in it with the lines below and save with Command and S.",
+            "code": "{\n  \"mcpServers\": {\n    \"trillion\": { \"url\": \"{mcp}\" }\n  }\n}"
+          }
+        ],
+        "sign_in": {
+          "app": "Cursor",
+          "start": "In Cursor Settings, MCP section, click Connect next to trillion. Your browser opens a Trillion page.",
+          "again": "quit Cursor completely (Command and Q), open it again and click Connect next to trillion once more",
+          "see": "A green dot next to trillion and a list of its tools."
+        },
+        "check": {
+          "body": "Open Cursor Settings, MCP section.",
+          "see": "A green dot next to trillion and a list of its tools."
+        },
+        "allow": {
+          "body": "The first time Cursor asks before a Trillion tool runs, choose Add to allowlist. Or open Cursor Settings, Agents, Approvals & Execution and add Trillion's tools to the MCP allowlist there. Cursor then runs them without asking you each time."
+        },
+        "every_account": {
+          "body": "Cursor keeps Trillion on each computer: do this once on every computer you use Cursor on."
+        },
+        "ask": {
+          "body": "Open Cursor's chat and ask in plain words, for example:",
+          "code": "Use Trillion to help me decide how to split this feature into releases."
+        }
+      },
+      "app": "Cursor"
+    },
+    {
+      "id": "any",
+      "label": "Any other AI app",
+      "icon": "Plug",
+      "lead": "Any app that can add an MCP server or a connector.",
+      "stages": {
+        "open": [
+          {
+            "title": "Find where your app adds an MCP server",
+            "body": "Look for Connectors, Integrations, Plugins, Tools or MCP in its settings."
+          }
+        ],
+        "add": [
+          {
+            "title": "Paste this address",
+            "body": "Most apps ask only for this address. If the app asks how to sign in, choose OAuth. If it asks for a client id, leave it empty so it registers itself; there is nothing to type.",
+            "code": "{mcp}"
+          },
+          {
+            "title": "Only if the app cannot sign in and asks for an API key",
+            "body": "Some older apps and scripts cannot sign in. Only for those: make a personal key in Account & security, copy it once, and paste it where the app asks for a key. An app that can sign in never needs one.",
+            "code": "Authorization: Bearer <your personal key>",
+            "action": {
+              "label": "Make a personal key",
+              "open": "trillion.account"
+            }
+          }
+        ],
+        "sign_in": {
+          "app": "your app",
+          "start": "Your app opens a Trillion page when it signs in.",
+          "again": "start the sign-in again from your app's server or connector settings",
+          "see": "Your app lists Trillion's tools."
+        },
+        "check": {
+          "body": "Open your app's list of servers or connectors.",
+          "see": "Trillion is there with its tools."
+        },
+        "ask": {
+          "body": "Ask your app in plain words, for example:",
+          "code": "Use Trillion to help me decide what to focus on this week."
+        }
+      },
+      "app": "your app"
+    }
+  ],
+  "setup_prompt": "Help me connect Trillion to the AI app I use, so you (or that app) can use Trillion's tools. Set up only the AI app I am using or explicitly choose. If that AI cannot connect, or the required sign-in or connector is unavailable, stop at that exact boundary and tell me what is missing; never choose the first installed or shipped AI, CLI, model, or another app as a fallback. Trillion is an MCP server at this address: {mcp}\nIt signs in with OAuth and your Trillion sign-in. I never need a password or an API key for it. Also offer me the Trillion apps for my devices (step 1a), only from the links given there. If one is not out yet, say that plainly and never tell me to install an untrusted copy or load an unpacked folder.\n\nPlease do this:\n1. If you can run terminal commands yourself, do the setup for me instead of explaining it:\n{terminal_setup}\n   Then offer the apps and configure this selected harness:\n   a) {devices_step}\n   b) {harness_setup}\n2. Otherwise, ask me which app I want to connect, then walk me through its steps below ONE step at a time. For each step tell me the exact menu or button to click, what to type or paste, and what to leave alone. Wait for me to say done before giving the next step. Then tell me what I should see if it worked. On Trillion's sign-in page I can use my email and password, a passkey, or choose Email me a code.\n{app_guides}\n3. If what I see on my screen does not match your step, ask me to describe the screen and adjust. Never ask me for a password, an API key or a client id, never send me a 127.0.0.1 link, and never ask me to copy an address back to you.\n4. When it is connected, list Trillion's tools to show it works. If you only walked me through connecting another app, give me the Trillion apps for my devices from step 1a too. Then ask me what I want to do first.",
+  "jobs": [
+    {
+      "title": "Make a decision the careful way",
+      "body": "Your AI walks the right questions in order, asks you only what only you can answer, and writes the decision down.",
+      "icon": "Compass",
+      "example": "Use Trillion to help me decide whether to hire a contractor or do it myself."
+    },
+    {
+      "title": "Find a tool that does the job",
+      "body": "Trillion finds the tool in the Marketplace that does what you describe and runs it for you.",
+      "icon": "Wrench",
+      "example": "Use Trillion to find a tool that turns this recording into a transcript, and run it."
+    },
+    {
+      "title": "Keep and find your files",
+      "body": "Your files live in your Trillion space. Your AI can list them, find one, and read it.",
+      "icon": "FolderOpen",
+      "example": "Use Trillion to find the contract I uploaded last week and summarise it."
+    },
+    {
+      "title": "Let people book time with you",
+      "body": "Share your open times as a link. Whoever you send it to picks a time, and it goes on your calendar with them invited.",
+      "icon": "CalendarDays",
+      "example": "Use Trillion to make a link where a client can book one 30-minute call with me."
+    },
+    {
+      "title": "Meet the right people",
+      "body": "Find people on the Trillion network who offer what you need, and ask for an introduction.",
+      "icon": "Users",
+      "example": "Use Trillion to find people who can help with brand design, and ask for an introduction."
+    },
+    {
+      "title": "Answer comments with a message",
+      "body": "When someone comments a word you choose on your post, Trillion sends them the private message you wrote.",
+      "icon": "MessageCircle",
+      "example": "Use Trillion so that anyone who comments GUIDE on my Instagram posts gets my guide link by message."
+    },
+    {
+      "title": "Say what you are working toward",
+      "body": "Trillion keeps your goals and uses them in every decision.",
+      "icon": "Target",
+      "example": "Use Trillion to record that I am working toward 10 paying customers by December."
+    },
+    {
+      "title": "Close the loop",
+      "body": "Tell Trillion how a decision turned out, so the next one starts from what really happened.",
+      "icon": "CircleCheck",
+      "example": "Tell Trillion that last week's pricing decision worked: 4 people bought."
+    }
+  ],
+  "places": [
+    {
+      "id": "chat",
+      "title": "In the AI you chat with",
+      "body": "Claude, ChatGPT, Gemini, Grok or Muse, on the web, on your computer and on your phone. Ask there; your AI uses Trillion for you.",
+      "icon": "MessageCircle"
+    },
+    {
+      "id": "team",
+      "title": "In Slack, with other people",
+      "body": "Where your AI works in Slack, like Claude or ChatGPT in Slack, your team can ask it in a channel, and it uses the same Trillion.",
+      "icon": "Users"
+    },
+    {
+      "id": "code",
+      "title": "In your editor or terminal",
+      "body": "Claude Code, Codex, Cursor and the Gemini CLI use Trillion while they work on your code.",
+      "icon": "Terminal"
+    },
+    {
+      "id": "anywhere",
+      "title": "Anywhere else your AI goes",
+      "body": "Wherever you already use your AI, Trillion comes with it once it is connected there. You never have to open Trillion to use it.",
+      "icon": "Sparkles"
+    }
+  ]
+}
