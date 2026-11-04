@@ -613,6 +613,11 @@
                 }
               }
             },
+            "attachments": {
+              "type": "object",
+              "additionalProperties": { "type": "string", "minLength": 1 },
+              "description": "Where a message's file is when it is not beside the export: { attachment id (file-XXXX): a path in the granted folder }"
+            },
             "time_box_seconds": {
               "type": "integer",
               "minimum": 1,

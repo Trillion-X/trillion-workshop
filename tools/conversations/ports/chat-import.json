@@ -35,7 +35,8 @@
     "the Worker's store becomes the records door: eeaf is stagedRecords(door).eeaf and commit its commit (reads first, then the step's writes in door-sized batches); lists are listsOverDoor(door)",
     "importChatExport (the Worker reading an export from hosted files in pages) becomes the resumable run over files on this computer, with a cursor row per file and per source",
     "writes and reads are sent again after a growing wait on 503, timeouts and unknown outcomes, with the same request key",
-    "local AI apps' sessions are read by the moved harness rules (harness/record-every-message.mjs rowsFrom and messagesOf)"
+    "local AI apps' sessions are read by the moved harness rules (harness/record-every-message.mjs rowsFrom and messagesOf)",
+    "the files a message carried are copied into the person's files through the files door (fileKeeper over records-door writeWholeFile): an export's files found beside it on this computer (exportFilesBeside, attachmentFinder's own id rule) or at the path the person gave, a session's pasted images under old Trillion's recorder names; importConversation takes that finder as `find`, and attachmentFinder stays for a namespace"
   ],
   "banned_substitutions": [
     "a new message store or identity instead of the moved message owner",
@@ -55,7 +56,11 @@
       "tools/conversations/test/import-conversations.test.mjs each source keeps one row per conversation and its messages, and a second run adds nothing",
       "tools/conversations/test/import-conversations.test.mjs a door that answers 503 midway stops the run where it was kept, and a resume finishes with nothing kept twice",
       "tools/conversations/test/chat-history-identity.test.mjs trusted history preserves its complete conversation identity, files and timestamps without opening work",
-      "tools/conversations/test/chat-export-zip.test.mjs a zip export gives the conversations of every conversations*.json"
+      "tools/conversations/test/chat-export-zip.test.mjs a zip export gives the conversations of every conversations*.json",
+      "tools/conversations/test/import-attachments.test.mjs the files each source's messages carried are copied through the files door, named the way old Trillion named them",
+      "tools/conversations/test/import-attachments.test.mjs a door that answers 503 in the middle of a file's pieces stops the run, and a resume keeps every file once and whole",
+      "tools/conversations/test/chat-attachments.test.mjs a private import links each found file in its message, reports the rest, and a second import links what was added since",
+      "tools/conversations/test/native-chat-import.test.mjs an export's files are found beside it, linked in their messages, and a repeat adds nothing twice"
     ]
   }
 }

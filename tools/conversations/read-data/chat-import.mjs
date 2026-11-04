@@ -395,14 +395,19 @@ export function exportFilesBeside(home, exportPath, rules = settings) {
   };
 }
 
-/** The finder importConversation takes for one export's messages: each attachment found beside the export and copied to
+/** The finder importConversation takes for one export's messages: each attachment at the path the person gave for its
+ *  id (`given`: { id: a path in the granted folder }), else found beside the export, and copied to
  *  <attachments_folder>/<app>/<its name>; a file not found, too large or refused by the door is missing. */
-function exportAttachmentFinder(home, exportPath, keepFile, app, count, rules = settings) {
+function exportAttachmentFinder(home, exportPath, keepFile, app, count, rules = settings, given = {}) {
   const beside = exportFilesBeside(home, exportPath, rules);
   const kept = new Map();
+  const named = id => {
+    const path = typeof given?.[id] === 'string' && given[id].trim() ? inside(home, resolve(home, given[id].trim())) : null;
+    return path && statSync(path).isFile() ? { path, name: basename(path), folder: basename(dirname(path)) } : null;
+  };
   return async ref => {
     if (kept.has(ref.id)) return kept.get(ref.id);
-    const hit = beside.locate(ref.id);
+    const hit = named(ref.id) ?? beside.locate(ref.id);
     let file = null;
     if (hit) {
       if (statSync(hit.path).size > rules.most_attachment_bytes) count.attachments_too_large += 1;
@@ -573,9 +578,9 @@ const tally = (count, answer) => {
 };
 
 /** An account export of conversation trees (read-data/chat-archives.mjs): next is the next conversation's place. */
-async function readArchiveFile({ home, path, file, source, cursor, keep, keepFile, save, deadline, count }) {
+async function readArchiveFile({ home, path, file, source, cursor, keep, keepFile, save, deadline, count, given }) {
   const all = exportedConversations(readFileSync(path));
-  const find = exportAttachmentFinder(home, path, keepFile, source.app, count);
+  const find = exportAttachmentFinder(home, path, keepFile, source.app, count, settings, given);
   let next = cursor.next ?? 0;
   let since = 0;
   while (next < all.length) {
@@ -596,8 +601,8 @@ async function readArchiveFile({ home, path, file, source, cursor, keep, keepFil
  * A conversation that reaches the end of a page waits for the next page before it is kept whole; next is the page a
  * conversation not yet kept starts in, so a stopped run reads that page again (what it already kept adds nothing).
  */
-async function readDecodedFile({ home, path, file, source, cursor, keep, keepFile, save, deadline, count }) {
-  const find = exportAttachmentFinder(home, path, keepFile, source.app, count);
+async function readDecodedFile({ home, path, file, source, cursor, keep, keepFile, save, deadline, count, given }) {
+  const find = exportAttachmentFinder(home, path, keepFile, source.app, count, settings, given);
   // The files the source named for a message (sources.json `attachments`) go as the page shape's metadata.attachments.
   const withFiles = message => {
     const { attachments, ...rest } = message;
@@ -698,7 +703,7 @@ async function cursorsOf(door, source) {
  * One source's files kept, each from its cursor row: a file already done whose size and time are unchanged is skipped;
  * a file that grew (a session still being written, a new export in the same place) is read on from where it was.
  */
-async function importOneSource(home, door, { source, files }, { deadline, now }) {
+async function importOneSource(home, door, { source, files }, { deadline, now, given = {} }) {
   const patient = door;
   const staged = stagedRecords(patient);
   const lists = listsOverDoor(patient);
@@ -724,7 +729,7 @@ async function importOneSource(home, door, { source, files }, { deadline, now })
     const save = async ({ next, done }) => { await patient.write([{ id, type: CURSOR_TYPE, value: { ...row(done), next } }], { key: keyOfWrite([id, next, done, count]) }); };
     let outcome;
     try {
-      outcome = await READERS[source.reader]({ home, path: join(home, found.file), file: found.file, source, cursor, keep, keepFile, save, deadline, count, lists });
+      outcome = await READERS[source.reader]({ home, path: join(home, found.file), file: found.file, source, cursor, keep, keepFile, save, deadline, count, lists, given });
     } catch (error) {
       if (!(error instanceof ImportStopped)) { count.conversations_refused.push({ at: 'file', reason: String(error.message).slice(0, 200) }); outcome = { done: true, next: cursor.next, note: error.message }; }
       else { stopped = error.reason; outcome = null; }
@@ -784,7 +789,8 @@ export async function importConversationsFrom(request, context = {}) {
     });
   }
   const door = patientDoor(context.door, { wait: context.wait, rules: rulesOf(context) });
-  const result = await importOneSource(home, door, { source, files }, runOptions(input, context));
+  const given = input.attachments && typeof input.attachments === 'object' && !Array.isArray(input.attachments) ? input.attachments : {};
+  const result = await importOneSource(home, door, { source, files }, { ...runOptions(input, context), given });
   return { ...result, more: !result.done };
 }
 
