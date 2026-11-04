@@ -5,6 +5,14 @@
   "records": [
     {
       "payload": {
+        "kind": "ai-instruction-source",
+        "id": "ai-instruction-source:tell-ais-how-to-act",
+        "file": "rows.json",
+        "what_this_is": "Where this Workshop keeps the rows an AI is told when it first connects: rows.json in this folder. The engine finds the list by this row's kind (trillion-rust src/record_value/records-door.json `instructions.row_kind`), never by this folder's name."
+      }
+    },
+    {
+      "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:read-how-ais-are-told",
         "label": "Read how AIs are told to act",
