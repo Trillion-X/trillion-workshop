@@ -254,3 +254,19 @@ test('their stands become labelled examples for the reading rows: agreed things 
   const missing = compileVerdictRules({ ...DOC, rows: DOC.rows.map(row => (row.id === 'reads-well' ? { ...row, pairs: [{ rejected: `1f:${'d'.repeat(64)}` }] } : row)) });
   assert.throws(() => examplesFromStands(missing, STANDS), CheckRefusal);
 });
+
+test('in the rules mode a generic row that reads a value judges a view, and a word row never reads it', () => {
+  const rules = [
+    { id: 'made-up-literal', kinds: ['made-up-file'], path: 'items.*.literal', where_pattern: '^(?![a-z]+:[a-z]+$)', allow_exact: ['allowed-one'], says: 'Name the literal by its definition.' },
+    { id: 'made-up-word', kinds: ['made-up-file'], words: ['zorblax'], says: 'Not a word.' },
+  ];
+  const { results } = check([
+    { kind: 'made-up-file', view: { items: [{ literal: 'ns:name' }, { literal: 'allowed-one' }] } },
+    { kind: 'made-up-file', view: { items: [{ literal: 'zorblax' }] } },
+    { kind: 'made-up-file', text: 'zorblax here' },
+  ], rules);
+  assert.deepEqual(results.map(result => result.verdict), ['pass', 'fail', 'fail']);
+  assert.deepEqual(results[0].applicable_rule_ids, ['made-up-literal']);
+  assert.deepEqual(results[1].breaks.map(finding => [finding.rule, finding.found]), [['made-up-literal', 'zorblax']]);
+  assert.deepEqual(results[2].breaks.map(finding => finding.rule), ['made-up-word']);
+});
