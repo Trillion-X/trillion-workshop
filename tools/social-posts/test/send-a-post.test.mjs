@@ -397,3 +397,48 @@ test('each newsletter place has its send row, mounting the one key its requests 
     assert.equal(row.invoke.connection.vendor, placed.connection_vendor);
   }
 });
+
+// A made-up place whose publisher makes two requests, each signed with the same held key: the run's held value comes on
+// descriptor 4, as the engine hands it, so it is read there in a run of its own.
+const TWO_SIGNED = {
+  platform: 'made-up-letters', label: 'Made-up letters', adapter: 'requests', connection_vendor: 'made-up-letters', hosts: ['api.letters.example.test'],
+  account: { plain: 'publication_id' },
+  options: {
+    platform: 'made-up-letters', account: { plain: 'publication_id' },
+    steps: [
+      { id: 'created', operation: 'letters.create', method: 'POST', url: { join: ['https://api.letters.example.test/v1/', { plain: 'publication_id' }, '/posts'] },
+        headers: { authorization: { join: ['Bearer ', { held: 'api_key' }] } }, body: { body_html: { post: 'words', markup: 'html' } }, goes_public: true, needs: ['data.id'] },
+      { id: 'read', operation: 'letters.read', url: { join: ['https://api.letters.example.test/v1/', { plain: 'publication_id' }, '/posts/', { step: 'created', at: 'data.id' }] },
+        headers: { authorization: { join: ['Bearer ', { held: 'api_key' }] } } },
+    ],
+    post_id: { step: 'created', at: 'data.id' },
+  },
+};
+const TWO_SIGNED_RUN = `
+import { connectedAccountRef } from '@opencoredev/social-sdk';
+import { heldFromDescriptors, publisherFor } from ${JSON.stringify(new URL('../read-data/send-a-post.mjs', import.meta.url).href)};
+const place = ${JSON.stringify(TWO_SIGNED)};
+const asked = [];
+const send = async (url, init) => {
+  asked.push(new Headers(init.headers).get('authorization'));
+  return new Response(JSON.stringify({ data: { id: 'letter_made_up' } }), { status: 200, headers: { 'content-type': 'application/json' } });
+};
+const { social, account } = publisherFor(place, { plain: { publication_id: 'pub_made_up' } }, { held: heldFromDescriptors(place), send });
+const result = await social.posts.publish({ targets: [{ account }], content: { text: 'A short letter' }, idempotencyKey: 'two-signed' });
+console.log(JSON.stringify({ asked, state: result.outcomes[0].state }));
+`;
+
+test('a place that signs two requests in one run sends the held key on both, read from its descriptor once', async () => {
+  const { spawn } = await import('node:child_process');
+  const child = spawn(process.execPath, ['--input-type=module', '-e', TWO_SIGNED_RUN], { cwd: new URL('..', import.meta.url), stdio: ['ignore', 'pipe', 'pipe', 'ignore', 'pipe'] });
+  child.stdio[4].on('error', () => {});
+  child.stdio[4].end(VALUE);
+  let out = '', err = '';
+  child.stdout.on('data', chunk => { out += chunk; });
+  child.stderr.on('data', chunk => { err += chunk; });
+  const code = await new Promise(done => child.on('close', done));
+  assert.equal(code, 0, err);
+  const ran = JSON.parse(out.trim().split('\n').at(-1));
+  assert.deepEqual(ran.asked, [`Bearer ${VALUE}`, `Bearer ${VALUE}`]);
+  assert.equal(ran.state, 'published');
+});
