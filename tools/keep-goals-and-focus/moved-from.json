@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/pursuit-hierarchy-view.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-goals-and-focus/read-data/pursuit-hierarchy-view.mjs",
+      "source_identity": "1f:ae7d712842c7f2138af42ba6984e5f71d5f856f7bc708ecf39e69695e461d95d",
+      "identity": "1f:ae7d712842c7f2138af42ba6984e5f71d5f856f7bc708ecf39e69695e461d95d"
+    }
+  ]
+}
