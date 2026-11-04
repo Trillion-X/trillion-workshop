@@ -1,6 +1,6 @@
 # built-stored-bytes/
 
-Built output of the formula engine that other hosts load directly, rebuilt from Trillion's own source by `scripts/build-formula-evaluator.mjs`. Regenerate; never edit.
+Built output of the formula engine that other hosts load directly, rebuilt from `../trillion-rust/crates/evaluate-over-rows` by Trillion-X/trillion-apps `web/scripts/build-formula-evaluator.mjs` (run from a trillion-apps checkout beside this one; it writes here). Regenerate; never edit.
 
 ## Files
 
@@ -17,6 +17,6 @@ Built output of the formula engine that other hosts load directly, rebuilt from 
 
 ## Dependencies
 
-**Depends on:** `scripts/build-formula-evaluator.mjs` (the only writer), over `../trillion-rust/crates/evaluate-over-rows`, `../trillion-rust/crates/composition-ast` and `../trillion-rust/crates/ops-core`.
+**Depends on:** trillion-apps `web/scripts/build-formula-evaluator.mjs` (the only writer), over `../trillion-rust/crates/evaluate-over-rows`, `../trillion-rust/crates/composition-ast` and `../trillion-rust/crates/ops-core`.
 
-**Depended on by:** `../rules/evaluate-over-rows.mjs`, `scripts/build-workspace.mjs` (serves the wasm to the page), `test/formula-rules.test.mjs`.
+**Depended on by:** `../rules/evaluate-over-rows.mjs`, `scripts/build-workspace.mjs` (serves the wasm to the page), `test/formula-rules.test.mjs`, `../test/shipped-evaluator.test.mjs`.
