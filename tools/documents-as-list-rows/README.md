@@ -166,7 +166,7 @@ Where each value goes:
 
 ### Cutting into pieces (the atoms rule)
 
-A mapping with `cut: "atoms"` is the second split rule, chosen by DATA per list. It cuts each document into atoms, ported from the earlier Trillion app (`scripts/method-atoms.mjs` there): one atom is one paragraph, list item, table row or fenced block, under the headings above it. Titles, horizontal rules and table headers are not atoms. The port changes two things: the identity hash comes from `tools/content-identity`, and each atom carries `line`, the line it starts at.
+A mapping with `cut: "atoms"` is the second split rule, chosen by DATA per list. It cuts each document into atoms, ported from the earlier Trillion app (`scripts/method-atoms.mjs` there): one atom is one paragraph, list item, table row or fenced block, under the headings above it. Titles, horizontal rules and table headers are not atoms. The port changes three things: the identity hash comes from `tools/content-identity`, each atom carries `line`, the line it starts at, and a fenced block is fenced as CommonMark defines it (``` or ~~~, at least three; it closes only on a line of the same character, at least as many, with nothing after them; a backtick fence's info string holds no backtick; one left open runs to the end), where the earlier cutter knew only ``` and closed on any line starting with it, so a ~~~ fence's lines were counted as pieces. Indentation is not counted, since the cutter keeps no list containers.
 
 ```
 node do-work/documents.mjs atoms --root DIR (--mapping FILE | --stdin) [--check]
