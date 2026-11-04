@@ -1,0 +1,11 @@
+import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { selectorMachine } from '../parts/ui/show/anatomy/selector-machine.mjs';
+import { explainerPage, explainerScript } from '../parts/ui/show/anatomy/explainer-page.mjs';
+const data=JSON.parse(await readFile(new URL('../records/trillion-anatomy-explainer.json',import.meta.url),'utf8'));
+const machine=selectorMachine();
+const out=new URL('../assets/trillion-anatomy/',import.meta.url);
+await mkdir(out,{recursive:true});
+await writeFile(new URL('index.html',out),explainerPage(data,machine));
+await writeFile(new URL('figure.js',out),explainerScript(data,machine));
+await writeFile(new URL('LICENSE.txt',out),await readFile(new URL('../parts/ui/show/anatomy/LICENSE',import.meta.url)));
+console.log(JSON.stringify({file:out.pathname+'index.html',solids:machine.solids,phases:data.phases.length}));

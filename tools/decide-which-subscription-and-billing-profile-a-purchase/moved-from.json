@@ -1,0 +1,32 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/offer-allocation.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-which-subscription-and-billing-profile-a-purchase/src/offer-allocation.mjs",
+      "source_identity": "1f:0162c22e5195c07d25eccfebccdb23bd545db3ca4f63ab0126090bc6ee2fb171",
+      "identity": "1f:0162c22e5195c07d25eccfebccdb23bd545db3ca4f63ab0126090bc6ee2fb171"
+    },
+    {
+      "from": "src/offer-rows.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-which-subscription-and-billing-profile-a-purchase/src/offer-rows.mjs",
+      "source_identity": "1f:53a5542d98fd163b341d015e0ca4c73f26174d5199c2f853fca4ca457b995d4a",
+      "identity": "1f:53a5542d98fd163b341d015e0ca4c73f26174d5199c2f853fca4ca457b995d4a",
+      "reads_rows": [
+        "records/commercial-offer-records.json"
+      ]
+    },
+    {
+      "from": "src/subscription-allocation.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-which-subscription-and-billing-profile-a-purchase/src/subscription-allocation.mjs",
+      "source_identity": "1f:5f11c752c7b00ae00d092f3b2abe0023d7db4d1fca313866301f9673fd29d76a",
+      "identity": "1f:5f11c752c7b00ae00d092f3b2abe0023d7db4d1fca313866301f9673fd29d76a"
+    }
+  ]
+}

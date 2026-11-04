@@ -1,0 +1,24 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/thread-cover/thread-cover.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/thread-cover/thread-cover.json",
+      "source_identity": "1f:196791e21053fff43bef820310282f4e4d927e0017fd7553f13046967bae355a",
+      "identity": "1f:196791e21053fff43bef820310282f4e4d927e0017fd7553f13046967bae355a",
+      "reused": true
+    },
+    {
+      "from": "parts/ui/show/thread-cover/thread-cover.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/thread-cover/thread-cover.mjs",
+      "source_identity": "1f:d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547",
+      "identity": "1f:d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547",
+      "reused": true
+    }
+  ]
+}
