@@ -1,0 +1,17 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/take-me-there.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/take-me-there/take-me-there.mjs",
+      "source_identity": "1f:8f56ebb0785c326845286682a4446b1bbe6f823d8b609ae68c6c3cc594feff65",
+      "identity": "1f:8f56ebb0785c326845286682a4446b1bbe6f823d8b609ae68c6c3cc594feff65",
+      "found_by": "same bytes"
+    }
+  ]
+}

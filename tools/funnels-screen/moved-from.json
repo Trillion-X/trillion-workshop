@@ -64,6 +64,15 @@
       "to": "tools/funnels-screen/read-data/stage-projection.ts",
       "source_identity": "1f:051b12ccfd1e7c786201471335a2dc424bdc0d6c09433d1419ef6e908be0bf30",
       "identity": "1f:051b12ccfd1e7c786201471335a2dc424bdc0d6c09433d1419ef6e908be0bf30"
+    },
+    {
+      "from": "parts/funnel-offer-graph/show/FunnelCanvas.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/funnels-screen/show/FunnelCanvas.tsx",
+      "source_identity": "1f:e4cea94ffbe311f22fcce149f232dba071ee57edae84089861164284a267ee37",
+      "identity": "1f:e4cea94ffbe311f22fcce149f232dba071ee57edae84089861164284a267ee37",
+      "found_by": "same bytes"
     }
   ],
   "not_matched": [

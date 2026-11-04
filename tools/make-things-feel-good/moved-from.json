@@ -1,0 +1,62 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ambience/show/ambience-screen.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/make-things-feel-good/show/ambience-screen.tsx",
+      "source_identity": "1f:d6dfaef59aa22ad7bfdf4dc54b8efc9f98911df5d779854133d15e37269824ca",
+      "identity": "1f:d6dfaef59aa22ad7bfdf4dc54b8efc9f98911df5d779854133d15e37269824ca",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ambience/show/sound-followers.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/make-things-feel-good/show/sound-followers.ts",
+      "source_identity": "1f:d01d2e9cf465b8651933f67771321b0d4b9a9079c3ffbf0d070494adc9a5cdc6",
+      "identity": "1f:d01d2e9cf465b8651933f67771321b0d4b9a9079c3ffbf0d070494adc9a5cdc6",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ambience/show/voices-panel.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/make-things-feel-good/show/voices-panel.tsx",
+      "source_identity": "1f:ac1aa13667438db46c5f14f7366be2454acade9cc0076c1187772a892922cfb1",
+      "identity": "1f:ac1aa13667438db46c5f14f7366be2454acade9cc0076c1187772a892922cfb1",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/delight-moments/show/mount-delight-moments.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/make-things-feel-good/show/mount-delight-moments.tsx",
+      "source_identity": "1f:176d2616ece0ca4911714a84531b828fe6f1151b4a9bdc80ceb5bd0e1ff87492",
+      "identity": "1f:176d2616ece0ca4911714a84531b828fe6f1151b4a9bdc80ceb5bd0e1ff87492",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/feel/show/FeelSettings.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/make-things-feel-good/show/FeelSettings.tsx",
+      "source_identity": "1f:cde58c306c858347576a65649b38f42d523be698816ab438e4b81bc8d37a0ffe",
+      "identity": "1f:cde58c306c858347576a65649b38f42d523be698816ab438e4b81bc8d37a0ffe",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/feel/show/mount-feel.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/make-things-feel-good/show/mount-feel.ts",
+      "source_identity": "1f:538a20c156bc0d1ecc43a08f2165c1ac41cb39e00f7b7c17e2115611350d8c39",
+      "identity": "1f:538a20c156bc0d1ecc43a08f2165c1ac41cb39e00f7b7c17e2115611350d8c39",
+      "found_by": "same bytes"
+    }
+  ]
+}

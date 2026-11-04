@@ -1,0 +1,17 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/local-files/read-data/invoke-local-files-target.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/choose-and-save-local-files/read-data/invoke-local-files-target.ts",
+      "source_identity": "1f:534777d740404b7a875107b8adeb63cd6acf131505f8ccd271d6f9c2f22ae214",
+      "identity": "1f:534777d740404b7a875107b8adeb63cd6acf131505f8ccd271d6f9c2f22ae214",
+      "found_by": "same bytes"
+    }
+  ]
+}

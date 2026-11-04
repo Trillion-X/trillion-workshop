@@ -1,0 +1,44 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/agent-legacy-rows.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/hand-work-to-ais/agent-legacy-rows.mjs",
+      "source_identity": "1f:3b9d74649208409b39039a62ac98ae0b39843e3e7c8b4c4e718106c5762e3d14",
+      "identity": "1f:3b9d74649208409b39039a62ac98ae0b39843e3e7c8b4c4e718106c5762e3d14",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "src/agent-open-work-page.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/hand-work-to-ais/agent-open-work-page.mjs",
+      "source_identity": "1f:3a1ae684e39689a1e701a798f0fffb6b5013a9b00e02fd9aa9f85be6a888c407",
+      "identity": "1f:3a1ae684e39689a1e701a798f0fffb6b5013a9b00e02fd9aa9f85be6a888c407",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "src/agent-records.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/hand-work-to-ais/agent-records.mjs",
+      "source_identity": "1f:bb6507e0187207f69b374cec467ac1fc1987478d067181164aa60122b6b834ad",
+      "identity": "1f:bb6507e0187207f69b374cec467ac1fc1987478d067181164aa60122b6b834ad",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "src/agent-schedule-rows.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/hand-work-to-ais/agent-schedule-rows.mjs",
+      "source_identity": "1f:cf9cc05eaac47472cdd0611d1563febef5f1cfedd200ddf86c19922342db0869",
+      "identity": "1f:cf9cc05eaac47472cdd0611d1563febef5f1cfedd200ddf86c19922342db0869",
+      "found_by": "same bytes"
+    }
+  ]
+}

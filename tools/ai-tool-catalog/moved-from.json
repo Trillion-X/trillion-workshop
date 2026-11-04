@@ -67,6 +67,24 @@
       "to": "tools/ai-tool-catalog/read-data/read-ai-tool-catalog.ts",
       "source_identity": "1f:f65e94b1a5d27a1b1c304ed22197b34e167958ec2eb43689193b5e9a9d61f85d",
       "identity": "1f:f65e94b1a5d27a1b1c304ed22197b34e167958ec2eb43689193b5e9a9d61f85d"
+    },
+    {
+      "from": "parts/ai-tool-catalog/do-work/prepare-tool-result.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/ai-tool-catalog/do-work/prepare-tool-result.ts",
+      "source_identity": "1f:f19e74ae212ae4fbb446c4864c5b6c0650d0e372f5b046f163618f6ddcede2dd",
+      "identity": "1f:f19e74ae212ae4fbb446c4864c5b6c0650d0e372f5b046f163618f6ddcede2dd",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ai-tool-catalog/do-work/request-tool-run.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/ai-tool-catalog/do-work/request-tool-run.ts",
+      "source_identity": "1f:b9530e41e54c9ea065092e6a3a8506b887d994bf956817e0577a1256ac3a39c2",
+      "identity": "1f:b9530e41e54c9ea065092e6a3a8506b887d994bf956817e0577a1256ac3a39c2",
+      "found_by": "same bytes"
     }
   ],
   "not_matched": [

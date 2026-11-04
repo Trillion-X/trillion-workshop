@@ -1,0 +1,53 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/work-map/read-data/join-records.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/see-what-is-being-worked-on/read-data/join-records.mjs",
+      "source_identity": "1f:6db73426c91c024f6289e11c409908189c7d8daf23cd9a408af7dfc8fca3cca0",
+      "identity": "1f:6db73426c91c024f6289e11c409908189c7d8daf23cd9a408af7dfc8fca3cca0",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/work-map/show/work-map-screen.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/see-what-is-being-worked-on/show/work-map-screen.tsx",
+      "source_identity": "1f:af2411dacefbad786bd5ae563590a1d4a8f27daa1b29604a7252d170ed9c6f00",
+      "identity": "1f:af2411dacefbad786bd5ae563590a1d4a8f27daa1b29604a7252d170ed9c6f00",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/workflow-canvas/read-data/layered-layout.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/see-what-is-being-worked-on/read-data/layered-layout.ts",
+      "source_identity": "1f:424485dcfe21edf699f1f05bc8f41a38c730772f27d3897132cf1b9bd9fd7c49",
+      "identity": "1f:424485dcfe21edf699f1f05bc8f41a38c730772f27d3897132cf1b9bd9fd7c49",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/workflow-canvas/show/WorkflowEdge.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/see-what-is-being-worked-on/show/WorkflowEdge.tsx",
+      "source_identity": "1f:d1ec656649c09f4f738e33ee3f82f929cd8d002fc230af408a27ccc0bed542ce",
+      "identity": "1f:d1ec656649c09f4f738e33ee3f82f929cd8d002fc230af408a27ccc0bed542ce",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "src/message-task-canvas.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/see-what-is-being-worked-on/message-task-canvas.mjs",
+      "source_identity": "1f:b1f1bd7c3c00fc2672c732e1b22c367ba21f7d3a734827f704096d05ad7905d2",
+      "identity": "1f:b1f1bd7c3c00fc2672c732e1b22c367ba21f7d3a734827f704096d05ad7905d2",
+      "found_by": "same bytes"
+    }
+  ]
+}
