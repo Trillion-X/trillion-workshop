@@ -1,0 +1,72 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [
+    "src/workspace/funnels-screen.tsx",
+    "parts/funnel-offer-graph/",
+    "parts/choose-per-observer/"
+  ],
+  "files": [
+    {
+      "from": "parts/choose-per-observer/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/funnels-screen/choose-per-observer/README.md",
+      "source_identity": "1f:ada7a90e4866b6a6721cd14e5b6c439ccc4dde086b60ae5764fb991f9917329f",
+      "identity": "1f:ada7a90e4866b6a6721cd14e5b6c439ccc4dde086b60ae5764fb991f9917329f"
+    },
+    {
+      "from": "parts/choose-per-observer/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/funnels-screen/choose-per-observer/part.json",
+      "source_identity": "1f:0e1d265e41247af2502db097a75017cdf4b198ca6586307877358aebcabf67bd",
+      "identity": "1f:0e1d265e41247af2502db097a75017cdf4b198ca6586307877358aebcabf67bd"
+    },
+    {
+      "from": "parts/funnel-offer-graph/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/funnels-screen/funnel-offer-graph/README.md",
+      "source_identity": "1f:ff1038937a81b318e705541629d046d35a8127b4ba7da7708c58f3b95acace0f",
+      "identity": "1f:ff1038937a81b318e705541629d046d35a8127b4ba7da7708c58f3b95acace0f"
+    },
+    {
+      "from": "parts/funnel-offer-graph/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/funnels-screen/funnel-offer-graph/part.json",
+      "source_identity": "1f:5295f13ee6ba7206fed94cc86b592dd3a2a5e742e199450874200733fd845e01",
+      "identity": "1f:5295f13ee6ba7206fed94cc86b592dd3a2a5e742e199450874200733fd845e01"
+    },
+    {
+      "from": "parts/choose-per-observer/read-data/candidate-set-schema.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/funnels-screen/read-data/candidate-set-schema.ts",
+      "source_identity": "1f:39076ab670f50fb85891748d2b441ef5806559401da4d30c37ff4bbcf264e76b",
+      "identity": "1f:39076ab670f50fb85891748d2b441ef5806559401da4d30c37ff4bbcf264e76b"
+    },
+    {
+      "from": "parts/funnel-offer-graph/read-data/resolve-funnel-flow.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/funnels-screen/read-data/resolve-funnel-flow.ts",
+      "source_identity": "1f:33475e29e7854de4789463dab120d961680c6d927f49cc84e42cec013a6d35fc",
+      "identity": "1f:33475e29e7854de4789463dab120d961680c6d927f49cc84e42cec013a6d35fc"
+    },
+    {
+      "from": "parts/choose-per-observer/read-data/score-candidates.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/funnels-screen/read-data/score-candidates.ts",
+      "source_identity": "1f:48f7203991d6a960cffba5003fdb3d52ba427ef1973a38c8ae437173b5307be0",
+      "identity": "1f:48f7203991d6a960cffba5003fdb3d52ba427ef1973a38c8ae437173b5307be0"
+    },
+    {
+      "from": "parts/funnel-offer-graph/read-data/stage-projection.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/funnels-screen/read-data/stage-projection.ts",
+      "source_identity": "1f:051b12ccfd1e7c786201471335a2dc424bdc0d6c09433d1419ef6e908be0bf30",
+      "identity": "1f:051b12ccfd1e7c786201471335a2dc424bdc0d6c09433d1419ef6e908be0bf30"
+    }
+  ],
+  "not_matched": [
+    "tools/funnels-screen/show/FunnelCanvas.tsx"
+  ]
+}

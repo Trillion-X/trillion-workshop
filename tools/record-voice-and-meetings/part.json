@@ -1,4 +1,8 @@
 {
+  "imported_by": [
+    "Trillion-X/trillion-apps",
+    "Trillion-X/trillion"
+  ],
   "public": [
     "show/record-in-the-browser.ts",
     "read-data/capture-sources.json",

@@ -1,0 +1,19 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [],
+  "files": [
+    {
+      "from": "parts/ai-records-producer/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/ai-records-producer/part.json",
+      "source_identity": "1f:74e931036392db1544c789811d866d7bbefc3ce3b54defbc4bbd044aef04c808",
+      "identity": "1f:9b6460cfc83c785df52ca9aa7f87da129aeb026f4f134f652583106dacea7620"
+    }
+  ],
+  "not_matched": [
+    "tools/ai-records-producer/do-work/build-agent-turn-continuation.ts"
+  ]
+}

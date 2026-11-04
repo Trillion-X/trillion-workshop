@@ -2,7 +2,10 @@
 // fix. Every host here is synthetic (192.0.2.x, example.com).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { administrationArguments, checkedHost, knownHostsLine } from '../do-work/administration-arguments.mjs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { administrationArguments, checkedHost, heldKeyFile, knownHostsLine, proxied } from '../do-work/administration-arguments.mjs';
 
 const host = { address: '192.0.2.10', ssh_port: 2222, admin_user: 'builder', host_key: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample' };
 
@@ -33,4 +36,22 @@ test('a host that cannot be reached safely is refused, naming the field to fix',
   assert.throws(() => knownHostsLine({ ...host, host_key: undefined }), /host_key is missing/);
   // A caller that pinned the host some other way (its own known_hosts file) need not give host_key.
   assert.equal(administrationArguments({ ...host, host_key: undefined, adminKeyFile: '/k', knownHostsFile: '/kh' }).at(-1), 'builder@192.0.2.10');
+});
+
+test('a run\'s proxy is reached through its CONNECT tunnel with a keepalive, and only a loopback http proxy is taken', () => {
+  const args = { ...host, adminKeyFile: '/k', knownHostsFile: '/kh' };
+  assert.deepEqual(administrationArguments({ ...args, proxy: 'http://127.0.0.1:40123' }).slice(0, 2), ['-o', 'ProxyCommand=/usr/bin/nc -X connect -x 127.0.0.1:40123 %h %p']);
+  assert.deepEqual(administrationArguments({ ...args, proxy: null }).slice(0, 5), ['-o', 'ServerAliveInterval=30', '-o', 'ServerAliveCountMax=4', '-T']);
+  assert.equal(administrationArguments(args)[0], '-T');
+  assert.ok(proxied(undefined).includes('ServerAliveInterval=30'));
+  for (const refused of ['https://127.0.0.1:1', 'http://proxy.example.com:8080', 'http://127.0.0.1:1;touch']) assert.throws(() => proxied(refused), /proxy setting was refused/);
+});
+
+test('a held key file gets back the last newline ssh needs, once, in place', t => {
+  const folder = mkdtempSync(join(tmpdir(), 'held-key-')); t.after(() => rmSync(folder, { recursive: true, force: true }));
+  const file = join(folder, 'key');
+  writeFileSync(file, 'synthetic key');
+  assert.equal(heldKeyFile(file), file);
+  heldKeyFile(file);
+  assert.equal(readFileSync(file, 'utf8'), 'synthetic key\n');
 });

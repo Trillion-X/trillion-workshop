@@ -1,0 +1,143 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-deleted-code-names-its-home",
+        "id": "tool:check-deleted-code-names-its-home",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "label": "Check that the code my commits delete names where it went",
+        "job": "Check a span of commits in a checkout: every source or test file they delete names its new home (a moved-from receipt) or the decision that retired it",
+        "description": "Grant the checkout to read (one of the repositories read-data/rules.json names) and give range, two of its commits as <from>..<to>, and optionally repository, its name when its folder is named otherwise. Receipts in the other repositories are read from their checkouts beside it; one with no checkout there is listed in unread and its receipts are not counted. The same judge the check row record:check:deleted-code-names-its-home runs before each commit and push. Returns valid, judged (each deleted or renamed file with its home and how it was found), errors (each in words) and unread.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "range"
+          ],
+          "properties": {
+            "range": {
+              "type": "string",
+              "description": "Two commits of the granted checkout, <from>..<to>"
+            },
+            "repository": {
+              "type": "string",
+              "description": "The checkout's repository name, when its folder is named otherwise"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "valid",
+            "errors"
+          ],
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "judged": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unread": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/check-deleted-code-names-its-home",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/check-deleted-code-names-its-home/do-work/check-deleted-code-names-its-home.mjs",
+            "--granted",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-deleted-code-names-its-home",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/check-deleted-code-names-its-home"
+              },
+              {
+                "package": "check-a-port-against-its-source",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/check-a-port-against-its-source"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a git checkout of one of the repositories read-data/rules.json names, holding the two commits of range (a sample run grants plain files with no git history, so no sample can hold the commits the judge reads)",
+            "proved_on": null
+          }
+        ]
+      }
+    }
+  ]
+}

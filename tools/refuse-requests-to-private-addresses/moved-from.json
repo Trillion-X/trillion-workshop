@@ -1,0 +1,28 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [
+    "parts/http-client/do-work/public-address.mjs",
+    "parts/http-client/do-work/public-address.json",
+    "crates/ssrf-policy/"
+  ],
+  "files": [
+    {
+      "from": "parts/http-client/do-work/public-address.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/refuse-requests-to-private-addresses/public-address.json",
+      "source_identity": "1f:e79f06651544385fb2d990d85de7e70824f7c63e36ba477f4dbe6ea074c67906",
+      "identity": "1f:e79f06651544385fb2d990d85de7e70824f7c63e36ba477f4dbe6ea074c67906"
+    },
+    {
+      "from": "parts/http-client/do-work/public-address.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/refuse-requests-to-private-addresses/public-address.mjs",
+      "source_identity": "1f:0ca1798c69be9260d16d7d6328e0051d593c2fa36427a6bd81df328d864dc9e3",
+      "identity": "1f:0413024788144769dac392b7dda43ca301f705f9e8ccdc5c81eb53d3b02f3234"
+    }
+  ],
+  "not_matched": []
+}

@@ -1,4 +1,9 @@
 {
+  "imported_by": [
+    "tools/run-on-a-persons-computer",
+    "Trillion-X/trillion-apps",
+    "Trillion-X/trillion"
+  ],
   "public": [
     "do-work/upload-a-folder.mjs",
     "do-work/namespace-client.mjs",

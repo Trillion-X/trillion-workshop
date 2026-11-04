@@ -10,8 +10,9 @@ It runs from the person's Checks list: the row `record:check:deleted-code-names-
 
 | File | Purpose |
 |------|---------|
-| `do-work/check-deleted-code-names-its-home.mjs` | The judge: `judgeDeletions({ root, span, repository?, repositories?, rules? })`, and the same as a command (`--root`, then `--staged`, `--range <from>..<to>` or `--for-command <command>`). What a command publishes is read by `tools/check-a-port-against-its-source`'s `spanForCommand`, the one owner of that reading. A path's identity is `tools/content-identity`'s BLAKE3. Prints the refusal in words, then the JSON judgement on the last line; exit 0 passes, 1 refuses, 2 could not judge. |
+| `do-work/check-deleted-code-names-its-home.mjs` | The judge: `judgeDeletions({ root, span, repository?, repositories?, rules? })`, and the same as a command (`--root`, then `--staged`, `--range <from>..<to>` or `--for-command <command>`). What a command publishes is read by `tools/check-a-port-against-its-source`'s `spanForCommand`, the one owner of that reading. A path's identity is `tools/content-identity`'s BLAKE3. Prints the refusal in words, then the JSON judgement on the last line; exit 0 passes, 1 refuses, 2 could not judge. `--granted <checkout>` is the tool row's run: `{ range, repository? }` on stdin, `{ result }` or `{ error }` out. |
 | `read-data/rules.json` | DATA: the repositories whose receipts count, which deleted files are judged (source and test files; documents and data are not), where receipts and retirements are read, and every word the judge says. |
+| `tool-rows.json` | `tool:check-deleted-code-names-its-home`: the same judge over a range of commits in a checkout the person grants, from any AI or screen that runs Workshop tools. |
 | `read-data/check-row.json` | The check row, `record:check:deleted-code-names-its-home`, as the person's Checks list holds it. |
 | `test/check-row.test.mjs` | That exact row run by the check list runner against a made-up door and made-up checkouts side by side: a deletion with no home refused in words; a receipt beside it by path or by path identity, a receipt staged in the same commit, a retirement that quotes its decision, a rename and a deleted document pass; a retirement with no decision, and a receipt from another repository, do not; a push is judged over the commits it publishes. |
 | `ports/check-deleted-code-names-its-home.json` | The NO_PRIOR_OWNER claim and the search that found no owner. |
@@ -21,4 +22,4 @@ It runs from the person's Checks list: the row `record:check:deleted-code-names-
 
 **Depends on:** `tools/check-a-port-against-its-source` (`spanForCommand`), `tools/content-identity` (`makeHashCodeHexFromBytes`), git, Node.
 
-**Depended on by:** the person's Checks list row `record:check:deleted-code-names-its-home`, run by `tools/check-every-tool-call`.
+**Depended on by:** the person's Checks list row `record:check:deleted-code-names-its-home`, run by `tools/check-every-tool-call`; the tool row `tool:check-deleted-code-names-its-home`.

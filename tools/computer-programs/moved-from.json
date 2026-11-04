@@ -1,0 +1,24 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [],
+  "files": [
+    {
+      "from": "parts/computer-programs/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/computer-programs/part.json",
+      "source_identity": "1f:6916ccc8390b9d67dfd38e313626cafa08cad9c6a3f42d82c7136a5f6127c508",
+      "identity": "1f:0b0ce65c725d2883a88975191f41c7c6fac7cf726a88a3369b325767ae724f17"
+    },
+    {
+      "from": "parts/computer-programs/read-data/program-here.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/computer-programs/read-data/program-here.mjs",
+      "source_identity": "1f:3df160afd55ebcf812e2fbc114b0b3f00fc06be20e6c8cf050ea7375dcd57e03",
+      "identity": "1f:3df160afd55ebcf812e2fbc114b0b3f00fc06be20e6c8cf050ea7375dcd57e03"
+    }
+  ],
+  "not_matched": []
+}

@@ -1,0 +1,70 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PUBLIC-DOOR-HOST-LEASE",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:f4c5cc948fc55f0e02604c7c1fe527172f371c89624704128c7d8b5430e5eb89",
+    "quote": "Port the reader's logic line for line (rowsWith, one, the rents_a_host / points_a_name / public-door-placement shapes, the vault-name-only credentials). Replace only its source: file reads and writes become door records reads and writes."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "path": "scripts/portable-host-lease.mjs",
+      "multihash": "1f:b5c074113c6e1b7563542e8a1c7f75be3e848720be54141e72a89cd8578dcccd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T21:00:00Z",
+        "deleted_with": "the same change that deletes the old door rows reader"
+      }
+    }
+  ],
+  "targets": [
+    { "path": "tools/move-the-public-door/do-work/portable-host-lease.mjs" }
+  ],
+  "preserve": [
+    "the lease client sends only the row's own find, create, read and remove requests under the row's base, each path matched against the row's id pattern; anything else is refused before any network call",
+    "the credential is sent only in the row's auth header and never appears in an error",
+    "one lease owns one host and key; asked again with the same placement it answers the lease it holds, and a lease naming another placement is refused",
+    "a host with this name that the lease does not own is left untouched; a relabelled host is never removed",
+    "a lost create answer keeps the lease's cleanup ownership and removes only the host labelled with its name",
+    "a test host has a cleanup deadline within one day, a retained service none; the watcher retries a failed removal",
+    "a box the person already runs is adopted at its IPv4 address and never deleted",
+    "the receipt is saved before each provider change"
+  ],
+  "allowed_deltas": [
+    "the receipt is a row of the person's Public door receipts list (read-data/door-receipts.mjs), each save conditioned on the value last read, not a mode-600 file renamed into place",
+    "the provider row is always handed in (the caller reads it from the Service connections list), not defaulted to one named provider; hetznerLeaseClient goes with that default",
+    "the command-line entry with the key on descriptor 3 goes: the rows in tool-rows.json run do-work/door-tools.mjs, which takes the key from the row's credential mount",
+    "the receipt schema name loses its product prefix (baseline redaction)"
+  ],
+  "banned_substitutions": [
+    "deleting a guessed resource",
+    "a credential in a receipt, an error or an answer",
+    "a request outside the row's declared requests"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T21:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:b5c074113c6e1b7563542e8a1c7f75be3e848720be54141e72a89cd8578dcccd",
+    "target_multihash_at_baseline": "1f:2f3ed7a39ac89ee6d53c57782258a8834590f150ce1d5ca41acaa906e7280e51",
+    "commit": "1028d8fd5d9d4993a11a8f2a10a3e892e2c44e8e",
+    "redactions": [
+      { "from": "'trillion.portable-host-lease/1'", "to": "'portable-host-lease/1'", "why": "the receipt schema name carried the older owner's product prefix, which a public tool does not" }
+    ]
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/move-the-public-door/test/host-lease.test.mjs one lease owns one host and key; retry reuses it, removal is exact and repeatable",
+      "tools/move-the-public-door/test/host-lease.test.mjs a foreign relabelled host is never removed",
+      "tools/move-the-public-door/test/host-lease.test.mjs a retained service has no automatic deletion deadline",
+      "tools/move-the-public-door/test/host-lease.test.mjs a lost create answer reconciles the labelled host and cleans its exact IDs",
+      "tools/move-the-public-door/test/host-lease.test.mjs deadline cleanup retries provider failure, and a host already removed still cleans its key",
+      "tools/move-the-public-door/test/host-lease.test.mjs host shape/deadline and provider paths refuse before network; credentials never enter errors",
+      "tools/move-the-public-door/test/host-lease.test.mjs a receipt changed by another run meanwhile is refused, never written over",
+      "tools/move-the-public-door/test/public-door.test.mjs the Fly row drives the same lease through its own requests: rent, reuse, refuse foreign paths, release; a lost create removes only its machine"
+    ]
+  }
+}

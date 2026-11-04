@@ -1,0 +1,98 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PUBLIC-DOOR-MOVE",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:f4c5cc948fc55f0e02604c7c1fe527172f371c89624704128c7d8b5430e5eb89",
+    "quote": "Port the reader's logic line for line (rowsWith, one, the rents_a_host / points_a_name / public-door-placement shapes, the vault-name-only credentials). Replace only its source: file reads and writes become door records reads and writes."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "why_one_contract": "The move, its rows reader, its host lease and its DNS cutover are one ported unit: the move runs the other three, and the four leave the older owner in the same change, so their lines are measured together. The lease and the cutover also hold contracts of their own (host-lease.json, dns-cutover.json).",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "path": "scripts/move-public-door.mjs",
+      "multihash": "1f:9ce08bb19fc916800bfb512c2d2d06a9d31c9611f1be4eda4482f6e18c14cd8e",
+      "ownership": "repository-owned",
+      "old_copy": { "deleted_by": "2026-11-06T21:00:00Z", "deleted_with": "the one change in the older owner that deletes the old reader, the door scripts, their tests and docs, and the door rows from parts/service-connections/records.json, once the certificate and tunnel tools are live" }
+    },
+    {
+      "repository": "trillion",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "path": "parts/service-connections/read-data/public-door-rows.mjs",
+      "multihash": "1f:108a42d858a6aa051a2b59e23834b507a7dbb3e211bbd4e4a55f6a39bf971982",
+      "ownership": "repository-owned",
+      "old_copy": { "deleted_by": "2026-11-06T21:00:00Z", "deleted_with": "the same change" }
+    },
+    {
+      "repository": "trillion",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "path": "scripts/portable-host-lease.mjs",
+      "multihash": "1f:b5c074113c6e1b7563542e8a1c7f75be3e848720be54141e72a89cd8578dcccd",
+      "ownership": "repository-owned",
+      "old_copy": { "deleted_by": "2026-11-06T21:00:00Z", "deleted_with": "the same change" }
+    },
+    {
+      "repository": "trillion",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "path": "scripts/portable-dns-cutover.mjs",
+      "multihash": "1f:9ac4fdf8dd3d886a2178e34eb31540d0de1d7bbc2f830d902ee284c659adf31d",
+      "ownership": "repository-owned",
+      "old_copy": { "deleted_by": "2026-11-06T21:00:00Z", "deleted_with": "the same change" }
+    }
+  ],
+  "targets": [
+    { "path": "tools/move-the-public-door/do-work/move-public-door.mjs" },
+    { "path": "tools/move-the-public-door/read-data/public-door-rows.mjs" },
+    { "path": "tools/move-the-public-door/do-work/portable-host-lease.mjs" },
+    { "path": "tools/move-the-public-door/do-work/portable-dns-cutover.mjs" }
+  ],
+  "preserve": [
+    "a target row that is not move-ready is refused by its own reason before any network or vault call",
+    "the steps run in order: rented, set-up, download-published, dns-cut, proven, then old-released (or old-not-released) and door-row-saved, each kept in the journal as it happens",
+    "the proof waits for public DNS to answer the new address and asks the health and download paths pinned to it",
+    "a failed proof rolls DNS back and keeps the old lease and the current-door row",
+    "the old lease is released only after the proof passes",
+    "each credential is asked for by its row's vault name at the step that uses it",
+    "rowsWith: every row carrying the block, mapped to { id from connection_id without its service_connection: prefix (else the row's id), name, the block's own fields, requests: the row's instrument_requests, auth: the first credential injection's header and prefix }",
+    "one: the row with that id, else an error naming the kind of row and every id there is",
+    "hostingProviders are the rents_a_host rows, dnsProviders the points_a_name rows, currentDoor the public-door-placement row with id current",
+    "credentials appear only as a vault name; no row value carries a key",
+    "saving the current door replaces only that row, kind and id kept, every other row as it was"
+  ],
+  "allowed_deltas": [
+    "the rows are the person's Service connections list (record:service-connection) read through the records door, not ../records.json read with readFileSync; the name is the row's own, since its connection descriptor is not in that list; the rows are taken in id order",
+    "saving the current door is one records:write conditioned on the value just read ({ type, value }), not a rename of the whole file; a row changed meanwhile is refused",
+    "the journal, lease and cutover receipts are rows of the person's Public door receipts list through the records door instead of files in a private home folder; a receipt's file is its name there, and the current-door row's lease_file names the lease's receipt",
+    "curl runs with an empty environment, so no held value the run was handed reaches it",
+    "the command-line entry that wired the old vault and the TLS script's host steps goes: the steps are handed in by the certificate and tunnel tools that own them",
+    "the journal schema name loses its product prefix (baseline redaction)"
+  ],
+  "banned_substitutions": [
+    "releasing the old lease before the proof passes",
+    "a second copy of the rows in a file",
+    "a credential value in a row, the journal or an answer",
+    "writing the current-door row over a change made since it was read"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T21:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:9ce08bb19fc916800bfb512c2d2d06a9d31c9611f1be4eda4482f6e18c14cd8e",
+    "target_multihash_at_baseline": "1f:6c89f36631d1c97ae76446e376926bc25a8f7af313d53e10b545adf072476bbe",
+    "commit": "1028d8fd5d9d4993a11a8f2a10a3e892e2c44e8e",
+    "redactions": [
+      { "from": "'trillion.public-door-move/1'", "to": "'public-door-move/1'", "why": "the journal schema name carried the older owner's product prefix, which a public tool does not" }
+    ]
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/move-the-public-door/test/public-door.test.mjs move the door from Hetzner to an own box: every step in order, proof pinned to the new address, then the old lease goes",
+      "tools/move-the-public-door/test/public-door.test.mjs a failed proof rolls DNS back and keeps the old lease and row",
+      "tools/move-the-public-door/test/public-door.test.mjs a row that is not move-ready is refused by its own reason before any network or vault call",
+      "tools/move-the-public-door/test/public-door.test.mjs the service-connections rows are the lists: each step names a request of its own row, credentials only by vault name",
+      "tools/move-the-public-door/test/public-door.test.mjs saving the current door writes only its row, conditioned on the value read; a row changed meanwhile is refused"
+    ]
+  }
+}

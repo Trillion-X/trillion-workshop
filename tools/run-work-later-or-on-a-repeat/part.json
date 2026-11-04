@@ -1,4 +1,10 @@
 {
+  "imported_by": [
+    "tools/keep-and-wake-ai-sessions-on-this-computer",
+    "tools/keep-lists-of-rows",
+    "Trillion-X/trillion-apps",
+    "Trillion-X/trillion"
+  ],
   "public": [
     "do-work/when-to-wake.ts",
     "do-work/materialize-recurring-windows.ts",

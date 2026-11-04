@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:ebd31c184e1a85b146b22aa00750289db634cdf0d72f91cf4be0a46a8f578369"
+  "blake3": "1f:a63c4f807d9ef9fd855c33a9f2f65b450668233c3d33a5aaf4e58a28eecf69da"
  },
  "fields": [
   {
@@ -1232,6 +1232,21 @@
    }
   },
   {
+   "id": "tool:check-a-servers-tls-owner-on-the-server",
+   "values": {
+    "title": "Check a server's TLS owner on the server",
+    "job": "Run the certificate program's own tests on my Linux server, where its private-credential checks can run",
+    "description": "Puts this folder's test/tls-host-owner.test.py beside the server's certificate owner (host.owner with .test.py) and runs it there with the server's Python: the Linux-only checks (the DNS key lives only in an anonymous memory file a child reads by an inherited descriptor; a failed provider never returns the key; a dry run asks the staging server) run on the server, as nowhere else. Answers the test output, or `passed`.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
+   }
+  },
+  {
    "id": "tool:check-a-sign-up",
    "values": {
     "title": "Check a sign-up",
@@ -1446,6 +1461,21 @@
      "placement:your-computer"
     ],
     "folder": "check-declared-places-keep-what-is-written-there"
+   }
+  },
+  {
+   "id": "tool:check-deleted-code-names-its-home",
+   "values": {
+    "title": "Check that the code my commits delete names where it went",
+    "job": "Check a span of commits in a checkout: every source or test file they delete names its new home (a moved-from receipt) or the decision that retired it",
+    "description": "Grant the checkout to read (one of the repositories read-data/rules.json names) and give range, two of its commits as <from>..<to>, and optionally repository, its name when its folder is named otherwise. Receipts in the other repositories are read from their checkouts beside it; one with no checkout there is listed in unread and its receipts are not counted. The same judge the check row record:check:deleted-code-names-its-home runs before each commit and push. Returns valid, judged (each deleted or renamed file with its home and how it was found), errors (each in words) and unread.",
+    "status": "active",
+    "maker": "maker:check-deleted-code-names-its-home",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-deleted-code-names-its-home"
    }
   },
   {
@@ -2118,6 +2148,21 @@
      "placement:your-computer"
     ],
     "folder": "cross-techniques-with-a-goal"
+   }
+  },
+  {
+   "id": "tool:cut-a-hostname-over-to-a-new-address",
+   "values": {
+    "title": "Cut a hostname over to a new address",
+    "job": "Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask",
+    "description": "Through the DNS row of the person's Service connections list (the current door's, unless `dns_provider` names one): `prepare` reads the zone and keeps a receipt under `cutover` in their Public door receipts list with the one address record or production Worker domain that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider. Before every change it checks that no other record, route or domain changed since prepare, and refuses when one did. A change whose answer was lost is reconciled from what the provider shows, never sent twice. The DNS key comes from the vault by the row's vault name and is never shown.",
+    "status": "active",
+    "maker": "maker:move-the-public-door",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "move-the-public-door"
    }
   },
   {
@@ -4171,6 +4216,21 @@
      "placement:your-computer"
     ],
     "folder": "build-and-install-the-public-receptionist"
+   }
+  },
+  {
+   "id": "tool:issue-a-tls-certificate",
+   "values": {
+    "title": "Issue a server's TLS certificate",
+    "job": "Get a certificate for my server's public address for the first time, by a DNS-01 check with my DNS key",
+    "description": "Asks the server's certificate owner (tool:set-up-a-servers-tls-owner first) for a certificate for `hostname` by DNS-01 with the person's DNS key; one that is still valid is kept (certbot --keep-until-expiring). Every DNS record is read before and after and any change fails the run. Answers the certificate as the server verified it. The DNS key reaches the server only on the SSH process's private input.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
    }
   },
   {
@@ -6484,6 +6544,21 @@
    }
   },
   {
+   "id": "tool:prepare-a-server-for-a-door-tunnel",
+   "values": {
+    "title": "Set up a server to hold a door tunnel",
+    "job": "Set up my rented server so one user can hold a tunnel back to a door on my computer and do nothing else",
+    "description": "Signs in to the server as `admin_user` over SSH (port `ssh_port`, host key `host_key` pinned for this run only) and makes `user` a system account with no shell whose one key (`publicKey`, the public half of the tunnel's held key) may only open a reverse forward that listens on the server's 127.0.0.1:`remotePort`: no session, no command, no other forwarding, no password. sshd's configuration is checked before it is reloaded. Answers whether it was prepared and the server's last line. The administration key is the file the engine mounts; nothing here names a server or a user.",
+    "status": "active",
+    "maker": "maker:keep-a-door-tunnel-open",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-door-tunnel-open"
+   }
+  },
+  {
    "id": "tool:prepare-ad-conversions",
    "values": {
     "title": "Prepare sign-ups and payments to send back to Meta Ads and Google Ads",
@@ -7057,6 +7132,21 @@
      "placement:your-computer"
     ],
     "folder": "build-and-install-the-public-receptionist"
+   }
+  },
+  {
+   "id": "tool:read-a-servers-tls-certificate",
+   "values": {
+    "title": "Read a server's TLS certificate",
+    "job": "See whether my server's certificate is present and trusted, and when it runs out",
+    "description": "Asks the server's certificate owner how the certificate for `hostname` stands, as the server itself verifies it: present, trusted by the system for that name with at least a day left, valid from and until (in local time), issuer, serial and a 0600 private key. It changes nothing and needs no DNS key.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
    }
   },
   {
@@ -8305,6 +8395,21 @@
    }
   },
   {
+   "id": "tool:release-a-host-of-the-public-door",
+   "values": {
+    "title": "Release a host of the public door",
+    "job": "Remove the server and SSH key one of my public door's host leases rented, and only those",
+    "description": "Reads the lease kept under `lease` in the person's Public door receipts list and removes the exact server and SSH key it names, through the requests of the hosting row it was rented from, after reading each one back and checking it still carries this lease's label. A server relabelled to someone else is left untouched. Asked again for a lease already removed, it answers the removed lease. A box the person already runs is only forgotten, never touched. The hosting key comes from the vault by the row's vault name and is never shown.",
+    "status": "active",
+    "maker": "maker:move-the-public-door",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "move-the-public-door"
+   }
+  },
+  {
    "id": "tool:release-a-place",
    "values": {
     "title": "Release a place",
@@ -8472,6 +8577,36 @@
      "placement:your-computer"
     ],
     "folder": "pointillist-film"
+   }
+  },
+  {
+   "id": "tool:renew-a-tls-certificate",
+   "values": {
+    "title": "Renew a server's TLS certificate",
+    "job": "Renew the certificate of my server's public address before it runs out, and check every DNS record stayed as it was",
+    "description": "Asks the server's certificate owner (installed by tool:set-up-a-servers-tls-owner) to renew the certificate of `hostname` by DNS-01 with the person's DNS key: certbot renews only when the certificate is due, every DNS record is read before and after and any change fails the run, and a changed certificate restarts the receptionist (checked through public TLS) and reloads the public host. `dryRun: true` renews against the certificate authority's staging server and changes no certificate. Answers the certificate as the server verified it (present, trusted for the name, valid from and until in local time, issuer, serial, key mode), whether it changed and whether this was a dry run. Declare a wake for this row (every 6 hours) with the server's facts as its input to keep the address renewed. The DNS key reaches the server only on the SSH process's private input; no error carries it.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
+   }
+  },
+  {
+   "id": "tool:rent-a-host-for-the-public-door",
+   "values": {
+    "title": "Rent a host for the public door",
+    "job": "Rent one server for my public door from my hosting service, or adopt a box I already run, and keep its lease",
+    "description": "Rents one server from the hosting row `provider` names in the person's Service connections list, through that row's own requests only, and keeps the lease under `lease` in their Public door receipts list: the provider, the server and SSH key identities, the address, size and place, and the cleanup deadline of a test host (within one day; a retained service has none). Asked again with the same lease it answers the lease it already holds. A server with the same name that this lease does not own is left untouched. When the provider's answer is lost, it removes only the server labelled with this lease's name. A row with no provider API (a box the person already runs) is adopted at the address given and is never deleted. The hosting key comes from the vault by the row's vault name and is never shown.",
+    "status": "active",
+    "maker": "maker:move-the-public-door",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "move-the-public-door"
    }
   },
   {
@@ -9426,6 +9561,21 @@
    }
   },
   {
+   "id": "tool:see-where-the-public-door-runs",
+   "values": {
+    "title": "See where the public door runs",
+    "job": "See where my public door runs now and which hosting and DNS services it can move between",
+    "description": "Reads the person's Service connections list and answers where their public door runs now (its hosting row, its DNS row, its address and what proves it), each hosting row with whether the door can move there and why not, and each DNS row, with the vault name of the key each uses. It never reads or shows a key and changes nothing.",
+    "status": "active",
+    "maker": "maker:move-the-public-door",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "move-the-public-door"
+   }
+  },
+  {
    "id": "tool:see-which-models-can-judge",
    "values": {
     "title": "See which of my models can judge each of my questions (runs on your computer)",
@@ -9834,6 +9984,21 @@
      "placement:small-container"
     ],
     "folder": "field-values"
+   }
+  },
+  {
+   "id": "tool:set-up-a-servers-tls-owner",
+   "values": {
+    "title": "Set up a server's TLS owner",
+    "job": "Prepare my rented server to hold a certificate: install what it needs and the program that looks after its certificate",
+    "description": "Installs the server's certificate owner at host.owner with its layout beside it (host.owner with .json: the state folder, the ingress and receptionist services, the receptionist's account, build pattern, listen address and environment), then prepares the server: certbot with its Cloudflare DNS plugin, nginx and the CA list, installed with no default HTTP and no tokenless renewal timer switched on, the state folder and the receptionist's own account. Nothing about DNS or traffic changes. tool:update-a-servers-tls-owner replaces only the owner and its layout.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
    }
   },
   {
@@ -10395,6 +10560,21 @@
    }
   },
   {
+   "id": "tool:switch-on-a-servers-receptionist",
+   "values": {
+    "title": "Switch on a server's receptionist",
+    "job": "Start the receptionist on my public server and check it answers through its certificate",
+    "description": "Enables and restarts the receptionist service tool:write-a-public-hosts-paths wrote (host.receptionist.service), which runs the build as its own account with the certificate handed on private descriptors, then checks through verified public TLS on the server itself that it serves its protected-resource description for https://<hostname>/mcp. No DNS or traffic cut-over happens here.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
+   }
+  },
+  {
    "id": "tool:tag-a-stripe-subscription",
    "values": {
     "title": "Tag a Stripe subscription",
@@ -10826,6 +11006,21 @@
    }
   },
   {
+   "id": "tool:update-a-servers-tls-owner",
+   "values": {
+    "title": "Update a server's TLS owner",
+    "job": "Put the newest certificate program and my server's layout on my server, changing nothing else",
+    "description": "Replaces the server's certificate owner at host.owner with this folder's, and its layout beside it (the layout first, each written whole and then moved into place), with nothing installed, restarted or reconfigured. Run it after this tool changes or after the server's layout changes.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
+   }
+  },
+  {
    "id": "tool:upload-a-file-to-a-signed-slot",
    "values": {
     "title": "Upload a file to a signed storage slot",
@@ -11237,6 +11432,21 @@
      "placement:small-container"
     ],
     "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
+   "id": "tool:write-a-public-hosts-paths",
+   "values": {
+    "title": "Write a public host's paths",
+    "job": "Set which addresses my public server answers itself and send everything else to my engine",
+    "description": "Writes the server's public ingress (nginx) for `hostname` with its certificate: /healthz, the downloads folder by GET and HEAD, the receptionist's paths (host.receptionist.paths, to host.receptionist.listen over verified TLS) and the site's pages (host.site.paths, handed to host.site.hostname by GET and HEAD), and every other path to the engine's connection on 127.0.0.1:remotePort. With `connectionDiagnostics` it logs only time, path and statuses of host.ingress.diagnostics_paths. The candidate is tested by nginx before it replaces the live one; with `receptionistBinary` (matching host.receptionist.binary_pattern, readable and executable by others) the receptionist's service is written too, and a build that cannot start is refused before anything is switched. No DNS or traffic cut-over happens here.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
    }
   },
   {

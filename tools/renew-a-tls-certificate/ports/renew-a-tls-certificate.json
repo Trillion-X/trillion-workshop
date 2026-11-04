@@ -1,0 +1,64 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-RENEW-A-TLS-CERTIFICATE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "door-tls-port lane 2026-11-03: the public door's certificate owner moves into the Workshop",
+    "message_multihash": "1f:a8d28073d09ccea0c78f8434013ba3557da77d17203fcf04f5e3b7014110a9a0",
+    "quote": "Port both files and their tests one to one. Product facts come from tool input, or from list:service-connections rows read through the records door (invoke.records). Credentials come only as credential_mounts by vault name."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "path_multihash": "1f:4d7d3ba3787f9e2bc2179c0bc0127429b3dc7901eaae015588cd0ab2d8a61197",
+      "lines": [14, 78],
+      "multihash": "1f:86bbe2c637aede3c8f478913fde22a2c1c5c9669e38a328d52550e92db1e2cc8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T21:00:00Z",
+        "deleted_with": "the one deletion pull request of the service-rows-to-lists lane, with the host owner and both tests"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs",
+      "baseline_commit_message": "renew-a-tls-certificate, step one: the older owner's certificate owner and host owner, copied byte for byte before they are adapted"
+    }
+  ],
+  "preserve": [
+    "the DNS credential reaches the host only on the SSH process's private input, never in argv or the environment",
+    "a failed host action never carries the process's raw output, since the credential was on its private input",
+    "the host is reached only with its pinned key (StrictHostKeyChecking=yes and the one known host)",
+    "a hostname that is not a plain DNS name, and a receptionist binary outside its pattern, are refused before anything reaches the host",
+    "the public host keeps only its own paths (/healthz, the downloads folder, the receptionist's paths, the site's legal pages by GET and HEAD) and forwards every other path to the engine",
+    "a download is kept once under its own name and only its pointer moves; a refused name never reaches the host; a size the host does not confirm fails",
+    "connection diagnostics log only time, path and statuses, never headers, queries or addresses"
+  ],
+  "allowed_deltas": [
+    "every fact about one product's server (the host owner's place, its state folder, its services and accounts, the receptionist's pattern, address, paths and environment, the downloads folder, the site's name and paths, log files) is the run's input `host`, not a constant",
+    "the DNS credential and the host's administration key are handed by the engine from the person's vault (credential_mounts) instead of being read by this file from a vault reader",
+    "the renewal schedule is a wake the person declares for tool:renew-a-tls-certificate, so the launchd supervisor and its installer (renewalLaunchAgent, installRenewal) are not moved",
+    "the vault-shape action (metadata) is not moved: the engine names a held value by its vault name and the run reads only the named field (tokenField)",
+    "the command is one Workshop run: one JSON request on standard input, one JSON answer as the last line; the older command (lines 96-128, a config file named in argv) and its product wiring (lines 1-13: the vault reader and the door rows reader) are not moved, so the source is lines 14-78, the owner's functions",
+    "certbot renew may run as a dry run against the CA's staging server (dry_run), which changes no certificate"
+  ],
+  "banned_substitutions": [
+    "a credential in argv, a file the tool keeps or the answer",
+    "an unpinned host key",
+    "a product's server facts written into this tool"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T21:10:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:86bbe2c637aede3c8f478913fde22a2c1c5c9669e38a328d52550e92db1e2cc8",
+    "target_multihash_at_baseline": "1f:86bbe2c637aede3c8f478913fde22a2c1c5c9669e38a328d52550e92db1e2cc8",
+    "commit": "4a56725363a4db0df01c54c62b4af1c8b393850a"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": ["tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs TLS command pins host and passes DNS token on private stdin, never argv or environment", "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs public ingress keeps its own paths and forwards every other path to the engine, with normal upstream TLS verification", "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs publishing keeps a file once under its own name and moves only the pointer; bad names never reach the host", "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs the host owner is installed with its layout beside it, the layout first, holding only the facts the owner reads"]
+  }
+}

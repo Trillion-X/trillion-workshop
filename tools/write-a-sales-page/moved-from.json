@@ -1,0 +1,40 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [
+    "parts/public-sales-page/"
+  ],
+  "files": [
+    {
+      "from": "parts/public-sales-page/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/write-a-sales-page/README.md",
+      "source_identity": "1f:6e773e404c2350c15d9aa6a1e36b1f77d2118795db914f02c33bf69c443b74c8",
+      "identity": "1f:6e773e404c2350c15d9aa6a1e36b1f77d2118795db914f02c33bf69c443b74c8"
+    },
+    {
+      "from": "parts/public-sales-page/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/write-a-sales-page/part.json",
+      "source_identity": "1f:662691283ac3d879b332ac724c449a4a23ce5371febc7777542c2b1312d850f8",
+      "identity": "1f:3b6a02b61e00ac71728cff6d617f5b61076c5403b439d2afeaa1457cff6222cf"
+    },
+    {
+      "from": "parts/public-sales-page/read-data/sales-page.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/write-a-sales-page/read-data/sales-page.mjs",
+      "source_identity": "1f:a698c601fc5bf45fbaf88262e0cb3e105cbb85b02fda67df27ec3d4e5dd82368",
+      "identity": "1f:a698c601fc5bf45fbaf88262e0cb3e105cbb85b02fda67df27ec3d4e5dd82368"
+    },
+    {
+      "from": "parts/public-sales-page/records.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/write-a-sales-page/records.json",
+      "source_identity": "1f:e64ada3768afee3d5e392aad20094029858e0af47dc28754cacdd7f5875d2aa0",
+      "identity": "1f:e64ada3768afee3d5e392aad20094029858e0af47dc28754cacdd7f5875d2aa0"
+    }
+  ],
+  "not_matched": []
+}

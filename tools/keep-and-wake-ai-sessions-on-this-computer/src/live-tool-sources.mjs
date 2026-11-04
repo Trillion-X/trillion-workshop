@@ -30,9 +30,9 @@
 //
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { rowsFromList } from '../parts/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs';
-import { openapiEntries } from '../parts/ai-tool-catalog/do-work/read-openapi.mjs';
-import { postWithFetch, toolServerSession } from '../parts/ai-tool-catalog/do-work/talk-to-a-tool-server.mjs';
+import { rowsFromList } from '../../ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs';
+import { openapiEntries } from '../../ai-tool-catalog/do-work/read-openapi.mjs';
+import { postWithFetch, toolServerSession } from '../../ai-tool-catalog/do-work/talk-to-a-tool-server.mjs';
 import { currentPlacement } from './renamed-tools.mjs';
 import { isStoreFull } from './store-size.mjs';
 
