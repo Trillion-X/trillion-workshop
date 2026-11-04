@@ -204,3 +204,22 @@ test('a CSS @import written inside a string is not a module request', () => {
   const text = "const css = 'h1{}@import \"/styles/shared.css\";@import \"../shared.css\";';\nimport './real.mjs';\n";
   assert.deepEqual(requestsIn(text).map(item => item.specifier), ['./real.mjs']);
 });
+
+test('a match the row names as no provider call holds nothing, and regex text is not read as an import', () => {
+  const files = sourceFiles();
+  files['src/secret-user.mjs'] = "// Finds no import in /from '\\.\\.\\/lib\\/scale\\.mjs'/.\nexport const pattern = /from '\\.\\.\\/lib\\/scale\\.mjs'/;\nexport const key = (env = process.env) => env.PRICE_TOKEN;\nexport const kind = mode => mode === 'import' || mode !== 'tiny-thing';\n";
+  const source = repository(files);
+  const destination = repository(destinationFiles());
+  try {
+    const held = moveCode({ step: 'plan', row, source_folder: source, destination_folder: destination });
+    const secret = held.groups.find(item => item.id === 'read-secret');
+    assert.deepEqual(secret.held, ['tools/read-secret/src/secret-user.mjs:3 still calls env-binding (env.PRICE_TOKEN); add a swap row for it in calls'], 'the regex text and a string ending in import name no package');
+    assert.deepEqual(held.packages_to_add, {});
+    const named = { ...row, not_provider_calls: [{ file: 'src/secret-user.mjs', id: 'env-binding', found: 'env.PRICE_TOKEN', why: 'env is the process environment here' }] };
+    const plan = moveCode({ step: 'plan', row: named, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups.find(item => item.id === 'read-secret').held, []);
+    const other = { ...named, not_provider_calls: [{ ...named.not_provider_calls[0], file: 'src/beans.mjs' }] };
+    assert.equal(moveCode({ step: 'plan', row: other, source_folder: source, destination_folder: destination }).groups.find(item => item.id === 'read-secret').held.length, 1, 'a row for another file frees nothing');
+    assert.throws(() => moveCode({ step: 'plan', row: { ...row, not_provider_calls: [{ file: 'src/secret-user.mjs', id: 'env-binding', found: 'env.PRICE_TOKEN' }] }, source_folder: source, destination_folder: destination }), /why it is no provider call/);
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});

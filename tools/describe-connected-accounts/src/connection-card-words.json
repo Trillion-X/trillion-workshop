@@ -1,0 +1,27 @@
+{
+  "_what": "What every connected account's card says in plain words (src/connection-card-words.mjs): what Trillion copies from it, what stays live with the person's own sign-in, and what Trillion may do with it. Each part is a list of rows read in order: the first row whose `when` facts all hold gives the sentence; `{name}` fills from the account's facts. A fact a row names is one of: shared, carried, arriving (the labels of the event sources listening to this service), local_copy, can_send, on (capabilities in use), off (capabilities turned off). A row with no `when` always holds. `also` rows add a sentence to the part above when their facts hold. `tool_server` is what a found tool server (MCP) row says before it is added (src/connector-screen.mjs). Changing what a card says is a change here, never in code.",
+  "tool_server": "Runs live with your own sign-in when your AI asks; nothing from it is copied into Trillion ahead of time.",
+  "titles": { "copied": "What is copied", "live": "What stays live", "allowed": "What Trillion may do" },
+  "copied": [
+    { "when": { "shared": true }, "say": "Nothing. These are account details its owner shared; no data from the account is copied to you." },
+    { "when": { "carried": true }, "say": "Nothing reaches Trillion's servers ahead of time. {service} stays on {account}, which keeps its own incoming copies." },
+    { "when": { "arriving": true }, "say": "Copied as it arrives: {arriving}." },
+    { "say": "Nothing is copied into Trillion ahead of time." }
+  ],
+  "copied_also": [
+    { "when": { "local_copy": true }, "say": "Your computers with a key may keep a copy of this sign-in." }
+  ],
+  "live": [
+    { "when": { "shared": true }, "say": "Nothing: shared details never let you use someone else's account." },
+    { "when": { "carried": true }, "say": "Everything is reached live through {account} while it is awake." },
+    { "say": "Everything else is read live with this account's own sign-in when you or your AI ask." }
+  ],
+  "allowed": [
+    { "when": { "shared": true }, "say": "Nothing with the account itself." },
+    { "when": { "on": true, "off": true }, "say": "In use: {on}. Turned off: {off}." },
+    { "when": { "on": true }, "say": "In use: {on}." },
+    { "when": { "off": true }, "say": "Every capability is turned off: {off}." },
+    { "when": { "can_send": true }, "say": "Your AI may read and send with it." },
+    { "say": "Your AI may only read with it; it cannot send." }
+  ]
+}

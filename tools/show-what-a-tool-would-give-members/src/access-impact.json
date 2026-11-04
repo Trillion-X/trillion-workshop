@@ -1,0 +1,68 @@
+{
+  "_what": "What approving a tool for a space's members would give each of them beyond what they already hold (src/access-impact.mjs). `reaches` are rows read off the tool's descriptor: when a row's path holds `equals` (or any value when `present`), the row's words are told to the owner, and a row with decided_by owner means the space owner has to decide it themselves. A new kind of consequence is a row here, not code.",
+  "operations": [
+    "discover",
+    "describe",
+    "run",
+    "read"
+  ],
+  "every_member": "*",
+  "max_members": 200,
+  "reaches": [
+    {
+      "id": "runs-on-your-computer",
+      "path": [
+        "placements"
+      ],
+      "includes": "placement:your-computer",
+      "operations": [
+        "run"
+      ],
+      "decided_by": "owner",
+      "says": "It runs on a member's own computer."
+    },
+    {
+      "id": "sends-off-the-device",
+      "path": [
+        "needs",
+        "network_egress"
+      ],
+      "equals": true,
+      "operations": [
+        "run"
+      ],
+      "decided_by": "owner",
+      "says": "It sends what it is given off the member's device."
+    },
+    {
+      "id": "costs-money",
+      "path": [
+        "price_ref"
+      ],
+      "present": true,
+      "operations": [
+        "run"
+      ],
+      "decided_by": "owner",
+      "says": "Running it can cost the member money."
+    },
+    {
+      "id": "keeps-results",
+      "path": [
+        "output_schema"
+      ],
+      "present": true,
+      "operations": [
+        "read"
+      ],
+      "decided_by": "member",
+      "says": "Members can read what it produced."
+    }
+  ],
+  "words": {
+    "no_gain": "Everyone it would reach already holds this.",
+    "needs_owner": "You decide this one yourself: {reasons}",
+    "later_members": "It also reaches whoever joins later.",
+    "unknown_operation": "An operation is one of {operations}."
+  }
+}
