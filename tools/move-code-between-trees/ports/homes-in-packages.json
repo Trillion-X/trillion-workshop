@@ -1,0 +1,60 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MOVE-CODE-HOMES-IN-PACKAGES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:finish:bulk-move-app-screen-slice 2026-11-04: app-screen rows still without a home",
+  "message_multihash": "1f:ca3e345ddf67db0392a53fb6db27b42c55a4b66432fc520518ff353c41c78c45",
+  "quote": "Do: for each row, search all three repos' main by content first; if it already has a home, write that real path into the row's destination and skip. Otherwise move the bytes from the tag with tools/move-code-between-trees (byte for byte, moved-from.json receipts, carry its own tests from the tag), grouped by job folder; only fix import paths; do not rewrite code."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "import a kept source file from its home in a package the destination depends on, instead of moving or holding it",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/move-code-between-trees/read-data/plan-move.mjs"
+  },
+  {
+   "path": "tools/move-code-between-trees/read-data/check-move.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/move-code-between-trees/",
+   "why": "this tool itself: its planner reads the row field and its check proves the homes; no other tool places moved files"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "import a kept source file from its home in a package the destination depends on, instead of moving or holding it",
+    "import a kept file from its home in a package",
+    "homes in packages for moved code",
+    "a moved file imports a file another move already carried to a package"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "homes_in_packages",
+    "homesInPackages"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "4c85c881363d467dea6bf49da9358b2d04f1c1e6"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/move-code-between-trees/test/move-code.test.mjs: a kept file with a home in a package the destination depends on holds nothing"
+  ]
+ }
+}
