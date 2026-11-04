@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:03788328694dd21021ccfcdc609dc8b446c89742ced096fe4988e6221bfcdbab"
+  "blake3": "1f:298760356df265463dd461fda9891caf0cc8d79d1a2af990dd0d8623dc3a91fc"
  },
  "fields": [
   {
@@ -4662,6 +4662,21 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:list-every-connection",
+   "values": {
+    "title": "List everything I can connect, services and my computer's places together",
+    "job": "Show every service I can connect to Trillion and every place on my own computer it can read (notes, voice memos, messages, photos, downloads), in one list grouped by kind",
+    "description": "One list of every connection a person can make: each service (how it connects: a key, a sign-in, or carried by their computer, with the steps for one carried) and each place on their own computer (what it arrives as, and the switch it needs). Optionally give category (one group, such as Messages or Pictures) and looked, the answer of tool:look-for-the-places-on-this-computer, so each place says whether it is on the computer (found, needs_switch, could_not_check, not_here); without it a place is not_looked. Reads rows only: it connects, looks at and sends nothing, and shows no secret. Returns said and connections ({ id, kind: service | computer-place, label, category, how, ... }), sorted by category then label.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "connect-a-service-and-seal-its-key"
    }
   },
   {
