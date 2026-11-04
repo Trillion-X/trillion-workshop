@@ -148,6 +148,18 @@
           "label": "Split by dropping on a pane edge"
         },
         {
+          "id": "arrangement.zoom",
+          "label": "Zooming the panes in and out"
+        },
+        {
+          "id": "arrangement.zoom.pinch",
+          "label": "Zooming the panes in and out with a pinch or ctrl/⌘ and the scroll wheel"
+        },
+        {
+          "id": "arrangement.zoom.map",
+          "label": "Zooming the panes in and out with the scroll wheel over the pane map"
+        },
+        {
           "id": "arrangement.grab",
           "label": "Move a floating window by its strip"
         },
