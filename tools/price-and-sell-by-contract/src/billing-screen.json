@@ -1,0 +1,198 @@
+{
+  "_what": "The Billing screen's words and the parts of a deal a person can switch, owned by src/billing-screen.mjs (decision source:cHJpY2luZy1hbmQtYmlsbGluZy11c2FnZS1zcG90cy1iaWxsaW5nLXNjcmVlbi1zZXR0aW5ncy0yMDI2LTEwLTA1). Spots and usage parts come from the offers a person pays for or is paid for (records/commercial-offer-records.json, src/usage-meters.json), so a new offer, price, meter or negotiated deal shows here with no change to this file. `parts` are the extra parts of a deal: a part with `covers` (a formula-engine rule tree over the facts of a piece of the store's work: purpose, entry) is work the person can switch off, which keeps one use budget row (src/metered-use.mjs, id `deal-part:<id>`) that stops that work, so it is neither done nor charged until it is switched on again; a part with `state` only says where it stands in every deal today. Adding a part is one row here.",
+  "parts": [
+    {
+      "id": "background-understanding",
+      "label": "Trillion reading what you keep in the background",
+      "detail": "Your pursuits, values and what you are doing now, worked out continuously from what comes in. Off, nothing is read in the background and that work is not charged.",
+      "covers": {
+        "kind": "group",
+        "combinator": "or",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "purpose",
+            "operator": "contains",
+            "params": {
+              "text": "awareness"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "search-inside-files",
+      "label": "Search inside your files and recordings",
+      "detail": "The words inside documents, what is said in recordings and video previews, kept ready to search. Off, new files are not read for search and that work is not charged.",
+      "covers": {
+        "kind": "group",
+        "combinator": "or",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "purpose",
+            "operator": "contains",
+            "params": {
+              "text": "file-words"
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "purpose",
+            "operator": "contains",
+            "params": {
+              "text": "search-catch-up"
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "purpose",
+            "operator": "contains",
+            "params": {
+              "text": "media-name-index"
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "purpose",
+            "operator": "contains",
+            "params": {
+              "text": "media-recording-index"
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "purpose",
+            "operator": "contains",
+            "params": {
+              "text": "video-preview-catch-up"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "ai-apps-as-members",
+      "label": "AI apps as members",
+      "detail": "An AI app you connect can hold a spot like a person does. No deal charges for AI apps today.",
+      "state": {
+        "label": "Not charged",
+        "tone": "quiet"
+      }
+    }
+  ],
+  "words": {
+    "title": "Billing",
+    "lead_paying": "You pay for {spots} and the usage of everyone in them.",
+    "lead_paid_for": "Your spot is paid for by {payers}.",
+    "lead_both": "You pay for {spots}, and your own spot is paid for by {payers}.",
+    "lead_none": "You do not pay for any spots yet. $100 a month buys a spot for you or anyone you invite, plus their usage priced at the listed rates and a small margin.",
+    "stat_spots": "Spots you pay for",
+    "stat_spots_detail": "{price} a month each",
+    "stat_month": "Each month",
+    "stat_month_detail": "Spots, before usage",
+    "stat_usage": "Usage, last {days}",
+    "stat_usage_none": "Usage so far",
+    "stat_usage_detail": "Listed usage rate {cost}, plus {margin}",
+    "stat_cards": "Cards",
+    "stat_cards_detail": "One per purchase",
+    "split_heading": "Where the money goes",
+    "split_label": "This month so far",
+    "split_spots": "Spots",
+    "trends_heading": "Usage by day",
+    "trends_body": "What each part charged per day, at the listed usage rates plus the margin.",
+    "trend_detail": "{days} counted",
+    "deal_heading": "Your deal",
+    "deal_body": "Every part of what you pay for. A part you switch off is not done and not charged.",
+    "spot_part": "Spots",
+    "spot_part_detail": "{price} a month for each spot \u00b7 {count} in your deal",
+    "usage_part_detail": "{included}The listed base rate is {cost} {per}. Your rate with our {margin} margin is {price} {per}.",
+    "usage_part_included": "{amount} included, then: ",
+    "in_deal": "In your deal",
+    "off": "Off",
+    "switch_label": "On",
+    "switch_confirm": "Switch this part off? Trillion stops doing this work for you until you switch it on again.",
+    "limit_label": "Set a limit",
+    "pays_heading": "Who you pay for",
+    "pays_body": "Each purchase keeps its own card and invoices. Paying for a spot never shows you its person's private work.",
+    "purchase_title": "{label} \u00b7 {count}",
+    "purchase_taken": "{taken} of {total} spots taken: {people}",
+    "purchase_open": "{taken} of {total} spots taken",
+    "purchase_pending": "Waiting for the payment service to confirm how many spots you bought.",
+    "card": "{brand} \u2022\u2022\u2022\u2022 {last4}",
+    "card_expires": "expires {month}/{year}",
+    "no_card": "No card on file",
+    "card_unread": "Its card shows here in a moment",
+    "manage": "Card, invoices and cancellation",
+    "copy_invite": "Copy invitation",
+    "use_spot": "Use one of these spots",
+    "buy_more": "Buy more spots",
+    "you": "You",
+    "someone": "Someone",
+    "paid_for_heading": "Who pays for you",
+    "paid_for_title": "Paid by {payer}",
+    "paid_for_detail": "Since {since}. Your private work stays yours; {payer} sees only how much your usage costs.",
+    "no_purchases": "You have not bought any spots yet.",
+    "buy": "Choose your spots",
+    "bill_heading": "Your bill",
+    "bill_spots": "{count} \u00d7 {price}",
+    "bill_usage": "Usage so far",
+    "bill_total": "Each month, before usage",
+    "bill_note": "Usage is priced from measured amounts at the listed rates plus {margin} and shows on each purchase's invoice.",
+    "per_unit": "per {unit} a {per}",
+    "per_cost": "for each dollar of work",
+    "trends_body_own": "What your own usage was charged each day, at the listed usage rates plus the margin. It is charged to whoever pays for your spot.",
+    "spots_one": "{count} spot",
+    "spots_many": "{count} spots",
+    "days_one": "{count} day",
+    "days_many": "{count} days",
+    "since": "Since {day}",
+    "bill_price_note": "a month",
+    "more_purchases": "More purchases",
+    "detail_join": " \u00b7 ",
+    "payers_join": " and ",
+    "people_join": ", "
+  },
+  "usage_breakdown": {
+    "total_label": "Usage",
+    "own_usage": "Your usage",
+    "purchased_usage": "Purchased usage",
+    "heading": "Usage details",
+    "body": "The same usage total, broken into what was measured, its base cost and our markup. Expanding or grouping details does not change the charge.",
+    "open_label": "Show details",
+    "quantity": "Measured: {quantity} {unit}",
+    "amounts": "Base cost {base} \u00b7 Markup {percent}{markup} \u00b7 Total {total}",
+    "pending": "Pending reconciliation",
+    "unread": "Not yet known",
+    "rule": "Pricing rule: {rule}",
+    "pricing_heading": "Usage pricing",
+    "pricing_body": "Default pricing and the resource, plan or client terms that replace it. Saved terms apply through the same usage accounting as this bill.",
+    "states": {
+      "settled": "Reconciled",
+      "reconciled": "Reconciled",
+      "purchased_terms": "At purchased rates",
+      "corrected": "Corrected",
+      "pending": "Pending reconciliation",
+      "provisional": "Estimate",
+      "unknown": "Not yet known",
+      "unresolved": "Needs reconciliation"
+    },
+    "rule_open_label": "Show pricing basis",
+    "bill_note": "Usage includes the agreed markup for each resource. Open Usage details to see its measured amount, base cost, markup and reconciliation state.",
+    "pricing_manage": "Manage pricing rules",
+    "pricing_save": "Save markup",
+    "pricing_markup": "Markup (%)",
+    "pricing_default": "Default pricing",
+    "pricing_resource": "Resource: {name}",
+    "pricing_plan": "Plan: {name}",
+    "pricing_client": "Client: {name}",
+    "pricing_terms": "New purchases use the saved rule. Purchased terms keep the version they agreed to.",
+    "pricing_effective": "Applies from {date}",
+    "pricing_current": "Current",
+    "pricing_retired": "Retired",
+    "pricing_deleted": "Deleted",
+    "pricing_unversioned": "Read the current rule version before changing it."
+  }
+}

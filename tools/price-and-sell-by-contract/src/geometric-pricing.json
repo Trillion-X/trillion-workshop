@@ -1,0 +1,32 @@
+{
+  "comment": "The numbers and words of geometric pricing (src/geometric-pricing.mjs). A price rule is one record any offer can carry; its `mode` picks how the price moves by multiplication instead of by opinion. `ladder` lays prices a fixed ratio apart so a price test covers a wide range with few arms and each round can zoom in. `controller` is a variable speed controller: the price doubles over `sales_to_double` sales and each person who reached the price and did not buy takes a little off, so it holds still at `target_win_rate`. `bracket` is his bracketed price search: the highest price someone accepted is L, the lowest price above it that was refused is U, and the next quote is the geometric middle, the square root of L times U, until they meet. Every default below is only used when a rule leaves a field out.",
+  "unit_cents": 100,
+  "max_steps": 12,
+  "ladder": {
+    "ratio": 2,
+    "down_steps": 2,
+    "up_steps": 2
+  },
+  "bracket": {
+    "growth": 2,
+    "accept_min_paid": 1,
+    "reject_min_shown": 10,
+    "tolerance": 0.05
+  },
+  "arm_prefix": "price:",
+  "words": {
+    "no_rule": "{label} has no price rule: save it with a rule to use it.",
+    "no_rounds": "A {mode} rule has no next round; its price is read with price_now.",
+    "ladder": "{count} prices a factor of {ratio} apart: {prices}.",
+    "controller": "The price the rule gives now is {price}: {sales} sales among {reached} people who reached it.",
+    "bracket_open": "No price has been tried yet, so the first price is {price}.",
+    "bracket_all_refused": "Nobody has bought yet, so the next price is {price}, a step down from the lowest refused price.",
+    "bracket_climb": "{low} was bought and nothing higher has been refused, so the next price is {price}.",
+    "bracket_between": "{low} was bought and {high} was refused, so the next price is the geometric middle, {price}.",
+    "bracket_met": "{low} was bought and {high} was refused, and they are close enough: the price is {price}.",
+    "not_running": "{label} is {state}, so it has no next round.",
+    "round_saved": "{label} moves to round {round}: {prices}.",
+    "round_held": "{label} has settled on {price}; there is no next round.",
+    "offers_need_owner": "{label} tests offers with their own payment links, so a new price in it goes through whoever sets those offers: add the offer priced {price} first."
+  }
+}

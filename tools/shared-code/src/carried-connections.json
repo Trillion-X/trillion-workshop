@@ -1,0 +1,98 @@
+{
+  "what_this_is": "The words and limits of services a person's own computer can connect or carry (read by src/carried-connections.mjs). A computer carries a service by publishing an agent card whose skills include `<skill_prefix><vendor>`; it can start setup when its skill includes `<connect_skill_prefix><vendor>`. The service itself is a service-connections descriptor with `carriedBy`. Each verb is one thing an AI can ask that computer to do: its job words ({service} and each field fill in), its fields (required, longest text, whole-number range), and `needs_one_of` when one of several fields must be given. Adding a verb, a limit or a sentence is a change here and nothing else.",
+  "skill_prefix": "connection:",
+  "connect_skill_prefix": "connectable:",
+  "hold_minutes": 2,
+  "wait_seconds": { "default": 20, "max": 25 },
+  "verbs": {
+    "connect": {
+      "availability": "connectable",
+      "job": "Start connecting {service} on this computer",
+      "needs_request_key": true,
+      "fields": {
+        "phone": { "max": 32 }
+      }
+    },
+    "status": {
+      "job": "Read the current {service} connection and local incoming-copy state",
+      "availability": "connectable",
+      "fields": {}
+    },
+    "disconnect": {
+      "job": "Disconnect the named {service} account {account} from this computer; preserve pending items",
+      "availability": "connectable",
+      "needs_request_key": true,
+      "fields": {"account": {"required": true, "max": 200}}
+    },
+    "revoke": {
+      "job": "Revoke this computer's linked {service} session for account {account} and verify the provider reply",
+      "availability": "connectable",
+      "needs_request_key": true,
+      "fields": {"account": {"required": true, "max": 200}}
+    },
+    "read_incoming": {
+      "job": "Read selected account metadata for local {service} incoming copies",
+      "availability": "connectable",
+      "fields": {
+        "account": {"required": true, "max": 200},
+        "after": {"max": 4000},
+        "limit": {"integer": true, "min": 1, "max": 100}
+      }
+    },
+    "erase_incoming": {
+      "job": "Erase the explicitly selected local incoming journal copies for {service} account {account}",
+      "availability": "connectable",
+      "needs_request_key": true,
+      "fields": {
+        "account": {"required": true, "max": 200},
+        "source_ids": {"required": true, "strings": true, "min": 1, "max": 100, "item_max": 4000},
+        "include_pending": {"boolean": true}
+      }
+    },
+    "pause": {
+      "job": "Pause {service} on this computer until explicitly resumed",
+      "availability": "connectable",
+      "needs_request_key": true,
+      "fields": {}
+    },
+    "resume": {
+      "job": "Resume the already linked {service} on this computer",
+      "availability": "connectable",
+      "needs_request_key": true,
+      "fields": {}
+    },
+    "send": {
+      "job": "Send a {service} message to {to}",
+      "needs_request_key": true,
+      "fields": {
+        "to": { "required": true, "max": 200 },
+        "text": { "max": 4000 },
+        "link": { "max": 2000 }
+      },
+      "needs_one_of": ["text", "link"]
+    },
+    "read": {
+      "job": "Read recent {service} messages",
+      "fields": {
+        "with": { "max": 200 },
+        "limit": { "integer": true, "min": 1, "max": 50 }
+      }
+    }
+  },
+  "words": {
+    "unknown_verb": "There is no {verb} for messages; use one of: {verbs}.",
+    "unknown_service": "{service} is not a service a computer can carry here. Services your computers carry now: {carried}.",
+    "none": "none",
+    "not_carried": "No computer carries {name} yet. If you can run programs on the person's computer, start Trillion's connection helper there yourself; leave only the required sign-in, permission or device-pairing step to them.",
+    "not_connectable": "No awake Trillion helper can start {name} setup. If you can reach the person's computer, open Trillion there; otherwise explain that Trillion cannot start a helper on a computer it cannot reach.",
+    "away": "{name} is reached through {computer}, which was last seen {seen}. Wake it and make sure the Trillion helper is running; nothing was sent.",
+    "never": "never",
+    "missing": "{field} is needed.",
+    "not_text": "{field} is text.",
+    "too_long": "{field} is longer than {max} characters.",
+    "not_whole": "{field} is a whole number from {min} to {max}.",
+    "one_of": "Give {fields}.",
+    "request_key": "request_key is needed: any unique text, so the same message is never sent twice.",
+    "waiting": "{computer} has the request and has not answered yet. Read it with read_handoff {handoff_id}."
+  }
+}

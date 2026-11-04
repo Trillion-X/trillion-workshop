@@ -1,0 +1,10 @@
+{
+  "_what": "Tasks that use the observed choice contract. A task is listed only when its caller is wired to localChoiceObservations; the coverage view counts calls, never all choices an AI may make internally. Model candidates and their order remain with the existing route and scorer owners. Deadlines are an upper bound on the caller's total wait, not a claim that a model answered.",
+  "tasks": [
+    { "id": "model-routing", "label": "Routing model jobs", "deadline_ms": 150000, "surfaces": ["worker-model"] },
+    { "id": "explicit-selection", "label": "Choosing supplied options", "deadline_ms": 45000, "surfaces": ["mcp-choice"] },
+    { "id": "file-organization", "label": "Linking a file to a pursuit", "deadline_ms": 45000, "surfaces": ["worker-file"] },
+    { "id": "attention-classification", "label": "Telling requests from context", "deadline_ms": 21000, "surfaces": ["worker-arrivals", "worker-steps-left", "worker-said-done"] },
+    { "id": "candidate-scoring", "label": "Choosing among known options", "deadline_ms": 20000, "surfaces": ["worker-score"] }
+  ]
+}

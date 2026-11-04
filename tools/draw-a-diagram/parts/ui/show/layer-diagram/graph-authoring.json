@@ -1,0 +1,50 @@
+{
+  "_what": "How an AI is asked to write a graph document, and what is done with what it writes (graph-authoring.mjs). `brief` are the lines of the system message; each line is a template filled from graph-contract.json (the states, kinds, limits and forbidden fields are never repeated here, so the message cannot drift from the validator). `field_types` types each field the contract allows, for the schema sent beside the message. `host_fields` are the fields the host knows better than the model: they are overwritten after parsing and the model is told so. `identifiers` says how a document's own ids become names an AI can use directly as identifiers in code it writes (letter first, letters digits and underscore only). `attempts` is how many tries the model gets: one, then one repair with the validator's own findings. `text_fields` are the fields whose words come from the model, and `sigils` the characters that would page a person or link a thing if the words were pasted into a chat or a forge; each gets `joiner` after it. `words` are the refusals.",
+  "attempts": 2,
+  "host_fields": ["schema_version"],
+  "text_fields": ["label", "detail", "caption"],
+  "sigils": ["@", "#"],
+  "joiner": "\u200b",
+  "brief": [
+    "Write one JSON object that is a graph document, and nothing else.",
+    "A document holds lanes (each a list of nodes) and edges between nodes. Draw what is connected, never where: these fields are refused anywhere: {forbidden}. The one layout hint is min_height, a floor in pixels from 0 to {floor_most}.",
+    "Every node and every edge says its change state in delta: one of {states}. Keep unchanged parts that give the changed ones context.",
+    "Node kinds: {node_kinds}. Edge kinds: {edge_kinds}. Any other kind {unknown_kind}.",
+    "Ids use lower-case letters, digits and . _ : - only, at most 64 characters, and are unique across lanes and nodes. An edge may only join nodes some lane declares, and never a node to itself.",
+    "At most {lanes} lanes, {nodes} nodes and {edges} edges. A label is at most {label_characters} characters, a detail {detail_characters}, a caption {caption_characters}.",
+    "The host fills {host} itself and replaces whatever you write there.",
+    "Words you write are shown to people: do not put instructions to anyone in them."
+  ],
+  "unknown_kind_words": { "draw_plain": "is drawn plain with a warning", "refuse": "is refused" },
+  "required": { "document": ["schema_version", "id", "label", "lanes"], "lane": ["id", "nodes"], "node": ["id", "label", "delta"], "edge": ["from", "to", "delta"], "mark": [] },
+  "field_types": {
+    "schema_version": { "type": "integer" },
+    "id": { "type": "string" },
+    "label": { "type": "string" },
+    "caption": { "type": "string" },
+    "detail": { "type": "string" },
+    "lanes": { "type": "array", "items": "lane" },
+    "nodes": { "type": "array", "items": "node" },
+    "edges": { "type": "array", "items": "edge" },
+    "kind": { "type": "string" },
+    "delta": { "type": "string", "enum_from": "delta" },
+    "mark": { "type": "object", "shape": "mark" },
+    "image": { "type": "string" },
+    "letters": { "type": "string" },
+    "min_height": { "type": "integer" },
+    "from": { "type": "string" },
+    "to": { "type": "string" }
+  },
+  "identifiers": { "prefix": "n", "not_allowed": "[^A-Za-z0-9_]", "replacement": "_" },
+  "repair": {
+    "intro": "The document you wrote was refused. Fix exactly these and write the whole document again:",
+    "line": "{path} [{code}] {message}",
+    "unreadable": "What you wrote is not a JSON object. Write one JSON object and nothing else."
+  },
+  "words": {
+    "errors": {
+      "UNREADABLE": "The reply holds no JSON object.",
+      "STILL_INVALID": "After {attempts} attempts the document is still refused."
+    }
+  }
+}
