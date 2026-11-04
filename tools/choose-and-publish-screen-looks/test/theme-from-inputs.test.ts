@@ -2,10 +2,10 @@
 // (base, accent, contrast), derived in OKLCH and held to contrast floors.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { themeChangesFor, themeFromInputs } from '../../screen-looks/read-data/theme-from-inputs.ts';
-import { changeScreenLookTokens, readScreenLookFile } from '../../screen-looks/read-data/screen-look-record.ts';
-import { colourOf, contrast } from '../../screen-looks/read-data/look-scheme.ts';
-import rules from '../../screen-looks/read-data/theme-inputs.json' with { type: 'json' };
+import { themeChangesFor, themeFromInputs } from '../../screen-look/read-data/theme-from-inputs.ts';
+import { changeScreenLookTokens, readScreenLookFile } from '../../screen-look/read-data/screen-look-record.ts';
+import { colourOf, contrast } from '../../screen-look/read-data/look-scheme.ts';
+import rules from '../../screen-look/theme-inputs.json' with { type: 'json' };
 import looks from '../src/workspace/looks.json' with { type: 'json' };
 
 const ratio = (changes: Record<string, string>, text: string, ground: string) => contrast(colourOf(changes[text])!, colourOf(changes[ground])!);
@@ -62,7 +62,7 @@ test('applied to a shelf look, the look owner takes every derived value and the 
 
 test('save_look with three picks makes the whole look end to end, and the palette it resolves to is readable', async () => {
   const { makeLooks } = await import('../src/looks.mjs');
-  const { resolveScreenLookPalette } = await import('../../screen-looks/read-data/resolve-screen-look-palette.js');
+  const { resolveScreenLookPalette } = await import('../../screen-look/read-data/resolve-screen-look-palette.js');
   const records: Record<string, unknown> = {};
   const owner = makeLooks({
     records: { read: () => structuredClone(records), write: (writes: { address_label: string; payload: unknown }[]) => { for (const write of writes) records[write.address_label] = structuredClone(write.payload); } },

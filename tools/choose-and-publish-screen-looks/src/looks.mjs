@@ -58,15 +58,15 @@
 //
 import inputs from './workspace/inputs.json' with { type: 'json' };
 import appLooks from './workspace/looks.json' with { type: 'json' };
-import { readScreenLookRecord } from '../../screen-looks/read-data/read-editable-screen-look-themes.ts';
-import { changeScreenLookTokens, schemeOfScreenLook, screenLookFile, screenLookRecord, screenLookSlug, tintScreenLook } from '../../screen-looks/read-data/screen-look-record.ts';
-import { wearRegister } from '../../screen-looks/read-data/type-register.ts';
-import { resolveScreenLookButton, resolveScreenLookPalette } from '../../screen-looks/read-data/resolve-screen-look-palette.js';
-import { deviceLook } from '../../screen-looks/read-data/device-look-tokens.js';
+import { readScreenLookRecord } from '../../screen-look/read-data/read-editable-screen-look-themes.ts';
+import { changeScreenLookTokens, schemeOfScreenLook, screenLookFile, screenLookRecord, screenLookSlug, tintScreenLook } from '../../screen-look/read-data/screen-look-record.ts';
+import { wearRegister } from '../../screen-look/read-data/type-register.ts';
+import { resolveScreenLookButton, resolveScreenLookPalette } from '../../screen-look/read-data/resolve-screen-look-palette.js';
+import { deviceLook } from '../../screen-look/read-data/device-look-tokens.js';
 import { LOOK_RULES_RECORD, WHERE_LOOKS_APPLY, changeLookRules, lookForFacts, readLookRules, sayLookRules } from '../../screen-look/read-data/where-looks-apply.ts';
 import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
-import { LOOK_OVER_TIME, LOOK_PLAN_RECORD, blendLookValues, changeLookPlan, lookAtTime, readLookPlan, sayLookPlan } from '../../screen-looks/read-data/look-over-time.ts';
-import { themeChangesFor } from '../../screen-looks/read-data/theme-from-inputs.ts';
+import { LOOK_OVER_TIME, LOOK_PLAN_RECORD, blendLookValues, changeLookPlan, lookAtTime, readLookPlan, sayLookPlan } from '../../screen-look/read-data/look-over-time.ts';
+import { themeChangesFor } from '../../screen-look/read-data/theme-from-inputs.ts';
 import { readabilityMisses, sayReadability } from '../../screen-look/read-data/look-readability.ts';
 import readability from '../../screen-look/look-readability.json' with { type: 'json' };
 import { failureOf, WorkFailure } from '../../shared-code/src/failure.mjs';

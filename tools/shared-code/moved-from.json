@@ -65,7 +65,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/parts/ui/show/layer-diagram/graph-svg.mjs",
       "source_identity": "1f:6f5d431493b265c98d622834bdc020b95bc20f16a4d26be5c541807aab34795b",
-      "identity": "1f:1b704477492c1cb040384f89d315b8b8c379b144700b334afa541137a188b2bb"
+      "identity": "1f:23a7086a4608f8aaa26aa1c5a0ea187f19c462ce3aabb2d169147b49872cc206"
     },
     {
       "from": "parts/ui/show/layer-diagram/layer-diagram.mjs",
