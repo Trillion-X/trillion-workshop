@@ -1,5 +1,0 @@
-{
-  "_what": "How many reader child processes computer/read-new-items.mjs runs at once on this Mac (CHILD_READERS), and how long a read waits for a place before it is turned away with a reason. A reader that hangs holds its place until its own read_seconds ends it; a looping caller therefore waits instead of piling up processes.",
-  "most_children": 4,
-  "wait_seconds": 30
-}

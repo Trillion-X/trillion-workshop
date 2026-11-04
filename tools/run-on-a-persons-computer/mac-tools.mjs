@@ -107,12 +107,24 @@ export function computerScopeSkill(settings, read = readFileSync, home = homedir
 // this folder depends on (computer/package.json), carried in the app's node_modules beside computer/, so the code has one
 // home and the Mac runs that copy. `workshop` is the module's path inside the package (tools/<folder>/...mjs) and
 // `function` its exported function, called as fn(input, context) the way the Workshop's run-an-export.mjs calls it.
+// This folder is itself a Workshop tool folder (tools/run-on-a-persons-computer), so a path is first looked for in the
+// tree it sits in, and only then in the package.
+const inTree = path => { const here = new URL(`../../${path}`, import.meta.url); return existsSync(here) ? here.href : import.meta.resolve(`trillion-workshop/${path}`); };
 const WORKSHOP_MODULE = /^tools\/[a-z0-9]+(?:-[a-z0-9]+)*\/(?:[a-z0-9]+(?:-[a-z0-9]+)*\/)*[a-z0-9]+(?:-[a-z0-9]+)*\.mjs$/;
 /** The file URL of a Workshop tool folder's module, or a throw when the path is not one (never a path out of tools/). */
 export function workshopEntry(path) {
   if (typeof path !== 'string' || !WORKSHOP_MODULE.test(path)) throw new Error(`${path} is not a module of a Workshop tool folder.`);
-  return import.meta.resolve(`trillion-workshop/${path}`);
+  return inTree(path);
 }
+// A `with` value may also be read from a JSON file of a Workshop tool folder (its rows), never a path out of tools/.
+const WORKSHOP_DATA = /^tools\/[a-z0-9]+(?:-[a-z0-9]+)*\/(?:[a-z0-9]+(?:-[a-z0-9]+)*\/)*[a-z0-9]+(?:-[a-z0-9]+)*\.json$/;
+/** The path of a Workshop tool folder's JSON file, or a throw when the path is not one. */
+export function workshopData(path) {
+  if (typeof path !== 'string' || !WORKSHOP_DATA.test(path)) throw new Error(`${path} is not a data file of a Workshop tool folder.`);
+  return fileURLToPath(inTree(path));
+}
+/** Where a `with` or `hand` entry's file is: a Workshop tool folder's file ({ workshop }) or one beside this one ({ file }). */
+const fileOfEntry = (from, data) => (from.workshop ? (data ? workshopData(from.workshop) : fileURLToPath(workshopEntry(from.workshop))) : confinedEntry(HERE, from.file));
 const entryOf = row => (row.workshop ? workshopEntry(row.workshop) : pathToFileURL(confinedEntry(HERE, row.module)).href);
 const functionOf = (module, row) => (row.workshop ? module[row.function] : module[row.export]?.[row.name]);
 /** Whether this Mac carries a row's code: its module in computer/, or its Workshop module in the carried package. */
@@ -167,13 +179,14 @@ export function accountFilesDoor(context, allowed = [], { caller = null, fetchIm
 }
 
 /** The context a Workshop function is called with: the host's, the row's `door`, each `with` value read from a file
- *  beside this one ({ file, field }), so a function is handed what only this computer's DATA knows, and each `hand`
- *  function of a file beside this one ({ file, export }) as { module: its file URL, export }, so a Workshop function
- *  calls back into this host (a transfer tells own-writes.mjs each path it wrote) without importing it. */
+ *  beside this one ({ file, field }) or of a Workshop tool folder ({ workshop, field }), so a function is handed what
+ *  only this computer's DATA knows, and each `hand` function of such a file ({ file | workshop, export }) as
+ *  { module: its file URL, export }, so a Workshop function calls back into this host (a transfer tells
+ *  own-writes.mjs each path it wrote) without importing it. */
 export function workshopContext(row, context = {}, read = readFileSync) {
   if (!row?.workshop) return context;
-  const handed = Object.fromEntries(Object.entries(row.with ?? {}).map(([name, from]) => [name, JSON.parse(read(confinedEntry(HERE, from.file), 'utf8'))?.[from.field] ?? null]));
-  const functions = Object.fromEntries(Object.entries(row.hand ?? {}).map(([name, from]) => [name, { module: pathToFileURL(confinedEntry(HERE, from.file)).href, export: from.export }]));
+  const handed = Object.fromEntries(Object.entries(row.with ?? {}).map(([name, from]) => [name, JSON.parse(read(fileOfEntry(from, true), 'utf8'))?.[from.field] ?? null]));
+  const functions = Object.fromEntries(Object.entries(row.hand ?? {}).map(([name, from]) => [name, { module: pathToFileURL(fileOfEntry(from, false)).href, export: from.export }]));
   return { ...context, ...handed, ...functions, ...(Array.isArray(row.door) && row.door.length ? { door: accountFilesDoor(context, row.door) } : {}) };
 }
 

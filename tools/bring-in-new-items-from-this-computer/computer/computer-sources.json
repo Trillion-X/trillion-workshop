@@ -47,6 +47,16 @@
     {"id": "ffmpeg", "label": "FFmpeg on this Mac", "search_path": ["/opt/homebrew/bin", "/usr/local/bin", "/opt/local/bin"], "check": ["ffmpeg", "-version"], "probe": "ffprobe", "sizes": {"poster_width": 320, "frame_count": 12, "frame_width": 160, "peak_count": 120, "peak_rate": 1000, "picture_quality": 0.72}, "produced_by": "FFmpeg on this Mac", "most_seconds": 600}
   ],
   "visual_caption": {"url": "http://127.0.0.1:11434/api/generate", "model": "gemma3:4b", "timeout_seconds": 120, "backfill_per_look": 5, "generic_titles": ["Processing", "Home", "Dashboard", "Untitled", "New project", "Image", "Video", "Screenshot"]},
+  "programs": {
+    "_what": "Every program a look or a read starts on this computer, by the job it does (computer-sources.mjs programRun): each job is a list of tries, and the first whose program is on this computer runs, with {name} holes filled from the call. A job with no try here is skipped (a picture goes without its preview, a pane is not opened, a computer's name is its host name), so another system is one more try in a list, never code. `reads` is a pattern over what the program prints, each match one number.",
+    "picture_sides": [{"run": ["/usr/bin/sips", "-g", "pixelWidth", "-g", "pixelHeight", "{picture}"], "reads": "pixel(?:Width|Height):\\s*(\\d+)"}],
+    "picture_preview": [{"run": ["/usr/bin/sips", "-Z", "{px}", "-s", "format", "jpeg", "{picture}", "--out", "{out}"]}],
+    "picture_copy": [{"run": ["/usr/bin/sips", "-s", "format", "jpeg", "-s", "formatOptions", "85", "{picture}", "--out", "{out}"]}],
+    "picture_copy_shrunk": [{"run": ["/usr/bin/sips", "-Z", "{edge}", "-s", "format", "jpeg", "-s", "formatOptions", "85", "{picture}", "--out", "{out}"]}],
+    "open_address": [{"run": ["/usr/bin/open", "{target}"]}],
+    "app_facts": [{"run": ["/usr/bin/plutil", "-convert", "json", "-o", "-", "{file}"]}],
+    "computer_name": [{"run": ["/usr/sbin/scutil", "--get", "ComputerName"]}]
+  },
   "gates": {
     "full-disk-access": {
       "label": "Full Disk Access for {program}",

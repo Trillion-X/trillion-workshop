@@ -10,8 +10,17 @@ Moved here from Trillion-X/trillion's `computer/` by `tools/move-code-between-tr
 (`move-rows/trillion-computer-places-to-workshop.json`); `moved-from.json` names each file's source path and commit and
 the identity of its bytes there and here. The folder keeps the source tree's own paths under it, so the files import
 each other as they did. Trillion-X/trillion's computer helper (`computer/read-this-computer.mjs`, which runs the looks,
-and the modules beside it that read the same rows) imports these files from the `trillion-workshop` package it already
-depends on.
+and the modules beside it that read the same rows) now lives in `tools/run-on-a-persons-computer` and reads these
+files from here; it holds no copy of its own.
+
+## Tools
+
+| Tool | What it does | Runs |
+|------|--------------|------|
+| `tool:look-for-the-places-on-this-computer` | One look (`computer-sources.mjs` `lookHere`) at the places the rows list, under the folder the person granted for reading (`read-a-folder`, their home folder): each is found, needs its switch, or is left out; a place only outside that folder (an app in `/Applications`, a drive) is `could_not_check` with the reason, never looked for | on the person's computer, at its local door's `tools:run` |
+
+The one Connections list, services and these places together, is `tool:list-every-connection` in
+`tools/connect-a-service-and-seal-its-key`, which reads this folder's place rows and can take this tool's answer.
 
 ## A place is a row
 
@@ -34,7 +43,10 @@ Every wait and word the reader keeps is DATA in the same file: `pace` (how often
 idleness), `turned_away` (how long an item the door turned away waits alone), `item_trouble` (how long an item whose
 file the account would not keep waits, doubling), `long_text` (words past this go whole as a text file), `hearing` and
 `seeing` rows (which program hears a recording or reads a picture on this computer), `gates` (the switch a store
-needs and the pane that grants it). `computer/read-new-items.json` caps the reader child processes.
+needs and the pane that grants it), and `programs`: every program a look or a read starts, by its job
+(`picture_sides`, `picture_preview`, `picture_copy`, `picture_copy_shrunk`, `open_address`, `app_facts`,
+`computer_name`), each a list of tries; `programRun` runs the first whose program is on this computer, and a job with no
+try here is skipped (no preview, no pane, the host name for the computer's name). The code names no program. `computer/read-new-items.json` caps the reader child processes.
 
 ## Files
 
@@ -43,16 +55,19 @@ needs and the pane that grants it). `computer/read-new-items.json` caps the read
 | `computer/read-new-items.mjs` | The readers and `readNewItems`: settle, send once per version, group per window, preview and copy pictures, hear a recording and read a picture before sending, back-fill the past newest first, and each place's and each item's waits. |
 | `computer/read-new-items.json` | How many reader child processes run at once and how long a read waits for one. |
 | `computer/computer-sources.json` | Every place and its rules, as rows. |
-| `computer/computer-sources.mjs` | Finds which places are on this computer and which need a switch (`look`), `placesOf` for a store with wildcards, `accessPaneAddress`. |
+| `computer/computer-sources.mjs` | Finds which places are on this computer and which need a switch (`look`), `placesOf` for a store with wildcards, `accessPaneAddress`, and `programRun` / `openAddress` (the `programs` rows). |
+| `do-work/look-at-this-computer.mjs` | The run of `tool:look-for-the-places-on-this-computer`: one look confined to the granted folder. |
+| `tool-rows.json` | That row. |
 | `computer/own-writes.mjs`, `own-writes.json` | Paths Trillion's own work just wrote, so a folder read does not send them back as new. |
 | `computer/connections/` | The carried conversations (`imessage.mjs`, `whatsapp.mjs`) and the journal they keep what arrives in (`incoming-items.mjs`). WhatsApp loads `@whiskeysockets/baileys`, an optional peer the computer that carries it installs. |
-| `computer/sync-contacts.zsh`, `sync-contacts.js`, `sync-contacts.json` | Sends the address book to the person's people list; served by Trillion as the Mac Contacts setup download. |
+| `computer/sync-contacts.zsh`, `sync-contacts.js`, `sync-contacts.json` | Sends the address book to the person's people list. The Mac Contacts setup line (its descriptor in `tools/connect-a-service-and-seal-its-key/records.json`) downloads these three files from this folder in the public Workshop. |
 | `test/places-are-rows.test.mjs` | Made-up notes and recordings stores and a folder of pictures, read only through their rows: each new item arrives once as a row of a stand-in account, a turned-away item waits alone, a recording waits for its file, the past is read newest first. |
+| `test/programs-are-rows.test.mjs` | Stand-in programs answer the `programs` rows: a preview and a copy (shrunk only past its edge), a pane, an app's facts; no code file starts a program it names. |
+| `test/look-at-this-computer.test.mjs` | The row's sample run through `test-helpers/run-a-row.mjs`, and a look that never leaves the granted folder. |
 | `test/*.test.mjs` | The reader's own tests, moved with it. |
 
-## Not yet here
+## Not yet proved on a computer
 
-- A tool row: the looks are run by Trillion's computer helper, which imports this folder; a `tool:` row that runs one
-  look at the local door's `tools:run` (through `read-a-folder`) is the next step.
-- The programs a look starts are still named in code where a picture is previewed or copied (`sips`) and where a
-  switch's pane is opened (`/usr/bin/open`); `hearing` and `seeing` are already rows.
+- `tool:look-for-the-places-on-this-computer` run at a real computer's local door, and the `programs` rows on a Mac
+  (`sips`, `open`, `plutil`, `scutil`): the sample run and the stand-in programs prove them here; three of the moved
+  tests (`computer-sources-on-a-computer`, `read-new-photos-video`) still need macOS's own look tools to pass.

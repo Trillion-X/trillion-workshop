@@ -44,7 +44,7 @@
 //   its text, so a long note arrives instead of being turned away.
 // - A picture leaves whole only where the row says so and at the size its data caps: a place with `preview_px` sends a
 //   small JPEG preview and says where the picture is on this Mac; a place with `file` (Photos) keeps a JPEG copy in the
-//   person's files, its long edge at most `file.long_edge` pixels (made with sips from the original, else the largest
+//   person's files, its long edge at most `file.long_edge` pixels (made by the `picture_copy` program from the original, else the largest
 //   copy Photos keeps here; an iCloud-only original is never downloaded, and the item says a smaller copy is what is
 //   kept). A video whose original is on this Mac is kept whole (the row's `file.video`), so its sound is heard and its
 //   words transcribed where it arrives; a video only in iCloud keeps its still and says so. A place with `group` sends one item per window (a conversation's hour), once the window has closed and
@@ -83,7 +83,7 @@ import path from 'node:path';
 import {DatabaseSync} from 'node:sqlite';
 import {blake3} from '@noble/hashes/blake3.js';
 import {bytesToHex} from '@noble/hashes/utils.js';
-import {accessPaneAddress, placesOf} from './computer-sources.mjs';
+import {accessPaneAddress, openAddress, placesOf, programRun} from './computer-sources.mjs';
 import {readIncomingItems, assertIncomingAllowed, acknowledgeIncomingItem} from './connections/incoming-items.mjs';
 
 const SECONDS_TO_2001 = 978307200;
@@ -366,22 +366,28 @@ const itemRefused = status => status >= 400 && status < 500 && ![401, 402, 403, 
 // wait, not the hour of a turn-away (2026-10-21: 3,000 photos and memos waited an hour per try behind it). Only a final refusal waits the hour.
 const quotaTrouble = (status, body) => status === 409 && (body?.retryable === true || /^Resource quota:/.test(String(body?.error ?? '')));
 
-/** A small JPEG of a picture in workdir (sips), or null when it is not a picture sips can read. */
-export const makePreview = (picture, px, workdir) => new Promise(resolve => {
+/** A small JPEG of a picture in workdir (the `picture_preview` program), or null when no program here can read it. */
+export const makePreview = (picture, px, workdir, {run = programRun} = {}) => new Promise(resolve => {
   mkdirSync(workdir, {recursive: true});
   const out = path.join(workdir, `${path.parse(picture).name} preview.jpg`);
-  execFile('/usr/bin/sips', ['-Z', String(px), '-s', 'format', 'jpeg', picture, '--out', out], {timeout: 30_000}, error => resolve(!error && existsSync(out) ? out : null));
+  const found = run('picture_preview', {px: String(px), picture, out});
+  if (!found) return resolve(null);
+  execFile(found.argv[0], found.argv.slice(1), {timeout: 30_000}, error => resolve(!error && existsSync(out) ? out : null));
 });
 
-/** A JPEG copy of a picture in workdir (sips) whose long edge is at most `edge` pixels (a smaller picture is not enlarged), or null. */
-export const makeCopy = (picture, edge, workdir) => new Promise(resolve => {
+/** A JPEG copy of a picture in workdir (the `picture_copy` programs) whose long edge is at most `edge` pixels (a smaller picture is not enlarged), or null. */
+export const makeCopy = (picture, edge, workdir, {run = programRun} = {}) => new Promise(resolve => {
   mkdirSync(workdir, {recursive: true});
   const out = path.join(workdir, `${bytesToHex(blake3(new TextEncoder().encode(picture))).slice(0, 16)} copy.jpg`);
-  execFile('/usr/bin/sips', ['-g', 'pixelWidth', '-g', 'pixelHeight', picture], {timeout: 30_000}, (_, stdout) => {
-    const sides = [...String(stdout ?? '').matchAll(/pixel(?:Width|Height):\s*(\d+)/g)].map(match => Number(match[1]));
+  const copyWith = sides => {
     const shrink = !sides.length || Math.max(...sides) > edge;
-    execFile('/usr/bin/sips', [...(shrink ? ['-Z', String(edge)] : []), '-s', 'format', 'jpeg', '-s', 'formatOptions', '85', picture, '--out', out], {timeout: 60_000}, error => resolve(!error && existsSync(out) ? out : null));
-  });
+    const found = run(shrink ? 'picture_copy_shrunk' : 'picture_copy', {edge: String(edge), picture, out});
+    if (!found) return resolve(null);
+    execFile(found.argv[0], found.argv.slice(1), {timeout: 60_000}, error => resolve(!error && existsSync(out) ? out : null));
+  };
+  const measure = run('picture_sides', {picture});
+  if (!measure) return copyWith([]);
+  execFile(measure.argv[0], measure.argv.slice(1), {timeout: 30_000}, (_, stdout) => copyWith(measure.reads ? [...String(stdout ?? '').matchAll(measure.reads)].map(match => Number(match[1])) : []));
 });
 
 /**
@@ -394,7 +400,7 @@ export const makeCopy = (picture, edge, workdir) => new Promise(resolve => {
  * computer (observe-visual.mjs: Apple Vision words and, when a local model answers, a caption); keepSeen(identity,
  * observation) keeps what was seen as the kept file's `visual-observation` result.
  */
-export function readNewItems({carriers, account, keep, stateFile, workdir = path.join(path.dirname(stateFile), 'written-elsewhere-previews'), readers = CHILD_READERS, preview = makePreview, copy = makeCopy, hear = null, keepWords = null, see = null, keepSeen = null, spent = () => Date.now(), longText = null, turnedAway = {ask_again_minutes: 60}, itemTrouble = {retry_seconds: 60, longest_seconds: 1800}, now = () => new Date(), openAccessPane = () => execFile('/usr/bin/open', [accessPaneAddress()]), log = () => {}}) {
+export function readNewItems({carriers, account, keep, stateFile, workdir = path.join(path.dirname(stateFile), 'written-elsewhere-previews'), readers = CHILD_READERS, preview = makePreview, copy = makeCopy, hear = null, keepWords = null, see = null, keepSeen = null, spent = () => Date.now(), longText = null, turnedAway = {ask_again_minutes: 60}, itemTrouble = {retry_seconds: 60, longest_seconds: 1800}, now = () => new Date(), openAccessPane = () => openAddress(accessPaneAddress()), log = () => {}}) {
   let state = {};
   try { state = JSON.parse(readFileSync(stateFile, 'utf8')); } catch {}
   const save = () => { writeFileSync(`${stateFile}.next`, JSON.stringify(state, null, 1)); renameSync(`${stateFile}.next`, stateFile); };

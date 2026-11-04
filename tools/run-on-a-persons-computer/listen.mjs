@@ -94,6 +94,8 @@ import { factsIn, privateModeIn, rulesIn } from './listening-rules.mjs';
 import { isFalseText, jobState, livenessOf } from './meeting-ledger.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+// The places and their rules are rows of the Workshop tool that reads them (trillion-workshop package).
+const PLACE_ROWS = fileURLToPath(new URL('../bring-in-new-items-from-this-computer/computer/computer-sources.json', import.meta.url));
 const expand = (place, home = os.homedir()) => String(place).replace(/^~(?=\/|$)/, home);
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
 const readJson = file => { try { return JSON.parse(readFileSync(file, 'utf8')); } catch { return null; } };
@@ -1200,7 +1202,7 @@ export async function listen({ row, key, origin, file = null, fileAt = null, dev
   const state = device ? deviceState(expand(settings.state), device) : expand(settings.state);
   const pieces = path.join(state, 'pieces');
   mkdirSync(pieces, { recursive: true, mode: 0o700 });
-  const rows = JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8'));
+  const rows = JSON.parse(readFileSync(PLACE_ROWS, 'utf8'));
   const hearing = hearingHere(rows.hearing ?? []);
   if (!hearing) throw new Error([settings.words.no_hearing, ...hearingReasons(rows.hearing ?? [])].join(' '));
   // Naming is looked for again at each piece until it is found, so words still arrive (unnamed) while it is missing
@@ -1407,7 +1409,7 @@ export function startListening({ rows, key, origin, log = () => {} }) {
 
 // ---- Tools on this Mac (computer/mac-tools.json) -----------------------------------------------------------------
 
-const settingsHere = () => rowOf(JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8'))).listen;
+const settingsHere = () => rowOf(JSON.parse(readFileSync(PLACE_ROWS, 'utf8'))).listen;
 // A file the tool is given: a path on this Mac, or a file in the person's Trillion (read once into the state folder).
 async function localFile(input, context, listen) {
   if (input.path) return { file: expand(input.path), fetched: false };
@@ -1438,7 +1440,7 @@ export const listeningTools = {
     const now = typeof input.on === 'boolean' ? setOn(listen, input.on, 'an AI, when the person asked') : readJson(expand(listen.switch)) ?? { on: false };
     const status = readJson(path.join(expand(listen.state), 'status.json'));
     // Whether it is really listening is read from the heartbeat's age now, not from what the last report said (livenessOf).
-    const rows = JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8'));
+    const rows = JSON.parse(readFileSync(PLACE_ROWS, 'utf8'));
     return { ...now, status, live: livenessOf(status), notes: status?.notes ?? jobState('waiting'), said: now.on ? listen.words.on : listen.words.off, hearing: hearingNow(rows.hearing ?? []), ...leavesOf(listen) };
   },
   /** The people this Mac can name, without their voice or face numbers. */
@@ -1478,7 +1480,7 @@ export const listeningTools = {
     if (!String(input.device ?? '').trim()) throw Object.assign(new Error(listen_.words.hear_needs_device), { status: 400 });
     const { file, fetched } = await localFile(input, context, listen_);
     try {
-      const rows = JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8'));
+      const rows = JSON.parse(readFileSync(PLACE_ROWS, 'utf8'));
       const status = await listen({ row: rowOf(rows), key: context.key, origin: context.origin, file, fileAt: input.at ?? null, device: String(input.device).trim() });
       // Heard: each moment's sound is kept as its own file with its words (keep_sound), so the device's piece is let go
       // once every cut of it is kept; while a cut still waits, or with keep_sound off, the piece stays where it is.
@@ -1493,7 +1495,7 @@ export const listeningTools = {
    *  { text, segments, language, heard_whole, produced_by }. Trillion keeps it beside the file (src/account-transcription.mjs). */
   async transcribe(input, context) {
     const listen = settingsHere();
-    const rows = JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8'));
+    const rows = JSON.parse(readFileSync(PLACE_ROWS, 'utf8'));
     const hearing = hearingHere(rows.hearing ?? []);
     if (!hearing) throw new Error(listen.words.no_hearing);
     const { file, fetched } = await localFile(input, context, listen);
@@ -1509,7 +1511,7 @@ export const listeningTools = {
     try {
       const picture = /\.(jpe?g|png|heic|webp|gif|bmp|tiff?)$/i.test(file);
       if (picture || input.faces) return { faces: await knowWho('faces', file) };
-      const rows = JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8'));
+      const rows = JSON.parse(readFileSync(PLACE_ROWS, 'utf8'));
       const hearing = hearingHere(rows.hearing ?? []);
       if (!hearing) throw new Error(listen.words.no_hearing);
       const stretches = await stretchesOf(file, 0, { hearing, knowWho, session: null });
@@ -1524,7 +1526,7 @@ async function keyFromStdin() { let text = ''; for await (const chunk of process
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const option = name => { const at = process.argv.indexOf(name); return at > 0 ? process.argv[at + 1] : undefined; };
-  const rows = JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8'));
+  const rows = JSON.parse(readFileSync(PLACE_ROWS, 'utf8'));
   const row = rowOf(rows);
   const key = await keyFromStdin();
   const origin = process.env.TRILLION_ORIGIN ?? rows.origin;
