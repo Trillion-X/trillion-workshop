@@ -11,16 +11,20 @@
 //     node harness/read-cloud-sessions.mjs list <config-folder> <out.json>
 //     node harness/read-cloud-sessions.mjs read <config-folder> <list.json> <out-folder> [at-once]
 //     node harness/read-cloud-sessions.mjs send <config-folder> <session-id> <message-file>
+//     node harness/read-cloud-sessions.mjs start <config-folder> <owner/repo[,owner/repo...]> <title> <message-file>
 //
 //   <config-folder> is a CLAUDE_CONFIG_DIR folder name under the home folder (for example .claude-account1).
 //   `read` writes <out-folder>/<session-id>.json per session and skips sessions already written, so a cut-off run
 //   is simply run again. `send` posts the text of <message-file> to the session as the person's next message (the
 //   claude.ai/code page's own road, POST /v1/sessions/<id>/events), which starts the session's next turn, and prints
-//   the session's status and its first answer after it.
+//   the session's status and its first answer after it. `start` makes a new session with every repository named
+//   cloned from its main (the first is the one it works in), with the text of <message-file> as its first message, in
+//   the environment of that sign-in's latest cloud session: `claude --cloud` attaches only the repository it is run in,
+//   and a session that asks for a second one waits on a permission only the person can give.
 //
 // Non-negotiable invariants
-//   1. The only change it makes is `send`: one message per call, to the one session named. It never archives,
-//      renames, interrupts or stops a session, and `list` and `read` change nothing.
+//   1. The only changes it makes are `send` (one message to the one session named) and `start` (one new session per
+//      call). It never archives, renames, interrupts or stops a session, and `list` and `read` change nothing.
 //   2. The sign-in token is read from the Keychain item Claude Code keeps for that folder
 //      ("Claude Code-credentials-" + the first 8 hex of the folder path's SHA-256), held in memory and put only in
 //      the Authorization header; it is never printed, logged or passed as an argument.
@@ -199,7 +203,29 @@ async function main([command, folderName, ...rest]) {
     console.log(JSON.stringify({ session: id, sent: message.uuid, answer: null, note: 'no answer within 90 seconds' }));
     return;
   }
-  throw new Error('usage: read-cloud-sessions.mjs list|read|send <config-folder> ...');
+  if (command === 'start') {
+    // The first repository is the one the session works in and pushes to; the others are cloned beside it.
+    const [repositories, title, messageFile] = rest;
+    const text = readFileSync(messageFile, 'utf8').trim();
+    const names = repositories.split(',').filter(Boolean);
+    if (!text || !names.length || !title) throw new Error('usage: start <config-folder> <owner/repo[,owner/repo...]> <title> <message-file>');
+    // A new session runs where this sign-in's latest cloud session ran.
+    const latest = (await get(account, '/v1/sessions?limit=20')).data.find(session => session.environment_kind === 'anthropic_cloud');
+    if (!latest) throw new Error(`${folderName}: no earlier cloud session names an environment to start in`);
+    const session = await get(account, '/v1/sessions', {
+      title,
+      environment_id: latest.environment_id,
+      events: [{ type: 'event', data: { uuid: randomUUID(), session_id: '', type: 'user', parent_tool_use_id: null, message: { role: 'user', content: text } } }],
+      session_context: {
+        sources: names.map(name => ({ type: 'git_repository', url: `https://github.com/${name}`, revision: 'main' })),
+        outcomes: [{ type: 'git_repository', git_info: { type: 'github', repo: names[0], branches: [] } }],
+        model: latest.session_context?.model ?? undefined,
+      },
+    });
+    console.log(JSON.stringify({ session: session.id, status: session.session_status, repositories: names, url: session.session_url ?? null }));
+    return;
+  }
+  throw new Error('usage: read-cloud-sessions.mjs list|read|send|start <config-folder> ...');
 }
 
 const isEntryScript = () => {
