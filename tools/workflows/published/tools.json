@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:6b9376cd634277a53e823095ca937e4336c03a5b2aaf27607b7546cc17bab063"
+  "blake3": "1f:27d0cbab1afe612ca8c9784f5289f546174c2b6870d175737fa8c2ec30848b7b"
  },
  "fields": [
   {
@@ -6109,6 +6109,25 @@
     ],
     "listed_on": "2026-11-04T00:00:00Z",
     "folder": "watch-and-keep-a-live-camera",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:plan-what-a-sent-deal-sets-up",
+   "values": {
+    "title": "Plan what a sent deal sets up",
+    "job": "Turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in",
+    "description": "Give contract ({ id, name } of the deal being sent), facts ({ to, contract_name, contract_id, address }: contract_name and contract_id default to the contract's) and follow_ups (each { label, on: \"paid\" | { once_at }, then: { tool_id | workflow_id, input } }). Answers set: one { kind: \"rule\", input } per paid follow-up, its when the folder's paid-deal trigger (sales-contract-builder.json after_payment.trigger) with this deal's contract_id added, so one deal's payment never runs another's steps; one { kind: \"schedule\", input: { once_at } } per dated one. Words in braces in a step's input are filled only from the facts; any other brace stays as written. Also answers offered: the follow-ups the builder offers (after_payment.steps). It sets nothing itself (the person's automations owner keeps each rule and schedule) and reads no offer, customer or list: building the contract on the screen, reading the person's offers and customers, and sending the deal are not run here.",
+    "status": "active",
+    "maker": "maker:build-and-send-a-sales-contract",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "build-and-send-a-sales-contract",
     "flags": [
      "read-only"
     ]
