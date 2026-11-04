@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:370328265ced054fa66c1cfb914a640bbebf0af7a9af8b54aaa0f38ffa94fce4"
+  "blake3": "1f:91dbde9d0e7d17a014e9a3e2b2966c3d0715f6ab37047aa7a346a700c4b37097"
  },
  "fields": [
   {
@@ -2283,25 +2283,6 @@
      "placement:your-computer"
     ],
     "folder": "office-files"
-   }
-  },
-  {
-   "id": "tool:edit-one-document-together",
-   "values": {
-    "title": "Edit one document together",
-    "job": "Edit one document together with other people and AIs: edits merge in any order, words from different editors are kept, and undo takes back only my own edits",
-    "description": "Give blocks (the document every editor started from: [{ id, text?, props? }] in order) and edits (one per editor, at most 6: { by, blocks }, the blocks that editor made their copy into; a new id is a new block, a block left out is removed). Each edit is turned into that editor's own operations by the document engine (do-work/document-operations.mjs: words as a sequence CRDT, block places and props as last-writer registers), the batches are merged in every order they could arrive in, and the merged document comes back with same_in_every_order and orders_checked. undo names one editor whose edit is then taken back: only what that editor inserted, deleted, moved or set, never words another editor added among them. Answers document ([{ id, text, props, format_version }], new blocks under the ids the engine mints), edits ([{ by, operations }]) and undone ({ by, operations }) when undo was given. Refuses no blocks or no edits, more than 6 editors, an editor named twice, an undo naming no editor here, and anything the engine refuses (with its code). Reads no records, keeps nothing after the run, and sends nothing: the live Write screen's page, saving to the person's records and the session sync are not part of this run.",
-    "status": "active",
-    "maker": "maker:edit-a-document-together",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-11-04T00:00:00Z",
-    "folder": "edit-a-document-together",
-    "flags": [
-     "read-only"
-    ]
    }
   },
   {
@@ -5635,6 +5616,25 @@
     ],
     "listed_on": "2026-11-03T16:00:00Z",
     "folder": "open-a-meeting-link"
+   }
+  },
+  {
+   "id": "tool:open-the-document-a-pursuit-edits-together",
+   "values": {
+    "title": "Open the document a pursuit edits together",
+    "job": "Say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal",
+    "description": "Give pages: what each page of Write is opened with ({ space_id?, scene_address?, ... }). A page opened in a pursuit (space_id) opens that pursuit's one shared room (space-room:<pursuit>/package::documents::documents, from show/write-screen.json) unless it names a document of that same room; a page with no pursuit keeps its own address. Answers pages (each { opened: true, input: what the screen opens with, shared } or { opened: false, refused }, in the screen's own words: an empty pursuit name, one that is not text or holds '/', or a document of another room) and shared_rooms (each room once). It runs show/write-screen-input.mjs writeScreenInput, the rule the Write screen opens with. It reads, keeps and sends nothing; the editing itself (blocks, merges, undo, presence) is the Write screen's and is not run here.",
+    "status": "active",
+    "maker": "maker:edit-a-document-together",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "edit-a-document-together",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
