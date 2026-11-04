@@ -25,6 +25,13 @@
         74,
         88
       ]
+    },
+    {
+      "from": "test/one-screen-per-job.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/test/one-screen-per-job.test.mjs",
+      "source_identity": "1f:81308d7b27301503d276c91cec4a3c0f1e8abeec2901b44fecabfea1654adab9",
+      "identity": "1f:0a932d711f2d313b5f3d692560f0068fac323f0b12938039d54ba985fd4d1bc0"
     }
   ]
 }

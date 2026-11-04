@@ -1,0 +1,23 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/rule-decisions.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-account/read-data/rule-decisions.mjs",
+      "source_identity": "1f:82c5622036944cac6e4a322498b449416da24b894b450cc458835d07f2391caa",
+      "identity": "1f:82c5622036944cac6e4a322498b449416da24b894b450cc458835d07f2391caa",
+      "reused": true
+    },
+    {
+      "from": "test/rule-decisions.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-account/test/rule-decisions.test.mjs",
+      "source_identity": "1f:f0b987bb68d6f8877f0354e1f71923884dd0ae0f45a6afb9ea47a7f98ff1e5c9",
+      "identity": "1f:04cbf3859ef89f987f16188615a3424874f314dea89302441fae66a8d938cec0"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "id": "move:trillion-pr243-tests-to-workshop",
+  "about": "The tests Trillion-X/trillion PR #243 (4ffa1dc4a2) deleted with no home and no port-backlog row (its backlog listed only source and data), carried byte for byte from the tag old-trillion-before-worker-retire into the Workshop tool that now holds the code each one tests. Each group is one tool and the tests whose subject it holds; every file they import is already home in this repository (an earlier lane moved it), so only the tests and their test help move. docs/pr243-deleted-tests.json lists every such test and where it went. Test help a test reads by its address (a fixture page) is named as an owner of its group, since the import closure does not follow a path read.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "groups": [
+    {
+      "id": "tests-of-browse-and-publish-what-my-ai-can-use",
+      "owner": [
+        "test/one-screen-per-job.test.mjs"
+      ],
+      "to": "tools/browse-and-publish-what-my-ai-can-use",
+      "joins_tool": "the tests of code this tool already holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-decide-with-a-method",
+      "owner": [
+        "test/decision-progress.test.mjs"
+      ],
+      "to": "tools/decide-with-a-method",
+      "joins_tool": "the tests of code this tool already holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-keep-and-wake-ai-sessions-on-this-computer",
+      "owner": [
+        "test/action-effects.test.mjs",
+        "test/agent-receiver-recovery.test.mjs",
+        "test/agent-receiver-wake.test.mjs",
+        "test/configurations-record-engine.test.mjs",
+        "test/cut-off.test.mjs",
+        "test/dependency-depth-path.test.mjs",
+        "test/device-facts.test.mjs",
+        "test/events-poll-bounded.test.mjs",
+        "test/failure-contract.test.mjs",
+        "test/file-card-offers.test.mjs",
+        "test/google-account-thread-contract.test.mjs",
+        "test/instagram-identity-contract.test.mjs",
+        "test/kept-runs-limit-one-owner.test.mjs",
+        "test/make-pictures-and-sounds.test.mjs",
+        "test/media-edit-screen.test.mjs",
+        "test/meta-field-expansion.test.mjs",
+        "test/outcome-person-confirmed.test.mjs",
+        "test/platform-failure-contract.test.mjs",
+        "test/public-app-indexed-collaboration-browser.test.mjs",
+        "test/public-app-run-permission.test.mjs",
+        "test/repo-explorer-output-claim.test.mjs",
+        "test/repo-explorer-release.test.mjs",
+        "test/repo-explorer-staging.test.mjs",
+        "test/responses.test.mjs",
+        "test/scheduler-policy.test.mjs",
+        "test/show-rules-failure-boundary.test.mjs",
+        "test/source-connection.test.mjs",
+        "test/space-mounting-in-decorated-failure.test.mjs",
+        "test/sql-cost-observer.test.mjs",
+        "test/verify-source-return.test.mjs",
+        "test/workshop-ask-in-memory.test.mjs",
+        "test/your-records-configurations.test.mjs",
+        "test/fixtures/github-expanded-assets-gridcraft-v0.3.0.html",
+        "test/fixtures/github-releases-latest-gridcraft-v0.3.0.html"
+      ],
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer",
+      "joins_tool": "the tests of code this tool already holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-record-log",
+      "owner": [
+        "test/record-model-inspection.test.mjs",
+        "test/record-sync-selected-bucket-stability.test.mjs"
+      ],
+      "to": "tools/record-log",
+      "joins_tool": "the tests of code this tool already holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-set-up-my-account",
+      "owner": [
+        "test/rule-decisions.test.mjs"
+      ],
+      "to": "tools/set-up-my-account",
+      "joins_tool": "the tests of code this tool already holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    }
+  ],
+  "calls": [
+    {
+      "id": "made-up-owner-name",
+      "means": "This repository is public and holds made-up data only: a real person's first name used as a test's sample owner becomes a made-up one. Nothing else in the file changes.",
+      "find": "'Jibran'",
+      "replace": "'Sam Example'"
+    }
+  ]
+}

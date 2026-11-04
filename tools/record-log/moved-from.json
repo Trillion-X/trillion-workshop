@@ -3,12 +3,50 @@
   "source": "Trillion-X/trillion",
   "files": [
     {
+      "from": "parts/record-log/do-work/record-digest.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-log/do-work/record-digest.mjs",
+      "source_identity": "1f:5f96ceb443f1915f547ad1598b1778fee51e5a7b1075aba29b211a6e040c3543",
+      "identity": "1f:5f96ceb443f1915f547ad1598b1778fee51e5a7b1075aba29b211a6e040c3543",
+      "reused": true
+    },
+    {
+      "from": "parts/record-log/do-work/record-model.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-log/do-work/record-model.mjs",
+      "source_identity": "1f:7e83122fea5a0c5edf11e925c81cdd1ede98d1c3af5787e47b71e061c0cb7c9f",
+      "identity": "1f:7e83122fea5a0c5edf11e925c81cdd1ede98d1c3af5787e47b71e061c0cb7c9f",
+      "reused": true
+    },
+    {
       "from": "src/store-size.json",
       "commit": "a7f1f9a0a8",
       "to": "tools/record-log/do-work/store-size.json",
       "source_identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
       "identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
       "source_retired_by": "Trillion-X/trillion f345b38440 (#243)"
+    },
+    {
+      "from": "src/store-size.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-log/do-work/store-size.json",
+      "source_identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
+      "identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
+      "reused": true
+    },
+    {
+      "from": "test/record-model-inspection.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-log/test/record-model-inspection.test.mjs",
+      "source_identity": "1f:4a6a88ddb2188c0a73ebe51a4ac42e0bae52667e32ece5f1a08d18caa3540184",
+      "identity": "1f:d78f879a99ca90b5c7048664f93646883ac69c260e6a28326405fc4bc6399092"
+    },
+    {
+      "from": "test/record-sync-selected-bucket-stability.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-log/test/record-sync-selected-bucket-stability.test.mjs",
+      "source_identity": "1f:1cb59ee616ba56d0a6f528d38f646ca305e04ca654b8400643b95b6b20f4d37f",
+      "identity": "1f:28ff397bd4ec540f79429fcef72b6ab15f122a6334813ee378675436504960c6"
     }
   ]
 }

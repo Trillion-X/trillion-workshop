@@ -2,7 +2,14 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "made-up-owner-name",
+      "means": "This repository is public and holds made-up data only: a real person's first name used as a test's sample owner becomes a made-up one. Nothing else in the file changes.",
+      "find": "'Jibran'",
+      "replace": "'Sam Example'"
+    }
+  ],
   "files": [
     {
       "from": "harness/account-key.json",
@@ -1076,6 +1083,27 @@
       "identity": "1f:50504bf83d8918ff01c807d0e2066bd3086aa2a5abbaf4f51a049bc2294b1f5f"
     },
     {
+      "from": "test/action-effects.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/action-effects.test.mjs",
+      "source_identity": "1f:2ab5bec2ad38f27ad606cb42ef7f32f6280aac766154b4eee5fe23de1c90aa67",
+      "identity": "1f:2ab5bec2ad38f27ad606cb42ef7f32f6280aac766154b4eee5fe23de1c90aa67"
+    },
+    {
+      "from": "test/agent-receiver-recovery.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/agent-receiver-recovery.test.mjs",
+      "source_identity": "1f:8c49ace16fd5233e7ea42629b1df2e24a46a4bf8cc530fd9b35563aa8e65753f",
+      "identity": "1f:8c49ace16fd5233e7ea42629b1df2e24a46a4bf8cc530fd9b35563aa8e65753f"
+    },
+    {
+      "from": "test/agent-receiver-wake.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/agent-receiver-wake.test.mjs",
+      "source_identity": "1f:971b05cfecb9f0232bab0a9aef89dddda1e5de65cfa3f63ce69346309aad5428",
+      "identity": "1f:971b05cfecb9f0232bab0a9aef89dddda1e5de65cfa3f63ce69346309aad5428"
+    },
+    {
       "from": "test/ask-trillion-first.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/ask-trillion-first.test.mjs",
@@ -1088,6 +1116,23 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/claude-source-return.test.mjs",
       "source_identity": "1f:6bae7532811a11a24cb456fb92d05d8550d9e2d3765feaaa363ee53d269ffb38",
       "identity": "1f:6bae7532811a11a24cb456fb92d05d8550d9e2d3765feaaa363ee53d269ffb38"
+    },
+    {
+      "from": "test/configurations-record-engine.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/configurations-record-engine.test.mjs",
+      "source_identity": "1f:64aea23e93c3a68971c1676ac49ba93a607a88ad9f7a70504f128ef43649696c",
+      "identity": "1f:7d80ad2b7da480cc0d404b9327d3b611700cf8ac55be80b12408708e45a9ef0a",
+      "calls": [
+        "made-up-owner-name"
+      ]
+    },
+    {
+      "from": "test/cut-off.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/cut-off.test.mjs",
+      "source_identity": "1f:30c4f85ba185e92db388c18cc085a55b9090d9d1f34fdd84db1eb687a4a1e5f8",
+      "identity": "1f:30c4f85ba185e92db388c18cc085a55b9090d9d1f34fdd84db1eb687a4a1e5f8"
     },
     {
       "from": "test/decide-before-building.test.mjs",
@@ -1104,6 +1149,20 @@
       "identity": "1f:9c61a48e29fbe5d04696e6548202ad85673fa7378893445282592b9c6e905655"
     },
     {
+      "from": "test/dependency-depth-path.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/dependency-depth-path.test.mjs",
+      "source_identity": "1f:56799aa70569ec32eb9ad5f5b6465efcb107ad692e84418fbc26a7067ad8b9c2",
+      "identity": "1f:56799aa70569ec32eb9ad5f5b6465efcb107ad692e84418fbc26a7067ad8b9c2"
+    },
+    {
+      "from": "test/device-facts.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/device-facts.test.mjs",
+      "source_identity": "1f:5a903e8fedeab24ed4a5932ffcb9ca1c7ee7f61a2bb8814b68b12899c4be82c8",
+      "identity": "1f:5a903e8fedeab24ed4a5932ffcb9ca1c7ee7f61a2bb8814b68b12899c4be82c8"
+    },
+    {
       "from": "test/escape-chain.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/escape-chain.test.mjs",
@@ -1111,11 +1170,53 @@
       "identity": "1f:15f9bc67fb2c29febe664a7d3b0e2412e1092871d95b8e6450fa5c0e314ef5e4"
     },
     {
+      "from": "test/events-poll-bounded.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/events-poll-bounded.test.mjs",
+      "source_identity": "1f:92bbf41c08e850f9de90e4b3fa0286cfcd111ef6910f1dba36d20e85389a401b",
+      "identity": "1f:92bbf41c08e850f9de90e4b3fa0286cfcd111ef6910f1dba36d20e85389a401b"
+    },
+    {
+      "from": "test/failure-contract.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/failure-contract.test.mjs",
+      "source_identity": "1f:57a78a251436ba8b4bb8b8c39372ac8b5f1935e75c0374345974d740dd5d1c04",
+      "identity": "1f:57a78a251436ba8b4bb8b8c39372ac8b5f1935e75c0374345974d740dd5d1c04"
+    },
+    {
+      "from": "test/file-card-offers.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/file-card-offers.test.mjs",
+      "source_identity": "1f:967c565e21af691019619dd571610d5b7fcb082de5aae4650fe1696d9d79a55a",
+      "identity": "1f:967c565e21af691019619dd571610d5b7fcb082de5aae4650fe1696d9d79a55a"
+    },
+    {
+      "from": "test/fixtures/github-expanded-assets-gridcraft-v0.3.0.html",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/fixtures/github-expanded-assets-gridcraft-v0.3.0.html",
+      "source_identity": "1f:5247c9b6304553a8af3b69083d4ac2f8af5d11fc22b9994fea2ab5749fcf7c31",
+      "identity": "1f:5247c9b6304553a8af3b69083d4ac2f8af5d11fc22b9994fea2ab5749fcf7c31"
+    },
+    {
+      "from": "test/fixtures/github-releases-latest-gridcraft-v0.3.0.html",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/fixtures/github-releases-latest-gridcraft-v0.3.0.html",
+      "source_identity": "1f:871e207401bacbb0bd3466ad6355ee014da79a5f860970b3649a325b75ce60dc",
+      "identity": "1f:871e207401bacbb0bd3466ad6355ee014da79a5f860970b3649a325b75ce60dc"
+    },
+    {
       "from": "test/fixtures/native-read-authorization-failure.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/fixtures/native-read-authorization-failure.json",
       "source_identity": "1f:0cd6619a057ef3e30bb2081f93a44ea2edb5f94caeac74a2f2018ece424c567b",
       "identity": "1f:0cd6619a057ef3e30bb2081f93a44ea2edb5f94caeac74a2f2018ece424c567b"
+    },
+    {
+      "from": "test/google-account-thread-contract.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/google-account-thread-contract.test.mjs",
+      "source_identity": "1f:feda5e4b1dd7c75d74a8f9db95a137b35fc9914236ce41884012dc5c0fc4cb79",
+      "identity": "1f:feda5e4b1dd7c75d74a8f9db95a137b35fc9914236ce41884012dc5c0fc4cb79"
     },
     {
       "from": "test/harness-setup.test.mjs",
@@ -1132,6 +1233,13 @@
       "identity": "1f:7a9a1b4d635284b92d9e7107d9ac9036abf8e26a01409fc5e3cc01a5904a8ac9"
     },
     {
+      "from": "test/instagram-identity-contract.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/instagram-identity-contract.test.mjs",
+      "source_identity": "1f:16318bd8b56bf62440429878955bca32344bf1a286f301e640c890faf4c9416a",
+      "identity": "1f:16318bd8b56bf62440429878955bca32344bf1a286f301e640c890faf4c9416a"
+    },
+    {
       "from": "test/keep-web-chats.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/keep-web-chats.test.mjs",
@@ -1146,6 +1254,20 @@
       "identity": "1f:1405438a1e3ff0660daf47077e68d8f168395b007e09e69a6ae9ed486ca65c75"
     },
     {
+      "from": "test/kept-runs-limit-one-owner.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/kept-runs-limit-one-owner.test.mjs",
+      "source_identity": "1f:85db2c06c9413a1ac78a7d704f67fc1d51e2eb27bb3d9150e84988660faa543a",
+      "identity": "1f:02cda39c9338461d197601c6fcb98d2275a665036eb4778e9019827066deca9c"
+    },
+    {
+      "from": "test/make-pictures-and-sounds.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/make-pictures-and-sounds.test.mjs",
+      "source_identity": "1f:62568d81bceb982faee9e3f1f94e44a8f552d9bd93337df98bf3152af4323031",
+      "identity": "1f:62568d81bceb982faee9e3f1f94e44a8f552d9bd93337df98bf3152af4323031"
+    },
+    {
       "from": "test/mcp-registration-loopback.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/mcp-registration-loopback.test.mjs",
@@ -1153,11 +1275,53 @@
       "identity": "1f:ef01fddee69754c22f2917a464ecfcbe2251d00ee6667ef1b3eb3d81eabbc220"
     },
     {
+      "from": "test/media-edit-screen.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/media-edit-screen.test.mjs",
+      "source_identity": "1f:6d407e0f5e671bda4e5ee84be1f48e50381922810daac04524056e0d1bfa3a64",
+      "identity": "1f:6d407e0f5e671bda4e5ee84be1f48e50381922810daac04524056e0d1bfa3a64"
+    },
+    {
+      "from": "test/meta-field-expansion.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/meta-field-expansion.test.mjs",
+      "source_identity": "1f:742a88313886736265438070ef10d02d7ad8c985b7a8a82e5d95e371cd40cbb1",
+      "identity": "1f:742a88313886736265438070ef10d02d7ad8c985b7a8a82e5d95e371cd40cbb1"
+    },
+    {
       "from": "test/native-decision-continuity.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/native-decision-continuity.test.mjs",
       "source_identity": "1f:d651a5629b1e29cb6800dd62a29d7d9640d25c4d0b1ae28bd9dc3b96fbc9c5db",
       "identity": "1f:d651a5629b1e29cb6800dd62a29d7d9640d25c4d0b1ae28bd9dc3b96fbc9c5db"
+    },
+    {
+      "from": "test/outcome-person-confirmed.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/outcome-person-confirmed.test.mjs",
+      "source_identity": "1f:aabdf78f064a51ce7053f562f16bb2d286d991b5ed212a1945726c4fbf176e74",
+      "identity": "1f:aabdf78f064a51ce7053f562f16bb2d286d991b5ed212a1945726c4fbf176e74"
+    },
+    {
+      "from": "test/platform-failure-contract.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/platform-failure-contract.test.mjs",
+      "source_identity": "1f:6f4c1ff15cce883beefc18e80cf98685181dee74728587d99c1db92c65f8e782",
+      "identity": "1f:6f4c1ff15cce883beefc18e80cf98685181dee74728587d99c1db92c65f8e782"
+    },
+    {
+      "from": "test/public-app-indexed-collaboration-browser.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-indexed-collaboration-browser.test.mjs",
+      "source_identity": "1f:b7b40a871d076711b843fee5082fb110ac67f2b1ec36eebaa8ec71b5ef0b8373",
+      "identity": "1f:b7b40a871d076711b843fee5082fb110ac67f2b1ec36eebaa8ec71b5ef0b8373"
+    },
+    {
+      "from": "test/public-app-run-permission.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-run-permission.test.mjs",
+      "source_identity": "1f:35b3770f6f447429af1523197f82c7fef8d77fbfce09c7b6e747f89b89375516",
+      "identity": "1f:35b3770f6f447429af1523197f82c7fef8d77fbfce09c7b6e747f89b89375516"
     },
     {
       "from": "test/read-this-computer.test.mjs",
@@ -1202,11 +1366,46 @@
       "identity": "1f:e936d5422c6f5efc8aa5b307b0ba49587e5248b212520866d0587d9d2a8b90de"
     },
     {
+      "from": "test/repo-explorer-output-claim.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/repo-explorer-output-claim.test.mjs",
+      "source_identity": "1f:120ee87fff9a7488b2c82401d2c4b51882e43a133f9d05eb565b22c79a71daa1",
+      "identity": "1f:120ee87fff9a7488b2c82401d2c4b51882e43a133f9d05eb565b22c79a71daa1"
+    },
+    {
+      "from": "test/repo-explorer-release.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/repo-explorer-release.test.mjs",
+      "source_identity": "1f:154ccb4c51bb868720245e67ef1149de4db00c64ba2d57cf7675c3c6b1c42408",
+      "identity": "1f:154ccb4c51bb868720245e67ef1149de4db00c64ba2d57cf7675c3c6b1c42408"
+    },
+    {
+      "from": "test/repo-explorer-staging.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/repo-explorer-staging.test.mjs",
+      "source_identity": "1f:eea12d524066466d2b0b34f27d36a3b6d919d9216e84299d3014e9a3ede090ef",
+      "identity": "1f:eea12d524066466d2b0b34f27d36a3b6d919d9216e84299d3014e9a3ede090ef"
+    },
+    {
       "from": "test/resolve-program.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/resolve-program.test.mjs",
       "source_identity": "1f:dc60b62443981cd8081dc646a2215309b0b5b50e1dbc59238a5a80f7f955ac4a",
       "identity": "1f:dc60b62443981cd8081dc646a2215309b0b5b50e1dbc59238a5a80f7f955ac4a"
+    },
+    {
+      "from": "test/responses.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/responses.test.mjs",
+      "source_identity": "1f:d7403e1c11cd30e737642085157cade7f6d16e6b323c8e7dec35bf5b1b7546b2",
+      "identity": "1f:d7403e1c11cd30e737642085157cade7f6d16e6b323c8e7dec35bf5b1b7546b2"
+    },
+    {
+      "from": "test/scheduler-policy.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/scheduler-policy.test.mjs",
+      "source_identity": "1f:7b91de74639dbbc2175efa3730129aa804a3a473fbb5332b178896218d6819a7",
+      "identity": "1f:7b91de74639dbbc2175efa3730129aa804a3a473fbb5332b178896218d6819a7"
     },
     {
       "from": "test/session-live.test.mjs",
@@ -1216,11 +1415,39 @@
       "identity": "1f:e67e92ef84725faa9fdcfb6c85825323bd6a545d65f15c655d040077ee592337"
     },
     {
+      "from": "test/show-rules-failure-boundary.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/show-rules-failure-boundary.test.mjs",
+      "source_identity": "1f:f194f04dc04e6645104697f72eb5dc2daf26e6000c027b3e514b085d5e0a4ccc",
+      "identity": "1f:f194f04dc04e6645104697f72eb5dc2daf26e6000c027b3e514b085d5e0a4ccc"
+    },
+    {
+      "from": "test/source-connection.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/source-connection.test.mjs",
+      "source_identity": "1f:7bae2ed9adfdb0aa29244077e7628a7af85b5a2566e01a0e1b53b179a6398069",
+      "identity": "1f:7bae2ed9adfdb0aa29244077e7628a7af85b5a2566e01a0e1b53b179a6398069"
+    },
+    {
       "from": "test/source-return-pending.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/source-return-pending.test.mjs",
       "source_identity": "1f:918e9e6eda1897ebec0bed295f08cfb095c2efeab2f92620c092522aa194c2fc",
       "identity": "1f:918e9e6eda1897ebec0bed295f08cfb095c2efeab2f92620c092522aa194c2fc"
+    },
+    {
+      "from": "test/space-mounting-in-decorated-failure.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/space-mounting-in-decorated-failure.test.mjs",
+      "source_identity": "1f:aa1d8366febb3b5c71b8b39b920c556aa1db3a9243ddf82a7e2cb49284aa0452",
+      "identity": "1f:aa1d8366febb3b5c71b8b39b920c556aa1db3a9243ddf82a7e2cb49284aa0452"
+    },
+    {
+      "from": "test/sql-cost-observer.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/sql-cost-observer.test.mjs",
+      "source_identity": "1f:acc2e5db87c557808c658b74cf3822d218d60f6cfe924ce46ba301774cb523d2",
+      "identity": "1f:acc2e5db87c557808c658b74cf3822d218d60f6cfe924ce46ba301774cb523d2"
     },
     {
       "from": "test/take-open-work.test.mjs",
@@ -1230,11 +1457,35 @@
       "identity": "1f:ddde5dab8e9196a44a79fa59651e080de86397759519fd2cf9a94044f2d2339e"
     },
     {
+      "from": "test/verify-source-return.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/verify-source-return.test.mjs",
+      "source_identity": "1f:6901250613374697a0e86675a24c8285e8cdee60256049a85cf3ec1d1d31d847",
+      "identity": "1f:6901250613374697a0e86675a24c8285e8cdee60256049a85cf3ec1d1d31d847"
+    },
+    {
       "from": "test/wake-sessions.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/wake-sessions.test.mjs",
       "source_identity": "1f:c5074b5340d6d7daa51eee5e4dd09f18dbc1c2a58acce5faf06bbcb086707705",
       "identity": "1f:c5074b5340d6d7daa51eee5e4dd09f18dbc1c2a58acce5faf06bbcb086707705"
+    },
+    {
+      "from": "test/workshop-ask-in-memory.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/workshop-ask-in-memory.test.mjs",
+      "source_identity": "1f:873369163f6fb252e7bc12088ef93d04ca5be0629e5e7fb8803758736b58b871",
+      "identity": "1f:873369163f6fb252e7bc12088ef93d04ca5be0629e5e7fb8803758736b58b871"
+    },
+    {
+      "from": "test/your-records-configurations.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/your-records-configurations.test.mjs",
+      "source_identity": "1f:790633f630f1baf9f179852eeddc324df7d37bae2d903b202b1028808caa14dc",
+      "identity": "1f:9117fc848e6d4998747ee9cce322798a8a715114cbf8b33b1fc80f9ba91329de",
+      "calls": [
+        "made-up-owner-name"
+      ]
     }
   ]
 }

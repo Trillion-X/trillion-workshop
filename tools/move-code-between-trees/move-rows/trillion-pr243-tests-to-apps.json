@@ -1,0 +1,45 @@
+{
+  "id": "move:trillion-pr243-tests-to-apps",
+  "about": "The tests Trillion-X/trillion PR #243 (4ffa1dc4a2) deleted with no home and no port-backlog row, carried byte for byte from the tag old-trillion-before-worker-retire into Trillion-X/trillion-apps web/ (which keeps the source's own paths under it), beside the code each one tests: every file they import is already home in web/ with the same bytes but for import paths. trillion-workshop docs/pr243-deleted-tests.json lists every such test and where it went.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-apps",
+    "package": "trillion-apps",
+    "shared_folder": "web"
+  },
+  "groups": [
+    {
+      "id": "tests-of-web",
+      "owner": [
+        "test/app-project-assembly.test.mjs",
+        "test/app-project-native-output.test.mjs",
+        "test/app-project-publish.test.mjs",
+        "test/app-project-source-model.test.mjs",
+        "test/article-minimap.test.mjs",
+        "test/devices-data.test.mjs",
+        "test/document-capability-page.test.mjs",
+        "test/document-heading-anchors.test.mjs",
+        "test/document-page.test.mjs",
+        "test/files-drop-browser.test.mjs",
+        "test/graph-contract.test.mjs",
+        "test/kept-reads-concurrency.test.mjs",
+        "test/layer-diagram.test.mjs",
+        "test/native-app-source.test.mjs",
+        "test/public-app-assembly-model.test.mjs",
+        "test/queue-job-button.test.mjs",
+        "test/read-fingerprint.test.mjs",
+        "test/shared-record-preview.test.mjs",
+        "test/shared-record-references.test.mjs",
+        "test/site-nav-hover.test.mjs",
+        "test/workspace-broken-answer-body.test.mjs"
+      ],
+      "to": "web"
+    }
+  ]
+}

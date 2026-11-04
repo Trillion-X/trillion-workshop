@@ -1,0 +1,31 @@
+{
+  "id": "move:trillion-pr243-tests-back-to-trillion",
+  "about": "The tests Trillion-X/trillion PR #243 (4ffa1dc4a2) deleted although every file they import is still on Trillion-X/trillion main: they come back byte for byte from the tag old-trillion-before-worker-retire to their own place in test/, beside the code they test. trillion-workshop docs/pr243-deleted-tests.json lists every such test and where it went.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion",
+    "package": "trillion",
+    "shared_folder": "."
+  },
+  "groups": [
+    {
+      "id": "tests-back-home",
+      "owner": [
+        "test/floating-surfaces-stand-apart.test.mjs",
+        "test/job-run-multiple-holders.test.mjs",
+        "test/pictures-view-offered-to-every-list.test.mjs",
+        "test/screen-look-design-tokens.test.mjs",
+        "test/screen-look-popover.test.mjs",
+        "test/screen-look-token-kinds.test.mjs",
+        "test/tour-click-policy.test.mjs"
+      ],
+      "to": "."
+    }
+  ]
+}
