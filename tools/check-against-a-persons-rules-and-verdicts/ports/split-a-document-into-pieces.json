@@ -1,0 +1,57 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-AGAINST-SPLIT-A-DOCUMENT-INTO-PIECES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: pieces, piece coverage and rows with no test, in the one judge",
+  "message_multihash": "1f:d2cabe8eed31293e0b9dfc1dff7b1311b4050ceaac210b380fb89139b569e332",
+  "quote": "Brian, 2026-11-03: every piece of every file of his gauntlet tree is a row with a check or a recorded reason, never one row per file and never a byte slice."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "split a document into pieces as a tool row: the container entry of tool:split-a-document-into-pieces",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/split-a-document-into-pieces.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion",
+   "path": "scripts/method-atoms.mjs",
+   "why": "atomsOf, the splitting itself, moved to do-work/pieces.mjs (ports/pieces.json); this file only reads one request and prints the pieces for the row."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "split a document into pieces as a tool row",
+    "split a document into pieces",
+    "split-a-document-into-pieces"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "split-a-document-into-pieces"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "f9bbba42842982f795521acce8173180fd8a21bd"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/check-against-a-persons-rules-and-verdicts/test/pieces.test.mjs",
+   "tools/check-against-a-persons-rules-and-verdicts/test/piece-sweep.test.mjs",
+   "tools/check-against-a-persons-rules-and-verdicts/test/rows.test.mjs"
+  ]
+ }
+}

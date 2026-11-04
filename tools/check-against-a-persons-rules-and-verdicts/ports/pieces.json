@@ -1,0 +1,58 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-AGAINST-PIECES-FROM-METHOD-ATOMS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: pieces, piece coverage and rows with no test, in the one judge",
+  "message_multihash": "1f:6d4d49ef9579972496b8a9ed0494d41176e2c625182274ecfa21da5cf79f1df0",
+  "quote": "Brian, 2026-11-03: every piece of every file of his gauntlet tree is a row with a check or a recorded reason, never one row per file and never a byte slice; all his checks are one tree in one list, one judge. Port one to one from old trillion."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+   "path": "scripts/method-atoms.mjs",
+   "multihash": "1f:b5dd1dea093af129917998cf10d5e5f8e74eb07dcadf39abcd4ef359ee3dfaf1",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T00:00:00Z",
+    "deleted_with": "old trillion removes scripts/method-atoms.mjs and sweepAtoms (with scripts/method-sources.mjs --coverage and its tests in test/method-sources.test.mjs) and calls tool:split-a-document-into-pieces and tool:check-every-piece-is-covered; this session may not write to old trillion, so the PR names it as open"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/pieces.mjs"
+  }
+ ],
+ "preserve": [
+  "atomsOf: one paragraph, list item, table row or fenced block under its headings is one piece; titles, rules and table headers are not",
+  "a key is the heading path and the lead (the bold opening, or the first eight words), numbered when two pieces share one",
+  "an identity is 1f: and the BLAKE3 of the whitespace-folded text"
+ ],
+ "allowed_deltas": [
+  "the header names its new home and shapes",
+  "lead is exported, so a piece row says its lead",
+  "pieceRow and pieceRows make the row a person keeps in list:checks (id piece- and the first 24 hex of the identity, kind piece, sources per place it stands), one row per identity across files"
+ ],
+ "banned_substitutions": [
+  "one row per file",
+  "a byte slice in place of a piece",
+  "an identity of anything but the folded text",
+  "a second splitter elsewhere"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-04T04:07:46Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:b5dd1dea093af129917998cf10d5e5f8e74eb07dcadf39abcd4ef359ee3dfaf1",
+  "target_multihash_at_baseline": "1f:b5dd1dea093af129917998cf10d5e5f8e74eb07dcadf39abcd4ef359ee3dfaf1",
+  "commit": "8417a78ec58f2ba595710d1b66d4cf47cbc9f441"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/check-against-a-persons-rules-and-verdicts/test/pieces.test.mjs the atom test of old trillion test/method-sources.test.mjs:46, moved, and the piece rows on made-up text"
+  ]
+ }
+}
