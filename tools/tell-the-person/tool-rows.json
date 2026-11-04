@@ -326,7 +326,64 @@
       "provenance": {
         "source": "tell-the-person GET /tell/notices and POST /tell/notices/read behavior, ported through the Workshop records door"
       },
-      "verify": [],
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "device_id": "device-sample-1"
+          },
+          "records": [
+            {
+              "id": "notification-device:device-sample-1",
+              "type": "notification-device",
+              "value": {
+                "device_id": "device-sample-1",
+                "route": "live",
+                "added_at": "2026-11-01T00:00:00Z"
+              }
+            },
+            {
+              "id": "told-the-person",
+              "type": "told-the-person",
+              "value": {
+                "seqs": [
+                  1
+                ]
+              }
+            },
+            {
+              "id": "told-the-person:1",
+              "type": "told-the-person",
+              "value": {
+                "item": {
+                  "seq": 1,
+                  "kind": "report",
+                  "title": "Sample notice",
+                  "body": "A made-up notice for the sample run.",
+                  "at": "2026-11-03T12:00:00Z",
+                  "open": null,
+                  "results": {
+                    "device-pull": {
+                      "sent": true,
+                      "stage": "queued",
+                      "device_ids": [
+                        "device-sample-1"
+                      ]
+                    }
+                  },
+                  "actions": [
+                    {
+                      "id": "open",
+                      "label": "the sample page",
+                      "open": "/sample-page"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ],
       "result_selector": "$.result"
     }
   },
@@ -506,7 +563,60 @@
       "provenance": {
         "source": "tell-the-person GET /tell/notices and POST /tell/notices/read behavior, ported through the Workshop records door"
       },
-      "verify": [],
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "ids": [
+              "told:1"
+            ],
+            "on": {
+              "channel": "in-app"
+            }
+          },
+          "records": [
+            {
+              "id": "told-the-person",
+              "type": "told-the-person",
+              "value": {
+                "seqs": [
+                  1
+                ]
+              }
+            },
+            {
+              "id": "told-the-person:1",
+              "type": "told-the-person",
+              "value": {
+                "item": {
+                  "seq": 1,
+                  "kind": "report",
+                  "title": "Sample notice",
+                  "body": "A made-up notice for the sample run.",
+                  "at": "2026-11-03T12:00:00Z",
+                  "open": null,
+                  "results": {
+                    "device-pull": {
+                      "sent": true,
+                      "stage": "queued",
+                      "device_ids": [
+                        "device-sample-1"
+                      ]
+                    }
+                  },
+                  "actions": [
+                    {
+                      "id": "open",
+                      "label": "the sample page",
+                      "open": "/sample-page"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ],
       "result_selector": "$.result",
       "record_model": {
         "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
@@ -578,7 +688,56 @@
      "records": {"fd": 3, "rights": [{"kind": "told-the-person", "operations": ["records:list"]}, {"kind": "told-the-person", "id": "told-the-person", "operations": ["records:read", "records:write"]}, {"kind": "told-the-person", "prefix": "told-the-person:", "operations": ["records:read", "records:write"]}], "most_writes": 1}
     },
     "provenance": {"source": "src/tell-the-person.mjs act() semantics; explicit open behavior is portable through the records door, while source action roads and agent events require their own owner."},
-    "verify": [],
+    "verify": [
+      {
+        "kind": "sample-run",
+        "input": {
+          "id": "told:1",
+          "action": "open"
+        },
+        "records": [
+          {
+            "id": "told-the-person",
+            "type": "told-the-person",
+            "value": {
+              "seqs": [
+                1
+              ]
+            }
+          },
+          {
+            "id": "told-the-person:1",
+            "type": "told-the-person",
+            "value": {
+              "item": {
+                "seq": 1,
+                "kind": "report",
+                "title": "Sample notice",
+                "body": "A made-up notice for the sample run.",
+                "at": "2026-11-03T12:00:00Z",
+                "open": null,
+                "results": {
+                  "device-pull": {
+                    "sent": true,
+                    "stage": "queued",
+                    "device_ids": [
+                      "device-sample-1"
+                    ]
+                  }
+                },
+                "actions": [
+                  {
+                    "id": "open",
+                    "label": "the sample page",
+                    "open": "/sample-page"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "result_selector": "$.result"
    }
   }

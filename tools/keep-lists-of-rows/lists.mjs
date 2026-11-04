@@ -113,11 +113,11 @@
 // Security: one person's own store; a list can only name record types (`record:<type>`), never a decision, a pursuit,
 // a setting or a payment.
 //
-import { boundedWalk, refusalWords } from '../parts/bounded-walk.mjs';
+import { boundedWalk, refusalWords } from '../bounded-walk.mjs';
 import { makeConfigurations, ConfigurationError } from './configurations.mjs';
 import { ListsError, listRefusal, listSay } from './list-refusals.mjs';
 import { backlinks, duplicateRows, fileReferences, joinAnswers, mergeRows, planRowRequest, resolveRows, rewriteFileNames, withDangling } from './list-row-operations.mjs';
-import { documentsFolderOf, readDocumentTypes, saveDocumentTypes } from './document-properties.mjs';
+import { documentsFolderOf, readDocumentTypes, saveDocumentTypes } from '../documents-as-list-rows/document-properties.mjs';
 import { exportListFiles, importListFiles } from './list-plain-files.mjs';
 import { aggregateRows } from './list-aggregates.mjs';
 import { isSourceId, pathIdsOf, planPath, sourceNamespacesOf, withPathValues } from './list-paths.mjs';
@@ -125,27 +125,27 @@ import { fieldsWritten, noteRecordsWriting } from './live-keys.mjs';
 import { bindParameters, parametersOf } from './list-view-parameters.mjs';
 import { listFilters, viewsWithFiltersExpanded } from './list-filters.mjs';
 import { asViewed, checkRollups, withRollups } from './list-rollups.mjs';
-import { viaOf, viaWords } from './write-via.mjs';
-import { checkHistoryFields, fieldHistoryOf, historyFieldsOf, historyKeptBy, historyValues, historyViewed, keepValueHistory } from './list-value-history.mjs';
+import { viaOf, viaWords } from '../formulas/read-data/write-via.mjs';
+import { checkHistoryFields, fieldHistoryOf, historyFieldsOf, historyKeptBy, historyValues, historyViewed, keepValueHistory } from '../formulas/read-data/list-value-history.mjs';
 import { gatedWriter, listProposals } from './list-proposals.mjs';
-import { coldRows, reviewRows, rowsNeedingReview, usedHeat } from './list-review.mjs';
+import { coldRows, reviewRows, rowsNeedingReview, usedHeat } from '../review-what-a-list-says/read-data/list-review.mjs';
 import { checkRelationships, relationshipFieldsOf, relationshipReader, relationshipViewed } from './list-relationships.mjs';
 import { readSnapshot, snapshotPages, takeSnapshot } from './list-snapshots.mjs';
 import data from './lists.json' with { type: 'json' };
 import { recordText, validRecordField } from '../parts/ui/show/record-picker/record-value.ts';
-import { normalizeDeclaredIndexes } from '../parts/record-log/do-work/record-model.mjs';
+import { normalizeDeclaredIndexes } from '../record-log/do-work/record-model.mjs';
 import { entityIndexWritten, entityIndexWrites, entityListChanged, entityListRemoved } from './entity-mentions.mjs';
 import { progressForListRow } from './work-progress.mjs';
 import { markNamingDue, namesWritten } from './naming-fields.mjs';
 import { handleSettlementRequest, REPORT_BASES, SETTLEMENT_SCALE, unitsOf } from './list-settlements.mjs';
-import { normalizeSavedView, projectSavedView } from '../parts/visual-database/read-data/saved-view-engine.mjs';
-import { isOrderKey, keyBetween } from '../parts/visual-database/do-work/fractional-order.ts';
+import { normalizeSavedView, projectSavedView } from './read-data/saved-view-engine.mjs';
+import { isOrderKey, keyBetween } from './do-work/fractional-order.ts';
 import { grammarWords, inputDeclarationFits, readDate, readNumber } from './list-input-grammar.mjs';
 import { keyFieldsOf, matchable, normalizerNames, withKeyValues } from './list-identity.mjs';
 import { checkPairs, pairWrites } from './list-pairs.mjs';
 import { addsForms, fillPage, formsOf, keyRecordId, keysMarkId, keysSignature, keyWrites, uniqueFields } from './list-keys.mjs';
 import { machineWritten, stampedValue } from './list-stamps.mjs';
-import { readAt } from '../parts/record-log/do-work/record-time.mjs';
+import { readAt } from '../record-log/do-work/record-time.mjs';
 import { logPositionOf } from '../parts/record-log/do-work/record-log-store.mjs';
 import { ListTransferError, transferRows } from './list-row-transfer.mjs';
 

@@ -1,0 +1,10 @@
+{
+  "_what": "The limits on walking untrusted nested input (read-data/bounded-walk.mjs): deeper than `max_depth` levels or more than `max_nodes` values is refused before it is rendered or stored. `words` say why, keyed by the typed reason.",
+  "max_depth": 100,
+  "max_nodes": 100000,
+  "words": {
+    "too_deep": "That is nested more than {limit} levels deep, so it was not accepted.",
+    "too_many_nodes": "That holds more than {limit} values, so it was not accepted.",
+    "cycle": "That refers back to itself, so it was not accepted."
+  }
+}

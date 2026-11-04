@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cad4d46b2ed3c3c12e3d82bb9ed95840d0d3f50a1fe859d618d694815f6acbd0"
+  "blake3": "1f:2115eb5e5c418f805e7c434c0a6403d38701fdbb1b34535bdd10d02b930c5554"
  },
  "fields": [
   {
@@ -1429,6 +1429,21 @@
    }
   },
   {
+   "id": "tool:check-nested-input",
+   "values": {
+    "title": "Check nested input within limits",
+    "job": "Check an untrusted nested value (an imported document, pasted rich text, list row values from an AI) before it is rendered or stored: refuse it in plain words when it is nested deeper than 100 levels, holds more than 100,000 values, or refers back to itself",
+    "description": "Give value (any JSON) and, optionally, limits ({ max_depth, max_nodes }) tighter than the defaults. Returns ok and nodes when the value is fine, or ok false with reason (too_deep, too_many_nodes, cycle), the limit crossed and said, the words the person reads. The walk keeps its own stack, so a very deep value never overflows the call stack.",
+    "status": "active",
+    "maker": "maker:walk-nested-input-within-limits",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "walk-nested-input-within-limits"
+   }
+  },
+  {
    "id": "tool:check-paper-orders-with-the-broker",
    "values": {
     "title": "Check paper orders with the broker",
@@ -1948,6 +1963,21 @@
      "placement:small-container"
     ],
     "folder": "decide-agent-actions"
+   }
+  },
+  {
+   "id": "tool:decide-what-a-paste-becomes",
+   "values": {
+    "title": "Decide what a paste becomes",
+    "job": "Decide what a paste into a message or note becomes: a normal insert for short text, a named text file for a long paste, or attached images when the clipboard's markup has no words of its own, with the words the person reads beside the attachment",
+    "description": "Give clipboard ({ text, html, files: [{ type, name }] }) and, optionally, now (an ISO time for the attachment's name). Returns action insert, attach_text (name, text, media_type, said) or attach_images (files, said). Text over 5,000 characters becomes a file; an image attaches only when the markup carries no text of its own (style and script bodies are not words).",
+    "status": "active",
+    "maker": "maker:what-a-paste-becomes",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "what-a-paste-becomes"
    }
   },
   {
@@ -9188,6 +9218,21 @@
      "placement:small-container"
     ],
     "folder": "suggest-connections-from-links"
+   }
+  },
+  {
+   "id": "tool:suggest-media-cuts",
+   "values": {
+    "title": "Suggest cuts from a recording's words",
+    "job": "Propose cuts in a recording from its kept transcript (long silences or filler words), as typed lines a person can watch, with a typed ending when there is nothing to cut",
+    "description": "Give identity (the recording's identity), mode (silent_pauses or filler_words) and transcript (segments with timed words). Returns lines (status, thinking, then complete with remove-span proposals in the recording's own seconds, or an error line NO_TRANSCRIPT, NO_PROPOSALS or FAILED), keep (the answer to keep under the recording, mode and algorithm version) and modes. Hand the kept answer back as kept and the tool answers from it until the algorithm version changes. Nothing is applied: proposals are data.",
+    "status": "active",
+    "maker": "maker:media-composition",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "media-composition"
    }
   },
   {
