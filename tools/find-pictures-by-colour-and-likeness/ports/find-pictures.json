@@ -1,0 +1,55 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-FIND-PICTURES",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "find pictures by one asked colour, question or likeness with the moved colour search",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/find-pictures-by-colour-and-likeness/do-work/find-pictures.mjs"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/find-pictures-by-colour-and-likeness/",
+      "why": "This tool itself: the module it runs is src/ here, moved byte for byte from Trillion (moved-from.json); this file only turns the row's one JSON request into that module's call and its refusals into words."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "find pictures by one asked colour, question or likeness with the moved colour search",
+        "find pictures by colour from rows handed in",
+        "find pictures like one picture",
+        "find pictures request"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "findPictures"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "c7692b5dbb24c24276f17ad089bf5aace5a41864"
+        },
+        {
+          "repository": "trillion",
+          "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/find-pictures-by-colour-and-likeness/test/find-pictures.test.mjs"
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "intent": {
+    "type": "choice",
+    "instructions": "What outcome does `message` primarily request?",
+    "criteria": {
+      "act": "Perform or change something",
+      "answer": "Explain or answer a question",
+      "correct": "Correct or challenge the current understanding or work",
+      "continue": "Continue the current work",
+      "stop": "Stop, cancel, or replace current work",
+      "social": "Conversational message with no requested work"
+    }
+  },
+  "task_relationship": {
+    "type": "choice",
+    "instructions": "How does `message` relate to `current_task`?",
+    "criteria": {
+      "extends": "Adds requirements without replacing the current task",
+      "corrects": "Corrects the approach or an assumption in the current task",
+      "replaces": "Supersedes the current task",
+      "continues": "Requests continued execution of the current task",
+      "separate": "Begins a distinct task",
+      "unclear": "Cannot be determined from the supplied state"
+    }
+  },
+  "urgency": {
+    "type": "score",
+    "instructions": "How time-sensitive is the requested outcome in `message`?",
+    "criteria": ["No time pressure", "Important soon", "Urgent now", "Immediate blocker"]
+  },
+  "missing_essential_information": {
+    "type": "noul",
+    "instructions": "Is essential information missing such that safe useful work cannot begin?",
+    "criteria": {
+      "true": "No reasonable first action is possible",
+      "false": "Useful work can begin"
+    }
+  },
+  "needle_mover_relevance": {
+    "type": "score",
+    "instructions": "How directly could completing `message` advance `active_goals`?",
+    "criteria": ["Unrelated", "Minor support", "Material progress", "Likely highest-leverage move"]
+  }
+}

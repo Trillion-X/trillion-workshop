@@ -1,0 +1,38 @@
+/* parts/screen-look/show/needs-you-hold.css
+   The hold (src/workspace/needs-you-hold.tsx) and the one thing it holds (src/workspace/waiting-screen.tsx, opened on
+   one thing). The hold is the screen arrangement locked on that thing (arrangement-lock.css); what is drawn here is
+   only what goes inside it: as the held card's own last part the only ways out, folded behind ONE quiet text button that opens them in one small
+   panel (I did my part, this doesn't work here, set it aside with a reason, turn the hold off at the cost the person chose), and the thing's own parts: the place in
+   Trillion it is done in shown in place, framed like the saved login, a value to copy beside a step, a saved login shown in
+   place under one, and the passage around the steps. Anatomy: a lock screen's one decision and its quiet "not now"
+   beneath (Tolan's lock prompt, Mobbin 34a84b8d; Jomo's unlock chooser, Mobbin 1b76cc4c), a cost stated before undoing
+   (LinkedIn's unblock, Mobbin 9c936090), and setup steps with their values inline and copyable (DoorDash Merchant,
+   Mobbin cb2e2006; Supabase, Mobbin 2c39a77f; Klaviyo, Mobbin 38834bba). Colours and faces are the page's own tokens. */
+
+.hold-ways, .hold-way { display: flex; box-sizing: border-box; flex-direction: column; align-items: center; gap: .625rem; width: 100%; }
+/* In the held card's footer row (one-at-a-time-queue.css .queue-card-under) the one quiet button sits beside the
+   finish press, and what it opens (the panel, a way's form, a note) takes the row's whole width under them. */
+.queue-card-under .hold-ways, .queue-card-under .hold-ways-menu { display: contents; }
+.queue-card-under .hold-ways-panel, .queue-card-under .hold-way, .queue-card-under .hold-pending { flex-basis: 100%; max-width: none; }
+.queue-card-under .hold-pending { text-align: start; }
+.hold-way { align-items: stretch; max-width: 28rem; padding: 1rem; border: 1px solid var(--color-border); border-radius: 1rem; background: var(--color-card); }
+.hold-ways-menu { display: flex; flex-direction: column; align-items: center; gap: .5rem; width: 100%; }
+.hold-ways-trigger { color: var(--color-muted-foreground); }
+.hold-ways-trigger:hover, .hold-ways-trigger[aria-expanded="true"] { color: var(--color-foreground); }
+/* The ways out in one small panel under the one quiet button: plain rows, the way's own icon at the start. */
+.hold-ways-panel { display: flex; flex-direction: column; align-items: stretch; gap: .125rem; width: 100%; max-width: 20rem; padding: .375rem; border: 1px solid var(--color-border); border-radius: .875rem; background: var(--color-card); }
+.hold-ways-panel .hold-way-out { justify-content: flex-start; width: 100%; min-height: 2.5rem; font-weight: 500; }
+.hold-ways-panel .hold-pending { padding: .5rem .625rem; text-align: start; }
+.hold-ways-row { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; }
+.hold-way-title { font-weight: 600; }
+.hold-stake { color: var(--color-foreground); font-size: 1rem; line-height: 1.45; }
+.hold-stakes { display: flex; flex-direction: column; gap: .5rem; }
+.hold-stake-choice { justify-content: flex-start; text-align: start; white-space: normal; height: auto; min-height: 2.75rem; }
+.hold-pending { color: var(--color-muted-foreground); font-size: .875rem; line-height: 1.45; text-align: center; }
+
+/* The thing itself. */
+.waiting-words { padding: 0; color: var(--color-muted-foreground); font-size: .9375rem; line-height: 1.55; }
+.waiting-value { max-width: 16rem; font-family: var(--font-mono, ui-monospace, monospace); font-size: .8125rem; }
+.waiting-value .copy-words { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.waiting-login-in-place .guide, .waiting-place-in-place .guide { max-width: none; padding: .25rem .75rem .5rem; }
+.waiting-login-in-place, .waiting-place-in-place { display: block; overflow: hidden; border: 1px solid var(--color-border); border-radius: .75rem; background: var(--color-card); }

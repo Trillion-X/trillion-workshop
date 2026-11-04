@@ -1,0 +1,63 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-OPEN-IN-AI-FROM-THE-MAC-TOOLS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-computer-computer",
+  "message_multihash": "1f:827e11f497beb5bc3eae6bc96581694c3c297dc90ac9bd52a6850ff0fd40122a",
+  "quote": "Move the meeting ledger and other-AI-app modules of old trillion computer/ into trillion-workshop tools: move code, never rewrite it; port the correct parts one to one with their original tests and assertions, and drop only Cloudflare Worker coupling, fixed addresses and the old Mac host's wiring."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+   "path": "computer/open-in-ai.mjs",
+   "multihash": "1f:7f16217a740be2bfe233fda84e357cd7467b038f38f8fc32031c3d384b271644",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T12:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/open-a-prompt-in-a-local-ai-app/read-data/open-in-ai.mjs",
+   "baseline_commit_message": "Move meeting-ledger, open-in-ai and other-ai-files byte for byte from old trillion computer/"
+  }
+ ],
+ "preserve": [
+  "the DATA rows are the allowlist; an app not in them is refused",
+  "nothing goes through a shell: a url launch is one percent-encoded argument to the opener, an argv launch runs its list as it is",
+  "a folder is used only when it exists; the prompt is never echoed, only its length",
+  "the outcome is typed: launched, app_missing or refused; dry_run runs nothing"
+ ],
+ "allowed_deltas": [
+  "the header names the Workshop row and records-door command instead of computer/mac-tools.mjs"
+ ],
+ "banned_substitutions": [
+  "a launch through a shell",
+  "an app named in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:7f16217a740be2bfe233fda84e357cd7467b038f38f8fc32031c3d384b271644",
+  "target_multihash_at_baseline": "1f:7f16217a740be2bfe233fda84e357cd7467b038f38f8fc32031c3d384b271644",
+  "commit": "352f4111bbf3338a6132e52225ab3706bb4ba624",
+  "recorded_at": "2026-11-03T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "function folderOf",
+   "export function launchOf",
+   "export async function openInAi"
+  ],
+  "test_refs": [
+   "tools/open-a-prompt-in-a-local-ai-app/test/open-in-ai.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_old_copy": "Already gone from Trillion-X/trillion main: dc79bb0a deleted computer/open-in-ai.mjs, its JSON and its test; this is the copy from the commit before it."
+}

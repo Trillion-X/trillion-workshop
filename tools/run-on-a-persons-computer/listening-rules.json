@@ -1,0 +1,4 @@
+{
+  "_what": "The person's own recording rules on this Mac (computer/listening-rules.mjs): the files they live in beside the listening switch.",
+  "files": { "rules": "recording-rules.json", "facts": "recording-facts.json", "grants": "recording-rights.json", "private": "private-mode.json" }
+}

@@ -1,0 +1,13 @@
+{
+  "public": [
+    "do-work/talk-to-a-tool-server.mjs",
+    "do-work/sign-in-to-a-tool-server.mjs",
+    "do-work/derive-tool-rows-from-sources.mjs",
+    "do-work/derive-tool-rows-from-sources-cli.mjs",
+    "do-work/read-openapi.mjs",
+    "do-work/prepare-tool-result.ts",
+    "do-work/request-tool-run.ts",
+    "read-data/read-ai-tool-catalog.ts",
+    "read-data/declared-effects.ts"
+  ]
+}

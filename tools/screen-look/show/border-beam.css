@@ -1,0 +1,35 @@
+/* The border beam (parts/ui/show/border-beam): while a box is at work the look's thread travels round its border with
+   a soft bloom, as the loading mark's needle runs its stitch. A conic light on an animated angle is masked to the
+   border ring; the bloom is the same ring blurred. It waits ~300 ms before showing, fades out when the work ends, and
+   holds still for reduced motion. The box keeps its own corners; the beam inherits them. The box is positioned by its
+   caller (the shared Container's position="relative"), so the beam fills exactly that box.
+   Motion anatomy: Libraries.dev Border beam (MIT); written from scratch. */
+@property --border-beam-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+.border-beam {
+  --border-beam-colour: var(--thread-line, var(--accent-primary, #ff1d1d));
+  --border-beam-width: 1.5px;
+  --border-beam-turn: 2.8s;
+  display: block; position: absolute; inset: 0; margin: 0; border-radius: inherit; pointer-events: none;
+  opacity: 0; transition: opacity .3s ease-out;
+}
+.border-beam[data-border-beam=on] { opacity: 1; transition: opacity .24s ease-out .3s; }
+.border-beam-bloom { display: block; position: absolute; inset: 0; border-radius: inherit; filter: blur(6px); opacity: .6; }
+.border-beam-ring {
+  display: block; position: absolute; inset: 0; border-radius: inherit; padding: var(--border-beam-width);
+  background: conic-gradient(from var(--border-beam-angle),
+    transparent 0deg 220deg,
+    color-mix(in srgb, var(--border-beam-colour) 35%, transparent) 290deg,
+    var(--border-beam-colour) 340deg,
+    transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: border-beam-turn var(--border-beam-turn) linear infinite paused;
+}
+.border-beam-bloom > .border-beam-ring { padding: calc(var(--border-beam-width) * 2.5); }
+.border-beam[data-border-beam=on] .border-beam-ring { animation-play-state: running; }
+@keyframes border-beam-turn { to { --border-beam-angle: 360deg; } }
+@media (prefers-reduced-motion: reduce) {
+  .border-beam-ring { animation: none; background: color-mix(in srgb, var(--border-beam-colour) 40%, transparent); }
+  .border-beam-bloom { display: none; }
+}

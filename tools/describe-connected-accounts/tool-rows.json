@@ -1,0 +1,146 @@
+{
+  "kind": "tool-rows",
+  "record_set": "describe-connected-accounts-tool-rows",
+  "what_this_is": "The Workshop rows of tools/describe-connected-accounts.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:describe-connected-accounts",
+        "label": "Describe my connected accounts",
+        "status": "active",
+        "job": "Say in plain words, for each of my connected accounts, which one is primary, what its sign-in allowed, what Trillion copies from it, what stays live and what Trillion may do with it",
+        "description": "Give connections ([{ connection_id, vendor, service, account_label, status, connected_at, grant_scopes_known, grant_scopes, can_send, visibility, carried_by, capabilityChoices }]) and when wanted chosen ({ vendor: connection_id }, the kept primary choice), arriving ({ vendor: [labels of event sources listening] }), local_copies (connection ids a computer may keep the sign-in of) and capabilities ({ vendor: [{ id, label }] }). A service with several accounts and no choice uses its earliest; a choice that no longer holds is ignored. Groups say only what the provider reported. Returns primary and accounts [{ connection_id, primary, allowed_groups, words: { copied, live, allowed }, steps }].",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connections"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connections": {
+              "type": "array"
+            },
+            "chosen": {
+              "type": "object"
+            },
+            "arriving": {
+              "type": "object"
+            },
+            "local_copies": {
+              "type": "array"
+            },
+            "capabilities": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "primary",
+            "accounts"
+          ],
+          "properties": {
+            "primary": {
+              "type": "object"
+            },
+            "accounts": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/describe-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/describe-connected-accounts/do-work/describe-connected-accounts.mjs",
+            "describeConnectedAccounts"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "describe-connected-accounts",
+                "paths": [
+                  "src",
+                  "do-work"
+                ],
+                "at": "/opt/describe-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:describe-connected-accounts",
+        "provenance": {
+          "source": "Trillion-X/trillion src/connection-accounts.mjs, src/connection-card-words.mjs at b92aa549f23873750ec918e86e7ed3896c9c4c0c, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "connections": [
+                {
+                  "connection_id": "c-1",
+                  "vendor": "notion",
+                  "service": "Notion",
+                  "status": "connected",
+                  "can_send": false
+                }
+              ]
+            },
+            "output_selector": "$.accounts",
+            "contains": "it cannot send"
+          }
+        ]
+      }
+    }
+  ]
+}

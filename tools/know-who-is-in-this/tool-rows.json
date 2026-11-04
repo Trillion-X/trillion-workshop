@@ -64,6 +64,21 @@
         "provenance": {
           "model": "3D-Speaker CAM++ 200k (Apache 2.0) for voices; YuNet 2023mar (MIT) and SFace 2021dec (Apache 2.0), OpenCV Zoo, for faces; the models tools/media-composition holds",
           "source": "know-who-is-in-this/do-work/enrol-a-print.py"
+        },
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "voice-print",
+              "properties": {},
+              "stays_on_this_device": true
+            },
+            {
+              "type": "face-print",
+              "properties": {},
+              "stays_on_this_device": true
+            }
+          ]
         }
       }
     },

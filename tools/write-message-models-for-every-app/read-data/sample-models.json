@@ -1,0 +1,144 @@
+{
+  "what_this_is": "A sample models file (the notice messages an account sends to a device, as the old Trillion repository kept them). write-message-models.mjs writes Swift models for a Mac app and an iPhone app and a TypeScript declaration from these rows, so two apps and the web cannot read the same message two ways. A model is { name, doc, fields }, a field { name, type, optional?, doc?, mutable? }; `type` is String, Int, Bool, a model name, or a one-element list [type]. `targets` names, per output, the Swift type name each model takes there, what protocols it adopts, and the file it is written to (under --root); a model a target does not name is not written there.",
+  "models": [
+    {
+      "name": "NoticeActionInput",
+      "doc": "The reply field an action offers: its placeholder and the title of its send button.",
+      "fields": [
+        {
+          "name": "placeholder",
+          "type": "String",
+          "optional": true
+        },
+        {
+          "name": "button",
+          "type": "String",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "NoticeAction",
+      "doc": "One action a notice offers: a reply field (`input`), a press that opens the workspace (`opens`), or a plain press.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "label",
+          "type": "String"
+        },
+        {
+          "name": "input",
+          "type": "NoticeActionInput",
+          "optional": true
+        },
+        {
+          "name": "opens",
+          "type": "Bool",
+          "optional": true
+        },
+        {
+          "name": "destructive",
+          "type": "Bool",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "Notice",
+      "doc": "One notice as the account sends it to a device.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "seq",
+          "type": "Int"
+        },
+        {
+          "name": "kind",
+          "type": "String",
+          "optional": true
+        },
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "body",
+          "type": "String",
+          "optional": true
+        },
+        {
+          "name": "open",
+          "type": "String",
+          "optional": true
+        },
+        {
+          "name": "at",
+          "type": "String",
+          "optional": true
+        },
+        {
+          "name": "level",
+          "type": "String",
+          "optional": true
+        },
+        {
+          "name": "group",
+          "type": "String",
+          "optional": true
+        },
+        {
+          "name": "actions",
+          "type": [
+            "NoticeAction"
+          ],
+          "optional": true
+        },
+        {
+          "name": "read",
+          "type": "Bool",
+          "optional": true,
+          "mutable": true
+        }
+      ]
+    }
+  ],
+  "targets": {
+    "mac": {
+      "file": "macos/Shared/DeviceBridgeModels.swift",
+      "protocols": [
+        "Codable",
+        "Hashable"
+      ],
+      "names": {
+        "NoticeActionInput": "NoticeActionInput",
+        "NoticeAction": "NoticeAction",
+        "Notice": "Notice"
+      },
+      "identifiable": [
+        "NoticeAction",
+        "Notice"
+      ]
+    },
+    "ios": {
+      "file": "ios/Notices/DeviceBridgeModels.swift",
+      "protocols": [
+        "Decodable",
+        "Equatable"
+      ],
+      "names": {
+        "NoticeActionInput": "TrillionNoticeActionInput",
+        "NoticeAction": "TrillionNoticeAction"
+      },
+      "identifiable": []
+    },
+    "typescript": {
+      "file": "src/device-bridge-models.d.ts"
+    }
+  }
+}

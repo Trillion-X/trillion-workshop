@@ -1,0 +1,14 @@
+{
+  "_what": "How an unknown sender is paired before an event rule answers them (src/sender-pairing.mjs, used by src/events.mjs rules that name `paired_senders`). An unknown sender gets a short code from `alphabet` (no 0, O, 1 or I to misread), valid `expires_minutes`, and an account has at most `max_pending` waiting codes per source. The person approves a code and the sender joins that source's paired list; until then nothing runs for them.",
+  "alphabet": "ABCDEFGHJKLMNPQRSTUVWXYZ23456789",
+  "length": 8,
+  "expires_minutes": 60,
+  "max_pending": 3,
+  "words": {
+    "waiting": "{sender} is not paired yet. Their code is {code} until {expires_at}; approve it to let their messages through.",
+    "full": "{max} pairing codes are already waiting for {source}. Approve or let one expire first.",
+    "unknown_code": "No waiting pairing code {code}. It may have expired or been used.",
+    "approved": "{sender} is paired for {source}.",
+    "revoked": "{sender} is no longer paired for {source}."
+  }
+}

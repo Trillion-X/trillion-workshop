@@ -1,0 +1,34 @@
+/* parts/screen-look/show/record-picker.css
+ *
+ * The look of the shared record picker (parts/ui/show/record-picker/RecordPicker.tsx): a search box with its panel
+ * opening in the flow beneath it (never over the next field, so a phone's form still scrolls), the sort row, the
+ * rows grouped by list (the mention picker's own look), a plain "New ..." row, one quiet line for loading, nothing
+ * found, failed (with Try again) and making, and the chosen row as a chip with a Remove press.
+ *
+ * Colours come from the page's own surface, line and text custom properties, so it sits on any theme.
+ */
+
+.record-picker { position: relative; min-width: 0; width: 100%; }
+.record-picker-panel {
+  min-width: 0; max-height: min(22rem, 60vh); overflow-y: auto; overscroll-behavior: contain;
+  padding: 6px; border-radius: 12px;
+  border: 1px solid var(--line, color-mix(in srgb, var(--text, #111) 14%, transparent));
+  background: var(--surface-raised, var(--surface, Canvas));
+}
+.record-picker-sort { flex-wrap: wrap; padding: 0 2px 2px; }
+.record-picker-note { padding: 6px 8px; min-width: 0; }
+.record-picker-note[data-state="failed"], .record-picker-note[data-state="make-failed"] { flex-wrap: wrap; }
+.record-picker-new { justify-content: flex-start; width: 100%; min-height: 40px; text-align: left; }
+.record-picker-new > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.record-picker-chosen { min-width: 0; flex-wrap: wrap; }
+.record-picker-remove { flex: none; }
+.record-picker [role="option"] { min-height: 40px; }
+@media (pointer: coarse) { .record-picker [role="option"], .record-picker-remove { min-height: 44px; } }
+/* A row's name wraps instead of being cut ("Sam Ri…"); the why or detail beside it takes the shrink, on its own line when
+   the row is narrow. The press stays one row tall on wide screens. */
+.record-picker .mention-picker-option { height: auto; flex-wrap: wrap; align-items: center; padding-block: 6px; white-space: normal; row-gap: 0; }
+.record-picker .mention-picker-option > span:not(.mention-picker-mark) { min-width: 0; max-width: 100%; white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+.record-picker .mention-picker-option > span:nth-of-type(2) { flex: 0 1 auto; }
+.record-picker .mention-picker-option > span:nth-of-type(3) { flex: 1 1 8rem; }
+/* The shared form's field: its label, then the words about it muted on their own line. */
+.record-hover-form-field-detail { overflow-wrap: anywhere; line-height: 1.4; }

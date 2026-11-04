@@ -1,0 +1,46 @@
+/* parts/screen-look/show/canvas-dock.css
+ *
+ * A canvas (the positioned element carrying data-canvas-host) and its tool dock (the element carrying
+ * data-canvas-dock: the pointer tools and the zoom of a board). In a wide pane the dock sits in the
+ * canvas's header row. In a narrow pane it leaves the header and floats as one pill centred on the
+ * canvas's bottom edge, so the work starts right under a short header and every tool stays one tap away.
+ * Panes size through the named `surface` container (parts/ui/show/container-size), so a narrow pane in a
+ * wide window docks the same as a phone; widening the pane puts the tools back in the header.
+ *
+ * Parts made for a pointer in a wide header (data-canvas-toolbar-only, such as a zoom track) stay out of
+ * the pill, and the overview map (data-canvas-minimap) gives the bottom edge to the dock while it floats.
+ *
+ * A Draw view inside a list (record views) sizes its canvas from --canvas-view-height. On a wide pane that
+ * falls back to the view's own height; on a narrow pane the list's header wraps onto more rows, so the
+ * canvas takes the window less that taller header and the composer under it, and its bottom edge (where
+ * the dock floats) stays on screen instead of under the composer.
+ *
+ * Anatomy from phone canvases that keep their tools in one floating bar at the bottom edge over the work:
+ * Freeform and tldraw on iPhone (tool pill along the bottom), Givingli's card editor (Mobbin
+ * e021456e-e0ea-4ad4-9b83-c5735b02900a, a white pill of icon buttons over the canvas) and Halide (Mobbin
+ * 50228284-dc8a-494e-a7a0-b45ccd56dc60, the zoom pill floating above the bottom bar).
+ */
+@container surface (max-width: 599px) {
+  [data-canvas-host] [data-canvas-dock] {
+    position: absolute;
+    left: 50%;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    z-index: 20;
+    width: max-content;
+    max-width: calc(100% - 1rem);
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 3px 6px;
+    border: 1px solid var(--color-input);
+    border-radius: 1.25rem;
+    background: var(--color-popover);
+    color: var(--color-popover-foreground, var(--color-foreground));
+    box-shadow: 0 10px 28px -14px color-mix(in srgb, #000 55%, transparent), 0 2px 6px -2px color-mix(in srgb, #000 25%, transparent);
+  }
+  /* Inside the pill the tool groups lose their own frames; the pill is the one frame. */
+  [data-canvas-host] [data-canvas-dock] [data-expandable-tabs-frame] { border-color: transparent; background: transparent; box-shadow: none; }
+  [data-canvas-host] [data-canvas-dock] [data-canvas-toolbar-only] { display: none; }
+  [data-canvas-host] [data-canvas-minimap] { display: none; }
+  .record-views { --canvas-view-height: max(320px, calc(100dvh - 360px)); }
+}

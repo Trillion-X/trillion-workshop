@@ -1,0 +1,61 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ADMINISTRATION-ARGUMENTS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:bbdb0fc9e8456ad452fa872690e88941656ae85f4b8e1deefde08ca36367c7b8",
+    "quote": "New home: a new tool in this repo (trillion-workshop) at tools/<plain-job-name>/. Reuse the SSH helper (administrationArguments) instead of copying it."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "path": "scripts/portable-service-connection.mjs",
+      "lines": [
+        36,
+        40
+      ],
+      "multihash": "1f:e35d90a317e7c55bc43a617c6aea7cf618612500086955c81d87e11de744e7c7",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:00:00Z",
+        "deleted_with": "the same Trillion-X/trillion pull request: scripts/portable-service-connection.mjs imports administrationArguments from the trillion-workshop package instead of keeping its own"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/administer-a-rented-host/do-work/administration-arguments.mjs"
+    }
+  ],
+  "preserve": [
+    "the host is checked before any argument is made",
+    "a missing administration key is refused with the same words",
+    "only the given key file (IdentitiesOnly), batch mode, strict host key checking against the given known_hosts file, and a 10 second connect timeout"
+  ],
+  "allowed_deltas": [
+    "the user and port are the caller's admin_user and ssh_port instead of root and 22",
+    "the address may be a DNS name as well as IPv4",
+    "no agent (IdentityAgent=none) and no global known_hosts",
+    "checkedHost and knownHostsLine pin the host from a host_key the caller gives"
+  ],
+  "banned_substitutions": [
+    "a user, port or host written into the code",
+    "accepting a new host key"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:45:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:e35d90a317e7c55bc43a617c6aea7cf618612500086955c81d87e11de744e7c7",
+    "target_multihash_at_baseline": "1f:e35d90a317e7c55bc43a617c6aea7cf618612500086955c81d87e11de744e7c7",
+    "commit": "caa8adc057b70bca503005b7c0d30c05f0b31666"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/administer-a-rented-host/test/administration-arguments.test.mjs the arguments reach the given user, address and port with only the given key and pinned host key",
+      "tools/administer-a-rented-host/test/administration-arguments.test.mjs a host that cannot be reached safely is refused, naming the field to fix"
+    ]
+  }
+}

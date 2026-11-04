@@ -1,0 +1,152 @@
+{
+  "kind": "tool-rows",
+  "record_set": "find-pictures-by-colour-and-likeness-tool-rows",
+  "what_this_is": "The Workshop rows of tools/find-pictures-by-colour-and-likeness.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-pictures-by-colour-and-likeness",
+        "label": "Find pictures by colour or likeness",
+        "status": "active",
+        "job": "Find my pictures by a colour I type or name, or find pictures like one I pick",
+        "description": "Give rows (the pictures' facts: [{ id, palette: ['#rrggbb', ...], embedding? }]) and one of question (words with typed #rrggbb colours or colour words), colour (one #rrggbb) or like (the id of a picture). Colour is compared in CIE-LAB (delta-E 1976): a typed hex within 22 of any palette colour, a colour word within 16 of the top three. like ranks by embedding cosine (floor 0.30) and falls back to palette distance when embeddings are missing or weak; the picture itself is never its own result. Returns ids, by (colour, embedding or palette) and the colours asked.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "rows"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rows": {
+              "type": "array"
+            },
+            "question": {
+              "type": "string"
+            },
+            "colour": {
+              "type": "string"
+            },
+            "like": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "ids",
+            "by"
+          ],
+          "properties": {
+            "ids": {
+              "type": "array"
+            },
+            "by": {
+              "type": "string"
+            },
+            "asked": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/find-pictures-by-colour-and-likeness",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/find-pictures-by-colour-and-likeness/do-work/find-pictures.mjs",
+            "findPictures"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "find-pictures-by-colour-and-likeness",
+                "paths": [
+                  "src",
+                  "do-work"
+                ],
+                "at": "/opt/find-pictures-by-colour-and-likeness"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:find-pictures-by-colour-and-likeness",
+        "provenance": {
+          "source": "Trillion-X/trillion src/colour-search.mjs, src/meaning.mjs at b92aa549f23873750ec918e86e7ed3896c9c4c0c, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "rows": [
+                {
+                  "id": "sea",
+                  "palette": [
+                    "#1e5aa8"
+                  ]
+                },
+                {
+                  "id": "fire",
+                  "palette": [
+                    "#d02010"
+                  ]
+                }
+              ],
+              "colour": "#1f5ba9"
+            },
+            "output_selector": "$.ids",
+            "contains": "sea"
+          }
+        ]
+      }
+    }
+  ]
+}
