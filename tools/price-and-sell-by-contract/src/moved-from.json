@@ -11,6 +11,14 @@
       "source_identity": "1f:a91222642323643e4406d205d4628385b90b878b24752c72add48d5b7a6d5736",
       "identity": "1f:a91222642323643e4406d205d4628385b90b878b24752c72add48d5b7a6d5736",
       "reused": true
+    },
+    {
+      "from": "src/usage-meters.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/usage-meters.mjs",
+      "source_identity": "1f:70db817bc8b564fa8cd188039ec826e30f5b02187d68506c7f1042c57b605289",
+      "identity": "1f:b96e2f715e5a7a0ab82c60d149618af88568a701f7012dafb7dcbd42d5d384b3",
+      "reused": true
     }
   ]
 }

@@ -1,0 +1,22 @@
+{
+ "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+ "source": "Trillion-X/trillion",
+ "package": "trillion-workshop",
+ "calls": [],
+ "files": [
+  {
+   "from": "src/ais.mjs",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/read-add-and-change-lists-decisions-and-work/src/ais.mjs",
+   "source_identity": "1f:acd92c3df01e9e5bf68aa19b458cc04611f23a2a99004d0ccb93599b90b0ccaa",
+   "identity": "1f:0106cfe04001f522af7f6c3d1b2485d4a561ede0ec5ff5476130807e6adce24c"
+  },
+  {
+   "from": "src/native-record-consumers.mjs",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/read-add-and-change-lists-decisions-and-work/src/native-record-consumers.mjs",
+   "source_identity": "1f:f5d6d397172ed921684f5335415c122aa28383c5a54fb5a0406189f56054d6d5",
+   "identity": "1f:1708cdcbe08c3e65c192a226213fd459d1c0679bc944bc767a4aabb5d57019fb"
+  }
+ ]
+}

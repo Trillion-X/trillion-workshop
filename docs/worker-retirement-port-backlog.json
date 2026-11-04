@@ -5481,9 +5481,9 @@
   },
   {
    "path": "src/mail-sender.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/send-messages/do-work/mail-sender.mjs",
+   "why": "found by content on main: an adapted port (tools/send-messages/ports/mail-sender.json names this file as its source)"
   },
   {
    "path": "src/mail-settings.json",
@@ -5620,14 +5620,16 @@
   {
    "path": "src/meaning-sets.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/search-my-kept-results-by-meaning-with-each-installed-meaning/src/meaning-sets.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/meaning-spaces.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/search-my-kept-results-by-meaning-with-each-installed-meaning/src/meaning-spaces.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/meaning.mjs",
@@ -5656,8 +5658,9 @@
   {
    "path": "src/media-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/browse-the-recordings-in-my-media-library-in-a-stable-order/src/media-tools.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/mention-sources.json",
@@ -6278,8 +6281,9 @@
   {
    "path": "src/native-calendar-owner.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/native-calendar-owner.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-carried-automation-owner.mjs",
@@ -6746,8 +6750,9 @@
   {
    "path": "src/native-record-consumers.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/read-add-and-change-lists-decisions-and-work/src/native-record-consumers.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-record-inspection.mjs",
@@ -7091,8 +7096,9 @@
   {
    "path": "src/native-xcode-source.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/prepare-an-app-project-from-a-github-commit/src/native-xcode-source.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/negotiated-offers.mjs",
@@ -7165,14 +7171,16 @@
   {
    "path": "src/new-work.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/new-work.json",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/new-work.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/new-work.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/note-text-index.json",
@@ -7210,8 +7218,9 @@
   {
    "path": "src/offer-rows.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/offer-rows.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/old-tab-repaint.mjs",
@@ -7535,14 +7544,16 @@
   {
    "path": "src/payment-platform.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/payment-platform.json",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/payment-platform.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/payment-platform.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/payment.mjs",
@@ -7578,8 +7589,9 @@
   {
    "path": "src/person-network.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/list-the-person-for-others-to-find-ask-the-network/src/person-network.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/person-notifications.json",
@@ -7667,14 +7679,16 @@
   {
    "path": "src/placed-lists.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/src/placed-lists.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/placement.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/pick-where-one-piece-of-work-runs-the-device/src/placement.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/plan-cards.mjs",
@@ -7691,8 +7705,9 @@
   {
    "path": "src/plan-comparison.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/compare-plans-side-by-side-and-tell-a-person/src/plan-comparison.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/plan-needs.mjs",
@@ -7821,9 +7836,9 @@
   },
   {
    "path": "src/private-method.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/decide-with-a-method/read-data/method.mjs",
+   "why": "found by content on main: an adapted port (its header: ported from the old app's src/private-method.mjs)"
   },
   {
    "path": "src/private-responses.mjs",
@@ -7834,9 +7849,9 @@
   },
   {
    "path": "src/private-rewrite.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/learn-from-everyones-results/read-data/plain-privacy-pass.mjs",
+   "why": "found by content on main: an adapted port of its plain half (its header: ported from the old app's src/private-rewrite.mjs; the model rewrite is the caller's)"
   },
   {
    "path": "src/private-sites.mjs",
@@ -8025,8 +8040,9 @@
   {
    "path": "src/public-app-route-refresh.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/refresh-one-page-of-a-copied-site-from-its-original/src/public-app-route-refresh.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/public-app-rows-import.mjs",
@@ -8076,8 +8092,9 @@
   {
    "path": "src/public-tool-catalog.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/browse-and-search-every-marketplace-listing-without-signing/src/public-tool-catalog.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/published-account-erasure.mjs",
@@ -8108,14 +8125,16 @@
   {
    "path": "src/purchase-billing.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/open-the-billing-page-for-one-purchase-and-show-the-card/src/purchase-billing.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/purchase-cards.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/open-the-billing-page-for-one-purchase-and-show-the-card/src/purchase-cards.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/purchase-name-fill.mjs",
@@ -8126,8 +8145,9 @@
   {
    "path": "src/pursuit-consolidate.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-a-persons-pursuits-tidy-by-merging-duplicates/src/pursuit-consolidate.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/pursuit-detail-screen.mjs",
@@ -8240,8 +8260,9 @@
   {
    "path": "src/read-link.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/read-a-public-web-link-whole-its-card/src/read-link.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/readable-names.json",
@@ -8468,8 +8489,9 @@
   {
    "path": "src/referrals.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/referrals/src/referrals.json",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/refresh-once.mjs",

@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/meaning-sets.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/search-my-kept-results-by-meaning-with-each-installed-meaning/src/meaning-sets.json",
+      "source_identity": "1f:7d2ced9b02b75d809fe1a30c7bad7ffe6fe159be228c4bc34e5a4c249eea203b",
+      "identity": "1f:7d2ced9b02b75d809fe1a30c7bad7ffe6fe159be228c4bc34e5a4c249eea203b"
+    },
+    {
+      "from": "src/meaning-sets.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/search-my-kept-results-by-meaning-with-each-installed-meaning/src/meaning-sets.mjs",
+      "source_identity": "1f:b4900459aee742163b0e328d9a45eab2d542dfabb9f66f2ea443becd019f5d2e",
+      "identity": "1f:e906961a9a74f851bbe54162eddbc2e253a051a51e410821686c41245f2f9d10"
+    },
+    {
+      "from": "src/meaning-spaces.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/search-my-kept-results-by-meaning-with-each-installed-meaning/src/meaning-spaces.mjs",
+      "source_identity": "1f:76631db3984c6ba89f6c628a46d9bc03974cb7cb1aade2288328eab001558dfb",
+      "identity": "1f:c298fc11b572b2a9f28b630f52a42ca3495619bfc087e8c093befe7568c852c0"
+    }
+  ]
+}
