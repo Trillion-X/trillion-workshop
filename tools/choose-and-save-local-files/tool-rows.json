@@ -1,0 +1,288 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:choose-and-save-local-files",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:plan-choosing-and-saving-files-on-my-computer",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Plan choosing and saving files on my computer",
+        "job": "Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer",
+        "description": "Give operation choose with picker_reply (what the picker answered: { cancelled?, files: [{ path, name, byte_length, content_type, bytes_base64? }] }) and, if wanted, prompt, multiple, include_bytes, allowed_extensions and allowed_content_prefixes: chooseLocalFiles (do-work/choose-local-files.ts) makes the choose_files request and reads the reply into files, each with its content type worked out from its name when the picker said only application/octet-stream, and refuses a file not of an accepted type. Or give operation save with file_name, content_base64, copy_id and directory (a full folder path; or home, for its Downloads folder): saveLocalFileCopy (do-work/save-local-file-copy.ts) names the copy <name>-<copy_id><ext> so it never replaces a file and makes the write_new_file request and the read_file request that checks the bytes came back the same. Answers operation, requests (every request, in order, a save's bytes named by their length) and files (choose) or path (save). The workspace's sender is stood in (run/requests-kept-here.mjs): nothing is sent, no picker opens, no file is written or read, and a save's replies are the ones a Mac that saved it would give. Refuses an unknown operation and what the part refuses (a name with a slash, a folder that is not a full path, more than 16 MB).",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "operation"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "type": "string",
+              "enum": [
+                "choose",
+                "save"
+              ]
+            },
+            "picker_reply": {
+              "type": "object",
+              "properties": {
+                "cancelled": {
+                  "type": "boolean"
+                },
+                "files": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "path",
+                      "name",
+                      "byte_length",
+                      "content_type"
+                    ],
+                    "properties": {
+                      "path": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "byte_length": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "content_type": {
+                        "type": "string"
+                      },
+                      "bytes_base64": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "prompt": {
+              "type": "string"
+            },
+            "multiple": {
+              "type": "boolean"
+            },
+            "include_bytes": {
+              "type": "boolean"
+            },
+            "allowed_extensions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allowed_content_prefixes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "file_name": {
+              "type": "string"
+            },
+            "content_base64": {
+              "type": "string",
+              "contentEncoding": "base64"
+            },
+            "copy_id": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9-]+$"
+            },
+            "directory": {
+              "type": "string",
+              "pattern": "^/"
+            },
+            "home": {
+              "type": "string",
+              "pattern": "^/"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "operation",
+            "requests"
+          ],
+          "properties": {
+            "operation": {
+              "type": "string"
+            },
+            "requests": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "target",
+                  "payload"
+                ],
+                "properties": {
+                  "target": {
+                    "type": "string"
+                  },
+                  "payload": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "name",
+                  "byte_length",
+                  "content_type",
+                  "has_bytes"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "byte_length": {
+                    "type": "integer"
+                  },
+                  "content_type": {
+                    "type": "string"
+                  },
+                  "has_bytes": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "path": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/choose-and-save-local-files/run",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/choose-and-save-local-files/run/plan-local-files.mjs",
+            "planLocalFiles"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "choose-and-save-local-files",
+                "paths": [
+                  "run"
+                ],
+                "at": "/opt/choose-and-save-local-files"
+              },
+              {
+                "package": "choose-and-save-local-files",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/choose-and-save-local-files/run"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/local-files/do-work/choose-local-files.ts, save-local-file-copy.ts and read-data/invoke-local-files-target.ts at 7fd88384^, moved in a9ee258 (#76); the two do-work files' import of ../read-data/invoke-local-files-target now names its .ts, as the Workshop's other .ts imports do; old capability row capabilities.json:551 at 4ffa1dc4a2^ (choose files on this computer and save copies back through the Mac; moves_to at :555); run/ written here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "save",
+              "file_name": "notes.txt",
+              "content_base64": "U2FtcGxlIG5vdGVz",
+              "copy_id": "copy-1",
+              "directory": "/sample-home/Downloads"
+            },
+            "output_selector": "$.path",
+            "equals": "/sample-home/Downloads/notes-copy-1.txt"
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "choose",
+              "allowed_content_prefixes": [
+                "audio/"
+              ],
+              "include_bytes": false,
+              "picker_reply": {
+                "files": [
+                  {
+                    "path": "/sample-home/Music/take-1.wav",
+                    "name": "take-1.wav",
+                    "byte_length": 4096,
+                    "content_type": "application/octet-stream"
+                  }
+                ]
+              }
+            },
+            "output_selector": "$.files[0].content_type",
+            "equals": "audio/wav"
+          }
+        ]
+      }
+    }
+  ]
+}
