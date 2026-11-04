@@ -1,5 +1,35 @@
 {
   "_what": "Bounds of the drive tools (read-data/drives.mjs). `icon`: the square sizes in pixels a drive icon may be drawn at, and the size when none is asked. `kinds`: one look at what is on a drive reads at most `most_files` files for at most `most_ms` milliseconds, inside the engine's time for one run; a drive larger than that is answered as far as it was read, with `complete: false`. `largest_kept` is how many of the largest files are named.",
-  "icon": { "smallest": 32, "largest": 512, "default": 256 },
-  "kinds": { "most_files": 500000, "most_ms": 90000, "largest_kept": 10 }
+  "icon": {
+    "smallest": 32,
+    "largest": 512,
+    "default": 256
+  },
+  "kinds": {
+    "most_files": 500000,
+    "most_ms": 90000,
+    "largest_kept": 10
+  },
+  "_readers": "`readers`: the ways a place may know its connected drives, tried in order. A reader is chosen only when its `at` path exists on the place the run is on; the tool never asks what kind of machine it is. `finder-volumes` lists the folders under `volumes_root` that Finder shows, with diskutil's identity, and can draw Finder's icon. `mount-table` reads a kernel mount table (`at`, mountinfo lines) and lists the block-device mounts inside one of `mount_roots`; it has no icon and no safe eject, so its drives answer `ejectable: false`. `lsof` is where that place keeps the program that names open files.",
+  "readers": [
+    {
+      "id": "finder-volumes",
+      "at": "/usr/sbin/diskutil",
+      "volumes_root": "/Volumes",
+      "mount": "/sbin/mount",
+      "diskutil": "/usr/sbin/diskutil",
+      "lsof": "/usr/sbin/lsof",
+      "icon": "/usr/bin/osascript"
+    },
+    {
+      "id": "mount-table",
+      "at": "/proc/self/mountinfo",
+      "mount_roots": [
+        "/media",
+        "/run/media",
+        "/mnt"
+      ],
+      "lsof": "/usr/bin/lsof"
+    }
+  ]
 }

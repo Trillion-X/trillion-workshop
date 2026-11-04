@@ -176,7 +176,7 @@
           }
         },
         "result_selector": "$.result",
-        "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); the folder listing exits 1 for any path not on a connected drive", "proved_on": null}],
+        "verify": [{"kind": "needs-a-machine", "requires": "a computer with a drive attached, either mounted under /Volumes with /usr/sbin/diskutil (the finder-volumes reader) or mounted inside a mount root of /proc/self/mountinfo (the mount-table reader, read-data/drives.json); both call their programs by absolute path, so no stand-in program or granted folder can supply one; the folder listing exits 1 for any path not on a connected drive", "proved_on": null}],
         "needs": {
           "expected_seconds": 5,
           "network_egress": false
@@ -265,7 +265,7 @@
           }
         },
         "result_selector": "$.result",
-        "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); exits 1 when the mount is not a connected drive", "proved_on": null}],
+        "verify": [{"kind": "needs-a-machine", "requires": "a computer with a drive attached, either mounted under /Volumes with /usr/sbin/diskutil (the finder-volumes reader) or mounted inside a mount root of /proc/self/mountinfo (the mount-table reader, read-data/drives.json); both call their programs by absolute path, so no stand-in program or granted folder can supply one; exits 1 when the mount is not a connected drive", "proved_on": null}],
         "needs": {
           "expected_seconds": 10,
           "network_egress": false
@@ -369,7 +369,7 @@
           }
         },
         "result_selector": "$.result",
-        "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); exits 1 when the mount is not a connected drive", "proved_on": null}],
+        "verify": [{"kind": "needs-a-machine", "requires": "a computer with a drive attached, either mounted under /Volumes with /usr/sbin/diskutil (the finder-volumes reader) or mounted inside a mount root of /proc/self/mountinfo (the mount-table reader, read-data/drives.json); both call their programs by absolute path, so no stand-in program or granted folder can supply one; exits 1 when the mount is not a connected drive", "proved_on": null}],
         "needs": {
           "expected_seconds": 10,
           "network_egress": false
