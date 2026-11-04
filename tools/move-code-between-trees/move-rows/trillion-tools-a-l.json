@@ -1,0 +1,21 @@
+{
+  "id": "move:trillion-tools-a-l",
+  "about": "Port backlog slice: the workshop-tool rows under src/ whose file name starts with a to l, moved byte for byte from the tag old-trillion-before-worker-retire into Workshop tool folders, one group per job. Rows that already have a home on trillion-workshop, trillion-rust or trillion-apps main (found by content) are not moved; src/chat-import.mjs, src/chat-archives.mjs and src/ai-conversations-list.json belong to the conversations job and are left alone.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "test_folders": ["test"]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [],
+  "provider_calls": [
+    { "id": "durable-object", "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b" },
+    { "id": "kv", "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b" }
+  ],
+  "calls": [],
+  "groups": []
+}
