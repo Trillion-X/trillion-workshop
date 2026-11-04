@@ -36,6 +36,8 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import conversationList from './ai-conversations-list.json' with { type: 'json' };
 import places from './conversation-sources-on-this-computer.json' with { type: 'json' };
 import { archiveEntries, profile } from '../../take-pictures-out-of-a-zip-archive/src/archive-entries.mjs';
+import { unzipSync } from 'fflate';
+import { firstByteOf, jsonArrayElements } from './json-array-stream.mjs';
 import { messagesOf, personSpeaksIn, rowsFrom, sessionOfTranscript, settings as harnessRules } from '../../keep-and-wake-ai-sessions-on-this-computer/harness/record-every-message.mjs';
 
 const cleanFolder = value => (typeof value === 'string' && value.trim().startsWith('/') ? value.trim().replace(/\/+$/, '') || '/' : null);
@@ -395,11 +397,49 @@ export function exportFilesBeside(home, exportPath, rules = settings) {
   };
 }
 
+const ZIP_LITTER = [/(^|\/)__MACOSX\//, /(^|\/)\._/, /(^|\/)\.DS_Store$/, /(^|\/)Thumbs\.db$/];
+const ZIP_RATIO = profile('chat_export').max_ratio;
+
+/**
+ * The files inside a zipped account export (its bytes), found the way exportFilesBeside finds them beside one: locate(id)
+ * is the entry whose last name starts with the id, or that sits in a folder named the id. An entry's name is never used
+ * as a path: only its last segment (the name it is kept under) and the folder segment before it are read. The export's
+ * own conversations*.json, folders and archive litter are not files of a message; an entry that would expand past
+ * max_ratio of its packed size is left out. Each entry is inflated only when a message names it (read()).
+ */
+export function exportFilesInZip(zip, rules = settings) {
+  let index = null;
+  const build = () => {
+    index = [];
+    try {
+      unzipSync(zip, { filter: entry => {
+        if (index.length >= rules.attachment_index_files || entry.name.endsWith('/') || ZIP_LITTER.some(pattern => pattern.test(entry.name))) return false;
+        const segments = entry.name.split(/[\\/]/).filter(Boolean);
+        const name = segments.at(-1);
+        if (!name || name.startsWith('.') || /^conversations.*\.json$/i.test(name)) return false;
+        if (entry.size > 0 && entry.originalSize / entry.size > ZIP_RATIO) return false;
+        index.push({ entry: entry.name, name, folder: segments.at(-2) ?? '', size: entry.originalSize, read: () => unzipSync(zip, { filter: file => file.name === entry.name })[entry.name] });
+        return false;
+      } });
+    } catch { index = []; }
+  };
+  return {
+    locate(id) {
+      if (!id) return null;
+      if (!index) build();
+      return index.find(file => file.name.startsWith(id) && !/[A-Za-z0-9]/.test(file.name.charAt(id.length)))
+        ?? index.find(file => file.folder === id) ?? null;
+    },
+  };
+}
+
 /** The finder importConversation takes for one export's messages: each attachment at the path the person gave for its
- *  id (`given`: { id: a path in the granted folder }), else found beside the export, and copied to
- *  <attachments_folder>/<app>/<its name>; a file not found, too large or refused by the door is missing. */
-function exportAttachmentFinder(home, exportPath, keepFile, app, count, rules = settings, given = {}) {
-  const beside = exportFilesBeside(home, exportPath, rules);
+ *  id (`given`: { id: a path in the granted folder }), else found beside the export (or inside it, `beside` being
+ *  exportFilesInZip for a zipped export), and copied to <attachments_folder>/<app>/<its name>; a file not found, too
+ *  large or refused by the door is missing. */
+function exportAttachmentFinder(home, exportPath, keepFile, app, count, rules = settings, given = {}, inZip = null) {
+  const near = exportFilesBeside(home, exportPath, rules);
+  const beside = inZip ? { locate: id => inZip.locate(id) ?? near.locate(id) } : near;
   const kept = new Map();
   const named = id => {
     const path = typeof given?.[id] === 'string' && given[id].trim() ? inside(home, resolve(home, given[id].trim())) : null;
@@ -410,9 +450,9 @@ function exportAttachmentFinder(home, exportPath, keepFile, app, count, rules = 
     const hit = named(ref.id) ?? beside.locate(ref.id);
     let file = null;
     if (hit) {
-      if (statSync(hit.path).size > rules.most_attachment_bytes) count.attachments_too_large += 1;
+      if ((hit.size ?? statSync(hit.path).size) > rules.most_attachment_bytes) count.attachments_too_large += 1;
       else {
-        const bytes = readFileSync(hit.path);
+        const bytes = hit.read ? hit.read() : readFileSync(hit.path);
         const media = ref.mime_type ?? mediaTypeOf(hit.name, bytes, rules);
         // A file with no extension (Grok's <id>/content) is kept under its id, with the extension its bytes say.
         const name = extname(hit.name) ? hit.name : `${ref.id}${extensionOf(media, rules)}`;
@@ -577,19 +617,55 @@ const tally = (count, answer) => {
   count.attachments_not_kept += answer.missing_attachments.length;
 };
 
-/** An account export of conversation trees (read-data/chat-archives.mjs): next is the next conversation's place. */
+/**
+ * An account export of conversation trees (read-data/chat-archives.mjs). A JSON array (ChatGPT's conversations.json, of
+ * any size) is read one conversation at a time (json-array-stream.mjs), never whole: next is { at, byte, bytes,
+ * changed_ms }, the next conversation's place and the byte it starts after, so a stopped run starts again at that byte
+ * when the file is unchanged, and otherwise counts `at` conversations in from the start. A zip, or a file holding one
+ * conversation, is read whole (exportedConversations), its next a conversation's place; a zip's files are found inside it.
+ */
 async function readArchiveFile({ home, path, file, source, cursor, keep, keepFile, save, deadline, count, given }) {
-  const all = exportedConversations(readFileSync(path));
-  const find = exportAttachmentFinder(home, path, keepFile, source.app, count, settings, given);
-  let next = cursor.next ?? 0;
+  const keepOne = async (conversation, at) => {
+    try { tally(count, await keep({ conversation, app: source.app, original_file: file }, find)); }
+    catch (error) {
+      if (error instanceof ImportStopped) throw error;
+      count.conversations_refused.push({ at, reason: String(error.message).slice(0, 200) });
+    }
+  };
+  let find;
+  if (firstByteOf(path) === 0x5b) {
+    find = exportAttachmentFinder(home, path, keepFile, source.app, count, settings, given);
+    const stat = statSync(path);
+    const now = { bytes: stat.size, changed_ms: Math.floor(stat.mtimeMs) };
+    const was = cursor.next && typeof cursor.next === 'object' ? cursor.next : { at: Number(cursor.next) || 0, byte: null };
+    const same = was.byte !== null && was.bytes === now.bytes && was.changed_ms === now.changed_ms;
+    let at = same ? was.at : 0;
+    let lastEnd = same ? was.byte : null;
+    let since = 0;
+    const place = byte => ({ at, byte, ...now });
+    for (const element of jsonArrayElements(path, { at: same ? was.byte : null })) {
+      // A file that changed since the cursor was written: the conversations before its place are passed, not parsed.
+      if (at < was.at) { at += 1; lastEnd = element.end; continue; }
+      if (Date.now() >= deadline) return { done: false, next: place(lastEnd) };
+      let conversation;
+      try { conversation = JSON.parse(element.bytes.toString('utf8')); }
+      catch { count.conversations_refused.push({ at, reason: 'This conversation is not JSON.' }); }
+      if (conversation !== undefined) await keepOne(conversation, at);
+      at += 1;
+      lastEnd = element.end;
+      if (++since >= settings.cursor_every) { await save({ next: place(lastEnd), done: false }); since = 0; }
+    }
+    return { done: true, next: place(null), conversations_in_file: at };
+  }
+  const bytes = readFileSync(path);
+  const zipped = bytes.length > 3 && bytes[0] === 0x50 && bytes[1] === 0x4b;
+  const all = exportedConversations(bytes);
+  find = exportAttachmentFinder(home, path, keepFile, source.app, count, settings, given, zipped ? exportFilesInZip(bytes) : null);
+  let next = typeof cursor.next === 'number' ? cursor.next : 0;
   let since = 0;
   while (next < all.length) {
     if (Date.now() >= deadline) return { done: false, next };
-    try { tally(count, await keep({ conversation: all[next], app: source.app, original_file: file }, find)); }
-    catch (error) {
-      if (error instanceof ImportStopped) throw error;
-      count.conversations_refused.push({ at: next, reason: String(error.message).slice(0, 200) });
-    }
+    await keepOne(all[next], next);
     next += 1;
     if (++since >= settings.cursor_every && next < all.length) { await save({ next, done: false }); since = 0; }
   }
