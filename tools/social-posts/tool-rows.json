@@ -948,11 +948,7 @@
       "/opt/social-posts/read-data/posts.mjs",
       "approveAPost"
      ],
-     "stdin": {
-      "post_id": { "fill": { "from": "input", "field": "post_id" } },
-      "expected_values": { "fill": { "from": "input", "field": "expected_values" } },
-      "approved_by": { "fill": { "from": "input", "field": "approved_by" } }
-     },
+     "stdin": { "fill": { "from": "input" } },
      "records": {
       "fd": 3,
       "rights": [
