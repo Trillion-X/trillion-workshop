@@ -5,6 +5,13 @@
   "calls": [],
   "files": [
     {
+      "from": "src/community-matching.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-a-community/src/community-matching.json",
+      "source_identity": "1f:fb2d627869cc8389b9fb237eb555b4e1c8aa6066346ff7131724d02bd0461f4c",
+      "identity": "1f:fb2d627869cc8389b9fb237eb555b4e1c8aa6066346ff7131724d02bd0461f4c"
+    },
+    {
       "from": "src/community-tools.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/run-a-community/src/community-tools.mjs",

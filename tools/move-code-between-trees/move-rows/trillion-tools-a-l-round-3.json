@@ -1,0 +1,787 @@
+{
+  "id": "move:trillion-tools-a-l-round-3",
+  "about": "Port backlog slice src/ a-l, round 3 (round 1: trillion-tools-a-l.json, PR #124; round 2: trillion-tools-a-l-round-2.json, PR #153): the workshop-tool rows of the slice that still had no home on main, moved byte for byte from the tag old-trillion-before-worker-retire, one group per file inside each job folder, so a file whose own imports all land moves even when a sibling in its job is held. Engine files (rust-engine rows, and rows the backlog names as ported into trillion-rust) are kept: this move carries no engine JavaScript, and a group that imports one waits. The opinion content (read_as_rows) stays as rows of the account owner's lists, as in round 1. The conversations job's rows (chat-import, chat-archives, ai-conversations-list) are not touched.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [
+    "src/chat-import.mjs",
+    "src/chat-archives.mjs",
+    "src/ai-conversations-list.json",
+    "src/account-app-grants.mjs",
+    "src/account-erasure-policy.mjs",
+    "src/admitted-commands.mjs",
+    "src/authorization-timing.mjs",
+    "src/born-account.mjs",
+    "src/byte-range.mjs",
+    "src/customer-database-records.mjs",
+    "src/database-command-quota.mjs",
+    "src/dav-xml.mjs",
+    "src/derived-keys.mjs",
+    "src/direct-own-resource-mcp.mjs",
+    "src/fixed-oauth-clients.mjs",
+    "src/free-store-space.mjs",
+    "src/full-store-recovery.mjs",
+    "src/held-values-modules.mjs",
+    "src/held-values-rotation.mjs",
+    "src/held-values.mjs",
+    "src/hosts/local/local-resource-host.mjs",
+    "src/list-store-provisioning.mjs",
+    "src/live-resource.mjs",
+    "src/live-scopes.mjs",
+    "src/local-access.mjs",
+    "src/local-resource-interface.mjs",
+    "src/local-store.mjs",
+    "src/mcp-client-identity.mjs",
+    "src/mcp-continuation.mjs",
+    "src/mcp-failure-boundary.mjs",
+    "src/namespace-account-merge.mjs",
+    "src/namespace-account-route.mjs",
+    "src/namespace-book-name.mjs",
+    "src/namespace-book-resource.mjs",
+    "src/namespace-bulk-carry.mjs",
+    "src/namespace-byte-release.json",
+    "src/namespace-byte-release.mjs",
+    "src/namespace-carry-ledger.mjs",
+    "src/namespace-carry-source.mjs",
+    "src/namespace-cloud-supplies.mjs",
+    "src/namespace-credential-carry.mjs",
+    "src/namespace-dav.mjs",
+    "src/namespace-file-lookup.mjs",
+    "src/namespace-handover.mjs",
+    "src/namespace-identity-module.mjs",
+    "src/namespace-import-credentials.mjs",
+    "src/namespace-import-source.mjs",
+    "src/namespace-lease-principal.mjs",
+    "src/namespace-lifecycle-owner.mjs",
+    "src/namespace-live-source.mjs",
+    "src/namespace-moves.json",
+    "src/namespace-name-retirement.mjs",
+    "src/namespace-native-carry.mjs",
+    "src/namespace-native-command.mjs",
+    "src/namespace-native-host.mjs",
+    "src/namespace-native-routing.mjs",
+    "src/namespace-recovery-erasure.mjs",
+    "src/namespace-resource-erasure.mjs",
+    "src/namespace-resource-mount.mjs",
+    "src/namespace-resource-owner.mjs",
+    "src/namespace-results.mjs",
+    "src/namespace-sqlite-target.mjs",
+    "src/namespace-state-carry.mjs",
+    "src/namespace.mjs",
+    "src/native-account-key-issuance.mjs",
+    "src/native-account-key.json",
+    "src/native-account-key.mjs",
+    "src/native-namespace-account-host.mjs",
+    "src/native-owner-routes.json",
+    "src/native-owner-routes.mjs",
+    "src/native-recovery-owner.mjs",
+    "src/native-resource-command.mjs",
+    "src/native-resource-erasure.mjs",
+    "src/native-resource-event-target.mjs",
+    "src/native-resource-events.mjs",
+    "src/native-resource-execution.mjs",
+    "src/native-resource-meter.mjs",
+    "src/native-resource-policy-view.mjs",
+    "src/native-resource-scheduling.mjs",
+    "src/native-resource-work.mjs",
+    "src/own-record-heads.mjs",
+    "src/own-record-resource-composition.mjs",
+    "src/own-record-resource.mjs",
+    "src/own-record-volume.json",
+    "src/own-resource-command-quota.json",
+    "src/own-resource-command-quota.mjs",
+    "src/own-resource-compatibility.mjs",
+    "src/own-resource-request.mjs",
+    "src/own-resource-scheduler-carry.mjs",
+    "src/passkey-authority.mjs",
+    "src/passkey-challenges.mjs",
+    "src/passkey-list.mjs",
+    "src/passkey-options.mjs",
+    "src/passwords.mjs",
+    "src/person-store-purpose.mjs",
+    "src/person-store.mjs",
+    "src/personal-keys.json",
+    "src/personal-keys.mjs",
+    "src/record-book-capability-resource.mjs",
+    "src/record-book-namespace-supply.mjs",
+    "src/record-book-own-resource.mjs",
+    "src/record-book-presentation.mjs",
+    "src/record-book-tool-run.mjs",
+    "src/record-book.mjs",
+    "src/record-copies.mjs",
+    "src/record-history.json",
+    "src/record-history.mjs",
+    "src/record-replica.mjs",
+    "src/record-search-index.mjs",
+    "src/record-version-tools.mjs",
+    "src/refresh-once.mjs",
+    "src/resource-behavior-commands.mjs",
+    "src/resource-execution-host.mjs",
+    "src/resource-invalidations.mjs",
+    "src/resource-operation-owner.mjs",
+    "src/resource-presentation-mount.mjs",
+    "src/resource-query-continuation.mjs",
+    "src/resource-result-fragments.mjs",
+    "src/resource-state-carry.mjs",
+    "src/root-keys.mjs",
+    "src/routes.mjs",
+    "src/s3-compatible-origin.mjs",
+    "src/saved-module-host.mjs",
+    "src/scheduler-memo.mjs",
+    "src/screen-view.json",
+    "src/service-records.json",
+    "src/service-signing.mjs",
+    "src/session-cookie.mjs",
+    "src/sign-in-again.mjs",
+    "src/sign-in-calls.json",
+    "src/sign-in-calls.mjs",
+    "src/sign-in-email.json",
+    "src/sign-in-email.mjs",
+    "src/sign-in-lifetimes.json",
+    "src/sign-in-lifetimes.mjs",
+    "src/sign-in-methods.mjs",
+    "src/sign-in-phone.mjs",
+    "src/sign-in-vouch.mjs",
+    "src/store-health.mjs",
+    "src/store-size.mjs",
+    "src/store-use.mjs",
+    "src/stored-object.mjs",
+    "src/tool-container.mjs",
+    "src/tool-run-account-erasure.mjs",
+    "src/tool-run-call.mjs",
+    "src/tool-run-owner.json",
+    "src/tool-run-owner.mjs",
+    "src/tool-servers.mjs",
+    "src/totp.mjs",
+    "src/web-sign-in.mjs",
+    "src/work-for-ais.json",
+    "src/workshop-looks.json",
+    "src/workspace/inputs.json"
+  ],
+  "provider_calls": [
+    {
+      "id": "durable-object",
+      "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+    },
+    {
+      "id": "kv",
+      "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+    }
+  ],
+  "calls": [],
+  "groups": [
+    {
+      "id": "see-and-limit-what-each-ai-can-reach::ais-of-account.mjs",
+      "owner": [
+        "src/ais-of-account.mjs"
+      ],
+      "to": "tools/see-and-limit-what-each-ai-can-reach"
+    },
+    {
+      "id": "see-and-limit-what-each-ai-can-reach::connected-ais.mjs",
+      "owner": [
+        "src/connected-ais.mjs"
+      ],
+      "to": "tools/see-and-limit-what-each-ai-can-reach"
+    },
+    {
+      "id": "notice-what-needs-attention::attention.mjs",
+      "owner": [
+        "src/attention.mjs"
+      ],
+      "to": "tools/notice-what-needs-attention",
+      "held_until": "it imports opinion content that is read_as_rows (src/attention.json): the file loads only once it takes those rows from its caller, which is an adaptation, not a byte-for-byte move"
+    },
+    {
+      "id": "notice-what-needs-attention::brought-in.json",
+      "owner": [
+        "src/brought-in.json"
+      ],
+      "to": "tools/notice-what-needs-attention"
+    },
+    {
+      "id": "notice-what-needs-attention::brought-in.mjs",
+      "owner": [
+        "src/brought-in.mjs"
+      ],
+      "to": "tools/notice-what-needs-attention"
+    },
+    {
+      "id": "keep-a-continuous-awareness-reading::awareness-owner.mjs",
+      "owner": [
+        "src/awareness-owner.mjs"
+      ],
+      "to": "tools/keep-a-continuous-awareness-reading"
+    },
+    {
+      "id": "keep-a-continuous-awareness-reading::awareness.mjs",
+      "owner": [
+        "src/awareness.mjs"
+      ],
+      "to": "tools/keep-a-continuous-awareness-reading"
+    },
+    {
+      "id": "send-one-thing-to-an-audience::audience-send-content.mjs",
+      "owner": [
+        "src/audience-send-content.mjs"
+      ],
+      "to": "tools/send-one-thing-to-an-audience"
+    },
+    {
+      "id": "send-one-thing-to-an-audience::audience-sends.mjs",
+      "owner": [
+        "src/audience-sends.mjs"
+      ],
+      "to": "tools/send-one-thing-to-an-audience"
+    },
+    {
+      "id": "run-rules-and-schedules-by-themselves::automation-guards.json",
+      "owner": [
+        "src/automation-guards.json"
+      ],
+      "to": "tools/run-rules-and-schedules-by-themselves"
+    },
+    {
+      "id": "run-rules-and-schedules-by-themselves::automation-health-looks.json",
+      "owner": [
+        "src/automation-health-looks.json"
+      ],
+      "to": "tools/run-rules-and-schedules-by-themselves"
+    },
+    {
+      "id": "run-rules-and-schedules-by-themselves::automation-health.mjs",
+      "owner": [
+        "src/automation-health.mjs"
+      ],
+      "to": "tools/run-rules-and-schedules-by-themselves"
+    },
+    {
+      "id": "run-rules-and-schedules-by-themselves::automation-tools.mjs",
+      "owner": [
+        "src/automation-tools.mjs"
+      ],
+      "to": "tools/run-rules-and-schedules-by-themselves"
+    },
+    {
+      "id": "run-rules-and-schedules-by-themselves::automations.mjs",
+      "owner": [
+        "src/automations.mjs"
+      ],
+      "to": "tools/run-rules-and-schedules-by-themselves",
+      "held_until": "it imports PERSON_APP from src/activity.mjs, whose home tools/see-what-my-ais-did/activity.mjs loads only inside its own row's packed run (that row lays src/execution-context.mjs beside it): src/automations.mjs moves once a row packs it, or activity.mjs loads where it is"
+    },
+    {
+      "id": "run-rules-and-schedules-by-themselves::compare-readings.mjs",
+      "owner": [
+        "src/compare-readings.mjs"
+      ],
+      "to": "tools/run-rules-and-schedules-by-themselves"
+    },
+    {
+      "id": "carry-an-account-into-its-own-records::carried-rows-prune.mjs",
+      "owner": [
+        "src/carried-rows-prune.mjs"
+      ],
+      "to": "tools/carry-an-account-into-its-own-records"
+    },
+    {
+      "id": "carry-an-account-into-its-own-records::carry-forward.mjs",
+      "owner": [
+        "src/carry-forward.mjs"
+      ],
+      "to": "tools/carry-an-account-into-its-own-records"
+    },
+    {
+      "id": "carry-an-account-into-its-own-records::growth-admission.mjs",
+      "owner": [
+        "src/growth-admission.mjs"
+      ],
+      "to": "tools/carry-an-account-into-its-own-records"
+    },
+    {
+      "id": "carry-an-account-into-its-own-records::history-continuation.mjs",
+      "owner": [
+        "src/history-continuation.mjs"
+      ],
+      "to": "tools/carry-an-account-into-its-own-records"
+    },
+    {
+      "id": "carry-an-account-into-its-own-records::imported-history-receipt.mjs",
+      "owner": [
+        "src/imported-history-receipt.mjs"
+      ],
+      "to": "tools/carry-an-account-into-its-own-records"
+    },
+    {
+      "id": "carry-an-account-into-its-own-records::carry-out.mjs",
+      "owner": [
+        "src/carry-out.mjs"
+      ],
+      "to": "tools/carry-an-account-into-its-own-records"
+    },
+    {
+      "id": "carry-an-account-into-its-own-records::export-inventory.mjs",
+      "owner": [
+        "src/export-inventory.mjs"
+      ],
+      "to": "tools/carry-an-account-into-its-own-records"
+    },
+    {
+      "id": "carry-an-account-into-its-own-records::gate-permit-sweep.mjs",
+      "owner": [
+        "src/gate-permit-sweep.mjs"
+      ],
+      "to": "tools/carry-an-account-into-its-own-records"
+    },
+    {
+      "id": "send-an-edit-to-my-video-editor::editor-handoff.mjs",
+      "owner": [
+        "src/editor-handoff.mjs"
+      ],
+      "to": "tools/send-an-edit-to-my-video-editor"
+    },
+    {
+      "id": "keep-action-surfaces-complete::action-completeness.mjs",
+      "owner": [
+        "src/action-completeness.mjs"
+      ],
+      "to": "tools/keep-action-surfaces-complete",
+      "held_until": "it imports opinion content that is read_as_rows (records/execution-mode-records.json): the file loads only once it takes those rows from its caller, which is an adaptation, not a byte-for-byte move"
+    },
+    {
+      "id": "run-a-decision-through-its-method::engine.mjs",
+      "owner": [
+        "src/engine.mjs"
+      ],
+      "to": "tools/run-a-decision-through-its-method"
+    },
+    {
+      "id": "run-a-decision-through-its-method::answer-words.mjs",
+      "owner": [
+        "src/answer-words.mjs"
+      ],
+      "to": "tools/run-a-decision-through-its-method"
+    },
+    {
+      "id": "run-a-decision-through-its-method::free-run.mjs",
+      "owner": [
+        "src/free-run.mjs"
+      ],
+      "to": "tools/run-a-decision-through-its-method"
+    },
+    {
+      "id": "run-a-decision-through-its-method::decision-notice.mjs",
+      "owner": [
+        "src/decision-notice.mjs"
+      ],
+      "to": "tools/run-a-decision-through-its-method"
+    },
+    {
+      "id": "let-billing-read-service-pricing::billing-pricing-controls.mjs",
+      "owner": [
+        "src/billing-pricing-controls.mjs"
+      ],
+      "to": "tools/let-billing-read-service-pricing"
+    },
+    {
+      "id": "keep-a-spaces-board-live::board-members.mjs",
+      "owner": [
+        "src/board-members.mjs"
+      ],
+      "to": "tools/keep-a-spaces-board-live"
+    },
+    {
+      "id": "keep-a-spaces-board-live::board-room.mjs",
+      "owner": [
+        "src/board-room.mjs"
+      ],
+      "to": "tools/keep-a-spaces-board-live"
+    },
+    {
+      "id": "keep-record-books-by-kind::book-handlers.mjs",
+      "owner": [
+        "src/book-handlers.mjs"
+      ],
+      "to": "tools/keep-record-books-by-kind"
+    },
+    {
+      "id": "keep-record-books-by-kind::client-health.mjs",
+      "owner": [
+        "src/client-health.mjs"
+      ],
+      "to": "tools/keep-record-books-by-kind"
+    },
+    {
+      "id": "draw-the-brand-from-its-asset-list::brand-assets.mjs",
+      "owner": [
+        "src/brand-assets.mjs"
+      ],
+      "to": "tools/draw-the-brand-from-its-asset-list"
+    },
+    {
+      "id": "receive-network-cameras-live::camera-live.mjs",
+      "owner": [
+        "src/camera-live.mjs"
+      ],
+      "to": "tools/receive-network-cameras-live"
+    },
+    {
+      "id": "decide-who-may-change-a-cap::cap-change.json",
+      "owner": [
+        "src/cap-change.json"
+      ],
+      "to": "tools/decide-who-may-change-a-cap"
+    },
+    {
+      "id": "decide-who-may-change-a-cap::cap-change.mjs",
+      "owner": [
+        "src/cap-change.mjs"
+      ],
+      "to": "tools/decide-who-may-change-a-cap"
+    },
+    {
+      "id": "present-catch-up-content::catch-up-content.mjs",
+      "owner": [
+        "src/catch-up-content.mjs"
+      ],
+      "to": "tools/present-catch-up-content"
+    },
+    {
+      "id": "welcome-a-buyer-back-after-checkout::checkout-return.mjs",
+      "owner": [
+        "src/checkout-return.mjs"
+      ],
+      "to": "tools/welcome-a-buyer-back-after-checkout"
+    },
+    {
+      "id": "run-a-program-people-apply-to::client-program.mjs",
+      "owner": [
+        "src/client-program.mjs"
+      ],
+      "to": "tools/run-a-program-people-apply-to"
+    },
+    {
+      "id": "run-a-community::community.mjs",
+      "owner": [
+        "src/community.mjs"
+      ],
+      "to": "tools/run-a-community"
+    },
+    {
+      "id": "run-a-community::community-activity.mjs",
+      "owner": [
+        "src/community-activity.mjs"
+      ],
+      "to": "tools/run-a-community"
+    },
+    {
+      "id": "run-a-community::community-matching.json",
+      "owner": [
+        "src/community-matching.json"
+      ],
+      "to": "tools/run-a-community"
+    },
+    {
+      "id": "run-a-community::community-matching.mjs",
+      "owner": [
+        "src/community-matching.mjs"
+      ],
+      "to": "tools/run-a-community"
+    },
+    {
+      "id": "connect-an-account-by-signing-in-to-the-service::connect.mjs",
+      "owner": [
+        "src/connect.mjs"
+      ],
+      "to": "tools/connect-an-account-by-signing-in-to-the-service"
+    },
+    {
+      "id": "connect-an-account-by-signing-in-to-the-service::connector-finds.mjs",
+      "owner": [
+        "src/connector-finds.mjs"
+      ],
+      "to": "tools/connect-an-account-by-signing-in-to-the-service"
+    },
+    {
+      "id": "write-in-my-content-formats::content-formats.mjs",
+      "owner": [
+        "src/content-formats.mjs"
+      ],
+      "to": "tools/write-in-my-content-formats"
+    },
+    {
+      "id": "see-customers-and-their-journeys::customers-hq.mjs",
+      "owner": [
+        "src/customers-hq.mjs"
+      ],
+      "to": "tools/see-customers-and-their-journeys"
+    },
+    {
+      "id": "see-customers-and-their-journeys::journey.mjs",
+      "owner": [
+        "src/journey.mjs"
+      ],
+      "to": "tools/see-customers-and-their-journeys"
+    },
+    {
+      "id": "see-customers-and-their-journeys::hand-to-an-account.mjs",
+      "owner": [
+        "src/hand-to-an-account.mjs"
+      ],
+      "to": "tools/see-customers-and-their-journeys"
+    },
+    {
+      "id": "see-customers-and-their-journeys::interactions.mjs",
+      "owner": [
+        "src/interactions.mjs"
+      ],
+      "to": "tools/see-customers-and-their-journeys"
+    },
+    {
+      "id": "see-customers-and-their-journeys::former-names-count.mjs",
+      "owner": [
+        "src/former-names-count.mjs"
+      ],
+      "to": "tools/see-customers-and-their-journeys"
+    },
+    {
+      "id": "see-customers-and-their-journeys::hq-sharing.mjs",
+      "owner": [
+        "src/hq-sharing.mjs"
+      ],
+      "to": "tools/see-customers-and-their-journeys"
+    },
+    {
+      "id": "find-the-default-workflows::default-workflows.mjs",
+      "owner": [
+        "src/default-workflows.mjs"
+      ],
+      "to": "tools/find-the-default-workflows"
+    },
+    {
+      "id": "share-design-libraries::design-library.mjs",
+      "owner": [
+        "src/design-library.mjs"
+      ],
+      "to": "tools/share-design-libraries"
+    },
+    {
+      "id": "leave-out-steps-for-devices-i-do-not-own::device-rows.mjs",
+      "owner": [
+        "src/device-rows.mjs"
+      ],
+      "to": "tools/leave-out-steps-for-devices-i-do-not-own"
+    },
+    {
+      "id": "keep-outside-notices-in-an-event-inbox::event-inbox.mjs",
+      "owner": [
+        "src/event-inbox.mjs"
+      ],
+      "to": "tools/keep-outside-notices-in-an-event-inbox"
+    },
+    {
+      "id": "keep-outside-notices-in-an-event-inbox::inbox-handlers.mjs",
+      "owner": [
+        "src/inbox-handlers.mjs"
+      ],
+      "to": "tools/keep-outside-notices-in-an-event-inbox"
+    },
+    {
+      "id": "say-why-a-call-failed::failure-reason.mjs",
+      "owner": [
+        "src/failure-reason.mjs"
+      ],
+      "to": "tools/say-why-a-call-failed"
+    },
+    {
+      "id": "choose-with-my-own-local-model::file-local-choice.mjs",
+      "owner": [
+        "src/file-local-choice.mjs"
+      ],
+      "to": "tools/choose-with-my-own-local-model"
+    },
+    {
+      "id": "choose-with-my-own-local-model::local-choice.mjs",
+      "owner": [
+        "src/local-choice.mjs"
+      ],
+      "to": "tools/choose-with-my-own-local-model"
+    },
+    {
+      "id": "choose-with-my-own-local-model::local-choice-observations.mjs",
+      "owner": [
+        "src/local-choice-observations.mjs"
+      ],
+      "to": "tools/choose-with-my-own-local-model"
+    },
+    {
+      "id": "choose-with-my-own-local-model::local-choice-route.mjs",
+      "owner": [
+        "src/local-choice-route.mjs"
+      ],
+      "to": "tools/choose-with-my-own-local-model"
+    },
+    {
+      "id": "read-files-by-their-identity::files-by-identity.mjs",
+      "owner": [
+        "src/files-by-identity.mjs"
+      ],
+      "to": "tools/read-files-by-their-identity"
+    },
+    {
+      "id": "send-follow-up-emails-after-sign-up::follow-up-emails.json",
+      "owner": [
+        "src/follow-up-emails.json"
+      ],
+      "to": "tools/send-follow-up-emails-after-sign-up"
+    },
+    {
+      "id": "send-follow-up-emails-after-sign-up::follow-up-emails.mjs",
+      "owner": [
+        "src/follow-up-emails.mjs"
+      ],
+      "to": "tools/send-follow-up-emails-after-sign-up"
+    },
+    {
+      "id": "invite-friends-by-email::friend-invites.json",
+      "owner": [
+        "src/friend-invites.json"
+      ],
+      "to": "tools/invite-friends-by-email"
+    },
+    {
+      "id": "invite-friends-by-email::friend-invites.mjs",
+      "owner": [
+        "src/friend-invites.mjs"
+      ],
+      "to": "tools/invite-friends-by-email"
+    },
+    {
+      "id": "invite-friends-by-email::invites-on-arrival.mjs",
+      "owner": [
+        "src/invites-on-arrival.mjs"
+      ],
+      "to": "tools/invite-friends-by-email"
+    },
+    {
+      "id": "tell-our-own-voice-from-what-was-heard::heard-echo.mjs",
+      "owner": [
+        "src/heard-echo.mjs"
+      ],
+      "to": "tools/tell-our-own-voice-from-what-was-heard"
+    },
+    {
+      "id": "run-a-hosted-service::hosted-resource-presentation.mjs",
+      "owner": [
+        "src/hosted-resource-presentation.mjs"
+      ],
+      "to": "tools/run-a-hosted-service"
+    },
+    {
+      "id": "run-a-hosted-service::hosted-service.mjs",
+      "owner": [
+        "src/hosted-service.mjs"
+      ],
+      "to": "tools/run-a-hosted-service"
+    },
+    {
+      "id": "bring-in-what-i-write-elsewhere::inbound.mjs",
+      "owner": [
+        "src/inbound.mjs"
+      ],
+      "to": "tools/bring-in-what-i-write-elsewhere"
+    },
+    {
+      "id": "bring-in-what-i-write-elsewhere::inbound-mail.mjs",
+      "owner": [
+        "src/inbound-mail.mjs"
+      ],
+      "to": "tools/bring-in-what-i-write-elsewhere"
+    },
+    {
+      "id": "bring-in-what-i-write-elsewhere::inbound-own-records.mjs",
+      "owner": [
+        "src/inbound-own-records.mjs"
+      ],
+      "to": "tools/bring-in-what-i-write-elsewhere"
+    },
+    {
+      "id": "bring-in-what-i-write-elsewhere::incoming-files.mjs",
+      "owner": [
+        "src/incoming-files.mjs"
+      ],
+      "to": "tools/bring-in-what-i-write-elsewhere"
+    },
+    {
+      "id": "keep-a-link-in-bio-page::link-page.mjs",
+      "owner": [
+        "src/link-page.mjs"
+      ],
+      "to": "tools/keep-a-link-in-bio-page"
+    },
+    {
+      "id": "fill-a-list-from-a-feed::list-feed.mjs",
+      "owner": [
+        "src/list-feed.mjs"
+      ],
+      "to": "tools/fill-a-list-from-a-feed"
+    },
+    {
+      "id": "configure-live-tool-sources::live-tool-source-config.mjs",
+      "owner": [
+        "src/live-tool-source-config.mjs"
+      ],
+      "to": "tools/configure-live-tool-sources"
+    }
+  ],
+  "read_as_rows": [
+    "methods/",
+    "records/workflow-recipe-records.json",
+    "records/execution-mode-records.json",
+    "records/starting-rules.json",
+    "records/copy-rules.json",
+    "records/commercial-offer-records.json",
+    "records/content-format-starters.json",
+    "records/feel-moments.json",
+    "records/delight-moments.json",
+    "communities/",
+    "cases/",
+    "src/pursuit-plan.json",
+    "src/story-settings.json",
+    "src/workspace/walkthroughs/",
+    "src/error-page-lines.json",
+    "src/awareness.json",
+    "src/life-map.json",
+    "src/attention.json"
+  ],
+  "leave_tests": [
+    {
+      "path": "test/tray-screen-browser.test.mjs",
+      "why": "a browser test of the app's tray, tray-screen and sharing-sheet screens (src/workspace/*, parts/ui/show/*, parts/headless-browser): it runs with the app screens, not with copy-records-into-this-browser"
+    },
+    {
+      "path": "test/automations-date-format-kept.test.mjs",
+      "why": "its second test reads src/automations.mjs as text for the import line '../parts/timed-action/do-work/wall-time.ts', the source tree's own path, so no move that sets import paths can keep it passing"
+    },
+    {
+      "path": "test/local-choice-retention.test.mjs",
+      "why": "a Miniflare probe of the retired Cloudflare host: it builds a Durable Object (extends DurableObject from cloudflare:workers) around the module and needs miniflare, which this repository does not carry"
+    }
+  ],
+  "keep_reasons": {
+    "src/chat-import.mjs": "The conversations job owns it.",
+    "src/chat-archives.mjs": "The conversations job owns it.",
+    "src/ai-conversations-list.json": "The conversations job owns it.",
+    "engine": "Rows of class rust-engine, and rows whose home is an adapted port in trillion-rust (class home-exists, destination trillion-rust:...), in docs/worker-retirement-port-backlog.json: the engine holds them, so this move never carries their JavaScript, and a group that imports one is held."
+  }
+}

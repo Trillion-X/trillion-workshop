@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/local-choice-observations.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-with-my-own-local-model/src/local-choice-observations.mjs",
+      "source_identity": "1f:a238a2b296114bf4b0a8022f4bcab0d7feffdadb583351f1f04901e3928b4361",
+      "identity": "1f:a238a2b296114bf4b0a8022f4bcab0d7feffdadb583351f1f04901e3928b4361"
+    },
+    {
+      "from": "test/local-choice-observations.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-with-my-own-local-model/test/local-choice-observations.test.mjs",
+      "source_identity": "1f:f1632e646df8ebb83c9ccebe6a126bb97f29ed2753a191336b595ad66a9b5d4d",
+      "identity": "1f:f1632e646df8ebb83c9ccebe6a126bb97f29ed2753a191336b595ad66a9b5d4d"
+    }
+  ]
+}

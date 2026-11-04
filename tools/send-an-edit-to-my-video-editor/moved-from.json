@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/editor-handoff.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-an-edit-to-my-video-editor/src/editor-handoff.json",
+      "source_identity": "1f:114d02e842239122791e8bf1ca7ad3da379d0993778e5b6b4850ec55362dbbd2",
+      "identity": "1f:114d02e842239122791e8bf1ca7ad3da379d0993778e5b6b4850ec55362dbbd2"
+    },
+    {
+      "from": "src/editor-handoff.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-an-edit-to-my-video-editor/src/editor-handoff.mjs",
+      "source_identity": "1f:5846885c3e74db5da2310574aa57ea5a9133cb9f4cb45ae9fd1521782b5a49e2",
+      "identity": "1f:62a669238eb7ca940724c5694970cfec462f9ad45afe2c048df38444cad3ca97"
+    },
+    {
+      "from": "test/company-native-namespace.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-an-edit-to-my-video-editor/test/company-native-namespace.test.mjs",
+      "source_identity": "1f:55ac573e0ec1a88b212fd4e6c54355a33c6d66fcfd42a447242ca2894b22f1f9",
+      "identity": "1f:34ac868426f5cddf4bbfad80b162b820ea428c68730ed84eb5018ef9e4746215"
+    }
+  ]
+}
