@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:6cb3f69d557663838fb28c1b35afe497cd89ce63104cc53242eb2f589cbf9aaf"
+  "blake3": "1f:fb07e7186f8427f56ce6838d2e5630211a5c812b06d19734ddda0ec1e569fdaa"
  },
  "fields": [
   {
@@ -4086,6 +4086,25 @@
      "placement:your-computer"
     ],
     "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
+   "id": "tool:keep-keyed-things-in-a-fixed-memory-budget",
+   "values": {
+    "title": "Keep keyed things inside a fixed memory budget",
+    "job": "Keep many keyed things inside a fixed memory budget, each read after the first being one array index, and let the least recently used go first when the budget is full",
+    "description": "Give steps, applied in order to a slot table made from capacity_bytes (the budget, 24 MB when left out) and columns (DATA: [{ kind, field, as: number | text }], the fields kept in typed arrays): set { key, kind, value, bytes? } admits or updates a key (bytes is what it costs the budget, its JSON length when left out), find { key }, read { key }, drop { key }, kind { kind } (every key of that kind still held) and clear. Answers answers (one per step: set gives its slot and version, find its slot or -1, read whether it is held and its kind, value, version and bytes) and held (slots, bytes, capacity_bytes, evictions, kinds, words). Nothing is kept after the run: send the same steps again for the same table.",
+    "status": "active",
+    "maker": "maker:slot-table",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "slot-table",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
