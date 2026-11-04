@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/server-rendered-page/page-egress.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/answer-crawlers/parts/ui/show/server-rendered-page/page-egress.mjs",
+      "source_identity": "1f:63165322fd50a2f484e7bac78b0727f7d3306e991da8135a652f5e000d35f916",
+      "identity": "1f:63165322fd50a2f484e7bac78b0727f7d3306e991da8135a652f5e000d35f916"
+    },
+    {
+      "from": "src/crawlers.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/answer-crawlers/src/crawlers.json",
+      "source_identity": "1f:c8b7f1bf4eee788a312195821dc05737ef2d61c74230ca9e82ced8d5bbf17ee3",
+      "identity": "1f:c8b7f1bf4eee788a312195821dc05737ef2d61c74230ca9e82ced8d5bbf17ee3"
+    },
+    {
+      "from": "src/crawlers.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/answer-crawlers/src/crawlers.mjs",
+      "source_identity": "1f:7abd47d831bb517294053398f2dd969f489c2860ca26640135feb7e5888f3858",
+      "identity": "1f:14aacfadb8a2ad4c5fd1592c848ac99e5ec2bdf763b63eea4b4589137b4c6d37"
+    },
+    {
+      "from": "test/crawlers.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/answer-crawlers/test/crawlers.test.mjs",
+      "source_identity": "1f:fb79774fa6c365c66bf4497baefb1eb19c63ea7443e07757a3b10c5debb797b0",
+      "identity": "1f:fb79774fa6c365c66bf4497baefb1eb19c63ea7443e07757a3b10c5debb797b0"
+    }
+  ]
+}

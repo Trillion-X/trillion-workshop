@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/consequence-classes.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/say-what-an-action-does-to-the-world/src/consequence-classes.json",
+      "source_identity": "1f:766f4bf38c8393cfd1985f57f226191364d3cdded98094b240d6758f27e3c2c0",
+      "identity": "1f:766f4bf38c8393cfd1985f57f226191364d3cdded98094b240d6758f27e3c2c0"
+    },
+    {
+      "from": "src/consequence-classes.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/say-what-an-action-does-to-the-world/src/consequence-classes.mjs",
+      "source_identity": "1f:ae607db76b396a84b6df5f0d04bba9084b25fbd2bb040e031b2072c35779fa9f",
+      "identity": "1f:daa6b887d3b309f8a163e78df42fd62a011e4cb9467a55c0a1fee56fb9935b5c"
+    }
+  ]
+}

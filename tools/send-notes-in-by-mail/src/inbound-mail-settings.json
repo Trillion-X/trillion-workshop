@@ -1,0 +1,18 @@
+{
+  "domain": "in.gettrillion.ai",
+  "route": "Email",
+  "address_bytes": 12,
+  "max_senders": 20,
+  "files_folder": "/Emailed in",
+  "name_max": 120,
+  "handed_on": [
+    {
+      "domain": "inbox.gettrillion.ai",
+      "binding": "PROOF_INBOX",
+      "service": "trillion-site",
+      "entrypoint": "Inbox",
+      "site_backend_installation_id": "9357f42414204899b5a323f79c3a03d1",
+      "_what": "The proof inbox: every address at this domain is kept whole by gettrillion.ai's Worker (dev/trillion-site, its `Inbox` entrypoint, table inbox_messages), so any new proof address works without a routing rule of its own."
+    }
+  ]
+}

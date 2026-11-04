@@ -1,0 +1,10 @@
+{
+  "what_this_is": "Each published version (a Marketplace configuration row) may carry a `disposition` that moderation gave that exact version, and an install records it. install_policy says which dispositions an install refuses; it is DATA and, shipped, refuses only a version that was blocked, so every other install goes ahead and is simply labelled. A row with no disposition (every row published before this) is recorded as `unrated`. A person, space or deployment can pass its own policy (installedConfiguration's `policy`) to refuse more, such as review-required.",
+  "dispositions": ["clean", "review-recommended", "review-required", "blocked"],
+  "unrated": "unrated",
+  "install_policy": { "refuse": ["blocked"] },
+  "words": {
+    "refused": "{title} {version} was blocked, so it cannot be installed. Its disposition is {disposition}.",
+    "refused_by_policy": "{title} {version} is marked {disposition}, which this install policy refuses."
+  }
+}

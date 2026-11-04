@@ -1,0 +1,10 @@
+{
+  "name": "tours-screen",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#workspace-records": {
+      "node": "./read-data/rows-write-through-keep.mjs"
+    }
+  }
+}

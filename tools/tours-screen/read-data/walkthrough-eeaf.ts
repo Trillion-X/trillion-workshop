@@ -22,7 +22,7 @@
 
 import type { StepShape, WalkthroughShape } from '../engine/branch-resolver';
 import type { Trigger } from '../engine/trigger-intake';
-import { selectTrigger } from '../engine/trigger-intake';
+import { selectTrigger } from '../engine/trigger-intake.ts';
 import type { HostEvent } from '../engine/trigger-intake';
 
 // ── Live shapes the callers consume ─────────────────────────────────────────

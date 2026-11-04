@@ -1,0 +1,36 @@
+{
+  "_what": "How a plan of dated stages moves when its start or end moves (src/date-shift.mjs). A stage is { id, start, end } in whole days (start and end both count). `strategies` are the named ways the unlocked stages fill the new window: each row's id is a function in date-shift.mjs's STRATEGIES, its `says` is what the person is told it does. `locks` are the named lock modes: a stage is locked (never moves) when it holds any flag the mode lists; `done` is finished work and `started` is a stage whose start is today or earlier. Locked stages must come before every unlocked stage. `words` are every refusal, in plain words with {braces} filled in. A new strategy is a row here plus its function; a new lock mode is only a row.",
+  "default_strategy": "shift",
+  "default_lock": "finished",
+  "strategies": [
+    { "id": "shift", "label": "Shift", "says": "Every stage moves by the same number of days and keeps its length." },
+    { "id": "absorb", "label": "Absorb", "says": "Only the stage at the moved end changes; it grows or shrinks and every other stage stays put." },
+    { "id": "distribute", "label": "Distribute", "says": "The stages fill the whole new window one after another, each keeping its share of the days." },
+    { "id": "accordion", "label": "Accordion", "says": "Every stage keeps its length; the gaps between stages stretch or tighten evenly." },
+    { "id": "shrink", "label": "Shrink", "says": "The end comes in: the last stages are cut back first, none below one day, and none starts later than it did." }
+  ],
+  "locks": [
+    { "id": "none", "label": "Nothing locked", "flags": [] },
+    { "id": "finished", "label": "Finished work stays", "flags": ["done"] },
+    { "id": "started", "label": "Finished and started work stays", "flags": ["done", "started"] }
+  ],
+  "words": {
+    "no_stages": "There are no dated stages to move.",
+    "bad_stage": "Stage {id} must start on or before it ends, with both as dates.",
+    "bad_date": "{name} must be a date like 2026-11-30.",
+    "no_change": "Give the new start, the new end, or both.",
+    "unknown_strategy": "{id} is not a way to move a plan. The ways are: {ids}.",
+    "unknown_lock": "{id} is not a lock mode. The modes are: {ids}.",
+    "locked_gap": "Stage {id} is not locked but comes before locked work. Locked stages must come first.",
+    "start_locked": "The plan's start cannot move while its first stage is locked.",
+    "nothing_to_move": "Every stage is locked, so nothing can move.",
+    "shift_differs": "Shift keeps every length, so the start and the end must move by the same number of days.",
+    "hits_locked": "The stages would run into locked work that ends on {date}.",
+    "collapses": "Stage {id} would end before it starts. Choose a later end or another way.",
+    "too_few_days": "{days} days cannot hold {count} stages of at least one day each.",
+    "too_long": "The stages need {needed} days and the window has {days}.",
+    "shrink_only_shortens": "Shrink only brings the end in. Use another way to move it later.",
+    "not_a_plan": "Choose a task list or name the tasks to move.",
+    "none_dated": "None of those tasks has a due date, so there is nothing to move."
+  }
+}

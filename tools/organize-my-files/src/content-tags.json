@@ -1,0 +1,21 @@
+{
+  "result_kind": "tags",
+  "evidence_kinds": ["transcript", "summary", "facts", "title"],
+  "auto_source": "auto",
+  "person_source": "person",
+  "min_score": 0.5,
+  "max_tags": 8,
+  "page_size": 100,
+  "max_tag_length": 64,
+  "min_word_length": 3,
+  "stem_length": 5,
+  "max_text_characters": 200000,
+  "vocabulary": [
+    { "tag": "meeting", "words": ["meeting", "agenda", "attendees", "minutes"] },
+    { "tag": "interview", "words": ["interview", "candidate", "question", "answer"] },
+    { "tag": "tutorial", "words": ["tutorial", "step", "learn", "guide"] },
+    { "tag": "travel", "words": ["travel", "flight", "hotel", "trip"] },
+    { "tag": "food", "words": ["food", "recipe", "kitchen", "dinner"] },
+    { "tag": "finance", "words": ["invoice", "budget", "revenue", "payment"] }
+  ]
+}
