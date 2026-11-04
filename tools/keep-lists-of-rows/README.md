@@ -41,6 +41,8 @@ The surface's screens (every `show/` file that draws through the app's shared `u
 | `source-data/views-offered-to-every-list.json` | Trillion DATA: the views every list is offered and what each needs. |
 | `source-data/list-mutation-settlement.json` | Trillion DATA: the settlement policy a list's writes settle under (read back within 20 s). |
 | `source-data/descriptor-reference-rules.json` | Which descriptor fields may reference which. |
+| `source-data/answered-by-the-web-shell.json` | The `tools/ui/show` folders this tool names but the web shell owns (its build answers them, trillion-apps `web/scripts/workshop-shell-imports.mjs`); only bundled files may import them, as types. Test: `test/imports-resolve.test.mjs` (every other relative import resolves here, and `lists.mjs` loads in node with every file it reaches). |
+| `test/list-keeper.test.mjs` | Old trillion's list-keeper test: `listKeeper` over the real `lists.mjs` and the computer's store (`keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs`). |
 | `source-data/published-for-every-consumer.json` | Trillion: the two package-manifest rows a consumer's own Visual Database reads (the `mutationSettlementPolicy` input descriptor and the settlement policy), copied unchanged; read by the Record audio screen. |
 
 ## Key Types / Functions
