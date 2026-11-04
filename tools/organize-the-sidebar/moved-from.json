@@ -35,6 +35,391 @@
       "to": "tools/organize-the-sidebar/test/community-logic/board-weighted-signals.test.ts",
       "source_identity": "1f:9972a26f6b1cb220c72a14c41a8df4c7647dbfb44befa8f9f69d8406541c4775",
       "identity": "1f:10b63d98bc11b32c4c90b8ad8ae079e157b6c1e15f6f1b15381c103b61515500"
+    },
+    {
+      "from": "parts/group/do-work/__tests__/apply-grouping-intent.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/__tests__/apply-grouping-intent.test.ts",
+      "source_identity": "1f:a053f4559b9fd0bc72c8d92686e1d863210138bf679b9367f1e4f979d9e7bf82",
+      "identity": "1f:b7276130a86e79920ccd3dd0ed7c21d1e1c8a1c99c0292c7988e4b56a2aec636"
+    },
+    {
+      "from": "parts/group/do-work/color-harmony.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/color-harmony.test.ts",
+      "source_identity": "1f:4a85f4fbdf4bc2b6033087e982fd280c36c7e885d70746299f75bd23d1d3c0ca",
+      "identity": "1f:cce6c59a96c473293d1c54dd046d327dc8fd773cbe6608b4a4e0a560815f1cc7"
+    },
+    {
+      "from": "parts/group/do-work/content-placement.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/content-placement.test.ts",
+      "source_identity": "1f:934aa457c21054c89a6522663bfff4b7ee9fa40e6c9b351eb515182de6aad82b",
+      "identity": "1f:1f812ce830a00625f81d567f22689a01465766218c9e4e7eed59722742507abc"
+    },
+    {
+      "from": "parts/group/do-work/date-scale.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/date-scale.test.ts",
+      "source_identity": "1f:a33aa3e7fe069544e23bdb4eb5183adf5647224e015e59be12f9576b1a882c83",
+      "identity": "1f:c0fb7c9055220dccb5a7da149ece06f7a38b7e7a694a52cf1be76bc6efff01e3"
+    },
+    {
+      "from": "parts/group/do-work/elevation-shadow.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/elevation-shadow.test.ts",
+      "source_identity": "1f:f313514f8549330552615016ca5d54a253b6a8ddc8f3cca4a7664c721d533266",
+      "identity": "1f:52dd17a3a7822fadfcabef5f166a8319c2b446046697dbaec02791899265bbcc"
+    },
+    {
+      "from": "parts/group/do-work/frequency-tally.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/frequency-tally.test.ts",
+      "source_identity": "1f:bafd0e30d26077727e0f0aae5923b6b92165cc65ed3d9a69edad397a766adf44",
+      "identity": "1f:8568cbf9ea41f777ded1ca8ad53ff34ac0d2c72e3eb8c36126aedc309ecea4aa"
+    },
+    {
+      "from": "parts/group/do-work/graph-to-board.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/graph-to-board.test.ts",
+      "source_identity": "1f:48e32a7a98f200727405523d1168a0cc33c8221477b733ede93b0fb3a6fddd35",
+      "identity": "1f:bc8ddf08c1268025eca47e0152890065553f3287a4323fbfb612139ae6409f66"
+    },
+    {
+      "from": "parts/group/do-work/label-color.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/label-color.test.ts",
+      "source_identity": "1f:4a65305c3f4677ad408bc8866e55bd7bcb7f98af571c5091cacf3ea08dc8517e",
+      "identity": "1f:e23e4eea319a5a1b7cce7a3c840688b37c8c32cefc12288522d678367f99d7e0"
+    },
+    {
+      "from": "parts/group/do-work/layout-producer-drafts.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/layout-producer-drafts.test.ts",
+      "source_identity": "1f:7df5d60bc815dcffd11b833b4a5f837586b53a77754fc0ce0c79954c5d468888",
+      "identity": "1f:29fabad22d3562d42048ed55fa6c318eb547edf79fdc85ea063c8c2cc42aac4a"
+    },
+    {
+      "from": "parts/group/do-work/link-preview.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/link-preview.test.ts",
+      "source_identity": "1f:a1c6b6139b9228803a165eb28db820f4ff2db792d23d495f37a4032b2e168ba7",
+      "identity": "1f:91023368d596757527e0f22f646a74aed62e5cce859fefcfc6edb65ad8364801"
+    },
+    {
+      "from": "parts/group/do-work/median-cut-palette.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/median-cut-palette.test.ts",
+      "source_identity": "1f:d2067316872c3f5246af45b221e309d24467c3ca9689a29f9b85801f0f60e3d2",
+      "identity": "1f:fc42a83a53107a37866960aedfe3652facb1c2a64e4c63f2230317624e655f0e"
+    },
+    {
+      "from": "parts/group/do-work/nested-tree-xml.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/nested-tree-xml.test.ts",
+      "source_identity": "1f:230e4114e617e19ad1e6f9751392fd49001efa18d6238540f2c08d6fea0bfa67",
+      "identity": "1f:c0286136a67a6b85aab428aa1f9e4a5f25f866257b94b60e16ffdaea7fa971ef"
+    },
+    {
+      "from": "parts/group/do-work/open-graph.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/open-graph.test.ts",
+      "source_identity": "1f:adc5b7634cac3d4ca5ad95db82394c08fe1b2a3cec335e7ac58aa2c1ffa1a516",
+      "identity": "1f:377be2798babf99d30e77ecb74e937df064327c9e85f80bfe69c1dec7f56d77b"
+    },
+    {
+      "from": "parts/group/do-work/tag-cooccurrence.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/tag-cooccurrence.test.ts",
+      "source_identity": "1f:22c35e76dc7879803d3a2e62aedc17f2ce1cecbc9a0e221cb12787a01ae1f705",
+      "identity": "1f:9b05ea3a1aece153abde15a9a38fd80fe0b7effe980ba8f4a41ad843f5029c41"
+    },
+    {
+      "from": "parts/group/do-work/text-entities.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/text-entities.test.ts",
+      "source_identity": "1f:f3b351e5d959ac3c21ea4f3c3216628be48f357b88b9f0f8d375d844b1d4249f",
+      "identity": "1f:2fd6078d03023514a9e64c64264107a0d3bc0867d985c6a62c336ac32e281cfe"
+    },
+    {
+      "from": "parts/group/do-work/text-similarity.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/text-similarity.test.ts",
+      "source_identity": "1f:3384137eb07039c6e45a495cbb8c95ed696c5d10fda196018973fba9afb60a30",
+      "identity": "1f:f4219d4edffa17ba243e46f7a5ee64ef94012fef00050f983dcdbcef0d61b3c7"
+    },
+    {
+      "from": "parts/group/read-data/appear-stagger.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/appear-stagger.test.ts",
+      "source_identity": "1f:ee5a35d016b33e728be4ac6c3da385a47e7041226586f260932c735bb398dcc2",
+      "identity": "1f:faf120dc4f11590adb2e6f787094d2aa02809bc35643423e79b42579e7e1ab20"
+    },
+    {
+      "from": "parts/group/read-data/board-checklist.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-checklist.test.ts",
+      "source_identity": "1f:757943e94f70c792b4d3e79b0c7bde230d75195e6e2d7760f7c91513aa3bde20",
+      "identity": "1f:4be8167067180746963d8f232038a2e6c67e4e1a0ecd24c0d646c86d5f112df1"
+    },
+    {
+      "from": "parts/group/read-data/board-comments.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-comments.test.ts",
+      "source_identity": "1f:2083d6a17faefda36431dbbc272b2c4b7c1377a6a360dd57d079f1a925ea9d0a",
+      "identity": "1f:8d1975ced237f289dc387ff786df28c1310056e6309eecf0ca663e461b7afa1c"
+    },
+    {
+      "from": "parts/group/read-data/board-critical-path.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-critical-path.test.ts",
+      "source_identity": "1f:f4cddb4c8b1475a0762dc3196bd08d103092b9406f486f26bc11c7d414485ab7",
+      "identity": "1f:45d52a99a372ba095722ebbc8869c5dc94f6dffad6b92a464857f2e0ec17ebe3"
+    },
+    {
+      "from": "parts/group/read-data/board-diff.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-diff.test.ts",
+      "source_identity": "1f:f07179600d3fb7329827e2c3e934f24f24d3994fae6630ffc692678599224084",
+      "identity": "1f:60167e258403bc78c077f6f358048078d5c5c042803b72dd1287231790918d21"
+    },
+    {
+      "from": "parts/group/read-data/board-due-date.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-due-date.test.ts",
+      "source_identity": "1f:48760acdbf40dca7a84eda14ee094fb37c71a6e0ca386399bc2cad68c0cc7358",
+      "identity": "1f:6927b333ce3108cedd2d93cddf0df89b7c0534bd1f45fe428718af2243a72a43"
+    },
+    {
+      "from": "parts/group/read-data/board-forecast.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-forecast.test.ts",
+      "source_identity": "1f:7451d112f560934c72130414fa26c6355b08621a177be6c580a98299be4e6b45",
+      "identity": "1f:cfdf04910893a32c8392c2267b3759e355db20bb91e41b71bbf5e1fbb12ae8d8"
+    },
+    {
+      "from": "parts/group/read-data/board-merge.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-merge.test.ts",
+      "source_identity": "1f:203b6618f7ae8450601965940c97a2f81d929e797203dcb9ce0bb7be2b48e35d",
+      "identity": "1f:695a6f08e2f086269a8fa543ac95a50808513a0ca1fe67f4ca1b30bab078eb50"
+    },
+    {
+      "from": "parts/group/read-data/board-metric.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-metric.test.ts",
+      "source_identity": "1f:8e1ca8efad2a6d8a11224bd7158449a8c07c09847f03b03965894cccd907b547",
+      "identity": "1f:275eab83837e55563ce629bf3a29065293686af49d2e2d41e3cd6ced929f2dec"
+    },
+    {
+      "from": "parts/group/read-data/board-readiness.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-readiness.test.ts",
+      "source_identity": "1f:a1329380eefb7546818413703b73ab5c8ddbbc8a35d0753254d6ad39bd6e0584",
+      "identity": "1f:19d905dadb7d33ec1e0002d82887a0aff7e07537ba67ecb036ec40c598a5ffc0"
+    },
+    {
+      "from": "parts/group/read-data/board-rollup.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-rollup.test.ts",
+      "source_identity": "1f:e15b34c749668439c18d78314b9d0fc6e6efefde079a76dfc44b76857d9bceb8",
+      "identity": "1f:51c9dae602284b2f5097804d7706e8e37a55b968e8b7e2b5907b834f37cb1bb1"
+    },
+    {
+      "from": "parts/group/read-data/board-time-log.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-time-log.test.ts",
+      "source_identity": "1f:8ba65805aa79e5e5808dfb628140b70f81dc9fd73e891b5e05641fa3185fb650",
+      "identity": "1f:dfd96ea58967fc2a00a5931682a904f466cf83f9ed65c99ec3ce43d6ccd7ccab"
+    },
+    {
+      "from": "parts/group/read-data/catalog-merge.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/catalog-merge.test.ts",
+      "source_identity": "1f:c546f56eeaac75d9d824e85602e877ae203ae53575ad98146695aba85731bc0a",
+      "identity": "1f:efbaf356d32581eba6c1fe1962664372d7f920d073da70977debb78f0c9042f1"
+    },
+    {
+      "from": "parts/group/read-data/cyclic-step.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/cyclic-step.test.ts",
+      "source_identity": "1f:117f915945460e1d92034de9f3b72fdc6238e3317dfb4c188f11f732fef321ed",
+      "identity": "1f:6bdaf357d97a9632e1049e7bf996c3ce40843d21bd3a945bd9fca67733d8be99"
+    },
+    {
+      "from": "parts/group/read-data/grouped-rows.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/grouped-rows.test.ts",
+      "source_identity": "1f:845ca56eb2188960d2d9daea9df33ceeaba04a39f0063023e4b5d6156564fbb5",
+      "identity": "1f:1e37dbf6e813580dd9124708324bbb59d366ac0e4d900c18a0b14bc7d8ad898a"
+    },
+    {
+      "from": "parts/group/read-data/knowledge-graph-adapter.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/knowledge-graph-adapter.test.ts",
+      "source_identity": "1f:5464c4138e985fc097b52fc3c792eca10e25d6c3a19f0a8c5ea379f4290cbcae",
+      "identity": "1f:600869760f2c057d2b2dc3074af974c52ecabb3af4b5b65222bf01358b9d373c"
+    },
+    {
+      "from": "parts/group/read-data/outline-filter.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/outline-filter.test.ts",
+      "source_identity": "1f:66a121bb441e3b4aaa00289783eee418b32bd8c40cdbc0b7d60eeb294ded0ad3",
+      "identity": "1f:572b0f2c429ec748da46952ec2fdf531f7ea74e4918fa89fc3488e915e22f0a7"
+    },
+    {
+      "from": "parts/group/read-data/outline-fold.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/outline-fold.test.ts",
+      "source_identity": "1f:127462dd444e8ae4ae2d5f59c6b3e84c877dceaa0aa6b85840f4130b2623b5ad",
+      "identity": "1f:9e027b77d81956e90c532031686626a8df87c5f8e8416f7999a4779c161f0cfc"
+    },
+    {
+      "from": "parts/group/read-data/producer-timeout.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/producer-timeout.test.ts",
+      "source_identity": "1f:f378814e07f504642ff879f54bb3b9a9fa78268f246e86ba7fe5676582ab2681",
+      "identity": "1f:23ead24f2a16113d06bfb8ff6f7dbfded9fc8269e6914ced694f696df9cc0316"
+    },
+    {
+      "from": "parts/group/read-data/search-field-key.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/search-field-key.test.ts",
+      "source_identity": "1f:8d3a649437a50d1dafed5187b60a2e15df4289222e5b0e2f725d563f9aae53e8",
+      "identity": "1f:5612e59099d359b22d4b577d26c9493a2d7cd665cdcd3ffa4279b34c12bc3776"
+    },
+    {
+      "from": "parts/group/read-data/selection-algebra.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/selection-algebra.test.ts",
+      "source_identity": "1f:9d2af6bd4fcfa49f5e50b2bf95d8d60af1a73e87f2ec89149d2bae4b78242733",
+      "identity": "1f:cc43db7dd9633277fe12e315dae0da6efa98169aac314deba26df0922d7088bd"
+    },
+    {
+      "from": "parts/group/read-data/share-scope.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/share-scope.test.ts",
+      "source_identity": "1f:291f45a2dca70c84741b6a4e243e5f6218d6d7f28e1f8e69ca19f9a8fe78d11b",
+      "identity": "1f:acc0a320b8aa88b86fab34a0c63d953aab59769649a40f6dc21907a03d3bd137"
+    },
+    {
+      "from": "parts/group/read-data/spatial-nav.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/spatial-nav.test.ts",
+      "source_identity": "1f:db25052d55a2b61302760773604a344ac936ef47440798a38d7cb20d0c0c5536",
+      "identity": "1f:0a0705463f126776a9598a5f0c9d14b1f0b3313f6a3fbd56a368271ac31e0a5d"
+    },
+    {
+      "from": "parts/group/read-data/text-replace.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/text-replace.test.ts",
+      "source_identity": "1f:c4e27b887f7365171f76eb700a03d6247c0aee54df4d91177550a37f99aa1411",
+      "identity": "1f:98c09907b9c767aa54e884deaab18a431c503765eed8330843473703fc0f182a"
+    },
+    {
+      "from": "parts/group/read-data/viewport-visibility.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/viewport-visibility.test.ts",
+      "source_identity": "1f:ca8cb6c717186a792b761c364f44688c14daf1c94c56e44e0b83a297301cbd7d",
+      "identity": "1f:342b170a911b309d555e39b6e0d8de816787cb2f85e0cfe1475c13f3921221b7"
+    },
+    {
+      "from": "parts/group/read-data/walkthrough.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/walkthrough.test.ts",
+      "source_identity": "1f:91aa8cd2d36fc1c2924063ed865dc95fb2a9aa8efc47571ba54cfc794198b6a2",
+      "identity": "1f:86c54317c46a671f6848d95fe96cb376f9855a1f0be13893c5e92970f3f107c0"
+    },
+    {
+      "from": "parts/group/read-data/write-count.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/write-count.test.ts",
+      "source_identity": "1f:9d257fd1013f3fc2bf35350ab78bd93f745eda392f205229fea7cab287d1a69c",
+      "identity": "1f:c92349eb2a68d8a8e8ba73fb18463cf4f225bd610a33c93eefa35ab27528d813"
+    },
+    {
+      "from": "parts/group/show/board-history.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-history.test.ts",
+      "source_identity": "1f:0d3107db9d3e1a8be9597c4a20d52a49c6a3bd916dc8bc38b45c541770717334",
+      "identity": "1f:5906ce11384573e791fb88914b5023fe9dc25a0779065e3b2b72775ddf1c385b"
+    },
+    {
+      "from": "parts/group/show/board-search.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-search.test.ts",
+      "source_identity": "1f:17cee7ec97b864d032aec6ba0fb2334f093bcdde9a78ed33af1bc2054c1d0d3a",
+      "identity": "1f:b5e9a3b482a626c7b4b2dfb08e9632661a95464b6d0a1eb70e83fef408bb92f8"
+    },
+    {
+      "from": "parts/group/show/filter-presets.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/filter-presets.test.ts",
+      "source_identity": "1f:7d5738c10f0df04acc5936cb5f3248123c7bc0bfc443335fdcb02c683cddddf6",
+      "identity": "1f:438fbac9023bb4c13c0b36b370935531336ba8a8fa5e1c66b5cdf008569aaa8f"
+    },
+    {
+      "from": "parts/group/show/frame-aspects.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/frame-aspects.test.ts",
+      "source_identity": "1f:027f970f2881f3ff58154b8e29919d2d68429d129affffb2adbc5aaf53972a60",
+      "identity": "1f:f87003cd58b0e0a0f0d43e79a7c6c4a6100b58f10ebf38fe71b4c05a243de7f6"
+    },
+    {
+      "from": "parts/group/show/image-footprint.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/image-footprint.test.ts",
+      "source_identity": "1f:fecdd531101d68a37ae2a582d10cb8ca523595e3981070f266e1d57cf89b7063",
+      "identity": "1f:879a0e37a07ee6821bac66e5a9d461b03be596fb7c465352d5b6ba392f9226d0"
+    },
+    {
+      "from": "parts/group/show/item-board-link.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/item-board-link.test.ts",
+      "source_identity": "1f:fe2768bac91dddacdcafad19873e2457d71646937a47ae964c5cf6cba8538380",
+      "identity": "1f:7a04dc973967c54049251e8adbd8f87d3479f80ed679e3009a4c885d30fb6310"
+    },
+    {
+      "from": "parts/group/show/item-link.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/item-link.test.ts",
+      "source_identity": "1f:d591bb3a0737a62a612758c4369e0acd32b5a74360255cf1ac76f9cb8cb0ad90",
+      "identity": "1f:c6bd2d64fa61112e216faff815af5b855fc2a6bd45f9b28f78a70e0111aa5e07"
+    },
+    {
+      "from": "parts/group/show/note-autofit.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/note-autofit.test.ts",
+      "source_identity": "1f:ce1b33048674a9734c149bbef8fb6527ec4d48e1f6a94ca39003d10ab74c5819",
+      "identity": "1f:45a2e9f84b7aac3ffbb6851a1d565996b57d6a72f190dab08013df307bdd5e72"
+    },
+    {
+      "from": "parts/group/show/note-edit-session.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/note-edit-session.test.ts",
+      "source_identity": "1f:ff79cb595db3702ebc00340885b73215cf3158ffc8cc9f87d50b07fc458408c9",
+      "identity": "1f:25da1d492447aefa6e1145d7dd61b9b01357d41a4e7903c5efcbc7dd2eb92e5f"
+    },
+    {
+      "from": "parts/group/show/note-metrics.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/note-metrics.test.ts",
+      "source_identity": "1f:cca5f5881fd9d877dd1428c3fca1afc88f0fad4702d7d5da7975f121a7df635e",
+      "identity": "1f:2ff3324c8e5ec7935c4ea27ced6dcae7ef4e6ff46a9b30c5f37c6f3f4e22616b"
+    },
+    {
+      "from": "parts/group/show/paste-to-notes.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/paste-to-notes.test.ts",
+      "source_identity": "1f:cd9e79287a4f97070a34ed91746131a3da1026ade02c9895d89fea9c990bd244",
+      "identity": "1f:ea2058bf02c10d6ff33e98f2ff14c0f97abe2e8731a05a28643544838e8ecd1a"
+    },
+    {
+      "from": "parts/group/show/resolve-overlaps.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-the-sidebar/parts/group/show/resolve-overlaps.test.ts",
+      "source_identity": "1f:dff9bc7b32f92da844c40dc44c1e9ca3ad2b325d93037848b0f021dcdbf44d87",
+      "identity": "1f:4e4b007707f621dc7598d98dd0d5d5d62abb351f1a8def8928c93afe93ab1697"
     }
   ]
 }
