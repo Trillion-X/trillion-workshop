@@ -78,7 +78,7 @@
     "target_multihash_at_baseline": "1f:6c4587c90ea7dd82e0b1a0632cf2d20095045a30659b5de6f2a342d310b591a8"
    }
   ],
-  "commit": "9a0b75a9a90c1dd0ebe492ef60b87271332c9538"
+  "commit": "2bef6db3ddae0e286b674cabb76223c8ed8296f3"
  },
  "proof": {
   "minimum_meaningful_line_retention": 0.6,
