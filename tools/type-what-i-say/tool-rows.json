@@ -1,0 +1,280 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:type-what-i-say",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:dictate",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "label": "Dictation text and dictionary",
+        "job": "Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history",
+        "description": "Give action: clean (text, context, entry_id?; polish or command need a model and leave the text as it was without one), bias (context), learn (inserted, final, entry_id?), add (from and to, or kind: snippet with says and expands_to), list, edit (id and fields), delete (id), history, or erase (entry_id, or all). The rows and the history are kept in the folder the person granted. Putting text at the cursor is tool:type-dictated-text.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "clean",
+                "bias",
+                "learn",
+                "add",
+                "list",
+                "edit",
+                "delete",
+                "history",
+                "erase"
+              ]
+            },
+            "text": {
+              "type": "string"
+            },
+            "context": {
+              "type": "object",
+              "description": "app (the app the person is in), names (list or people names around the cursor), screen_text (text the caller chose to give)"
+            },
+            "entry_id": {
+              "type": "string"
+            },
+            "polish": {
+              "type": "boolean"
+            },
+            "command": {
+              "type": "string"
+            },
+            "inserted": {
+              "type": "string"
+            },
+            "final": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "dictionary",
+                "snippet"
+              ]
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            },
+            "says": {
+              "type": "string"
+            },
+            "expands_to": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "active": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/type-what-i-say",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/type-what-i-say/read-data/dictation.mjs",
+            "dictate"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "folder": {
+              "fill": {
+                "from": "task",
+                "field": "grants.change-a-folder.folder"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "type-what-i-say",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/type-what-i-say"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:type-what-i-say",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:type-dictated-text",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "label": "Type dictated text at the cursor",
+        "job": "Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history",
+        "description": "Give text (cleaned by tool:dictate) and entry_id and context.app when known. Returns entry_id, kind (inserted-verified, inserted-unverified, blocked or failed) and saved, wrote, pasted, restored, verified and error.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1
+            },
+            "entry_id": {
+              "type": "string"
+            },
+            "context": {
+              "type": "object",
+              "description": "app (the app the person is in), names (list or people names around the cursor), screen_text (text the caller chose to give)"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "entry_id",
+            "kind"
+          ]
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder",
+            "type-into-the-front-app"
+          ],
+          "workdir": "/opt/type-what-i-say",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/type-what-i-say/read-data/dictation.mjs",
+            "typeDictatedText"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "folder": {
+              "fill": {
+                "from": "task",
+                "field": "grants.change-a-folder.folder"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "type-what-i-say",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/type-what-i-say"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}

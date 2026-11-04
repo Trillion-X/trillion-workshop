@@ -1,0 +1,128 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-a-long-job-resumable",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:job",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "label": "Keep a long job resumable",
+        "job": "Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it",
+        "description": "Give action: start (key, and seed and version when wanted), append (id, piece), read (id, cursor: the last seq read, 0 for all), finish (id), cancel (id) or list. The jobs are kept in a file in the folder the person granted. Returns the job (id, state, stream_url, expires_at, seed, version, chunks), { seq } for append, { job, pieces, cursor } for read and { jobs } for list.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "start",
+                "append",
+                "read",
+                "finish",
+                "cancel",
+                "list"
+              ]
+            },
+            "key": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "seed": {},
+            "version": {
+              "type": "integer"
+            },
+            "piece": {},
+            "cursor": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/keep-a-long-job-resumable",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-a-long-job-resumable/read-data/durable-job.mjs",
+            "job"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "folder": {
+              "fill": {
+                "from": "task",
+                "field": "grants.change-a-folder.folder"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-a-long-job-resumable",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/keep-a-long-job-resumable"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}

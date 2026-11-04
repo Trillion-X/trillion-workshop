@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:30ce54b237050003c6e38ed59f0fb26c52b3797ce712227c2721037ffbdc4341"
+  "blake3": "1f:9dc937a5c1967f6a8e43fc159a4f38d053bd912b5a778660bbe983b5904a876c"
  },
  "fields": [
   {
@@ -2042,6 +2042,22 @@
    }
   },
   {
+   "id": "tool:dictate",
+   "values": {
+    "title": "Dictation text and dictionary",
+    "job": "Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history",
+    "description": "Give action: clean (text, context, entry_id?; polish or command need a model and leave the text as it was without one), bias (context), learn (inserted, final, entry_id?), add (from and to, or kind: snippet with says and expands_to), list, edit (id and fields), delete (id), history, or erase (entry_id, or all). The rows and the history are kept in the folder the person granted. Putting text at the cursor is tool:type-dictated-text.",
+    "status": "active",
+    "maker": "maker:type-what-i-say",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "type-what-i-say"
+   }
+  },
+  {
    "id": "tool:draft-a-funnel",
    "values": {
     "title": "Draft a funnel",
@@ -3840,6 +3856,22 @@
    }
   },
   {
+   "id": "tool:job",
+   "values": {
+    "title": "Keep a long job resumable",
+    "job": "Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it",
+    "description": "Give action: start (key, and seed and version when wanted), append (id, piece), read (id, cursor: the last seq read, 0 for all), finish (id), cancel (id) or list. The jobs are kept in a file in the folder the person granted. Returns the job (id, state, stream_url, expires_at, seed, version, chunks), { seq } for append, { job, pieces, cursor } for read and { jobs } for list.",
+    "status": "active",
+    "maker": "maker:keep-a-long-job-resumable",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "keep-a-long-job-resumable"
+   }
+  },
+  {
    "id": "tool:join-a-waitlist",
    "values": {
     "title": "Join a waitlist",
@@ -5135,6 +5167,22 @@
    }
   },
   {
+   "id": "tool:name-voices-from-the-call",
+   "values": {
+    "title": "Name the voices from the call app",
+    "job": "Name the unnamed voices of a recorded call from who the call app showed as speaking on screen, only where the screen evidence is enough, one name to one voice",
+    "description": "Give turns ([{ start, end, who }] in seconds, such as tool:who-is-in-this answered) and samples ([{ at, names }] or [{ at, elements }] in milliseconds from the start of the recording, elements being the call window's accessibility elements), and app (the call app's name) when known. Only voices whose label is still unnamed (Someone (...), Unsure (...)) are laid over. Returns assignments ([{ voice, name, share, overlap_ms }]) and unnamed ([{ voice, candidates }]). Writing the names into the person's Trillion is the caller's (name_speaker).",
+    "status": "active",
+    "maker": "maker:name-voices-from-the-call",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "name-voices-from-the-call"
+   }
+  },
+  {
    "id": "tool:name-what-holds-a-drive",
    "values": {
     "title": "What is using a drive",
@@ -5237,6 +5285,22 @@
      "placement:your-computer"
     ],
     "folder": "open-a-prompt-in-a-local-ai-app"
+   }
+  },
+  {
+   "id": "tool:open-meeting-link",
+   "values": {
+    "title": "Open a meeting link",
+    "job": "Open a meeting link in the meeting app that owns it on the person's computer, after reading it through the declared routes; a refused link is never opened",
+    "description": "Give link. The link is read first (as tool:read-meeting-link); only an allowed link is handed to the system to open. Returns opened, route, action and redacted; never a secret parameter's value.",
+    "status": "active",
+    "maker": "maker:open-a-meeting-link",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "open-a-meeting-link"
    }
   },
   {
@@ -6605,6 +6669,22 @@
      "placement:small-container"
     ],
     "folder": "live-match-scores"
+   }
+  },
+  {
+   "id": "tool:read-meeting-link",
+   "values": {
+    "title": "Read a meeting link",
+    "job": "Read a meeting link through the declared meeting-app routes: which app it is for, what it asks (join, start, schedule, launch) and its parameters, with the host checked first and secret parameters hidden",
+    "description": "Give link. Returns route, action, params (secret ones left out), secret_params (their names) and redacted (the link for logs). A link whose host is not on the route's list, whose action is unknown, or whose parameter is not in its form is refused with the reason.",
+    "status": "active",
+    "maker": "maker:open-a-meeting-link",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "open-a-meeting-link"
    }
   },
   {
@@ -9593,6 +9673,22 @@
      "placement:your-computer"
     ],
     "folder": "turn-frames-into-slides"
+   }
+  },
+  {
+   "id": "tool:type-dictated-text",
+   "values": {
+    "title": "Type dictated text at the cursor",
+    "job": "Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history",
+    "description": "Give text (cleaned by tool:dictate) and entry_id and context.app when known. Returns entry_id, kind (inserted-verified, inserted-unverified, blocked or failed) and saved, wrote, pasted, restored, verified and error.",
+    "status": "active",
+    "maker": "maker:type-what-i-say",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "type-what-i-say"
    }
   },
   {
