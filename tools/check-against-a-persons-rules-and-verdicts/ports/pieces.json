@@ -48,8 +48,7 @@
    "capability_rows": [],
    "code_patterns": [
     "pieceRows",
-    "pieceRow",
-    "keepPieces"
+    "pieceRow"
    ],
    "repositories": [
     {
