@@ -16,7 +16,20 @@
     "cursor_bytes": 49152,
     "transcript_read_bytes": 4194304,
     "transcript_row_bytes": 8388608,
-    "most_files_looked_at": 200000
+    "most_files_looked_at": 200000,
+    "_attachments": "The files a message carried are copied into the person's files through the files door, under attachments_folder: an export's file as <attachments_folder>/<app>/<its name>, an image pasted into a session as <attachments_folder>/<conversation>/<message>-<n><extension> (old Trillion's own names for them). An export's files are looked for beside it, attachment_depth folders down, at most attachment_index_files files: a file whose name starts with the attachment's id (ChatGPT's file-XXXX-photo.png) or that sits in a folder named by it (Grok's prod-mc-asset-server/<id>/content). A file over most_attachment_bytes is counted, not copied. media_types names a file's media type by its extension; magic by the bytes it starts with (hex), for a file with no extension.",
+    "attachments_folder": "/messages",
+    "attachment_depth": 4,
+    "attachment_index_files": 100000,
+    "most_attachment_bytes": 268435456,
+    "media_types": { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp", ".heic": "image/heic", ".pdf": "application/pdf", ".txt": "text/plain", ".md": "text/markdown", ".csv": "text/csv", ".json": "application/json", ".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".wav": "audio/wav", ".mp4": "video/mp4", ".mov": "video/quicktime", ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".zip": "application/zip" },
+    "magic": [
+      { "starts": "89504e47", "media_type": "image/png", "extension": ".png" },
+      { "starts": "ffd8ff", "media_type": "image/jpeg", "extension": ".jpg" },
+      { "starts": "47494638", "media_type": "image/gif", "extension": ".gif" },
+      { "starts": "52494646", "then_at": 8, "then": "57454250", "media_type": "image/webp", "extension": ".webp" },
+      { "starts": "25504446", "media_type": "application/pdf", "extension": ".pdf" }
+    ]
   },
   "export_places": [
     { "folder": "Downloads", "depth": 6 },

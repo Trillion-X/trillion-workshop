@@ -458,13 +458,13 @@
       "id": "grok-export",
       "label": "Grok account export (prod-grok-backend.json)",
       "reader": "fields",
-      "format_version": "Grok data export: { conversations: [{ conversation: { id, title }, responses: [{ response: { _id, message, sender, create_time } }] }] }",
+      "format_version": "Grok data export: { conversations: [{ conversation: { id, title }, responses: [{ response: { _id, message, sender, create_time, model, file_attachments: [asset id] } }] }] }; each asset beside it at prod-mc-asset-server/<asset id>/content",
       "recording": {"app": "Grok", "person_speakers": ["human", "user"], "ai_speakers": ["ASSISTANT", "assistant"]},
       "unreadable_expected": "readable json object with conversations",
       "file": {"format": "json"},
       "input_shape": {"media_types": ["application/json"], "extensions": [".json"], "required_paths": [["conversations"]], "message_paths": [["response", "sender"], ["response", "message"]]},
       "summary": {"order": "newest-first", "most": 64},
-      "shape": {"threads": {"list": {"path": ["conversations"]}, "messages": {"path": ["responses"], "in": "thread"}}, "thread": {"id": {"path": ["conversation", "id"], "in": "thread"}, "title": {"path": ["conversation", "title"], "in": "thread", "ops": [{"op": "text"}]}}, "message": {"speaker": {"path": ["response", "sender"]}, "text": {"path": ["response", "message"], "ops": [{"op": "text"}]}, "at": {"first": [{"path": ["response", "create_time", "$date", "$numberLong"], "ops": [{"op": "time", "from": "epoch-ms"}]}, {"path": ["response", "create_time", "$date"], "ops": [{"op": "time", "from": "iso-normalized"}]}, {"path": ["response", "create_time"], "ops": [{"op": "time", "from": "iso-normalized"}]}]}, "native_ref": {"path": ["response", "_id"]}, "model": {"path": ["response", "model"]}}}
+      "shape": {"threads": {"list": {"path": ["conversations"]}, "messages": {"path": ["responses"], "in": "thread"}}, "thread": {"id": {"path": ["conversation", "id"], "in": "thread"}, "title": {"path": ["conversation", "title"], "in": "thread", "ops": [{"op": "text"}]}}, "message": {"speaker": {"path": ["response", "sender"]}, "text": {"path": ["response", "message"], "ops": [{"op": "text"}]}, "at": {"first": [{"path": ["response", "create_time", "$date", "$numberLong"], "ops": [{"op": "time", "from": "epoch-ms"}]}, {"path": ["response", "create_time", "$date"], "ops": [{"op": "time", "from": "iso-normalized"}]}, {"path": ["response", "create_time"], "ops": [{"op": "time", "from": "iso-normalized"}]}]}, "native_ref": {"path": ["response", "_id"]}, "model": {"path": ["response", "model"]}, "attachments": {"path": ["response", "file_attachments"]}}}
     },
     {
       "id": "google-activity",
