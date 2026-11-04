@@ -32,6 +32,16 @@ test('every tool folder offers at least one row, or is a library a row packs, or
   }
 });
 
+// The engine finds the list an AI is told on connecting by the row that declares it (kind `ai-instruction-source`,
+// trillion-rust src/record_value/records-door.json `instructions.row_kind`): exactly one, naming a file in its folder.
+test('exactly one row declares the instruction list, and its file is in its folder', () => {
+  const declared = rows.filter(({ payload }) => payload.kind === 'ai-instruction-source');
+  assert.equal(declared.length, 1, `one ai-instruction-source row, found ${declared.length}`);
+  const [{ folder, payload }] = declared;
+  assert.ok(typeof payload.file === 'string' && !payload.file.split('/').includes('..') && existsSync(join(tools, folder, payload.file)),
+    `${payload.id}: tools/${folder}/${payload.file} exists`);
+});
+
 test('no two rows share an id', () => {
   const seen = new Map();
   for (const { folder, payload } of rows) {
