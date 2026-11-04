@@ -1,4 +1,11 @@
 {
+  "imported_by": [
+    "tools/refuse-requests-to-private-addresses",
+    "tools/run-on-a-persons-computer",
+    "tools/show-any-file-as-itself",
+    "Trillion-X/trillion-apps",
+    "Trillion-X/trillion"
+  ],
   "public": [
     "sender-config.json",
     "do-work/public-address.mjs",

@@ -18,8 +18,7 @@
 import { mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import defaults from './video-pipeline.json' with { type: 'json' };
 
 const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
@@ -98,7 +97,7 @@ export function makeVideoPipeline({ config = defaults, home = homedir(), handler
     async start({ pipeline, input = {} }) {
       const rows = pipelineOf(pipeline).stages;
       const created = now();
-      const run = { id: `run-${bytesToHex(blake3(utf8ToBytes(JSON.stringify([pipeline, input, created])))).slice(0, 16)}`, pipeline, input, created: new Date(created).toISOString(), state: 'new',
+      const run = { id: `run-${makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify([pipeline, input, created]))).slice(3, 19)}`, pipeline, input, created: new Date(created).toISOString(), state: 'new',
         stages: Object.fromEntries(rows.map(row => [row.id, { name: row.name, state: 'waiting', attempts: 0 }])), plans: {}, history: [] };
       save(run);
       return this.report(await runStages(run));

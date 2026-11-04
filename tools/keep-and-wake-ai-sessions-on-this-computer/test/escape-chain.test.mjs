@@ -35,10 +35,15 @@ test('every next escape resolves, and every chain reaches a counter that needs n
   for (const row of chain.rows) assert.ok(reaches(row.id), `${row.id} reaches a terminal row`);
 });
 
+// A file in another repository is named repo:<owner>/<repository>/<path>; this tree cannot read it, so its name is
+// held to that form. Every other file is this folder's, or a sibling tool's as ../<tool>/<path>, and must exist.
+const ELSEWHERE = /^repo:Trillion-X\/(trillion|trillion-apps|trillion-rust)\/[\w.@-]+(\/[\w.@-]+)*$/;
+
 test('what a built row names exists: its files, or its tool', () => {
   for (const row of chain.rows.filter(row => row.trillion.status === 'built')) {
     for (const by of row.trillion.by) {
       if (by.startsWith('tool:')) assert.ok(tools.includes(`"id": "${by}"`), `${row.id}: ${by}`);
+      else if (by.startsWith('repo:')) assert.match(by, ELSEWHERE, `${row.id}: ${by}`);
       else assert.ok(existsSync(new URL(`../${by}`, import.meta.url)), `${row.id}: ${by}`);
     }
   }

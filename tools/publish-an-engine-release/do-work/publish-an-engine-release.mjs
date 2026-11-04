@@ -199,7 +199,8 @@ export function readRequest(file) {
   return request;
 }
 
-/** Descriptor `fd`'s text, bounded; a descriptor nobody opened is empty. */
+/** Descriptor `fd`'s text, bounded; a descriptor nobody opened for this process (EBADF, EINVAL, or ENXIO when the
+ *  descriptor it inherited is a device with nothing behind it) is empty. */
 export async function privateInput(fd) {
   let text = '';
   try {
@@ -207,7 +208,7 @@ export async function privateInput(fd) {
       text += bytes;
       if (text.length > settings.private_input_bytes_at_most) throw refuse(`Descriptor ${fd} holds more than its bound.`);
     }
-  } catch (error) { if (error.code === 'EBADF' || error.code === 'EINVAL') return ''; throw error; }
+  } catch (error) { if (['EBADF', 'EINVAL', 'ENXIO'].includes(error.code)) return ''; throw error; }
   return text.trim();
 }
 

@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/public-door-rows.mjs", "read-data/door-receipts.mjs"]
+}

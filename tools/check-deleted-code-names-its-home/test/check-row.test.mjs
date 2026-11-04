@@ -6,7 +6,7 @@
 // with no decision does not.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -15,6 +15,7 @@ import { globCovers, isJudged, judgeDeletions, pathIdentity } from '../do-work/c
 
 const RUNNER = resolve(import.meta.dirname, '..', '..', 'check-every-tool-call', 'do-work', 'check_switches.py');
 const ROW = JSON.parse(readFileSync(new URL('../read-data/check-row.json', import.meta.url), 'utf8'));
+const TOOL = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
 
 async function door(t, records) {
   const server = createServer((request, response) => {
@@ -192,4 +193,29 @@ test('a receipt staged in the same commit counts, and a push is judged over the 
   const pushed = await call(where, workshop.root, 'git push -u origin main');
   assert.equal(pushed.status, 2, pushed.stderr);
   assert.match(pushed.stderr, /tools\/b\.mjs: no moved-from\.json/);
+});
+
+test('the tool row judges a range in the checkout the person granted, and answers { result }', (t) => {
+  const { old } = checkouts(t);
+  old.write('src/a.mjs', 'export const a = 1;\n');
+  old.git('add', '-A');
+  old.commit('add');
+  const start = old.git('rev-parse', 'HEAD');
+  old.git('rm', '-q', 'src/a.mjs');
+  old.commit('drop a');
+  // The row's own argv, with /opt/<package> read as this tree's tools folder and the grant as the checkout.
+  const tools = resolve(import.meta.dirname, '..', '..');
+  const argv = TOOL.invoke.argv.map((one) => typeof one === 'string' ? one.replace(/^\/opt\//, `${tools}/`) : old.root);
+  const run = (input) => spawnSync(argv[0], argv.slice(1), { input: JSON.stringify(input), encoding: 'utf8' });
+
+  const refused = run({ range: `${start}..HEAD` });
+  assert.equal(refused.status, 1, refused.stderr);
+  const { result } = JSON.parse(refused.stdout);
+  assert.equal(result.valid, false);
+  assert.match(result.errors.join('\n'), /src\/a\.mjs: no moved-from\.json/);
+  assert.equal(run({ range: `${start}..${start}` }).status, 0);
+
+  const wrong = run({ range: 'HEAD; rm -rf /' });
+  assert.equal(wrong.status, 2);
+  assert.match(JSON.parse(wrong.stdout).error, /give range/);
 });

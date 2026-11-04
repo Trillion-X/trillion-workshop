@@ -27,7 +27,7 @@
 //   5. Every limit and every word is DATA (./screen-spec.json).
 
 import settings from '../../build-a-screen-from-patches/read-data/screen-spec.json' with { type: 'json' };
-import declared from '../parts/ui/declared-props.json' with { type: 'json' };
+import declared from '../../ui/declared-props.json' with { type: 'json' };
 import { applyPatch } from './view-patch.mjs';
 
 const { limits, words } = settings;

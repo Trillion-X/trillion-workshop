@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [],
+  "files": [
+    {
+      "from": "parts/operation-records/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/operation-records/part.json",
+      "source_identity": "1f:5a304af33fe82f792869cc11630295e6aac52a4f460dc27542c38479abde660e",
+      "identity": "1f:a60aff1e8ae9922c8acb2498e55a687928f5ee3834f3b5ae59be541c951d76ef"
+    }
+  ],
+  "not_matched": [
+    "tools/operation-records/do-work/invoke-operation-transition.ts",
+    "tools/operation-records/read-data/operation-action-invocation.ts",
+    "tools/operation-records/read-data/operation-records.ts",
+    "tools/operation-records/read-data/operation-work.ts"
+  ]
+}

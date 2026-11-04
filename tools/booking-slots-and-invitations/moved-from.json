@@ -1,0 +1,89 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [
+    "parts/calendar-booker/",
+    "src/community-logic/calendar-invite-file.ts"
+  ],
+  "files": [
+    {
+      "from": "parts/calendar-booker/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/booking-slots-and-invitations/README.md",
+      "source_identity": "1f:00db5509f08a4a8e82a675b5db476242f43035152090ecf5f38996882cc05108",
+      "identity": "1f:00db5509f08a4a8e82a675b5db476242f43035152090ecf5f38996882cc05108"
+    },
+    {
+      "from": "src/community-logic/calendar-invite-file.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/booking-slots-and-invitations/calendar-invite-file.ts",
+      "source_identity": "1f:8ffa73f7d351f3183f6b60eaebccba232b70372f1bbfc0e68e5d86d8ecd04024",
+      "identity": "1f:8ffa73f7d351f3183f6b60eaebccba232b70372f1bbfc0e68e5d86d8ecd04024"
+    },
+    {
+      "from": "parts/calendar-booker/do-work/availability-link-eeaf-store.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/booking-slots-and-invitations/do-work/availability-link-eeaf-store.mjs",
+      "source_identity": "1f:150c531a2939a0c7a96ac8de91a272f55e47c7adcd7a2c043e819815e7624009",
+      "identity": "1f:150c531a2939a0c7a96ac8de91a272f55e47c7adcd7a2c043e819815e7624009"
+    },
+    {
+      "from": "parts/calendar-booker/do-work/availability-link-owner.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/booking-slots-and-invitations/do-work/availability-link-owner.ts",
+      "source_identity": "1f:502c1bbd72e963f5f232eda74d9c5182beac1caf6bd6871ea23353451bc3a371",
+      "identity": "1f:502c1bbd72e963f5f232eda74d9c5182beac1caf6bd6871ea23353451bc3a371"
+    },
+    {
+      "from": "parts/calendar-booker/do-work/calendar-invite-file.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/booking-slots-and-invitations/do-work/calendar-invite-file.ts",
+      "source_identity": "1f:7ea64ec2fd68b4f76a758d97ad672ec22f01004d9409abcec8e9a949524792e7",
+      "identity": "1f:7ea64ec2fd68b4f76a758d97ad672ec22f01004d9409abcec8e9a949524792e7"
+    },
+    {
+      "from": "parts/calendar-booker/do-work/create-external-calendar-event.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/booking-slots-and-invitations/do-work/create-external-calendar-event.ts",
+      "source_identity": "1f:126ba0078011172984346af3f3354f3b281e3c428ceedce40c307390be1a8ad7",
+      "identity": "1f:126ba0078011172984346af3f3354f3b281e3c428ceedce40c307390be1a8ad7"
+    },
+    {
+      "from": "parts/calendar-booker/do-work/derive-open-slots.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/booking-slots-and-invitations/do-work/derive-open-slots.ts",
+      "source_identity": "1f:48156341266a29409243163dd8980fa4d513234278a16ebc698a82735aba8e9e",
+      "identity": "1f:48156341266a29409243163dd8980fa4d513234278a16ebc698a82735aba8e9e"
+    },
+    {
+      "from": "parts/calendar-booker/do-work/external-calendar-busy-and-changes.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/booking-slots-and-invitations/do-work/external-calendar-busy-and-changes.ts",
+      "source_identity": "1f:4f88feb74b04ae37987d427c2f91d85245cd054e66049c51ce212b205b17a107",
+      "identity": "1f:4f88feb74b04ae37987d427c2f91d85245cd054e66049c51ce212b205b17a107"
+    },
+    {
+      "from": "parts/calendar-booker/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/booking-slots-and-invitations/part.json",
+      "source_identity": "1f:1bd014906dac7716fa839b5c472c6a89a8f0087163a87ac480d5ec6986423a4a",
+      "identity": "1f:42e2d12f978b8a6fb974cf8555f18fb20906a710795ce20efa600212f96d1611"
+    },
+    {
+      "from": "parts/calendar-booker/show/slot-ranges.d.mts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/booking-slots-and-invitations/show/slot-ranges.d.mts",
+      "source_identity": "1f:3a64fec49062d5e82cfccd52b85df271ea21c12760b539986db972a13fca14c3",
+      "identity": "1f:3a64fec49062d5e82cfccd52b85df271ea21c12760b539986db972a13fca14c3"
+    }
+  ],
+  "not_matched": [
+    "tools/booking-slots-and-invitations/read-data/availability-link-screen.json",
+    "tools/booking-slots-and-invitations/read-data/slot-sharing.json",
+    "tools/booking-slots-and-invitations/show/AvailabilityLinks.tsx",
+    "tools/booking-slots-and-invitations/show/SlotSharing.tsx",
+    "tools/booking-slots-and-invitations/show/slot-ranges.mjs"
+  ]
+}

@@ -42,7 +42,7 @@ import { makeSenderPairing } from './sender-pairing.mjs';
 // so nobody can listen for someone else's events. A repeated delivery (senders retry) starts no second run: the
 // request key is the event's own id, for a tool run and a workflow run alike.
 import { buildInvocation, WorkshopError } from './workshop.mjs';
-import { selectDeclaredValue } from '../parts/ui/read-data/declared-selector.ts';
+import { selectDeclaredValue } from '../../ui/read-data/declared-selector.ts';
 import { withoutSecrets } from './scheduler.mjs';
 import { hasRouteCollection, makeRouteListeners } from './event-route-listeners.mjs';
 import { failureOf } from './failure.mjs';

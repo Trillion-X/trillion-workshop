@@ -1,0 +1,60 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-KEEP-A-DOOR-TUNNEL-OPEN",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:83559ed50a7d11cc377a04f7892cb73729b5ca1268d342b009dad81f62dd68a1",
+    "quote": "Port the correct parts one to one. Drop only the hard-coded hosts, labels and paths; those become input DATA."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    { "repository": "trillion", "commit": "9b5614150bf2ff506cb296337b79af328ffc7381", "path": "scripts/portable-service-connection.mjs", "multihash": "1f:c50da0dbc4ae4abefa0281d08beb1718210c603e83242a824b01816231c3d95e", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T20:00:00Z", "deleted_with": "the one deletion pull request of the old door files, with scripts/portable-service-host-setup.sh and test/portable-service-connection.test.mjs" } }
+  ],
+  "targets": [
+    { "path": "tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs" }
+  ],
+  "preserve": [
+    "both ends of the forward are 127.0.0.1, the host key is checked against the pinned file, SSH runs in batch mode and exits when the forward cannot be attached",
+    "the first host key is kept and an existing pin is never rescanned or replaced",
+    "the held key reaches SSH only through a private ssh-agent the run starts and closes; it is never written to a file or argv",
+    "a credential that is not an RSA private key is refused before SSH starts",
+    "each new connection asks for the credential again, waits two seconds after one ends, and an abort ends the running SSH process",
+    "the server's service user may only listen on 127.0.0.1 at its one port: no shell, no session, no other forwarding",
+    "the server setup reaches the host as its administrator only through the one administrationArguments (tools/administer-a-rented-host), with only the given key and the pinned host key",
+    "the launch agent keeps the command running with KeepAlive and a 10 second throttle, and install boots out the old agent before bootstrapping the new one"
+  ],
+  "allowed_deltas": [
+    "the held key comes on descriptor 4 (a row's credential_mounts fd, or the launch agent's pipe from the vault command the configuration names), not by importing the older owner's vault reader by a relative path into another repository",
+    "the configuration comes on standard input under `serve`, as a Workshop command reads its request",
+    "the launch agent's label, its vault command and its environment are the installer's input, not a fixed label and a fixed PRODUCT_DATA_ROOT setting; its log is named after the configuration file",
+    "administrationArguments (old lines 36-40) is not kept here: tools/administer-a-rented-host owns it (REF-ADMINISTRATION-ARGUMENTS), with the administrator and port as input and the run's proxy as c.proxy; the server setup also runs as tool:prepare-a-server-for-a-door-tunnel (prepareFromRequest), which pins the request's host key for the run",
+    "the connection key's comment and the agent folder's name prefix are given or neutral, not the product's name",
+    "the server setup keeps only the tunnel's part (the service user, its key and its sshd block, named after that user); the build host's packages, swap and Rust toolchain belong with the receptionist build, not the tunnel"
+  ],
+  "banned_substitutions": [
+    "a key written to a file, an environment variable or argv",
+    "a host key accepted without the pinned file",
+    "a forward that listens beyond the server's loopback"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T20:59:14Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:c50da0dbc4ae4abefa0281d08beb1718210c603e83242a824b01816231c3d95e",
+    "target_multihash_at_baseline": "1f:c50da0dbc4ae4abefa0281d08beb1718210c603e83242a824b01816231c3d95e",
+    "commit": "6c0d080d2bb50a2d894d31450add9ad69ec26fb1"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/keep-a-door-tunnel-open/test/keep-a-door-tunnel-open.test.mjs connection confines both sides to loopback, pins its host and accepts no command or shell",
+      "tools/keep-a-door-tunnel-open/test/keep-a-door-tunnel-open.test.mjs preparing a server reaches it through the run's proxy as the given administrator, with the request's host key pinned",
+      "tools/keep-a-door-tunnel-open/test/keep-a-door-tunnel-open.test.mjs first provider-bound host key is retained and never silently replaced",
+      "tools/keep-a-door-tunnel-open/test/keep-a-door-tunnel-open.test.mjs host configuration restricts user, listen port, forwarding type and sessions",
+      "tools/keep-a-door-tunnel-open/test/keep-a-door-tunnel-open.test.mjs reconnect asks for the credential again and abort ends the active child",
+      "tools/keep-a-door-tunnel-open/test/keep-a-door-tunnel-open.test.mjs a credential that is not an RSA key is refused before SSH starts",
+      "tools/keep-a-door-tunnel-open/test/keep-a-door-tunnel-open.test.mjs retained supervision names the source and credential home without copying a credential",
+      "tools/keep-a-door-tunnel-open/test/keep-a-door-tunnel-open.test.mjs the launch command hands the configuration on standard input and the held value on the key descriptor, never in argv",
+      "tools/keep-a-door-tunnel-open/test/keep-a-door-tunnel-open.test.mjs install writes the agent beside its configuration and replaces the running one"
+    ]
+  }
+}
