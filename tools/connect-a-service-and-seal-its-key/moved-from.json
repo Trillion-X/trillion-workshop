@@ -13,13 +13,6 @@
   ],
   "files": [
     {
-      "from": "parts/service-connections/README.md",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/connect-a-service-and-seal-its-key/README.md",
-      "source_identity": "1f:98ed45e40e0faf0205e08df8956fea0921d82db9689ed96147fd21ccafa929d8",
-      "identity": "1f:98ed45e40e0faf0205e08df8956fea0921d82db9689ed96147fd21ccafa929d8"
-    },
-    {
       "from": "parts/service-connections/do-work/connect-service.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/connect-a-service-and-seal-its-key/do-work/connect-service.ts",
@@ -116,6 +109,13 @@
       "to": "tools/connect-a-service-and-seal-its-key/read-data/read-service-connections.ts",
       "source_identity": "1f:4d9fd31672ef7f0378dd458aed29ae5623f0a98ccf76a4a7575f2325a1259b8a",
       "identity": "1f:4d9fd31672ef7f0378dd458aed29ae5623f0a98ccf76a4a7575f2325a1259b8a"
+    },
+    {
+      "from": "parts/service-connections/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/README.md",
+      "source_identity": "1f:98ed45e40e0faf0205e08df8956fea0921d82db9689ed96147fd21ccafa929d8",
+      "identity": "1f:98ed45e40e0faf0205e08df8956fea0921d82db9689ed96147fd21ccafa929d8"
     },
     {
       "from": "parts/service-connections/records.json",
