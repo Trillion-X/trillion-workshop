@@ -1,0 +1,70 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CONNECTED-DRIVES-MOUNT-TABLE-READER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-04: decouple the Workshop's last Mac ties",
+  "quote": "connected drives get a second reader"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "read the connected drives from a kernel mount table on a place with no diskutil, and choose the drive reader by which reader path the place has",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/connected-drives/read-data/drive-mount-table.mjs"
+  },
+  {
+   "path": "tools/connected-drives/read-data/drives.mjs"
+  }
+ ],
+ "preserve": [
+  "the finder-volumes reader lists /Volumes exactly as before",
+  "a path off every connected drive is refused",
+  "nothing is written, stopped or ejected"
+ ],
+ "allowed_deltas": [
+  "drive readers are rows in drives.json, chosen by their at path",
+  "the mount-table reader answers no icon and ejectable false",
+  "lsof's path comes from the reader row"
+ ],
+ "banned_substitutions": [
+  "asking process.platform which machine this is",
+  "a mount outside the reader's mount roots counted as a drive"
+ ],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/connected-drives/",
+   "why": "the folder's own Finder reader; this adds the second reader beside it, and moves none of its code"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/work-on-connected-drives/",
+   "why": "imports enumerateDevices from this folder; copies, moves and ejects, never reads a mount table"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "read the connected drives from a kernel mount table",
+    "mount table drive reader",
+    "mountinfo"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "mountinfo",
+    "parseMountTable"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "a5a2020e79f6a24a16edd987bf27526aee772076"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/connected-drives/test/drives.test.mjs: the second reader lists block-device mounts inside its mount roots from a kernel mount table, without diskutil"
+  ]
+ }
+}
