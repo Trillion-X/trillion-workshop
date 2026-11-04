@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:56bb9a1ad3174db2b3730f4ab5141858c4df429b65dc7e0b8934cd27fd730df7"
+  "blake3": "1f:0f0ab5d5bbedd05dac343ce66521d3e35d158ba1dafd16b0fcbd6024a84f82b2"
  },
  "fields": [
   {
@@ -4187,6 +4187,25 @@
    }
   },
   {
+   "id": "tool:keep-what-my-devices-report-about-themselves",
+   "values": {
+    "title": "Keep what my devices report about themselves",
+    "job": "Keep the facts a new person's devices report about themselves (which cameras a computer sees, whether a phone's switches are on), each report replacing that device's facts, so a setup checklist can tick itself from them",
+    "description": "Give reports (each { device, facts: { name: text }, and device_id, source and generation together for a device that reports from several sources }), devices (the devices the last run answered; omit the first time) and optionally now (an ISO time stamped on what changes). Applies each report in order with device-facts.mjs deviceFacts: a report replaces that device's (or that source's) facts whole, a report that changes nothing changes nothing, an older generation is answered stale, and at most 20 devices are kept, the least recently heard dropped first. Answers answers (one per report: device, changed, and for an identified report device_id, source, stale, current_generation) and devices (every device as kept). It refuses a report with no device name, facts that are not short lowercase names with text values within device-facts.json's bounds, and an identified report missing its id, source or generation, naming the report. It keeps nothing after the run, reads no device itself and writes nothing. It does not tick setup steps from the facts (that needs the account's checklist rules and the formula engine) and does not show the Get started, plan, account, security or business pages: those are the app's screens.",
+    "status": "active",
+    "maker": "maker:walk-a-new-person-through-setup",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "walk-a-new-person-through-setup",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:keep-where-you-stand",
    "values": {
     "title": "Keep where you stand on something",
@@ -4400,6 +4419,25 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:list-ideas-for-what-to-ask-on-a-screen",
+   "values": {
+    "title": "Ideas for what to ask an AI on a screen",
+    "job": "Show the written ideas for what to ask an AI on one screen, each with the request a Do this for me button would hand over",
+    "description": "Give screen (a screen key: calendar, marketplace, home, files, spaces and the others in workspace/examples.json). Answers heading, count_words, words (the strip's words) and examples, each { id, title, detail, do_this, from: 'written' }: the ideas written for that screen (or for the screen it reuses), do_this being the request an AI would be handed. It reads only workspace/examples.json and writes nothing. It never hands a request to an AI (the screen's Do this for me button is the app's), never adds published stories or ideas from the account's current tools (those need the person's account), and refuses a screen with no written row, naming the screens it has.",
+    "status": "active",
+    "maker": "maker:suggest-what-to-ask-on-a-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "suggest-what-to-ask-on-a-screen",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -9394,6 +9432,25 @@
    }
   },
   {
+   "id": "tool:sort-inspiration-clips-into-card-rows",
+   "values": {
+    "title": "Sort inspiration clips into rows of cards",
+    "job": "Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit",
+    "description": "Give sources: { source name: the answer it gives } for any of pick ({ pick: { clips, title?, reason? } }), library ({ rows }), recent ({ items }), formats ({ formats }), examples ({ examples }) and posts ({ posts }). Reads each source once with inspiration.mjs over card-sections.mjs and inspiration.json: each row (Make this next, You talk in these, Jump back in, Formats to steal, Swipe file, Ready to go out, Finished videos, Fresh recordings) keeps the items its tests pass, newest first where it says so, up to its limit, and turns each into a card ({ id, source, section, title, summary, detail, at, file, duration, opens, edit }); edit is true for a clip with a duration that could go into a new edit. Answers sections (each with total and cards, or failed when its source was not given), said (one sentence summing it up) and the layouts, card actions, pick actions, picture shapes and empty words the screen draws with. It refuses sources that is not an object and a source name inspiration.json does not hold. It reads no files or records itself, writes nothing, opens no card and never starts an edit: Make this and Edit these, and drawing the rows, wall or grid, are the app's Inspiration screen.",
+    "status": "active",
+    "maker": "maker:browse-inspiration-clips",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "browse-inspiration-clips",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:sort-mail-into-built-in-task-lists",
    "values": {
     "title": "Sort mail into my built-in task lists",
@@ -9933,6 +9990,25 @@
      "placement:small-container"
     ],
     "folder": "draw-ink-marks"
+   }
+  },
+  {
+   "id": "tool:turn-a-tool-into-live-controls",
+   "values": {
+    "title": "Turn a tool into live controls",
+    "job": "Turn a tool's inputs into the live controls a person moves, and check the values they moved into the input the tool would run with",
+    "description": "Give descriptor (a tool's descriptor: input_schema.properties, and its controls DATA if it has any), and optionally bind (the subject inputs: what is changed, such as a file, set once and never drawn as a control) and values ({ control key: value } as moved). Answers controls (made-controls.mjs controlRows: tool_id, label, about, subject, settings as tuning-panel rows with widget, min, max, step, options and default_value, suggested, preview, commit, result, runs) and, when bind or values are given, input: the subject bindings and every control not left at its neutral value, each checked against its row and the tool's schema. It refuses a descriptor with no input_schema.properties, controls DATA naming an input the schema does not hold, and a value outside its range or not one of its choices, saying which control and why. It reads only what it is given and writes nothing. It never runs the tool, saves an interface, keeps a person's place, draws the preview beside the controls or keeps undo and redo: those are the app's controls screen and the account's records.",
+    "status": "active",
+    "maker": "maker:tweak-live-controls",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "tweak-live-controls",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
