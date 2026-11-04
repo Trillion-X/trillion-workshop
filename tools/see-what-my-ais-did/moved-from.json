@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/activity-marks.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-what-my-ais-did/activity-marks.json",
+      "source_identity": "1f:b0a5380c25dea6a217f747271fda45970bd6ac04346cc9e1b61bf58ccb2fe33a",
+      "identity": "1f:b0a5380c25dea6a217f747271fda45970bd6ac04346cc9e1b61bf58ccb2fe33a"
+    }
+  ]
+}
