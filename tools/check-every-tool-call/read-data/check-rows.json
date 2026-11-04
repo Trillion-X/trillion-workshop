@@ -1,0 +1,26 @@
+{
+  "what_this_is": "DATA for do-work/judge-check-rows.mjs: how the person's check rows (record:check, kind check) are judged on a commit, a push or any other tool call, and every word it says. `unit_kinds` are the kinds a row's `kinds` may name; `json_file` picks the files whose whole new value is a unit's view; `fixture_key` is the key a path row's `*` takes when a fixture text is placed at its path; `fixture_kind` is the kind of a fixture unit of a row that names no kinds. `row_kind` and `fixtures_field` say what a check row being written looks like inside a tool call's input. {name} is filled from what was found.",
+  "unit_kinds": ["git-commit", "git-push", "tool-call"],
+  "json_file": "\\.json$",
+  "fixture_key": "fixture",
+  "fixture_kind": "check-row-fixture",
+  "row_kind": "check",
+  "fixtures_field": "fixtures",
+  "on_field": "on",
+  "off": "Off",
+  "push_base": "refs/remotes/origin/main",
+  "words": {
+    "refused_head": "The person's check rows refuse this {kind}:",
+    "refused_finding": "  {rule}: {where}{found}: {says}",
+    "read_by_a_model": "check row {rule} is read by a model only (it states no test), so it refuses nothing here: {says}",
+    "off": "check row {rule} is marked Off, so it is not judged",
+    "fixtures_wrong_head": "check row {rule}: its fixtures do not hold, so the row does not judge what it says:",
+    "fixture_wrong": "  {expected} {fixture}: {got}",
+    "fixture_passed": "passed",
+    "fixture_refused": "refused ({rules})",
+    "no_fixtures": "check row {rule} states a test and has no fixtures: give fixtures { pass: [...], refuse: [...] }, at least one of each, so the row proves it judges what it says",
+    "write_refused_head": "This call writes a check row whose fixtures do not hold; fix the row (its test or its fixtures) first:",
+    "unreadable_json": "{where} is not JSON, so its whole value was not judged: {why}",
+    "no_rows": "give rows: the person's check rows ({ id, kind: \"check\", says, kinds?, a test, fixtures? })"
+  }
+}

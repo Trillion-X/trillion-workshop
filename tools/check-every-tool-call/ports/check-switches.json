@@ -35,7 +35,8 @@
  ],
  "allowed_deltas": [
   "a run verb (run_the_check_list): a session with no other copy of the rows reads them from the snapshot and runs the rows that name workshop_run, picked and answered by guard_rows.py",
-  "the door's address may come from the environment variable door.url_from names, so a repository's files need not name anyone's door"
+  "the door's address may come from the environment variable door.url_from names, so a repository's files need not name anyone's door",
+  "the check rows (record:check, read with the door's where { kind: check }, kept as checks in the snapshot): run judges the call against the rows whose kinds name its unit kind (git-commit, git-push by the same command match a hook-guard row's acts_on uses, else tool-call) through check_rows.judge, the one judge"
  ],
  "banned_substitutions": [
   "a second reader of the check rows",
@@ -60,7 +61,8 @@
    "def run_the_check_list"
   ],
   "test_refs": [
-   "tools/check-every-tool-call/test/run-the-check-list.test.mjs"
+   "tools/check-every-tool-call/test/run-the-check-list.test.mjs",
+   "tools/check-every-tool-call/test/check-rows-judge-commits-and-pushes.test.mjs"
   ],
   "render_refs": [],
   "originality_ref": null

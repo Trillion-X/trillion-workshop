@@ -1,19 +1,86 @@
 {
-  "what_this_is": "The settings check_switches.py run uses when the session names none (CHECK_LIST_SETTINGS): the door and the key come from the session's environment, CHECK_LIST_DOOR (the person's door, https://<door>/mcp) and CHECK_LIST_KEY (the session's own key), so no repository names anyone's door. Without them every tool call says check list unreachable.",
+  "what_this_is": "The settings check_switches.py run uses when the session names none (CHECK_LIST_SETTINGS): the door and the key come from the session's environment, CHECK_LIST_DOOR (the person's door, https://<door>/mcp) and CHECK_LIST_KEY (the session's own key), so no repository names anyone's door. Without them every tool call says check list unreachable. The check rows (record:check, read with the door's where { kind: check }, kept as `checks` in the snapshot) are judged by check_rows.judge on each call: a Bash command matching a unit_kinds row's acts_on (the command match a hook-guard row's acts_on uses) is judged as that kind (git-commit, git-push), any other call as `otherwise` (tool-call); only rows whose kinds name the kind are kept.",
   "door": {
-    "url_from": {"env": "CHECK_LIST_DOOR"},
+    "url_from": {
+      "env": "CHECK_LIST_DOOR"
+    },
     "address": "@own-records",
     "method": "records:list",
-    "key_from": {"env": "CHECK_LIST_KEY"},
+    "key_from": {
+      "env": "CHECK_LIST_KEY"
+    },
     "page": 20,
     "timeout_seconds": 10
   },
-  "types": [{"type": "record:hook-guard", "id_prefix": "record:hook-guard:"}, {"type": "record:check", "id_prefix": "record:check:"}],
+  "types": [
+    {
+      "type": "record:hook-guard",
+      "id_prefix": "record:hook-guard:"
+    },
+    {
+      "type": "record:check",
+      "id_prefix": "record:check:"
+    },
+    {
+      "type": "record:check",
+      "where": {
+        "kind": "check"
+      },
+      "id_prefix": "record:check:",
+      "into": "checks"
+    }
+  ],
   "field": "on",
   "off_value": "Off",
-  "detail_fields": ["why_off", "switched_by", "switched_at"],
-  "snapshot": {"file": "check-switches.json", "refresh_seconds": 60},
+  "detail_fields": [
+    "why_off",
+    "switched_by",
+    "switched_at"
+  ],
+  "snapshot": {
+    "file": "check-switches.json",
+    "refresh_seconds": 60
+  },
   "honour_off": false,
   "harness": "claude",
-  "scope": "every-repository"
+  "scope": "every-repository",
+  "check_rows": {
+    "events": [
+      "PreToolUse"
+    ],
+    "unit_kinds": [
+      {
+        "kind": "git-commit",
+        "acts_on": {
+          "tools": "Bash",
+          "fields": [
+            "command"
+          ],
+          "matches": "\\bgit\\b[^\\n]*\\bcommit\\b"
+        }
+      },
+      {
+        "kind": "git-push",
+        "acts_on": {
+          "tools": "Bash",
+          "fields": [
+            "command"
+          ],
+          "matches": "\\bgit\\b[^\\n]*\\bpush\\b"
+        }
+      }
+    ],
+    "otherwise": "tool-call",
+    "fixtures_field": "fixtures",
+    "judge": [
+      "node",
+      "{tools}/check-every-tool-call/do-work/judge-check-rows.mjs",
+      "hook",
+      "--root",
+      "{repository}",
+      "--kind",
+      "{kind}"
+    ],
+    "timeout_seconds": 120
+  }
 }

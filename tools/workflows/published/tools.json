@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:357c2c67114a6bd0c249280f3bb549a06a114926272973829f349153c8e80acf"
+  "blake3": "1f:ebd31c184e1a85b146b22aa00750289db634cdf0d72f91cf4be0a46a8f578369"
  },
  "fields": [
   {
@@ -1002,6 +1002,21 @@
      "placement:small-container"
     ],
     "folder": "paid-access"
+   }
+  },
+  {
+   "id": "tool:check-a-check-rows-fixtures",
+   "values": {
+    "title": "Check that a check row proves what it says",
+    "job": "Check that each check row a person is about to write judges what it says: every text it should pass passes it, and every text it should refuse is refused",
+    "description": "Give rows: the check rows of a person's Checks list ({ id, kind: check, says, kinds, a test such as words, pattern, exact or path with where_pattern and allow_exact, and fixtures: { pass: [...], refuse: [...] } }). Each row is judged alone by the one judge (tools/check-against-a-persons-rules-and-verdicts, rules mode) on each of its fixtures: a fixture is a text, { text } or { view }; a text given to a row that reads a value is placed at the row's path. Returns holds (true only when every row with a test holds), rows ([{ id, holds, checked, wrong: [{ expected, fixture, got, findings }], no_fixtures?, broken?, read_by_a_model? }]) and lines saying what is wrong. A row with a test needs at least one pass and one refuse fixture; a row with no test is read by a model and holds null. Nothing is read from or written to anyone's records.",
+    "status": "active",
+    "maker": "maker:check-every-tool-call",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "check-every-tool-call"
    }
   },
   {
