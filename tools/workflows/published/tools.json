@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:90f36e2200e178884d96679788d869abcaa6a160dcf8066d94598858e47cf1d4"
+  "blake3": "1f:e6cfd942678b41807522763b75ae42d26516fbfd866eabd99dab934e7d94df76"
  },
  "fields": [
   {
@@ -2229,6 +2229,25 @@
      "placement:your-computer"
     ],
     "folder": "office-files"
+   }
+  },
+  {
+   "id": "tool:edit-one-document-together",
+   "values": {
+    "title": "Edit one document together",
+    "job": "Edit one document together with other people and AIs: edits merge in any order, words from different editors are kept, and undo takes back only my own edits",
+    "description": "Give blocks (the document every editor started from: [{ id, text?, props? }] in order) and edits (one per editor, at most 6: { by, blocks }, the blocks that editor made their copy into; a new id is a new block, a block left out is removed). Each edit is turned into that editor's own operations by the document engine (do-work/document-operations.mjs: words as a sequence CRDT, block places and props as last-writer registers), the batches are merged in every order they could arrive in, and the merged document comes back with same_in_every_order and orders_checked. undo names one editor whose edit is then taken back: only what that editor inserted, deleted, moved or set, never words another editor added among them. Answers document ([{ id, text, props, format_version }], new blocks under the ids the engine mints), edits ([{ by, operations }]) and undone ({ by, operations }) when undo was given. Refuses no blocks or no edits, more than 6 editors, an editor named twice, an undo naming no editor here, and anything the engine refuses (with its code). Reads no records, keeps nothing after the run, and sends nothing: the live Write screen's page, saving to the person's records and the session sync are not part of this run.",
+    "status": "active",
+    "maker": "maker:edit-a-document-together",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "edit-a-document-together",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -4498,6 +4517,25 @@
    }
   },
   {
+   "id": "tool:list-my-conversations-newest-first",
+   "values": {
+    "title": "List my conversations newest first",
+    "job": "List every conversation with AIs and in spaces newest first, found by words, participant or project, grouped Today, Yesterday, This Week and Older, as the messages screen's list shows them",
+    "description": "Give conversations (rows of { recordId, sessionId, participantRef, lastActivityAt, title?, projectSlug?, projectName? }; other fields are kept as given) and optionally search (words matched, ignoring case, against title, sessionId, projectSlug and recordId), participant (a participantRef) and project (a projectName). The rows are sorted by lastActivityAt newest first, filtered and grouped by date with the Messages screen's own list helpers (show/build-chat-conversation-list.ts, run by Node's type stripping); groups follow the clock of the machine the run is on. Answers groups ([{ label, conversations }]), shown, total, and participants and projects (every one named across all rows, for the filters). Refuses conversations that is not a list and a row missing recordId, sessionId, participantRef or a readable lastActivityAt. Reads no records, keeps nothing and sends nothing: the screen itself (reading the person's conversations, transcripts and the composer that sends) is not part of this run.",
+    "status": "active",
+    "maker": "maker:messages-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "messages-screen",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:list-paired-senders",
    "values": {
     "title": "Paired senders and waiting codes",
@@ -5543,6 +5581,25 @@
     ],
     "listed_on": "2026-11-03T16:00:00Z",
     "folder": "open-a-meeting-link"
+   }
+  },
+  {
+   "id": "tool:order-my-goals-under-the-goals-they-serve",
+   "values": {
+    "title": "Order my goals under the goals they serve",
+    "job": "Keep my goals in the order they are shown, each one under the goal it serves, so a goal with several parents is shown once and none is hidden by a missing parent or a loop",
+    "description": "Give goals ([{ id, title?, parents?, children? }]; parents and children name other goals by id or { id }). The goals are ordered by the reader the app's goal list used (read-data/pursuit-hierarchy-view.mjs): each top goal in the order given, then the goals under it, depth first; a goal with several parents is one row, indented under the first parent reached; a goal whose parent is not among those given, or that is in a cycle, is still shown. Answers rows ([{ id, title, depth, shown_under, parents }]) and count. Refuses goals that is not a list and a goal without an id. Reads no records, keeps nothing and sends nothing. The Home screen did more than this run does: it saved goals, marked the one needle mover, focused the app on one goal or space, and greeted the person with the next step and their AIs' work in the words of home-words.json; none of that is here, and this run does not read home-words.json.",
+    "status": "active",
+    "maker": "maker:keep-goals-and-focus",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "keep-goals-and-focus",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
