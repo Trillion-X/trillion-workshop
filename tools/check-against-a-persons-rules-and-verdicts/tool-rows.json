@@ -16,7 +16,7 @@
     "label": "Check words or anything made against a person's own rules and verdicts",
     "status": "active",
     "job": "Check words, a title, a script line or a plan against a person's own rules and the verdicts they already gave, and say pass, fail or uncertain for each, with why",
-    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's method rows (list:methods, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: the rows of their one Checks list (list:checks) whose method is that branch or a branch it extends, each branch read on its own, plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
+    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's method rows (list:methods, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: the rows of their one Checks list (list:checks) whose method is that branch or a branch it extends, each branch read on its own, plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, and a row that states no test (no words, pattern, exact, check, groups, path, evidence, ask or part, or a piece of a source file) is never judged: it is counted in rows_used.skipped.no_test and listed in read_by_a_model for a model to read, and a branch with only such rows answers no-applicable-rule; and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -238,7 +238,8 @@
         "unqualified",
         "failed",
         "uncertain",
-        "passed"
+        "passed",
+        "no-applicable-rule"
        ]
       },
       "passed": {
@@ -294,7 +295,45 @@
         "lists",
         "skipped"
        ],
-       "description": "With branch: the check rows read for each branch of the lineage, the rows of each check list read, and how many were left out as step rows or Off"
+       "description": "With branch: the check rows read for each branch of the lineage, the rows of each check list read, and how many were left out as step rows, Off, or rows that state no test (no_test)"
+      },
+      "read_by_a_model": {
+       "type": "object",
+       "required": [
+        "rows",
+        "more"
+       ],
+       "description": "With branch: the rows that state no test (no judge-words selector, no ask, no part, or a piece of a source file), never judged here, for a model to read: at most a bounded number of rows, and how many more there are",
+       "properties": {
+        "rows": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "required": [
+           "id",
+           "says"
+          ],
+          "properties": {
+           "id": {
+            "type": "string"
+           },
+           "says": {
+            "type": [
+             "string",
+             "null"
+            ]
+           },
+           "kind": {
+            "type": "string"
+           }
+          }
+         }
+        },
+        "more": {
+         "type": "integer",
+         "minimum": 0
+        }
+       }
       }
      }
     },
@@ -930,6 +969,513 @@
       },
       "output_selector": "$.status",
       "contains": "passed"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::check-against-a-persons-rules-and-verdicts::tool::split-a-document-into-pieces",
+   "address": "package::check-against-a-persons-rules-and-verdicts::tool::split-a-document-into-pieces",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:split-a-document-into-pieces",
+    "label": "Split a document into its pieces",
+    "status": "active",
+    "job": "Split a document into its smallest self-contained pieces, each as the row a person keeps so every check can name the piece it came from",
+    "description": "Give the text of a document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block under its headings is one piece; titles, rules and table headers are not. Each piece comes back as the row a person keeps in their Checks list: id (piece- and the first 24 hex of its identity), kind piece, says (its lead: its bold opening or its first words), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line of the file where it starts), and empty groups, kinds and checked_by for the person to fill. The same text twice is one row with two sources. Nothing is read from or written to anyone's records.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "text"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "text": {
+       "type": "string",
+       "description": "The words of the document, as Markdown"
+      },
+      "file": {
+       "type": "string",
+       "description": "The document's name, kept in each piece's sources"
+      },
+      "file_identity": {
+       "type": "string",
+       "description": "The document's identity (1f: and 64 hex); the identity of the text's bytes when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "pieces"
+     ],
+     "properties": {
+      "pieces": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "kind",
+         "says",
+         "text",
+         "identity",
+         "key",
+         "sources",
+         "groups",
+         "kinds",
+         "checked_by"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "kind": {
+          "const": "piece"
+         },
+         "says": {
+          "type": "string"
+         },
+         "text": {
+          "type": "string"
+         },
+         "identity": {
+          "type": "string"
+         },
+         "key": {
+          "type": "string"
+         },
+         "sources": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "file",
+            "section",
+            "file_identity",
+            "at"
+           ]
+          }
+         },
+         "groups": {
+          "type": "array"
+         },
+         "kinds": {
+          "type": "array"
+         },
+         "checked_by": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
+        "package": "judge-words",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/judge-words"
+       },
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "package": "documents-as-list-rows",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/documents-as-list-rows"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/check-against-a-persons-rules-and-verdicts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/check-against-their-rules-and-verdicts.mjs",
+      "split-a-document-into-pieces"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:check-against-a-persons-rules-and-verdicts",
+    "provenance": {
+     "source": "old trillion scripts/method-atoms.mjs atomsOf, read from its home tools/documents-as-list-rows/read-data/atoms.mjs"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "text": "# Made-up title\n\n## Made-up part\n\n**Made-up lead.** Then the rest.\n\n- one made-up item\n",
+       "file": "made-up.md"
+      },
+      "output_selector": "$.pieces[0].key",
+      "contains": "Made-up part / Made-up lead"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::check-against-a-persons-rules-and-verdicts::tool::check-every-piece-is-covered",
+   "address": "package::check-against-a-persons-rules-and-verdicts::tool::check-every-piece-is-covered",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-every-piece-is-covered",
+    "label": "Check every piece of a person's files has a check or a reason",
+    "status": "active",
+    "job": "Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered",
+    "description": "Reads, through the person's records door and read only, the rows of their Checks list whose kind is piece (as tool:split-a-document-into-pieces makes them) and each check row those pieces name. A piece is covered when checked_by names check rows that all exist, or when no_check has a reason (and every row its covered_by names exists). The answer, per source file: its pieces, those with a check, those with a reason, and the uncovered pieces by id, section and lead; status failed when any piece is uncovered. Checks and covered_by naming rows that do not exist are listed. Nothing is written.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status",
+      "files",
+      "missing_checks",
+      "missing_covered_by",
+      "lines"
+     ],
+     "properties": {
+      "status": {
+       "type": "string",
+       "enum": [
+        "passed",
+        "failed"
+       ]
+      },
+      "files": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "file",
+         "pieces",
+         "with_check",
+         "with_reason",
+         "uncovered"
+        ],
+        "properties": {
+         "file": {
+          "type": "string"
+         },
+         "pieces": {
+          "type": "integer"
+         },
+         "with_check": {
+          "type": "integer"
+         },
+         "with_reason": {
+          "type": "integer"
+         },
+         "uncovered": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "id",
+            "section",
+            "says"
+           ]
+          }
+         }
+        }
+       }
+      },
+      "missing_checks": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "piece",
+         "check"
+        ]
+       }
+      },
+      "missing_covered_by": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "piece",
+         "check"
+        ]
+       }
+      },
+      "lines": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "record:check",
+        "operations": [
+         "records:list",
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "judge-words",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/judge-words"
+       },
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "package": "documents-as-list-rows",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/documents-as-list-rows"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/check-against-a-persons-rules-and-verdicts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/check-against-their-rules-and-verdicts.mjs",
+      "check-every-piece-is-covered"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:check-against-a-persons-rules-and-verdicts",
+    "provenance": {
+     "source": "old trillion scripts/method-sources.mjs sweepAtoms and its --coverage report, moved"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "records": [
+       {
+        "id": "record:check:piece-aaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "record:check",
+        "value": {
+         "id": "piece-aaaaaaaaaaaaaaaaaaaaaaaa",
+         "kind": "piece",
+         "says": "Checked",
+         "text": "**Checked.** A made-up rule.",
+         "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaa0000000000000000000000000000000000000000",
+         "key": "Made-up / Checked",
+         "sources": [
+          {
+           "file": "made-up.md",
+           "section": "Made-up / Checked",
+           "file_identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+           "at": 1
+          }
+         ],
+         "groups": [],
+         "kinds": [],
+         "checked_by": [
+          "made-up-check"
+         ]
+        }
+       },
+       {
+        "id": "record:check:piece-bbbbbbbbbbbbbbbbbbbbbbbb",
+        "type": "record:check",
+        "value": {
+         "id": "piece-bbbbbbbbbbbbbbbbbbbbbbbb",
+         "kind": "piece",
+         "says": "Reasoned",
+         "text": "**Reasoned.** A made-up aside.",
+         "identity": "1f:bbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000000000000000000000000",
+         "key": "Made-up / Reasoned",
+         "sources": [
+          {
+           "file": "made-up.md",
+           "section": "Made-up / Reasoned",
+           "file_identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+           "at": 1
+          }
+         ],
+         "groups": [],
+         "kinds": [],
+         "checked_by": [],
+         "no_check": {
+          "reason": "A made-up aside, not a rule."
+         }
+        }
+       },
+       {
+        "id": "record:check:piece-dddddddddddddddddddddddd",
+        "type": "record:check",
+        "value": {
+         "id": "piece-dddddddddddddddddddddddd",
+         "kind": "piece",
+         "says": "Open",
+         "text": "**Open.** Nothing covers this.",
+         "identity": "1f:dddddddddddddddddddddddd0000000000000000000000000000000000000000",
+         "key": "Made-up / Open",
+         "sources": [
+          {
+           "file": "made-up.md",
+           "section": "Made-up / Open",
+           "file_identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+           "at": 1
+          }
+         ],
+         "groups": [],
+         "kinds": [],
+         "checked_by": []
+        }
+       },
+       {
+        "id": "record:check:made-up-check",
+        "type": "record:check",
+        "value": {
+         "id": "made-up-check",
+         "method": "made-up-base",
+         "words": [
+          "made-up"
+         ],
+         "says": "A made-up check."
+        }
+       }
+      ],
+      "output_selector": "$.files[0].uncovered[0].id",
+      "contains": "piece-dddddddddddddddddddddddd"
      }
     ]
    }

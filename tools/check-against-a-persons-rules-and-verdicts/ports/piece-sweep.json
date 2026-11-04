@@ -1,0 +1,61 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-AGAINST-PIECE-SWEEP-FROM-METHOD-SOURCES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: pieces, piece coverage and rows with no test, in the one judge",
+  "message_multihash": "1f:6d4d49ef9579972496b8a9ed0494d41176e2c625182274ecfa21da5cf79f1df0",
+  "quote": "Avery, 2026-11-03: every piece of every file of his gauntlet tree is a row with a check or a recorded reason, never one row per file and never a byte slice; all his checks are one tree in one list, one judge. Port one to one from old trillion."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+   "path": "scripts/method-sources.mjs",
+   "lines": [
+    62,
+    79
+   ],
+   "multihash": "1f:285118688f79da23f4681b60ca56476f214d11fc5b4fa881d536d164ba5f2bf4",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T00:00:00Z",
+    "deleted_with": "old trillion removes sweepAtoms (with scripts/method-sources.mjs --coverage and the sweep test of test/method-sources.test.mjs) and calls tool:check-every-piece-is-covered; this session may not write to old trillion, so the PR names it as open"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/piece-sweep.mjs"
+  }
+ ],
+ "preserve": [
+  "sweepAtoms: changed pieces with the checks citing them, gone pieces, uncovered pieces (new or not), orphan checks and reasons whose covered_by names a missing check",
+  "a piece is covered by a check citing it or by a recorded no_check reason"
+ ],
+ "allowed_deltas": [
+  "the header names its new home and shapes",
+  "coverage(pieces, checks) is the --coverage report of scripts/method-sources.mjs:150-160 over piece rows instead of a sources file: per file, pieces, with a check, with a reason, uncovered by name, and status failed when any is uncovered",
+  "coverageInRecords reads the piece rows and the checks they name through the records door, read only",
+  "words are DATA in read-data/pieces.json"
+ ],
+ "banned_substitutions": [
+  "a sources file on disk in place of the person's rows",
+  "a write to the person's records",
+  "a pass while any piece is uncovered"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-04T04:20:35Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:285118688f79da23f4681b60ca56476f214d11fc5b4fa881d536d164ba5f2bf4",
+  "target_multihash_at_baseline": "1f:285118688f79da23f4681b60ca56476f214d11fc5b4fa881d536d164ba5f2bf4",
+  "commit": "a632932adee9050cd0525233d3bfa7ad99462516"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/check-against-a-persons-rules-and-verdicts/test/piece-sweep.test.mjs the sweep test of old trillion test/method-sources.test.mjs:51, moved, and coverage over made-up rows in place of its tests that read real files (:40, :69)"
+  ]
+ }
+}

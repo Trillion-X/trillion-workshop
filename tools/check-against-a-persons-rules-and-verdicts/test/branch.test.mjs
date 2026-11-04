@@ -64,7 +64,7 @@ test('each branch of the lineage is read with where { method }, never the whole 
   const checkCalls = door.calls.filter(call => call.type === 'record:check');
   assert.deepEqual(checkCalls.map(call => call.where), lineage.map(method => ({ method })));
   assert.equal(checkCalls.length, 3);
-  assert.deepEqual(rows_used, { branches: { 'made-up-grandchild': 1, 'made-up-branch': 2, 'made-up-base': 2 }, lists: { 'list:made-up-voice': 1 }, skipped: { step: 1, off: 1 } });
+  assert.deepEqual(rows_used, { branches: { 'made-up-grandchild': 1, 'made-up-branch': 2, 'made-up-base': 2 }, lists: { 'list:made-up-voice': 1 }, skipped: { step: 1, off: 1, no_test: 0 } });
   assert.equal(door.calls.length, 1 + 3 + 2, 'the methods once, each branch once, the list record and its rows once');
 });
 
@@ -124,4 +124,42 @@ test('the row may read, and only read, the method rows, the Checks list, lists a
   const kinds = [SETTINGS_OF_BRANCH.method_type, SETTINGS_OF_BRANCH.check_type, ...SETTINGS_OF_BRANCH.check_list_row_types.map(type => `record:${type}`)];
   assert.deepEqual(rights.map(right => right.kind).sort(), [...kinds, SETTINGS_OF_BRANCH.list_type].sort());
   for (const right of rights) assert.deepEqual(right.operations, right.kind === SETTINGS_OF_BRANCH.list_type ? ['records:read'] : ['records:list']);
+});
+
+test('a row that states no test never reaches makeJudge: it is counted, listed for a model to read, and the rest of the branch is judged', async () => {
+  const noTest = { id: 'made-up-belief', method: 'made-up-branch', says: 'A made-up belief with no test to run.' };
+  const piece = { id: 'piece-000000000000000000000000', kind: 'piece', method: 'made-up-base', says: 'Made-up lead', text: 'Made-up lead text.', groups: [], kinds: [], checked_by: [] };
+  assert.throws(() => makeJudge([noTest]), /needs words/, 'the row would refuse the whole branch');
+  const door = memoryDoor({ checkRows: [...checks(), noTest, piece] });
+  const { rules, rows_used, read_by_a_model } = await rulesOfBranch(door, 'made-up-branch');
+  assert.deepEqual(rules.map(row => row.id), ['no-sparkle', 'no-glitter']);
+  assert.equal(rows_used.skipped.no_test, 2);
+  assert.deepEqual(read_by_a_model, { rows: [{ id: 'made-up-belief', says: 'A made-up belief with no test to run.' },
+    { id: 'piece-000000000000000000000000', says: 'Made-up lead', kind: 'piece' }], more: 0 });
+  const answer = await checkABranch({ branch: 'made-up-branch', units: [{ text: 'Sparkle', kind: 'line' }] }, memoryDoor({ checkRows: [...checks(), noTest] }));
+  assert.equal(answer.status, 'failed');
+  assert.deepEqual(answer.read_by_a_model.rows.map(row => row.id), ['made-up-belief']);
+});
+
+test('a row with ask or part states its test and is not skipped', async () => {
+  const asks = { id: 'made-up-ask', method: 'made-up-base', says: 'Reads oddly.', ask: { question: 'Does it read oddly?', options: ['yes', 'no'], fail: 'yes' } };
+  const part = { id: 'made-up-part', method: 'made-up-base', says: 'Read the voice.', part: { kind: 'voice' } };
+  const { rules, rows_used } = await rulesOfBranch(memoryDoor({ checkRows: [asks, part] }), 'made-up-base');
+  assert.deepEqual(rules.map(row => row.id), ['made-up-ask', 'made-up-part']);
+  assert.equal(rows_used.skipped.no_test, 0);
+});
+
+test('a branch with only rows that state no test answers no-applicable-rule, never a refusal, and its list for a model is bounded', async () => {
+  const most = SETTINGS_OF_BRANCH.read_by_a_model_at_most;
+  const many = Array.from({ length: most + 3 }, (_, at) => ({ id: `made-up-note-${String(at).padStart(3, '0')}`, method: 'made-up-base', says: `Made-up note ${at}.` }));
+  const answer = await checkABranch({ branch: 'made-up-base', units: [{ text: 'Anything', kind: 'line' }] }, memoryDoor({ checkRows: many }));
+  assert.equal(answer.status, 'no-applicable-rule');
+  assert.equal(answer.passed, false);
+  assert.deepEqual(answer.results, []);
+  assert.equal(answer.rows_used.skipped.no_test, most + 3);
+  assert.equal(answer.read_by_a_model.rows.length, most);
+  assert.equal(answer.read_by_a_model.more, 3);
+  assert.match(answer.lines[0], /no row that states a test/);
+  // A branch with no rows at all is still refused: there is nothing to read either.
+  await assert.rejects(rulesOfBranch(memoryDoor({ checkRows: [] }), 'made-up-base'), /has no check rows/);
 });
