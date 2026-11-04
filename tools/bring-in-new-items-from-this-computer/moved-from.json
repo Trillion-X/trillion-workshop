@@ -13,6 +13,15 @@
       "byte_copy_commit": "1b77d82b1826b22cbe7eb15efad474a42af52fda"
     },
     {
+      "from": "computer/computer-sources.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.json",
+      "source_identity": "1f:a7cc4565f0950178f6367137d6f2fd228aa2896fdd36194be66d254b40c482cf",
+      "identity": "1f:03eee85dc88e46ad4833131974ed3c3fc052f99d4d6e35171acd36c16abae169",
+      "reused": true,
+      "adapted": "the same bytes under another name: receipt trillion-workshop:tools/bring-in-new-items-from-this-computer/moved-from.json"
+    },
+    {
       "from": "computer/computer-sources.mjs",
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.mjs",
@@ -35,6 +44,14 @@
       "identity": "1f:d84bac3e85fd99e66ed7cb7b203fabd67c3d59118bffbd532df099950be80e99"
     },
     {
+      "from": "computer/connections/incoming-items.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/connections/incoming-items.mjs",
+      "source_identity": "1f:d84bac3e85fd99e66ed7cb7b203fabd67c3d59118bffbd532df099950be80e99",
+      "identity": "1f:d84bac3e85fd99e66ed7cb7b203fabd67c3d59118bffbd532df099950be80e99",
+      "reused": true
+    },
+    {
       "from": "computer/connections/README.md",
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/bring-in-new-items-from-this-computer/computer/connections/README.md",
@@ -47,6 +64,14 @@
       "to": "tools/bring-in-new-items-from-this-computer/computer/connections/whatsapp.mjs",
       "source_identity": "1f:8c0cd9e46be5096a8a84ff534a863d9c84af6b4077ff392a0295059281b6189f",
       "identity": "1f:8c0cd9e46be5096a8a84ff534a863d9c84af6b4077ff392a0295059281b6189f"
+    },
+    {
+      "from": "computer/connections/whatsapp.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/connections/whatsapp.mjs",
+      "source_identity": "1f:8c0cd9e46be5096a8a84ff534a863d9c84af6b4077ff392a0295059281b6189f",
+      "identity": "1f:8c0cd9e46be5096a8a84ff534a863d9c84af6b4077ff392a0295059281b6189f",
+      "reused": true
     },
     {
       "from": "computer/own-writes.json",
@@ -76,6 +101,15 @@
       "source_identity": "1f:eda4bd586774bf8de92826f6114de1ba3b84183cedc52e7dc4b3fd62676498ce",
       "identity_at_move": "1f:eda4bd586774bf8de92826f6114de1ba3b84183cedc52e7dc4b3fd62676498ce",
       "byte_copy_commit": "1b77d82b1826b22cbe7eb15efad474a42af52fda"
+    },
+    {
+      "from": "computer/read-new-items.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/read-new-items.mjs",
+      "source_identity": "1f:eda4bd586774bf8de92826f6114de1ba3b84183cedc52e7dc4b3fd62676498ce",
+      "identity": "1f:19ed44fc1312ef40357f7575c273303ed55679d66d79b324f2761d665a5bf6b6",
+      "reused": true,
+      "adapted": "the same bytes under another name: receipt trillion-workshop:tools/bring-in-new-items-from-this-computer/moved-from.json"
     },
     {
       "from": "computer/sync-contacts.js",
@@ -171,6 +205,13 @@
       "to": "tools/bring-in-new-items-from-this-computer/test/read-new-photos-video.test.mjs",
       "source_identity": "1f:4eaa5fff9042f7cef1c13406ea44f75f624d87e97650dbd4b3acbe0f97ed8d55",
       "identity": "1f:4eaa5fff9042f7cef1c13406ea44f75f624d87e97650dbd4b3acbe0f97ed8d55"
+    },
+    {
+      "from": "test/read-new-photos.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/bring-in-new-items-from-this-computer/test/read-new-photos.test.mjs",
+      "source_identity": "1f:958318c60eebcd3ccadba923b9fd5283df564879f2e9041e4e2a2d257df8c419",
+      "identity": "1f:5a87deea9f960d5d9df58bc73bd4c2301894ad02e9fbc438901b8124b99fd318"
     }
   ]
 }
