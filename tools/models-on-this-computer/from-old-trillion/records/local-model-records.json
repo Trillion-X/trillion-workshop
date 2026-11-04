@@ -1,0 +1,183 @@
+{
+  "kind": "record-set",
+  "record_set": "local-models",
+  "what_this_is": "The models a person's Mac serves for their Trillion (kinds local-model-server, local-model-job, local-model-classifier and local-model-offer), read by computer/local-models.mjs and, for the model a job is meant to be answered by, src/model-routes.mjs. A `local-model-server` row is a chat server asked in the OpenAI chat shape; a `local-model-job` row (its id is the job's name) says which servers answer a job, in order, and how many tokens a reply may use; a `local-model-classifier` row answers yes-or-no questions; a `local-model-offer` row is a model the person can be offered to download. The model server's own address, the disk it needs and the words stay in computer/local-models.json. Another runtime is another row.",
+  "records": [
+    {
+      "id": "local-model-server:ollama-qwen2.5-14b",
+      "kind": "local-model-server",
+      "payload": {
+        "id": "ollama-qwen2.5-14b",
+        "url": "http://127.0.0.1:11434/v1/chat/completions",
+        "model": "qwen2.5:14b-instruct",
+        "keep_alive": "30m",
+        "timeout_seconds": 45
+      }
+    },
+    {
+      "id": "local-model-server:ollama-gemma3-4b",
+      "kind": "local-model-server",
+      "payload": {
+        "id": "ollama-gemma3-4b",
+        "url": "http://127.0.0.1:11434/v1/chat/completions",
+        "model": "gemma3:4b",
+        "keep_alive": "30m",
+        "timeout_seconds": 40
+      }
+    },
+    {
+      "id": "local-model-server:ollama-judge-qwen2.5-14b",
+      "kind": "local-model-server",
+      "payload": {
+        "id": "ollama-judge-qwen2.5-14b",
+        "url": "http://127.0.0.1:11435/v1/chat/completions",
+        "model": "qwen2.5:14b-instruct",
+        "keep_alive": "30m",
+        "timeout_seconds": 45,
+        "num_ctx": 16384
+      }
+    },
+    {
+      "id": "local-model-server:ollama-awareness-4b",
+      "kind": "local-model-server",
+      "payload": {
+        "id": "ollama-awareness-4b",
+        "url": "http://127.0.0.1:11435/v1/chat/completions",
+        "model": "gemma3:4b",
+        "keep_alive": -1,
+        "timeout_seconds": 120,
+        "num_ctx": 16384
+      }
+    },
+    {
+      "id": "local-model-job:default",
+      "kind": "local-model-job",
+      "payload": {
+        "id": "default",
+        "models": [
+          "ollama-gemma3-4b",
+          "ollama-qwen2.5-14b"
+        ],
+        "most_tokens": 1024
+      }
+    },
+    {
+      "id": "local-model-job:explicit-selection",
+      "kind": "local-model-job",
+      "payload": {
+        "id": "explicit-selection",
+        "models": [
+          "ollama-gemma3-4b"
+        ],
+        "most_tokens": 300,
+        "timeout_seconds": 25
+      }
+    },
+    {
+      "id": "local-model-job:file-organization",
+      "kind": "local-model-job",
+      "payload": {
+        "id": "file-organization",
+        "models": [
+          "ollama-gemma3-4b"
+        ],
+        "most_tokens": 300,
+        "timeout_seconds": 25
+      }
+    },
+    {
+      "id": "local-model-job:awareness",
+      "kind": "local-model-job",
+      "payload": {
+        "id": "awareness",
+        "models": [
+          "ollama-awareness-4b"
+        ],
+        "most_tokens": 2400,
+        "timeout_seconds": 120,
+        "response_format": {
+          "type": "json_object"
+        }
+      }
+    },
+    {
+      "id": "local-model-job:check-judge",
+      "kind": "local-model-job",
+      "payload": {
+        "id": "check-judge",
+        "models": [
+          "ollama-judge-qwen2.5-14b"
+        ],
+        "most_tokens": 512
+      }
+    },
+    {
+      "id": "local-model-job:outcome-judge",
+      "kind": "local-model-job",
+      "payload": {
+        "id": "outcome-judge",
+        "models": [
+          "ollama-gemma3-4b"
+        ],
+        "most_tokens": 512
+      }
+    },
+    {
+      "id": "local-model-classifier:ollama-qwen2.5-14b-yes-no",
+      "kind": "local-model-classifier",
+      "payload": {
+        "id": "ollama-qwen2.5-14b-yes-no",
+        "ask": "chat",
+        "url": "http://127.0.0.1:11434/v1/chat/completions",
+        "model": "qwen2.5:14b-instruct",
+        "keep_alive": "30m",
+        "prompt": "Answer with one word: yes or no.",
+        "timeout_seconds": 20,
+        "_measured": "2026-10-05 on 24 spoken requests (send, text, tell, call, book, remind, buy, order, pay, schedule, find, note, ask someone to) and 40 lines heard in a room (TV, chatter, cheering, fragments): 24 of 24 and 0 of 40, about 1.8 s a line while the Mac was busy; decider-2b on the same lines could not separate them (requests from 0.30, room lines up to 0.39, moving between repeats)."
+      }
+    },
+    {
+      "id": "local-model-classifier:decider-2b",
+      "kind": "local-model-classifier",
+      "payload": {
+        "id": "decider-2b",
+        "url": "http://127.0.0.1:8099/v1/systemone",
+        "timeout_seconds": 15
+      }
+    },
+    {
+      "id": "local-model-offer:small-chat",
+      "kind": "local-model-offer",
+      "payload": {
+        "id": "small-chat",
+        "model": "gemma3:4b",
+        "job": "Quick answers and checks on any Mac",
+        "min_memory_gb": 8,
+        "size_gb": 3.3
+      }
+    },
+    {
+      "id": "local-model-offer:strong-chat",
+      "kind": "local-model-offer",
+      "payload": {
+        "id": "strong-chat",
+        "model": "qwen2.5:14b-instruct",
+        "job": "Careful answers, and telling requests from room chatter",
+        "min_memory_gb": 16,
+        "size_gb": 9.0
+      }
+    },
+    {
+      "id": "local-model-job:site-articles",
+      "kind": "local-model-job",
+      "payload": {
+        "id": "site-articles",
+        "models": [
+          "ollama-gemma3-4b"
+        ],
+        "most_tokens": 6000,
+        "timeout_seconds": 1500
+      }
+    }
+  ]
+}

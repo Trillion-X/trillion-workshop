@@ -1,0 +1,270 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-media-generation-tool-records",
+  "what_this_is": "Making pictures and sounds as Workshop tools: every style row in parts/media-composition/do-work/make-pictures-and-sounds.json (a thumbnail about the video, a striking picture of the person from their recording, a frame enhanced, a pencil portrait, a cut-out, a cut-out on a new background, a background, a sound effect, music) becomes its own tool, tool:make-<style>, run in the deployed container by the one runner do-work/make-pictures-and-sounds.mjs. A style that uses a connected service names it (connection_id, credential_mounts), so the person's own key is placed in the container for that run only. When the person has not connected it, Trillion pays (billing: Trillion's own account at the gateway, charged per call from their Trillion credit): the run gets the relay file at invoke.gateway_relay.mount_path instead, and each maker that names through_trillion sends its request there. Adding a style is a row in that file, never a change here.",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool-row-source::make-pictures-and-sounds",
+      "address": "package::ai-tool-catalog::tool-row-source::make-pictures-and-sounds",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-row-source",
+        "id": "source:make-pictures-and-sounds",
+        "label": "Make pictures and sounds (one tool per style)",
+        "list": {
+          "records": {
+            "package": "media-composition",
+            "file": "do-work/make-pictures-and-sounds.json",
+            "kind": "media-generation-style"
+          }
+        },
+        "entry": {
+          "id": "record_name",
+          "label": "label",
+          "job": "job",
+          "description": "description",
+          "input_schema": "input_schema",
+          "media_type": "media_type",
+          "connection_id": "connection_id",
+          "credential_mounts": "credential_mounts",
+          "icon": "icon",
+          "record_address": "record_address",
+          "short_label": "short_label",
+          "about": "about"
+        },
+        "id_prefix": "tool:make-",
+        "row": {
+          "label": {
+            "fill": {
+              "from": "entry",
+              "field": "label"
+            }
+          },
+          "job": {
+            "fill": {
+              "from": "entry",
+              "field": "job"
+            }
+          },
+          "description": {
+            "fill": {
+              "from": "entry",
+              "field": "description"
+            }
+          },
+          "status": "active",
+          "input_schema": {
+            "fill": {
+              "from": "entry",
+              "field": "input_schema"
+            }
+          },
+          "output_schema": {
+            "type": "object",
+            "required": [
+              "result",
+              "files"
+            ],
+            "properties": {
+              "result": {
+                "type": "object",
+                "required": [
+                  "style",
+                  "count",
+                  "made"
+                ],
+                "properties": {
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "made": {
+                    "type": "array",
+                    "minItems": 1
+                  }
+                }
+              },
+              "files": {
+                "type": "object",
+                "required": [
+                  "made"
+                ],
+                "properties": {
+                  "made": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "identity",
+                        "bytes",
+                        "media_type",
+                        "name"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "invoke": {
+            "kind": "container",
+            "files": {
+              "package_files": {
+                "package": "media-composition",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/media-composition",
+                "exclude": [
+                  "__tests__"
+                ]
+              }
+            },
+            "workdir": "/opt/media-composition",
+            "internet": true,
+            "stdout": "json",
+            "argv": [
+              "node",
+              "do-work/make-pictures-and-sounds.mjs",
+              "--style",
+              {
+                "fill": {
+                  "from": "entry",
+                  "field": "id"
+                }
+              },
+              "--out",
+              "/opt/media-composition/made",
+              "--work",
+              "/opt/media-composition/making",
+              "--relay",
+              "/run/trillion/gateway-relay.json"
+            ],
+            "stdin": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "outputs": [
+              {
+                "name": "made",
+                "folder": "/opt/media-composition/made",
+                "keep_in": "files",
+                "media_type": {
+                  "fill": {
+                    "from": "entry",
+                    "field": "media_type"
+                  }
+                },
+                "max_bytes": 200000000
+              }
+            ],
+            "connection_id": {
+              "fill": {
+                "from": "entry",
+                "field": "connection_id"
+              }
+            },
+            "credential_mounts": {
+              "fill": {
+                "from": "entry",
+                "field": "credential_mounts"
+              }
+            },
+            "gateway_relay": {
+              "mount_path": "/run/trillion/gateway-relay.json"
+            }
+          },
+          "billing": {
+            "payers": [
+              "own-account",
+              "gateway-account"
+            ],
+            "gateway": "gateway:treg",
+            "per": "gateway-call"
+          },
+          "needs": {
+            "expected_seconds": 180,
+            "network_egress": true,
+            "memory_mb": 4096
+          },
+          "licence_class": "licence:maker-own",
+          "placements": [
+            "placement:deployed-container"
+          ],
+          "maker": "maker:media-composition",
+          "verify": [
+            {
+              "kind": "output-number-within",
+              "output_selector": "$.result.count",
+              "at_least": 1
+            }
+          ],
+          "provenance": {
+            "record": {
+              "fill": {
+                "from": "entry",
+                "field": "record_address"
+              }
+            }
+          },
+          "screen": {
+            "kind": "described",
+            "shows": ["files"],
+            "group": "make-pictures-and-sounds",
+            "icon": {
+              "fill": {
+                "from": "entry",
+                "field": "icon"
+              }
+            },
+            "label": {
+              "fill": {
+                "from": "entry",
+                "field": "short_label"
+              }
+            },
+            "about": {
+              "fill": {
+                "from": "entry",
+                "field": "about"
+              }
+            },
+            "inputs": {
+              "topic": {
+                "label": "Topic",
+                "placeholder": "What the video is about, in a few words"
+              },
+              "count": {
+                "label": "How many",
+                "placeholder": "1 to 12"
+              },
+              "video": {
+                "label": "Video",
+                "file": { "takes": "video" }
+              },
+              "at": {
+                "label": "At second",
+                "placeholder": "The best moment is picked when empty"
+              },
+              "sound": {
+                "label": "Sound",
+                "placeholder": "The sound, in a few words"
+              },
+              "mood": {
+                "label": "Mood",
+                "placeholder": "The mood or style of the music"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

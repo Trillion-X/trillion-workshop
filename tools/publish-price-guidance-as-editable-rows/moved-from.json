@@ -11,6 +11,13 @@
       "source_identity": "1f:b2e6c90f484f645d2a5459351928ae223d5497f66f13ab82b0b80c75add05d3b",
       "identity": "1f:9bf63205af4a07921ea6442fff69dc59db79779668075bdbd05288151b8b1822",
       "held": true
+    },
+    {
+      "from": "records/service-price-rules.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/publish-price-guidance-as-editable-rows/from-old-trillion/records/service-price-rules.json",
+      "source_identity": "1f:7991c762aacbcfb5df56e7b661f270bf93f5a9484e71bc90b418dbc36b91f8bc",
+      "identity": "1f:7991c762aacbcfb5df56e7b661f270bf93f5a9484e71bc90b418dbc36b91f8bc"
     }
   ]
 }

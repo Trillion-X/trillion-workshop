@@ -115,6 +115,97 @@
       "to": "tools/assemble-and-publish-an-app-project/test/fixtures/public-app-import/site/styles.css",
       "source_identity": "1f:f3353156e11ff1fb2ef8d82814663eab20cad57f5f807ee9b939ef24a22bb0ca",
       "identity": "1f:f3353156e11ff1fb2ef8d82814663eab20cad57f5f807ee9b939ef24a22bb0ca"
+    },
+    {
+      "from": "records/client-examples/README.md",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/README.md",
+      "source_identity": "1f:34adbbec6558b74bf2c089a7ec83cd2c40e8376ddaae8054335d650bd5e1497f",
+      "identity": "1f:34adbbec6558b74bf2c089a7ec83cd2c40e8376ddaae8054335d650bd5e1497f"
+    },
+    {
+      "from": "records/client-examples/bakery/index.html",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/bakery/index.html",
+      "source_identity": "1f:41e33c32adbdae0f716a5e61284d9ba59fd3eca96ccf5bf06b2202ea08e7b1e8",
+      "identity": "1f:41e33c32adbdae0f716a5e61284d9ba59fd3eca96ccf5bf06b2202ea08e7b1e8"
+    },
+    {
+      "from": "records/client-examples/bakery/styles.css",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/bakery/styles.css",
+      "source_identity": "1f:987725bfe2a4ebadfeca2e2330326032a97fc008b6b39f822df0f1e071dd551c",
+      "identity": "1f:987725bfe2a4ebadfeca2e2330326032a97fc008b6b39f822df0f1e071dd551c"
+    },
+    {
+      "from": "records/client-examples/longevity/index.html",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/longevity/index.html",
+      "source_identity": "1f:2e61dca9f1c05cef3f49b501d1c1f4552edea5fd797b87cfc93345d974d05288",
+      "identity": "1f:2e61dca9f1c05cef3f49b501d1c1f4552edea5fd797b87cfc93345d974d05288"
+    },
+    {
+      "from": "records/client-examples/longevity/landscape.svg",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/longevity/landscape.svg",
+      "source_identity": "1f:5ec82af7b20082b1b339711128c1f86e113b91be7814816e7efc8064f69fdf15",
+      "identity": "1f:5ec82af7b20082b1b339711128c1f86e113b91be7814816e7efc8064f69fdf15"
+    },
+    {
+      "from": "records/client-examples/longevity/styles.css",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/longevity/styles.css",
+      "source_identity": "1f:592bfc571fb3ee24d8e4f3acd58e70bad46fe03f28d5962dc769c360176978a7",
+      "identity": "1f:592bfc571fb3ee24d8e4f3acd58e70bad46fe03f28d5962dc769c360176978a7"
+    },
+    {
+      "from": "records/client-examples/manifest.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/manifest.json",
+      "source_identity": "1f:66f64dd264293da533ce0095665dada0b1013062c79d92f5e78547c475ff39ff",
+      "identity": "1f:66f64dd264293da533ce0095665dada0b1013062c79d92f5e78547c475ff39ff"
+    },
+    {
+      "from": "records/client-examples/sign-up/index.html",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/sign-up/index.html",
+      "source_identity": "1f:e1f28713f31d3698b24d39fad5ef2b0493cbeb38a4688344fef2044bfe19bda3",
+      "identity": "1f:e1f28713f31d3698b24d39fad5ef2b0493cbeb38a4688344fef2044bfe19bda3"
+    },
+    {
+      "from": "records/client-examples/sign-up/publish.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/sign-up/publish.json",
+      "source_identity": "1f:69c8ce5d3984a34b973e40fca3763358f25aa376ecb9ef53dd74c201b9d42753",
+      "identity": "1f:69c8ce5d3984a34b973e40fca3763358f25aa376ecb9ef53dd74c201b9d42753"
+    },
+    {
+      "from": "records/client-examples/sign-up/styles.css",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/sign-up/styles.css",
+      "source_identity": "1f:71907e2d303b56652aa27a872cea13f77b9881879310dbf3551c1bd5d4cc0193",
+      "identity": "1f:71907e2d303b56652aa27a872cea13f77b9881879310dbf3551c1bd5d4cc0193"
+    },
+    {
+      "from": "records/client-examples/sports-club/index.html",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/sports-club/index.html",
+      "source_identity": "1f:4e39bb369b2f1dbf82e477f1ea745715a8e6be5350b6db8ac7e3eb1876b326c8",
+      "identity": "1f:4e39bb369b2f1dbf82e477f1ea745715a8e6be5350b6db8ac7e3eb1876b326c8"
+    },
+    {
+      "from": "records/client-examples/sports-club/styles.css",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/sports-club/styles.css",
+      "source_identity": "1f:835b469767e8900e09da01b4722b46815755f86ed5290798c05eabb91b4a528b",
+      "identity": "1f:835b469767e8900e09da01b4722b46815755f86ed5290798c05eabb91b4a528b"
+    },
+    {
+      "from": "records/client-examples/sports-club/submit.js",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/sports-club/submit.js",
+      "source_identity": "1f:906696c1f371d4449ecf094afa3be2be686bb9bec8abb631e5651e15b7ae9719",
+      "identity": "1f:906696c1f371d4449ecf094afa3be2be686bb9bec8abb631e5651e15b7ae9719"
     }
   ]
 }

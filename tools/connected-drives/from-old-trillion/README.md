@@ -5,3 +5,11 @@ Files old trillion deleted with no home and no backlog row, whose job is this to
 | Old path | Deleted by | Here | Status |
 |---|---|---|---|
 | `src/work-cloud-space.json` | 5c6e5f16f4 (Revert 4064d2b until tool:drives is published: it removes the shipped ...) | `src/work-cloud-space.json` | not wired |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/workshop-drives-tool-records.json` | `records/workshop-drives-tool-records.json` |

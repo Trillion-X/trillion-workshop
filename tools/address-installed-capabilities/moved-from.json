@@ -101,6 +101,13 @@
       "to": "tools/address-installed-capabilities/test/creation-resource-owner.test.mjs",
       "source_identity": "1f:7affe73c08b4e4a26455d185894bb1b2122a0c788dda32b0f657664bd8073269",
       "identity": "1f:7affe73c08b4e4a26455d185894bb1b2122a0c788dda32b0f657664bd8073269"
+    },
+    {
+      "from": "records/workshop-capability-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/address-installed-capabilities/from-old-trillion/records/workshop-capability-tool-records.json",
+      "source_identity": "1f:34e40bef272f8133eda5e4b50baacf519965db26bc32985ebb74e2d1ce35dda9",
+      "identity": "1f:34e40bef272f8133eda5e4b50baacf519965db26bc32985ebb74e2d1ce35dda9"
     }
   ]
 }

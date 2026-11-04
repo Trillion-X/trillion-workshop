@@ -162,6 +162,13 @@
       "to": "tools/recently-deleted-and-storage/workspace/file-previews.json",
       "source_identity": "1f:e79e249f5c0c6d7dbd8528f127058de3d1e0b934cf5d1fd9c591707fdadc8a16",
       "identity": "1f:e79e249f5c0c6d7dbd8528f127058de3d1e0b934cf5d1fd9c591707fdadc8a16"
+    },
+    {
+      "from": "records/workshop-recently-deleted-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/recently-deleted-and-storage/from-old-trillion/records/workshop-recently-deleted-tool-records.json",
+      "source_identity": "1f:57077abb990a745996ef4d6b39cc2e36e53a26b4b59a6f815d9e806d23fd3a0d",
+      "identity": "1f:57077abb990a745996ef4d6b39cc2e36e53a26b4b59a6f815d9e806d23fd3a0d"
     }
   ]
 }

@@ -10,3 +10,11 @@ Files old trillion deleted with no home and no backlog row, whose job is this to
 | `computer/model-relay.mjs` | dc79bb0a87 (The Mac app stops carrying dead Node code: 55 tools no Workshop row na...) | `computer/model-relay.mjs` | not wired |
 | `test/model-helper.test.mjs` | dc79bb0a87 (The Mac app stops carrying dead Node code: 55 tools no Workshop row na...) | `test/model-helper.test.mjs.held` | held: ERR_MODULE_NOT_FOUND |
 | `test/model-relay.test.mjs` | dc79bb0a87 (The Mac app stops carrying dead Node code: 55 tools no Workshop row na...) | `test/model-relay.test.mjs.held` | held: ERR_MODULE_NOT_FOUND |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/local-model-records.json` | `records/local-model-records.json` |

@@ -10,6 +10,13 @@
       "to": "tools/route-model-calls/src/model-routes.json",
       "source_identity": "1f:079bc7a507e487178dea9b583b18f0fe10f2f1686e05b67ee9c54691eb8d03d0",
       "identity": "1f:079bc7a507e487178dea9b583b18f0fe10f2f1686e05b67ee9c54691eb8d03d0"
+    },
+    {
+      "from": "records/workshop-ask-a-model-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/route-model-calls/from-old-trillion/records/workshop-ask-a-model-tool-records.json",
+      "source_identity": "1f:60c61b2f462292e590142afa797ff1c9442aa1b7489992209f1045ca74d3f4d4",
+      "identity": "1f:60c61b2f462292e590142afa797ff1c9442aa1b7489992209f1045ca74d3f4d4"
     }
   ]
 }

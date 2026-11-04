@@ -1,0 +1,45 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-notice-records",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::notice::re-explore-when-outcomes-drop",
+      "address": "package::ai-tool-catalog::notice::re-explore-when-outcomes-drop",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-outcome-notice",
+        "id": "notice:re-explore-when-outcomes-drop",
+        "when": {
+          "min_runs": 5,
+          "pass_rate_below": 0.6
+        },
+        "then": {
+          "tool_id": "tool:repo-explorer",
+          "input": {
+            "repo_url": {
+              "fill": {
+                "from": "tool",
+                "field": "repository"
+              }
+            },
+            "job": {
+              "fill": {
+                "from": "tool",
+                "field": "job"
+              }
+            },
+            "sample_input": {
+              "fill": {
+                "from": "last_input"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

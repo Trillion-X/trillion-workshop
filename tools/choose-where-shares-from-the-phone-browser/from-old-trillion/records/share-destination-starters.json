@@ -1,0 +1,42 @@
+{
+  "_what": "Where a share can go before a person has arranged it (src/share-destinations.mjs). private is their own Trillion: its label, the line under it, and whether it is picked when a share opens; it can be moved or left unpicked but never hidden. pursuit is how each thing they are working on appears (src/share-destinations.mjs reads the one pursuits list, GET /pursuits, in its order and depth, each pursuit's room folded in): shown and not picked the first time, untitled_label for one with no title, and the line under it naming the other people in its room (with_people, {names}; more than names_shown people read as {names} and {more} more, more_people). focused is whether the pursuit the whole workspace is focused on (or, with nothing focused, the one the last share went to) comes first, and whether the focused one starts picked. default_action_by_site is which saved instruction a share from a site starts on, matched on the end of the shared address's host name; a row whose action the person removed is left out. workflow_job is the line added to the AI's job when an action starts a workflow on the share ({workflow} its name, {run_id} the run). kept_share_folders are the folders in a person's Files where a device keeps each share in its own folder (a share.json and the files beside it) without the delivery road; each such share joins the person's share list, from the device named. person_share_sources are the sent_from values a person's own share sheet writes on the job it hands off (the iPhone sheet calls hand_off itself): such a job, like every share sent through deliver, is the person speaking, so it carries the priority of their own words (src/inbound-words.json) and a said line from their words, or from share_said with {items} the names and addresses shared, so an AI takes it before information that arrived for them. tool_places: every tool in the person's Workshop whose input takes the field `takes` is a place to send to (Tell the people who make Trillion is one), its id the tool id after `id_prefix`. route_itself is what a share does when its sender picks no place (to left out or empty): Trillion routes it itself. It goes to their own Trillion with this Trillion-owned action (a saved instruction with the same id replaces it, and route_itself false in the saved choices turns it off), unless the sender names an action or the share's site has a default action. The action starts workflow:trillion-x-mode, its request the share's words and its scope what the share connects to. connect bounds the cheap look for what a share connects to (one search, a few record scope reads, no scan of everything; link_reads links with no title have their title read, each within link_wait_ms, so a bare link has words to match); scope_* are the lines that look is written in.",
+  "private": { "id": "private", "label": "My Trillion", "description": "Only you and your AIs", "on_by_default": true },
+  "pursuit": { "shown": true, "on_by_default": false, "untitled_label": "Untitled pursuit", "with_people": "With {names}", "more_people": "{names} and {more} more", "names_shown": 2 },
+  "focused": { "first": true, "on_by_default": true },
+  "route_itself": {
+    "on_by_default": true,
+    "action": {
+      "id": "route-it-yourself",
+      "label": "Trillion routes it",
+      "words": "Trillion is routing this share itself: I did not pick a place for it. Read the item fully first: watch and transcribe a video or audio, read the page, open and read every file. Then find every pursuit, person and record it connects to through my records: start from the connected list in this job's input, then use search, record_scope, find_in_scope, list_pursuits and related_decisions. Then run Trillion X mode on what the needle-moving move is. Any words I sent with it are a hypothesis to test, not the answer. Decide the move and do it in the right pursuits with the right people, and keep the original link with what you did. Do not pay, deploy, publish or contact anyone outside my pursuits unless I have already said you may. When it is done, tell me the outcome in one short message: what you found, what you did and where, and what is left for me.",
+      "workflow": {
+        "workflow_id": "workflow:trillion-x-mode",
+        "input": {
+          "request": { "fill": { "from": "share", "field": "request" } },
+          "scope": { "fill": { "from": "share", "field": "scope" } },
+          "constraints": ["Read the shared item fully before deciding anything.", "Treat the sender's own words as a hypothesis to test, not the answer.", "Find the needle-moving move through the connected pursuits, people and records."],
+          "authorized_actions": []
+        }
+      }
+    },
+    "connect": {"search_limit": 8, "scope_reads": 3, "terms": 12, "min_word_length": 4, "pursuits_shown": 3, "people_shown": 5, "records_shown": 6, "wait_ms": 4000, "link_reads": 3, "link_wait_ms": 2500, "question_characters": 300, "request_characters": 30000, "scope_characters": 5000, "ignore": ["this","that","with","from","have","about","your","what","will","just","into","they","them","then","than","here","there","http","https","html","www","com","shared","share"]},
+    "scope_pursuits": "Connected pursuits: {pursuits}.",
+    "scope_people": "People in them: {people}.",
+    "scope_records": "Related records: {records}.",
+    "empty_request": "Something was shared with no words.",
+    "scope_none": "Nothing is connected to this yet. Find the pursuits it belongs to through the person's records before acting."
+  },
+  "saved_example_actions": ["study-content-format"],
+  "workflow_job": "Sending this started the workflow {workflow} as run {run_id}. Read it with read_workflow_run and do each of its steps with submit_workflow_step.",
+  "default_action_by_site": [
+    { "host_suffix": "instagram.com", "action_id": "study-content-format" },
+    { "host_suffix": "gettrillion.ai", "action_id": "make-it-mine" }
+  ],
+  "person_share_sources": ["ios-share-sheet", "android-share-target"],
+  "share_said": "Shared {items}",
+  "tool_places": { "takes": "things", "id_prefix": "tool-place:" },
+  "kept_share_folders": [
+    { "folder": "/Shared from iPhone", "from": "iPhone" },
+    { "folder": "/Shared from Android", "from": "Android" }
+  ]
+}

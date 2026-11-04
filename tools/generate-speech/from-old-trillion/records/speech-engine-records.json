@@ -1,0 +1,58 @@
+{
+  "kind": "record-set",
+  "record_set": "speech-engines",
+  "what_this_is": "The programs that run a speech model on a person's Mac and the engines they run (kinds speech-program and speech-engine), read by computer/speak.mjs. A `speech-program` is tried in order (the first whose `check` answers, its program found on `search_path`) and its `run` starts the resident speaker; a `speech-engine` names the model, what it takes (a reference voice or a neutral one) and what it was measured at. The shared voices, the speaker's timings, the loudness and the words stay in computer/speak.json. A new engine is a new row.",
+  "records": [
+    {
+      "id": "speech-program:mlx-audio",
+      "kind": "speech-program",
+      "payload": {
+        "id": "mlx-audio",
+        "label": "mlx-audio on this computer",
+        "search_path": [
+          "/opt/homebrew/anaconda3/bin",
+          "~/anaconda3/bin",
+          "~/miniconda3/bin",
+          "~/miniforge3/bin",
+          "/opt/homebrew/Caskroom/miniconda/base/bin",
+          "/opt/homebrew/bin",
+          "/usr/local/bin"
+        ],
+        "check": [
+          "python3",
+          "-c",
+          "import mlx_audio, soundfile"
+        ],
+        "run": [
+          "python3",
+          "{here}/speak-with-mlx.py"
+        ]
+      }
+    },
+    {
+      "id": "speech-engine:qwen3-tts",
+      "kind": "speech-engine",
+      "payload": {
+        "id": "qwen3-tts",
+        "label": "Qwen3-TTS",
+        "model": "mlx-community/Qwen3-TTS-12Hz-1.7B-Base-bf16",
+        "takes": "reference",
+        "produced_by": "Qwen3-TTS 1.7B on this computer",
+        "_measured": "2026-10-07 on an M5 Max at load average about 36: a 7.5 s sentence in a cloned voice took 9.6-12.7 s with the model loaded (26 s the first time); streamed, its first sound came after 0.54 s at a real-time factor of 0.95. Cloned from a reference that ends on a sentence end, every take transcribed word for word."
+      }
+    },
+    {
+      "id": "speech-engine:kokoro",
+      "kind": "speech-engine",
+      "payload": {
+        "id": "kokoro",
+        "label": "Kokoro",
+        "model": "mlx-community/Kokoro-82M-bf16",
+        "takes": "speaker",
+        "lang_code": "a",
+        "produced_by": "Kokoro 82M on this computer",
+        "_measured": "2026-10-07 on the same Mac: an 8.2 s sentence took 0.63-1.6 s with the model loaded (real-time factor 0.08-0.2, about 16-20 s the first time), word for word, no clipping."
+      }
+    }
+  ]
+}

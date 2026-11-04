@@ -1,0 +1,43 @@
+{
+  "_what": "Which Workshop tools show their runs to the person while they work, read by src/person-store.mjs (the Workshop's reportRun) and sent through src/tell-the-person.mjs report: one row per tool id, with the kind (its look, channels and address in records/tell-the-person.json) and the words. A run is shown as it starts and told once when it ends; a tool with no row is never shown. `open` is where the card opens, {task_id} being the run. `states` maps the run's state to the report's. Showing another tool is one row here.",
+  "open": "/workshop/runs/{task_id}",
+  "states": {
+    "working": "running",
+    "completed": "done",
+    "failed": "failed"
+  },
+  "tools": {
+    "tool:render-an-edit": {
+      "kind": "export",
+      "title": "Making your video"
+    },
+    "tool:transcribe-file": {
+      "kind": "transcription",
+      "title": "Transcribing a recording"
+    },
+    "tool:speech-to-text": {
+      "kind": "transcription",
+      "title": "Turning speech into text"
+    },
+    "tool:attach-finished-video": {
+      "kind": "export",
+      "title": "Adding your finished video"
+    },
+    "tool:send-edit-to-editor": {
+      "kind": "export",
+      "title": "Sending your edit to your editor"
+    },
+    "tool:record-a-web-demo": {
+      "kind": "export",
+      "title": "Recording a web demo"
+    },
+    "tool:repo-explorer": {
+      "kind": "working",
+      "title": "Making a tool from a repository"
+    },
+    "tool:build-docs-site": {
+      "kind": "working",
+      "title": "Building a docs site"
+    }
+  }
+}

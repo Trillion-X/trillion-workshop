@@ -1,0 +1,1728 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-engine-tool-records",
+  "records": [
+    {
+      "id": "package::trillion::tool::evaluate-rules-over-records",
+      "address": "package::trillion::tool::evaluate-rules-over-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-worker"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:evaluate-rules-over-records",
+        "listed_on": "2026-09-28T17:54:38Z",
+        "label": "Check rules against changed records (trigger engine)",
+        "job": "Trigger engine: when something happens to a record (it is added, changed or removed) and a rule's condition holds, say what the rule sends, and to which tool, workflow or target, for every matching rule",
+        "description": "Give rules (each with a match_condition over the changed record, read as change.<field> and envelope.address_text, and a dispatch: target plus output_template) and the records that changed ({address, path?, value} or {address, removed: true}). Returns fires: every send the rules made, with its target and the payload filled from the record, plus the engine's outcome records and any failures. Rules only see changes given after them, so a rule never fires for the past. Nothing is sent; the caller runs each fire.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "rules",
+            "changes"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "match_condition",
+                  "dispatch"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "match_condition": {
+                    "type": "object"
+                  },
+                  "dispatch": {
+                    "type": "object",
+                    "required": [
+                      "target",
+                      "output_template"
+                    ],
+                    "properties": {
+                      "target": {
+                        "type": "string"
+                      },
+                      "output_template": {},
+                      "delivery": {
+                        "type": "string",
+                        "description": "inline (default) or later_with_durable_outcome"
+                      }
+                    }
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "description": "The rules, as the trigger engine reads them"
+            },
+            "changes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "address"
+                ],
+                "properties": {
+                  "address": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "value": {},
+                  "removed": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "description": "The records that changed, oldest first"
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "address"
+                ],
+                "properties": {
+                  "address": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "value": {}
+                }
+              },
+              "description": "Optional: other current records a rule may read"
+            },
+            "partition": {
+              "type": "string",
+              "description": "Optional: whose records these are"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "fires",
+            "dispatch_failures",
+            "writes"
+          ],
+          "properties": {
+            "fires": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "target",
+                  "payload"
+                ],
+                "properties": {
+                  "target": {
+                    "type": "string"
+                  },
+                  "payload": {},
+                  "later": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "dispatch_failures": {
+              "type": "array"
+            },
+            "writes": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "worker-module",
+          "module": "trigger-engine",
+          "export": "evaluateRulesOverRecords"
+        },
+        "provenance": {
+          "source": "../trillion-rust/crates/trigger-engine (ported from bitfield-packages packages/trigger-engine), src/rules-over-records.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "rules": [
+                {
+                  "id": "tell-me-when-a-lead-is-won",
+                  "match_condition": {
+                    "conditions": [
+                      {
+                        "$bind": {
+                          "select": {
+                            "from": "change",
+                            "path": "stage"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.equals",
+                              "args": {
+                                "value": "won"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "dispatch": {
+                    "target": "tool:send-message",
+                    "output_template": {
+                      "about": {
+                        "$bind": {
+                          "select": {
+                            "from": "envelope",
+                            "path": "address_text"
+                          }
+                        }
+                      },
+                      "value": {
+                        "$bind": {
+                          "select": {
+                            "from": "change",
+                            "path": "value"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "changes": [
+                {
+                  "address": "lead:acme",
+                  "value": {
+                    "stage": "open",
+                    "value": 10
+                  }
+                },
+                {
+                  "address": "lead:acme",
+                  "value": {
+                    "stage": "won",
+                    "value": 12
+                  }
+                }
+              ]
+            },
+            "output_selector": "$.fires[0].target",
+            "contains": "tool:send-message"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::when-to-run-next",
+      "address": "package::trillion::tool::when-to-run-next",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-worker"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:when-to-run-next",
+        "listed_on": "2026-09-28T17:54:38Z",
+        "label": "Work out what is due and when to run next (schedules)",
+        "job": "Scheduler: from recurring schedules (every day or week at a local time in a time zone, daylight saving handled) and one-off timed actions, work out what is due to run now and the next time to run",
+        "description": "Give now plus schedules (schedule_id, timezone as an IANA name, start_local_date, cadence {unit: day | week, interval?, weekdays?: 0=Sunday..6}, local_window {start: HH:MM, duration_minutes}, dst {gap: skip | next-valid, fold: earlier | later | both}, action with its owner_dispatch) and their occurrence_states, and/or one-off time_windows, actions and receipts. Returns recurring_due, scheduled_due, the occurrences to record before running them, and next_wake_at: the next time anything is due, counting what is due now as done.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "now"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "now": {
+              "type": [
+                "string",
+                "number"
+              ],
+              "description": "The time to work from: ISO text or epoch milliseconds"
+            },
+            "schedules": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Recurring schedules"
+            },
+            "occurrence_states": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "What was recorded for earlier occurrences (only a proven owner_outcome moves a schedule on)"
+            },
+            "time_windows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "One-off times: {record_id, start}"
+            },
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "One-off actions: {record_id, action_id, dispatch: {name, input}}"
+            },
+            "receipts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "One-off actions already done: {record_id, operation}"
+            },
+            "max_calendar_scan_days": {
+              "type": "integer"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "now",
+            "recurring_due",
+            "scheduled_due",
+            "next_wake_at"
+          ],
+          "properties": {
+            "now": {
+              "type": "string"
+            },
+            "recurring_due": {
+              "type": "array"
+            },
+            "materializations": {
+              "type": "array"
+            },
+            "scheduled_due": {
+              "type": "array"
+            },
+            "next_wake_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "rejected_schedules": {
+              "type": "array"
+            },
+            "skipped_resolutions": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "worker-module",
+          "module": "timed-action",
+          "export": "whenToWake"
+        },
+        "provenance": {
+          "source": "parts/timed-action (ported from bitfield-packages packages/timed-action)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "now": "2026-03-01T12:00:00Z",
+              "schedules": [
+                {
+                  "schedule_id": "schedule:monday-review",
+                  "source_generation": 1,
+                  "schedule_revision": 1,
+                  "timezone": "America/New_York",
+                  "start_local_date": "2026-03-02",
+                  "cadence": {
+                    "unit": "week",
+                    "weekdays": [
+                      1
+                    ]
+                  },
+                  "local_window": {
+                    "start": "09:00",
+                    "duration_minutes": 30
+                  },
+                  "action": {
+                    "operation": "write-weekly-review",
+                    "owner_ref": "tool:write-review",
+                    "owner_dispatch": {
+                      "name": "tool:write-review",
+                      "input": {}
+                    },
+                    "completion": {
+                      "mode": "synchronous-owner-return"
+                    }
+                  }
+                }
+              ]
+            },
+            "output_selector": "$.next_wake_at",
+            "contains": "2026-03-02T14:00:00.000Z"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::run-workflow-definition",
+      "address": "package::trillion::tool::run-workflow-definition",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-worker"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:run-workflow-definition",
+        "listed_on": "2026-09-28T17:54:38Z",
+        "label": "Run a workflow definition (workflow engine)",
+        "job": "Workflow engine: run a workflow definition of steps (asks, branches, loops, parallel steps, checks) with an input, using the answers known so far, and say where it finished or which steps are waiting for an answer",
+        "description": "Give definitions (workflow-core definitions: id, name, kind \"workflow\", is_active, version, steps [{id, kind, config}], edges [{from, to, kind}]), the workflow_id to run, its input and answers keyed by step id (an ask's config.context.step_id) or ask name. Returns the run (status completed, failed or paused, each step's output) and waiting: the asks with no answer yet, each with the input the engine gave it. Call again with those answers added and the run goes on from there.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "definitions",
+            "workflow_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "definitions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object"
+              },
+              "description": "Every definition the run may reach"
+            },
+            "workflow_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "input": {},
+            "answers": {
+              "type": "object",
+              "description": "Answers so far, by step id or ask name"
+            },
+            "partition": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "waiting"
+          ],
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "waiting": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "step_id"
+                ],
+                "properties": {
+                  "step_id": {
+                    "type": "string"
+                  },
+                  "asks": {
+                    "type": "string"
+                  },
+                  "input": {}
+                }
+              }
+            },
+            "execution_context": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "worker-module",
+          "module": "workflow-engine",
+          "export": "runWorkflowDefinition"
+        },
+        "provenance": {
+          "source": "../trillion-rust/crates/workflow-core (ported from bitfield-packages), src/workflow-definition-runner.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "workflow_id": "draft-then-count",
+              "answers": {
+                "draft": {
+                  "text": "A short note about gardening"
+                }
+              },
+              "definitions": [
+                {
+                  "id": "draft-then-count",
+                  "name": "Draft then count",
+                  "kind": "workflow",
+                  "is_active": true,
+                  "version": 1,
+                  "steps": [
+                    {
+                      "id": "draft",
+                      "kind": "ask",
+                      "config": {
+                        "name": "tool:draft",
+                        "input": {
+                          "topic": "gardening"
+                        },
+                        "context": {
+                          "step_id": "draft"
+                        }
+                      }
+                    },
+                    {
+                      "id": "count",
+                      "kind": "ask",
+                      "config": {
+                        "name": "tool:count-words",
+                        "input": {},
+                        "context": {
+                          "step_id": "count"
+                        }
+                      }
+                    }
+                  ],
+                  "edges": [
+                    {
+                      "from": "draft",
+                      "to": "count",
+                      "kind": "always"
+                    }
+                  ]
+                }
+              ]
+            },
+            "output_selector": "$.waiting[0].step_id",
+            "contains": "count"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::filter-rows-by-rules",
+      "address": "package::trillion::tool::filter-rows-by-rules",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-worker"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:filter-rows-by-rules",
+        "listed_on": "2026-09-28T17:54:38Z",
+        "label": "Filter rows by rules (formula engine)",
+        "job": "Formula engine: evaluate a filter of rules and groups (and, or, not; greater than, between, contains, any of, all of, none of, is empty, on a day) over a list of rows and keep the rows it matches",
+        "description": "Give the rule tree ({kind: \"group\", combinator: \"and\" | \"or\", negate, rules: [...]}, each rule {kind: \"rule\", field, operator, params}), the fields it may name ({id, kind}: number, duration, text, tags, choice, date) and the rows (plain objects with those fields). Returns matches: the indices of the rows the rules hold for, kept, and any rule left out because it is unfinished. An unknown value never matches a comparison.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "tree",
+            "fields",
+            "rows"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "tree": {
+              "type": "object"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "kind"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "matches",
+            "kept",
+            "incomplete"
+          ],
+          "properties": {
+            "matches": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "kept": {
+              "type": "integer"
+            },
+            "incomplete": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "worker-module",
+          "module": "formula-engine",
+          "export": "filterRowsByRules"
+        },
+        "provenance": {
+          "source": "crates/evaluate-over-rows over crates/composition-ast (ported from bitfield-packages), parts/formula-engine"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "duration",
+                    "operator": "greater_than",
+                    "params": {
+                      "value": 60
+                    }
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "transcript",
+                    "operator": "contains",
+                    "params": {
+                      "text": "forehand"
+                    }
+                  }
+                ]
+              },
+              "fields": [
+                {
+                  "id": "duration",
+                  "kind": "duration"
+                },
+                {
+                  "id": "transcript",
+                  "kind": "text"
+                }
+              ],
+              "rows": [
+                {
+                  "duration": 95,
+                  "transcript": "Then the FOREHAND swing"
+                },
+                {
+                  "duration": 30,
+                  "transcript": "forehand only"
+                },
+                {
+                  "duration": 240,
+                  "transcript": "serve"
+                }
+              ]
+            },
+            "output_selector": "$.matches",
+            "contains": "[0]"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::evaluate-binding",
+      "address": "package::trillion::tool::evaluate-binding",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-worker"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:evaluate-binding",
+        "listed_on": "2026-10-07T18:00:00Z",
+        "label": "Evaluate a formula binding",
+        "job": "Evaluate a formula binding against an explicit input, including changing time boundaries in saved list views",
+        "description": "Runs a composition-ast binding through the same formula evaluator used for list rows; the caller supplies the entire context.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "binding",
+            "input"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "binding": {
+              "type": "object"
+            },
+            "input": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {}
+          }
+        },
+        "invoke": {
+          "kind": "worker-module",
+          "module": "formula-engine",
+          "export": "evaluateBinding"
+        },
+        "provenance": {
+          "source": "parts/formula-engine/rules/evaluate-over-rows.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "binding": {
+                "$kind": "binding",
+                "select": {
+                  "from": "self",
+                  "path": [
+                    "now"
+                  ]
+                }
+              },
+              "input": {
+                "now": 7
+              }
+            },
+            "output_selector": "$.value",
+            "contains": "7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::read-source-health",
+      "address": "package::trillion::tool::read-source-health",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-worker"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:read-source-health",
+        "listed_on": "2026-09-30T06:07:26Z",
+        "label": "How each source that feeds automations is doing",
+        "job": "Automation health: for each source things arrive from (notes, voice memos, email, a connected account's events, a schedule), count what arrived over the last day and week, say what the last arrival started (which rule, which run) and whether it worked, count the runs that worked, failed or are still going, say the last error in plain words, and say whether the source is working, quiet, failing or not connected",
+        "description": "Give now and sources: each { source_id, kind (carrier, event-source, schedule), label, connected, arrived: [{ id, at, title? }], rules: [{ rule_id, label, enabled }], runs: [{ at, state, error?, rule_id?, arrival_id?, run_id?, task_id? }] }. Returns each source with last { at, title } (or nothing_yet in plain words), last_started (each rule the last arrival set off, its run and how it ended), arrivals per period, fires, results per run result, last_error { words, at } and state with its words and tone. Periods, how long each kind may stay silent, states and error words come from Trillion's own settings (src/automation-health-looks.json).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "sources"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "now": {
+              "type": "string",
+              "description": "The time to count back from (ISO 8601); now when left out"
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "source_id",
+                  "kind"
+                ],
+                "properties": {
+                  "source_id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "connected": {
+                    "type": "boolean"
+                  },
+                  "arrived": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "at"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "at": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "rules": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "runs": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "at",
+                        "state"
+                      ],
+                      "properties": {
+                        "at": {
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "error": {},
+                        "rule_id": {
+                          "type": "string"
+                        },
+                        "arrival_id": {
+                          "type": "string"
+                        },
+                        "run_id": {
+                          "type": "string"
+                        },
+                        "task_id": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "sources",
+            "periods"
+          ],
+          "properties": {
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "source_id",
+                  "state",
+                  "arrivals",
+                  "fires",
+                  "results",
+                  "last_started"
+                ]
+              }
+            },
+            "periods": {
+              "type": "array"
+            },
+            "runs_counted_over": {
+              "type": "string"
+            },
+            "states": {
+              "type": "object"
+            },
+            "results": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "worker-module",
+          "module": "automation-health",
+          "export": "readSourceHealth"
+        },
+        "provenance": {
+          "source": "src/automation-health.mjs over the formula engine (tool:filter-rows-by-rules), src/automation-health-looks.json"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "now": "2026-09-29T12:00:00.000Z",
+              "sources": [
+                {
+                  "source_id": "carrier:Notes",
+                  "kind": "carrier",
+                  "label": "Notes",
+                  "connected": true,
+                  "arrived": [
+                    {
+                      "id": "a1",
+                      "at": "2026-09-29T11:00:00.000Z",
+                      "title": "Book the court"
+                    }
+                  ],
+                  "runs": [
+                    {
+                      "at": "2026-09-29T11:00:05.000Z",
+                      "state": "finished",
+                      "arrival_id": "a1"
+                    }
+                  ]
+                },
+                {
+                  "source_id": "events:shop",
+                  "kind": "event-source",
+                  "label": "Shop",
+                  "connected": true,
+                  "arrived": [
+                    {
+                      "id": "e1",
+                      "at": "2026-09-29T10:00:00.000Z"
+                    }
+                  ],
+                  "runs": [
+                    {
+                      "at": "2026-09-29T10:00:01.000Z",
+                      "state": "failed",
+                      "error": "timed out",
+                      "arrival_id": "e1"
+                    }
+                  ]
+                }
+              ]
+            },
+            "output_selector": "$.sources[1].state",
+            "contains": "failing"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::build-docs-site",
+      "address": "package::trillion::tool::build-docs-site",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-worker"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:build-docs-site",
+        "listed_on": "2026-10-01T19:11:24Z",
+        "label": "Build a docs site (Mintlify)",
+        "job": "Docs site builder: turn pages, navigation and colours into every file a Mintlify documentation site needs, ready to save and put in a repository",
+        "description": "Give site (name, description, url; optional logo, favicon, fonts and font_faces, keywords, social, navbar, contextual, appearance, search_prompt), navigation (tabs, each with groups of page routes), pages ({route, title, description, body in Markdown or MDX}), palettes {light, dark} (colour name → value) and roles {accent, page} naming which palette colours are the accent and the page background. Returns files: [{path, text}] (docs.json, theme.css, theme.js, llms.txt and one .mdx per page) and problems: every missing or wrong field in plain words, in which case files is empty. Nothing is published: save the files, push them to a repository, and connect that repository in Mintlify once.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "site",
+            "navigation",
+            "pages",
+            "palettes",
+            "roles"
+          ],
+          "properties": {
+            "site": {
+              "type": "object",
+              "required": [
+                "name",
+                "description",
+                "url"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            },
+            "navigation": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "tab",
+                  "groups"
+                ],
+                "properties": {
+                  "tab": {
+                    "type": "string"
+                  },
+                  "groups": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "group",
+                        "pages"
+                      ],
+                      "properties": {
+                        "group": {
+                          "type": "string"
+                        },
+                        "pages": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "pages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "route",
+                  "title",
+                  "description",
+                  "body"
+                ],
+                "properties": {
+                  "route": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "palettes": {
+              "type": "object",
+              "required": [
+                "light",
+                "dark"
+              ],
+              "properties": {
+                "light": {
+                  "type": "object"
+                },
+                "dark": {
+                  "type": "object"
+                }
+              }
+            },
+            "roles": {
+              "type": "object",
+              "required": [
+                "accent",
+                "page"
+              ],
+              "properties": {
+                "accent": {
+                  "type": "string"
+                },
+                "page": {
+                  "type": "string"
+                },
+                "accent_strong": {
+                  "type": "string"
+                }
+              }
+            },
+            "variable_prefix": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "files",
+            "problems"
+          ],
+          "properties": {
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "text"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "problems": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "worker-module",
+          "module": "docs-site",
+          "export": "buildDocsSite"
+        },
+        "provenance": {
+          "source": "parts/docs-site (ported from Trillion-X/trillion-docs scripts/generate-docs.mjs, itself adapted from dev/bitfield-docs)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "site": {
+                "name": "Salt & Fire Kitchen",
+                "description": "Recipes, class times and kitchen safety for students.",
+                "url": "https://learn.saltandfire.example",
+                "navbar": {
+                  "primary": {
+                    "label": "Book a class",
+                    "href": "https://saltandfire.example/book"
+                  }
+                }
+              },
+              "navigation": [
+                {
+                  "tab": "Handbook",
+                  "groups": [
+                    {
+                      "group": "Start here",
+                      "pages": [
+                        "index",
+                        "safety/knives"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "pages": [
+                {
+                  "route": "index",
+                  "title": "Welcome",
+                  "description": "What to bring to your first class.",
+                  "body": "Bring an apron and closed shoes."
+                },
+                {
+                  "route": "safety/knives",
+                  "title": "Knife safety",
+                  "description": "How to hold and pass a knife.",
+                  "body": "Pinch the blade and curl your fingers."
+                }
+              ],
+              "palettes": {
+                "light": {
+                  "accent": "#c2410c",
+                  "page": "#fffaf5"
+                },
+                "dark": {
+                  "accent": "#fb923c",
+                  "page": "#0c0a09"
+                }
+              },
+              "roles": {
+                "accent": "accent",
+                "page": "page"
+              }
+            },
+            "output_selector": "$.files[0].path",
+            "contains": "docs.json"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::check-copy",
+      "address": "package::trillion::tool::check-copy",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-worker"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:check-copy",
+        "listed_on": "2026-10-04T05:30:00Z",
+        "label": "Check copy before a person reads it (copy judge)",
+        "job": "Copy judge: check words before a person reads them, for grammar, stock headings, AI tells, words from how the product is built, and any multiple other than trillion x, and say what to write instead",
+        "description": "Give text, texts (a list) or value (any JSON; fields names which keys hold words, or \"strings\" for every string). Optional rules: your own rule rows (words, pattern, exact or a named grammar check, each with says and suggest); without them Trillion's own copy rules judge. Returns passed, findings (rule, says, found, text, path, suggest) and lines in plain words. Run it on every headline, tour, notice, email and post before you save it, then rewrite what it finds. A pass covers supplied words and applicable word rules only. Empty input or no applicable rule is a nonpass. Author meaning and voice remain unmeasured.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": "One piece of copy"
+            },
+            "texts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Several pieces of copy"
+            },
+            "value": {
+              "description": "Any JSON whose strings a person reads, such as a tour or an email"
+            },
+            "fields": {
+              "description": "Which keys of value hold words: a list of keys, or \"strings\" for every string (the default)"
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Optional: your own rule rows instead of Trillion's"
+            },
+            "paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Optional positive dot paths in value. * selects one segment; ** selects any depth. Only selected authored text is checked."
+            },
+            "skip_keys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Keys in value that hold metadata or separately governed source text."
+            },
+            "skip_paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Exact dot paths to omit from this word check; * selects one segment."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "passed",
+            "findings",
+            "lines",
+            "said"
+          ],
+          "properties": {
+            "passed": {
+              "type": "boolean"
+            },
+            "findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rule",
+                  "says",
+                  "found",
+                  "text"
+                ]
+              }
+            },
+            "lines": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "said": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "no-input",
+                "no-applicable-rule",
+                "failed",
+                "passed"
+              ]
+            },
+            "coverage": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "worker-module",
+          "module": "judge-words",
+          "export": "checkCopy"
+        },
+        "provenance": {
+          "source": "parts/judge-words over records/copy-rules.json (the copywriting laws and no-ai-slop rules that records/copy-rules.json holds)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "texts": [
+                "What is new",
+                "Our new tool is 1000x faster and makes your work seamless.",
+                "Draw over anything, then send it to your AI."
+              ]
+            },
+            "output_selector": "$.lines",
+            "contains": "Say trillion x"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::say-what-got-worse",
+      "address": "package::trillion::tool::say-what-got-worse",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-worker"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:say-what-got-worse",
+        "listed_on": "2026-10-05T16:30:00Z",
+        "label": "Say what got worse since the last reading",
+        "job": "Compare a reading with the one before it (this day and the day before, this week and last) and say which numbers got worse, so a schedule tells the person only when something did",
+        "description": "Give measures, each { label, now, before, worse_when: \"higher\" or \"lower\" }. now and before are a number, a list of numbers (added up) or a list of items: value is the path to each item's number and key the path to its name, so a total also says which parts moved (like each store). missing: \"zero\" counts nothing found as none (for counts); otherwise a side that was not read is left uncompared. at_least is the smallest change that counts, scale divides both before they are shown (1000000 for microseconds to seconds) and unit is shown after each number. Returns worse (true when any measure got worse), measures (each with now, before, change, worse and the parts that moved), lines and said, the reading in words. Use it in a workflow after a tool that reads two periods, with an edge on worse to tool:tell-the-person.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "measures"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "measures": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "worse_when"
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "now": {},
+                  "before": {},
+                  "worse_when": {
+                    "enum": [
+                      "higher",
+                      "lower"
+                    ]
+                  },
+                  "value": {
+                    "type": "array",
+                    "items": {
+                      "type": [
+                        "string",
+                        "integer"
+                      ]
+                    },
+                    "description": "Path to each item's number"
+                  },
+                  "key": {
+                    "type": "array",
+                    "items": {
+                      "type": [
+                        "string",
+                        "integer"
+                      ]
+                    },
+                    "description": "Path to each item's name"
+                  },
+                  "missing": {
+                    "enum": [
+                      "zero",
+                      "unknown"
+                    ]
+                  },
+                  "at_least": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "scale": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "unit": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "worse",
+            "measures",
+            "lines",
+            "said"
+          ],
+          "properties": {
+            "worse": {
+              "type": "boolean"
+            },
+            "measures": {
+              "type": "array"
+            },
+            "lines": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "worker-module",
+          "module": "compare-readings",
+          "export": "sayWhatGotWorse"
+        },
+        "provenance": {
+          "source": "src/compare-readings.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "measures": [
+                {
+                  "label": "Restarts",
+                  "now": [
+                    {
+                      "n": 5,
+                      "id": "a"
+                    },
+                    {
+                      "n": 1,
+                      "id": "b"
+                    }
+                  ],
+                  "before": [
+                    {
+                      "n": 2,
+                      "id": "a"
+                    }
+                  ],
+                  "value": [
+                    "n"
+                  ],
+                  "key": [
+                    "id"
+                  ],
+                  "worse_when": "higher",
+                  "missing": "zero"
+                }
+              ]
+            },
+            "output_selector": "$.said",
+            "contains": "Worse than before"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::plan-recurring-windows",
+      "address": "package::trillion::tool::plan-recurring-windows",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-worker"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:plan-recurring-windows",
+        "listed_on": "2026-10-14T00:00:00Z",
+        "label": "Plan future recurrence windows",
+        "job": "Enumerate a bounded set of future recurrence slots from generic schedule data, including local-time daylight-saving policies and explicit coverage.",
+        "description": "Give an explicit replay-stable now, recurring schedules, and max_occurrences_per_schedule. Returns future_occurrences in start order, rejected_schedules, skipped_resolutions, and per-schedule coverage showing count and calendar-scan limits. Recurrence is open-ended; a bounded plan never claims the schedule itself is exhausted. This is a pure plan: it writes no occurrence state, creates no materialization intents, and runs no action.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "now",
+            "schedules",
+            "max_occurrences_per_schedule"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "now": {
+              "type": [
+                "string",
+                "number"
+              ],
+              "description": "Explicit replay-stable time: ISO text or epoch milliseconds."
+            },
+            "schedules": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Generic timed-action recurrence schedule DATA, including timezone, cadence, local window, DST policies, and owner dispatch."
+            },
+            "max_occurrences_per_schedule": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "description": "Maximum future occurrence rows returned for each valid schedule."
+            },
+            "max_calendar_scan_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4096,
+              "description": "Bound the local calendar dates scanned per schedule."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "now",
+            "future_occurrences",
+            "rejected_schedules",
+            "skipped_resolutions",
+            "coverage"
+          ],
+          "properties": {
+            "now": {
+              "type": "string"
+            },
+            "future_occurrences": {
+              "type": "array"
+            },
+            "rejected_schedules": {
+              "type": "array"
+            },
+            "skipped_resolutions": {
+              "type": "array"
+            },
+            "coverage": {
+              "type": "array",
+              "description": "Per-schedule returned count, scan extent, reached bounds, and explicit open-ended recurrence exhaustion status."
+            },
+            "max_occurrences_per_schedule": {
+              "type": "integer"
+            },
+            "max_calendar_scan_days": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "worker-module",
+          "module": "timed-action",
+          "export": "planRecurringWindows"
+        },
+        "provenance": {
+          "source": "parts/timed-action (pure future enumeration using the recurrence materializer DST and identity rules)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "now": "2026-03-01T12:00:00Z",
+              "schedules": [
+                {
+                  "schedule_id": "schedule:monday-review",
+                  "source_generation": 1,
+                  "schedule_revision": 1,
+                  "timezone": "America/New_York",
+                  "start_local_date": "2026-03-02",
+                  "cadence": {
+                    "unit": "week",
+                    "weekdays": [
+                      1
+                    ]
+                  },
+                  "local_window": {
+                    "start": "09:00",
+                    "duration_minutes": 30
+                  },
+                  "action": {
+                    "operation": "write-weekly-review",
+                    "owner_ref": "tool:write-review",
+                    "owner_dispatch": {
+                      "name": "tool:write-review",
+                      "input": {}
+                    },
+                    "completion": {
+                      "mode": "synchronous-owner-return"
+                    }
+                  }
+                }
+              ],
+              "max_occurrences_per_schedule": 2
+            },
+            "output_selector": "$.future_occurrences",
+            "contains": "2026-03-02T14:00:00.000Z"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,230 @@
+{
+ "kind": "package-set-records",
+ "package_set": "trillion",
+ "record_set": "workshop-chrome-web-store-tool-records",
+ "what_this_is": "The Chrome Web Store as Workshop tools on the person's own Chrome Web Store connection (parts/service-connections, vendor chrome-web-store): see an item's review state, upload a new package (the zip sent whole, body_encoding bytes in src/workshop.mjs) and publish it. A schedule that keeps an extension current runs the status tool and, when the last version was rejected or published, uploads and publishes the next.",
+ "records": [
+  {
+   "id": "package::trillion::tool::chrome-web-store-item-status",
+   "address": "package::trillion::tool::chrome-web-store-item-status",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-06T17:00:00Z",
+    "id": "tool:chrome-web-store-item-status",
+    "label": "Chrome Web Store item status",
+    "job": "See whether a browser extension's newest version is in review, published or rejected on the Chrome Web Store",
+    "description": "The Chrome Web Store's own answer for one item on the person's connected publisher account: the submitted version and whether it is pending review, published or rejected, and the version people get now.",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "needs": {
+     "expected_seconds": 3,
+     "network_egress": true
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "publisher_id",
+      "item_id"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "publisher_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The publisher's id: the part after /devconsole/ in the developer dashboard's address."
+      },
+      "item_id": {
+       "type": "string",
+       "pattern": "^[a-p]{32}$",
+       "description": "The item's 32-letter id, from its store page or dashboard address."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "connection": "package::service-connections::published-record::chrome-web-store",
+     "connection_id": "service_connection:chrome-web-store",
+     "timeout_ms": 120000,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer ",
+        "suffix": ""
+       }
+      }
+     ],
+     "url": "https://chromewebstore.googleapis.com/v2/publishers/{publisher_id}/items/{item_id}:fetchStatus",
+     "method": "GET"
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::chrome-web-store-upload",
+   "address": "package::trillion::tool::chrome-web-store-upload",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-06T17:00:00Z",
+    "id": "tool:chrome-web-store-upload",
+    "label": "Upload a Chrome Web Store package",
+    "job": "Upload a new version of a browser extension (its zip) to the Chrome Web Store",
+    "description": "Sends the extension's zip (a file in the person's files) as the item's new package. The zip's manifest must carry a higher version than the item's last one. Publish it with tool:chrome-web-store-publish.",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": true,
+     "max_input_bytes": 104857600
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "publisher_id",
+      "item_id",
+      "package"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "publisher_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The publisher's id: the part after /devconsole/ in the developer dashboard's address."
+      },
+      "item_id": {
+       "type": "string",
+       "pattern": "^[a-p]{32}$",
+       "description": "The item's 32-letter id, from its store page or dashboard address."
+      },
+      "package": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The extension's zip, as a file identity in the person's files."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "connection": "package::service-connections::published-record::chrome-web-store",
+     "connection_id": "service_connection:chrome-web-store",
+     "timeout_ms": 120000,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer ",
+        "suffix": ""
+       }
+      }
+     ],
+     "url": "https://chromewebstore.googleapis.com/upload/v2/publishers/{publisher_id}/items/{item_id}:upload",
+     "method": "POST",
+     "body": {
+      "fill": {
+       "from": "input",
+       "field": "package",
+       "fetch": "base64"
+      }
+     },
+     "body_encoding": "bytes",
+     "headers": {
+      "content-type": "application/zip"
+     }
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::chrome-web-store-publish",
+   "address": "package::trillion::tool::chrome-web-store-publish",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-06T17:00:00Z",
+    "id": "tool:chrome-web-store-publish",
+    "label": "Publish on the Chrome Web Store",
+    "job": "Send a browser extension's uploaded version to review and publish it when it passes",
+    "description": "Submits the item's newest uploaded package for review on the Chrome Web Store; it is published as soon as it passes.",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "publisher_id",
+      "item_id"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "publisher_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The publisher's id: the part after /devconsole/ in the developer dashboard's address."
+      },
+      "item_id": {
+       "type": "string",
+       "pattern": "^[a-p]{32}$",
+       "description": "The item's 32-letter id, from its store page or dashboard address."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "connection": "package::service-connections::published-record::chrome-web-store",
+     "connection_id": "service_connection:chrome-web-store",
+     "timeout_ms": 120000,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer ",
+        "suffix": ""
+       }
+      }
+     ],
+     "url": "https://chromewebstore.googleapis.com/v2/publishers/{publisher_id}/items/{item_id}:publish",
+     "method": "POST"
+    }
+   }
+  }
+ ]
+}

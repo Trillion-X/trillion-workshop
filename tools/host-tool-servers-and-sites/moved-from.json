@@ -17,6 +17,27 @@
       "to": "tools/host-tool-servers-and-sites/src/hosted-sites.mjs",
       "source_identity": "1f:45932e7e61042f123c76986033a9367aab252d667127f1445268e83d0423d52f",
       "identity": "1f:45932e7e61042f123c76986033a9367aab252d667127f1445268e83d0423d52f"
+    },
+    {
+      "from": "records/workshop-tool-server-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/host-tool-servers-and-sites/from-old-trillion/records/workshop-tool-server-records.json",
+      "source_identity": "1f:83ff407f85e6deb09d8b2168c64a0ba85b5b1a03d1a747a8ec31e9bc9423531d",
+      "identity": "1f:83ff407f85e6deb09d8b2168c64a0ba85b5b1a03d1a747a8ec31e9bc9423531d"
+    },
+    {
+      "from": "records/hosted-mcp-apps.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/host-tool-servers-and-sites/from-old-trillion/records/hosted-mcp-apps.json",
+      "source_identity": "1f:297117f5ad307d31cf43a8322ea7b1a33a2dc7f0801a284355d5172638958a01",
+      "identity": "1f:297117f5ad307d31cf43a8322ea7b1a33a2dc7f0801a284355d5172638958a01"
+    },
+    {
+      "from": "records/hosted-service-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/host-tool-servers-and-sites/from-old-trillion/records/hosted-service-records.json",
+      "source_identity": "1f:8fa4ef0379a74e241e47905d44d4374e7c452fd916c3c5adf6b990f34be4c568",
+      "identity": "1f:8fa4ef0379a74e241e47905d44d4374e7c452fd916c3c5adf6b990f34be4c568"
     }
   ]
 }

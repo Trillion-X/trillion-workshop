@@ -1,0 +1,241 @@
+{
+  "about": "The apps Trillion hosts as tool servers (src/hosted-mcp-apps.mjs). Each app is a public GitHub repository whose release ships `<name>-cli`, a headless stdio MCP server; the craft-mcp hosted service (service) installs every pinned release in one container image and parts/stdio-mcp-gateway serves each at https://<host>/<name>/mcp as streamable HTTP. From this file come the image's Dockerfile lines, the gateway's config, the hosted-service and hosted-site rows (scripts/hosted-rows.mjs) and one live tool source per app visible to every account (src/live-tool-source-config.mjs). Adding an app is adding a row to apps: name, repo, release_tag, asset_url (the release's linux-x86_64 tar.gz, which holds <name>-<ver>-linux-x86_64/bin/<name>-cli), BLAKE3 of that archive (blake3, by b3sum), licence, maker, page and clone_of (the product it stands in for), mcp_args (what follows the cli to start its stdio MCP server) and about (plain words people ask for; they are put in front of each tool's job so find_tool_for_job finds it).",
+  "service": {
+    "id": "service:craft-mcp",
+    "site_id": "site:craft-mcp",
+    "label": "Craft creative apps as tool servers",
+    "host": "craft-mcp.gettrillion.ai",
+    "binding": "CRAFT_MCP_SERVICE",
+    "class_name": "CraftMcpService",
+    "application": "hosted-craft-mcp",
+    "instance_type": "standard-2",
+    "max_instances": 4,
+    "port": 8080,
+    "idle_seconds": 600,
+    "save_after_write_seconds": 20,
+    "base_image": "node:22-bookworm-slim",
+    "user": "node",
+    "gateway": {
+      "max_sessions": 16,
+      "session_idle_seconds": 120,
+      "session_max_seconds": 1800,
+      "request_timeout_seconds": 120,
+      "queue_seconds": 15
+    }
+  },
+  "maker": "maker:github.com/storytold",
+  "licence": "Apache-2.0",
+  "licence_class": "licence:permissive",
+  "vendor_page": "https://github.com/storytold",
+  "apps": [
+    {
+      "name": "photocraft",
+      "label": "Photocraft",
+      "repo": "https://github.com/storytold/photocraft",
+      "release_tag": "v0.5.0",
+      "asset_url": "https://github.com/storytold/photocraft/releases/download/v0.5.0/photocraft-0.5.0-linux-x86_64.tar.gz",
+      "blake3": "caaf056ab4c8417aca68763f20f1e00d46c914b3f0a16fbfc068d6222b4d83bd",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/photocraft",
+      "clone_of": "Adobe Photoshop",
+      "cli": "photocraft-cli",
+      "mcp_args": [
+        "mcp"
+      ],
+      "about": "Photocraft, a Photoshop-style photo editor: edit a photo, retouch an image, apply filters and layers, resize or crop a picture, convert PSD PNG JPG files, make a photo collage"
+    },
+    {
+      "name": "vectorcraft",
+      "label": "Vectorcraft",
+      "repo": "https://github.com/storytold/vectorcraft",
+      "release_tag": "v0.7.0",
+      "asset_url": "https://github.com/storytold/vectorcraft/releases/download/v0.7.0/vectorcraft-0.7.0-linux-x86_64.tar.gz",
+      "blake3": "e71ae5939b1b1748e7d4ca098efee437ae18c7aae5a9237bc0b1d5f4c056a791",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/vectorcraft",
+      "clone_of": "Adobe Illustrator",
+      "cli": "vectorcraft-cli",
+      "mcp_args": [
+        "mcp"
+      ],
+      "about": "Vectorcraft, an Illustrator-style vector graphics editor: draw a vector logo, make an SVG illustration, design icons and shapes, edit paths and curves, create vector artwork"
+    },
+    {
+      "name": "pdfcraft",
+      "label": "Pdfcraft",
+      "repo": "https://github.com/storytold/pdfcraft",
+      "release_tag": "v0.4.0",
+      "asset_url": "https://github.com/storytold/pdfcraft/releases/download/v0.4.0/pdfcraft-0.4.0-linux-x86_64.tar.gz",
+      "blake3": "abf2b8fedab67c41e26c61adadb18c53fb8ed2ed4d9320a9fafb0d1a9592ffaf",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/pdfcraft",
+      "clone_of": "Adobe Acrobat",
+      "cli": "pdfcraft-cli",
+      "mcp_args": [
+        "mcp"
+      ],
+      "about": "Pdfcraft, a Acrobat-style PDF editor: edit a PDF, read or extract text from a PDF, merge or split PDF pages, fill and annotate a PDF form, redact or sign a PDF"
+    },
+    {
+      "name": "lightcraft",
+      "label": "Lightcraft",
+      "repo": "https://github.com/storytold/lightcraft",
+      "release_tag": "v0.4.0",
+      "asset_url": "https://github.com/storytold/lightcraft/releases/download/v0.4.0/lightcraft-0.4.0-linux-x86_64.tar.gz",
+      "blake3": "93f365894809434a9506f2d2d1c2baa99f17c3fe197e503d44e921a36925f45b",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/lightcraft",
+      "clone_of": "Adobe Lightroom",
+      "cli": "lightcraft-cli",
+      "mcp_args": [
+        "mcp"
+      ],
+      "about": "Lightcraft, a Lightroom-style photo developer: develop a raw photo, color grade photos, adjust exposure and white balance, organize a photo library, batch edit photographs"
+    },
+    {
+      "name": "effectcraft",
+      "label": "Effectcraft",
+      "repo": "https://github.com/storytold/effectcraft",
+      "release_tag": "v0.6.0",
+      "asset_url": "https://github.com/storytold/effectcraft/releases/download/v0.6.0/effectcraft-0.6.0-linux-x86_64.tar.gz",
+      "blake3": "bb2eb1f1e421fe3865847e79c29e4cbb28d982ea1dcb39a2ea81266caaa65a8a",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/effectcraft",
+      "clone_of": "Adobe After Effects",
+      "cli": "effectcraft-cli",
+      "mcp_args": [
+        "mcp",
+        "--demo"
+      ],
+      "about": "Effectcraft, an After Effects-style motion graphics and compositing tool: animate motion graphics, make an animated title, composite video layers, add visual effects to a clip, keyframe animation"
+    },
+    {
+      "name": "filmcraft",
+      "label": "Filmcraft",
+      "repo": "https://github.com/storytold/filmcraft",
+      "release_tag": "v0.4.0",
+      "asset_url": "https://github.com/storytold/filmcraft/releases/download/v0.4.0/filmcraft-0.4.0-linux-x86_64.tar.gz",
+      "blake3": "add835935d0c83ad8d81e646fc1f74a908cd19bd492e9e6c27f90b1c66bfbb86",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/filmcraft",
+      "clone_of": "Adobe Premiere Pro",
+      "cli": "filmcraft-cli",
+      "mcp_args": [
+        "mcp",
+        "--demo"
+      ],
+      "about": "Filmcraft, a Premiere-style video editor: cut a video, edit a movie, trim and join clips on a timeline, add transitions, titles and music to a video"
+    },
+    {
+      "name": "soundcraft",
+      "label": "Soundcraft",
+      "repo": "https://github.com/storytold/soundcraft",
+      "release_tag": "v0.3.0",
+      "asset_url": "https://github.com/storytold/soundcraft/releases/download/v0.3.0/soundcraft-0.3.0-linux-x86_64.tar.gz",
+      "blake3": "76caa48f141e53bd8b608ec90745fe37bdeb2f8280b2966bc6e50a1b5d5f5e0e",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/soundcraft",
+      "clone_of": "Pro Tools",
+      "cli": "soundcraft-cli",
+      "mcp_args": [
+        "mcp",
+        "--demo"
+      ],
+      "about": "Soundcraft, a Pro Tools-style multitrack audio workstation: mix audio, record and edit a podcast, multitrack music production, cut and fade sound, normalize and master audio"
+    },
+    {
+      "name": "wordcraft",
+      "label": "Wordcraft",
+      "repo": "https://github.com/storytold/wordcraft",
+      "release_tag": "v0.3.0",
+      "asset_url": "https://github.com/storytold/wordcraft/releases/download/v0.3.0/wordcraft-0.3.0-linux-x86_64.tar.gz",
+      "blake3": "fcc7fb1185d6323e59854f741211c15913acf232159cc7ce4896e460986f4693",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/wordcraft",
+      "clone_of": "Microsoft Word",
+      "cli": "wordcraft-cli",
+      "mcp_args": [
+        "mcp"
+      ],
+      "about": "Wordcraft, a Word-style document editor: write a document, make a Word letter or report, format text with headings and tables, export a document to DOCX or PDF"
+    },
+    {
+      "name": "gridcraft",
+      "label": "Gridcraft",
+      "repo": "https://github.com/storytold/gridcraft",
+      "release_tag": "v0.3.0",
+      "asset_url": "https://github.com/storytold/gridcraft/releases/download/v0.3.0/gridcraft-0.3.0-linux-x86_64.tar.gz",
+      "blake3": "ad8fa6e3a08692278773484dbef5bbea5d67ecc835960b945cae6f9bff93e9fa",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/gridcraft",
+      "clone_of": "Microsoft Excel",
+      "cli": "gridcraft-cli",
+      "mcp_args": [
+        "mcp",
+        "--sample",
+        "budget"
+      ],
+      "about": "Gridcraft, an Excel-style spreadsheet: make a spreadsheet, calculate with formulas, build a budget or table of numbers, chart data, open or save XLSX and CSV"
+    },
+    {
+      "name": "deckcraft",
+      "label": "Deckcraft",
+      "repo": "https://github.com/storytold/deckcraft",
+      "release_tag": "v0.3.0",
+      "asset_url": "https://github.com/storytold/deckcraft/releases/download/v0.3.0/deckcraft-0.3.0-linux-x86_64.tar.gz",
+      "blake3": "b05ef676ee3fe7877d620377b132df1746c53b816d7295ec4ea8dd46adacf2ac",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/deckcraft",
+      "clone_of": "Microsoft PowerPoint",
+      "cli": "deckcraft-cli",
+      "mcp_args": [
+        "mcp"
+      ],
+      "about": "Deckcraft, a PowerPoint-style presentation maker: make slides, build a presentation deck, design a pitch deck, add slide text, images and layouts, export PPTX"
+    },
+    {
+      "name": "cadcraft",
+      "label": "Cadcraft",
+      "repo": "https://github.com/storytold/cadcraft",
+      "release_tag": "v0.3.0",
+      "asset_url": "https://github.com/storytold/cadcraft/releases/download/v0.3.0/cadcraft-0.3.0-linux-x86_64.tar.gz",
+      "blake3": "881ee3f14133b80bac269bafcf356826d4ea44d9d035566850cac1a510ed5218",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/cadcraft",
+      "clone_of": "AutoCAD",
+      "cli": "cadcraft-cli",
+      "mcp_args": [
+        "mcp"
+      ],
+      "about": "Cadcraft, an AutoCAD-style 2D CAD drafting tool: draw a CAD plan, make a floor plan or technical drawing, draft lines, circles and dimensions, export DXF or DWG"
+    },
+    {
+      "name": "designcraft",
+      "label": "Designcraft",
+      "repo": "https://github.com/storytold/designcraft",
+      "release_tag": "v0.4.0",
+      "asset_url": "https://github.com/storytold/designcraft/releases/download/v0.4.0/designcraft-0.4.0-linux-x86_64.tar.gz",
+      "blake3": "8f76004027465e0304ab435e55f5c48eeb8c2339a17926a61ea17d63dd1a98b6",
+      "licence": "Apache-2.0",
+      "maker": "maker:github.com/storytold",
+      "page": "https://github.com/storytold/designcraft",
+      "clone_of": "Adobe InDesign",
+      "cli": "designcraft-cli",
+      "mcp_args": [
+        "mcp"
+      ],
+      "about": "Designcraft, an InDesign-style page layout tool: lay out a page, design a magazine, brochure or book layout, flow text into columns, prepare a print-ready layout"
+    }
+  ]
+}

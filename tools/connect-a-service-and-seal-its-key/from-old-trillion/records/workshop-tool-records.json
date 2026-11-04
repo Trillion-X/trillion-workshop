@@ -1,0 +1,1921 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-tool-records",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool::generate-local-image",
+      "address": "package::ai-tool-catalog::tool::generate-local-image",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:generate-local-image",
+        "listed_on": "2026-10-11T08:48:59.646Z",
+        "label": "Generate an image locally",
+        "job": "Generate an original image from a visual brief with your chosen local image model, for an article hero, thumbnail or illustration",
+        "description": "Runs MFLUX on your Apple Silicon Mac through its public, MIT-licensed MCP server. Uses your computer for inference. The selected model is explicit; no paid provider or Trillion inference fallback. First use downloads that model. Returns the completed PNG in your files.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "brief",
+            "model"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "brief": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 6000,
+              "description": "Describe the picture or requested edit. Include the scene and visual style; never copy a page title or subtitle into the image."
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The local model name you chose, from the available local image models. Its weight license must permit this use."
+            },
+            "steps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "quantize": {
+              "type": "integer",
+              "enum": [
+                4,
+                8
+              ]
+            },
+            "width": {
+              "type": "integer",
+              "minimum": 256,
+              "maximum": 2048
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 256,
+              "maximum": 2048
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "ok",
+            "files"
+          ],
+          "properties": {
+            "ok": {
+              "const": true
+            },
+            "files": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "identity",
+                  "bytes",
+                  "media_type"
+                ],
+                "properties": {
+                  "identity": {
+                    "type": "string",
+                    "pattern": "^1f:[a-f0-9]{64}$"
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "media_type": {
+                    "const": "image/png"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer-tool",
+          "tool_id": "tool:run-an-app-job",
+          "input": {
+            "app": "mflux",
+            "operation": "generate_image",
+            "arguments": {
+              "prompt": {
+                "fill": {
+                  "from": "input",
+                  "field": "brief"
+                }
+              },
+              "model": {
+                "fill": {
+                  "from": "input",
+                  "field": "model"
+                }
+              },
+              "steps": {
+                "fill": {
+                  "from": "input",
+                  "field": "steps"
+                }
+              },
+              "seed": {
+                "fill": {
+                  "from": "input",
+                  "field": "seed"
+                }
+              },
+              "quantize": {
+                "fill": {
+                  "from": "input",
+                  "field": "quantize"
+                }
+              },
+              "backend": "thread",
+              "timeout": 900,
+              "output_path": {
+                "output_file": "image"
+              },
+              "width": {
+                "fill": {
+                  "from": "input",
+                  "field": "width"
+                }
+              },
+              "height": {
+                "fill": {
+                  "from": "input",
+                  "field": "height"
+                }
+              }
+            },
+            "files": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "key": "image",
+                  "name": "image.png",
+                  "media_type": "image/png"
+                }
+              ]
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 300,
+          "priority": 6,
+          "network_egress": true
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:media-composition",
+        "verify": [
+          {
+            "kind": "output-number-within",
+            "output_selector": "$.files[0].bytes",
+            "at_least": 1
+          }
+        ],
+        "provenance": {
+          "repository": "https://github.com/alampros/mflux-mcp",
+          "commit": "caa3fc3a928039357678d29cf89dd16c473fa8da",
+          "licence": "MIT",
+          "dependency": {
+            "repository": "https://github.com/filipstrand/mflux",
+            "release": "v.0.22.0",
+            "licence": "MIT"
+          },
+          "execution": "customer-local",
+          "owner": "tool:run-an-app-job"
+        },
+        "screen": {
+          "group": "content-make",
+          "kind": "described",
+          "icon": "Image",
+          "shows": [
+            "files"
+          ],
+          "inputs": {
+            "brief": {
+              "label": "Picture",
+              "placeholder": "Describe a scene and style, without title text"
+            },
+            "model": {
+              "label": "Local image model",
+              "placeholder": "flux2-klein-4b"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::edit-local-image",
+      "address": "package::ai-tool-catalog::tool::edit-local-image",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:edit-local-image",
+        "listed_on": "2026-10-11T08:48:59.647Z",
+        "label": "Edit an image locally",
+        "job": "Edit an image from your files using an image editing brief and your chosen local model",
+        "description": "Runs MFLUX on your Apple Silicon Mac through its public, MIT-licensed MCP server. Uses your computer for inference. The selected model is explicit; no paid provider or Trillion inference fallback. First use downloads that model. Returns the completed PNG in your files.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "brief",
+            "model",
+            "image"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "brief": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 6000,
+              "description": "Describe the picture or requested edit. Include the scene and visual style; never copy a page title or subtitle into the image."
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The local model name you chose, from the available local image models. Its weight license must permit this use."
+            },
+            "steps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "quantize": {
+              "type": "integer",
+              "enum": [
+                4,
+                8
+              ]
+            },
+            "image": {
+              "type": "string",
+              "pattern": "^1f:[a-f0-9]{64}$",
+              "description": "An image identity from your files."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "ok",
+            "files"
+          ],
+          "properties": {
+            "ok": {
+              "const": true
+            },
+            "files": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "identity",
+                  "bytes",
+                  "media_type"
+                ],
+                "properties": {
+                  "identity": {
+                    "type": "string",
+                    "pattern": "^1f:[a-f0-9]{64}$"
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "media_type": {
+                    "const": "image/png"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer-tool",
+          "tool_id": "tool:run-an-app-job",
+          "input": {
+            "app": "mflux",
+            "operation": "edit_image",
+            "arguments": {
+              "prompt": {
+                "fill": {
+                  "from": "input",
+                  "field": "brief"
+                }
+              },
+              "model": {
+                "fill": {
+                  "from": "input",
+                  "field": "model"
+                }
+              },
+              "steps": {
+                "fill": {
+                  "from": "input",
+                  "field": "steps"
+                }
+              },
+              "seed": {
+                "fill": {
+                  "from": "input",
+                  "field": "seed"
+                }
+              },
+              "quantize": {
+                "fill": {
+                  "from": "input",
+                  "field": "quantize"
+                }
+              },
+              "backend": "thread",
+              "timeout": 900,
+              "output_path": {
+                "output_file": "image"
+              },
+              "image_paths": [
+                {
+                  "input_file": "source"
+                }
+              ]
+            },
+            "files": {
+              "inputs": [
+                {
+                  "key": "source",
+                  "identity": {
+                    "fill": {
+                      "from": "input",
+                      "field": "image"
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "key": "image",
+                  "name": "image.png",
+                  "media_type": "image/png"
+                }
+              ]
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 300,
+          "priority": 6,
+          "network_egress": true
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:media-composition",
+        "verify": [
+          {
+            "kind": "output-number-within",
+            "output_selector": "$.files[0].bytes",
+            "at_least": 1
+          }
+        ],
+        "provenance": {
+          "repository": "https://github.com/alampros/mflux-mcp",
+          "commit": "caa3fc3a928039357678d29cf89dd16c473fa8da",
+          "licence": "MIT",
+          "dependency": {
+            "repository": "https://github.com/filipstrand/mflux",
+            "release": "v.0.22.0",
+            "licence": "MIT"
+          },
+          "execution": "customer-local",
+          "owner": "tool:run-an-app-job"
+        },
+        "screen": {
+          "group": "content-make",
+          "kind": "described",
+          "icon": "Image",
+          "shows": [
+            "files"
+          ],
+          "inputs": {
+            "brief": {
+              "label": "Edit",
+              "placeholder": "Describe a scene and style, without title text"
+            },
+            "model": {
+              "label": "Local image model",
+              "placeholder": "flux2-klein-edit"
+            },
+            "image": {
+              "label": "Image",
+              "file": {
+                "takes": "image"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::speech-to-text",
+      "address": "package::ai-tool-catalog::tool::speech-to-text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:speech-to-text",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Speech to text",
+        "job": "Transcribe the speech in an audio or video file into text",
+        "description": "Turns spoken audio at a web address into text with timed segments, using the open Whisper large-v3-turbo speech model.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "audio_url"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "audio_url": {
+              "type": "string",
+              "format": "uri",
+              "description": "A web address that serves the audio file itself (mp3, wav, m4a, ogg, flac or webm), up to 25 MB."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "text"
+          ],
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "invoke": {
+          "kind": "model",
+          "model": "@cf/openai/whisper-large-v3-turbo",
+          "input": {
+            "audio": {
+              "fill": {
+                "from": "input",
+                "field": "audio_url",
+                "fetch": "base64"
+              }
+            }
+          }
+        },
+        "needs": {
+          "max_input_bytes": 25000000,
+          "expected_seconds": 30,
+          "gpu": true,
+          "network_egress": false
+        },
+        "licence_class": "licence:permissive",
+        "placements": [
+          "placement:rented-model-runtime"
+        ],
+        "maker": "maker:openai",
+        "provenance": {
+          "repository": "https://github.com/openai/whisper",
+          "licence": "MIT",
+          "model": "whisper-large-v3-turbo",
+          "served_by": "Cloudflare Workers AI model catalog",
+          "source": "hand-typed seed read from https://developers.cloudflare.com/workers-ai/models/whisper-large-v3-turbo/",
+          "read_on": "2026-09-26"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "audio_url": "https://raw.githubusercontent.com/openai/whisper/main/tests/jfk.flac"
+            },
+            "output_selector": "$.text",
+            "contains": "ask not what your country can do for you"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::repo-explorer",
+      "address": "package::ai-tool-catalog::tool::repo-explorer",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:repo-explorer",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "use_limits": {
+          "runs_per_day": 20,
+          "failures_per_day": 5
+        },
+        "label": "Make a repository into a tool",
+        "status": "active",
+        "job": "Turn a public code repository into a working tool for a job, so later calls run it directly",
+        "description": "Downloads one commit of a public repository into an isolated deployed container, reads its latest release files, works out how to make it do the job on a sample input (building it, or downloading a ready-built release file), runs the kept tool on that sample offline to check it does the job and writes the files it names, stores the working files under their BLAKE3 identity, and keeps it as a tool that can take your files and save the files it makes in yours, with the licence class read from the repository.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "repo_url",
+            "job",
+            "sample_input",
+            "expect_contains"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "repo_url": {
+              "type": "string",
+              "format": "uri",
+              "description": "A public GitHub repository address"
+            },
+            "job": {
+              "type": "string",
+              "minLength": 3,
+              "description": "What the tool should do, in plain words"
+            },
+            "sample_input": {
+              "type": "object",
+              "description": "One example input; each field becomes an input of the new tool. A field holding a file of yours (its identity, 1f: then 64 hex characters) becomes a file input, staged in the container as a local path"
+            },
+            "expect_contains": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Text the sample run's output must contain; the kept tool is checked against it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "descriptor",
+            "job_check"
+          ],
+          "properties": {
+            "descriptor": {
+              "type": "object",
+              "required": [
+                "id",
+                "invoke",
+                "bytes_fingerprint",
+                "verify"
+              ]
+            },
+            "job_check": {
+              "type": "object",
+              "required": [
+                "passed",
+                "output"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "repo-explorer",
+          "input": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "settings": {
+            "planner": {
+              "model": "@cf/qwen/qwen2.5-coder-32b-instruct",
+              "max_tokens": 4000
+            },
+            "max_rounds": 4,
+            "unknown_licence_class": "licence:no-hosting-rights",
+            "tool_placement": "placement:deployed-container",
+            "kept_paths": [
+              "/work"
+            ],
+            "kept_changes_under": [
+              "/usr/local"
+            ],
+            "max_kept_bytes": 40000000,
+            "max_release_assets": 40
+          }
+        },
+        "needs": {
+          "expected_seconds": 240,
+          "network_egress": true,
+          "memory_mb": 2048
+        },
+        "result_saved_as_tool": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:deployed-container"
+        ],
+        "maker": "maker:trillion",
+        "provenance": {
+          "source": "trillion src/repo-explorer.mjs"
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.job_check.passed",
+            "text": "true"
+          },
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.job_check.output",
+            "input_field": "expect_contains"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool-row-source::service-connection-descriptors",
+      "address": "package::ai-tool-catalog::tool-row-source::service-connection-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-row-source",
+        "id": "source:service-connection-descriptors",
+        "list": {
+          "records": {
+            "package": "service-connections",
+            "kind": "service-connection-descriptor"
+          }
+        },
+        "entry": {
+          "id": "vendor",
+          "label": "name",
+          "job": "instructions",
+          "connect_guide": "connectGuide",
+          "connection": "record_address",
+          "credential_fields": "credentialFields",
+          "verify_request": "verifyRequest",
+          "acquire": "acquire",
+          "domain": "domain",
+          "category": "category",
+          "capabilities": "capabilities",
+          "carried_by": "carriedBy",
+          "helper_links": "helperLinks",
+          "guide_choices": "guideChoices",
+          "sends_from": "sendsFrom"
+        },
+        "id_prefix": "tool:connect-service-",
+        "row": {
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "values"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "values": {
+                "type": "object",
+                "writeOnly": true,
+                "description": "One value per credential field, keyed by the field's id. The values go into this account's locked box and are never stored with the task or shown again.",
+                "x-credential-fields": {
+                  "fill": {
+                    "from": "entry",
+                    "field": "credential_fields"
+                  }
+                }
+              },
+              "account_label": {
+                "type": "string",
+                "description": "A name for this account, when you connect more than one account of the same service."
+              }
+            }
+          },
+          "invoke": {
+            "kind": "held-values",
+            "operation": "connect",
+            "provider": {
+              "fill": {
+                "from": "entry",
+                "field": "id"
+              }
+            },
+            "connects": {
+              "connection": {
+                "fill": {
+                  "from": "entry",
+                  "field": "connection"
+                }
+              },
+              "credential_fields": {
+                "fill": {
+                  "from": "entry",
+                  "field": "credential_fields"
+                }
+              },
+              "verify_request": {
+                "fill": {
+                  "from": "entry",
+                  "field": "verify_request"
+                }
+              },
+              "acquire": {
+                "fill": {
+                  "from": "entry",
+                  "field": "acquire"
+                }
+              },
+              "connect_guide": {
+                "fill": {
+                  "from": "entry",
+                  "field": "connect_guide"
+                }
+              },
+              "domain": {
+                "fill": {
+                  "from": "entry",
+                  "field": "domain"
+                }
+              },
+              "category": {
+                "fill": {
+                  "from": "entry",
+                  "field": "category"
+                }
+              },
+              "capabilities": {
+                "fill": {
+                  "from": "entry",
+                  "field": "capabilities"
+                }
+              },
+              "carried_by": {
+                "fill": {
+                  "from": "entry",
+                  "field": "carried_by"
+                }
+              },
+              "helper_links": {
+                "fill": {
+                  "from": "entry",
+                  "field": "helper_links"
+                }
+              },
+              "guide_choices": {
+                "fill": {
+                  "from": "entry",
+                  "field": "guide_choices"
+                }
+              },
+              "sends_from": {
+                "fill": {
+                  "from": "entry",
+                  "field": "sends_from"
+                }
+              }
+            }
+          },
+          "licence_class": "licence:maker-own",
+          "placements": [
+            "placement:held-values"
+          ],
+          "provenance": {
+            "record": {
+              "fill": {
+                "from": "entry",
+                "field": "connection"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool-row-source::how-to-ask-something-else-to-do-things",
+      "address": "package::ai-tool-catalog::tool-row-source::how-to-ask-something-else-to-do-things",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-row-source",
+        "id": "source:how-to-ask-something-else-to-do-things",
+        "lay_over": [
+          {
+            "where": {
+              "connection_id": "service_connection:ghost"
+            },
+            "row": {
+              "billing": {
+                "payers": [
+                  "trillion-credit"
+                ],
+                "price_micros": 20000,
+                "per": "call",
+                "seller": "platform"
+              }
+            }
+          }
+        ],
+        "list": {
+          "records": {
+            "package": "service-connections",
+            "kind": "how-to-ask-something-else-to-do-things",
+            "each_of": "instrument_requests",
+            "not_carried_into_each": [
+              "notes"
+            ]
+          }
+        },
+        "entry": {
+          "id": "record_name",
+          "job": "notes",
+          "how_to_reach_it": "how_to_reach_it",
+          "connection": "connection_ref",
+          "connection_id": "connection_id",
+          "url": "url",
+          "query": "query",
+          "method": "method",
+          "headers": "headers",
+          "body": "body_template",
+          "body_encoding": "body_encoding",
+          "timeout_ms": "timeout_ms",
+          "credential_injections": "credential_injections",
+          "before_you_have_a_secret": "before_you_have_a_secret",
+          "before_you_can": "before_you_can",
+          "external_effect": "external_effect",
+          "after_it_works": "after_it_works",
+          "required_action": "required_action",
+          "answer_codes_that_mean_it_worked": "answer_codes_that_mean_it_worked",
+          "response_map": "response_map",
+          "status_map": "status_map",
+          "reply_holds_values": "reply_holds_values",
+          "record_address": "record_address",
+          "input_schema": "input_schema",
+          "output_schema": "output_schema",
+          "verify": "verify",
+          "host_is_connection_field": "host_is_connection_field",
+          "reply_cursor_paging": "reply_cursor_paging",
+          "label": "label"
+        },
+        "id_prefix": "tool:",
+        "row": {
+          "invoke": {
+            "kind": {
+              "fill": {
+                "from": "entry",
+                "field": "how_to_reach_it"
+              }
+            },
+            "connection": {
+              "fill": {
+                "from": "entry",
+                "field": "connection"
+              }
+            },
+            "connection_id": {
+              "fill": {
+                "from": "entry",
+                "field": "connection_id"
+              }
+            },
+            "url": {
+              "fill": {
+                "from": "entry",
+                "field": "url"
+              }
+            },
+            "query": {
+              "fill": {
+                "from": "entry",
+                "field": "query"
+              }
+            },
+            "method": {
+              "fill": {
+                "from": "entry",
+                "field": "method"
+              }
+            },
+            "headers": {
+              "fill": {
+                "from": "entry",
+                "field": "headers"
+              }
+            },
+            "body": {
+              "fill": {
+                "from": "entry",
+                "field": "body"
+              }
+            },
+            "body_encoding": {
+              "fill": {
+                "from": "entry",
+                "field": "body_encoding"
+              }
+            },
+            "timeout_ms": {
+              "fill": {
+                "from": "entry",
+                "field": "timeout_ms"
+              }
+            },
+            "credential_injections": {
+              "fill": {
+                "from": "entry",
+                "field": "credential_injections"
+              }
+            },
+            "before_you_have_a_secret": {
+              "fill": {
+                "from": "entry",
+                "field": "before_you_have_a_secret"
+              }
+            },
+            "before_you_can": {
+              "fill": {
+                "from": "entry",
+                "field": "before_you_can"
+              }
+            },
+            "external_effect": {
+              "fill": {
+                "from": "entry",
+                "field": "external_effect"
+              }
+            },
+            "after_it_works": {
+              "fill": {
+                "from": "entry",
+                "field": "after_it_works"
+              }
+            },
+            "required_action": {
+              "fill": {
+                "from": "entry",
+                "field": "required_action"
+              }
+            },
+            "answer_codes_that_mean_it_worked": {
+              "fill": {
+                "from": "entry",
+                "field": "answer_codes_that_mean_it_worked"
+              }
+            },
+            "response_map": {
+              "fill": {
+                "from": "entry",
+                "field": "response_map"
+              }
+            },
+            "status_map": {
+              "fill": {
+                "from": "entry",
+                "field": "status_map"
+              }
+            },
+            "reply_holds_values": {
+              "fill": {
+                "from": "entry",
+                "field": "reply_holds_values"
+              }
+            },
+            "host_is_connection_field": {
+              "fill": {
+                "from": "entry",
+                "field": "host_is_connection_field"
+              }
+            },
+            "reply_cursor_paging": {
+              "fill": {
+                "from": "entry",
+                "field": "reply_cursor_paging"
+              }
+            }
+          },
+          "licence_class": "licence:maker-own",
+          "placements": [
+            "placement:public-web-address"
+          ],
+          "provenance": {
+            "record": {
+              "fill": {
+                "from": "entry",
+                "field": "record_address"
+              }
+            }
+          },
+          "input_schema": {
+            "fill": {
+              "from": "entry",
+              "field": "input_schema"
+            }
+          },
+          "output_schema": {
+            "fill": {
+              "from": "entry",
+              "field": "output_schema"
+            }
+          },
+          "verify": {
+            "fill": {
+              "from": "entry",
+              "field": "verify"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::list-connections",
+      "address": "package::ai-tool-catalog::tool::list-connections",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-connections",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "List connections",
+        "job": "List the services this account is connected to, with each connection's status and when it was last checked",
+        "description": "List the services this account is connected to, with each connection's status and when it was last checked",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [],
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "list"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::check-connection",
+      "address": "package::ai-tool-catalog::tool::check-connection",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-connection",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Check a connection",
+        "job": "Check that a connected service still accepts this account's stored key",
+        "description": "Check that a connected service still accepts this account's stored key",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connection_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connection_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The connection's id, as list-connections shows it."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "check"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::rename-connection",
+      "address": "package::ai-tool-catalog::tool::rename-connection",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:rename-connection",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Rename a connection",
+        "job": "Give a connected account a different name",
+        "description": "Give a connected account a different name",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connection_id",
+            "account_label"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connection_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The connection's id, as list-connections shows it."
+            },
+            "account_label": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "rename"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::set-connection-details",
+      "address": "package::ai-tool-catalog::tool::set-connection-details",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-connection-details",
+        "listed_on": "2026-10-05T07:00:00Z",
+        "label": "Set a connection detail",
+        "job": "Set a detail of a connected account that is not secret, such as its account ID or site address, without giving its key again",
+        "description": "Set a detail of a connected account that is not secret, such as its account ID or site address, without giving its key again. The key is checked again afterwards.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connection_id",
+            "values"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connection_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The connection's id, as list-connections shows it."
+            },
+            "values": {
+              "type": "object",
+              "description": "One value per detail, keyed by the field id (for example { \"account_id\": \"...\" }). Secret fields are set with replace-connection-value."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "details"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::replace-connection-value",
+      "address": "package::ai-tool-catalog::tool::replace-connection-value",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:replace-connection-value",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Replace a connection's key",
+        "job": "Replace the key a connection uses, for example after the service issued a new one",
+        "description": "Replace the key a connection uses, for example after the service issued a new one",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connection_id",
+            "values"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connection_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The connection's id, as list-connections shows it."
+            },
+            "values": {
+              "type": "object",
+              "writeOnly": true,
+              "description": "One value per credential field, keyed by the field's id."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "replace"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::disconnect-service",
+      "address": "package::ai-tool-catalog::tool::disconnect-service",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:disconnect-service",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Disconnect a service",
+        "job": "Disconnect a service and remove its stored key from this account",
+        "description": "Disconnect a service and remove its stored key from this account",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connection_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connection_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The connection's id, as list-connections shows it."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "disconnect"
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::service-connections"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::set-up-paid-plan",
+      "address": "package::ai-tool-catalog::tool::set-up-paid-plan",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-up-paid-plan",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Set up paid plans",
+        "job": "Set up this service's paid plans on its connected Stripe account: one payment link per priced offer, the review codes, the plan page and the payment notices",
+        "description": "Runs only on this service's operator account. Uses the operator's Stripe connection, which the request sender places into each request; Stripe's signing secret for payment notices goes straight into the operator's locked box. Run it again after the offers change.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [],
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "set-up-paid-plan",
+          "connection": "package::service-connections::published-record::stripe",
+          "connection_id": "service_connection:stripe",
+          "credential_injections": [
+            {
+              "field_id": "secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ]
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::stripe-payment-provider"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::give-referral-credit",
+      "address": "package::ai-tool-catalog::tool::give-referral-credit",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:give-referral-credit",
+        "listed_on": "2026-09-29T20:49:58Z",
+        "label": "Give a referral free month",
+        "job": "Give one person a free month of their plan as credit on this service's Stripe account, because someone who joined with their link started paying",
+        "description": "Runs only on this service's operator account, started by the payment notice that makes a referral reward owed (src/payment.mjs rewardReferrals). Uses the operator's Stripe connection; the reward's idempotency key is Stripe's, so the same reward is never credited twice.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "subscription_id",
+            "amount_cents",
+            "currency",
+            "idempotency_key"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "subscription_id": {
+              "type": "string",
+              "description": "The referrer's subscription; the credit goes on the Stripe customer it bills"
+            },
+            "amount_cents": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The credit, in cents"
+            },
+            "currency": {
+              "type": "string",
+              "description": "Three-letter currency of the plan"
+            },
+            "idempotency_key": {
+              "type": "string",
+              "description": "One key per reward, so it is credited once"
+            },
+            "description": {
+              "type": "string",
+              "description": "The line the customer reads on the credit; a referral's words when left out"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Why the credit is given (referral, first-month), kept on it"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "give-referral-credit",
+          "connection": "package::service-connections::published-record::stripe",
+          "connection_id": "service_connection:stripe",
+          "credential_injections": [
+            {
+              "field_id": "secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ],
+          "external_effect": {
+            "kind": "charge",
+            "what": "a credit on a person's Stripe bill"
+          }
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::stripe-payment-provider"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::meter-plan-usage",
+      "address": "package::ai-tool-catalog::tool::meter-plan-usage",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:meter-plan-usage",
+        "listed_on": "2026-10-03T12:00:00Z",
+        "label": "Count what a plan charges by use",
+        "job": "Add a paid plan's counted prices (storage above what it includes) to a person's subscription on this service's Stripe account, and send each day's count of what they keep above it",
+        "description": "Runs only on this service's operator account. A paid checkout or renewal starts it to add the plan's counted prices to the subscription (src/payment.mjs startPlanUsage); each paying account's store starts it once a day with that day's count (src/plan-usage.mjs). Uses the operator's Stripe connection; nothing is counted while the subscription is in its free trial or after it ends, and each day's count carries its own identifier so it is counted once.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "subscription_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "subscription_id": {
+              "type": "string",
+              "description": "The subscription the counted prices are on"
+            },
+            "attach": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Counted prices to add to the subscription when it does not carry them yet"
+            },
+            "report": {
+              "type": "array",
+              "description": "One day's counts",
+              "items": {
+                "type": "object",
+                "required": [
+                  "event_name",
+                  "value",
+                  "identifier"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "event_name": {
+                    "type": "string",
+                    "description": "The meter's event name"
+                  },
+                  "value": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Whole units above what the plan includes"
+                  },
+                  "identifier": {
+                    "type": "string",
+                    "description": "One identifier per subscription, meter and day, so a day is counted once"
+                  },
+                  "timestamp": {
+                    "type": "integer",
+                    "description": "Seconds since 1970 of the day counted"
+                  }
+                }
+              }
+            },
+            "allocation_offer_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "meter-plan-usage",
+          "connection": "package::service-connections::published-record::stripe",
+          "connection_id": "service_connection:stripe",
+          "credential_injections": [
+            {
+              "field_id": "secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ],
+          "external_effect": {
+            "kind": "charge",
+            "what": "counted storage on a person's Stripe bill"
+          }
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::stripe-payment-provider"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::set-up-hosted-site",
+      "address": "package::ai-tool-catalog::tool::set-up-hosted-site",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-up-hosted-site",
+        "listed_on": "2026-09-27T07:03:36Z",
+        "label": "Set up a hosted site",
+        "job": "Set up a hosted publishing site with its owner and connect this account to it, so posts can be written and published on it",
+        "description": "Runs the site's first-run setup inside its own container (the owner's name, email and the site title), then connects this account to the site; the site's admin key goes straight into this account's locked box and is never shown.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "site_id",
+            "owner_name",
+            "owner_email",
+            "title"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "site_id": {
+              "type": "string",
+              "description": "Which hosted site, e.g. site:newsletter"
+            },
+            "owner_name": {
+              "type": "string",
+              "x-free-text-because": "The site owner name for the hosted site first-run setup, written there as they want it to read."
+            },
+            "owner_email": {
+              "type": "string",
+              "format": "email"
+            },
+            "title": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "connected",
+            "site_url"
+          ]
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.connected",
+            "text": "true"
+          }
+        ],
+        "invoke": {
+          "kind": "hosted-service",
+          "operation": "set-up"
+        },
+        "needs": {
+          "expected_seconds": 60
+        },
+        "licence_class": "licence:permissive",
+        "placements": [
+          "placement:hosted-sites"
+        ],
+        "provenance": {
+          "repository": "https://github.com/TryGhost/Ghost",
+          "licence": "MIT"
+        },
+        "price_ref": "price:hosted-site"
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool-price::hosted-site",
+      "address": "package::ai-tool-catalog::tool-price::hosted-site",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-price",
+        "id": "price:hosted-site",
+        "label": "your own publishing site",
+        "amount_micros": 0,
+        "currency": "usd",
+        "per": "site",
+        "access_ref": "access:hosted-site"
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool-row-source::media-composition-tools",
+      "address": "package::ai-tool-catalog::tool-row-source::media-composition-tools",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-row-source",
+        "id": "source:media-composition-tools",
+        "label": "The media-composition package's own tools (find action moments, reframe, change speed, captions, render, export)",
+        "list": {
+          "records": {
+            "package": "media-composition",
+            "kind": "ai-tool-descriptor"
+          }
+        },
+        "entry": {
+          "id": "record_name",
+          "label": "label",
+          "job": "job",
+          "description": "description",
+          "status": "status",
+          "input_schema": "input_schema",
+          "output_schema": "output_schema",
+          "invoke": "invoke",
+          "needs": "needs",
+          "licence_class": "licence_class",
+          "placements": "placements",
+          "maker": "maker",
+          "verify": "verify",
+          "result_selector": "result_selector",
+          "keeps_records": "keeps_records",
+          "price_ref": "price_ref",
+          "billing": "billing",
+          "provenance": "provenance",
+          "screen": "screen",
+          "controls": "controls"
+        },
+        "id_prefix": "tool:",
+        "row": {
+          "label": {
+            "fill": {
+              "from": "entry",
+              "field": "label"
+            }
+          },
+          "job": {
+            "fill": {
+              "from": "entry",
+              "field": "job"
+            }
+          },
+          "description": {
+            "fill": {
+              "from": "entry",
+              "field": "description"
+            }
+          },
+          "status": {
+            "fill": {
+              "from": "entry",
+              "field": "status"
+            }
+          },
+          "input_schema": {
+            "fill": {
+              "from": "entry",
+              "field": "input_schema"
+            }
+          },
+          "output_schema": {
+            "fill": {
+              "from": "entry",
+              "field": "output_schema"
+            }
+          },
+          "invoke": {
+            "fill": {
+              "from": "entry",
+              "field": "invoke"
+            }
+          },
+          "needs": {
+            "fill": {
+              "from": "entry",
+              "field": "needs"
+            }
+          },
+          "licence_class": {
+            "fill": {
+              "from": "entry",
+              "field": "licence_class"
+            }
+          },
+          "placements": {
+            "fill": {
+              "from": "entry",
+              "field": "placements"
+            }
+          },
+          "maker": {
+            "fill": {
+              "from": "entry",
+              "field": "maker"
+            }
+          },
+          "verify": {
+            "fill": {
+              "from": "entry",
+              "field": "verify"
+            }
+          },
+          "result_selector": {
+            "fill": {
+              "from": "entry",
+              "field": "result_selector"
+            }
+          },
+          "keeps_records": {
+            "fill": {
+              "from": "entry",
+              "field": "keeps_records"
+            }
+          },
+          "price_ref": {
+            "fill": {
+              "from": "entry",
+              "field": "price_ref"
+            }
+          },
+          "billing": {
+            "fill": {
+              "from": "entry",
+              "field": "billing"
+            }
+          },
+          "provenance": {
+            "fill": {
+              "from": "entry",
+              "field": "provenance"
+            }
+          },
+          "screen": {
+            "fill": {
+              "from": "entry",
+              "field": "screen"
+            }
+          },
+          "controls": {
+            "fill": {
+              "from": "entry",
+              "field": "controls"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::open-purchase-billing",
+      "address": "package::ai-tool-catalog::tool::open-purchase-billing",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:open-purchase-billing",
+        "listed_on": "2026-10-03T12:00:00Z",
+        "label": "Manage one purchase",
+        "job": "Open the secure card, invoice and cancellation page for one verified funding purchase; operator only.",
+        "description": "Runs only on this service's operator account, through its Stripe connection: opens Stripe's own page for one subscription a payer holds, where they change its card, read its invoices or cancel it, and answers with that page's address. The payer's Billing screen starts it from a purchase row; the subscription must be one their account paid for.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "subscription_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "subscription_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "open-purchase-billing",
+          "connection": "package::service-connections::published-record::stripe",
+          "connection_id": "service_connection:stripe",
+          "credential_injections": [
+            {
+              "field_id": "secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ]
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::stripe-payment-provider"
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "redirect"
+          ],
+          "properties": {
+            "redirect": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::read-purchase-card",
+      "address": "package::ai-tool-catalog::tool::read-purchase-card",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-purchase-card",
+        "listed_on": "2026-10-05T16:00:00Z",
+        "label": "Read the card a purchase uses",
+        "job": "Read the brand, last four digits and expiry of the card one verified funding purchase is paid with; operator only.",
+        "description": "Runs only on this service's operator account, through its Stripe connection: reads one subscription with its card expanded and answers only the card's brand, last four digits, expiry and wallet, so a payer's Billing screen can show which card pays each purchase. Never reads or returns the card number.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "subscription_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "subscription_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "invoke": {
+          "kind": "held-values",
+          "operation": "read-purchase-card",
+          "connection": "package::service-connections::published-record::stripe",
+          "connection_id": "service_connection:stripe",
+          "credential_injections": [
+            {
+              "field_id": "secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ]
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:held-values"
+        ],
+        "provenance": {
+          "owner": "package::stripe-payment-provider"
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "card"
+          ],
+          "properties": {
+            "card": {
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

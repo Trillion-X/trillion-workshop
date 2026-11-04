@@ -7,3 +7,11 @@ Files old trillion deleted with no home and no backlog row, whose job is this to
 | `computer/hearing-sources.json` | dc79bb0a87 (The Mac app stops carrying dead Node code: 55 tools no Workshop row na...) | `computer/hearing-sources.json` | not wired |
 | `computer/hearing-sources.mjs` | dc79bb0a87 (The Mac app stops carrying dead Node code: 55 tools no Workshop row na...) | `computer/hearing-sources.mjs` | not wired |
 | `test/hearing-sources.test.mjs` | dc79bb0a87 (The Mac app stops carrying dead Node code: 55 tools no Workshop row na...) | `test/hearing-sources.test.mjs` | runs here: 3/3 pass |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/workshop-listening-tool-records.json` | `records/workshop-listening-tool-records.json` |

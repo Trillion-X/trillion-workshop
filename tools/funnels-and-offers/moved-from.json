@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion (old main, commit 5dc302be37) by the old-trillion sweep. Each names its source path and commit and the BLAKE3 identity of its bytes there and here.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "records/workshop-money-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/funnels-and-offers/from-old-trillion/records/workshop-money-tool-records.json",
+      "source_identity": "1f:66d19f90e6071cec5491232c3dbf62093d8668b6f641aedbb061d81fd4fd77fa",
+      "identity": "1f:66d19f90e6071cec5491232c3dbf62093d8668b6f641aedbb061d81fd4fd77fa"
+    }
+  ]
+}

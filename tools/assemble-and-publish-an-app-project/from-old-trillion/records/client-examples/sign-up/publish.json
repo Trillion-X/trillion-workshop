@@ -1,0 +1,32 @@
+{
+  "id": "join-the-list",
+  "actions": [
+    {
+      "id": "join",
+      "record_kind": "list-signup",
+      "fields": [
+        { "id": "email", "type": "email", "required": true },
+        { "id": "name", "type": "text" },
+        { "id": "source", "type": "text" }
+      ]
+    }
+  ],
+  "placed_capabilities": [
+    {
+      "id": "join-form",
+      "page_path": "index.html",
+      "access": "public",
+      "capability": { "kind": "visitor-action", "id": "join" },
+      "presentation": {
+        "title": "Join the list",
+        "submit_label": "Join",
+        "done_message": "Thanks, you're on the list.",
+        "fields": [
+          { "id": "email", "label": "Your email" },
+          { "id": "name", "label": "Your name" },
+          { "id": "source", "from_page_address": "from" }
+        ]
+      }
+    }
+  ]
+}

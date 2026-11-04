@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 650" role="img" aria-labelledby="title desc">
+  <title id="title">A rising sun over layered hills</title>
+  <desc id="desc">An abstract landscape in muted green and ochre tones.</desc>
+  <rect width="720" height="650" fill="#e1e5d8"/>
+  <circle cx="360" cy="246" r="116" fill="#d9a66b"/>
+  <circle cx="360" cy="246" r="142" fill="none" stroke="#c4d0bf" stroke-width="1"/>
+  <path d="M0 411c93-75 172-99 266-74 88 24 144 6 225-29 79-34 143-32 229 9v333H0V411Z" fill="#a7b99e"/>
+  <path d="M0 478c97-29 181-72 279-63 103 10 168 71 263 54 69-12 117-44 178-55v236H0V478Z" fill="#728e76"/>
+  <path d="M0 535c106 3 162-37 267-31 107 7 190 71 291 63 60-5 112-24 162-17v100H0V535Z" fill="#456953"/>
+  <path d="M360 382v82M333 416h54M344 439h32M351 460h18" stroke="#f4f2e9" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+  <path d="M105 171c18-18 37-18 55 0M555 204c14-14 28-14 42 0" fill="none" stroke="#a9b8a4" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="133" cy="171" r="3" fill="#a9b8a4"/><circle cx="576" cy="204" r="3" fill="#a9b8a4"/>
+</svg>

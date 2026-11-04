@@ -1,0 +1,126 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-brand-tool-records",
+  "what_this_is": "Generic brand row management for every builder, through the same Lists and Screen looks owners Trillion itself uses.",
+  "records": [
+    {
+      "id": "package::trillion::tool::brand-kit",
+      "address": "package::trillion::tool::brand-kit",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:brand-kit",
+        "listed_on": "2026-10-07T17:00:00Z",
+        "label": "Brand kit",
+        "job": "Create, read, edit, import, export, select, resolve, remove and delete a builder brand as list rows, using the worn screen look for pages and emails",
+        "description": "Uses this account's Brand assets list and Screen looks. Each asset variant is a row (family, role, format, background, HTTPS URL); one selection row chooses a family. Resolve returns the selected asset and worn look palette for any surface. Create starts the editable list, edit and import write rows, export reads the current rows and presentation, remove removes unused rows, select changes the active family, and delete removes an unused list. Save remains an alias for edit. Trillion itself uses this same tool owner for its share page and emails.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "create",
+                "read",
+                "edit",
+                "import",
+                "export",
+                "save",
+                "remove",
+                "select",
+                "resolve",
+                "delete"
+              ]
+            },
+            "list_id": {
+              "type": "string",
+              "description": "Brand list id, brand-assets when left out"
+            },
+            "label": {
+              "type": "string"
+            },
+            "row_id": {
+              "type": "string"
+            },
+            "values": {
+              "type": "object"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "values"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "values": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "family": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            },
+            "format": {
+              "type": "string"
+            },
+            "tone": {
+              "type": "string",
+              "enum": [
+                "light",
+                "dark"
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "said": {
+              "type": "string"
+            },
+            "rows": {
+              "type": "array"
+            },
+            "presentation": {
+              "type": "object"
+            },
+            "asset": {
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "brand-kit"
+        }
+      }
+    }
+  ]
+}
