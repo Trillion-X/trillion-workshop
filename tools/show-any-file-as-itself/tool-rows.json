@@ -1,0 +1,185 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:show-any-file-as-itself",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:choose-how-each-file-is-shown",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Choose how each file is shown",
+        "job": "Classify each file by its name and media type to choose how it is shown: as code, markdown, a diff, a picture, JSON or plain text, with the language, icon and label it is shown under",
+        "description": "Give files ([{ path, mime_type? }]): each file's name or path and, when known, its media type, which wins over the extension. Answers classified, one per file in the order given: renderer (code, markdown, diff, image, json or raw), language, icon, label and the mime_type it was taken as. It reads only the names and types it is given: no file is opened, nothing is drawn, nothing is sent, and the signed-in classification owner the screen asks first is not called, so the answer is the file-content renderer's deterministic fallback. Refuses an empty list or a file without a path. The screen (show/FileContentRenderer.tsx and the media player) also draws the file, plays sound and video, pages PDFs and edits the facts kept about a file; this run does none of that.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "files"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "files": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "path"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "mime_type": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "classified"
+          ],
+          "properties": {
+            "classified": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "renderer",
+                  "language",
+                  "icon",
+                  "label"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "renderer": {
+                    "type": "string",
+                    "enum": [
+                      "code",
+                      "markdown",
+                      "diff",
+                      "image",
+                      "json",
+                      "raw"
+                    ]
+                  },
+                  "language": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "mime_type": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/show-any-file-as-itself",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/show-any-file-as-itself/do-work/classify-files.mjs",
+            "classifyFiles"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "show-any-file-as-itself",
+                "paths": [
+                  "do-work",
+                  "show/classify-file-content.ts"
+                ],
+                "at": "/opt/show-any-file-as-itself"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/file-content-renderer/show/classify-file-content.ts at 5cd0dc3103e4f54b30b1784f0d77a67de0147064, moved byte for byte in a9ee258 (#76) to show/; old capability row capabilities.json:187 at 4ffa1dc4a2^ (show any file as itself); do-work/classify-files.mjs written here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "files": [
+                {
+                  "path": "notes/plan.md"
+                },
+                {
+                  "path": "fix.patch"
+                },
+                {
+                  "path": "photo.jpg"
+                }
+              ]
+            },
+            "output_selector": "$.classified[1].renderer",
+            "contains": "diff"
+          }
+        ]
+      }
+    }
+  ]
+}
