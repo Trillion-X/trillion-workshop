@@ -6,10 +6,8 @@
 //   computer/mac-tools.mjs on placement:your-computer (src/model-routes.json sends calls here before any paid service).
 //
 // Non-negotiable invariants
-//   1. Which servers and models answer is DATA (computer/local-models.json and records/local-model-records.json); this file names none.
-//      The model rows are the ones the Marketplace publishes now, read through the computer's account (local-models.json
-//      `published`) and kept here, so a computer that cannot reach its account still answers with the rows it last read;
-//      the rows it was shipped with stand until the default publisher has published them.
+//   1. Which servers and models answer is DATA (./local-models.json and tools/models-on-this-computer's
+//      read-data/models-on-this-computer.json, the one copy of the model rows); this file names none.
 //   2. Only this computer's own servers are asked; the words never leave it except as the answer.
 //   3. A server that is not running is skipped; when none answers the tool says so in words (error), and Trillion tries
 //      its next route rather than waiting, and names for each model why it did not answer (`tried`). A model that refused
@@ -20,87 +18,29 @@
 //      Mac when it is missing and has the server download each, so the person never installs or types anything.
 //
 import { execFile } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
-import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { statfs } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { mergeEvent, newEntry } from '../stream-an-answer-in-keyed-parts/src/keyed-parts.mjs';
-import { withTables } from '../src/data-rows.mjs';
 import { makeHelperRuntimes } from './helper-runtimes.mjs';
 import { makeFastPathMeter } from './fast-path-meter.mjs';
 import { readManagedSettings, turnedOff } from './managed-settings.mjs';
-import modelRecords from '../records/local-model-records.json' with { type: 'json' };
-import decisionEvals from '../src/decision-evals.json' with { type: 'json' };
 import { readOffered } from './offered-endpoints.mjs';
-import { marketplaceContentSourceId } from '../src/marketplace-content-source-id.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const settingsFile = () => JSON.parse(readFileSync(join(HERE, 'local-models.json'), 'utf8'));
-const home = path => path.replace(/^~(?=\/|$)/, homedir());
-const keptAt = published => home(published.kept_copy);
-function readKept(published) {
-  try {
-    const kept = JSON.parse(readFileSync(keptAt(published), 'utf8'));
-    return kept?.logical_id === marketplaceContentSourceId(published) ? kept : null;
-  } catch { return null; }
-}
+// The settings file with its model tables (chat, jobs, classify, offer) and `wired` (each decision measured and wired
+// to one classify judge) from the one copy of those rows, tools/models-on-this-computer's DATA.
+const MODEL_ROWS = ['chat', 'jobs', 'classify', 'offer', 'wired'];
+const modelRows = () => JSON.parse(readFileSync(join(HERE, '..', 'models-on-this-computer', 'read-data', 'models-on-this-computer.json'), 'utf8'));
+export const localModelSettings = (rows = modelRows()) => ({ ...settingsFile(), ...Object.fromEntries(MODEL_ROWS.map(name => [name, rows[name]])),
+  offered: () => readOffered() });
 
-/** The model rows this computer uses now, as a records file ({ records }): the rows its account last said the Marketplace
- *  publishes, none once they were withdrawn, and the rows it was shipped with until either. */
-export function currentModelRecords(published = settingsFile().published) {
-  const kept = readKept(published);
-  if (kept?.from === 'published' && Array.isArray(kept.value)) return { records: kept.value };
-  if (kept?.from === 'withdrawn') return { records: [] };
-  return modelRecords;
-}
-
-let reading = null;
-/** Asks this computer's account ({ origin, key }) which model rows the Marketplace publishes now, at most once every
- *  `fresh_seconds`, and keeps the answer for currentModelRecords. An account that cannot be reached, or an answer that
- *  is not an exact published section, leaves the kept rows as they are. Resolves true when it kept a new answer. */
-export function refreshModelRecords({ origin, key } = {}, { published = settingsFile().published, fetchImpl = fetch, now = () => Date.now() } = {}) {
-  if (!origin || !key) return Promise.resolve(false);
-  const logical_id = marketplaceContentSourceId(published), kept = readKept(published);
-  if (kept && now() - Date.parse(kept.read_at) < published.fresh_seconds * 1000) return Promise.resolve(false);
-  reading ??= (async () => {
-    try {
-      const answer = await fetchImpl(`${String(origin).replace(/\/$/, '')}/mcp/api/resources/own/command`, {
-        method: 'POST', redirect: 'error', signal: AbortSignal.timeout(published.wait_seconds * 1000),
-        headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json', 'x-trillion-request-key': `marketplace-read:${randomUUID()}` },
-        body: JSON.stringify({ operation: 'content:default', input: { logical_id } }) });
-      if (!answer.ok) return false;
-      const body = await answer.json(), row = body?.row;
-      const state = body?.published === true && row && (row.logical_id === undefined || row.logical_id === logical_id) && row.format === 'json'
-        && Number.isSafeInteger(row.revision) && row.revision >= 1 && Array.isArray(row.value)
-        ? { from: 'published', maker: body.maker ?? null, revision: row.revision, value: row.value }
-        : body?.published === false ? { from: body.adopted === true ? 'withdrawn' : 'shipped' } : null;
-      if (!state) return false;
-      const file = keptAt(published), next = `${file}.${process.pid}.next`;
-      mkdirSync(dirname(file), { recursive: true });
-      writeFileSync(next, JSON.stringify({ logical_id, read_at: new Date(now()).toISOString(), ...state }));
-      renameSync(next, file);
-      return true;
-    } catch { return false; }
-    finally { reading = null; }
-  })();
-  return reading;
-}
-
-// The settings file with its model tables (chat, jobs, classify, offer) read from the local-model rows the computer uses
-// now (currentModelRecords), and `wired`: each decision measured and wired to one classify judge (src/decision-evals.json),
-// as { <decision id>: <classify row id> }.
-export const localModelSettings = (records = currentModelRecords()) => ({ ...withTables(settingsFile(), {
-  chat: { kind: 'local-model-server', records },
-  jobs: { kind: 'local-model-job', records, keyed: true },
-  classify: { kind: 'local-model-classifier', records },
-  offer: { kind: 'local-model-offer', records },
-}), offered: () => readOffered(), wired: Object.fromEntries(decisionEvals.evals.filter(row => row.wired).map(row => [row.id, row.wired.judge])) });
-
-/** askLocal for this computer's person ({ origin, key }): the model rows are read afresh from the account first, when due. */
-export const askHere = account => async (input, options) => { await refreshModelRecords(account); return askLocal(input, localModelSettings(), options); };
+/** askLocal for this computer's person, with this host's priority. */
+export const askHere = () => async (input, options) => askLocal(input, localModelSettings(), options);
 
 async function post(url, body, seconds, headers = {}) {
   const answer = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(body), signal: AbortSignal.timeout(seconds * 1000) });
@@ -232,7 +172,7 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
   }
   if (input.state !== undefined && input.questions && typeof input.questions === 'object') {
     const failures = [];
-    // A question for a wired decision goes to the judge measured for it alone (src/decision-evals.json `wired`).
+    // A question for a wired decision goes to the judge measured for it alone (`wired`).
     const judge = settings.wired?.[input.job];
     const judges = judge ? settings.classify.filter(row => row.id === judge) : settings.classify;
     const found = await firstAnswer(judges, row => (row.ask === 'chat' ? askChatYesNo(row, input)
@@ -324,5 +264,5 @@ async function managedOff() {
 
 export const localModelTools = {
   async ask(input = {}, context = {}) { return (await managedOff()) ?? askHere(context)(input, { priority: Number.isInteger(context.priority) ? context.priority : 0 }); },
-  async fit(input = {}, context = {}) { const off = await managedOff(); if (off) return off; await refreshModelRecords(context); return modelsForThisMac(input, localModelSettings()); },
+  async fit(input = {}) { const off = await managedOff(); if (off) return off; return modelsForThisMac(input, localModelSettings()); },
 };

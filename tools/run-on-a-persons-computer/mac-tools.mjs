@@ -1,5 +1,5 @@
 import { egressRelaySettings, makeEgressRelay } from './egress-relay.mjs';
-import { HANDOFF_RESULT_SOURCE } from '../src/handoff-result-source.mjs';
+import { HANDOFF_RESULT_SOURCE } from './handoff-result-source.mjs';
 import { startLocalSocket } from './local-socket.mjs';
 import { nativeResultRetirer, nativeResultUploader, needsResultSource, prepareNativeResultSource } from './native-result-source.mjs';
 // computer/mac-tools.mjs
@@ -45,7 +45,7 @@ import { makeStartupLeases } from './startup-lease.mjs';
 import { decisionSettings, requireHooks } from './run-decision.mjs';
 import { nativeOutputUploader, nativeResultOutbox } from './native-result-outbox.mjs';
 import { policedLog } from './log-policy.mjs';
-import { mayRetry, retriable } from '../src/retry-policy.mjs';
+import { mayRetry, retriable } from './retry-policy.mjs';
 import { expandFileArguments } from './file-arguments.mjs';
 import { hostLog } from './host-log.mjs';
 import { runIsolated } from './isolated-run.mjs';

@@ -1,0 +1,13 @@
+{
+  "_what": "Which failures are worth asking again, and the one switch that turns every retry off (src/retry-policy.mjs). A failure is retriable when any row of `retriable` holds for it and no row of `never` does. A row holds when every key it names holds: `status` (one of these HTTP statuses), `status_range` ([from, to]), `no_status` (true: the error has no HTTP status), `code` (the error's code), `method` (the call's method name), `message_matches` (a case-insensitive pattern over its words). `never` rows say `field` and `equals` against the error. `enabled` false, or the environment variable named in `off_by_environment` set to 1, makes mayRetry say no for every operation at once (an incident: stop the herd) while retriable still classifies, so a final refusal is still told from a passing one. The waits between tries stay with the operation that owns them (computer/mac-tools.json live_retry_ms, src/scheduler.json retry).",
+  "enabled": true,
+  "off_by_environment": "TRILLION_RETRIES_OFF",
+  "never": [
+    { "field": "native_output_refusal", "equals": true }
+  ],
+  "retriable": [
+    { "status": [408, 429] },
+    { "status_range": [500, 599] },
+    { "no_status": true, "message_matches": "busy|reset|timed? ?out|Network connection lost|fetch failed|\\b5\\d\\d\\b" }
+  ]
+}

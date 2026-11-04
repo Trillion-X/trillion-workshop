@@ -10,7 +10,7 @@ import { bearerControl, namespaceClient } from '../browse-and-upload-my-files/do
 import { loadChunking } from '../browse-and-upload-my-files/do-work/content-chunks.mjs';
 import { fileSource, sendFile } from '../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
 import { LOOKS } from './computer-sources.mjs';
-import { sharedReference } from '../parts/live-namespace/do-work/shared-file-reference.mjs';
+import { sharedReference } from '../browse-and-upload-my-files/do-work/shared-file-reference.mjs';
 import { hearingHere as programHere } from '../computer-programs/read-data/program-here.mjs';
 
 const IDENTITY = /^1f:[a-f0-9]{64}$/;

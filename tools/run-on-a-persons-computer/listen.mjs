@@ -85,7 +85,7 @@ import { hearWith, hearingHere, hearingNow, hearingReasons, hearingState, result
 import { bearerControl, namespaceClient } from '../browse-and-upload-my-files/do-work/namespace-client.mjs';
 import { loadChunking } from '../browse-and-upload-my-files/do-work/content-chunks.mjs';
 import { fileSource, sendWholeFiles } from '../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
-import { askHere, askLocal, localModelSettings, refreshModelRecords } from './local-models.mjs';
+import { askHere, askLocal, localModelSettings } from './local-models.mjs';
 import { meetingNotes, taskProposalsFrom } from './meeting-notes.mjs';
 import { tickHybridClock } from '../set-up-my-account/read-data/conflicts.mjs';
 import { available } from '../listen-for-a-while/read-data/private-mode.mjs';
@@ -1218,8 +1218,8 @@ export async function listen({ row, key, origin, file = null, fileAt = null, dev
   // The language this session's words are in, carried from piece to piece (stretchesOf); a file heard alone detects its own.
   const spoken = { language: null };
   const account = accountCaller(origin, key);
-  // The model rows are the ones the Marketplace publishes now, read through this account (computer/local-models.mjs).
-  const askModel = askHere({ origin, key });
+  // The model rows are tools/models-on-this-computer's (computer/local-models.mjs).
+  const askModel = askHere();
   const classify = classifierOf(account, input => askModel(input), { wait_ms: settings.sending.classify_wait_ms });
   const status = { listening: true, since: new Date().toISOString(), naming: null, pieces: 0, sent: 0, left_out: 0, waiting: 0, sound_waiting: 0, last_sent: null, error: null, notes: jobState('waiting') };
   // The heartbeat is what makes a listening that died read as finished (livenessOf).
@@ -1246,7 +1246,7 @@ export async function listen({ row, key, origin, file = null, fileAt = null, dev
   const sendSound = keep ? soundSender({ origin, key, keep }) : null;
   const notes = settings.notes?.on === false || !settings.notes || !available(privateModeIn(settings), 'notes') ? null : notesMaker({
     settings, status, report, log, // The notes job is the one the Marketplace publishes now: the rows are read afresh through this account first, when due.
-    ask: async input => { await refreshModelRecords({ origin, key }); return askLocal(input, localModelSettings(), { priority: -1 }); }, call: toolCaller(origin, key),
+    ask: input => askLocal(input, localModelSettings(), { priority: -1 }), call: toolCaller(origin, key),
   });
   const sound = keep ? soundKeeper({ keep, route: settings.route, join: settings.turns.join_within_seconds, state, device: computer.replace(/\.local$/, ''), encoder, words: settings.words, send: sendSound, sendMany: sendSound.many, notes, log }) : null;
   let drainingSound = null;

@@ -1,0 +1,236 @@
+{
+  "about": "Files moved here from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here (BLAKE3, tools/content-identity), and `changed` when more than import paths differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "computer/switch-guard.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/switch-guard.mjs",
+      "source_identity": "1f:4cb356f8922ff83a7686c763d0cf247c9acb2cd088ccff2fa88a18d21d7d3d0c",
+      "identity": "1f:9878556814c7dad78fa7b5779fc327a54b19bc437d50c2adb14e1fc27fc51151",
+      "changed": "its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly"
+    },
+    {
+      "from": "computer/install-ledger.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/install-ledger.mjs",
+      "source_identity": "1f:b54f636fc7bb59d295676a3c3131e2823cc95ac5cb7fc3e542abb0d92255b31d",
+      "identity": "1f:c53d003b7a98a6eadf9ba49f2a0734b89dd01b31c7f4e24961b319aaaf97295e",
+      "changed": "its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly"
+    },
+    {
+      "from": "computer/sampled-report.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/sampled-report.mjs",
+      "source_identity": "1f:38d6ea473e7c87751a4fc9614eaa83f3e1d77d090f470a37904b2c3c61af8ad9",
+      "identity": "1f:865fa3bb8d56ee68f60c5ca2f7bc521793525b8bf56502005875107bb0dfcc86",
+      "changed": "its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly"
+    },
+    {
+      "from": "computer/helper-runtimes.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/helper-runtimes.mjs",
+      "source_identity": "1f:dd45fc0b088d4f6ff74a36c0fdacec54a144d6267cb1d7c97b0080a4cb27c09c",
+      "identity": "1f:fbc1e462ebbab9434cf9715fc91ed1e21c1543531d26e6e6c907d1519cf22abb",
+      "changed": "its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly; its trillion-workshop/tools/... imports are relative paths"
+    },
+    {
+      "from": "computer/signed-manifest.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/signed-manifest.mjs",
+      "source_identity": "1f:c89047dcbab036108d45248c0956f228dd3e477200490e5ca2e5a0851e7d3cdc",
+      "identity": "1f:8c9a5bb64394e8813f74752163545113d0d2f018cb4a46cc2f725b359ca9db3f",
+      "changed": "its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly"
+    },
+    {
+      "from": "computer/local-socket.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/local-socket.mjs",
+      "source_identity": "1f:6df23a6abd9cc34037648beb3615fb5c74309e482e8e38d782428cb6c8ee1ebd",
+      "identity": "1f:7dac0b00d759b75b844d271a41adcfe8d76f6569fd8646db1b32b219b3d8c472",
+      "changed": "its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly, keyed mode by makeKeyedHashHexFromBytes; its random secret comes from node:crypto"
+    },
+    {
+      "from": "computer/native-result-source.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/native-result-source.mjs",
+      "source_identity": "1f:edff163ae1bd04151a114b5cfc93dbbb30926d9690b6ce7ebe8ddf0700ce85a3",
+      "identity": "1f:01591ae885347dcbfe95ce5df7671d0b9e8dfd7dfa198d37f9a98e104af0ca8d",
+      "changed": "its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly; its trillion-workshop/tools/... imports are relative paths"
+    },
+    {
+      "from": "computer/native-result-outbox.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/native-result-outbox.mjs",
+      "source_identity": "1f:4eb3ec6711da37adbaa695306ec07e02eb104ca144a51186778fbafa5082681a",
+      "identity": "1f:51c5b67086650d463c4068fca84938eb5d6efb041f58b545bb82335f8aadf48d",
+      "changed": "its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly, streaming by makeHashCodeHasher; its trillion-workshop/tools/... imports are relative paths"
+    },
+    {
+      "from": "src/retry-policy.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/retry-policy.mjs",
+      "source_identity": "1f:6aa8767d5098c957c40a1e47102d7030a581184c253dfe83cafb2d8e3bbce559",
+      "identity": "1f:6aa8767d5098c957c40a1e47102d7030a581184c253dfe83cafb2d8e3bbce559"
+    },
+    {
+      "from": "src/retry-policy.json",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/retry-policy.json",
+      "source_identity": "1f:1d8c903823aac9d476c7817121c584205bd8e0853f8817e7f616d8d8a216f307",
+      "identity": "1f:1d8c903823aac9d476c7817121c584205bd8e0853f8817e7f616d8d8a216f307"
+    },
+    {
+      "from": "src/handoff-result-source.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/handoff-result-source.mjs",
+      "source_identity": "1f:f3e8341ed2c2f60c01f2eed24b7e0e3917c77c88fe1f3d86b170a6b54b647d3f",
+      "identity": "1f:ee1bdfc9dd5ab4a876d990ccc59faf477d00c22fff303f1b0590e8d68da5396f",
+      "changed": "its trillion-workshop/tools/... imports are relative paths"
+    },
+    {
+      "from": "src/handoff-result-source.json",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/handoff-result-source.json",
+      "source_identity": "1f:4be63a06bfb2d1a553d08ecfa478230a615f0d6a51818b8d2a3f64c7de4ebcfa",
+      "identity": "1f:4be63a06bfb2d1a553d08ecfa478230a615f0d6a51818b8d2a3f64c7de4ebcfa"
+    },
+    {
+      "from": "test/switch-guard.test.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/test/switch-guard.test.mjs",
+      "source_identity": "1f:35c5adcdc83c00603c77798bd174af9a6b07b53fce76c1db158f6d1ff012a9c6",
+      "identity": "1f:3253a4a586f410efd2a01f40ddb251a43a656e651c7c04cb2866573c3b60bcf1",
+      "changed": "import paths; its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly"
+    },
+    {
+      "from": "test/sampled-report.test.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/test/sampled-report.test.mjs",
+      "source_identity": "1f:424a4dcaf35b5845cd12b60e72a6d1b3fa566cdfe6000227a3e02d58d43655e7",
+      "identity": "1f:379b460c7ed1b49f5ea0d9963a601df24c85013a1d8c2a298979c298399a36b0",
+      "changed": "import paths"
+    },
+    {
+      "from": "test/helper-runtimes.test.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/test/helper-runtimes.test.mjs",
+      "source_identity": "1f:102b95478b073f86ccb69dd67ab3b1241500d8e9f291f9ece6a646fa6530ddae",
+      "identity": "1f:8497c92373300f09e7fd0bb92d7d7ea1cc3a28c496b29ce07932fdaadbea2f30",
+      "changed": "import paths"
+    },
+    {
+      "from": "test/signed-manifest.test.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/test/signed-manifest.test.mjs",
+      "source_identity": "1f:d83cd9c40fd1542dcf0ed50e694109b8957b84578c68e8779732edbf87ae7c10",
+      "identity": "1f:8a372bcf3c06eb76bbd5ba8e8ec0ff57b25b3e6d2aa1433fc86e4e02f926ddfd",
+      "changed": "import paths; its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly"
+    },
+    {
+      "from": "test/local-socket.test.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/test/local-socket.test.mjs",
+      "source_identity": "1f:bcc2e8ab6a5f124d11e614ef834ae981fdeb02277b9aa65ab7638e0785bdf6ef",
+      "identity": "1f:e858a2a629a541ab6044467370af89ab4a3a35a7f45dee7c96a6efab1eaa9924",
+      "changed": "import paths"
+    },
+    {
+      "from": "test/native-result-outbox.test.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/test/native-result-outbox.test.mjs",
+      "source_identity": "1f:22034db123af1b2b4d2fc3f493d7ef5aa66b4872c8e85b9e528b9021f970d7a7",
+      "identity": "1f:9c6ce12ac293b94f23def3f122789351a6410eea84ccd1799f66daeb05a6ed56",
+      "changed": "import paths"
+    },
+    {
+      "from": "test/native-attempt-recovery.test.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/test/native-attempt-recovery.test.mjs",
+      "source_identity": "1f:ec79eead4df2fe241a13f5fdc4b6874c03d8a9bb1d7bc92ea7fb7ec00c5b0090",
+      "identity": "1f:0b7a7e114cadfa88de087d92a6857be877514fd7084b80aadafec106d0e60cc3",
+      "changed": "import paths"
+    },
+    {
+      "from": "test/native-final-refusal-replay.test.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/test/native-final-refusal-replay.test.mjs",
+      "source_identity": "1f:9bc69e6c2defbb28bb0b03b4da9ed5419fe6383dc20c9f0432e145d6be0274fc",
+      "identity": "1f:a174541a6da9c49303f26b5e3ca6b035cf1898a7986470c8e22d3ea98aa7f499",
+      "changed": "import paths"
+    },
+    {
+      "from": "test/app-job.test.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/test/app-job.test.mjs",
+      "source_identity": "1f:1060d31593986b859707c56bfbb687103c93413a73735718153deb0d7c6653d1",
+      "identity": "1f:9e27bc644ed7d25c3b2e6adb2ae25fd612a54b053d720969f1813fab28b49e03",
+      "changed": "import paths; the assertions on media-composition records.json rows that the Workshop's copy no longer holds are left out (comment in the test)"
+    },
+    {
+      "from": "test/retry-policy.test.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/test/retry-policy.test.mjs",
+      "source_identity": "1f:18239da4de5858372c35f59c02617df056d8e8520a5389b14ede4c933baddf71",
+      "identity": "1f:39d9886c4cbb825b315475a33cf42973a12b677bca86aef6eb8f492e4f73da8f",
+      "changed": "import paths"
+    },
+    {
+      "from": "test/listening-rules.test.mjs",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/test/listening-rules.test.mjs",
+      "source_identity": "1f:878979476e663c639b5281f93c84dc4e007c632ceea22ca4287e5e5938d46acf",
+      "identity": "1f:5525f5dc4e863382bb481efaeb2da539d7e2677158b10b2af4a21cbde3172cf9",
+      "changed": "import paths (private-mode and recording-rules from tools/listen-for-a-while)"
+    },
+    {
+      "from": "src/side-files.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-on-a-persons-computer/side-files.mjs",
+      "source_identity": "1f:cf08f78f1a46cbf7f0081e042b086c6ca820e8f547253a8e4eb59e58a3903fca",
+      "identity": "1f:40a6e64aeaacf8209c4e4ada3422c8423f1feffc8e3a7eb812c43cce5d9db4a6",
+      "changed": "settleSideFiles is left out: its one reader, src/person-store.mjs, was deleted by Trillion-X/trillion#243"
+    },
+    {
+      "from": "src/side-files.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-on-a-persons-computer/side-files.json",
+      "source_identity": "1f:65f5625195b3d28b90e805df8292926a1223f67bcab15f35fbb950183c435c13",
+      "identity": "1f:65f5625195b3d28b90e805df8292926a1223f67bcab15f35fbb950183c435c13"
+    },
+    {
+      "from": "src/file-type.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-on-a-persons-computer/file-type.mjs",
+      "source_identity": "1f:1feb0018d96810263c4bb6aa016ccac29b71112b5b1341e0186ac9f2b16f9f7c",
+      "identity": "1f:835be7e213bd1dc1df2c693d4d36bda98eb17c83872251b829814c6fc3627079",
+      "changed": "observedMediaType and observedMediaKind are left out (no reader here); the extension table is ./file-type.json"
+    },
+    {
+      "from": "src/workspace/file-previews.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-on-a-persons-computer/file-type.json",
+      "source_identity": "1f:e79e249f5c0c6d7dbd8528f127058de3d1e0b934cf5d1fd9c591707fdadc8a16",
+      "identity": "1f:d202ca08901cfe0efdd58e2abdc5548997e3db405e9b0f55a487f74fe90d47c7",
+      "changed": "only content_types_by_extension, the part file-type.mjs reads"
+    },
+    {
+      "from": "records/hear-fetcher-records.json",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/list-a-channel.json",
+      "source_identity": "1f:7b37ddd413ee89d49192436692ad23b336fba06da7d907d9f0eecac6177d34b9",
+      "identity": "1f:81e67018def4927ea5d24c455fb98835bad9a5e3149a786145b8a9dcb2c855b7",
+      "changed": "the hear-fetcher row payloads, as `fetchers`, folded into the settings list-a-channel.mjs reads"
+    },
+    {
+      "from": "records/video-list-rule-records.json",
+      "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
+      "to": "tools/run-on-a-persons-computer/list-a-channel.json",
+      "source_identity": "1f:042cc820ae64501385424077b3c4eb9c7e0b5e7a6c8585c8b629f1ff5d72f3d5",
+      "identity": "1f:81e67018def4927ea5d24c455fb98835bad9a5e3149a786145b8a9dcb2c855b7",
+      "changed": "the video-list-rule row payloads, as `rules`, folded into the settings list-a-channel.mjs reads"
+    }
+  ]
+}
