@@ -9,7 +9,10 @@ Purpose
     the door and runs detached (`python3 check_switches.py refresh <state folder> <settings file>`), started by
     `start_refresh_if_stale`. The snapshot also keeps every row's value (`rows`), so a session that has no other copy
     of the rows can run them: `python3 check_switches.py run <settings file> < hook event`, which a repository's own
-    hook settings start for every tool call (`run_the_check_list`).
+    hook settings start for every tool call (`run_the_check_list`). The person's check rows (`record:check`, read with
+    the door's `where { kind: "check" }` and kept as `checks`) are judged on each call by the one judge through
+    `check_rows.judge` (`judge_check_rows`): the rows whose `kinds` name the call's unit kind (`git-commit`, `git-push`,
+    else `tool-call`).
 
     The settings (the door's address, how its key is read, the list types) are the caller's DATA: `configure(rules)`
     from a process that already holds them, else the JSON file named by CHECK_LIST_SETTINGS. On one computer the door
@@ -90,6 +93,8 @@ def door_url(rules: dict):
 def list_page(rules: dict, key: str, kind: dict, after) -> dict:
     door = rules["door"]
     payload = {"type": kind["type"], "limit": door["page"]}
+    if kind.get("where"):
+        payload["where"] = kind["where"]
     if after:
         payload["after"] = after
     body = {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "run_resource_operation", "arguments": {
@@ -106,15 +111,17 @@ def list_page(rules: dict, key: str, kind: dict, after) -> dict:
 
 
 def read_rows(rules: dict, key: str) -> dict:
-    """{guard id: (record id, value)} for every row of every declared type, across every page."""
+    """{snapshot key: {row id: (record id, value)}} for every row of every declared type, across every page. A type is
+    kept under its `into` (default "rows", the hook-guard rows) and read with its `where`, if it names one."""
     rows = {}
     for kind in rules["types"]:
+        into = rows.setdefault(kind.get("into", "rows"), {})
         after = None
         while True:
             page = list_page(rules, key, kind, after)
             for record in page.get("records") or []:
                 if str(record.get("id", "")).startswith(kind["id_prefix"]):
-                    rows[record["id"][len(kind["id_prefix"]):]] = (record["id"], record.get("value") or {})
+                    into[record["id"][len(kind["id_prefix"]):]] = (record["id"], record.get("value") or {})
             after = page.get("next")
             if not after:
                 break
@@ -146,8 +153,9 @@ def refresh(state) -> str | None:
         return _unreachable(path, str(error) or type(error).__name__)
     scratch = "%s.%d.tmp" % (path, os.getpid())
     with open(scratch, "w", encoding="utf-8") as handle:
-        json.dump({"read_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "off": read_off(rules, rows),
-                   "rows": {guard: value for guard, (_, value) in rows.items()}}, handle, indent=1)
+        json.dump({"read_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "off": read_off(rules, rows.get("rows", {})),
+                   "rows": {}, **{into: {guard: value for guard, (_, value) in kept.items()} for into, kept in rows.items()}},
+                  handle, indent=1)
     os.replace(scratch, path)
     try:
         os.remove(path + ".unreachable")
@@ -230,6 +238,57 @@ def state_folder(settings_file: str) -> str:
                                                                "check-every-tool-call", tag)
 
 
+def unit_kinds(rules: dict, event: dict) -> list[str]:
+    """The unit kinds one call is judged as: each of the settings' `check_rows.unit_kinds` whose `acts_on` matches the
+    call (the same tool and command match a hook-guard row's `acts_on` uses), else `check_rows.otherwise`."""
+    import re
+    import guard_rows
+    config = rules.get("check_rows") or {}
+    kinds = []
+    for one in config.get("unit_kinds", []):
+        match = one["acts_on"]
+        if guard_rows.tool_matches(match.get("tools"), event.get("tool_name", "")) and re.search(
+                match["matches"], guard_rows.field_text(event, match["fields"]), re.MULTILINE):
+            kinds.append(one["kind"])
+    return kinds or ([config["otherwise"]] if config.get("otherwise") else [])
+
+
+def judge_check_rows(rules: dict, taken: dict, event: dict, filled) -> list:
+    """The results of judging the call against the person's check rows (`checks` in the snapshot): for each unit kind
+    of the call, the rows whose `kinds` name it, judged by the one judge through `check_rows.judge` (exit 2 refuses
+    with each finding's words). A call whose input carries a check row's fixtures is judged too, so a row whose
+    fixtures do not hold cannot be written through it. A judge that cannot run is said and refuses nothing."""
+    config = rules.get("check_rows") or {}
+    if not config.get("judge") or event.get("hook_event_name", "") not in config.get("events", ["PreToolUse"]):
+        return []
+    rows = [{**value, "id": value.get("id") or row_id} for row_id, value in sorted((taken.get("checks") or {}).items())
+            if isinstance(value, dict)]
+    writes_a_row = config.get("fixtures_field", "fixtures") in json.dumps(event.get("tool_input") or {})
+    results = []
+    for kind in unit_kinds(rules, event):
+        kept = [row for row in rows if isinstance(row.get("kinds"), list) and kind in row["kinds"]]
+        if not kept and not writes_a_row:
+            continue
+        guard = {"id": "check-rows:%s" % kind}
+        try:
+            done = subprocess.run([filled(one).replace("{kind}", kind) for one in config["judge"]], capture_output=True,
+                                  text=True, input=json.dumps({"rows": kept, "event": event}),
+                                  timeout=config.get("timeout_seconds", 120), cwd=filled("{repository}"))
+            if done.returncode in (0, 2):
+                results.append((guard, done.returncode, done.stdout, done.stderr))
+            else:
+                why = (done.stderr or done.stdout).strip() or "exit %d" % done.returncode
+                results.append((guard, 0, json.dumps({"systemMessage": "check rows unjudged for %s: %s" % (kind, why)}), ""))
+        except subprocess.TimeoutExpired:
+            results.append((guard, 0, json.dumps({"systemMessage": "check rows unjudged for %s: timed out after %s s"
+                                                                 % (kind, config.get("timeout_seconds", 120))}), ""))
+        except OSError as error:
+            results.append((guard, 0, json.dumps({"systemMessage": "check rows unjudged for %s: could not start: %s"
+                                                                 % (kind, error)}), ""))
+        writes_a_row = False  # the written row is judged once, with the first kind
+    return results
+
+
 def run_the_check_list(event: dict, settings_file: str) -> tuple[int, str, str]:
     """(exit code, stdout, stderr) for one hook event: every row that names `workshop_run`, in the settings' one scope,
     picked and answered by guard_rows.py as the dispatcher picks and answers its own rows. Placeholders in
@@ -280,6 +339,7 @@ def run_the_check_list(event: dict, settings_file: str) -> tuple[int, str, str]:
         return re.sub(r"\{tool_input\.([A-Za-z_]+)\}", lambda match: str(tool_input.get(match.group(1), "")), out)
 
     results = []
+    results.extend(judge_check_rows(rules, taken, event, filled))
     for guard in guards:
         try:
             done = subprocess.run([filled(one) for one in guard["workshop_run"]], capture_output=True, text=True,
