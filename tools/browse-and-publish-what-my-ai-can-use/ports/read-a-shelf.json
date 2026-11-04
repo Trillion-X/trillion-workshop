@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MARKETPLACE-READ-A-SHELF",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "show rows of one kind as the Marketplace shelf shows everything my AI can use",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/browse-and-publish-what-my-ai-can-use/do-work/read-a-shelf.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/browse-and-publish-what-my-ai-can-use/",
+   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "show rows of one kind as the Marketplace shelf shows everything my AI can use",
+    "read a shelf",
+    "read rows as shelf items"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "readAShelf"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "50d1c7c077ab2e41fd173a5dac4b61ac76214dd2"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/browse-and-publish-what-my-ai-can-use/tool-rows.json sample run (tool:read-rows-as-marketplace-shelf-items)"
+  ]
+ }
+}

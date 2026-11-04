@@ -1,0 +1,11 @@
+{
+  "about": "Marks a file name carries when it is another version of the same file: a copy number, a version number, an export time, a backup. A name with these marks taken off its end is the name of its family; files in one folder with the same family name and extension are versions of one file. A mark with never_current is only ever on an older copy (a backup made before a change), so a family member without it is shown as the latest when one exists. A mark with orders \"number\" carries a number in its first group (\"v5_3\" is 5.3): a member whose number is below another member's is never the latest, whatever time its copy was saved at, because a download or a copy changes the time and not which version it is. A new kind of mark is one row here.",
+  "marks": [
+    { "id": "copy-number", "says": "a copy number, as in \"notes (1)\" or \"notes (2)\"", "pattern": "\\s*\\(\\d{1,3}\\)$" },
+    { "id": "copy-word", "says": "the word copy, as in \"notes copy\" or \"notes copy 2\"", "pattern": "[\\s_-]+copy(?:[\\s_-]*\\d{1,3})?$", "flags": "i" },
+    { "id": "version-number", "says": "a version number, as in \"blocks_v5_7\", \"plan v2\" or \"book-V1.1\"", "pattern": "[\\s._-]+v(\\d{1,4}(?:[._]\\d{1,4})*)$", "flags": "i", "orders": "number" },
+    { "id": "saved-time-in-brackets", "says": "a saved time in brackets, as in \"README(20260905-215248)\"", "pattern": "\\s*\\(\\d{8}[-_T]?\\d{4,6}\\)$" },
+    { "id": "export-time", "says": "an export time, as in \"chat-20260926-1624\"", "pattern": "[\\s_-]+\\d{8}[-_T]\\d{4,6}Z?$" },
+    { "id": "backup", "says": "a backup made before a change, as in \"steward.backup-before-reconciliation-20260901T142317Z\" or \"steward.pre-correction-20260831T1949\"", "pattern": "[._-](?:backup|bak|pre)(?:[._-][\\w-]*)?$", "flags": "i", "never_current": true }
+  ]
+}

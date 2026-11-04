@@ -1,0 +1,70 @@
+{
+  "what_this_is": "What Inspiration shows and how (src/inspiration.mjs over the shared reader src/card-sections.mjs, tool:inspiration, the Inspiration screen), ported from Trillion Media's inspiration-layouts.json. `layouts` are the ways to see it (shared card layouts, parts/ui/show/card-layouts): `grouped` shows cards under their section headings, `shuffle` orders them by today's date, `flow` names the look screen-look draws (row, wall, grid); adding a way is one more row. `sources` say where each kind of card comes from: `items` is the path to the list in that reader's answer, `card` maps each card field to the paths it is read from (the first path holding a value wins), `opens` is what opening a card does (`screen` with its `input` read from the card, or `link`), and `edit` true means the card is a clip that can go into a new edit. `sections` are the rows, in order; each `read` names a source, `where` keeps only items whose field (a path) passes every test (equals, not, one_of, at_least, at_most, present), `newest` sorts by a path, newest first; `limit` caps the row. `card_actions` are the actions a card offers when every field in one of its `when` rows equals the card's own (an empty `when` list means every card); `run` names what the action does. `pick_actions` are the pick section's own, and `aspects` give a starting picture shape by kind until a picture loads. `carried` names the keys of this file the answer carries to the screen, and `said` is the one sentence that sums the answer up ({sections} rows, {rows} each as `row`), or `none` when every row is empty.",
+  "default_layout": "sections",
+  "view_all_layout": "grid",
+  "layouts": [
+    { "id": "sections", "label": "Sections", "icon": "Rows3", "grouped": true, "shuffle": false, "flow": "row" },
+    { "id": "wall", "label": "Wall", "icon": "LayoutDashboard", "grouped": false, "shuffle": true, "flow": "wall" },
+    { "id": "grid", "label": "Grid", "icon": "LayoutGrid", "grouped": false, "shuffle": false, "flow": "grid" }
+  ],
+  "sources": {
+    "pick": {
+      "items": ["pick", "clips"],
+      "title": ["pick", "title"],
+      "subtitle": ["pick", "reason"],
+      "card": { "id": [["identity"]], "title": [["title"], ["name"]], "file": [["file"]], "bytes": [["bytes"]], "media_type": [["media_type"]], "media_kind": [["media_kind"]], "duration": [["duration"]], "at": [["captured_ms"]] },
+      "opens": { "screen": "trillion.file", "input": { "id": [["file"], ["identity"]] } },
+      "edit": true
+    },
+    "library": {
+      "items": ["rows"],
+      "card": { "id": [["identity"]], "title": [["title"], ["name"]], "file": [["file"]], "bytes": [["bytes"]], "media_type": [["media_type"]], "media_kind": [["media_kind"]], "duration": [["duration"]], "at": [["captured_ms"]], "summary": [["summary"]] },
+      "opens": { "screen": "trillion.file", "input": { "id": [["file"], ["identity"]] } },
+      "edit": true
+    },
+    "recent": {
+      "items": ["items"],
+      "card": { "id": [["identity"]], "title": [["title"], ["name"]], "file": [["identity"]], "media_type": [["media_type"]], "at": [["last_at"]], "detail": [["last_words"]] },
+      "opens": { "screen": "trillion.file", "input": { "id": [["identity"]] } }
+    },
+    "formats": {
+      "items": ["formats"],
+      "card": { "id": [["id"]], "title": [["label"]], "summary": [["description"], ["spec"]] },
+      "opens": { "screen": "trillion.formats", "input": {} }
+    },
+    "examples": {
+      "items": ["examples"],
+      "card": { "id": [["id"]], "title": [["title"], ["site"], ["host"]], "summary": [["why_it_worked"], ["words"]], "picture": [["pictures", 0]], "detail": [["site"], ["host"]], "at": [["added_at"]] },
+      "opens": { "link": [["url"]] }
+    },
+    "posts": {
+      "items": ["posts"],
+      "card": { "id": [["post_id"]], "title": [["caption"]], "detail": [["status"]], "at": [["scheduled_for"], ["updated_at"]] },
+      "opens": { "screen": "tool:check-a-post", "input": {} }
+    }
+  },
+  "sections": [
+    { "id": "pick", "title": "Make this next", "read": { "from": "pick" }, "limit": 12 },
+    { "id": "unused-talking", "title": "You talk in these", "subtitle": "Recordings with your voice that no edit has used yet", "read": { "from": "library", "where": [ { "field": ["origin"], "equals": "recording" }, { "field": ["edits"], "at_most": 0 }, { "field": ["words"], "at_least": 1 } ], "newest": ["captured_ms"] }, "limit": 16 },
+    { "id": "jump-back-in", "title": "Jump back in", "subtitle": "Files you used lately, newest first", "read": { "from": "recent" }, "limit": 16 },
+    { "id": "formats", "title": "Formats to steal", "subtitle": "Structures you make again", "read": { "from": "formats" }, "limit": 16 },
+    { "id": "swipe-file", "title": "Swipe file", "subtitle": "Posts and videos by others that worked", "read": { "from": "examples" }, "limit": 16 },
+    { "id": "posts", "title": "Ready to go out", "subtitle": "Posts you prepared", "read": { "from": "posts", "where": [ { "field": ["status"], "one_of": ["draft", "approved", "scheduled"] } ] }, "limit": 16 },
+    { "id": "finished", "title": "Finished videos", "subtitle": "Videos your tools made", "read": { "from": "library", "where": [ { "field": ["origin"], "not": "recording" }, { "field": ["media_kind"], "equals": "video" } ], "newest": ["captured_ms"] }, "limit": 16 },
+    { "id": "fresh", "title": "Fresh recordings", "subtitle": "The newest footage you keep", "read": { "from": "library", "where": [ { "field": ["origin"], "equals": "recording" } ], "newest": ["captured_ms"] }, "limit": 16 }
+  ],
+  "card_actions": [
+    { "id": "make", "label": "Make this", "icon": "Scissors", "lead": true, "run": "edit", "when": [ { "edit": true } ] },
+    { "id": "use-format", "label": "Make with this format", "icon": "LayoutTemplate", "lead": true, "run": "open", "when": [ { "source": "formats" } ] },
+    { "id": "open", "label": "Open", "icon": "ArrowUpRight", "run": "open", "when": [] }
+  ],
+  "pick_actions": [
+    { "id": "edit", "label": "Edit these", "icon": "Scissors", "lead": true, "run": "edit-pick" },
+    { "id": "another", "label": "Another", "icon": "Shuffle", "run": "another" },
+    { "id": "not-now", "label": "Not now", "icon": "Clock", "run": "not-now" }
+  ],
+  "aspects": { "video": 1.78, "audio": 1.6, "text": 0.8 },
+  "empty": { "title": "Nothing here yet", "description": "Recordings, edits, formats and saved examples show up here as you add them." },
+  "carried": ["layouts", "default_layout", "view_all_layout", "card_actions", "pick_actions", "aspects", "empty"],
+  "said": { "some": "{sections} rows to make from: {rows}.", "none": "Nothing to make from yet: recordings, formats and saved examples show here as they come in.", "row": "{title} ({count})" }
+}

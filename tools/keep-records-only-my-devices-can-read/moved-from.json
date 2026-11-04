@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/sealed-records/do-work/sealed-records.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-records-only-my-devices-can-read/do-work/sealed-records.mjs",
+      "source_identity": "1f:a2f408561e49a8beb8323dc5b7eecbc851ad93ec20719383b4d86724e24b27b7",
+      "identity": "1f:a2f408561e49a8beb8323dc5b7eecbc851ad93ec20719383b4d86724e24b27b7"
+    }
+  ]
+}

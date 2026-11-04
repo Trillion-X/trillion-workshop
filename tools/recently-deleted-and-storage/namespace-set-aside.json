@@ -1,0 +1,39 @@
+{
+  "_what": "Recently Deleted and Archived as DATA, read by src/namespace-set-aside.mjs (the owner), src/file-tools.mjs (the AI tools) and src/workspace/set-aside.ts (the Files, Media and Recently Deleted screens). Each state: its id; label (what the person calls it); set_aside_words (said when something goes there); after_days (how many days it keeps things by default; null keeps until put back; the person's own keep-for replaces it); when_due (what it becomes when that time ends: another state's id, or null: its names are gone for good); due_words (the same in words); action_label, icon and tone (the action that puts a file there, on Files and Media). keep_for_choices are the usual numbers of days offered (null: until put back). A new state is one row here and nothing else.",
+  "states": [
+    {
+      "id": "deleted",
+      "label": "Recently Deleted",
+      "set_aside_words": "Moved to Recently Deleted",
+      "after_days": 30,
+      "when_due": null,
+      "due_words": "Deleted for good",
+      "action_label": "Delete",
+      "icon": "Trash2",
+      "tone": "destructive"
+    },
+    {
+      "id": "archived",
+      "label": "Archived",
+      "set_aside_words": "Archived",
+      "after_days": 30,
+      "when_due": "deleted",
+      "due_words": "Moves to Recently Deleted",
+      "action_label": "Archive",
+      "icon": "Archive"
+    }
+  ],
+  "keep_for_choices": [
+    1,
+    7,
+    30,
+    90,
+    365,
+    null
+  ],
+  "max_days": 36500,
+  "items_per_request": 500,
+  "list_limit": 1000,
+  "names_shown_per_item": 20,
+  "sweep_batch": 500
+}

@@ -1,0 +1,92 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/namespace-set-aside.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/namespace-set-aside.json",
+      "source_identity": "1f:6cc21774ed1fc9b265ba0e1103cd96502c451811a49382dc3de9d6bd10181927",
+      "identity": "1f:6cc21774ed1fc9b265ba0e1103cd96502c451811a49382dc3de9d6bd10181927"
+    },
+    {
+      "from": "src/carry-tables-into-records.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/carry-tables-into-records.mjs",
+      "source_identity": "1f:42893a8e7360c845ccb5d9d553cad0fa3ee3d9c213ffb54ddd94d7c0c380a4f5",
+      "identity": "1f:4e0ca54056148e853d2dee50607761172cb9d0a16215a4892e89a7c1545e099f"
+    },
+    {
+      "from": "src/namespace-view.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/namespace-view.mjs",
+      "source_identity": "1f:13020070c07f9344877e0b90442a2aa97264be30ea89300e1cae841732f485f1",
+      "identity": "1f:13020070c07f9344877e0b90442a2aa97264be30ea89300e1cae841732f485f1"
+    },
+    {
+      "from": "src/namespace-view.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/namespace-view.json",
+      "source_identity": "1f:fa364d6b06c80c8c85b0c4c7e0839fa7df505e33b20112335e147a2cdaaf4a95",
+      "identity": "1f:fa364d6b06c80c8c85b0c4c7e0839fa7df505e33b20112335e147a2cdaaf4a95"
+    },
+    {
+      "from": "src/namespace-store.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/namespace-store.mjs",
+      "source_identity": "1f:27482cb3e56a8feb1b16ebabbfcd9e9f1e5516f4dc990bc6c5e3d744de8c2986",
+      "identity": "1f:27482cb3e56a8feb1b16ebabbfcd9e9f1e5516f4dc990bc6c5e3d744de8c2986"
+    },
+    {
+      "from": "src/time-cursor.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/time-cursor.mjs",
+      "source_identity": "1f:fc9739c1044295b27542313e16e3d6d2c501c003f7c5e613ac2ad102635be390",
+      "identity": "1f:fc9739c1044295b27542313e16e3d6d2c501c003f7c5e613ac2ad102635be390"
+    },
+    {
+      "from": "src/file-versions.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/file-versions.mjs",
+      "source_identity": "1f:03d76785a70910af1f901e019f0813a3404e6b9b6b40255ee0649332a6d7ae02",
+      "identity": "1f:03d76785a70910af1f901e019f0813a3404e6b9b6b40255ee0649332a6d7ae02"
+    },
+    {
+      "from": "src/file-versions.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/file-versions.json",
+      "source_identity": "1f:aebf3af66a8d309f0154626912a477e085bc19f72d357020857db7163e150877",
+      "identity": "1f:aebf3af66a8d309f0154626912a477e085bc19f72d357020857db7163e150877"
+    },
+    {
+      "from": "src/box-name.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/box-name.mjs",
+      "source_identity": "1f:8caca467962eef62e035a5d8c64b5ce92dfc33a49d68e8a17a3d45fc98125845",
+      "identity": "1f:8caca467962eef62e035a5d8c64b5ce92dfc33a49d68e8a17a3d45fc98125845"
+    },
+    {
+      "from": "src/file-type.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/file-type.mjs",
+      "source_identity": "1f:1feb0018d96810263c4bb6aa016ccac29b71112b5b1341e0186ac9f2b16f9f7c",
+      "identity": "1f:1feb0018d96810263c4bb6aa016ccac29b71112b5b1341e0186ac9f2b16f9f7c"
+    },
+    {
+      "from": "src/namespace-name-counts.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/namespace-name-counts.mjs",
+      "source_identity": "1f:36119b16041a0ca0149290c32e160f82768534e7a24a4aded51aadcc82dc05b4",
+      "identity": "1f:36119b16041a0ca0149290c32e160f82768534e7a24a4aded51aadcc82dc05b4"
+    },
+    {
+      "from": "src/workspace/file-previews.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/workspace/file-previews.json",
+      "source_identity": "1f:e79e249f5c0c6d7dbd8528f127058de3d1e0b934cf5d1fd9c591707fdadc8a16",
+      "identity": "1f:e79e249f5c0c6d7dbd8528f127058de3d1e0b934cf5d1fd9c591707fdadc8a16"
+    }
+  ]
+}

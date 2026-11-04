@@ -1,0 +1,304 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:browse-inspiration-clips",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:sort-inspiration-clips-into-card-rows",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Sort inspiration clips into rows of cards",
+        "job": "Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit",
+        "description": "Give sources: { source name: the answer it gives } for any of pick ({ pick: { clips, title?, reason? } }), library ({ rows }), recent ({ items }), formats ({ formats }), examples ({ examples }) and posts ({ posts }). Reads each source once with inspiration.mjs over card-sections.mjs and inspiration.json: each row (Make this next, You talk in these, Jump back in, Formats to steal, Swipe file, Ready to go out, Finished videos, Fresh recordings) keeps the items its tests pass, newest first where it says so, up to its limit, and turns each into a card ({ id, source, section, title, summary, detail, at, file, duration, opens, edit }); edit is true for a clip with a duration that could go into a new edit. Answers sections (each with total and cards, or failed when its source was not given), said (one sentence summing it up) and the layouts, card actions, pick actions, picture shapes and empty words the screen draws with. It refuses sources that is not an object and a source name inspiration.json does not hold. It reads no files or records itself, writes nothing, opens no card and never starts an edit: Make this and Edit these, and drawing the rows, wall or grid, are the app's Inspiration screen.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "sources"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "sources": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "pick": {
+                  "type": "object",
+                  "properties": {
+                    "pick": {
+                      "type": "object",
+                      "properties": {
+                        "clips": {
+                          "type": "array"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "library": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array"
+                    }
+                  }
+                },
+                "recent": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array"
+                    }
+                  }
+                },
+                "formats": {
+                  "type": "object",
+                  "properties": {
+                    "formats": {
+                      "type": "array"
+                    }
+                  }
+                },
+                "examples": {
+                  "type": "object",
+                  "properties": {
+                    "examples": {
+                      "type": "array"
+                    }
+                  }
+                },
+                "posts": {
+                  "type": "object",
+                  "properties": {
+                    "posts": {
+                      "type": "array"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "sections",
+            "said"
+          ],
+          "properties": {
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "title",
+                  "cards"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "subtitle": {
+                    "type": "string"
+                  },
+                  "total": {
+                    "type": "integer"
+                  },
+                  "failed": {
+                    "type": "string"
+                  },
+                  "cards": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "source",
+                        "section",
+                        "opens"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "source": {
+                          "type": "string"
+                        },
+                        "section": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "detail": {
+                          "type": "string"
+                        },
+                        "file": {
+                          "type": "string"
+                        },
+                        "duration": {
+                          "type": "number"
+                        },
+                        "opens": {
+                          "type": "object"
+                        },
+                        "edit": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "said": {
+              "type": "string"
+            },
+            "layouts": {
+              "type": "array"
+            },
+            "default_layout": {
+              "type": "string"
+            },
+            "view_all_layout": {
+              "type": "string"
+            },
+            "card_actions": {
+              "type": "array"
+            },
+            "pick_actions": {
+              "type": "array"
+            },
+            "aspects": {
+              "type": "object"
+            },
+            "empty": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/browse-inspiration-clips",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/browse-inspiration-clips/browse-inspiration.mjs",
+            "browseInspiration"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "browse-inspiration-clips",
+                "paths": [
+                  "browse-inspiration.mjs",
+                  "inspiration.mjs",
+                  "inspiration.json",
+                  "card-sections.mjs"
+                ],
+                "at": "/opt/browse-inspiration-clips"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/inspiration.mjs, moved in a9ee258 (#76); src/inspiration.json and src/card-sections.mjs brought in byte for byte from 4ffa1dc4a2^ (moved-from.json); old capability row capabilities.json:232 at 4ffa1dc4a2^ (browse inspiration clips as cards and start a new edit from one)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "sources": {
+                "library": {
+                  "rows": [
+                    {
+                      "identity": "clip-1",
+                      "title": "Morning walk",
+                      "file": "clips/morning-walk.mp4",
+                      "media_kind": "video",
+                      "duration": 42,
+                      "origin": "recording",
+                      "edits": 0,
+                      "words": 120,
+                      "captured_ms": 1762243200000
+                    }
+                  ]
+                },
+                "formats": {
+                  "formats": [
+                    {
+                      "id": "before-after",
+                      "label": "Before and after",
+                      "description": "Show the start, then the end"
+                    }
+                  ]
+                }
+              }
+            },
+            "output_selector": "$.said",
+            "contains": "You talk in these (1)"
+          }
+        ]
+      }
+    }
+  ]
+}

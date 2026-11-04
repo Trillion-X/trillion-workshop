@@ -1,0 +1,370 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:browse-my-recordings-and-media",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:list-my-recordings-and-media",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "List my recordings and media",
+        "job": "List a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, each with what is known about it, as the Media screen shows a page",
+        "description": "Give files ([{ name, identity, byte_length?, modified_at_ms? }], names starting with /), results kept about them ([{ identity, kind, value }]: kind library-entry makes a recording row from its value { name?, path?, media_kind? }; title, summary, organization, facts, transcript and the other kinds media-library.json joins add to a row), optionally set_aside (files or folders to delete first, as Recently Deleted does) and page ({ limit? (1 to 60), origin? (recording, made or file), unused? }). The files are named in the namespace (namespace-store.mjs, from tools/recently-deleted-and-storage) and the results laid in a namespace_results table as old trillion's namespace-results.mjs made it, in an in-memory SQLite database; then media-library.mjs's own mediaLibraryPage reads the page. Answers rows (identity, origin, name, path, media_kind, media_type, stored, captured_ms, title, duration, facts, edits, words), next_after, origin_labels and revision. A file that is not video, sound or a picture is no row, and a file set aside with no name left is none either. No bytes are held, so every row says stored: false; nothing is kept after the run, no file is written and nothing is sent. Refuses no files, a result without identity, kind and value, and what the page refuses. The screen also plays a row, suggests the next edit and searches for a spoken or seen moment; this run does none of that.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "files"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "files": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "identity"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^/"
+                  },
+                  "identity": {
+                    "type": "string",
+                    "pattern": "^(1f|12):[0-9a-f]{64}$"
+                  },
+                  "byte_length": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "modified_at_ms": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "identity",
+                  "kind",
+                  "value"
+                ],
+                "properties": {
+                  "identity": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "value": {}
+                }
+              }
+            },
+            "set_aside": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "identity": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "page": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 60
+                },
+                "origin": {
+                  "type": "string",
+                  "enum": [
+                    "recording",
+                    "made",
+                    "file"
+                  ]
+                },
+                "unused": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rows",
+            "origin_labels",
+            "revision"
+          ],
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "identity",
+                  "origin",
+                  "name",
+                  "media_kind",
+                  "stored"
+                ],
+                "properties": {
+                  "identity": {
+                    "type": "string"
+                  },
+                  "origin": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "media_kind": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "media_type": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "stored": {
+                    "type": "boolean"
+                  },
+                  "captured_ms": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "duration": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "edits": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "words": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "next_after": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "origin_labels": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "revision": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/src",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/src/do-work/list-my-media.mjs",
+            "listMyMedia"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "browse-my-recordings-and-media",
+                "paths": [
+                  "media-library.mjs",
+                  "media-library.json",
+                  "media-name-index.mjs",
+                  "media-recording-index.mjs",
+                  "do-work"
+                ],
+                "at": "/opt/src"
+              },
+              {
+                "package": "recently-deleted-and-storage",
+                "paths": [
+                  "namespace-set-aside.mjs",
+                  "namespace-set-aside.json",
+                  "carry-tables-into-records.mjs",
+                  "namespace-view.mjs",
+                  "namespace-view.json",
+                  "namespace-store.mjs",
+                  "time-cursor.mjs",
+                  "file-versions.mjs",
+                  "file-versions.json",
+                  "box-name.mjs",
+                  "file-type.mjs",
+                  "namespace-name-counts.mjs",
+                  "workspace"
+                ],
+                "at": "/opt/src"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/table-generation.mjs"
+                ],
+                "at": "/opt"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/media-library.mjs at 7fd88384^, moved byte for byte in a9ee258 (#76); its DATA src/media-library.json and its imports src/media-name-index.mjs and src/media-recording-index.mjs brought in byte for byte from b6ae0ebf815f (4ffa1dc4a2^) (moved-from.json); its other imports packed from tools/recently-deleted-and-storage (namespace-set-aside.mjs, file-type.mjs, workspace/file-previews.json and the namespace store) and tools/keep-and-wake-ai-sessions-on-this-computer/src/table-generation.mjs; the namespace_results table laid as src/namespace-results.mjs:200 made it; old capability row capabilities.json:214 at 4ffa1dc4a2^ (browse my recordings and the media my tools made with the facts kept about each); do-work/list-my-media.mjs written here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "files": [
+                {
+                  "name": "/Recordings/standup.webm",
+                  "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "modified_at_ms": 1762000000000
+                },
+                {
+                  "name": "/made by tools/cut.mp4",
+                  "identity": "1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                  "modified_at_ms": 1762100000000
+                },
+                {
+                  "name": "/Notes/plan.md",
+                  "identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                  "modified_at_ms": 1762200000000
+                },
+                {
+                  "name": "/Photos/old.jpg",
+                  "identity": "1f:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+                  "modified_at_ms": 1762300000000
+                }
+              ],
+              "results": [
+                {
+                  "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "kind": "library-entry",
+                  "value": {
+                    "name": "Standup",
+                    "media_kind": "video"
+                  }
+                },
+                {
+                  "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "kind": "title",
+                  "value": {
+                    "title": "Monday standup"
+                  }
+                }
+              ],
+              "set_aside": [
+                {
+                  "name": "/Photos/old.jpg"
+                }
+              ]
+            },
+            "output_selector": "$.rows[1].title",
+            "equals": "Monday standup"
+          }
+        ]
+      }
+    }
+  ]
+}

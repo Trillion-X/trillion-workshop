@@ -1,0 +1,355 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:see-what-my-ais-did",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:list-what-my-ais-did",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "List what my AIs did",
+        "job": "Turn the tool calls an AI made on a person's account into the activity rows the AI activity screen lists: what it did, the item it made or touched, whether it worked and why not, newest first",
+        "description": "Give calls ([{ tool, at, input?, result?, error?, app?, description? }]), one tool call each in the order they happened. Each becomes the row activity.mjs's activityRow makes from activity-marks.json (a call whose tool has no mark leaves a row only with an execution receipt or work it was done for), is read through recordableActivityRow and keptActivityRow (access, the person's access names, decides which linked ids are kept), and is kept with keepActivity in an in-memory SQLite database laid out by activityTable. Then readActivity reads them back newest first (read: { limit?, app?, failed? }). Answers kept, left (each call that left no row, and why), items (seq, at, app, tool, label, item, title, uses, for, ok, reason), next_before and coverage. Nothing is kept after the run, no file is written and nothing is sent. Refuses no calls, more than 50 calls, and a call without a tool or an at. The screen also traces one item through the calls that made and used it and draws each app by its sign-in picture; this run does neither.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "calls"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "calls": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 50,
+              "items": {
+                "type": "object",
+                "required": [
+                  "tool",
+                  "at"
+                ],
+                "properties": {
+                  "tool": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "input": {
+                    "type": "object"
+                  },
+                  "result": {},
+                  "error": {
+                    "type": "string"
+                  },
+                  "app": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "reads": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "access": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "read": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 500
+                },
+                "app": {
+                  "type": "string"
+                },
+                "failed": {
+                  "type": "boolean"
+                },
+                "before": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "kept",
+            "left",
+            "items"
+          ],
+          "properties": {
+            "kept": {
+              "type": "integer"
+            },
+            "left": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "index",
+                  "tool",
+                  "why"
+                ],
+                "properties": {
+                  "index": {
+                    "type": "integer"
+                  },
+                  "tool": {
+                    "type": "string"
+                  },
+                  "marked": {
+                    "type": "boolean"
+                  },
+                  "why": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "seq",
+                  "at",
+                  "tool",
+                  "label",
+                  "ok"
+                ],
+                "properties": {
+                  "seq": {
+                    "type": "integer"
+                  },
+                  "at": {
+                    "type": "string"
+                  },
+                  "app": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "tool": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "item": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "agent": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "uses": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "for": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "ok": {
+                    "type": "boolean"
+                  },
+                  "reason": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "next_before": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "coverage": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/activity/src",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/activity/src/do-work/keep-and-read-activity.mjs",
+            "keepAndReadActivity"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "see-what-my-ais-did",
+                "paths": [
+                  "activity.mjs",
+                  "activity-marks.json",
+                  "do-work"
+                ],
+                "at": "/opt/activity/src"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/execution-context.mjs",
+                  "src/read-bounded-json.mjs",
+                  "src/connecting-without-the-store.mjs",
+                  "src/connecting-without-the-store.json",
+                  "src/namespace-preview.mjs",
+                  "src/record-model-tools.mjs",
+                  "src/record-model.json",
+                  "src/record-scope.json",
+                  "src/workspace/file-previews.json"
+                ],
+                "at": "/opt/activity"
+              },
+              {
+                "package": "keep-lists-of-rows",
+                "paths": [
+                  "do-work/fractional-order.ts"
+                ],
+                "at": "/opt/activity/parts/visual-database"
+              },
+              {
+                "package": "record-log",
+                "paths": [
+                  "do-work/record-model.mjs"
+                ],
+                "at": "/opt/record-log"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/activity.mjs at 7fd88384^, moved byte for byte in a9ee258 (#76) to activity.mjs; src/activity-marks.json brought in byte for byte from b6ae0ebf815f (4ffa1dc4a2^) (moved-from.json); its import src/execution-context.mjs and that file's imports are packed from tools/keep-and-wake-ai-sessions-on-this-computer/src, where they already are byte for byte; old capability row capabilities.json:107 at 4ffa1dc4a2^ (see what every AI connected to my account did); do-work/keep-and-read-activity.mjs written here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "calls": [
+                {
+                  "tool": "hand_off",
+                  "at": "2026-11-01T09:00:00Z",
+                  "app": "Sample AI",
+                  "input": {
+                    "said": "Draft the launch note"
+                  },
+                  "result": {
+                    "handoff_id": "handoff:sample-1"
+                  }
+                },
+                {
+                  "tool": "save_tool",
+                  "at": "2026-11-01T09:04:00Z",
+                  "app": "Sample AI",
+                  "input": {
+                    "descriptor": {
+                      "id": "tool:sample-word-count",
+                      "label": "Count words"
+                    }
+                  }
+                },
+                {
+                  "tool": "run_tool",
+                  "at": "2026-11-01T09:05:00Z",
+                  "app": "Sample AI",
+                  "input": {
+                    "tool_id": "tool:sample-word-count"
+                  },
+                  "error": "The tool timed out."
+                }
+              ],
+              "read": {
+                "failed": true
+              }
+            },
+            "output_selector": "$.items[0].ok",
+            "equals": false
+          }
+        ]
+      }
+    }
+  ]
+}

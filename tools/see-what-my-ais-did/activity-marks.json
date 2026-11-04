@@ -1,0 +1,704 @@
+{
+  "_what": "Which calls an AI makes leave a row on the person's AI activity screen, and how each row reads. One row per tool name, or per act the store itself sees (`file_kept`: any file that finished arriving, by any road, marked with the app that started sending it; such a row says `seen_by: store`): `label` is what the AI did, in plain words; `item` lists where the made or touched thing's id is found, the first present wins (`from` is `result` for what the tool answered or `input` for what the AI sent, `path` the keys into it); `title` lists where a readable name for it is found the same way; `facts` (optional) names short facts kept on the row, each a list of places read the same way (a saved file's media type), so a screen can tell kinds apart without opening the thing; `opens` is the screen that shows it (a surface id with its route input), when there is one. A new tool appears on the screen by adding its row here; nothing that records or draws changes. `keep` is how many rows each person keeps, newest first. `agent` lists where, in any call, the name of the agent acting through the app is found (an AI app can run several agents). `person_app` is how what the person does themselves on their own Trillion page is named, so it is never taken for an AI. Owned by src/activity.mjs. `failed` says when a call the tool answered still did not work (a tool run whose task ended failed): `when` lists places, read like the others, each with the values that mean it failed (`equals`); `reason` lists where its own words for why are found. A call that threw is always failed; nothing that records or draws names a tool for this. `uses` (on a mark) lists where the ids the call USED are found (a file it read or attached, the handoff it passed on, the tool it ran, the event's subject): each place is {from, path}; with `each: true` the path ends at a list or object whose members are ids, or hold one at `path_in_each`; `match` keeps only members that look like the id meant (a file's identity), for inputs whose other values are free words. `for` (top level, read in every call, plus a mark's own) lists the same way where what the call was done FOR is found (the decision behind it, what a message is about). Both are kept as links beside the row, so a trace follows them (src/activity.mjs traceActivity). `kept_with` (on a mark, or on a `uses` or `for` place) names the access (commercial-offer-records access_refs) a person must hold for the row, or the id found at that place, to be kept; a person without it keeps neither (src/activity.mjs keptActivityRow), so a free decision's goal, move and id are kept nowhere. `kept_at_once` is the most rows one request may hand the account's own record book to keep (native activity:keep): one MCP request carries at most 50 calls, each leaving at most one row.",
+  "keep": 5000,
+  "kept_at_once": 50,
+  "agent": [
+    {
+      "from": "input",
+      "path": [
+        "agent_id"
+      ]
+    },
+    {
+      "from": "input",
+      "path": [
+        "from_agent"
+      ]
+    }
+  ],
+  "for": [
+    {
+      "from": "input",
+      "path": [
+        "case_id"
+      ],
+      "kept_with": "access:decision-kept"
+    },
+    {
+      "from": "result",
+      "path": [
+        "handoff",
+        "case_id"
+      ],
+      "kept_with": "access:decision-kept"
+    }
+  ],
+  "person_app": "You, in Trillion",
+  "failed": {
+    "when": [
+      { "from": "result", "path": ["state"], "equals": ["failed"] },
+      { "from": "result", "path": ["ok"], "equals": [false] }
+    ],
+    "reason": [
+      { "from": "result", "path": ["error", "message"] },
+      { "from": "result", "path": ["error"] },
+      { "from": "result", "path": ["reason"] }
+    ]
+  },
+  "marks": [
+    {
+      "tool": "record_execution",
+      "label": "Recorded an action source",
+      "item": [
+        {
+          "from": "result",
+          "path": [
+            "execution_ref"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "operation"
+          ]
+        }
+      ],
+      "uses": [
+        {
+          "from": "input",
+          "path": [
+            "corrects"
+          ]
+        }
+      ],
+      "for": [
+        {
+          "from": "input",
+          "path": [
+            "links",
+            "work_ref"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "links",
+            "source_ref"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "stop_workflow_run",
+      "label": "Stopped a workflow",
+      "item": [{ "from": "result", "path": ["run", "run_id"] }, { "from": "input", "path": ["run_id"] }],
+      "title": [{ "from": "input", "path": ["reason"] }],
+      "uses": [{ "from": "result", "path": ["run", "workflow_id"] }]
+    },
+    {
+      "tool": "upgrade_workflow_steps",
+      "label": "Upgraded a workflow's tool steps",
+      "item": [{ "from": "result", "path": ["workflow_id"] }, { "from": "input", "path": ["workflow_id"] }],
+      "uses": [{ "from": "result", "path": ["workflow_id"] }]
+    },
+    {
+      "tool": "hand_off",
+      "label": "Handed off work",
+      "item": [
+        {
+          "from": "result",
+          "path": [
+            "handoff",
+            "handoff_id"
+          ]
+        },
+        {
+          "from": "result",
+          "path": [
+            "handoff_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "result",
+          "path": [
+            "handoff",
+            "said"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "said"
+          ]
+        }
+      ],
+      "uses": [
+        {
+          "from": "input",
+          "path": [
+            "parent_handoff_id"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "input"
+          ],
+          "each": true,
+          "match": "^1f:[0-9a-f]{64}$"
+        }
+      ]
+    },
+    {
+      "tool": "take_work",
+      "label": "Took handed-off work",
+      "item": [
+        {
+          "from": "result",
+          "path": [
+            "handoff",
+            "handoff_id"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "handoff_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "result",
+          "path": [
+            "handoff",
+            "said"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "read_handoff",
+      "label": "Read handed-off work",
+      "item": [{ "from": "result", "path": ["handoff", "handoff_id"] }],
+      "title": [{ "from": "result", "path": ["handoff", "said"] }],
+      "facts": {
+        "state": [{ "from": "result", "path": ["handoff", "state"] }],
+        "finished_at": [{ "from": "result", "path": ["handoff", "finished_at"] }]
+      }
+    },
+    {
+      "tool": "finish_work",
+      "label": "Finished handed-off work",
+      "item": [
+        {
+          "from": "result",
+          "path": [
+            "handoff",
+            "handoff_id"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "handoff_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "result",
+          "path": [
+            "handoff",
+            "said"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "summary"
+          ]
+        }
+      ],
+      "uses": [
+        {
+          "from": "input",
+          "path": [
+            "result"
+          ],
+          "each": true,
+          "match": "^1f:[0-9a-f]{64}$"
+        }
+      ]
+    },
+    {
+      "tool": "withdraw_waiting_work",
+      "label": "Withdrew waiting work",
+      "item": [
+        {
+          "from": "result",
+          "path": [
+            "handoff",
+            "handoff_id"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "handoff_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "result",
+          "path": [
+            "handoff",
+            "said"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "summary"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "send_agent_event",
+      "label": "Sent an event to an agent",
+      "item": [
+        {
+          "from": "result",
+          "path": [
+            "event_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "summary"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "type"
+          ]
+        }
+      ],
+      "uses": [
+        {
+          "from": "input",
+          "path": [
+            "subject_id"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "refs"
+          ],
+          "each": true
+        }
+      ]
+    },
+    {
+      "tool": "publish_agent",
+      "label": "Set up an agent",
+      "agent_name": [{ "from": "result", "path": ["agent", "name"] }, { "from": "input", "path": ["name"] }],
+      "model": [{ "from": "result", "path": ["agent", "model"] }, { "from": "input", "path": ["model"] }],
+      "item": [
+        {
+          "from": "input",
+          "path": [
+            "agent_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "name"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "agent_id"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "run_tool",
+      "label": "Ran a tool",
+      "item": [
+        {
+          "from": "result",
+          "path": [
+            "task_id"
+          ]
+        },
+        {
+          "from": "result",
+          "path": [
+            "id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "job"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "tool_id"
+          ]
+        }
+      ],
+      "for": [{ "from": "input", "path": ["for_handoff"] }],
+      "uses": [
+        {
+          "from": "input",
+          "path": [
+            "tool_id"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "input"
+          ],
+          "each": true,
+          "match": "^1f:[0-9a-f]{64}$"
+        },
+        {
+          "from": "input",
+          "path": [
+            "input"
+          ],
+          "each": true,
+          "path_in_each": [
+            "from_task"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "save_tool",
+      "label": "Saved a tool",
+      "item": [
+        {
+          "from": "input",
+          "path": [
+            "descriptor",
+            "id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "descriptor",
+            "label"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "descriptor",
+            "job"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "publish_tool",
+      "label": "Published a tool",
+      "item": [
+        {
+          "from": "input",
+          "path": [
+            "tool_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "tool_id"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "unpublish_tool",
+      "label": "Took a tool off the marketplace",
+      "item": [
+        {
+          "from": "input",
+          "path": [
+            "tool_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "tool_id"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "delete_tool",
+      "label": "Deleted a tool",
+      "item": [
+        {
+          "from": "input",
+          "path": [
+            "tool_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "tool_id"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "start_decision",
+      "label": "Started a decision",
+      "kept_with": "access:decision-kept",
+      "for": [{ "from": "input", "path": ["source_id"] }],
+      "item": [
+        {
+          "from": "result",
+          "path": [
+            "case_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "goal"
+          ]
+        }
+      ],
+      "opens": {
+        "surface": "trillion.decision",
+        "input": "id"
+      }
+    },
+    {
+      "tool": "agree_or_disagree",
+      "label": "Said where you stand",
+      "item": [
+        {
+          "from": "result",
+          "path": [
+            "record"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "result",
+          "path": [
+            "stance",
+            "said"
+          ]
+        }
+      ],
+      "uses": [
+        {
+          "from": "result",
+          "path": [
+            "handoff_id"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "decide",
+      "label": "Decided",
+      "kept_with": "access:decision-kept",
+      "item": [
+        {
+          "from": "input",
+          "path": [
+            "case_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "move"
+          ]
+        },
+        {
+          "from": "input",
+          "path": [
+            "option_id"
+          ]
+        }
+      ],
+      "opens": {
+        "surface": "trillion.decision",
+        "input": "id"
+      }
+    },
+    {
+      "tool": "record_messages",
+      "label": "Saved a conversation",
+      "item": [
+        {
+          "from": "input",
+          "path": [
+            "messages",
+            0,
+            "conversation_id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "messages",
+            0,
+            "app"
+          ]
+        }
+      ],
+      "for": [
+        {
+          "from": "input",
+          "path": [
+            "messages",
+            0,
+            "about"
+          ],
+          "each": true,
+          "path_in_each": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "post_to_community",
+      "label": "Posted in a community",
+      "item": [
+        {
+          "from": "result",
+          "path": [
+            "post",
+            "id"
+          ]
+        },
+        {
+          "from": "result",
+          "path": [
+            "id"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "body"
+          ]
+        }
+      ],
+      "uses": [
+        {
+          "from": "input",
+          "path": [
+            "reply_to"
+          ]
+        }
+      ],
+      "for": [
+        {
+          "from": "input",
+          "path": [
+            "community_id"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "connect_service",
+      "label": "Connected a service",
+      "item": [
+        {
+          "from": "input",
+          "path": [
+            "service"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "input",
+          "path": [
+            "service"
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "file_kept",
+      "label": "Saved a file",
+      "item": [
+        {
+          "from": "result",
+          "path": [
+            "identity"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "from": "result",
+          "path": [
+            "names",
+            0
+          ]
+        }
+      ],
+      "opens": {
+        "surface": "trillion.file",
+        "input": "id"
+      },
+      "seen_by": "store",
+      "facts": { "media_type": [{ "from": "result", "path": ["media_type"] }] }
+    }
+  ]
+}
