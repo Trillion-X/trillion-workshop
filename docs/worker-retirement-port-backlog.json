@@ -2782,8 +2782,9 @@
   {
    "path": "src/account-erasure-policy.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account/erase.rs (with src/account/erase/settings.json, src/account/erase/words.json, src/account/account_routes.rs, src/account/sign_in.rs, src/account/sign_in/known.rs, src/account/sign_in/store.rs, src/account/sign_in/words.json, src/account_files/account_routes.rs, src/native_boot/mcp_local.rs)",
+   "why": "storage, door or account mechanics: ported one to one under ports/account-erasure.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/account-move-resource-name.mjs",
@@ -4089,8 +4090,9 @@
   {
    "path": "src/dav-xml.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account_files/dav.rs (with src/account_files/mod.rs, src/account_files/settings.json, src/account_files/words.json, src/mcp.rs, src/mcp/carried.rs)",
+   "why": "storage, door or account mechanics: ported one to one under ports/account-files-dav.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/decision-notice.mjs",
@@ -4470,8 +4472,9 @@
   {
    "path": "src/fixed-oauth-clients.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account/sign_in/oauth.rs (with src/account/account_routes.rs, src/account/sign_in.rs)",
+   "why": "storage, door or account mechanics: ported one to one under ports/sign-in-fixed-clients.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/follow-up-emails.json",
@@ -4707,7 +4710,7 @@
   {
    "path": "src/hosts/local/local-resource-host.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/storage/sqlite.rs, trillion-rust:src/storage/record_store/mod.rs, trillion-rust:src/store.rs, trillion-rust:src/runtime/workshop.rs",
+   "destination": "trillion-rust:src/storage/sqlite.rs, trillion-rust:src/storage/record_store/mod.rs, trillion-rust:src/store.rs, trillion-rust:src/tool_runs/tools.rs",
    "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust has no per-resource PGlite/PostgreSQL arbitrary-SQL tool supply and no OS-user (uid) policy row; under the rules a SQL tool would be a Workshop tool and authority comes from the door's sign-in."
   },
   {
@@ -5460,7 +5463,7 @@
   {
    "path": "src/mcp-client-identity.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/account/door.rs",
+   "destination": "trillion-rust:src/account/account_routes.rs",
    "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust keeps only sign_in + OAuth client_id, which is empty for a personal key; it does not keep the initialize clientInfo or the user-agent split, so two apps sharing one key look the same. keyAppNames is a screen read through a DO."
   },
   {
@@ -5705,14 +5708,16 @@
   {
    "path": "src/namespace-byte-release.json",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account_files/release.rs (with src/account_files/objects.rs, src/account_files/names.rs, src/account_files/write.rs, src/account_files/mod.rs, src/account_files/settings.rs, src/account_files/settings.json, src/account_files/words.json, src/account_files/account-files-routes.json)",
+   "why": "storage, door or account mechanics: ported one to one under ports/account-files-byte-release.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/namespace-byte-release.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account_files/release.rs (with src/account_files/objects.rs, src/account_files/names.rs, src/account_files/write.rs, src/account_files/mod.rs, src/account_files/settings.rs, src/account_files/settings.json, src/account_files/words.json, src/account_files/account-files-routes.json)",
+   "why": "storage, door or account mechanics: ported one to one under ports/account-files-byte-release.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/namespace-carry-ledger.mjs",
@@ -5759,8 +5764,9 @@
   {
    "path": "src/namespace-dav.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account_files/dav.rs (with src/account_files/mod.rs, src/account_files/settings.json, src/account_files/words.json, src/mcp.rs, src/mcp/carried.rs)",
+   "why": "storage, door or account mechanics: ported one to one under ports/account-files-dav.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/namespace-edge-cache.mjs",
@@ -5837,8 +5843,9 @@
   {
    "path": "src/namespace-name-retirement.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account_files/names.rs (with src/account_files/mod.rs, src/account_files/account-files-routes.json)",
+   "why": "storage, door or account mechanics: ported one to one under ports/account-files-name-retirement.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/namespace-native-carry.mjs",
@@ -5916,8 +5923,9 @@
   {
    "path": "src/namespace-results.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account_files/results.rs (with src/account_files/mod.rs, src/account_files/settings.json, src/account_files/words.json, src/account_files/account-files-routes.json)",
+   "why": "storage, door or account mechanics: ported one to one under ports/account-files-results.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/namespace-set-aside.json",
@@ -6015,7 +6023,7 @@
   {
    "path": "src/native-account-key.json",
    "class": "home-exists",
-   "destination": "trillion-rust:src/account/door.rs",
+   "destination": "trillion-rust:src/account/account_routes.rs",
    "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust keeps the held host key and issues a new one otherwise, so no reveal window is needed; legacy_scrub was for old records (ruled out by no-compat)."
   },
   {
@@ -7354,8 +7362,9 @@
   {
    "path": "src/passkey-authority.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account/sign_in/known.rs (with src/account/sign_in/passkeys.rs, src/account/sign_in/ways.rs, src/account/sign_in/way_pages.rs, src/account/sign_in/routes.rs, src/account/account_routes.rs, src/account/sign_in/settings.json, src/account/sign_in/words.json, src/account/sign_in/pages.rs, src/account/sign_in.rs)",
+   "why": "storage, door or account mechanics: ported one to one under ports/sign-in-known-passkeys.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/passkey-challenges.mjs",
@@ -7366,8 +7375,9 @@
   {
    "path": "src/passkey-list.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account/sign_in/passkeys.rs (with src/account/sign_in/sessions.rs, src/account/account_routes.rs, src/account/sign_in.rs)",
+   "why": "storage, door or account mechanics: ported one to one under ports/sign-in-passkey-list.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/passkey-options.mjs",
@@ -7527,7 +7537,7 @@
   {
    "path": "src/personal-keys.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/account/sign_in/keys.rs, trillion-rust:src/account/door.rs",
+   "destination": "trillion-rust:src/account/sign_in/keys.rs, trillion-rust:src/account/account_routes.rs",
    "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No rename, purpose or change of expiry (port report gap 33); a cap of a key's expiry at the caller's own was not found."
   },
   {
@@ -8401,7 +8411,7 @@
   {
    "path": "src/resource-behavior-commands.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/local_account/command_journal.rs, trillion-rust:src/storage/old_engine.rs",
+   "destination": "trillion-rust:src/local_account/command_journal.rs, trillion-rust:src/storage/old_record_tables.rs",
    "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust journal is synchronous-only: no pending/preparation-due async rows, no reconcile of unknown outcomes, no workspace-erasure fence table, no used/said meter columns."
   },
   {
@@ -8425,7 +8435,7 @@
   {
    "path": "src/resource-execution-host.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/runtime/workshop.rs, trillion-rust:src/account_rights/run_capability.rs",
+   "destination": "trillion-rust:src/tool_runs/tools.rs, trillion-rust:src/account_rights/run_capability.rs",
    "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust runs tools per account, not per addressed resource; no binding list/save/restore/resolve management API."
   },
   {
@@ -8461,7 +8471,7 @@
   {
    "path": "src/resource-operation-owner.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/runtime/workshop.rs, trillion-rust:src/runtime.rs",
+   "destination": "trillion-rust:src/tool_runs/tools.rs, trillion-rust:src/tool_runs.rs",
    "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No synchronous in-transaction (atomic:true) entrypoints over the resource store; no assertCurrent route-generation recheck per commit."
   },
   {
@@ -8485,7 +8495,7 @@
   {
    "path": "src/resource-presentation-mount.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/workspace_domain.rs, trillion-rust:src/server/owner-routes.json, trillion-rust:src/runtime/workshop.rs, trillion-rust:src/native_entry/live.rs",
+   "destination": "trillion-rust:src/workspace_domain.rs, trillion-rust:src/server/owner-routes.json, trillion-rust:src/tool_runs/tools.rs, trillion-rust:src/native_entry/live.rs",
    "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No refusal (409) when a screen binding address/generation changed; no per-resource live socket."
   },
   {
@@ -8497,7 +8507,7 @@
   {
    "path": "src/resource-query-continuation.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/record_value/list.rs, trillion-rust:src/runtime/workshop/pages.rs, trillion-rust:src/resource_result_fragments.rs",
+   "destination": "trillion-rust:src/record_value/list.rs, trillion-rust:src/tool_runs/tools/pages.rs, trillion-rust:src/resource_result_fragments.rs",
    "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust continues with caller-held cursors/byte offsets; no server-kept continuation that dies with its sources erasure key."
   },
   {
@@ -9466,14 +9476,16 @@
   {
    "path": "src/sign-in-calls.json",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account/sign_in/calls.rs (with src/account/sign_in/settings.json, src/account/account_routes.rs, src/account/sign_in/oauth.rs, src/account/sign_in/routes.rs, src/account/sign_in/words.json, src/account/sign_in.rs, src/mcp.rs)",
+   "why": "storage, door or account mechanics: ported one to one under ports/sign-in-calls.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/sign-in-calls.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account/sign_in/calls.rs (with src/account/sign_in/settings.json, src/account/account_routes.rs, src/account/sign_in/oauth.rs, src/account/sign_in/routes.rs, src/account/sign_in/words.json, src/account/sign_in.rs, src/mcp.rs)",
+   "why": "storage, door or account mechanics: ported one to one under ports/sign-in-calls.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/sign-in-email.json",
@@ -10238,8 +10250,9 @@
   {
    "path": "src/tool-run-account-erasure.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/tool_runs/tools/erasure.rs (with src/tool_runs/tools/tool-runs.json, src/tool_runs/tools.rs, src/tool_runs.rs, src/tool_runs/tools/container.rs, src/tool_runs/tools/http.rs, src/local_workspace.rs)",
+   "why": "storage, door or account mechanics: ported one to one under ports/tool-run-account-erasure.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/tool-run-call.mjs",
@@ -10250,7 +10263,7 @@
   {
    "path": "src/tool-run-owner.json",
    "class": "home-exists",
-   "destination": "trillion-rust:src/runtime/workshop/tool-runs.json, trillion-rust:src/runtime/workshop.rs",
+   "destination": "trillion-rust:src/tool_runs/tools/tool-runs.json, trillion-rust:src/tool_runs/tools.rs",
    "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No erase operation on a run and no claim/take/answer operations; the per-run DO address and placement are Worker-only."
   },
   {
@@ -10497,8 +10510,9 @@
   {
    "path": "src/web-sign-in.mjs",
    "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "destination": "trillion-rust:src/account/sign_in/sessions.rs (with src/account/sign_in/routes.rs, src/account/account_routes.rs, src/account/sign_in/settings.json, src/account/sign_in.rs)",
+   "why": "storage, door or account mechanics: ported one to one under ports/sign-in-web-link.json (BEHAVIORAL_PORT)",
+   "batch": "rust-engine slice (trillion-rust PR #82)"
   },
   {
    "path": "src/webhooks-screen.json",
