@@ -11,7 +11,8 @@
 #   { conversation_id, title, app, messages: [{ id, speaker, text, at }] }
 #
 # where `speaker` is "person" for the person's own words, "ai" for an assistant's, and otherwise the name the source
-# showed; `id` is the message's place in the conversation it came from (the source's own id, else the atom's), so
+# showed; `attachments`, when the source named files the message carried, are those names as the source gave them; `id`
+# is the message's place in the conversation it came from (the source's own id, else the atom's), so
 # bringing the same export in again adds nothing twice; and `at` is the time the source gave, left out when it gave
 # none (a time is never invented). Only what was SAID is a message: a reaction, a tool call, a thought, a status or an
 # error is not, and a message with no words is not.
@@ -58,6 +59,8 @@ def conversations_for_recording(threads, atoms, row, descriptor=None):
                    "speaker": _spoken_as(_speaker_of(atom), recording), "text": text}
         if atom.get("at"):
             message["at"] = atom["at"]
+        if isinstance(atom.get("attachments"), list) and atom["attachments"]:
+            message["attachments"] = atom["attachments"]
         said.setdefault(atom["thread_ref"], []).append(message)
     return [{"conversation_id": thread["thread_ref"], "title": (thread.get("presentation") or {}).get("title"),
              "app": app, "messages": said[thread["thread_ref"]]}
