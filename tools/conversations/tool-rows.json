@@ -309,6 +309,1363 @@
         ],
         "result_selector": "$.result"
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:conversations",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "id": "tool:list-the-conversation-sources-on-this-computer",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": false
+        },
+        "label": "List the conversation sources on this computer",
+        "job": "Find every app's conversations on this computer (AI chat exports, Google Takeout activity, and the sessions local AI apps keep) and say how many files of each there are",
+        "description": "Runs on the person's computer over the folder they granted it to read (their home folder), and reads only inside it. For each kind of source (read-data/conversation-sources-on-this-computer.json: ChatGPT, Claude.ai and Grok account exports, Google Takeout activity for Gemini Apps, Assistant and AI Mode, and the sessions of Claude Code, Codex, Gemini CLI and Hermes) it answers how many files are here, their bytes and the first of them. more_places adds folders to look for exports in. Keeps nothing and reaches no records.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "more_places": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "folder",
+                  "depth"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "folder": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "A folder in the granted home folder, like Downloads/old-exports"
+                  },
+                  "depth": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 12
+                  }
+                }
+              },
+              "description": "More folders to look for exports in, besides Downloads, Desktop and Documents"
+            },
+            "most_files": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "sources"
+          ],
+          "properties": {
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "source",
+                  "app",
+                  "files"
+                ],
+                "properties": {
+                  "source": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "app": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "files": {
+                    "type": "integer"
+                  },
+                  "bytes": {
+                    "type": "integer"
+                  },
+                  "found": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/conversations",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/read-data/chat-import.mjs",
+            "listConversationSourcesHere"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "folder": {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "conversations",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/conversations"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/messages.mjs",
+                  "src/responses.mjs",
+                  "src/reactions.json",
+                  "src/harnesses.mjs",
+                  "src/claimed-time.mjs",
+                  "src/claimed-time.json",
+                  "src/hybrid-clock.mjs",
+                  "src/voice-sessions.mjs",
+                  "src/waiting-on-you.json",
+                  "harness/record-every-message.mjs",
+                  "harness/record-every-message.json",
+                  "harness/hook-run-receipt.mjs",
+                  "harness/source-return-pending.mjs",
+                  "harness/account-key.mjs",
+                  "harness/account-key.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decision-records.mjs",
+                  "read-data/decide-with-a-method.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/harnesses.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "take-pictures-out-of-a-zip-archive",
+                "paths": [
+                  "src/archive-entries.mjs",
+                  "src/archive-entries.json"
+                ],
+                "at": "/opt/take-pictures-out-of-a-zip-archive"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "fflate",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "esm",
+                  "lib"
+                ],
+                "at": "/opt/node_modules/fflate"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion at the tag old-trillion-before-worker-retire: src/chat-import.mjs (importConversation, keepConversationRow, exportedConversations; importChatExport's paged read of an export becomes this run's cursor rows), src/chat-archives.mjs, src/ai-conversations-list.json, and the bounded resumable older-transcript reader of harness/record-every-message.mjs (moved earlier to tools/keep-and-wake-ai-sessions-on-this-computer), which reads the local AI apps' sessions by its own rules"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$",
+            "contains": "codex-sessions"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:conversations",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "id": "tool:import-my-conversations-from-a-source",
+        "needs": {
+          "expected_seconds": 600,
+          "network_egress": false
+        },
+        "label": "Import my conversations from one source",
+        "job": "Bring every conversation of one app (an AI chat export, Google Takeout activity, or a local AI app's sessions) from this computer into my records completely, one row per conversation and every message, continuing where an earlier run stopped",
+        "description": "Runs on the person's computer over the folder they granted (their home folder). source is one id tool:list-the-conversation-sources-on-this-computer gives; files, when given, names the files (paths in the folder) instead of looking for them. Each conversation is kept as the person's messages (record message, with its source key, so bringing it in again adds nothing twice) and one row of their AI conversations list (record:ai-conversation: title, app, conversation, started, last, messages, models, original_file; labels, people, pursuits and follow-ups they set are never touched). Writes go through the records door in batches; a busy (503) or slow door is asked again after a growing wait with the same request key. Each file has a cursor row (conversation-import-cursor) that moves only past what was kept, so a run that stops, or reaches time_box_seconds, answers more: true and the next run goes on from there; a file already done and unchanged is skipped. Files the messages carried (attachments) are counted, not copied.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "source"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": [
+                "chatgpt-export",
+                "claude-ai-export",
+                "grok-export",
+                "gemini-apps-activity",
+                "google-assistant-activity",
+                "google-ai-mode-activity",
+                "claude-code-sessions",
+                "codex-sessions",
+                "gemini-cli-sessions",
+                "hermes-sessions"
+              ]
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "maxItems": 5000
+            },
+            "more_places": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "folder",
+                  "depth"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "folder": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "A folder in the granted home folder, like Downloads/old-exports"
+                  },
+                  "depth": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 12
+                  }
+                }
+              }
+            },
+            "time_box_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3000,
+              "description": "How long this run may keep going, in seconds (at most 3000); past it the run saves where it is and answers more: true"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "done",
+            "more"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "app": {
+              "type": "string"
+            },
+            "done": {
+              "type": "boolean"
+            },
+            "files_found": {
+              "type": "integer"
+            },
+            "files_done": {
+              "type": "integer"
+            },
+            "conversations_kept": {
+              "type": "integer"
+            },
+            "messages_added": {
+              "type": "integer"
+            },
+            "messages_already_kept": {
+              "type": "integer"
+            },
+            "attachments_not_kept": {
+              "type": "integer"
+            },
+            "conversations_refused": {
+              "type": "array"
+            },
+            "stopped": {
+              "type": "string"
+            },
+            "more": {
+              "type": "boolean"
+            },
+            "files": {
+              "type": "array"
+            },
+            "files_skipped": {
+              "type": "integer"
+            },
+            "rows_let_go": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/conversations",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/read-data/chat-import.mjs",
+            "importConversationsFrom"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "folder": {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "conversations",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/conversations"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/messages.mjs",
+                  "src/responses.mjs",
+                  "src/reactions.json",
+                  "src/harnesses.mjs",
+                  "src/claimed-time.mjs",
+                  "src/claimed-time.json",
+                  "src/hybrid-clock.mjs",
+                  "src/voice-sessions.mjs",
+                  "src/waiting-on-you.json",
+                  "harness/record-every-message.mjs",
+                  "harness/record-every-message.json",
+                  "harness/hook-run-receipt.mjs",
+                  "harness/source-return-pending.mjs",
+                  "harness/account-key.mjs",
+                  "harness/account-key.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decision-records.mjs",
+                  "read-data/decide-with-a-method.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/harnesses.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "take-pictures-out-of-a-zip-archive",
+                "paths": [
+                  "src/archive-entries.mjs",
+                  "src/archive-entries.json"
+                ],
+                "at": "/opt/take-pictures-out-of-a-zip-archive"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "fflate",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "esm",
+                  "lib"
+                ],
+                "at": "/opt/node_modules/fflate"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "message",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "message-source-key",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "message-resend-key",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "message-content-key",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "setting",
+                "id": "setting:hybrid-clock-state",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list",
+                "id": "list:ai-conversations",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "record:ai-conversation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "conversation-import-cursor",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ],
+            "most_writes": 100
+          },
+          "max_run_ms": 3600000
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion at the tag old-trillion-before-worker-retire: src/chat-import.mjs (importConversation, keepConversationRow, exportedConversations; importChatExport's paged read of an export becomes this run's cursor rows), src/chat-archives.mjs, src/ai-conversations-list.json, and the bounded resumable older-transcript reader of harness/record-every-message.mjs (moved earlier to tools/keep-and-wake-ai-sessions-on-this-computer), which reads the local AI apps' sessions by its own rules"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "source": "hermes-sessions",
+              "time_box_seconds": 30
+            },
+            "output_selector": "$",
+            "contains": "hermes-sessions"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:conversations",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "id": "tool:resume-importing-my-conversations",
+        "needs": {
+          "expected_seconds": 600,
+          "network_egress": false
+        },
+        "label": "Resume importing all my conversations",
+        "job": "Bring in every conversation from every app found on this computer, continuing each source from where its last run stopped, until all of them are in my records",
+        "description": "Runs on the person's computer over the folder they granted (their home folder). Every source tool:list-the-conversation-sources-on-this-computer finds here (or the ones sources names) is imported in turn the way tool:import-my-conversations-from-a-source imports one, each file from its cursor row. A run stops at time_box_seconds, or when the records door stays busy past its retries, and answers more: true; run it again until more is false.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "chatgpt-export",
+                  "claude-ai-export",
+                  "grok-export",
+                  "gemini-apps-activity",
+                  "google-assistant-activity",
+                  "google-ai-mode-activity",
+                  "claude-code-sessions",
+                  "codex-sessions",
+                  "gemini-cli-sessions",
+                  "hermes-sessions"
+                ]
+              }
+            },
+            "more_places": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "folder",
+                  "depth"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "folder": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "A folder in the granted home folder, like Downloads/old-exports"
+                  },
+                  "depth": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 12
+                  }
+                }
+              }
+            },
+            "time_box_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3000,
+              "description": "How long this run may keep going, in seconds (at most 3000); past it the run saves where it is and answers more: true"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "sources",
+            "more"
+          ],
+          "properties": {
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "source",
+                  "done"
+                ],
+                "properties": {
+                  "source": {
+                    "type": "string"
+                  },
+                  "app": {
+                    "type": "string"
+                  },
+                  "done": {
+                    "type": "boolean"
+                  },
+                  "files_found": {
+                    "type": "integer"
+                  },
+                  "files_done": {
+                    "type": "integer"
+                  },
+                  "conversations_kept": {
+                    "type": "integer"
+                  },
+                  "messages_added": {
+                    "type": "integer"
+                  },
+                  "messages_already_kept": {
+                    "type": "integer"
+                  },
+                  "attachments_not_kept": {
+                    "type": "integer"
+                  },
+                  "conversations_refused": {
+                    "type": "array"
+                  },
+                  "stopped": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "more": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/conversations",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/read-data/chat-import.mjs",
+            "resumeConversationImports"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "folder": {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "conversations",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/conversations"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/messages.mjs",
+                  "src/responses.mjs",
+                  "src/reactions.json",
+                  "src/harnesses.mjs",
+                  "src/claimed-time.mjs",
+                  "src/claimed-time.json",
+                  "src/hybrid-clock.mjs",
+                  "src/voice-sessions.mjs",
+                  "src/waiting-on-you.json",
+                  "harness/record-every-message.mjs",
+                  "harness/record-every-message.json",
+                  "harness/hook-run-receipt.mjs",
+                  "harness/source-return-pending.mjs",
+                  "harness/account-key.mjs",
+                  "harness/account-key.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decision-records.mjs",
+                  "read-data/decide-with-a-method.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/harnesses.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "take-pictures-out-of-a-zip-archive",
+                "paths": [
+                  "src/archive-entries.mjs",
+                  "src/archive-entries.json"
+                ],
+                "at": "/opt/take-pictures-out-of-a-zip-archive"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "fflate",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "esm",
+                  "lib"
+                ],
+                "at": "/opt/node_modules/fflate"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "message",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "message-source-key",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "message-resend-key",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "message-content-key",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "setting",
+                "id": "setting:hybrid-clock-state",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list",
+                "id": "list:ai-conversations",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "record:ai-conversation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "conversation-import-cursor",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ],
+            "most_writes": 100
+          },
+          "max_run_ms": 3600000
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion at the tag old-trillion-before-worker-retire: src/chat-import.mjs (importConversation, keepConversationRow, exportedConversations; importChatExport's paged read of an export becomes this run's cursor rows), src/chat-archives.mjs, src/ai-conversations-list.json, and the bounded resumable older-transcript reader of harness/record-every-message.mjs (moved earlier to tools/keep-and-wake-ai-sessions-on-this-computer), which reads the local AI apps' sessions by its own rules"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "time_box_seconds": 30
+            },
+            "output_selector": "$",
+            "contains": "more"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:conversations",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "id": "tool:show-how-far-my-conversation-import-is",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "label": "Show how far my conversation import is",
+        "job": "Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped",
+        "description": "Reads the import's cursor rows (conversation-import-cursor) through the records door and answers, per source, the files seen and done, conversations kept, messages added and already kept, files the messages carried that were not copied, its state (done, more, stopped) and when it last moved. Reads nothing else.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "sources"
+          ],
+          "properties": {
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "source"
+                ],
+                "properties": {
+                  "source": {
+                    "type": "string"
+                  },
+                  "app": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "files_found": {
+                    "type": "integer"
+                  },
+                  "files_seen": {
+                    "type": "integer"
+                  },
+                  "files_done": {
+                    "type": "integer"
+                  },
+                  "conversations_kept": {
+                    "type": "integer"
+                  },
+                  "messages_added": {
+                    "type": "integer"
+                  },
+                  "messages_already_kept": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/conversations",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/read-data/chat-import.mjs",
+            "conversationImportProgress"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "conversations",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/conversations"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/messages.mjs",
+                  "src/responses.mjs",
+                  "src/reactions.json",
+                  "src/harnesses.mjs",
+                  "src/claimed-time.mjs",
+                  "src/claimed-time.json",
+                  "src/hybrid-clock.mjs",
+                  "src/voice-sessions.mjs",
+                  "src/waiting-on-you.json",
+                  "harness/record-every-message.mjs",
+                  "harness/record-every-message.json",
+                  "harness/hook-run-receipt.mjs",
+                  "harness/source-return-pending.mjs",
+                  "harness/account-key.mjs",
+                  "harness/account-key.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decision-records.mjs",
+                  "read-data/decide-with-a-method.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/harnesses.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "take-pictures-out-of-a-zip-archive",
+                "paths": [
+                  "src/archive-entries.mjs",
+                  "src/archive-entries.json"
+                ],
+                "at": "/opt/take-pictures-out-of-a-zip-archive"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "fflate",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "esm",
+                  "lib"
+                ],
+                "at": "/opt/node_modules/fflate"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "conversation-import-cursor",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ],
+            "most_writes": 100
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion at the tag old-trillion-before-worker-retire: src/chat-import.mjs (importConversation, keepConversationRow, exportedConversations; importChatExport's paged read of an export becomes this run's cursor rows), src/chat-archives.mjs, src/ai-conversations-list.json, and the bounded resumable older-transcript reader of harness/record-every-message.mjs (moved earlier to tools/keep-and-wake-ai-sessions-on-this-computer), which reads the local AI apps' sessions by its own rules"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$",
+            "contains": "sources"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:conversations",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "id": "tool:count-my-ai-conversations-per-app",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "label": "Count my AI conversations per app",
+        "job": "Count the AI conversations in my records per app, and how many messages each app's conversations hold",
+        "description": "Reads the rows of the person's AI conversations list (record:ai-conversation) through the records door, only their app and messages fields, and answers the number of conversations and messages per app, most first. Reads nothing else.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "conversations",
+            "apps"
+          ],
+          "properties": {
+            "conversations": {
+              "type": "integer"
+            },
+            "apps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "app",
+                  "conversations",
+                  "messages"
+                ],
+                "properties": {
+                  "app": {
+                    "type": "string"
+                  },
+                  "conversations": {
+                    "type": "integer"
+                  },
+                  "messages": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/conversations",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/read-data/chat-import.mjs",
+            "countConversationsPerApp"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "conversations",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/conversations"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/messages.mjs",
+                  "src/responses.mjs",
+                  "src/reactions.json",
+                  "src/harnesses.mjs",
+                  "src/claimed-time.mjs",
+                  "src/claimed-time.json",
+                  "src/hybrid-clock.mjs",
+                  "src/voice-sessions.mjs",
+                  "src/waiting-on-you.json",
+                  "harness/record-every-message.mjs",
+                  "harness/record-every-message.json",
+                  "harness/hook-run-receipt.mjs",
+                  "harness/source-return-pending.mjs",
+                  "harness/account-key.mjs",
+                  "harness/account-key.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decision-records.mjs",
+                  "read-data/decide-with-a-method.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/harnesses.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "take-pictures-out-of-a-zip-archive",
+                "paths": [
+                  "src/archive-entries.mjs",
+                  "src/archive-entries.json"
+                ],
+                "at": "/opt/take-pictures-out-of-a-zip-archive"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "fflate",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "esm",
+                  "lib"
+                ],
+                "at": "/opt/node_modules/fflate"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:ai-conversation",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ],
+            "most_writes": 100
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion at the tag old-trillion-before-worker-retire: src/chat-import.mjs (importConversation, keepConversationRow, exportedConversations; importChatExport's paged read of an export becomes this run's cursor rows), src/chat-archives.mjs, src/ai-conversations-list.json, and the bounded resumable older-transcript reader of harness/record-every-message.mjs (moved earlier to tools/keep-and-wake-ai-sessions-on-this-computer), which reads the local AI apps' sessions by its own rules"
+        },
+        "record_model": {
+          "_what": "The record kinds this tool's import keeps beside the messages: one row per AI conversation (the list ai-conversations, read-data/ai-conversations-list.json) and one cursor row per source and per file of it.",
+          "kinds": [
+            {
+              "type": "record:ai-conversation",
+              "guard_properties": {
+                "title": "text",
+                "app": "text",
+                "conversation_id": "text",
+                "started": "text",
+                "last": "text",
+                "messages": "number",
+                "models": "list",
+                "labels": "list",
+                "people": "list",
+                "pursuits": "list",
+                "follow_ups": "text",
+                "original_file": "text"
+              }
+            },
+            {
+              "type": "conversation-import-cursor",
+              "guard_properties": {
+                "source": "text",
+                "app": "text",
+                "file": "text",
+                "bytes": "number",
+                "changed_ms": "number",
+                "done": "boolean",
+                "next": "any",
+                "conversations_kept": "number",
+                "messages_added": "number",
+                "messages_already_kept": "number",
+                "attachments_not_kept": "number",
+                "conversations_refused": "objects",
+                "files_found": "number",
+                "files_done": "number",
+                "state": "text",
+                "stopped": "text",
+                "updated_at": "text"
+              }
+            }
+          ]
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$",
+            "contains": "apps"
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,4 +1,4 @@
-// test/chat-archive-parts.test.mjs
+// tools/conversations/test/chat-archive-parts.test.mjs (moved from Trillion-X/trillion test/chat-archive-parts.test.mjs)
 //
 // A message longer than one kept message holds (src/messages.mjs MAX_TEXT) is brought in as parts
 // (src/chat-archives.mjs invariant 4): its parts joined are its words exactly, each fits, they keep their order and
@@ -6,8 +6,8 @@
 // refused its whole page of an account export ("messages[0].text is 388347 characters").
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { conversationFrom } from '../src/chat-archives.mjs';
-import { MAX_TEXT } from '../src/messages.mjs';
+import { conversationFrom } from '../read-data/chat-archives.mjs';
+import { MAX_TEXT } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
 
 const long = `${'a'.repeat(MAX_TEXT - 10)}\n${'b'.repeat(MAX_TEXT)}😀${'c'.repeat(30)}`;
 const archive = {
@@ -41,4 +41,12 @@ test('a long message read off its page is kept in parts too', () => {
   const chat = conversationFrom({ conversation_id: 'page-1', title: 'Page', messages: [{ id: 'm1', speaker: 'person', text: long }] });
   assert.equal(chat.messages.map(message => message.text).join(''), long);
   assert.equal(chat.messages[0].node, 'm1:part-1');
+});
+
+test('an importer that names a smaller bound (one records door write) gets parts under it, made the same way', () => {
+  const chat = conversationFrom(archive, 'ChatGPT', { most_text: 16000 });
+  const parts = chat.messages.filter(message => message.node.startsWith('n1'));
+  assert.equal(parts.map(message => message.text).join(''), long);
+  assert.ok(parts.every(message => message.text.length <= 16000));
+  assert.deepEqual(parts.map(message => message.node), parts.map((_, index) => `n1:part-${index + 1}`));
 });

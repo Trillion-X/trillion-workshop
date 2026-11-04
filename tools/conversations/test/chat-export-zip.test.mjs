@@ -3,8 +3,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { zipSync } from 'fflate';
-import { exportedConversations } from '../src/chat-import.mjs';
-import { conversationsFrom } from '../src/chat-archives.mjs';
+import { exportedConversations } from '../read-data/chat-import.mjs';
+import { conversationsFrom } from '../read-data/chat-archives.mjs';
 
 const bytes = text => new TextEncoder().encode(text);
 const chat = id => ({ id, title: `Chat ${id}`, create_time: 1, mapping: {} });
