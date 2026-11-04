@@ -1,0 +1,532 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:list-tools-for-an-ai",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:fit-a-tool-list-in-a-budget",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Fit a tool list in a budget",
+        "job": "Shrink a list of tools for an AI so it fits in a number of characters, keeping as much detail as fits",
+        "description": "Give tools (MCP tool entries: name, description, inputSchema), budget_chars (a positive number of characters of the JSON list) and, optionally, names (tools to keep in full whatever the budget). The list is tried at levels full, brief (first sentence of each description), schema-only (no descriptions) and names (schemas reduced to an open object); the first whose whole list fits is sent, and the last when none fit. No tool is renamed, reordered or dropped. Returns tools and listing { level, chars, budget_chars, fits, tools, said when shortened, unknown and unknown_said for names no tool has }. Without a positive budget_chars the list comes back unchanged with an empty listing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "tools"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "budget_chars": {
+              "type": "number"
+            },
+            "names": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "tools",
+            "listing"
+          ],
+          "properties": {
+            "tools": {
+              "type": "array"
+            },
+            "listing": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "list-tools-for-an-ai",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/list-tools-for-an-ai"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/list-tools-for-an-ai",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/list-tools-for-an-ai/read-data/listing-tools.mjs",
+            "fitToolList"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/tool-listing-budget.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "tools": [
+                {
+                  "name": "sample_tool",
+                  "description": "Lists sample things. It takes nothing and changes nothing.",
+                  "inputSchema": {
+                    "type": "object"
+                  }
+                }
+              ],
+              "budget_chars": 60
+            },
+            "output_selector": "$.listing.said",
+            "contains": "shortened to fit 60 characters"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:list-tools-for-an-ai",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:say-a-tools-hints-in-its-description",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Say a tool's hints in its description",
+        "job": "Make a tool's description say in words what its read-only, destructive, idempotent and open-world hints say",
+        "description": "Give tool (an MCP tool entry with description and annotations: readOnlyHint, destructiveHint, idempotentHint, openWorldHint). Returns the same tool with one sentence added after its description for each matching rule (reads only; confirm with the person before removing; adds or sets only; reaches outside), in rule order. A sentence the description already says is not added again, and a tool with no annotations comes back as it is.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "tool"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "tool": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "annotations": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "list-tools-for-an-ai",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/list-tools-for-an-ai"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/list-tools-for-an-ai",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/list-tools-for-an-ai/read-data/listing-tools.mjs",
+            "notedTool"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/tool-behavior-notes.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "tool": {
+                "name": "remove_sample",
+                "description": "Removes one sample thing.",
+                "annotations": {
+                  "readOnlyHint": false,
+                  "destructiveHint": true,
+                  "idempotentHint": false,
+                  "openWorldHint": false
+                }
+              }
+            },
+            "output_selector": "$.description",
+            "contains": "confirm with the person"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:list-tools-for-an-ai",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:tell-if-a-tool-changes-anything",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Tell if a tool changes anything",
+        "job": "Tell whether a tool only reads or changes things, from its own operation name",
+        "description": "Give tool (a tool descriptor: id, and optionally read_only and invoke.action). read_only: true is a read; otherwise the operation (invoke.action, or the id without tool:) is a read when it starts with a read verb such as read, list, find, show, check, search, get or view followed by -. Anything else, including an operation not understood, is a write. Returns write_class: 'read' or 'write'.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "tool"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "tool": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "write_class"
+          ],
+          "properties": {
+            "write_class": {
+              "type": "string",
+              "enum": [
+                "read",
+                "write"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "list-tools-for-an-ai",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/list-tools-for-an-ai"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/list-tools-for-an-ai",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/list-tools-for-an-ai/read-data/listing-tools.mjs",
+            "writeClassRow"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/tool-write-class.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "tool": {
+                "id": "tool:list-sample-things"
+              }
+            },
+            "output_selector": "$.write_class",
+            "contains": "read"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:list-tools-for-an-ai",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:pick-the-release-a-host-runs",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Pick the release a host version runs",
+        "job": "Tell which release of a published tool a given Trillion version runs, or which version it needs",
+        "description": "Give row (a published tool row, optionally with minimum_host_version and earlier_releases, newest first) and host_version (the version of the Trillion that will run it, like 2026.10.1). Versions compare part by part, missing parts are zero. Returns release: the row itself when its minimum is met, else the first earlier release whose minimum is met (without its earlier_releases); when none runs, release is null and oldest_needed names the oldest version any release runs on. A missing host_version is refused.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "row",
+            "host_version"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "row": {
+              "type": "object"
+            },
+            "host_version": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "release"
+          ],
+          "properties": {
+            "release": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "oldest_needed": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "list-tools-for-an-ai",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/list-tools-for-an-ai"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/list-tools-for-an-ai",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/list-tools-for-an-ai/read-data/listing-tools.mjs",
+            "releaseForHost"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/tool-releases.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "row": {
+                "id": "tool:sample",
+                "label": "second",
+                "minimum_host_version": "2026.10.1",
+                "earlier_releases": [
+                  {
+                    "id": "tool:sample",
+                    "label": "first"
+                  }
+                ]
+              },
+              "host_version": "2026.9.28"
+            },
+            "output_selector": "$.release.label",
+            "contains": "first"
+          }
+        ]
+      }
+    }
+  ]
+}

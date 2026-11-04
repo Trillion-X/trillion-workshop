@@ -1,0 +1,57 @@
+{
+  "_what": "The slices of old trillion src/lists.json that read-data/list-value-history.mjs and read-data/list-refusals.mjs read: the history field kind, value_history and the words they refuse with. Kept with the same names so the moved code reads them unchanged.",
+  "field_kinds": [
+    {
+      "id": "history",
+      "icon": "History",
+      "label": "From its history",
+      "kind": "text",
+      "ruleKind": "text",
+      "value": "computed",
+      "carries": {
+        "key": "history",
+        "defaults": {},
+        "_what": "A value worked out on every read from the values another field of the same row has held (src/list-value-history.mjs): history.field names a field that says keeps_history: true, history.op a row of value_history.ops (value_at with at or days_ago, previous_value, value_set_at, time_spent_in with value and unit, has_been_in with value). It answers null when the history it needs is not kept."
+      }
+    }
+  ],
+  "value_history": {
+    "_what": "A field that says keeps_history: true keeps on its row the values it has held, each with when it began and who wrote it (src/list-value-history.mjs `_history`: { cut, steps: [{ v, at, by, via }] }), written with the value. A `history` field reads them through one of `ops`: `reduce` is the interval arithmetic (at: the value held at a moment; previous: the value before the current one; since: when the current one began; duration: time spent holding a value, in `unit`; ever: whether it was ever held), `needs` what the field must say, `answers` the kind a view compares (source: the kind of the field it reads). A field keeps at most steps_kept steps; older ones are let go and the field says cut, so an answer that needs them is null.",
+    "steps_kept": 50,
+    "units": {
+      "seconds": 1000,
+      "minutes": 60000,
+      "hours": 3600000,
+      "days": 86400000
+    },
+    "ops": {
+      "value_at": {
+        "reduce": "at",
+        "needs": "at",
+        "answers": "source"
+      },
+      "previous_value": {
+        "reduce": "previous",
+        "answers": "source"
+      },
+      "value_set_at": {
+        "reduce": "since",
+        "answers": "date"
+      },
+      "time_spent_in": {
+        "reduce": "duration",
+        "needs": "value",
+        "unit": "days",
+        "answers": "number"
+      },
+      "has_been_in": {
+        "reduce": "ever",
+        "needs": "value",
+        "answers": "boolean"
+      }
+    }
+  },
+  "words": {
+    "bad_history": "The field {field_id} works its value out from a field's history: { field: a field of this list that says keeps_history: true, op: one of {ops}, value: for time_spent_in and has_been_in, at (an ISO time) or days_ago: for value_at, unit: one of {units} }."
+  }
+}

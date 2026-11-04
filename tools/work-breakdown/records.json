@@ -150,7 +150,21 @@
       "output_selector": "$.unverified_ids[0]",
       "contains": "pay"
      }
-    ]
+    ],
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "block",
+          "guard_properties": {
+            "at": "text",
+            "source_id": "text",
+            "state": "text",
+            "title": "text"
+          }
+        }
+      ]
+    }
    }
   },
   {

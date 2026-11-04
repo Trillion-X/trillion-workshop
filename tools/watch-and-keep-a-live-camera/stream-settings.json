@@ -1,0 +1,467 @@
+{
+  "what_this_is": "How this computer takes a camera's live stream and where the stream goes, read by do-work/receive-a-camera-stream.mjs. Where a stream goes is the person's own DATA, four lists in their account: `lists.kinds` (what each way in and each destination does, naming the carried capability that does it), `lists.ways_in` (the one address a camera is set to stream to, and how it reaches this computer), `lists.destinations` (where a stream goes behind that address) and `lists.cameras` (each camera: the way in it sends to and its destination, one cell). Switching a camera's destination is changing that one cell; the camera keeps its address. A new kind is a row in the kinds list plus a module in `capabilities_folder` named by its capability, never a change to the program. `starting_rows` are kept once, when the account has no row with that id yet ({computer} is this computer's short name, {computer_name} its name), and a way in or destination only when its capability is available on this computer, so the person's own changes are never overwritten. The program names no camera, person or place.",
+  "service_origin": "https://app.gettrillion.ai",
+  "account_key": {
+    "keychain_service": "trillion-namespace-key"
+  },
+  "capabilities_folder": "do-work/capabilities",
+  "read_rows_every_seconds": {
+    "_what": "How often this computer reads the person's rows: the cameras list (whose Destination cell switches a stream) every `cameras` seconds, the kinds, ways in and destinations every `all` seconds. The account's store is shared by everything the person runs, so a computer with nothing changing asks it little.",
+    "cameras": 20,
+    "all": 180
+  },
+  "listen": {
+    "_what": "Where this computer takes a stream: the first camera row on `first_port`, the next on the next port. `app` ends the server address a camera is given. Each camera's stream key is made once (`key`), kept in this computer's keychain under `keychain_service`.<camera row id> and in the person's Saved logins under `login_title` (Connections, where they copy it into the camera's app), never in a row. A stream sent with another key is cut off at once and anything it wrote is removed.",
+    "first_port": 1935,
+    "app": "live",
+    "key": {
+      "keychain_service": "trillion-camera-stream-key",
+      "length": 20,
+      "alphabet": "abcdefghjkmnpqrstuvwxyz23456789",
+      "login_title": "Camera stream key for {camera}",
+      "login_user": "stream key",
+      "field": "Stream key"
+    }
+  },
+  "ffmpeg": {
+    "search_path": [
+      "/opt/homebrew/bin",
+      "/usr/local/bin",
+      "/opt/local/bin"
+    ],
+    "program": "ffmpeg"
+  },
+  "tailscale": {
+    "search_path": [
+      "/Applications/Tailscale.app/Contents/MacOS",
+      "/usr/local/bin",
+      "/opt/homebrew/bin"
+    ],
+    "programs": [
+      "tailscale",
+      "Tailscale"
+    ],
+    "public_ports": [
+      10000,
+      8443,
+      443
+    ]
+  },
+  "public_address_from": "https://api.ipify.org",
+  "pieces": {
+    "_what": "A destination that keeps the stream in the person's files cuts it into pieces of `seconds`, each sent into their files while it is written, under `under`/<day>/ named `name` ({time}: when the piece began, {camera}: the camera row's name). `segment_options` keep every piece readable at any length (fragmented MP4), so a piece cut short by a dropped connection is still a whole video.",
+    "seconds": 300,
+    "under": "/Recordings/Cameras",
+    "folder_per_day": true,
+    "name": "{time} {camera} stream.mp4",
+    "media_type": "video/mp4",
+    "segment_options": "movflags=+frag_keyframe+empty_moov+default_base_moof"
+  },
+  "keep_while_sending": {
+    "under_app_data": "Trillion/Received from a camera stream"
+  },
+  "retry_after_seconds": [
+    30,
+    120,
+    600,
+    1800
+  ],
+  "stay_awake_command": [
+    "/usr/bin/caffeinate",
+    "-i",
+    "-w"
+  ],
+  "take_over_launch_agents": {
+    "_what": "Receivers set up by hand before the Trillion Mac app ran this: each label is stopped and its file put in the Trash, so one receiver holds the port. The pieces it left (the folder its last argument writes into) are sent into the person's files too and kept on this computer, since that folder is the person's.",
+    "labels": [
+      "ai.gettrillion.camera-stream-receiver"
+    ]
+  },
+  "lists": {
+    "kinds": {
+      "id": "stream-kinds",
+      "label": "Stream kinds",
+      "icon": "Shapes",
+      "about": "What each way into a computer and each place a camera's stream can go does, and the capability on the computer that does it. A new kind is a row here plus its capability.",
+      "row_type": "stream-kind",
+      "title_field": "name",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Kind",
+          "kind": "text"
+        },
+        {
+          "id": "side",
+          "label": "Is a",
+          "kind": "choice",
+          "choices": [
+            "Way in",
+            "Destination"
+          ]
+        },
+        {
+          "id": "capability",
+          "label": "Capability",
+          "kind": "text"
+        },
+        {
+          "id": "does",
+          "label": "What it does",
+          "kind": "long-text"
+        },
+        {
+          "id": "needs",
+          "label": "Needs",
+          "kind": "text"
+        }
+      ]
+    },
+    "ways_in": {
+      "id": "stream-ways-in",
+      "label": "Stream ways in",
+      "icon": "DoorOpen",
+      "about": "The one address a camera is set to stream to, and how it reaches the computer that takes it: from anywhere, on the same network, or through the home router.",
+      "row_type": "stream-way-in",
+      "title_field": "name",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Way in",
+          "kind": "text"
+        },
+        {
+          "id": "kind",
+          "label": "Kind",
+          "kind": "link",
+          "links_to": "stream-kinds"
+        },
+        {
+          "id": "address",
+          "label": "Server address for the camera",
+          "kind": "text"
+        },
+        {
+          "id": "key",
+          "label": "Stream key is kept in",
+          "kind": "text"
+        },
+        {
+          "id": "protocol",
+          "label": "Protocol",
+          "kind": "text"
+        },
+        {
+          "id": "reach",
+          "label": "Works from",
+          "kind": "choice",
+          "choices": [
+            "Anywhere",
+            "Same network",
+            "Anywhere the router forwards"
+          ]
+        },
+        {
+          "id": "cost",
+          "label": "Cost",
+          "kind": "text"
+        },
+        {
+          "id": "works_when",
+          "label": "Works while",
+          "kind": "tags"
+        },
+        {
+          "id": "computer",
+          "label": "Computer",
+          "kind": "text"
+        },
+        {
+          "id": "turned_on",
+          "label": "Turned on",
+          "kind": "choice",
+          "choices": [
+            "On",
+            "Off"
+          ]
+        },
+        {
+          "id": "state",
+          "label": "Now",
+          "kind": "text"
+        }
+      ]
+    },
+    "destinations": {
+      "id": "stream-destinations",
+      "label": "Stream destinations",
+      "icon": "Radio",
+      "about": "Where a camera's live stream goes behind the one address the camera sends to. Switching a camera between them is one cell on its Camera streams row; the camera is never set again.",
+      "row_type": "stream-destination",
+      "title_field": "name",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Destination",
+          "kind": "text"
+        },
+        {
+          "id": "kind",
+          "label": "Kind",
+          "kind": "link",
+          "links_to": "stream-kinds"
+        },
+        {
+          "id": "address",
+          "label": "Sends to",
+          "kind": "text"
+        },
+        {
+          "id": "key",
+          "label": "Key is kept in",
+          "kind": "text"
+        },
+        {
+          "id": "protocol",
+          "label": "Protocol",
+          "kind": "text"
+        },
+        {
+          "id": "lands_in",
+          "label": "Pieces land in",
+          "kind": "text"
+        },
+        {
+          "id": "cost",
+          "label": "Cost",
+          "kind": "text"
+        },
+        {
+          "id": "works_when",
+          "label": "Works while",
+          "kind": "tags"
+        },
+        {
+          "id": "computer",
+          "label": "Computer",
+          "kind": "text"
+        },
+        {
+          "id": "turned_on",
+          "label": "Turned on",
+          "kind": "choice",
+          "choices": [
+            "On",
+            "Off"
+          ]
+        },
+        {
+          "id": "state",
+          "label": "Now",
+          "kind": "text"
+        }
+      ]
+    },
+    "cameras": {
+      "id": "camera-streams",
+      "label": "Camera streams",
+      "icon": "Video",
+      "about": "Each camera that streams: the one address it is set to (Sends to) and where its stream goes now (Destination, one cell). Automatic, when filled, takes the first of its destinations that is turned on and ready instead.",
+      "row_type": "camera-stream",
+      "title_field": "camera",
+      "fields": [
+        {
+          "id": "camera",
+          "label": "Camera",
+          "kind": "text"
+        },
+        {
+          "id": "way_in",
+          "label": "Sends to",
+          "kind": "link",
+          "links_to": "stream-ways-in"
+        },
+        {
+          "id": "destination",
+          "label": "Destination",
+          "kind": "link",
+          "links_to": "stream-destinations"
+        },
+        {
+          "id": "automatic",
+          "label": "Automatic (first ready)",
+          "kind": "link",
+          "links_to": "stream-destinations"
+        },
+        {
+          "id": "computer",
+          "label": "Computer",
+          "kind": "text"
+        },
+        {
+          "id": "state",
+          "label": "Now",
+          "kind": "long-text"
+        }
+      ]
+    }
+  },
+  "starting_rows": {
+    "kinds": [
+      {
+        "id": "file-pieces-into-trillion",
+        "values": {
+          "name": "Your Trillion files, through a computer",
+          "side": "Destination",
+          "capability": "file-pieces-into-trillion",
+          "does": "The computer takes the stream and sends it into your Trillion files in pieces while it arrives, under Recordings/Cameras/<day>. Each piece then goes on like any video you add: heard whole, handed to your AIs and clipped.",
+          "needs": "The computer awake and online; FFmpeg on it"
+        }
+      },
+      {
+        "id": "relay-to-an-address",
+        "values": {
+          "name": "Another service, passed on by a computer",
+          "side": "Destination",
+          "capability": "relay-to-an-address",
+          "does": "The computer passes the stream on unchanged to another service's ingest address (Cloudflare Stream, YouTube, any RTMP or RTMPS server), with the service's stream key kept in your Saved logins.",
+          "needs": "The computer awake and online; FFmpeg on it; the service's key in Saved logins with Let my AIs read on"
+        }
+      },
+      {
+        "id": "public-address-through-tailscale-funnel",
+        "values": {
+          "name": "From anywhere, through Tailscale Funnel",
+          "side": "Way in",
+          "capability": "public-address-through-tailscale-funnel",
+          "does": "A public RTMPS address (Tailscale Funnel, free) that reaches the computer from any network: home Wi-Fi, a phone's hotspot, a hotel. Encrypted to the computer.",
+          "needs": "Tailscale signed in on the computer with Funnel allowed; the computer awake"
+        }
+      },
+      {
+        "id": "this-network",
+        "values": {
+          "name": "On the same network",
+          "side": "Way in",
+          "capability": "this-network",
+          "does": "The computer's own address on the network it is on. The camera must be on the same network.",
+          "needs": "The camera and the computer on the same Wi-Fi"
+        }
+      },
+      {
+        "id": "router-port-forward",
+        "values": {
+          "name": "Through the home router",
+          "side": "Way in",
+          "capability": "router-port-forward",
+          "does": "The home network's public address, with the router forwarding the port to the computer.",
+          "needs": "A port forward on the router to this computer; a public (not shared) address from the internet provider"
+        }
+      }
+    ],
+    "ways_in": [
+      {
+        "id": "anywhere-{computer}",
+        "kind": "public-address-through-tailscale-funnel",
+        "values": {
+          "name": "Anywhere, to {computer_name}",
+          "reach": "Anywhere",
+          "cost": "Free",
+          "works_when": [
+            "{computer_name} awake"
+          ],
+          "turned_on": "On"
+        }
+      },
+      {
+        "id": "same-network-{computer}",
+        "kind": "this-network",
+        "values": {
+          "name": "Same Wi-Fi as {computer_name}",
+          "reach": "Same network",
+          "cost": "Free",
+          "works_when": [
+            "{computer_name} awake",
+            "Same Wi-Fi"
+          ],
+          "turned_on": "On"
+        }
+      },
+      {
+        "id": "router-{computer}",
+        "kind": "router-port-forward",
+        "values": {
+          "name": "Home router to {computer_name}",
+          "reach": "Anywhere the router forwards",
+          "cost": "Free",
+          "works_when": [
+            "{computer_name} awake",
+            "Router forwards the port"
+          ],
+          "turned_on": "Off"
+        }
+      }
+    ],
+    "destinations": [
+      {
+        "id": "trillion-files-{computer}",
+        "kind": "file-pieces-into-trillion",
+        "values": {
+          "name": "Your Trillion files, through {computer_name}",
+          "protocol": "MP4 pieces",
+          "lands_in": "/Recordings/Cameras/<day>",
+          "cost": "Free",
+          "works_when": [
+            "{computer_name} awake"
+          ],
+          "turned_on": "On"
+        }
+      }
+    ],
+    "camera": {
+      "id": "camera-{computer}",
+      "values": {
+        "camera": "Your camera"
+      },
+      "way_in_first": [
+        "anywhere-{computer}",
+        "same-network-{computer}"
+      ],
+      "destination": "trillion-files-{computer}"
+    }
+  },
+  "words": {
+    "receiving": "Receiving since {since}: {pieces} piece(s) sent into {lands_in}, the last {last}",
+    "last_stream": "Waiting for the camera to stream to {address}. The last stream ended at {ended}: {pieces} piece(s) sent into {lands_in}, the last {last}",
+    "waiting": "Waiting for the camera to stream to {address}",
+    "relaying": "Passing the stream on to {address} since {since}",
+    "relay_waiting": "Waiting for the camera; its stream will be passed on to {address}",
+    "no_key": "The key for {address} is not readable: keep it in Saved logins as \"{login}\" with Let my AIs read on",
+    "no_ffmpeg": "This computer has no FFmpeg, which takes the stream; install it (brew install ffmpeg)",
+    "no_destination": "No destination is turned on and ready",
+    "no_way_in": "Its way in is turned off or not on this computer",
+    "elsewhere": "Taken by {computer}",
+    "refused_key": "Cut off a stream sent with another key at {at}",
+    "funnel_off": "Tailscale Funnel is not on: {why}",
+    "funnel_on": "Open from anywhere",
+    "network_on": "Open on {network}",
+    "router_check": "Open if the router forwards port {port} to this computer ({local})",
+    "off": "Turned off"
+  },
+  "camera_trust": {
+    "_what": "Camera-ready trust anchors for RTMPS ways in. They are versioned files carried by this part, not hidden account state. An operator must first verify the current endpoint chain names the listed anchor; importing a root cannot prove the endpoint or a camera stream worked.",
+    "packages": [
+      {
+        "id": "lets-encrypt-root-ye",
+        "for_capability": "public-address-through-tailscale-funnel",
+        "file": "RTMPcert.pem",
+        "subject": "C=US, O=ISRG, CN=Root YE",
+        "sha256": "e14ffcad5b0025731006caa43a121a22d8e9700f4fb9cf852f02a708aa5d5666",
+        "valid_from": "2025-09-03T00:00:00Z",
+        "valid_until": "2045-09-02T23:59:59Z",
+        "source": "https://letsencrypt.org/certs/gen-y/root-ye.pem",
+        "use_when": "The current public RTMPS endpoint chain is issued through Let's Encrypt YE1 and Root YE."
+      }
+    ]
+  }
+}

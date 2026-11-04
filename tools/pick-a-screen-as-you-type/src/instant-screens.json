@@ -1,0 +1,65 @@
+{
+  "_what": "The screen a person's words pick as they type, before any AI answers (src/instant-screens.mjs, drawn under the message box by src/workspace/instant-screen.tsx). Every screen the person is offered is a candidate (the app's screens, every tool's own screen, a Marketplace tool they installed, a screen an AI saved for them), and so is every interface of controls an AI made (its intent) and every screen the person kept from here (their words). `fields` is how much a word counts where it is found: in the words that asked for the screen (`asked`: a saved screen's `screen.asked`, a made interface's intent, a kept screen's words), its name (`label`) or its line about what it does (`about`). `match` is how much a typed word counts for each kind of likeness: the same word, the start of a word (the word being typed), or a word one or two letters away (a slip); the start of a word counts from `starts_letters` letters, so two letters typed never pick a screen by a guess. `label_cover` lifts a screen whose name the words say all of. `decide` is how calm the answer stays: a pick shows at `show_at`, a different screen replaces the one shown only after winning `challenger_wins` times in a row (or at once at `challenger_override`), the one shown goes when its own share falls below `drop_below` and nothing reaches `show_at`, and a screen the person chose stays until the words change by more than `forced_change` of their length. `remembered_answers` is how many typed words keep their answer on this page (the oldest let go first); `candidates_max` bounds how many screens one keystroke weighs. `debounce_ms` is how long the words must rest before anything leaves the device for them (the screen's description, the optional fill); the pick itself is made on this device at once. `swap_after_ms` is the longest a newly picked screen is drawn out of sight before it replaces the one shown, if it has not finished drawing by then. `fill.provider` names an optional tool that fills inputs the parsers could not (a Workshop tool id, run like any tool: given { words, schema }, answering { values }); null asks nothing. `fill.timeout_ms` is how long it may take before the parsed values stand alone; it is never tried again. `asks` is where the person's kept screens are kept (a workspace preference) and how many. `words` are every word the box's answer says.",
+  "fields": {
+    "asked": 1,
+    "label": 1,
+    "about": 0.55
+  },
+  "match": {
+    "same": 1,
+    "starts": 0.8,
+    "starts_letters": 3,
+    "slip": 0.6,
+    "slip_letters": 4,
+    "two_slips_letters": 8,
+    "two_slips": 0.45
+  },
+  "label_cover": 0.2,
+  "decide": {
+    "show_at": 0.45,
+    "challenger_wins": 2,
+    "challenger_override": 0.92,
+    "drop_below": 0.25,
+    "forced_change": 0.35
+  },
+  "remembered_answers": 300,
+  "candidates_max": 5000,
+  "alternatives": 3,
+  "min_letters": 2,
+  "debounce_ms": 120,
+  "swap_after_ms": 600,
+  "fill": {
+    "provider": null,
+    "timeout_ms": 2500
+  },
+  "asks": {
+    "preference": "instant-asks",
+    "max": 200,
+    "words_max": 200
+  },
+  "made": {
+    "read": "/work/api/controls/list",
+    "screen": "trillion.controls",
+    "input": "id"
+  },
+  "words": {
+    "label": "A screen for what you typed",
+    "open": "Open",
+    "keep": "Keep",
+    "kept": "Kept for these words",
+    "rename": "Rename",
+    "rename_label": "Name",
+    "rename_save": "Save name",
+    "renamed": "Renamed",
+    "remove": "Remove",
+    "removed": "Removed",
+    "remove_made": "Delete this screen",
+    "removed_made": "Deleted",
+    "more": "More for this screen",
+    "also": "Or",
+    "filled": "Filled from your words",
+    "why_asked": "You asked for this before",
+    "why_words": "Matches {words}",
+    "could_not": "Could not do that: {reason}"
+  }
+}

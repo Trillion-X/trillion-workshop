@@ -1,0 +1,31 @@
+{
+  "_what": "Failures proven to be false positives, each with its reason; empty is the goal. A row matches a failure when every field it names (screen, width, mode, probe, selector) equals the failure's; selector may end in * to match a prefix. A row with decided is not a false positive but a look the person decided: its failures are kept as reported, in the run and its report, and never refuse a deploy; decided says what was decided.",
+  "rows": [
+    {
+      "screen": "pursuits",
+      "probe": "contrast",
+      "selector": "li.min-w-0 > article.group/listing.relative > div.relative.-mx-4 > span.flex.size-full",
+      "reason": "The cover letters of a listing card (data-slot listing-cover-letters) are an aria-hidden, select-none watermark drawn at 25% (text-foreground/25) on the cover wash; the same name is written in full in the card title beside it, so it is decoration (WCAG 1.4.3 exempts text that is pure decoration)."
+    },
+    {
+      "probe": "contrast",
+      "selector": "div.thread-flow__node > div.sketch-frame.thread-flow__card > ul.thread-flow__items > li",
+      "decided": "Decided 2026-10-09 (matrix-gate revert): a thread-flow step or item waiting for the thread is dimmed (opacity .35 on its words and mark) to show it has not arrived; the dimming is the design, so it is reported, never changed to pass."
+    },
+    {
+      "probe": "contrast",
+      "selector": "ul.thread-flow__items > li > span.thread-flow__mark > span",
+      "decided": "Decided 2026-10-09 (matrix-gate revert): a thread-flow step or item waiting for the thread is dimmed (opacity .35 on its words and mark) to show it has not arrived; the dimming is the design, so it is reported, never changed to pass."
+    },
+    {
+      "probe": "contrast",
+      "selector": "li > span.thread-flow__number",
+      "decided": "Decided 2026-10-09 (matrix-gate revert): a thread-flow step or item waiting for the thread is dimmed (opacity .35 on its words and mark) to show it has not arrived; the dimming is the design, so it is reported, never changed to pass."
+    },
+    {
+      "probe": "contrast",
+      "selector": "span.inline-flex.shrink-0 > span.inline-flex > span.relative.inline-flex > span.relative.inline-flex",
+      "decided": "Decided 2026-10-09 (matrix-gate revert): a person's initials mark mixes 70% of its hue into the words (parts/ui/show/display-mark/DisplayMark.tsx); on the greener hues that is about 4.3 to 1, reported, never changed to pass."
+    }
+  ]
+}

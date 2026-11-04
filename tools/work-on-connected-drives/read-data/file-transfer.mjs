@@ -4,10 +4,9 @@
 // content, pausable and stoppable at any moment.
 //
 // Two halves in one file:
-//   - the worker, run as its own utility-priority process:  node file-transfer.mjs --state <folder>
-//     <state>/job.json is the request { id, sources, destinations, mode: "copy" | "move", created_at, note_written? }.
-//     note_written, when the host gave one, is { module, export }: a function of the host (a file URL and its export)
-//     told each path this transfer wrote, so a host watching those folders does not read its own copy as new.
+//   - the worker, runTransfer({ stateDir }), run inside the tool's own run (the engine ends a run's every process when
+//     it ends, so nothing is left running behind it):
+//     <state>/job.json is the request { id, sources, destinations, mode: "copy" | "move", created_at }.
 //     1. The first start plans it into <state>/plan.json: every file under every source, and for each source and
 //        destination the name it gets there (its own name, or "<name> 2", "<name> 3" ... when that name is taken; a
 //        folder source keeps its structure under its own name). A restart reuses the plan, so names never shift.
@@ -22,8 +21,8 @@
 //     state: planning | running | paused | stopped | finished | failed. <state>/worker.pid holds the running pid.
 //     Between every chunk and every file it passes work-control.mjs's checkpoint: a pause holds there, a stop removes
 //     the partial files, closes everything and exits.
-//   - createTransfers({ folder }): the server's side. start() checks the request and starts a worker in
-//     <folder>/<id>; list() reads every transfer's request, progress and whether its worker runs; restart(id) starts a
+//   - createTransfers({ folder }): the run's side. start() checks the request and runs the worker in <folder>/<id>
+//     until it ends; list() reads every transfer's request, progress and whether its worker runs; restart(id) runs a
 //     stopped one again.
 //
 // Invariants:
@@ -34,15 +33,13 @@ import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { execFile, spawn } from 'node:child_process';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { execFile } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { WorkStopped, createCheckpoint, isAlive, readPid } from './work-control.mjs';
 import { driveOf } from '../../connected-drives/read-data/drive-folder.mjs';
 
 const CHUNK_BYTES = 8 * 1024 * 1024;
 const PROGRESS_EVERY_MS = 500;
-const WORKER = fileURLToPath(new URL('./file-transfer.mjs', import.meta.url));
 const MODES = new Set(['copy', 'move']);
 const readJson = file => { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; } };
 
@@ -103,14 +100,6 @@ const hashFile = async file => {
 
 const moveToTrash = file => new Promise((resolve, reject) => execFile('/usr/bin/trash', [file], error => error ? reject(new Error(`${path.basename(file)} could not be moved to the Trash.`)) : resolve()));
 
-// The host's function told each written path, or nothing when the job names none. A host that cannot be loaded is
-// never a reason to stop the copy: the path is then simply not noted.
-async function writtenNoter(given) {
-  if (!given || typeof given.module !== 'string' || !given.module.startsWith('file:') || typeof given.export !== 'string') return () => {};
-  try { const fn = (await import(given.module))[given.export]; if (typeof fn === 'function') return target => { try { fn(target); } catch {} }; } catch {}
-  return () => {};
-}
-
 export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash }) {
   const job = readJson(path.join(stateDir, 'job.json'));
   if (!job) throw new Error('This transfer has no request.');
@@ -125,7 +114,6 @@ export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash 
     progress.updated_at = new Date().toISOString();
     await writeAtomic(path.join(stateDir, 'progress.json'), progress);
   };
-  const noteOwnWrite = await writtenNoter(job.note_written);
   const pass = createCheckpoint(stateDir, { pollMs, onState: async state => { progress.state = state; await write(true); } });
   await write(true);
   const planFile = path.join(stateDir, 'plan.json');
@@ -146,7 +134,6 @@ export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash 
       if (item.rename) {
         if (!done.has(item.source)) {
           await fsp.rename(item.source, item.targets[0]);
-          noteOwnWrite(item.targets[0]);
           await fsp.appendFile(doneFile, `${item.source}\n`); done.add(item.source);
         }
         progress.files_done += 1;
@@ -191,7 +178,6 @@ export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash 
         }
         await fsp.utimes(partial, stat.atime, stat.mtime);
         await fsp.rename(partial, target); partials.delete(partial);
-        noteOwnWrite(target);
       }
       await fsp.appendFile(doneFile, `${file.key}\n`); done.add(file.key);
       progress.files_done += 1;
@@ -212,7 +198,7 @@ export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash 
 
 // ---- the server's side ----------------------------------------------------------------------------------------------
 
-export function createTransfers({ folder, spawnWorker = defaultSpawnWorker }) {
+export function createTransfers({ folder, runWorker = runHere }) {
   const stateOf = id => path.join(folder, id);
 
   async function validate({ sources, destinations, mode, devices }) {
@@ -244,12 +230,10 @@ export function createTransfers({ folder, spawnWorker = defaultSpawnWorker }) {
 
   async function start(input) {
     const { sources: realSources, destinations: realDestinations, mode } = await validate(input);
-    const note_written = input.note_written ? { module: input.note_written.module, export: input.note_written.export } : undefined;
     const id = crypto.randomUUID();
     await fsp.mkdir(stateOf(id), { recursive: true });
-    await writeAtomic(path.join(stateOf(id), 'job.json'), { id, sources: realSources, destinations: realDestinations, mode, created_at: new Date().toISOString(), ...(note_written ? { note_written } : {}) });
-    spawnWorker(stateOf(id));
-    return { id };
+    await writeAtomic(path.join(stateOf(id), 'job.json'), { id, sources: realSources, destinations: realDestinations, mode, created_at: new Date().toISOString() });
+    return { id, ...(await runWorker(stateOf(id))) };
   }
 
   function list() {
@@ -262,35 +246,19 @@ export function createTransfers({ folder, spawnWorker = defaultSpawnWorker }) {
     }).filter(Boolean);
   }
 
-  function restart(id) {
+  async function restart(id) {
     const transfer = list().find(row => row.id === id);
     if (!transfer || transfer.running || ['finished'].includes(transfer.progress?.state)) return false;
-    spawnWorker(transfer.stateDir);
+    await runWorker(transfer.stateDir);
     return true;
   }
 
   return { start, preview, list, restart };
 }
 
-function defaultSpawnWorker(stateDir) {
-  const child = spawn('/usr/sbin/taskpolicy', ['-c', 'utility', process.execPath, WORKER, '--state', stateDir], { detached: true, stdio: 'ignore' });
-  child.unref();
-  fs.writeFileSync(path.join(stateDir, 'worker.pid'), String(child.pid));
-}
-
-async function main() {
-  const argv = process.argv.slice(2);
-  const at = argv.indexOf('--state');
-  if (at < 0) throw new Error('--state is required');
-  const stateDir = argv[at + 1];
+// The worker inside this run, its pid kept in <state>/worker.pid while it works so list() reads it as running.
+async function runHere(stateDir) {
   const pidFile = path.join(stateDir, 'worker.pid');
-  const holder = readPid(stateDir, 'worker.pid');
-  if (holder && holder !== process.pid && isAlive(holder) && holder !== process.ppid) return;
   await fsp.writeFile(pidFile, String(process.pid));
-  process.on('exit', () => { try { if (readPid(stateDir, 'worker.pid') === process.pid) fs.unlinkSync(pidFile); } catch {} });
-  for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => process.exit(0));
-  const final = await runTransfer({ stateDir });
-  if (final.state === 'failed') process.exitCode = 1;
+  try { return await runTransfer({ stateDir }); } finally { await fsp.rm(pidFile, { force: true }); }
 }
-
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();

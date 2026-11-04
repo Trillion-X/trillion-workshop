@@ -8,7 +8,7 @@ The colour grade files (`read-data/luts/*.cube`) are supplied by the account and
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The `tool-row-source` that lists this folder's `records.json` rows into the Workshop. |
+| `tool-rows.json` | The `tool-row-source` that lists this folder's `records.json` rows into the Workshop, and `tool:apply-a-pair-state-message`, a container row run by `tools/records-door`'s `run-an-export.mjs` (no records door). |
 | `records.json` | The 24 `ai-tool-descriptor` rows. Each is a `container` invoke that packs `do-work/` and `read-data/` here (`tool:suggest-media-cuts` packs only its six files), `tools/content-identity`, and `@noble/hashes`. |
 | `do-work/detect-events.mjs` | `tool:find-events-against-a-running-baseline`: runs the detector row `read-data/detect-events.json` names and answers `{ kind, time, confidence }` events in source seconds. A `stream` row walks `do-work/stream-features.mjs` frames (loudness rise and picture change) through `do-work/stream-core.mjs`, which carries a running baseline per feature and lets head rows say what stood out; a `program` row runs a module of this folder such as `find-action-moments.mjs`. |
 | `do-work/video-compose.mjs` | The one renderer: an edit (JSON) to a video with ffmpeg. Every tool that makes a video renders through it, by way of `do-work/render-an-edit.mjs`. |
@@ -19,8 +19,13 @@ The colour grade files (`read-data/luts/*.cube`) are supplied by the account and
 | `read-data/auto-edit.mjs`, `read-data/auto-edit.json` | Timed words to `remove-span` proposals for a mode (silent_pauses, filler_words), streamed as status, thinking, then complete or a typed ending (NO_TRANSCRIPT, NO_PROPOSALS, FAILED), kept per recording, mode and `algorithm_version`. Moved from Trillion-X/trillion `parts/media-composition/read-data/`. |
 | `read-data/suggestion-stream.mjs`, `read-data/suggestion-stream.json` | Any suggestion as newline JSON lines checked against the DATA's line shapes, stopped by a signal (ABORTED), cached only for the same algorithm version. Moved from Trillion-X/trillion. |
 | `read-data/auto-cleanup.ts` | The cleanup engine (silences and fillers in timed words) auto-edit reads. Moved from Trillion-X/trillion with auto-edit. |
+| `read-data/session-pairing.mjs` | `newSession(id, states)` and `apply(session, message) -> { session, ignored? }`: several devices in one recording session (primary and secondary cameras, a watch, a remote control) share one session id and exactly one primary; each sends join, leave, state or handover. A message for another session, from an unknown device or breaking the one-primary rule is ignored with a reason and never changes the session. Pure; never mutates its input. Moved byte for byte from Trillion-X/trillion `src/session-pairing.mjs`. |
+| `read-data/session-pairing-tools.mjs` | `applyPairStateMessage` (`tool:apply-a-pair-state-message`): the session handed in (a new one from only `id` and `states`) with one message applied; `sessionFromInput` refuses a session with no id or no states. |
 | `read-data/stored-bytes.json` | The grade files a render reads by address (`package::media-composition::stored-bytes::<name>` -> `read-data/luts/<file>`). |
+| `do-work/range-edits.mjs` | An edit as KEPT RANGES over the original, never new content: `keptRanges` (only start and end, sorted, disjoint, touching ranges joined, anything else refused in words), `removedRanges`, `keptTotal`, `applyKept` (only original items, in order), `checkOutputLength` (the produced length against the kept total within the caller's tolerance) and `coverage` / `refuseUntilReady` (an export waits until pieces in the caller's `ready_states` cover every kept second). Moved byte for byte from the older owner (`ports/range-edits.json`); its cutters (cut-the-action, cut-by-events) are still there and move next. |
+| `ports/range-edits.json` | The SOURCE_FIRST_PORT contract for `do-work/range-edits.mjs`. |
 | `test/` | `node --test` proofs; the render tests need ffmpeg and ffprobe on PATH. |
+| `test/session-pairing.test.mjs` | Trillion's session test from `test/local-document-and-catalogue.test.mjs` (F-0570) with its assertions unchanged, and the row run as the container runner runs it. Trillion's `test/video-pipeline.test.mjs` session check exercises `cut-by-events.mjs`, which stays in trillion, so it did not move. |
 
 ## Edit fields a frame-exact cut uses
 
@@ -37,4 +42,4 @@ The colour grade files (`read-data/luts/*.cube`) are supplied by the account and
 
 **Depends on:** ffmpeg, ffprobe and Node in the tool container image; `tools/content-identity` for file identities; Python with onnxruntime, rembg and the face and voice models the container holds, for the `.py` scripts.
 
-**Depended on by:** the Workshop's container runner, through this folder's rows; `tools/assemble-a-plan-into-a-cut`, which lays a plan out as one edit and renders it through `render-an-edit.mjs` after `match-shots.mjs`.
+**Depended on by:** the Workshop's container runner, through this folder's rows (`tool:apply-a-pair-state-message` also needs `tools/records-door`'s `run-an-export.mjs`); in Trillion-X/trillion, `parts/media-composition/do-work/cut-the-action.mjs` still imports its own copy of `src/session-pairing.mjs` until it moves; `tools/assemble-a-plan-into-a-cut`, which lays a plan out as one edit and renders it through `render-an-edit.mjs` after `match-shots.mjs`.

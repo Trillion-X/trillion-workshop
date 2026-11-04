@@ -1,0 +1,10 @@
+{
+  "public": [
+    "rules/filter-records.mjs",
+    "rules/compile-rules.mjs",
+    "rules/rule-operators.json",
+    "rules/filter-rows-by-rules.mjs",
+    "rules/evaluate-over-rows.mjs",
+    "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm"
+  ]
+}
