@@ -1806,6 +1806,34 @@
       {"job": "write the public files of a person's share links that anyone may open into one folder a public server serves, and remove the files of links that were revoked, expired or narrowed", "why": "that job writes files into a granted folder for a server to serve; this one reads one file from a granted folder and uploads it to a signed storage slot"}
     ]},
     {"capability": "tell an AI how to look at what a person is pursuing: where to look and what to do about it", "owner": ["tools/see-a-pursuit-through-the-lens/"], "entry": "tools/see-a-pursuit-through-the-lens/tool-rows.json", "evidence": "tools/see-a-pursuit-through-the-lens/README.md: moved from Trillion-X/trillion src/pursuit-lens.mjs (42aff4e9dc); its content is read as rows of the person's lists through their records door, or handed in by Trillion's in-account run"},
+    {
+      "capability": "refuse untrusted nested input that is too deep, too large or refers back to itself, before it is rendered or stored",
+      "owner": [
+        "tools/walk-nested-input-within-limits/"
+      ],
+      "entry": "tools/walk-nested-input-within-limits/tool-rows.json",
+      "evidence": "tools/walk-nested-input-within-limits/README.md: moved from Trillion-X/trillion parts/bounded-walk.mjs with its tests; an iterative walk refusing beyond depth 100 or 100,000 nodes",
+      "distinct_from": [
+        {
+          "job": "keep a library of record files valid and work one piece through a bank of questions with evidence",
+          "why": "That owner checks a library's records against their declared shapes; this one only bounds the depth, size and cycles of any nested value, whatever its shape."
+        }
+      ]
+    },
+    {
+      "capability": "decide what a paste becomes: a normal insert, a named text file for a long paste, attached images, or markdown that keeps the structure of the editor it came from",
+      "owner": [
+        "tools/what-a-paste-becomes/"
+      ],
+      "entry": "tools/what-a-paste-becomes/tool-rows.json",
+      "evidence": "tools/what-a-paste-becomes/README.md: moved from Trillion-X/trillion parts/chat/read-data/paste-policy.mjs and parts/documents/read-data/paste-sources.ts with their tests",
+      "distinct_from": [
+        {
+          "job": "import Markdown into the maintained editable composition-document scene tree, preserving headings, nested lists, tables, code fences, source-byte provenance and strict semantic round trips",
+          "why": "That owner turns Markdown into the document scene tree; this one decides what a clipboard paste is (insert, attachment, or markdown from another editor's HTML) before any document takes it."
+        }
+      ]
+    },
     {"capability": "decide how many of the files sent with a message are accepted and which limit stopped the rest", "owner": ["tools/admit-attachments-to-a-message/"], "entry": "tools/admit-attachments-to-a-message/tool-rows.json", "evidence": "tools/admit-attachments-to-a-message/README.md: moved from Trillion-X/trillion src/attachment-admission.mjs (b92aa549f2)", "distinct_from": [{"job": "bring a person's conversations from every app (chat apps, email, AI chats) into one place to read and reply", "why": "That owner imports and shows messages; this one only decides which files offered with one outgoing message are admitted under per-turn, daily and size limits."}, {"job": "guard an AI's spending: budgets, reservations, a spend ledger and resets", "why": "That owner reserves and records spend; this one counts attachments against limits handed in and keeps nothing."}]},
     {"capability": "score two builds of an AI's behavior on the same trap tasks from the calls each run recorded, to see which does better", "owner": ["tools/compare-two-ai-builds-on-trap-tasks/"], "entry": "tools/compare-two-ai-builds-on-trap-tasks/tool-rows.json", "evidence": "tools/compare-two-ai-builds-on-trap-tasks/README.md: moved from Trillion-X/trillion src/behavior-compare.mjs (b92aa549f2)", "distinct_from": [{"job": "run experiments and personalization: A/B tests, feature flags and bandits over what each viewer saw", "why": "That owner assigns viewers to treatments and measures their outcomes; this one scores two AI builds' recorded tool calls on fixed trap tasks, with no viewers."}, {"job": "check a port or replica against the source it copies", "why": "That owner judges a copy's fidelity to its source; this one scores two builds' behaviour on the same traps from their call traces."}, {"job": "evaluate measures over a person's facts to band and gate their progress", "why": "That owner bands a person's progress; this one scores AI runs and keeps nothing."}]},
     {"capability": "list the files inside a zip archive so an importer can take each one", "owner": ["tools/take-pictures-out-of-a-zip-archive/"], "entry": "tools/take-pictures-out-of-a-zip-archive/tool-rows.json", "evidence": "tools/take-pictures-out-of-a-zip-archive/README.md: moved from Trillion-X/trillion src/archive-entries.mjs (b92aa549f2)", "distinct_from": [{"job": "read office files (spreadsheets, documents, presentations) and rewrite their cells or text from declared edits", "why": "That owner reads the parts of office documents; this one hands out the admitted picture (or profile) entries of any zip as bytes, bounded, without reading their content."}, {"job": "bring a person's conversations from every app (chat apps, email, AI chats) into one place to read and reply", "why": "That owner maps exported messages to threads and atoms; this one only takes bounded entries out of an archive, by profile."}]},

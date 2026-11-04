@@ -1,0 +1,45 @@
+{
+  "_what": "What a paste from another editor keeps (paste-sources.ts). A pasted piece of HTML is matched against `sources` in order: the first whose `html_contains` names a string found in the pasted HTML is where it came from (a generator mark, a class or id that editor writes on its clipboard). Each element of the paste is then written as markdown by the first rule that matches it: that source's own `rules`, falling through to `default_rules`. A rule matches by `tag` (lowercase), `parent` (the parent's tag), `attr_starts` (attribute -> leading text), `attr_contains` (attribute -> text it holds) and `class_contains`; it writes `before`, the element's own converted children, then `after` (`{attr}` in either is that attribute's value, `{n}` the item's place in its list), `block: true` puts it on lines of its own (`tight: true` directly under its neighbour, as list items and table rows are), `drop: true` writes nothing, `indent` adds that many spaces per enclosing list, and `literal: true` keeps the spaces and line breaks inside it (code). An element no rule matches is written as its children. Anything that fails falls back to the plain text the paste carried. `table_rows`: how many rows a pasted table may give a list at most.",
+  "sources": [
+    { "id": "google-docs", "html_contains": ["id=\"docs-internal-guid-"], "rules": [
+      { "tag": "b", "attr_starts": { "id": "docs-internal-guid-" }, "_why": "Google Docs wraps the whole copied range in one <b style=\"font-weight:normal\">; it is not bold." },
+      { "tag": "span", "attr_contains": { "style": "font-weight:700" }, "before": "**", "after": "**" },
+      { "tag": "span", "attr_contains": { "style": "font-style:italic" }, "before": "_", "after": "_" }
+    ] },
+    { "id": "microsoft-word", "html_contains": ["urn:schemas-microsoft-com:office:word", "class=\"Mso", "class=Mso"], "rules": [
+      { "tag": "span", "attr_contains": { "style": "mso-list:Ignore" }, "drop": true, "_why": "Word writes each list bullet or number as a span it marks to be ignored." },
+      { "tag": "p", "class_contains": "MsoListParagraph", "before": "- ", "block": true, "tight": true },
+      { "tag": "o:p", "drop": true }
+    ] },
+    { "id": "notion", "html_contains": ["notionvc:", "notion-"], "rules": [
+      { "tag": "details", "block": true, "_why": "A toggle keeps its summary and its contents as lines." },
+      { "tag": "summary", "before": "**", "after": "**", "block": true }
+    ] },
+    { "id": "confluence", "html_contains": ["confluence-information-macro", "data-macro-name", "content=\"Confluence"], "rules": [
+      { "tag": "div", "class_contains": "confluence-information-macro", "before": "> ", "block": true },
+      { "tag": "span", "class_contains": "aui-icon", "drop": true }
+    ] }
+  ],
+  "default_rules": [
+    { "tag": "script", "drop": true }, { "tag": "style", "drop": true }, { "tag": "meta", "drop": true }, { "tag": "title", "drop": true },
+    { "tag": "h1", "before": "# ", "block": true }, { "tag": "h2", "before": "## ", "block": true }, { "tag": "h3", "before": "### ", "block": true },
+    { "tag": "h4", "before": "#### ", "block": true }, { "tag": "h5", "before": "##### ", "block": true }, { "tag": "h6", "before": "###### ", "block": true },
+    { "tag": "p", "block": true }, { "tag": "div", "block": true },
+    { "tag": "blockquote", "before": "> ", "block": true },
+    { "tag": "pre", "before": "```\n", "after": "\n```", "block": true, "literal": true },
+    { "tag": "li", "parent": "ol", "before": "{n}. ", "block": true, "tight": true, "indent": 2 },
+    { "tag": "li", "before": "- ", "block": true, "tight": true, "indent": 2 },
+    { "tag": "ul", "block": true }, { "tag": "ol", "block": true },
+    { "tag": "strong", "before": "**", "after": "**" }, { "tag": "b", "before": "**", "after": "**" },
+    { "tag": "em", "before": "_", "after": "_" }, { "tag": "i", "before": "_", "after": "_" },
+    { "tag": "s", "before": "~~", "after": "~~" }, { "tag": "del", "before": "~~", "after": "~~" },
+    { "tag": "code", "before": "`", "after": "`", "literal": true },
+    { "tag": "a", "attr_starts": { "href": "http" }, "before": "[", "after": "]({href})" },
+    { "tag": "img", "attr_starts": { "src": "http" }, "before": "![{alt}]({src})" },
+    { "tag": "br", "before": "\n" },
+    { "tag": "hr", "before": "---", "block": true },
+    { "tag": "tr", "block": true, "tight": true, "before": "|", "_why": "A table is kept as a markdown table: a row per line, a cell per column." },
+    { "tag": "td", "after": " |" }, { "tag": "th", "after": " |" }
+  ],
+  "table_rows": 200
+}
