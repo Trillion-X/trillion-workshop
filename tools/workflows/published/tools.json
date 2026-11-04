@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:357c2c67114a6bd0c249280f3bb549a06a114926272973829f349153c8e80acf"
+  "blake3": "1f:03788328694dd21021ccfcdc609dc8b446c89742ced096fe4988e6221bfcdbab"
  },
  "fields": [
   {
@@ -5008,6 +5008,21 @@
     ],
     "listed_on": "2026-10-19T00:00:00Z",
     "folder": "drive-the-screen"
+   }
+  },
+  {
+   "id": "tool:look-for-the-places-on-this-computer",
+   "values": {
+    "title": "Look for the places on my computer Trillion can read",
+    "job": "Find which places on my computer (notes, voice memos, messages, mail, calendar, photos, downloads, AI apps, browsers) are there for Trillion to read, and which need a switch turned on first",
+    "description": "One look under the folder the person granted for reading (their home folder), checking each place the computer's place rows list by whether it is there and whether it may be opened, never what it holds. Optionally give places (row ids, such as messages or downloads) to look at only those, and services ({ vendor, domains }: the services the account offers) so a browser's store of sites answers only which of those services it is used for, never a cookie's value. A place that is not there is left out; one this program may not open is needs_switch with the switch it needs (gate); a place outside the granted folder (an app in /Applications, a plugged-in drive) is could_not_check with the reason. Returns said, sources ({ id, label, category, state, detail?, gate? }) and browser_sites.",
+    "status": "active",
+    "maker": "maker:bring-in-new-items-from-this-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "bring-in-new-items-from-this-computer"
    }
   },
   {
