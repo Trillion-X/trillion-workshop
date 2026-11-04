@@ -1,0 +1,71 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-STDIO-MCP-ASK-ONCE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "ask a command-line MCP server one request the way the web gateway answers a caller with no session",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/serve-command-line-mcp-servers-on-the-web/do-work/ask-a-stdio-server-once.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/serve-command-line-mcp-servers-on-the-web/",
+   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  },
+  {
+   "repository": "trillion",
+   "path": "parts/README.md",
+   "why": "a README naming createGateway"
+  },
+  {
+   "repository": "trillion",
+   "path": "test/stdio-mcp-gateway.test.mjs",
+   "why": "a test of the moved code this file runs, not a second owner of the job"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/README.md",
+   "why": "a README naming createGateway"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "ask a command-line MCP server one request the way the web gateway answers a caller with no session",
+    "ask a stdio mcp server once",
+    "create gateway"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "askAStdioMcpServerOnce",
+    "createGateway"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "50d1c7c077ab2e41fd173a5dac4b61ac76214dd2"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/serve-command-line-mcp-servers-on-the-web/tool-rows.json sample run (tool:ask-a-command-line-mcp-server-once)"
+  ]
+ }
+}
