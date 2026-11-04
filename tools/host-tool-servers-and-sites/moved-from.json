@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/hosted-mcp-apps.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/host-tool-servers-and-sites/src/hosted-mcp-apps.mjs",
+      "source_identity": "1f:12b4d381e8495a8bbeff21a3ed68ab6854b2b2b3e0b808f08bc69381c5ec4669",
+      "identity": "1f:12b4d381e8495a8bbeff21a3ed68ab6854b2b2b3e0b808f08bc69381c5ec4669"
+    },
+    {
+      "from": "src/hosted-sites.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/host-tool-servers-and-sites/src/hosted-sites.mjs",
+      "source_identity": "1f:45932e7e61042f123c76986033a9367aab252d667127f1445268e83d0423d52f",
+      "identity": "1f:45932e7e61042f123c76986033a9367aab252d667127f1445268e83d0423d52f"
+    }
+  ]
+}

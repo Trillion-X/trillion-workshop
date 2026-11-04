@@ -1,0 +1,127 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "records/cloud-files-origins.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/records/cloud-files-origins.json",
+      "source_identity": "1f:212d0468996d3ba0e8fe9a900fef09949327dfc87ec0159972b0f62414b92feb",
+      "identity": "1f:212d0468996d3ba0e8fe9a900fef09949327dfc87ec0159972b0f62414b92feb"
+    },
+    {
+      "from": "src/billing-screen.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/billing-screen.json",
+      "source_identity": "1f:0b328b4e0b1ff786390b073392b9a77fb31ab728a6ff30b7280d7147c86e79f4",
+      "identity": "1f:0b328b4e0b1ff786390b073392b9a77fb31ab728a6ff30b7280d7147c86e79f4"
+    },
+    {
+      "from": "src/billing-usage-tree.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/billing-usage-tree.mjs",
+      "source_identity": "1f:a142876be6c868240a0e9d0ec2421c86191c655fa8483d3a5a4fca295a9fb722",
+      "identity": "1f:c110925df9904b87d07a0397342c9a36fc49d9047a721c74b216f8cc113ceaf3"
+    },
+    {
+      "from": "src/checkout-welcome.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/checkout-welcome.json",
+      "source_identity": "1f:84faed816183db137ee53f04d672b15275ce0482be2fe8e21f86523e14570c5c",
+      "identity": "1f:84faed816183db137ee53f04d672b15275ce0482be2fe8e21f86523e14570c5c"
+    },
+    {
+      "from": "src/commercial-events.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/commercial-events.mjs",
+      "source_identity": "1f:a610319ae4446e7adccfa6df70b650eaf4e412ea2c0d73b3e5e0ac95e7f5767f",
+      "identity": "1f:93238e14af5d28c6e99c3ad8009ab46a6d63eb228a6fb5d703843a473a6384fe"
+    },
+    {
+      "from": "src/contract-checkout.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/contract-checkout.mjs",
+      "source_identity": "1f:015b78712cd45714be1567e953c3b7fe96afb2899222099f78eca1e42290e60b",
+      "identity": "1f:015b78712cd45714be1567e953c3b7fe96afb2899222099f78eca1e42290e60b"
+    },
+    {
+      "from": "src/contract-entitlements.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/contract-entitlements.mjs",
+      "source_identity": "1f:479d52f350f7c25729b221c58d833eb6875ec7499cf29af338cd4978b5975285",
+      "identity": "1f:479d52f350f7c25729b221c58d833eb6875ec7499cf29af338cd4978b5975285"
+    },
+    {
+      "from": "src/contract-stripe-webhook.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/contract-stripe-webhook.mjs",
+      "source_identity": "1f:de9842d94765a26e1e4d2599e048075817e76a257221949a4de6de57bed97b53",
+      "identity": "1f:de9842d94765a26e1e4d2599e048075817e76a257221949a4de6de57bed97b53"
+    },
+    {
+      "from": "src/credit.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/credit.mjs",
+      "source_identity": "1f:dc2f4253f93bae5b76baa4476e9ee0c58cd704e46ac9de42d0664cc725f7afdd",
+      "identity": "1f:82476e2fdeb79bca0ac3ed6b9a3cf38d6aa112249b39cc67077fbdb16c09f55b"
+    },
+    {
+      "from": "src/funded-usage.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/funded-usage.mjs",
+      "source_identity": "1f:52fba1edd6903d8d6d4bc16032681c95cbf04408b02e38e9bba124c9ad1dc5c9",
+      "identity": "1f:52fba1edd6903d8d6d4bc16032681c95cbf04408b02e38e9bba124c9ad1dc5c9"
+    },
+    {
+      "from": "src/geometric-pricing.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/geometric-pricing.json",
+      "source_identity": "1f:a19646ce5b111efce5878ed0a7345a9d073b037789e3b39bcd8942d2bc8a34fb",
+      "identity": "1f:a19646ce5b111efce5878ed0a7345a9d073b037789e3b39bcd8942d2bc8a34fb"
+    },
+    {
+      "from": "src/geometric-pricing.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/geometric-pricing.mjs",
+      "source_identity": "1f:5baf387eb9d42810ee355b3e7c8e208219777d7921aaeba7d32e0694017eea18",
+      "identity": "1f:5baf387eb9d42810ee355b3e7c8e208219777d7921aaeba7d32e0694017eea18"
+    },
+    {
+      "from": "src/usage-meters.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/usage-meters.json",
+      "source_identity": "1f:a91222642323643e4406d205d4628385b90b878b24752c72add48d5b7a6d5736",
+      "identity": "1f:a91222642323643e4406d205d4628385b90b878b24752c72add48d5b7a6d5736"
+    },
+    {
+      "from": "src/usage-meters.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/usage-meters.mjs",
+      "source_identity": "1f:70db817bc8b564fa8cd188039ec826e30f5b02187d68506c7f1042c57b605289",
+      "identity": "1f:b96e2f715e5a7a0ab82c60d149618af88568a701f7012dafb7dcbd42d5d384b3"
+    },
+    {
+      "from": "test/contract-checkout-trial.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/test/contract-checkout-trial.test.mjs",
+      "source_identity": "1f:cfde5deb1aca6517ce59ecd77d0181bb1a4f1abe896183672389a708d41b4f3f",
+      "identity": "1f:cfde5deb1aca6517ce59ecd77d0181bb1a4f1abe896183672389a708d41b4f3f"
+    },
+    {
+      "from": "test/contract-checkout.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/test/contract-checkout.test.mjs",
+      "source_identity": "1f:c0afe6c029a8a9a28a815dcdd971b72d7c8b32ccc517d1d0dc87cc6e9fd3e3a0",
+      "identity": "1f:c0afe6c029a8a9a28a815dcdd971b72d7c8b32ccc517d1d0dc87cc6e9fd3e3a0"
+    },
+    {
+      "from": "test/contract-stripe-webhook.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/test/contract-stripe-webhook.test.mjs",
+      "source_identity": "1f:fd3c5ee18ca256bfbffe6afa44982fcbf6b3ea7b0b1844b42d6a455abb85cccc",
+      "identity": "1f:fd3c5ee18ca256bfbffe6afa44982fcbf6b3ea7b0b1844b42d6a455abb85cccc"
+    }
+  ]
+}

@@ -1,0 +1,237 @@
+{
+  "what_this_is": "The person's own AIs and computers, read by src/own-ais.mjs (pick, migrate, legacy readers) over src/ais.mjs (makeAis: upsert, list, fromCard) and routed by src/own-ais-routing.mjs (the scheduler source). Data for all of it is here.",
+  "kinds": {
+    "chat": {
+      "runs": "address",
+      "live_minutes": 5,
+      "can": [
+        "any"
+      ],
+      "spends": "none"
+    },
+    "cli": {
+      "runs": "address",
+      "live_minutes": 15,
+      "can": [
+        "any",
+        "code",
+        "files",
+        "mac-tools"
+      ],
+      "spends": "own-computer"
+    },
+    "device-model": {
+      "runs": "model",
+      "live_minutes": 20,
+      "can": [
+        "write"
+      ],
+      "spends": "own-computer",
+      "model_sent": false,
+      "take_within_seconds": 20
+    },
+    "account": {
+      "runs": "model",
+      "live_minutes": 1440,
+      "can": [
+        "decide",
+        "write",
+        "read"
+      ],
+      "spends": "own-account"
+    }
+  },
+  "card_kind": "cli",
+  "card_prefix": "take-open-work-",
+  "card_how": "taker-card",
+  "device_prefix": "device:",
+  "placement_computer": "placement:your-computer",
+  "placement_cloud": "cloud",
+  "agent_id_prefix": "ai:",
+  "default_needs": [
+    "any"
+  ],
+  "needs_from": {
+    "trillion-model-road": ["subscription-ai"]
+  },
+  "need_properties": {
+    "subscription-ai": { "runs": ["address"] }
+  },
+  "prefer_minutes": 2,
+  "no_taker_retry_minutes": 15,
+  "marks": {
+    "no_taker": "no_taker"
+  },
+  "takes_when_marked": [
+    "no_taker"
+  ],
+  "own_block_retry_minutes": 720,
+  "max_depth": 2,
+  "follow_ups_per_job": 3,
+  "results_app": "Trillion",
+  "wake_slack_seconds": 60,
+  "due_kept_seconds": 60,
+  "jobs_per_wake": 2,
+  "retry_minutes": 120,
+  "try_again_soon_when_answered": [
+    429,
+    500,
+    502,
+    503,
+    504
+  ],
+  "try_again_soon_minutes": 5,
+  "again_at_once_most": 3,
+  "_again_at_once_most_why": "Work given back to go on at once (its wake ran out, or the store reset under it) goes on at once at most this many times in a row, then waits try_again_soon_minutes, so a job cut short every time never spins.",
+  "runs_kept": 500,
+  "_runs_kept_why": "Each map of the routing's own state (again_at, tried, no_taker, at_once) keeps at most this many handoffs, the newest; a finished job's entries go at once.",
+  "rest_when_answered": {
+    "400": 30,
+    "401": 720,
+    "402": 720,
+    "403": 720,
+    "429": 60
+  },
+  "ask_priority_floor": 1,
+  "turns_per_job": 24,
+  "words_only_asks": 1,
+  "loop_guards": {
+    "_what": "src/loop-guards.mjs. The same tool call with the same arguments `repeat_nudge_after` times in a row earns one nudge; `repeat_give_back_after` times gives the job back. `error_budget` tool failures in a row give it back. A malformed call (arguments that were not JSON, a tool it may not call) is never counted.",
+    "repeat_nudge_after": 3,
+    "repeat_give_back_after": 6,
+    "error_budget": 6,
+    "words": {
+      "repeat_nudge": "You have made the same {name} call {count} times and it has not moved the job. Read what it answered, then do something different, or end the job with finish_work or say_what_is_in_the_way.",
+      "repeat_spent": "It made the same {name} call {count} times in a row without moving the job.",
+      "errors_spent": "{failures} tool calls in a row failed, the last one {name}."
+    }
+  },
+  "seconds_per_wake": 60,
+  "max_tokens": 4096,
+  "tool_result_chars": 12000,
+  "tool_description_chars": 1000,
+  "schedule_scan": {
+    "page_size": 100,
+    "pages_per_wake": 5,
+    "recovery_jobs_per_wake": 25,
+    "retry_seconds": 5,
+    "refresh_seconds": 30
+  },
+  "publish": {
+    "max_concurrent": 2,
+    "ttl_minutes": 1440,
+    "harness": "trillion",
+    "description": "Works the work none of your other AIs took in time, while no chat of yours is open. Uses only your own connection or computer."
+  },
+  "tools": [
+    "next_question",
+    "answer_question",
+    "decide",
+    "revise_evidence",
+    "start_decision",
+    "add_note",
+    "export_decision",
+    "related_decisions",
+    "list_decisions",
+    "read_messages",
+    "list_pursuits",
+    "search",
+    "list_connections",
+    "content_formats",
+    "content_format_sources",
+    "shape_into_formats",
+    "list_post_destinations",
+    "draft_post",
+    "read_voice",
+    "save_voice",
+    "list_snippets",
+    "read_thread_summary",
+    "save_thread_summary",
+    "use_snippet",
+    "check_post",
+    "read_post",
+    "list_posts",
+    "record_scope",
+    "set_record_scope",
+    "list_files",
+    "find_file",
+    "read_file",
+    "write_file",
+    "find_tool_for_job",
+    "describe_tool",
+    "run_tool",
+    "read_task",
+    "find_workflow",
+    "describe_workflow",
+    "start_workflow",
+    "submit_workflow_step",
+    "read_workflow_run",
+    "read_handoff",
+    "record_effect",
+    "finish_work",
+    "say_what_is_in_the_way",
+    "release_work"
+  ],
+  "words": {
+    "system": "You are {name}, one of the person's AIs in Trillion, working while none of their other AIs is open. Your agent_id is {agent_id}. You hold one job at a time, handed to you below with its handoff_id and generation. Do it the way the person would want, without asking them: they are not here. Use the tools to read what you need, work any decision the job names through its questions and decide it, do and check the work, then call finish_work with handoff_id, agent_id {agent_id}, generation and a result that says what you did and what you checked. After completing and checking this job, new follow-up work may go in the result as next: [\"...\"], one line each, and comes back as new work. Unfinished parts of this request remain with this job until the shared continuation contract is satisfied. If something only the person can give stands in the way (a sign-in, a payment, a choice that turns on their own values), call say_what_is_in_the_way instead of finishing. Never send anything to another person unless the job is exactly that. Words the person wrote or said themselves are always theirs to act on: never keep them as context or call them unclear because of how they are written (dictated, misspelled, rambling, sworn), and never judge their mood or state of mind; split them into each request and work every one. When the words show people agreeing to do something together (a meeting, a habit, a deadline: 'we need to meet every day' and the others saying yes), keep each agreement in their shared space with tool:hold-to-it (operation keep: what, who agreed, how often, the time only when someone said it, the exact words; never guess a time: with none, Trillion asks the person to choose), so Trillion books it, checks it happened and holds everyone to it. When the person corrects how something should be said or done and it is something to get right every time (a word to use instead of another, a habit), keep it as a practice card with tool:practice (operation add: prompt, answer, why, their time_zone) so it comes back until it sticks.",
+    "job": "Job {handoff_id} (generation {generation}).\n\nWhat the person sees of it: {said}\n\nThe job:\n{job}\n\nWhat came with it:\n{input}",
+    "turns_ran_out": "{name} used every turn it has for one job without finishing it.",
+    "not_finished": "{name} stopped without finishing: {why}",
+    "end_with_a_tool": "Words do not end a job. If you did the work and checked it, call finish_work with what you did and what you checked. If something only the person can give stands in the way, or you cannot reach what the job needs from here, call say_what_is_in_the_way with exactly what it is.",
+    "wake_ran_out": "{name} ran out of time for now; it carries on with this job in a moment.",
+    "wake_cut_short": "{name} was stopped mid-job; it carries on with this job in a moment.",
+    "choice_changed": "The AI for this work changed, was paused or is not live; this unfinished work stays available for the next AI.",
+    "no_taker": "No AI of yours can take this work now. {reasons}",
+    "no_taker_recovery": "It goes on as soon as one of the person's AIs can take it, or the person hands it to an AI themselves.",
+    "reason": "{label}: {why}",
+    "none_yet": "None of your AIs is listed yet.",
+    "not_connected": "Connect {label} first, then this AI can take work.",
+    "refused": "{label} refused this work: {why}"
+  },
+  "legacy": {
+    "harness": "trillion",
+    "migrated_fact": "own_ais_migrated",
+    "providers": {
+      "local": {
+        "kind": "device-model",
+        "label": "My computer (free)",
+        "tool_id": "tool:ask-a-model",
+        "model": "local",
+        "runs_on": {
+          "device": null,
+          "place": "placement:your-computer"
+        }
+      },
+      "anthropic": {
+        "kind": "account",
+        "label": "Claude",
+        "tool_id": "tool:ask-anthropic-chat",
+        "model": "claude-sonnet-5",
+        "runs_on": {
+          "device": null,
+          "place": "cloud"
+        }
+      },
+      "openai": {
+        "kind": "account",
+        "label": "ChatGPT",
+        "tool_id": "tool:ask-openai-chat",
+        "model": "gpt-5",
+        "runs_on": {
+          "device": null,
+          "place": "cloud"
+        }
+      },
+      "google": {
+        "kind": "account",
+        "label": "Gemini",
+        "tool_id": "tool:ask-google-chat",
+        "model": "gemini-3.1-pro-preview",
+        "runs_on": {
+          "device": null,
+          "place": "cloud"
+        }
+      }
+    }
+  }
+}

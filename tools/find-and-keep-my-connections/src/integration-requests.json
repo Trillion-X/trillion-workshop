@@ -1,0 +1,42 @@
+{
+  "_what": "The Connections screen's 'What integration should come next?' list: the services this person asked for, kept as one account fact. `fact` is where the list is kept, `max` how many it holds, `name_max` and `note_max` how long a name and a note may be. `report_kind` is the kind (records/hq-reports.json) of the report that also tells the people who make Trillion. `learn_more` is the words of a service card's Learn more panel. `plan_gate` is the words of a service card the person's plan does not let them connect (the plan owner, src/plan-comparison.mjs, decides which). Every word shown is here.",
+  "fact": "integration-requests",
+  "max": 50,
+  "name_max": 80,
+  "note_max": 300,
+  "report_kind": "idea",
+  "report_note": "Integration request: {name}{note}",
+  "words": {
+    "heading": "What integration should come next?",
+    "body": "Ask for a service Trillion cannot connect to yet. Your request is kept here and also goes to the people who make Trillion.",
+    "empty": "You have not asked for a service yet.",
+    "unreadable": "Your requests could not be read just now. Try again in a moment.",
+    "add_title": "Ask for a service",
+    "name_label": "Service",
+    "name_placeholder": "Linear, Notion, Fathom",
+    "note_label": "What should it do for you? (optional)",
+    "note_placeholder": "Read my meeting notes and add the action items to my tasks",
+    "add_button": "Send request",
+    "added_at": "Asked {day}",
+    "remove": "Remove",
+    "remove_confirm": "Remove this request from your list?",
+    "need_name": "Type the name of a service first.",
+    "full": "You already have {max} requests. Remove one to add another.",
+    "added": "Asked for {name}.",
+    "added_and_sent": "Asked for {name}. The people who make Trillion have it too.",
+    "already": "{name} is already on your list.",
+    "removed": "Removed {name}.",
+    "gone": "That request is already gone.",
+    "edit_save": "Save",
+    "edited": "Changed your request for {name}."
+  },
+  "plan_gate": {
+    "chip": "Needs a paid plan",
+    "action": "Upgrade to {offer}"
+  },
+  "learn_more": {
+    "label": "Learn more",
+    "what_it_does": "What it can do",
+    "how_it_connects": "How it connects"
+  }
+}

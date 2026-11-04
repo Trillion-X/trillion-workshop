@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/decision-evals.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/introduce-two-people/src/decision-evals.json",
+      "source_identity": "1f:c215d290f0bb651299496e477a24fad412ab38b9906e2b1fb03d878a321c60b9",
+      "identity": "1f:c215d290f0bb651299496e477a24fad412ab38b9906e2b1fb03d878a321c60b9"
+    },
+    {
+      "from": "src/first-match-check.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/introduce-two-people/src/first-match-check.mjs",
+      "source_identity": "1f:ce40bc502e854c01b1e47c04f2b0fa7436fda6fec2787dbf6cbde99667abf122",
+      "identity": "1f:ce40bc502e854c01b1e47c04f2b0fa7436fda6fec2787dbf6cbde99667abf122"
+    },
+    {
+      "from": "src/introduction-states.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/introduce-two-people/src/introduction-states.json",
+      "source_identity": "1f:6a2b0b75f0e5f192acb0ef4c313fa7b13a9abd1441fe9bd7c12085917295c053",
+      "identity": "1f:6a2b0b75f0e5f192acb0ef4c313fa7b13a9abd1441fe9bd7c12085917295c053"
+    },
+    {
+      "from": "src/introduction-states.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/introduce-two-people/src/introduction-states.mjs",
+      "source_identity": "1f:55694aa66147cb078d96cae08d187cd785b07f21b3a29dd46dec762f31dbb311",
+      "identity": "1f:55694aa66147cb078d96cae08d187cd785b07f21b3a29dd46dec762f31dbb311"
+    },
+    {
+      "from": "src/network-settings.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/introduce-two-people/src/network-settings.json",
+      "source_identity": "1f:e0d1b8659a04bcf49539112ab87df99c9231c9e7a5bb817782148e91391aefcd",
+      "identity": "1f:e0d1b8659a04bcf49539112ab87df99c9231c9e7a5bb817782148e91391aefcd"
+    }
+  ]
+}

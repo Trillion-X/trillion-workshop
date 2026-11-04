@@ -1,0 +1,106 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/group/read-data/kept-library.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/parts/group/read-data/kept-library.ts",
+      "source_identity": "1f:16801a18b1403f2a782ab17e3a70d27f904736121f55b521f928fb934d443abf",
+      "identity": "1f:822830533eb9fbb9474a7e4c90de158315196ed9d144d79ec6cddf7d6c0d686c"
+    },
+    {
+      "from": "parts/ui/show/group/group-graph.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/parts/ui/show/group/group-graph.ts",
+      "source_identity": "1f:311a5f0fe5fa75bea22c398092b801775e8e1828b894941724d779a63c774f78",
+      "identity": "1f:0e43991a448504f6d498063882efb93c44e2a6ba6ae4d0bb114c32d0c7787b85"
+    },
+    {
+      "from": "parts/ui/show/node-actions/node-ref.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/parts/ui/show/node-actions/node-ref.ts",
+      "source_identity": "1f:11fbafefcd97d4c6f4f540cf56d99b07b79b550cc531c712c9686fe7a2e9b742",
+      "identity": "1f:22db2aaaa354eb7fb510b5ba1001e6ffa6265f6b29a4da557eee66f242a95012"
+    },
+    {
+      "from": "parts/ui/show/placeable-surface-intent/placeable-surface-record.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/parts/ui/show/placeable-surface-intent/placeable-surface-record.ts",
+      "source_identity": "1f:58800de9705b69f8b28f299e29747346c6cebe26295571901759b37108bbc42c",
+      "identity": "1f:58800de9705b69f8b28f299e29747346c6cebe26295571901759b37108bbc42c"
+    },
+    {
+      "from": "parts/ui/show/surface-preview/surface-glance.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/parts/ui/show/surface-preview/surface-glance.ts",
+      "source_identity": "1f:0f44f48b382e2b617973930a38d3fe82e2aa667241c02a9bad91e5fbb5f8bff5",
+      "identity": "1f:0f44f48b382e2b617973930a38d3fe82e2aa667241c02a9bad91e5fbb5f8bff5"
+    },
+    {
+      "from": "src/controls-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/src/controls-tools.mjs",
+      "source_identity": "1f:81948ab78b329b36571e45d0a57206abd93f46632246c95e4febc11c4656c1a3",
+      "identity": "1f:81948ab78b329b36571e45d0a57206abd93f46632246c95e4febc11c4656c1a3"
+    },
+    {
+      "from": "src/kept-libraries.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/src/kept-libraries.mjs",
+      "source_identity": "1f:f933c5132efb928142609d446d18580ca4b7db15d201b03e20764eb7a1944baa",
+      "identity": "1f:37f5ac479249f53dc2759ee61fb13b5f58e3016e50b9575161d0e706415bb4e5"
+    },
+    {
+      "from": "src/layout-parts.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/src/layout-parts.mjs",
+      "source_identity": "1f:7018f92a35c5f752b3ad7dedb2a70f58561c9622e0fca9889e97e331db60b188",
+      "identity": "1f:7018f92a35c5f752b3ad7dedb2a70f58561c9622e0fca9889e97e331db60b188"
+    },
+    {
+      "from": "src/layouts-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/src/layouts-tools.mjs",
+      "source_identity": "1f:2106a490e4227e072326cd534b0dd982646af562fbb0eaa2f9421f43cb671666",
+      "identity": "1f:2106a490e4227e072326cd534b0dd982646af562fbb0eaa2f9421f43cb671666"
+    },
+    {
+      "from": "src/layouts.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/src/layouts.json",
+      "source_identity": "1f:15fa272c66aa0e6c363b14858355e8593f884f173f8c066293bae32116011b48",
+      "identity": "1f:15fa272c66aa0e6c363b14858355e8593f884f173f8c066293bae32116011b48"
+    },
+    {
+      "from": "src/layouts.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/src/layouts.mjs",
+      "source_identity": "1f:ba453a6931aaaa0bf6647dfa31bd242321755c6caccd0fcb01a7d19f7c7ef245",
+      "identity": "1f:c6b121068b74548d952e5868031cf58f6293fb04f53513d1f46a7c9eaac76224"
+    },
+    {
+      "from": "src/workspace-record-history.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/src/workspace-record-history.json",
+      "source_identity": "1f:35e76c1e700c13bf079fcf192a8d019e46c6a67bd799daa13e387cf0e08df77f",
+      "identity": "1f:35e76c1e700c13bf079fcf192a8d019e46c6a67bd799daa13e387cf0e08df77f"
+    },
+    {
+      "from": "src/workspace-revision-selection.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/src/workspace-revision-selection.mjs",
+      "source_identity": "1f:ed33e57acd5bd54e9ebf28ab3666810ea6e867f9242011c40d4c5e6dc66b298b",
+      "identity": "1f:ed33e57acd5bd54e9ebf28ab3666810ea6e867f9242011c40d4c5e6dc66b298b"
+    },
+    {
+      "from": "src/workspace/screen-own-arrangement.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-screen-layouts-and-controls/src/workspace/screen-own-arrangement.json",
+      "source_identity": "1f:8d8e167be4c9e33d9413f60e684d564d307b0ceb606f899f070a2aa506c9cefb",
+      "identity": "1f:8d8e167be4c9e33d9413f60e684d564d307b0ceb606f899f070a2aa506c9cefb"
+    }
+  ]
+}

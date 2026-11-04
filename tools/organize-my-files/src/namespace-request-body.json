@@ -1,0 +1,4 @@
+{
+  "_what": "The most bytes one Namespace request body may carry. The native command route (src/namespace-native-command.mjs) refuses a body over it, and the words that tell an AI how to send a big file (src/namespace.mjs send_with, the start_file_upload tool in src/file-tools.mjs) name the same number, so what is advertised is what is accepted. It sits under the Workers request body limit (100 MB on this plan) because the route measures a body's BLAKE3 identity before it admits the command, and the whole body is held while it does; bigger files go in parts of at most this size, each with &offset=<its first byte>.",
+  "most_body_bytes": 33554432
+}

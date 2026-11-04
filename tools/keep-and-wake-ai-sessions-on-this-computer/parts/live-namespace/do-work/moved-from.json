@@ -1,0 +1,16 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/live-namespace/do-work/blake3.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/blake3.mjs",
+      "source_identity": "1f:040e093b61e7aa894eee20862369ce50148e2f4f0ef21febb3363cb3d01eddf1",
+      "identity": "1f:040e093b61e7aa894eee20862369ce50148e2f4f0ef21febb3363cb3d01eddf1",
+      "reused": true
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "_what": "How a list of changed files becomes a graph document (change-graph.mjs): one lane per folder, one node per file, each node's change state from the file's status. `lane_depth` is how many leading folders name a lane (files above that go in `root_lane`); `status_delta` maps a forge's file status to a graph change state (a status it does not list is drawn as modified); `lane_most` and `node_most` stay under the graph contract's limits, with what does not fit gathered into `rest_lane` and one `rest_node`; `kind_by_extension` gives a node its kind from the file's ending ('node' otherwise). Words are plain. No path or status is named in code.",
+  "id": "change",
+  "lane_depth": 2,
+  "root_lane": { "id": "root", "label": "Top level" },
+  "rest_lane": { "id": "rest", "label": "More folders" },
+  "rest_node": { "id": "rest-files", "label": "{count} more files", "detail": "{added} added, {removed} removed lines" },
+  "lane_most": 12,
+  "node_most": 200,
+  "label_characters": 120,
+  "status_delta": { "added": "added", "removed": "removed", "modified": "modified", "changed": "modified", "renamed": "modified", "copied": "added", "unchanged": "unchanged" },
+  "kind_by_extension": { "md": "doc", "json": "data", "css": "style", "test.mjs": "test", "test.ts": "test" },
+  "words": {
+    "label": "{count} files changed",
+    "caption": "{added} lines added, {removed} removed.",
+    "detail": "+{added} -{removed}",
+    "renamed": "was {from}",
+    "no_files": "No files changed."
+  }
+}

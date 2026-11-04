@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/layer-diagram/graph-authoring.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-a-diagram/parts/ui/show/layer-diagram/graph-authoring.json",
+      "source_identity": "1f:8a224b2dfdf9f64fcaf4259d7a72b91b25c490891674f5a3bd11547acd51a333",
+      "identity": "1f:8a224b2dfdf9f64fcaf4259d7a72b91b25c490891674f5a3bd11547acd51a333"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/graph-authoring.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-a-diagram/parts/ui/show/layer-diagram/graph-authoring.mjs",
+      "source_identity": "1f:271f1baeeea867dd5bdfc1b1fd519b9f0d9b1ec8dc158fa0edd27947fc659c36",
+      "identity": "1f:a4e24b1354986ff5162e9829c95f74e087b63a54e6b506eed0a9486038f45737"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/graph-live.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-a-diagram/parts/ui/show/layer-diagram/graph-live.json",
+      "source_identity": "1f:9a0c841470f066e327ff488f8579cc80e17a1a94d4122bc9440ad123b3aaf373",
+      "identity": "1f:9a0c841470f066e327ff488f8579cc80e17a1a94d4122bc9440ad123b3aaf373"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/graph-live.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-a-diagram/parts/ui/show/layer-diagram/graph-live.mjs",
+      "source_identity": "1f:8e3dfc5eb740ec5ddb09c4acd1786bff1746e4b8c7ceb93cd899cf33fd64fa80",
+      "identity": "1f:0dd8046f893c76f900d3f9152ae30ad4e9d80a6611cdb0c6234b32df54b8b1f6"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/graph-patch.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-a-diagram/parts/ui/show/layer-diagram/graph-patch.json",
+      "source_identity": "1f:660fc36c2e5c18c5601fc35c87ecb58bb6ade7d549980ba3d239e8de7541a3e0",
+      "identity": "1f:660fc36c2e5c18c5601fc35c87ecb58bb6ade7d549980ba3d239e8de7541a3e0"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/graph-patch.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-a-diagram/parts/ui/show/layer-diagram/graph-patch.mjs",
+      "source_identity": "1f:75e64204e70cc71da3f11bc55389028f0ffac48cabdf21a073a05fa451a737d3",
+      "identity": "1f:2aa19917895b70d2f45d016486d692c32426c65ed1a956a3c6ec1e1510e052e1"
+    },
+    {
+      "from": "src/diagram-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-a-diagram/src/diagram-tools.mjs",
+      "source_identity": "1f:c818bed271f2e2852957e267ec0ebe74cc049c90409c8e614f33ca27fbfc58fb",
+      "identity": "1f:16cd354f02559653896d81ee6cc7d0e4c90f80c08385a672eef3732c953eb1c0"
+    }
+  ]
+}
