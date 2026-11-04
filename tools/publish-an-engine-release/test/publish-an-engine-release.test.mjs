@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,7 +10,7 @@ import { gunzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { addRelease, newSigningKey, publicKeyHex, readFeed, settings, signEntry, signedText, verifyEntry } from '../do-work/release-feed.mjs';
-import { CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, publish, runProgram } from '../do-work/publish-an-engine-release.mjs';
+import { CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, runProgram } from '../do-work/publish-an-engine-release.mjs';
 import { makeQueue, makeReceiver, readDelivery, runPublish, signatureHolds } from '../do-work/receive-pushes.mjs';
 import { builderConfig, installBuilder, receiverUnit, SHIPPED, shippedTarball } from '../do-work/install-a-builder.mjs';
 
@@ -204,6 +204,13 @@ test('the command reads the token on descriptor 3 and prints the entry on its la
   const refused = spawnSync(process.execPath, [PUBLISH, 'publish', file, '--commit', commits[0]], { encoding: 'utf8' });
   assert.equal(refused.status, 3);
   assert.match(JSON.parse(refused.stdout.trim().split('\n').at(-1)).error, /older/);
+});
+
+test('a descriptor the caller did not hand in is read as no token, whatever it holds', async () => {
+  // With no descriptor 3 from the caller, that number can be Node's own event-loop descriptor (epoll, kqueue), which
+  // fails to read differently on each system; a folder stands in for it here, since reading one fails on every system.
+  const fd = openSync(folder(), 'r');
+  try { assert.equal(await privateInput(fd), ''); } finally { closeSync(fd); }
 });
 
 test('a push delivery runs only when its signature holds and it is to the branch', async () => {
