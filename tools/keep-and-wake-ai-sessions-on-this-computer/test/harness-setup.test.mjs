@@ -256,7 +256,7 @@ test('the known Mac bundle must pass both signature and Trillion identity before
   const calls = [];
   const refused = verifyPayload({ rules, execute: (command, args) => { calls.push({ command, args }); return args[0] === '-dv' ? { ...okay, stderr: `Identifier=${rules.mac_app.identifier}\nTeamIdentifier=OTHERTEAM\n` } : okay; } });
   assert.equal(refused.status, 'blocked'); assert.equal(calls.every(call => call.command === '/usr/bin/codesign'), true);
-  const release = JSON.parse(readFileSync(join(ROOT, 'macos', 'release.json'), 'utf8'));
+  const release = JSON.parse(readFileSync(join(ROOT, 'test', 'fixtures', 'macos-release.json'), 'utf8'));
   assert.ok(release.identity.includes(`(${settings.mac_app.team})`), 'installer identity must follow the release owner');
 });
 

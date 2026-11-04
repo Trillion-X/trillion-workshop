@@ -1,0 +1,4 @@
+{
+  "_what": "A synthetic stand-in for the Mac app's release record (macos/release.json), which lives in Trillion-X/trillion-apps since Trillion-X/trillion 7cbcbce9 moved macos/ there. Only the field harness-setup.test.mjs reads is kept: `identity`, the Developer ID the installer signs with. The person's name is made up; the team id in brackets is the one harness/setup.json mac_app.team already names. The real record's signing keychain, provisioning profiles and keys are not carried into this public repository.",
+  "identity": "Developer ID Application: Example Maker (MFD7KJQZ8M)"
+}

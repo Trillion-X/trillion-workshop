@@ -7,7 +7,7 @@
 // Which observers a host can run is the host's capability map; a method's observer rows are DATA.
 import { currentDecisionOutcome, decisionGeneration, outcomeIsCurrent, personReportVerified } from './check-uses.mjs';
 import handling from '../records/outcome-handling.json' with { type: 'json' };
-import { selectDeclaredValue } from '../parts/ui/read-data/declared-selector.ts';
+import { selectDeclaredValue } from '../../ui/read-data/declared-selector.ts';
 
 export const outcomeBasis = record => ({ expected_generation: decisionGeneration(record), expected_decided_at: record.decided_at,
   expected_success_measure: record.decision?.success_measure, expected_check_by: checkPlan(record), expected_stated_outcome: statedOutcome(record) });

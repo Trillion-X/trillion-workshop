@@ -13,7 +13,7 @@
 // a file, the environment, a log or the answer.
 //
 // usage: publish-an-engine-release.mjs publish REQUEST_FILE [--commit COMMIT] | make-key KEY_FILE | public-key KEY_FILE
-import { closeSync, createReadStream, createWriteStream, existsSync, fsyncSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, rmdirSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { closeSync, createReadStream, createWriteStream, existsSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, rmdirSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -199,9 +199,15 @@ export function readRequest(file) {
   return request;
 }
 
-/** Descriptor `fd`'s text, bounded; a descriptor nobody opened is empty. */
+/** Descriptor `fd`'s text, bounded; a descriptor nobody opened is empty. When the caller opens no descriptor 3, the
+ *  number may hold one Node opened for itself (its event loop's epoll on Linux, kqueue on macOS), and reading that
+ *  fails in a way that differs by system, so only a pipe, socket or file the caller handed in is read. */
 export async function privateInput(fd) {
   let text = '';
+  try {
+    const kind = fstatSync(fd);
+    if (!kind.isFIFO() && !kind.isSocket() && !kind.isFile()) return '';
+  } catch (error) { if (error.code === 'EBADF') return ''; throw error; }
   try {
     for await (const bytes of createReadStream(null, { fd, autoClose: false })) {
       text += bytes;

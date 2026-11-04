@@ -9,7 +9,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { holdReading, reachOf, programOf, releaseReading, computerIdOf, startReading, fileKeeper, rowsOf, adoptProgress } from '../computer/read-this-computer.mjs';
+import { fileURLToPath } from 'node:url';
+import { holdReading, reachOf, programOf, releaseReading, computerIdOf, startReading, fileKeeper, rowsOf, adoptProgress } from '../../run-on-a-persons-computer/read-this-computer.mjs';
 import { startHandlers, loadHandlers, settings } from '../harness/wake-sessions.mjs';
 
 const folder = () => fs.mkdtempSync(path.join(os.tmpdir(), 'read-this-computer-'));
@@ -144,7 +145,7 @@ test('reader fixture cleanup awaits its child even when the startup assertion fa
 test('the reader keeps reading as a child until the program that started it stops it, then gives the lock back', async t => {
   // A home of its own: the child finds none of this computer's places, so it opens nothing on the screen.
   const shared = folder();
-  const child = spawn(process.execPath, ['--no-warnings', path.resolve('computer/read-this-computer.mjs'), '--keep-reading', '--shared', shared, '--state', folder()], { stdio: ['pipe', 'ignore', 'pipe'], env: { ...process.env, HOME: folder(), TRILLION_ORIGIN: 'http://127.0.0.1:9' } });
+  const child = spawn(process.execPath, ['--no-warnings', fileURLToPath(new URL('../../run-on-a-persons-computer/read-this-computer.mjs', import.meta.url)), '--keep-reading', '--shared', shared, '--state', folder()], { stdio: ['pipe', 'ignore', 'pipe'], env: { ...process.env, HOME: folder(), TRILLION_ORIGIN: 'http://127.0.0.1:9' } });
   t.after(() => stopFixtureChild(child));
   child.stdin.end('nm_test-key');
   // Its first read is 5 seconds after it starts; wait for the lock it takes then, up to 20 seconds.
@@ -232,6 +233,6 @@ test('the helper starts each handler that runs by itself, and one that fails to 
   const started = startHandlers({ handlers: [{ path: 'bad', start: () => { throw new Error('no'); } }, { path: 'events-only', wants: () => true }, { path: 'good', start: context => ({ started: context.key }) }], key: 'k', log: line => logged.push(line) });
   assert.deepEqual(started, [{ started: 'k' }]);
   assert.match(logged[0], /bad did not start: no/);
-  const reader = (await loadHandlers()).find(handler => handler.path === '../computer/read-this-computer.mjs');
+  const reader = (await loadHandlers()).find(handler => handler.path === '../../run-on-a-persons-computer/read-this-computer.mjs');
   assert.ok(reader && typeof reader.start === 'function' && reader.wants({ event: {} }) === false, 'reading this computer is a handler row that takes no events');
 });

@@ -285,6 +285,13 @@
       "identity": "1f:be2a543db7f596ffe056d4e36dead5e5d0af44aac1482a05fe1010753fa2db39"
     },
     {
+      "from": "harness/wake-handlers/keep-every-message.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/keep-every-message.mjs",
+      "source_identity": "1f:3cee3de88d0aa4f60a46400624baca7f62610a9a2a01daaddea2a51cc8679570",
+      "identity": "1f:3cee3de88d0aa4f60a46400624baca7f62610a9a2a01daaddea2a51cc8679570"
+    },
+    {
       "from": "harness/wake-handlers/keep-web-chats.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/keep-web-chats.mjs",
@@ -297,6 +304,13 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/run-tools-here.mjs",
       "source_identity": "1f:87066987399472ab9b0805b56ce5d50476a732f9be2709f309d3528c1ba8e24f",
       "identity": "1f:87066987399472ab9b0805b56ce5d50476a732f9be2709f309d3528c1ba8e24f"
+    },
+    {
+      "from": "harness/wake-handlers/send-requests-here.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/send-requests-here.mjs",
+      "source_identity": "1f:88d780ae2b4dc16e446b3953761afbcb0a2f4c4734992848cd04b29b9e3aed9f",
+      "identity": "1f:88d780ae2b4dc16e446b3953761afbcb0a2f4c4734992848cd04b29b9e3aed9f"
     },
     {
       "from": "harness/wake-handlers/take-open-work.mjs",
