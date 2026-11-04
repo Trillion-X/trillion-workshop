@@ -97,6 +97,14 @@
       "identity": "1f:9f8330ad5af242411ae6db4623172c0eef376764f33aa8076d3510c2f8ff6a4b"
     },
     {
+      "from": "scripts/namespace-worker-vars.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/scripts/namespace-worker-vars.mjs",
+      "source_identity": "1f:9f8330ad5af242411ae6db4623172c0eef376764f33aa8076d3510c2f8ff6a4b",
+      "identity": "1f:9f8330ad5af242411ae6db4623172c0eef376764f33aa8076d3510c2f8ff6a4b",
+      "reused": true
+    },
+    {
       "from": "src/agent-delivery.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/agent-delivery.mjs",
@@ -123,6 +131,14 @@
     {
       "from": "src/agents.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/agents.mjs",
+      "source_identity": "1f:1636fd2e4414fae911bda8421eb9429a3829a2c8083d1849428c5c46805fc4cc",
+      "identity": "1f:662a1af6bfb24dc3ccfc69eba817d5657a1f187d8812bb5395e4998847caf733",
+      "reused": true
+    },
+    {
+      "from": "src/agents.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/shared-code/src/agents.mjs",
       "source_identity": "1f:1636fd2e4414fae911bda8421eb9429a3829a2c8083d1849428c5c46805fc4cc",
       "identity": "1f:662a1af6bfb24dc3ccfc69eba817d5657a1f187d8812bb5395e4998847caf733",
@@ -200,6 +216,14 @@
     {
       "from": "src/failure.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/failure.mjs",
+      "source_identity": "1f:b2d2caec290a2a4fad02a20a2f2d9992086dfe091ae7d0038e060b1d86e3479c",
+      "identity": "1f:cc08f431988cb888be8ce80797a55636a1fc7a001e2de7e7516561d4ad092fa7",
+      "reused": true
+    },
+    {
+      "from": "src/failure.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/shared-code/src/failure.mjs",
       "source_identity": "1f:b2d2caec290a2a4fad02a20a2f2d9992086dfe091ae7d0038e060b1d86e3479c",
       "identity": "1f:cc08f431988cb888be8ce80797a55636a1fc7a001e2de7e7516561d4ad092fa7",
@@ -360,8 +384,24 @@
       "reused": true
     },
     {
+      "from": "src/renamed-tools.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/src/renamed-tools.mjs",
+      "source_identity": "1f:91056a46c9296022906c791c5d5dc18a4426a52476f542ca32a91f6f313d6199",
+      "identity": "1f:0414c7fdc3853dc30f7407311807702643c343c8f27db7017e13e80b02deee12",
+      "reused": true
+    },
+    {
       "from": "src/repo-explorer.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/repo-explorer.mjs",
+      "source_identity": "1f:22acb2f564cf47c9b5924821bc0e3cd5fd4ce99d4ae6fe8ca15feab0884151f8",
+      "identity": "1f:22acb2f564cf47c9b5924821bc0e3cd5fd4ce99d4ae6fe8ca15feab0884151f8",
+      "reused": true
+    },
+    {
+      "from": "src/repo-explorer.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/shared-code/src/repo-explorer.mjs",
       "source_identity": "1f:22acb2f564cf47c9b5924821bc0e3cd5fd4ce99d4ae6fe8ca15feab0884151f8",
       "identity": "1f:22acb2f564cf47c9b5924821bc0e3cd5fd4ce99d4ae6fe8ca15feab0884151f8",
@@ -478,6 +518,14 @@
     {
       "from": "src/typed-operation-contract.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/typed-operation-contract.mjs",
+      "source_identity": "1f:7ef560a846842cb6da043716be7509ad582fa0a74d41f081b7bec63fa3852b27",
+      "identity": "1f:d340a58bc9011e3f23e75a54b215e95a3f02b0f142d95b540e65d5575fbd64c9",
+      "reused": true
+    },
+    {
+      "from": "src/typed-operation-contract.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/shared-code/src/typed-operation-contract.mjs",
       "source_identity": "1f:7ef560a846842cb6da043716be7509ad582fa0a74d41f081b7bec63fa3852b27",
       "identity": "1f:d340a58bc9011e3f23e75a54b215e95a3f02b0f142d95b540e65d5575fbd64c9",
@@ -606,6 +654,21 @@
       "to": "tools/shared-code/src/workspace/screens.mjs",
       "source_identity": "1f:f0ed2de02fce29b48abfd428ca7c5803bb99b1afb8bad71692dda7cec6454d27",
       "identity": "1f:f03341b66d9ff05877e280c1f4356ddb14a1f2d5918cdc8b43cc29a54dab01fc"
+    },
+    {
+      "from": "src/workspace/screens.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/src/workspace/screens.mjs",
+      "source_identity": "1f:f0ed2de02fce29b48abfd428ca7c5803bb99b1afb8bad71692dda7cec6454d27",
+      "identity": "1f:f03341b66d9ff05877e280c1f4356ddb14a1f2d5918cdc8b43cc29a54dab01fc",
+      "reused": true
+    },
+    {
+      "from": "test/namespace-worker-vars.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/test/namespace-worker-vars.test.mjs",
+      "source_identity": "1f:13b2003e30758544eeadca881d2940e6d10307f575096ad6ce67bbf646edc290",
+      "identity": "1f:13b2003e30758544eeadca881d2940e6d10307f575096ad6ce67bbf646edc290"
     }
   ]
 }

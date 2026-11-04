@@ -1,0 +1,24 @@
+{
+  "_what": "The list every imported AI conversation gets one row in (src/chat-import.mjs keepConversationRow): made once with ensure, then each import writes only the facts read from the chat (title, app, conversation, first and last message, count, models). Labels, people, pursuits and follow-ups are left for the person and their AIs, so a re-import never overwrites them. A new field is a row here.",
+  "id": "ai-conversations",
+  "label": "AI conversations",
+  "about": "Every conversation you had with an AI, one row each, with when it happened, what it was about and which pursuits and people it touches.",
+  "icon": "MessagesSquare",
+  "row_type": "ai-conversation",
+  "title_field": "title",
+  "fields": [
+    { "id": "title", "label": "Title", "kind": "text" },
+    { "id": "app", "label": "App", "kind": "text" },
+    { "id": "conversation_id", "label": "Conversation", "kind": "text" },
+    { "id": "started", "label": "Started", "kind": "date" },
+    { "id": "last", "label": "Last message", "kind": "date" },
+    { "id": "messages", "label": "Messages", "kind": "number" },
+    { "id": "models", "label": "Models", "kind": "tags" },
+    { "id": "labels", "label": "Labels", "kind": "tags" },
+    { "id": "people", "label": "People", "kind": "tags" },
+    { "id": "pursuits", "label": "Pursuits", "kind": "tags" },
+    { "id": "follow_ups", "label": "Follow-ups", "kind": "text" },
+    { "id": "original_file", "label": "Original file", "kind": "text" }
+  ],
+  "row_id_max": 120
+}
