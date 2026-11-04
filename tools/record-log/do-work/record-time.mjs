@@ -18,7 +18,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { logPositionOf } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs';
+import { logPositionOf } from './log-position.mjs';
 
 /** The envelope that takes back one envelope, or null when it changed nothing that can be taken back. */
 export function inverseOf(envelope) {
