@@ -79,3 +79,13 @@ test('the kinds the engine\'s rules, runs and live heads read are each declared 
   const told = heads.record_model.live_heads.told;
   assert.ok((heads.record_model.kinds ?? []).some(kind => kind.type === told), `${heads.id} declares the kind ${told} its head reads`);
 });
+
+test('the kind a harness hook keeps a session card as is declared by the one tool that names it', () => {
+  // trillion-rust src/account/hooks.json's keep-record step names no kind: it reads harness_hooks.agent_card from the
+  // joined model (src/account/hooks.rs keep_record), so one tool names it and declares that kind.
+  const named = parts.filter(({ payload }) => payload.record_model.harness_hooks !== undefined).map(({ payload }) => payload);
+  assert.equal(named.length, 1, 'one tool names the harness hooks\' kinds');
+  const card = named[0].record_model.harness_hooks.agent_card;
+  assert.ok(typeof card === 'string' && card, 'harness_hooks.agent_card names a kind');
+  assert.ok((named[0].record_model.kinds ?? []).some(kind => kind.type === card), `${named[0].id} declares ${card}`);
+});
