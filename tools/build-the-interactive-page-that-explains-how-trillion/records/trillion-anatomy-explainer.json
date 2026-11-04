@@ -1,0 +1,50 @@
+{
+  "title": "How Trillion works · An Anatomy illustration",
+  "description": "An interactive physical metaphor for how Trillion finds the needle mover, acts with your AI and checks the result.",
+  "headline": "Trillion finds the needle mover.",
+  "phases": [
+    {
+      "short": "Understand",
+      "title": "Start with your life.",
+      "copy": "Your pursuits, conversations and connected sources give your AI the context to understand what matters. The cards in the tray represent those inputs."
+    },
+    {
+      "short": "Choose",
+      "title": "Find the needle mover.",
+      "copy": "Out of the possible actions, identify the one most likely to move your pursuit forward. The picker carries one lit card: attention becomes a specific piece of work."
+    },
+    {
+      "short": "Act",
+      "title": "Bring the right tools.",
+      "copy": "Trillion connects your AI with the capabilities the job needs. Tools, skills and workflows can be installed, combined or built. The interchangeable modules stand for those capabilities."
+    },
+    {
+      "short": "Check",
+      "title": "Check the actual result.",
+      "copy": "A started task is not a finished outcome. Read back what changed, handle what still stands in the way, and keep going. The inspection station stands for that check."
+    }
+  ],
+  "example": {
+    "title": "Find a new client",
+    "steps": [
+      "Understand the offer, past conversations and where a useful opportunity exists.",
+      "Choose a relevant introduction as the action that could unlock a client conversation.",
+      "Prepare the introduction and use the connected tools to carry out the authorized work.",
+      "Check whether the introduction happened and whether the conversation advanced. If it did not, resolve the real blocker."
+    ]
+  },
+  "sections": [
+    {
+      "title": "Your AI. More capable.",
+      "copy": "Connect the AI you want to work with. Trillion gives it shared context and a place to use tools, keep work and continue across conversations."
+    },
+    {
+      "title": "Capabilities that grow.",
+      "copy": "The marketplace brings in skills, tools and workflows. Anatomy is one example: a reusable skill for making complex ideas visible."
+    },
+    {
+      "title": "Work that goes somewhere.",
+      "copy": "The pursuit is the point. Trillion connects understanding, action and checking so the work keeps moving toward the change you want."
+    }
+  ]
+}

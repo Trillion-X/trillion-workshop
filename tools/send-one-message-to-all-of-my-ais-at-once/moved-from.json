@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/mention-sources.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-one-message-to-all-of-my-ais-at-once/src/mention-sources.json",
+      "source_identity": "1f:487f5d1ad4ed001723ae3858a2fbeb69455977f63edf74adc24e46745f736333",
+      "identity": "1f:487f5d1ad4ed001723ae3858a2fbeb69455977f63edf74adc24e46745f736333"
+    },
+    {
+      "from": "src/send-to-all-ais.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-one-message-to-all-of-my-ais-at-once/src/send-to-all-ais.mjs",
+      "source_identity": "1f:6ef69917b0e626bab25a133d5889144d12d4119e86fc5ae5e6ae3389d4e1d434",
+      "identity": "1f:89637af97ded32bf63ed673ecf0a48b5c3b9b2f5b3741929a301960de65d0bd7"
+    },
+    {
+      "from": "src/work-mentions.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-one-message-to-all-of-my-ais-at-once/src/work-mentions.mjs",
+      "source_identity": "1f:d3dca64b2bc24a93525afa530028b366ad8c81eab68244fe0fe497594e694c4b",
+      "identity": "1f:d3dca64b2bc24a93525afa530028b366ad8c81eab68244fe0fe497594e694c4b"
+    }
+  ]
+}

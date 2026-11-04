@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/done-when-facts.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/stop-a-reminder-about-a-waiting-or-held-thing/src/done-when-facts.json",
+      "source_identity": "1f:53d8c1f03484cc372487ef49ce0c2885166f12ecbbaa000d648338e03ceb0ff2",
+      "identity": "1f:53d8c1f03484cc372487ef49ce0c2885166f12ecbbaa000d648338e03ceb0ff2"
+    },
+    {
+      "from": "src/done-when.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/stop-a-reminder-about-a-waiting-or-held-thing/src/done-when.mjs",
+      "source_identity": "1f:4691d7f47a7ea1cb5838a59c601346d07ec0c3b6cf8936409ce29cd30e0e011b",
+      "identity": "1f:4691d7f47a7ea1cb5838a59c601346d07ec0c3b6cf8936409ce29cd30e0e011b"
+    },
+    {
+      "from": "src/waiting-notice-guard.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/stop-a-reminder-about-a-waiting-or-held-thing/src/waiting-notice-guard.mjs",
+      "source_identity": "1f:1fd5c61415a64a1f085c424b810d5a6ff6a26c6777691087a8f381bcaee93b41",
+      "identity": "1f:7df5631921afa8f698f16aa82e2dcf8f379528dec6cc33046c7b5ceab6edde80"
+    }
+  ]
+}

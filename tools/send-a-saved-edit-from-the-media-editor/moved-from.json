@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/editor-handoff.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-a-saved-edit-from-the-media-editor/src/editor-handoff.json",
+      "source_identity": "1f:114d02e842239122791e8bf1ca7ad3da379d0993778e5b6b4850ec55362dbbd2",
+      "identity": "1f:114d02e842239122791e8bf1ca7ad3da379d0993778e5b6b4850ec55362dbbd2"
+    },
+    {
+      "from": "src/editor-handoff.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-a-saved-edit-from-the-media-editor/src/editor-handoff.mjs",
+      "source_identity": "1f:5846885c3e74db5da2310574aa57ea5a9133cb9f4cb45ae9fd1521782b5a49e2",
+      "identity": "1f:b6680f5c5b6edb1c99dc9d537da09c7c7bdb2d1cfd1178b0a9a57c01c5df6ddf"
+    },
+    {
+      "from": "src/work-media-editor.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-a-saved-edit-from-the-media-editor/src/work-media-editor.mjs",
+      "source_identity": "1f:692e240f3e2b268eceef27ff68b8443ae4203ba266feed575d0fea98767203fe",
+      "identity": "1f:692e240f3e2b268eceef27ff68b8443ae4203ba266feed575d0fea98767203fe"
+    },
+    {
+      "from": "test/editor-handoff.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-a-saved-edit-from-the-media-editor/test/editor-handoff.test.mjs",
+      "source_identity": "1f:872811b3440e40647a79c7fd10b20501d028fc4887bcbbc77c2f90458d751c31",
+      "identity": "1f:b95bd2b1a6c217d1465179c40b37928e7e1c65b8300cd9395382a2f8710b8a2a"
+    }
+  ]
+}

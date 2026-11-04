@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/voice-memos.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/turn-any-recording-already-in-the-persons-files/src/voice-memos.mjs",
+      "source_identity": "1f:04c4bcbe1668d00ba4a5009da13dacb1dc5b0edbc59e13665b6a865c7ed64e65",
+      "identity": "1f:04c4bcbe1668d00ba4a5009da13dacb1dc5b0edbc59e13665b6a865c7ed64e65"
+    },
+    {
+      "from": "src/workspace/recording.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/turn-any-recording-already-in-the-persons-files/src/workspace/recording.json",
+      "source_identity": "1f:79a76f32ff5972307f349dda59416b58d13e957124af729ea8bdab8c48ee4927",
+      "identity": "1f:79a76f32ff5972307f349dda59416b58d13e957124af729ea8bdab8c48ee4927"
+    },
+    {
+      "from": "src/workspace/recording.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/turn-any-recording-already-in-the-persons-files/src/workspace/recording.mjs",
+      "source_identity": "1f:d4c0d6339b22452b8d69a09d7c3ed64e9be8177a73a13b8ea7664d76dd283bbf",
+      "identity": "1f:d4c0d6339b22452b8d69a09d7c3ed64e9be8177a73a13b8ea7664d76dd283bbf"
+    }
+  ]
+}

@@ -37,6 +37,14 @@
       "reused": true
     },
     {
+      "from": "src/namespace-preview.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/namespace-preview.mjs",
+      "source_identity": "1f:c4519cf7e6db4093f7db62ccee5218e66ed19c08730fd61e546b637b5192359c",
+      "identity": "1f:c4519cf7e6db4093f7db62ccee5218e66ed19c08730fd61e546b637b5192359c",
+      "reused": true
+    },
+    {
       "from": "src/pool-settings.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/pool-settings.json",
@@ -85,11 +93,27 @@
       "reused": true
     },
     {
+      "from": "src/responses.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/responses.mjs",
+      "source_identity": "1f:1a7792f82e5d8c69d2200d3618d71eb075aaea1a18b9b78899a9af4cb08b85e6",
+      "identity": "1f:1a7792f82e5d8c69d2200d3618d71eb075aaea1a18b9b78899a9af4cb08b85e6",
+      "reused": true
+    },
+    {
       "from": "src/scheduler.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/scheduler.json",
       "source_identity": "1f:f555eccaa21bbf1317986c8f7569fc44033739cdcfa673da712349e7cab1f347",
       "identity": "1f:f555eccaa21bbf1317986c8f7569fc44033739cdcfa673da712349e7cab1f347",
+      "reused": true
+    },
+    {
+      "from": "src/scheduler.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/scheduler.mjs",
+      "source_identity": "1f:976ce6ee48681a97096cfb7a850a26372716586bfd3bcfb0470afc442780748a",
+      "identity": "1f:976ce6ee48681a97096cfb7a850a26372716586bfd3bcfb0470afc442780748a",
       "reused": true
     },
     {
