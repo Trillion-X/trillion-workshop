@@ -7,7 +7,7 @@
         "licence_class": "licence:maker-own",
         "maker": "maker:edit-a-document-together",
         "listed_on": "2026-11-04T00:00:00Z",
-        "id": "tool:edit-one-document-together",
+        "id": "tool:open-the-document-a-pursuit-edits-together",
         "placements": [
           "placement:small-container"
         ],
@@ -16,153 +16,68 @@
           "network_egress": false,
           "memory_mb": 64
         },
-        "label": "Edit one document together",
-        "job": "Edit one document together with other people and AIs: edits merge in any order, words from different editors are kept, and undo takes back only my own edits",
-        "description": "Give blocks (the document every editor started from: [{ id, text?, props? }] in order) and edits (one per editor, at most 6: { by, blocks }, the blocks that editor made their copy into; a new id is a new block, a block left out is removed). Each edit is turned into that editor's own operations by the document engine (do-work/document-operations.mjs: words as a sequence CRDT, block places and props as last-writer registers), the batches are merged in every order they could arrive in, and the merged document comes back with same_in_every_order and orders_checked. undo names one editor whose edit is then taken back: only what that editor inserted, deleted, moved or set, never words another editor added among them. Answers document ([{ id, text, props, format_version }], new blocks under the ids the engine mints), edits ([{ by, operations }]) and undone ({ by, operations }) when undo was given. Refuses no blocks or no edits, more than 6 editors, an editor named twice, an undo naming no editor here, and anything the engine refuses (with its code). Reads no records, keeps nothing after the run, and sends nothing: the live Write screen's page, saving to the person's records and the session sync are not part of this run.",
+        "label": "Open the document a pursuit edits together",
+        "job": "Say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal",
+        "description": "Give pages: what each page of Write is opened with ({ space_id?, scene_address?, ... }). A page opened in a pursuit (space_id) opens that pursuit's one shared room (space-room:<pursuit>/package::documents::documents, from show/write-screen.json) unless it names a document of that same room; a page with no pursuit keeps its own address. Answers pages (each { opened: true, input: what the screen opens with, shared } or { opened: false, refused }, in the screen's own words: an empty pursuit name, one that is not text or holds '/', or a document of another room) and shared_rooms (each room once). It runs show/write-screen-input.mjs writeScreenInput, the rule the Write screen opens with. It reads, keeps and sends nothing; the editing itself (blocks, merges, undo, presence) is the Write screen's and is not run here.",
         "read_only": true,
         "input_schema": {
           "type": "object",
           "required": [
-            "blocks",
-            "edits"
+            "pages"
           ],
           "additionalProperties": false,
           "properties": {
-            "blocks": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": [
-                  "id"
-                ],
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "text": {
-                    "type": "string"
-                  },
-                  "props": {
-                    "type": "object"
-                  }
-                }
-              }
-            },
-            "edits": {
+            "pages": {
               "type": "array",
               "minItems": 1,
-              "maxItems": 6,
               "items": {
                 "type": "object",
-                "required": [
-                  "by",
-                  "blocks"
-                ],
                 "properties": {
-                  "by": {
-                    "type": "string",
-                    "pattern": "^[A-Za-z0-9:._~@-]+$"
+                  "space_id": {
+                    "description": "The pursuit the page is opened in: text with no '/'."
                   },
-                  "blocks": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "required": [
-                        "id"
-                      ],
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "text": {
-                          "type": "string"
-                        },
-                        "props": {
-                          "type": "object"
-                        }
-                      }
-                    }
+                  "scene_address": {
+                    "description": "The document the page names, when it names one."
                   }
                 }
               }
-            },
-            "undo": {
-              "type": "string"
             }
           }
         },
         "output_schema": {
           "type": "object",
           "required": [
-            "document",
-            "same_in_every_order",
-            "orders_checked",
-            "edits"
+            "pages",
+            "shared_rooms"
           ],
           "properties": {
-            "document": {
+            "pages": {
               "type": "array",
               "items": {
                 "type": "object",
                 "required": [
-                  "id",
-                  "text",
-                  "props",
-                  "format_version"
+                  "opened"
                 ],
                 "properties": {
-                  "id": {
-                    "type": "string"
+                  "opened": {
+                    "type": "boolean"
                   },
-                  "text": {
-                    "type": "string"
-                  },
-                  "props": {
+                  "input": {
                     "type": "object"
                   },
-                  "format_version": {
-                    "type": "integer"
+                  "shared": {
+                    "type": "boolean"
+                  },
+                  "refused": {
+                    "type": "string"
                   }
                 }
               }
             },
-            "same_in_every_order": {
-              "type": "boolean"
-            },
-            "orders_checked": {
-              "type": "integer"
-            },
-            "edits": {
+            "shared_rooms": {
               "type": "array",
               "items": {
-                "type": "object",
-                "required": [
-                  "by",
-                  "operations"
-                ],
-                "properties": {
-                  "by": {
-                    "type": "string"
-                  },
-                  "operations": {
-                    "type": "integer"
-                  }
-                }
-              }
-            },
-            "undone": {
-              "type": "object",
-              "required": [
-                "by",
-                "operations"
-              ],
-              "properties": {
-                "by": {
-                  "type": "string"
-                },
-                "operations": {
-                  "type": "integer"
-                }
+                "type": "string"
               }
             }
           }
@@ -175,8 +90,8 @@
           "argv": [
             "node",
             "/opt/records-door/do-work/run-an-export.mjs",
-            "/opt/edit-a-document-together/do-work/edit-together.mjs",
-            "editADocumentTogether"
+            "/opt/edit-a-document-together/do-work/open-a-shared-document.mjs",
+            "openASharedDocument"
           ],
           "stdin": {
             "fill": {
@@ -188,9 +103,9 @@
               {
                 "package": "edit-a-document-together",
                 "paths": [
-                  "do-work/edit-together.mjs",
-                  "do-work/document-operations.mjs",
-                  "do-work/document-operations.json"
+                  "do-work/open-a-shared-document.mjs",
+                  "show/write-screen-input.mjs",
+                  "show/write-screen.json"
                 ],
                 "at": "/opt/edit-a-document-together"
               },
@@ -228,45 +143,31 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion src/workspace/document-operations.mjs and document-operations.json at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (4ffa1dc4a2^), brought in byte for byte (moved-from.json; left behind by a9ee258 / #76 because it imports the hash primitive directly), run through do-work/edit-together.mjs; old capability row capabilities.json:423 at 4ffa1dc4a2^ (edit one document together with other people and AIs)"
+          "source": "Trillion-X/trillion parts/documents show/write-screen-input.mjs and show/write-screen.json, moved in a9ee258 (#76); old capability row capabilities.json:423 at 4ffa1dc4a2^ (edit a document together)"
         },
         "verify": [
           {
             "kind": "sample-run",
             "input": {
-              "blocks": [
+              "pages": [
                 {
-                  "id": "intro",
-                  "text": "Plan the garden"
-                }
-              ],
-              "edits": [
-                {
-                  "by": "ana",
-                  "blocks": [
-                    {
-                      "id": "intro",
-                      "text": "Plan the spring garden"
-                    }
-                  ]
+                  "space_id": "garden-club",
+                  "member_id": "sample-a"
                 },
                 {
-                  "by": "helper-ai",
-                  "blocks": [
-                    {
-                      "id": "intro",
-                      "text": "Plan the garden today"
-                    },
-                    {
-                      "id": "list",
-                      "text": "Buy seeds"
-                    }
-                  ]
+                  "space_id": "garden-club",
+                  "member_id": "sample-b"
+                },
+                {
+                  "scene_address": "package::documents::documents::personal"
+                },
+                {
+                  "space_id": "a/b"
                 }
               ]
             },
-            "output_selector": "$.orders_checked",
-            "at_least": 2
+            "output_selector": "$.shared_rooms",
+            "contains": "space-room:garden-club/package::documents::documents"
           }
         ]
       }
