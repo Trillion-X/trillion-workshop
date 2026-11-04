@@ -1,0 +1,755 @@
+{
+  "_what": "The one Calendar (src/calendar.mjs): every dated thing a person can see, read from every source here, in one list of items the Calendar screen (src/workspace/shared-calendar-screen.tsx) draws and the person's Focus narrows (src/record-scope.json lists). A source is read one of two ways: `route`, a GET to the person's own store with from and to (the same road their AI takes), or `tool`, one of their own Workshop tools run with `input` ({from} and {to} filled in), which is how a connected calendar is read through their own connection. `rows` is where its answer keeps the rows; `fields` says where each item field is read (a list of paths, the first one present wins); `ref` (a path, and an optional `prefix`) is the record a row is, so the Focus can keep it; `copies_of` drops a row that is the copy of another source's item put on a connected calendar (src/space-calendars.mjs keeps one record per meeting placed there, `record_type`:<item id>, whose `field` is the copy's id), so a meeting never shows twice. `look` is how its items read (label, icon, tone). `move` is the road that gives one of its items a new time when it may move (`post` and `body`, `{source_id}`, `{space_id}` and `{at}` filled in). `actions` are what an opened item offers, each a road: `post` with `body` (and `said` when done), `href` (an address to open), or `opens` (a screen of the workspace, by its id); `shows_when` shows it only while an item field `is` that value; `tone` `danger` marks one that takes something away, and `confirm` (`asks`, `yes`, `no`) has the person say yes before it runs. A source that cannot be read is said by its `unread` words and never stops the others. `connect` is where someone goes to connect a source that is not connected (straight to the service's own sign-in). A new source is one row here; `given` is every thing given to the person in their spaces that has a due date. `span_most_days` bounds one read; a source's `attendees`, `attendee_name` and `attendee_email` fields say where a provider keeps the people invited (at most MEETING_ATTENDEES_MOST, parts/record-audio/do-work/meeting-join-recording.ts, are kept on an item); `reuse_minutes` is how long a connected calendar's answer is used again before it is asked again, so moving between weeks does not ask Google each time.",
+  "span_most_days": 62,
+  "reuse_minutes": 10,
+  "sources": [
+    {
+      "id": "meetings",
+      "route": "/community/events",
+      "rows": [
+        "events"
+      ],
+      "fields": {
+        "id": [
+          [
+            "event_id"
+          ]
+        ],
+        "title": [
+          [
+            "title"
+          ]
+        ],
+        "about": [
+          [
+            "about"
+          ]
+        ],
+        "starts_at": [
+          [
+            "starts_at"
+          ]
+        ],
+        "ends_at": [
+          [
+            "ends_at"
+          ]
+        ],
+        "space_id": [
+          [
+            "space_id"
+          ]
+        ],
+        "space_title": [
+          [
+            "space_title"
+          ]
+        ],
+        "going": [
+          [
+            "you_are_going"
+          ]
+        ],
+        "may_move": [
+          [
+            "may_move"
+          ]
+        ]
+      },
+      "look": {
+        "label": "Meeting",
+        "icon": "UsersRound",
+        "tone": "accent"
+      },
+      "move": {
+        "post": "/community/events/{source_id}/move",
+        "body": {
+          "community_id": "{space_id}",
+          "starts_at": "{at}"
+        }
+      },
+      "actions": [
+        {
+          "id": "going",
+          "label": "Going",
+          "post": "/community/events/{source_id}/rsvp",
+          "body": {
+            "going": true
+          },
+          "said": "You are going.",
+          "shows_when": {
+            "field": "going",
+            "is": false
+          },
+          "command": "calendar.rsvp_going"
+        },
+        {
+          "id": "not-going",
+          "label": "Not going",
+          "post": "/community/events/{source_id}/rsvp",
+          "body": {
+            "going": false
+          },
+          "said": "You are not going.",
+          "shows_when": {
+            "field": "going",
+            "is": true
+          },
+          "command": "calendar.rsvp_not_going"
+        },
+        {
+          "id": "add-to-calendar",
+          "label": "Add to your calendar",
+          "href": "/community/events/{source_id}/calendar"
+        },
+        {
+          "id": "cancel",
+          "label": "Cancel meeting",
+          "post": "/community/events/{source_id}/cancel",
+          "body": {
+            "community_id": "{space_id}"
+          },
+          "said": "Cancelled for everyone in the pursuit.",
+          "shows_when": {
+            "field": "may_move",
+            "is": true
+          },
+          "tone": "danger",
+          "confirm": {
+            "asks": "Cancel this meeting for everyone in the pursuit?",
+            "yes": "Cancel it",
+            "no": "Keep it"
+          }
+        }
+      ]
+    },
+    {
+      "id": "given",
+      "_why": "Things given to the person in their spaces that carry a `due` fact (set_item_facts { assignee, due }): the same items src/waiting-on-you.json source `assigned` hands them, on the day they are due. Read from GET /given on the person's own store (src/spaces.mjs assignedTo).",
+      "route": "/given",
+      "rows": [
+        "items"
+      ],
+      "fields": {
+        "id": [
+          [
+            "ref"
+          ]
+        ],
+        "title": [
+          [
+            "title"
+          ],
+          [
+            "body",
+            "text"
+          ]
+        ],
+        "about": [
+          [
+            "body",
+            "text"
+          ]
+        ],
+        "starts_at": [
+          [
+            "facts",
+            "due"
+          ]
+        ],
+        "ends_at": [
+          [
+            "facts",
+            "due_end"
+          ]
+        ],
+        "space_id": [
+          [
+            "space_id"
+          ]
+        ],
+        "space_title": [
+          [
+            "space_title"
+          ]
+        ],
+        "status": [
+          [
+            "facts",
+            "status"
+          ]
+        ],
+        "link": [
+          [
+            "body",
+            "link"
+          ]
+        ]
+      },
+      "skip_when": {
+        "status": "done"
+      },
+      "look": {
+        "label": "Given to you",
+        "icon": "UserCheck",
+        "tone": "orange"
+      },
+      "actions": [
+        {
+          "id": "open-space",
+          "label": "Open in its pursuit",
+          "href": "/spaces/{space_id}"
+        }
+      ]
+    },
+    {
+      "id": "posts",
+      "route": "/posts/calendar",
+      "rows": [
+        "posts"
+      ],
+      "fields": {
+        "id": [
+          [
+            "post_id"
+          ]
+        ],
+        "title": [
+          [
+            "caption"
+          ]
+        ],
+        "starts_at": [
+          [
+            "at"
+          ]
+        ],
+        "status": [
+          [
+            "status"
+          ]
+        ]
+      },
+      "ref": {
+        "path": [
+          "post_id"
+        ]
+      },
+      "look": {
+        "label": "Post",
+        "icon": "Send",
+        "tone": "purple"
+      },
+      "actions": [
+        {
+          "id": "open-posts",
+          "label": "Open in the posting calendar",
+          "opens": "tool:read-post-calendar"
+        }
+      ]
+    },
+    {
+      "id": "personal-tasks",
+      "route": "/calendar/tasks",
+      "rows": [
+        "tasks"
+      ],
+      "fields": {
+        "id": [
+          [
+            "id"
+          ]
+        ],
+        "title": [
+          [
+            "title"
+          ]
+        ],
+        "starts_at": [
+          [
+            "starts_at"
+          ]
+        ],
+        "ends_at": [
+          [
+            "ends_at"
+          ]
+        ],
+        "source_record_id": [
+          [
+            "source_id"
+          ]
+        ],
+        "source_url": [
+          [
+            "source_url"
+          ]
+        ],
+        "status": [
+          [
+            "status"
+          ]
+        ],
+        "may_move": [
+          [
+            "may_move"
+          ]
+        ],
+        "may_cancel": [
+          [
+            "may_cancel"
+          ]
+        ]
+      },
+      "skip_when": {
+        "status": "Done"
+      },
+      "look": {
+        "label": "Your tasks",
+        "icon": "ListTodo",
+        "tone": "purple"
+      },
+      "move": {
+        "post": "/work/api/calendar/tasks",
+        "body": {
+          "action": "schedule",
+          "task_id": "{source_id}",
+          "start": "{at}",
+          "end": "{ends_at}"
+        }
+      },
+      "actions": [
+        {
+          "id": "complete-task",
+          "label": "Mark done",
+          "post": "/work/api/calendar/tasks",
+          "body": {
+            "action": "complete",
+            "task_id": "{source_id}"
+          },
+          "said": "Task marked done.",
+          "shows_when": {
+            "field": "may_move",
+            "is": true
+          }
+        },
+        {
+          "id": "unschedule-task",
+          "label": "Remove from calendar",
+          "post": "/work/api/calendar/tasks",
+          "body": {
+            "action": "unschedule",
+            "task_id": "{source_id}"
+          },
+          "said": "Task removed from the calendar.",
+          "shows_when": {
+            "field": "may_cancel",
+            "is": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "google-calendar",
+      "tool": "tool:google-calendar-list_events_between",
+      "input": {
+        "calendar_id": "primary",
+        "time_min": "{from}",
+        "time_max": "{to}"
+      },
+      "rows": [
+        "items"
+      ],
+      "fields": {
+        "id": [
+          [
+            "id"
+          ]
+        ],
+        "ical_uid": [
+          [
+            "iCalUID"
+          ]
+        ],
+        "organizer_email": [
+          [
+            "organizer",
+            "email"
+          ]
+        ],
+        "attendees": [
+          [
+            "attendees"
+          ]
+        ],
+        "attendee_email": [
+          [
+            "email"
+          ]
+        ],
+        "attendee_name": [
+          [
+            "displayName"
+          ]
+        ],
+        "original_starts_at": [
+          [
+            "originalStartTime",
+            "dateTime"
+          ],
+          [
+            "originalStartTime",
+            "date"
+          ]
+        ],
+        "title": [
+          [
+            "summary"
+          ]
+        ],
+        "about": [
+          [
+            "description"
+          ]
+        ],
+        "starts_at": [
+          [
+            "start",
+            "dateTime"
+          ],
+          [
+            "start",
+            "date"
+          ]
+        ],
+        "ends_at": [
+          [
+            "end",
+            "dateTime"
+          ],
+          [
+            "end",
+            "date"
+          ]
+        ],
+        "status": [
+          [
+            "status"
+          ]
+        ],
+        "link": [
+          [
+            "htmlLink"
+          ]
+        ],
+        "location": [
+          [
+            "location"
+          ]
+        ],
+        "conference_url": [
+          [
+            "hangoutLink"
+          ]
+        ],
+        "may_move": [
+          [
+            "organizer",
+            "self"
+          ],
+          [
+            "creator",
+            "self"
+          ]
+        ],
+        "may_cancel": [
+          [
+            "organizer",
+            "self"
+          ],
+          [
+            "creator",
+            "self"
+          ]
+        ],
+        "recurring_event_id": [
+          [
+            "recurringEventId"
+          ]
+        ],
+        "color_id": [
+          [
+            "colorId"
+          ]
+        ],
+        "visibility": [
+          [
+            "visibility"
+          ]
+        ],
+        "transparency": [
+          [
+            "transparency"
+          ]
+        ]
+      },
+      "skip_when": {
+        "status": "cancelled"
+      },
+      "keep_when_fields_present": ["title", "starts_at", "ends_at"],
+      "copies_of": {
+        "source": "meetings",
+        "record_type": "space-calendar-event",
+        "field": "calendar_event_id"
+      },
+      "look": {
+        "label": "Your Google Calendar",
+        "icon": "CalendarDays",
+        "tone": "green"
+      },
+      "calendar_actions": {
+        "create": {
+          "tool": "tool:google-calendar-create_an_event",
+          "required_capability_id": "calendar.use",
+          "supports_all_day": true,
+          "input_defaults": {
+            "calendar_id": "primary"
+          }
+        },
+        "create-video-call": {
+          "tool": "tool:google-calendar-create_an_event_with_a_video_call",
+          "required_capability_id": "calendar.use",
+          "supports_all_day": true,
+          "input_defaults": {
+            "calendar_id": "primary"
+          },
+          "request_key_field": "request_id"
+        },
+        "move": {
+          "tool": "tool:google-calendar-move_an_event",
+          "required_capability_id": "calendar.use",
+          "input_defaults": {
+            "calendar_id": "primary"
+          }
+        },
+        "edit": {
+          "tool": "tool:google-calendar-edit_an_event",
+          "required_capability_id": "calendar.use",
+          "input_defaults": {
+            "calendar_id": "primary"
+          }
+        },
+        "cancel": {
+          "tool": "tool:google-calendar-cancel_an_event",
+          "required_capability_id": "calendar.use",
+          "input_defaults": {
+            "calendar_id": "primary"
+          }
+        }
+      },
+      "move": {
+        "calendar_action": "move"
+      },
+      "actions": [
+        {
+          "id": "open-google",
+          "label": "Open in Google Calendar",
+          "href": "{link}"
+        },
+        {
+          "id": "cancel-google",
+          "label": "Remove from Google Calendar",
+          "calendar_action": "cancel",
+          "shows_when": {
+            "field": "may_cancel",
+            "is": true
+          },
+          "tone": "danger",
+          "confirm": {
+            "asks": "Remove this event from Google Calendar?",
+            "yes": "Remove it",
+            "no": "Keep it"
+          }
+        }
+      ],
+      "connect": {
+        "label": "Connect Google Calendar",
+        "href": "/work/connect/google-calendar"
+      },
+      "pagination": {
+        "next_cursor": [
+          "nextPageToken"
+        ],
+        "input_field": "page_token",
+        "max_pages": 12
+      },
+      "calendar_connection": {
+        "source_id": "google-calendar",
+        "vendor": "google-calendar",
+        "required_capability_id": "calendar.use",
+        "label": "Google Calendar",
+        "tools": {
+          "list_calendars": "tool:google-calendar-list_calendars",
+          "list_events": "tool:google-calendar-list_events_between",
+          "list_busy_times": "tool:google-calendar-read_busy_times"
+        },
+        "readable_roles": [
+          "owner",
+          "writer",
+          "reader",
+          "freeBusyReader"
+        ],
+        "writable_roles": [
+          "owner",
+          "writer"
+        ],
+        "busy_role": "freeBusyReader",
+        "calendar_id_path": [
+          "id"
+        ],
+        "calendar_access_role_path": [
+          "accessRole"
+        ],
+        "calendar_label_path": [
+          "summary"
+        ],
+        "calendar_time_zone_path": [
+          "timeZone"
+        ],
+        "calendar_primary_path": [
+          "primary"
+        ],
+        "calendar_id_input_field": "calendar_id",
+        "items_path": [
+          "items"
+        ],
+        "next_page_path": [
+          "nextPageToken"
+        ],
+        "page_input_field": "page_token",
+        "limits": {
+          "max_calendars_per_account": 3000,
+          "max_selections": 12,
+          "max_pages": 12
+        },
+        "words": {
+          "unavailable": "This account’s calendars could not be checked. Reconnect it or try again."
+        },
+        "busy_source": {
+          "input": {
+            "calendar_id": "{calendar_id}",
+            "time_min": "{from}",
+            "time_max": "{to}"
+          },
+          "rows": [
+            "calendars",
+            "{calendar_id}",
+            "busy"
+          ],
+          "required_rows": true,
+          "errors_path": [
+            "calendars",
+            "{calendar_id}",
+            "errors"
+          ],
+          "default_title": "Busy",
+          "fields": {
+            "id": [
+              [
+                "start"
+              ]
+            ],
+            "starts_at": [
+              [
+                "start"
+              ]
+            ],
+            "ends_at": [
+              [
+                "end"
+              ]
+            ],
+            "title": []
+          }
+        },
+        "event_color_catalog": {
+          "tool": "tool:google-calendar-list_colors",
+          "rows_path": [
+            "event"
+          ],
+          "color_path": [
+            "background"
+          ],
+          "label_path": [],
+          "label_template": "Color {id}",
+          "max_colors": 32,
+          "supported_ids": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11"
+          ]
+        }
+      },
+      "event_properties": {
+        "color": {
+          "input_field": "color_id",
+          "choices": [
+            {
+              "value": "default",
+              "label": "Calendar default",
+              "input_value": null
+            }
+          ]
+        },
+        "privacy": {
+          "input_field": "visibility",
+          "choices": [
+            {
+              "value": "default",
+              "label": "Calendar default"
+            },
+            {
+              "value": "public",
+              "label": "Public"
+            },
+            {
+              "value": "private",
+              "label": "Private"
+            },
+            {
+              "value": "confidential",
+              "label": "Confidential"
+            }
+          ]
+        },
+        "availability": {
+          "input_field": "transparency",
+          "choices": [
+            {
+              "value": "opaque",
+              "label": "Busy"
+            },
+            {
+              "value": "transparent",
+              "label": "Free"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "words": {
+    "bad_span": "from and to are dates and times, from before to, at most {days} days apart.",
+    "unread": "{source} could not be read just now.",
+    "not_connected": "{source} is not connected.",
+    "incomplete": "{source} has more events than this view can load. Scheduling suggestions are paused."
+  }
+}

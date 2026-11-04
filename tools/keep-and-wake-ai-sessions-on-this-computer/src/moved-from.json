@@ -235,6 +235,14 @@
       "source_identity": "1f:a9558aae34c876e2b80758b1cb4cffb893ca693e473d159a25c547461aefbf6a",
       "identity": "1f:a9558aae34c876e2b80758b1cb4cffb893ca693e473d159a25c547461aefbf6a",
       "reused": true
+    },
+    {
+      "from": "src/meaning-or-words.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/meaning-or-words.mjs",
+      "source_identity": "1f:d7274ee31552b102834f4f1869b2d562e0687964580cb597fb6576bc0e09efb4",
+      "identity": "1f:7990ff649ef717f2ebf7279e2092b5d2eba3d4adb5445c8dc614d18354595ebf",
+      "reused": true
     }
   ]
 }

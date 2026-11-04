@@ -1,0 +1,195 @@
+{
+  "comment": "What each plan includes, as one list every plan card reads. A feature row says how to tell from an offer row whether that offer includes it, so a check or an X is always what the service actually grants: `access` (the offer's access_refs name it), `access` with `without_allowance` (it names it and puts no allowance on it; a free plan with an allowance keeps nothing, src/person-store.mjs), `allowance_of` (the offer's allowance on that access, or unlimited when it grants it with none), `usage_of` (the offer's own usage row for that meter in src/usage-meters.json: how much comes with the plan and what more costs, words from src/usage-meters.mjs; an offer with no such row is judged by the row's `access` instead), or `every_account` (every account has it whatever it pays: connecting an AI). A row's `paths` are the requests that ARE that feature: the person's store (src/person-store.mjs) and the Worker (src/worker.mjs) refuse them to anyone whose plan the row does not include, judged by the same rule the card shows (`withheldFeature`, src/plan-comparison.mjs), so a card and what the service grants cannot disagree. A path is `{ \"exact\": <path> }` or `{ \"under\": <prefix> }`, with an optional `method` when only that verb on the path is the feature: the spaces row withholds only starting a Space, so a person on any plan opens and works in a Space someone invited them into. `compares` picks which offers are plans: the ones granting that access. Other offers show their own benefits. A row judged by `allowance_of` names its `unit` (the thing counted, plural) and the `per` an unlimited plan is read over, so every value is the same short number-unit/period a person scans across plans: \"5 decisions/month\", \"Unlimited decisions/month\" (an allowance keeps its own period). A row with `paths` names in `needs_plan` what a person on a plan without it is told when a screen of it opens: a short title naming what a paid plan unlocks (src/workspace/failure.ts). `words.needs_plan` is said when a refusal names no feature row, and `words.needs_plan_action` is the one button, to Plan.",
+  "plan_names": {
+    "comment": "The names a plan can take, lowest rung first. A rung that names an `offer` is a plan sold today and takes its name from that offer row's `label` (records/commercial-offer-records.json), the one place a sold plan's name is written; a rung with only a `name` is ready for a plan that does not exist yet. A new plan between two rungs takes the rung's name as its offer label and the rung's `name` becomes that `offer`. Every name here is kept out of anything shared publicly (src/private-rewrite.mjs).",
+    "rungs": [
+      {
+        "offer": "offer:trillion-free"
+      },
+      {
+        "name": "2x'er"
+      },
+      {
+        "name": "10x'er"
+      },
+      {
+        "name": "100x'er"
+      },
+      {
+        "name": "200x'er"
+      },
+      {
+        "offer": "offer:trillion-member"
+      },
+      {
+        "name": "Quintillion Mode"
+      }
+    ]
+  },
+  "compares": {
+    "offers_granting": "access:decision-method"
+  },
+  "words": {
+    "unlimited": "Unlimited {unit}/{per}",
+    "allowance": "{count} {unit}/{per}",
+    "free_price": "Free",
+    "needs_plan": "This comes with a paid plan",
+    "needs_plan_action": "See plans"
+  },
+  "features": [
+    {
+      "id": "decisions",
+      "label": "Decisions your AI makes with the method",
+      "allowance_of": "access:decision-method",
+      "unit": "decisions",
+      "per": "month"
+    },
+    {
+      "id": "kept",
+      "label": "Every decision, note and result saved to your account",
+      "access": "access:decision-kept",
+      "paths": [
+        { "exact": "/inbound", "method": "POST" }
+      ],
+      "needs_plan": "Bringing in and keeping what you write comes with a paid plan"
+    },
+    {
+      "id": "storage",
+      "label": "Storage for your files",
+      "usage_of": "meter:stored-gigabytes",
+      "access": "access:decision-method",
+      "without_allowance": true
+    },
+    {
+      "id": "daily-spend",
+      "label": "Daily limit and billing for Trillion-paid work",
+      "spending_terms": true
+    },
+    {
+      "id": "history",
+      "label": "Your past decisions brought back when a similar one comes up",
+      "access": "access:decision-history"
+    },
+    {
+      "id": "others",
+      "label": "How other people's similar decisions turned out",
+      "access": "access:others-outcomes"
+    },
+    {
+      "id": "network",
+      "label": "Ask Trillion's network for people who can help",
+      "access": "access:decision-method",
+      "without_allowance": true,
+      "paths": [
+        {
+          "exact": "/network"
+        },
+        {
+          "under": "/network/"
+        }
+      ],
+      "needs_plan": "Trillion's network comes with a paid plan"
+    },
+    {
+      "id": "spaces",
+      "label": "Share your pursuits with the people you work on them with",
+      "access": "access:decision-method",
+      "without_allowance": true,
+      "needs_plan": "Sharing a pursuit with other people comes with a paid plan",
+      "paths": [
+        {
+          "exact": "/spaces",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "id": "workshop",
+      "label": "Find and run tools from the Marketplace",
+      "access": "access:decision-method",
+      "without_allowance": true,
+      "paths": [
+        {
+          "under": "/tools/"
+        },
+        {
+          "under": "/tasks/"
+        },
+        {
+          "under": "/connect/"
+        },
+        {
+          "under": "/tool-servers/"
+        },
+        {
+          "under": "/events/"
+        },
+        {
+          "under": "/automations/"
+        }
+      ],
+      "needs_plan": "Running tools from the Marketplace comes with a paid plan"
+    },
+    {
+      "id": "agents",
+      "label": "Your AI apps find each other and hand work on",
+      "access": "access:decision-method",
+      "without_allowance": true,
+      "paths": [
+        {
+          "under": "/agents/"
+        },
+        {
+          "exact": "/handoffs"
+        },
+        {
+          "under": "/handoffs/"
+        }
+      ],
+      "needs_plan": "Handing work between your AI apps comes with a paid plan"
+    },
+    {
+      "id": "scorer",
+      "label": "Your AI picks from answers you already have in one fast step",
+      "access": "access:decision-method",
+      "without_allowance": true,
+      "paths": [
+        {
+          "exact": "/score"
+        }
+      ],
+      "needs_plan": "Fast picks from your own answers come with a paid plan"
+    },
+    {
+      "id": "files",
+      "label": "Your files, readable by any AI or app you give a key",
+      "access": "access:decision-method",
+      "without_allowance": true,
+      "paths": [
+        {
+          "under": "/mcp/api/namespace/"
+        },
+        {
+          "exact": "/namespace"
+        },
+        {
+          "under": "/namespace/"
+        },
+        {
+          "exact": "/mcp/api/namespace"
+        }
+      ],
+      "needs_plan": "Your files come with a paid plan"
+    },
+    {
+      "id": "community",
+      "label": "The Trillion community: posts, events, courses and levels",
+      "every_account": true
+    },
+    {
+      "id": "any-ai",
+      "label": "One connection for Claude, ChatGPT and any AI app that takes a connector",
+      "every_account": true
+    }
+  ]
+}

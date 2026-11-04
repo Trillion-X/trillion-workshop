@@ -1,0 +1,36 @@
+{
+ "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+ "source": "Trillion-X/trillion",
+ "package": "trillion-workshop",
+ "calls": [],
+ "files": [
+  {
+   "from": "records/workshop-placement-records.json",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/pick-where-one-piece-of-work-runs-the-device/records/workshop-placement-records.json",
+   "source_identity": "1f:c6a8dc7a288e9a6b59796cca375877d106419358952995d74c9db0f0e0f93f2f",
+   "identity": "1f:c6a8dc7a288e9a6b59796cca375877d106419358952995d74c9db0f0e0f93f2f"
+  },
+  {
+   "from": "src/placement.json",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/pick-where-one-piece-of-work-runs-the-device/src/placement.json",
+   "source_identity": "1f:3d8d95a90ef3e74756f320f0e846e386df9a3a44e26ef08eb9e4222bc636711f",
+   "identity": "1f:3d8d95a90ef3e74756f320f0e846e386df9a3a44e26ef08eb9e4222bc636711f"
+  },
+  {
+   "from": "src/placement.mjs",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/pick-where-one-piece-of-work-runs-the-device/src/placement.mjs",
+   "source_identity": "1f:e9e8908a93b653c95d98e75f1f545b204e00da3ec6ebd56a95baaae2015f82c8",
+   "identity": "1f:e3e56659d33a422718f785b126f5d9b021b3e4f0e231ec48673f8d72895ccaf3"
+  },
+  {
+   "from": "test/placement.test.mjs",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/pick-where-one-piece-of-work-runs-the-device/test/placement.test.mjs",
+   "source_identity": "1f:a0425b2318d776d9cad23b42c67a6846ca5931be3f1aeaa48b0942051f86a8cf",
+   "identity": "1f:068ce000d83991af761266ffabbe35ad87e4ed8f01afa0e580a267ee2740c457"
+  }
+ ]
+}

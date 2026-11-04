@@ -1,0 +1,50 @@
+{
+ "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+ "source": "Trillion-X/trillion",
+ "package": "trillion-workshop",
+ "calls": [],
+ "files": [
+  {
+   "from": "src/calendar-actions.mjs",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar-actions.mjs",
+   "source_identity": "1f:2d5b5056a343b12f4a87978e9c8d9b7d9250cf770b5e03de4e86bf7c793c65bc",
+   "identity": "1f:2d5b5056a343b12f4a87978e9c8d9b7d9250cf770b5e03de4e86bf7c793c65bc"
+  },
+  {
+   "from": "src/calendar-connections.mjs",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar-connections.mjs",
+   "source_identity": "1f:f90836d4bf85a76dfa5824a20a728c2b47de5c1ce4e8b1de6b0af9d224899e91",
+   "identity": "1f:9b2475dca466f4a500a7e920323dcea3059a7b5d77dc25c7d67bc5deec066509"
+  },
+  {
+   "from": "src/calendar.json",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar.json",
+   "source_identity": "1f:b3ef50dc2e3ba6659ca6c0e479b407e19abcefcc9975333507d1a00936d3c042",
+   "identity": "1f:b3ef50dc2e3ba6659ca6c0e479b407e19abcefcc9975333507d1a00936d3c042"
+  },
+  {
+   "from": "src/calendar.mjs",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar.mjs",
+   "source_identity": "1f:aac38b725d3a7decd9e09acc88021e23580c9ccf9b5a97d6363470def7c03391",
+   "identity": "1f:c76b774824526203c1519e9f6036aa08872655195ca4f578b0c0f04431aae4e3"
+  },
+  {
+   "from": "src/native-calendar-owner.mjs",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/native-calendar-owner.mjs",
+   "source_identity": "1f:8fb7bae53dd279abfc21b9646552010c0ba64a3d5ba2ab849783dbe11d54a366",
+   "identity": "1f:7e227771593383e0126d040f406eae322c9b64fafa72355201f4d02c60c5846c"
+  },
+  {
+   "from": "src/task-proposals.mjs",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/task-proposals.mjs",
+   "source_identity": "1f:df1e47b9eb762ec264abe2098185cf26c88ec665ef8961f90176133521248225",
+   "identity": "1f:907400fcc86e08169eb843d9816916449dc7d0af8b078f8a8bcd5a21ad8080e0"
+  }
+ ]
+}

@@ -1,0 +1,289 @@
+{
+ "id": "move:trillion-workshop-tools-src-m-r-round-2",
+ "about": "Round 2 of the src/ m-r workshop-tool rows of docs/worker-retirement-port-backlog.json that still had no home on main: the groups of move-rows/trillion-tools-m-z-scripts-parts.json that own one of those files, planned again on today's main with the same keep, read_as_rows and provider detectors. Only the groups that hold nothing were applied (planned with only: those groups, so every shared file they need lands too). Imports at the tag that named parts/ or src/ files an earlier move had already carried here (so they no longer existed at the tag) were set to those files' places here; nothing else in a moved file changed.",
+ "source": {
+  "name": "Trillion-X/trillion",
+  "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+  "test_folders": [
+   "test"
+  ]
+ },
+ "destination": {
+  "name": "Trillion-X/trillion-workshop",
+  "package": "trillion-workshop",
+  "shared_folder": "tools/shared-code"
+ },
+ "keep": [
+  "cases/",
+  "communities/",
+  "computer/",
+  "extension/",
+  "harness/",
+  "ios/",
+  "macos/",
+  "methods/",
+  "native-apps/",
+  "parts/eeaf/",
+  "parts/record-log/",
+  "records/action-completeness.json",
+  "records/commercial-offer-records.json",
+  "records/content-format-starters.json",
+  "records/copy-rules.json",
+  "records/delight-moments.json",
+  "records/execution-mode-records.json",
+  "records/feel-moments.json",
+  "records/starting-rules.json",
+  "records/workflow-recipe-records.json",
+  "src/action-completeness.mjs",
+  "src/ai-conversations-list.json",
+  "src/attention.json",
+  "src/awareness.json",
+  "src/catch-up.mjs",
+  "src/chat-archives.mjs",
+  "src/chat-import.mjs",
+  "src/decision-store.mjs",
+  "src/error-page-lines.json",
+  "src/life-map.json",
+  "src/local-store.mjs",
+  "src/namespace-store.mjs",
+  "src/native-resource-sign-in.mjs",
+  "src/operator-import-targets.json",
+  "src/operator-import.mjs",
+  "src/passkey-*",
+  "src/passwords.*",
+  "src/person-store-purpose.mjs",
+  "src/person-store.mjs",
+  "src/proof-account-names.json",
+  "src/public-app-file-store.mjs",
+  "src/public-app-orphan-retirement.mjs",
+  "src/public-app-rows-import.mjs",
+  "src/pursuit-plan.json",
+  "src/raw-export.mjs",
+  "src/record-model-tools.mjs",
+  "src/records-import.mjs",
+  "src/retirable-census-classes.json",
+  "src/session-cookie.mjs",
+  "src/session-pairing.mjs",
+  "src/share-collection-store.mjs",
+  "src/shared-content-retirement.mjs",
+  "src/show-rules-store.mjs",
+  "src/sign-in-*",
+  "src/space-partition-inventory.mjs",
+  "src/story-settings.json",
+  "src/web-sign-in.mjs",
+  "src/worker.mjs",
+  "src/workspace-records-import.mjs",
+  "src/workspace/walkthroughs/"
+ ],
+ "provider_calls": [
+  {
+   "id": "durable-object",
+   "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+  },
+  {
+   "id": "durable-object-storage",
+   "find": "\\b(?:ctx|state|this)\\.storage\\b|\\bstorage\\.sql\\b"
+  },
+  {
+   "id": "kv",
+   "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+  },
+  {
+   "id": "env-binding",
+   "find": "(?<![.\\w$])env\\.[A-Z][A-Z0-9_]+\\b"
+  }
+ ],
+ "calls": [],
+ "groups": [
+  {
+   "id": "search-my-kept-results-by-meaning-with-each-installed-meaning",
+   "owner": [
+    "src/meaning-sets.mjs",
+    "src/meaning-spaces.mjs"
+   ],
+   "to": "tools/search-my-kept-results-by-meaning-with-each-installed-meaning",
+   "capability": "search my kept results by meaning with each installed meaning model, and fall back to matching the words when no model can answer that day"
+  },
+  {
+   "id": "browse-the-recordings-in-my-media-library-in-a-stable-order",
+   "owner": [
+    "src/media-tools.mjs"
+   ],
+   "to": "tools/browse-the-recordings-in-my-media-library-in-a-stable-order",
+   "capability": "browse the recordings in my Media library in a stable order and find them by name quickly, for any AI or screen that reads Media"
+  },
+  {
+   "id": "keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
+   "owner": [
+    "src/native-calendar-owner.mjs"
+   ],
+   "to": "tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
+   "capability": "keep my calendar in my account's own records, with its lists, files, connections and model, never in a second calendar store"
+  },
+  {
+   "id": "read-add-and-change-lists-decisions-and-work",
+   "owner": [
+    "src/native-record-consumers.mjs"
+   ],
+   "to": "tools/read-add-and-change-lists-decisions-and-work",
+   "capability": "read, add and change lists, decisions and work records from account screens, always on the records of the one account"
+  },
+  {
+   "id": "prepare-an-app-project-from-a-github-commit",
+   "owner": [
+    "src/native-xcode-source.mjs"
+   ],
+   "to": "tools/prepare-an-app-project-from-a-github-commit",
+   "capability": "prepare an app project from a GitHub commit so the Mac's Xcode builds exactly that source"
+  },
+  {
+   "id": "new-work",
+   "owner": [
+    "src/new-work.json"
+   ],
+   "to": "tools/new-work",
+   "capability": "src/new-work.json at the tag"
+  },
+  {
+   "id": "show-what-is-new-on-each-screen-since-i",
+   "owner": [
+    "src/new-work.mjs"
+   ],
+   "to": "tools/show-what-is-new-on-each-screen-since-i",
+   "capability": "show what is new on each screen since I last looked there, and the newest things my AIs made"
+  },
+  {
+   "id": "read-the-price-offers-with-each-variant-resolved-once",
+   "owner": [
+    "src/offer-rows.mjs"
+   ],
+   "to": "tools/read-the-price-offers-with-each-variant-resolved-once",
+   "capability": "read the price offers with each variant resolved once, so a price-test arm at another price reads its own price everywhere"
+  },
+  {
+   "id": "payment-platform",
+   "owner": [
+    "src/payment-platform.json"
+   ],
+   "to": "tools/payment-platform",
+   "capability": "src/payment-platform.json at the tag"
+  },
+  {
+   "id": "let-a-seller-connect-a-payment-account-in-one-click",
+   "owner": [
+    "src/payment-platform.mjs"
+   ],
+   "to": "tools/let-a-seller-connect-a-payment-account-in-one-click",
+   "capability": "let a seller connect a payment account in one click and sell through it with checkouts and schedules"
+  },
+  {
+   "id": "list-the-person-for-others-to-find-ask-the-network",
+   "owner": [
+    "src/person-network.mjs"
+   ],
+   "to": "tools/list-the-person-for-others-to-find-ask-the-network",
+   "capability": "list the person for others to find, ask the network for people who fit a need and release contact details to members"
+  },
+  {
+   "id": "keep-a-lists-rows-in-one-of-the-accounts-databases-while",
+   "owner": [
+    "src/placed-lists.mjs"
+   ],
+   "to": "tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while",
+   "capability": "keep a list's rows in one of the account's databases while the account keeps only the list itself"
+  },
+  {
+   "id": "pick-where-one-piece-of-work-runs-the-device",
+   "owner": [
+    "src/placement.mjs"
+   ],
+   "to": "tools/pick-where-one-piece-of-work-runs-the-device",
+   "capability": "pick where one piece of work runs: the device that captured it, the strongest awake device, the one opened on, or the cloud"
+  },
+  {
+   "id": "compare-plans-side-by-side-and-tell-a-person",
+   "owner": [
+    "src/plan-comparison.mjs"
+   ],
+   "to": "tools/compare-plans-side-by-side-and-tell-a-person",
+   "capability": "compare plans side by side and tell a person what a feature needs when their plan lacks it"
+  },
+  {
+   "id": "refresh-one-page-of-a-copied-site-from-its-original",
+   "owner": [
+    "src/public-app-route-refresh.mjs"
+   ],
+   "to": "tools/refresh-one-page-of-a-copied-site-from-its-original",
+   "capability": "refresh one page of a copied site from its original with its pictures and styles"
+  },
+  {
+   "id": "browse-and-search-every-marketplace-listing-without-signing",
+   "owner": [
+    "src/public-tool-catalog.mjs"
+   ],
+   "to": "tools/browse-and-search-every-marketplace-listing-without-signing",
+   "capability": "browse and search every Marketplace listing without signing in"
+  },
+  {
+   "id": "open-the-billing-page-for-one-purchase-and-show-the-card",
+   "owner": [
+    "src/purchase-billing.mjs",
+    "src/purchase-cards.mjs"
+   ],
+   "to": "tools/open-the-billing-page-for-one-purchase-and-show-the-card",
+   "capability": "open the billing page for one purchase and show the card that purchase is paid with"
+  },
+  {
+   "id": "keep-a-persons-pursuits-tidy-by-merging-duplicates",
+   "owner": [
+    "src/pursuit-consolidate.mjs"
+   ],
+   "to": "tools/keep-a-persons-pursuits-tidy-by-merging-duplicates",
+   "capability": "keep a person's pursuits tidy by merging duplicates and setting related ones under a parent"
+  },
+  {
+   "id": "read-a-public-web-link-whole-its-card",
+   "owner": [
+    "src/read-link.mjs"
+   ],
+   "to": "tools/read-a-public-web-link-whole-its-card",
+   "capability": "read a public web link whole: its card, every picture and video it declares, its structured data and the words a person reads on it"
+  },
+  {
+   "id": "referrals",
+   "owner": [
+    "src/referrals.json"
+   ],
+   "to": "tools/referrals",
+   "capability": "src/referrals.json at the tag"
+  }
+ ],
+ "read_as_rows": [
+  "methods/",
+  "records/workflow-recipe-records.json",
+  "records/execution-mode-records.json",
+  "records/starting-rules.json",
+  "records/copy-rules.json",
+  "records/commercial-offer-records.json",
+  "records/content-format-starters.json",
+  "records/feel-moments.json",
+  "records/delight-moments.json",
+  "communities/",
+  "cases/",
+  "src/awareness.json",
+  "src/life-map.json",
+  "src/pursuit-plan.json",
+  "src/story-settings.json",
+  "src/attention.json",
+  "src/workspace/walkthroughs/",
+  "src/error-page-lines.json"
+ ],
+ "not_provider_calls": [
+  {
+   "file": "parts/process-session/do-work/place-cache-folder.mjs",
+   "id": "env-binding",
+   "found": "env.XDG_CACHE_HOME",
+   "why": "placeCacheFolder(env = process.env) reads the cache folder a computer names in its process environment; it is no Worker binding."
+  }
+ ]
+}

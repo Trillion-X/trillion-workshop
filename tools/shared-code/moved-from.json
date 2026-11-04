@@ -342,11 +342,42 @@
       "identity": "1f:05ed5cf22cd72fdb4379ce5fd9d505cfa8a30ba0befeae027da0d6c116793a50"
     },
     {
+      "from": "src/new-work.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/new-work.json",
+      "source_identity": "1f:9fdabd63bbed296274e41afe30559f386809c4c9f23417e739c65c5a7f018f86",
+      "identity": "1f:9fdabd63bbed296274e41afe30559f386809c4c9f23417e739c65c5a7f018f86"
+    },
+    {
+      "from": "src/new-work.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/new-work.mjs",
+      "source_identity": "1f:2f27b617f92c8290079496d5ac835778eaec3f52467511ed93e1307c223db1f5",
+      "identity": "1f:ec21e99351b39172b1dd186747128da6753a6f150c4b28c3bd39058b5dc25b3e"
+    },
+    {
       "from": "src/note-text-index.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/note-text-index.json",
       "source_identity": "1f:8288b49c86b597e4519b782c2bd6a0df4ccd13c52f3c4682a25b8bd544a1a734",
       "identity": "1f:8288b49c86b597e4519b782c2bd6a0df4ccd13c52f3c4682a25b8bd544a1a734"
+    },
+    {
+      "from": "src/offer-allocation.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/offer-allocation.mjs",
+      "source_identity": "1f:0162c22e5195c07d25eccfebccdb23bd545db3ca4f63ab0126090bc6ee2fb171",
+      "identity": "1f:0162c22e5195c07d25eccfebccdb23bd545db3ca4f63ab0126090bc6ee2fb171"
+    },
+    {
+      "from": "src/offer-rows.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/offer-rows.mjs",
+      "source_identity": "1f:53a5542d98fd163b341d015e0ca4c73f26174d5199c2f853fca4ca457b995d4a",
+      "identity": "1f:53a5542d98fd163b341d015e0ca4c73f26174d5199c2f853fca4ca457b995d4a",
+      "reads_rows": [
+        "records/commercial-offer-records.json"
+      ]
     },
     {
       "from": "src/own-ais.json",
@@ -363,6 +394,20 @@
       "source_identity": "1f:87bb3bc1bd0454d730e29c7a677f08c1beed9e12038011f13eb7ebed2a63e444",
       "identity": "1f:87bb3bc1bd0454d730e29c7a677f08c1beed9e12038011f13eb7ebed2a63e444",
       "reused": true
+    },
+    {
+      "from": "src/payment-platform.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/payment-platform.json",
+      "source_identity": "1f:1339b6804b3488507d174b94ded582cefcc43e7298145ef8f83593d0efaa52db",
+      "identity": "1f:1339b6804b3488507d174b94ded582cefcc43e7298145ef8f83593d0efaa52db"
+    },
+    {
+      "from": "src/payment-platform.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/payment-platform.mjs",
+      "source_identity": "1f:7bbe2a7702070a90d7c57be7e4f7bd9b32efd561abf02e1eed37648c9d4ab3b2",
+      "identity": "1f:aa1058f638bb978fd34666e3ccdc98c781ce0889df097244a281a0a6fcd3e5ce"
     },
     {
       "from": "src/person-notifications.json",
