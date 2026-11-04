@@ -20,5 +20,15 @@
   "report_fields": ["storage", "reach", "cost_per_month_cents", "contained_tools", "always_on", "model_pool", "program_folders", "takes_new_accounts", "store_size"],
   "sign_in": { "relying_party_drop_labels": 1, "max_body_bytes": 16384, "expired_rows_per_write": 100 },
   "sign_up": { "window_ms": 3600000, "per_window": 5, "pending_max": 8, "wait_seconds": 300 },
-  "new_accounts": "new-accounts.json"
+  "new_accounts": "new-accounts.json",
+  "_product_settings": "The product settings file every computer's launcher writes (trillion-rust src/account_files/identity.json, since trillion-rust 3b2a4d10): `data` is its contents (read-data/product-settings.json), written to `file` on the machine (owned by the place user, mode 0600) and named to the engine in the launch setting `launch_setting`, which the place service sets with an Environment= line and the id command with env.",
+  "product_settings": { "launch_setting": "PRODUCT_SETTINGS", "file": "/var/lib/place/product-settings.json", "data": "product-settings.json" },
+  "_release_feed": "The signed engine release feed a computer follows when its request names none (trillion-rust src/native_entry/computer.rs `release_feed`, #120): the feed tools/publish-an-engine-release publishes, its Ed25519 public key, and the folder its releases and its `current` pointer live in. A request's `release_feed: null` writes none. Both values are public: the feed is served to anyone and the key only checks signatures.",
+  "release_feed": {
+    "urls": ["https://engine-releases.gettrillion.ai/engine-releases/feed.json"],
+    "public_keys": ["d9e305a98d6a7001db6f493d17100a799050bf9ade9e3f1e9eb0d9c59d322fb9"],
+    "releases": "/opt/place/releases"
+  },
+  "_update": "How `update` brings a running computer to the product settings and the feed (do-work/update-a-computer.sh): each update keeps the files it replaces in `backups`/update-STAMP (root only), and the service must stay active `settle_seconds` after its restart; otherwise, or when the sign-up page does not answer 200, everything is put back from that backup.",
+  "update": { "backups": "/var/lib/place/backups", "settle_seconds": 5 }
 }
