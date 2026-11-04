@@ -1,12 +1,14 @@
 # tools/plan-tasks-and-todo-lists
 
-Calendar tasks and to-do lists: named task lists with counts, tasks scheduled onto a day or time, and mail turned into tasks. The Calendar task owner (`calendar-tasks.mjs`) is kept here as it was moved; it needs the records store and the timed-action parts, which this folder does not have. The row runs the part that is pure: which built-in list (calendar, email or other) each email becomes a task in.
+Calendar tasks and to-do lists: named task lists with counts, tasks scheduled onto a day or time, and mail turned into tasks. The Calendar task owner (`calendar-tasks.mjs`) loads and is tested here over a list store handed in (`tools/keep-lists-of-rows`); it has no row yet, since a row would reach the person's task list through the records door. The row runs the part that is pure: which built-in list (calendar, email or other) each email becomes a task in.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `calendar-tasks.mjs` | The Calendar task owner from Trillion-X/trillion src/calendar-tasks.mjs (moved in a9ee258, #76); not run here, its timed-action and planner imports are not in this folder |
+| `calendar-tasks.mjs` | The Calendar task owner from Trillion-X/trillion src/calendar-tasks.mjs (moved in a9ee258, #76). Only its import paths changed: wall time, zone drift and quiet hours are `tools/run-work-later-or-on-a-repeat/do-work`'s, the operation identity is `tools/shared-code/src/typed-operation-contract.mjs`, the day override is `parts/ui/show/schedule-calendar/schedule-planner.mjs` here |
+| `parts/ui/show/schedule-calendar/` | `schedule-planner.mjs` (`planSchedule`, `dayOverrideOf`), its `.json` and `schedule-placement.mjs`, moved byte for byte by `move-rows/trillion-calendar-tasks-schedule-planner.json` |
+| `test/` | `calendar-tasks.test.mjs`, `calendar-tasks-amie.test.mjs` and `schedule-calendar-planner.test.mjs`, moved with the planner (import paths only) |
 | `calendar-task-messages.mjs` | `classifyMessage(message, rows)`: the built-in list a mail message becomes a todo in, by the `email_split` rows (brought in byte for byte, `moved-from.json`) |
 | `calendar-tasks.json` | DATA: the task list's fields, colours, priorities, working hours, preferences, `email_split` rows and words (brought in byte for byte, `moved-from.json`) |
 | `sort-mail-into-task-lists.mjs` | `sortMailIntoTaskLists({ messages })`: each message's built-in list and the count per list (what `tool-rows.json` runs) |

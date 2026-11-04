@@ -17,6 +17,48 @@
       "to": "tools/plan-tasks-and-todo-lists/calendar-tasks.json",
       "source_identity": "1f:342fdb114bb10102ae8380f72545949d5de88a7d05daa215a1bfad2e9a85329d",
       "identity": "1f:342fdb114bb10102ae8380f72545949d5de88a7d05daa215a1bfad2e9a85329d"
+    },
+    {
+      "from": "parts/ui/show/schedule-calendar/schedule-placement.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/plan-tasks-and-todo-lists/parts/ui/show/schedule-calendar/schedule-placement.mjs",
+      "source_identity": "1f:c61e71451236d06b66e47e640e2561a4c40446b373374ccec0af41438ace4c93",
+      "identity": "1f:c61e71451236d06b66e47e640e2561a4c40446b373374ccec0af41438ace4c93"
+    },
+    {
+      "from": "parts/ui/show/schedule-calendar/schedule-planner.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/plan-tasks-and-todo-lists/parts/ui/show/schedule-calendar/schedule-planner.json",
+      "source_identity": "1f:57bf3c00953a0ff251db030fbff4b9feb966a62895ea785887cedba1efb2aaa5",
+      "identity": "1f:57bf3c00953a0ff251db030fbff4b9feb966a62895ea785887cedba1efb2aaa5"
+    },
+    {
+      "from": "parts/ui/show/schedule-calendar/schedule-planner.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/plan-tasks-and-todo-lists/parts/ui/show/schedule-calendar/schedule-planner.mjs",
+      "source_identity": "1f:980ae2717eee776f85e87eacf0793d4dc6966b21063644c250be20d25f9fae53",
+      "identity": "1f:980ae2717eee776f85e87eacf0793d4dc6966b21063644c250be20d25f9fae53"
+    },
+    {
+      "from": "test/calendar-tasks-amie.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/plan-tasks-and-todo-lists/test/calendar-tasks-amie.test.mjs",
+      "source_identity": "1f:d932891f4530fff38aabb8806055b8dbfadbfb4f4ccb5959c8edfea21976611f",
+      "identity": "1f:758976097fc1e05b612266916911050a7518111a91dccdb9e501481858d1b5da"
+    },
+    {
+      "from": "test/calendar-tasks.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/plan-tasks-and-todo-lists/test/calendar-tasks.test.mjs",
+      "source_identity": "1f:552f233a50bd821472883be37b538063802625fc71eeda7be4bd5af29451e273",
+      "identity": "1f:b9213f30c3d235b4f3371e0dc587e91e353bf14d958afc58909fc53921cd0127"
+    },
+    {
+      "from": "test/schedule-calendar-planner.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/plan-tasks-and-todo-lists/test/schedule-calendar-planner.test.mjs",
+      "source_identity": "1f:ad9d3fc267d6cb494b02c34d923bcd44a48b64148ae031052c690ddf22cd51dd",
+      "identity": "1f:ad9d3fc267d6cb494b02c34d923bcd44a48b64148ae031052c690ddf22cd51dd"
     }
   ]
 }
