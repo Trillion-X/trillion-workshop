@@ -1,0 +1,28 @@
+{
+  "schema": "deleted-code-names-its-home/rules",
+  "why": "The owner, 2026-11-04 12:20 AM MST: code that was written, much of it reverse-engineered over the past 2-3 weeks, was deleted from old trillion instead of being ported to its correct place, abandoned and covered up. Of the files old trillion lost from 2026-10-10 to 2026-11-04, 2,427 had no home in any new repository and no backlog row. So a commit or push that deletes a source or test file is refused unless each deleted file is named by a moved-from receipt in one of these checkouts, or by a retirement row that quotes a decision.",
+  "repositories": ["trillion", "trillion-rust", "trillion-workshop", "trillion-apps"],
+  "judged_files": [
+    { "matches": "\\.(mjs|cjs|js|jsx|ts|tsx|mts|cts|py|rs|swift|kt|go|sh|rb|java|c|h|cc|cpp|m|mm|sql|wit)$" },
+    { "matches": "(^|/)(test|tests|__tests__|fuzz|fixtures)/" },
+    { "matches": "(\\.test\\.|\\.spec\\.|_test\\.)" }
+  ],
+  "receipts": {
+    "file_name": "moved-from.json",
+    "files_field": "files",
+    "path_fields": ["from", "source_path"],
+    "path_identity_fields": ["from_path_identity"],
+    "repository_fields": ["source", "repository"]
+  },
+  "retirements": {
+    "files": ["retired-paths.json", "scripts/retired-paths.json"],
+    "rows_field": "retired",
+    "decision_field": "decision",
+    "decision_needs": ["by", "words", "source"],
+    "reason_names_a_decision": "\\b(decision|decided)\\b"
+  },
+  "words": {
+    "refused": "{count} deleted source or test file(s) name no new home and no retirement decision. Move each with tools/move-code-between-trees (its moved-from.json receipt names the path), or retire it with a row in retired-paths.json whose decision quotes the person who decided ({ by, words, source }). 'Nothing imports it' and 'no row names it' are not decisions: they are a missing importer or a missing row.",
+    "one": "{path}: no moved-from.json in {repositories} names it, and no retirement row with a decision covers it"
+  }
+}
