@@ -15,11 +15,13 @@
 //   2. A line's identity is the BLAKE3 of its normalized text (src/kept-work.json); the same line written by two actors is
 //      credited to the first, and one that disappears and comes back is credited to whoever wrote it back.
 //   3. Every name and rule is DATA (src/kept-work.json): this file names no actor kind and no field.
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
 import settings from './kept-work.json' with { type: 'json' };
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
-const identityOf = (line, rules) => bytesToHex(blake3(new TextEncoder().encode(line))).slice(0, rules.identity_chars);
+/** BLAKE3-256 of the bytes as 64 hex digits, from the one content-identity owner (its `1f:` prefix dropped). */
+const blake3Hex = bytes => makeHashCodeHexFromBytes(bytes).slice(3);
+
+const identityOf = (line, rules) => blake3Hex(new TextEncoder().encode(line)).slice(0, rules.identity_chars);
 const normalized = (line, rules) => {
   let text = line;
   if (rules.normalize.trim) text = text.trim();

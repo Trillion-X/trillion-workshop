@@ -12,9 +12,11 @@
 //   3. Events carry a sequence number; one at or below the entry's is already held and is ignored, so a replayed stream
 //      adds nothing twice.
 //   4. A snapshot replaces every part and sets the sequence, so a re-attach continues from there.
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
 import rules from './keyed-parts.json' with { type: 'json' };
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
+/** BLAKE3-256 of the bytes as 64 hex digits, from the one content-identity owner (its `1f:` prefix dropped). */
+const blake3Hex = bytes => makeHashCodeHexFromBytes(bytes).slice(3);
 
 const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 const clone = value => structuredClone(value);
@@ -73,7 +75,7 @@ export function mergeEvent(entry, event, data = rules) {
 }
 
 /** What a client keeps to re-attach: the sequence it holds and the BLAKE3 of its parts, so the sender can tell it is whole. */
-export const resumeToken = entry => ({ seq: entry.seq, identity: bytesToHex(blake3(new TextEncoder().encode(JSON.stringify([entry.order, entry.parts])))) });
+export const resumeToken = entry => ({ seq: entry.seq, identity: blake3Hex(new TextEncoder().encode(JSON.stringify([entry.order, entry.parts]))) });
 
 /** After a re-attach attempt: whether it brought anything new. → { entry, give_up, words? } */
 export function afterAttempt(entry, before, data = rules) {
