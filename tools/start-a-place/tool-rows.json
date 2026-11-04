@@ -1,4 +1,5 @@
 {
+<<<<<<< origin/main
   "kind": "tool-rows",
   "record_set": "start-a-place-tool-rows",
   "what_this_is": "The Workshop row for tools/start-a-place: make one Trillion place on the person's computer (its key, its config) and start it with the engine's own program.",
@@ -165,10 +166,37 @@
             "stop": {
               "type": "string"
             }
+=======
+  "kind": "package-set-records",
+  "record_set": "start-a-place-tool-rows",
+  "what_this_is": "The Workshop rows for the start-a-place folder: make a machine into a place that keeps people's accounts, read its price, its state, give it a new release, and give it back. The provider is a row in read-data/providers.json; the provider's credential reaches the one process on a private pipe (descriptor 3, the name provider's on descriptor 4).",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:start-a-place",
+        "label": "Start a place",
+        "job": "Make a machine into a place that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
+        "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the place config with the machine's address and price, starts it, and answers the place id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["request_file"],
+          "additionalProperties": false,
+          "properties": { "request_file": { "type": "string", "description": "A request JSON (lease_file, machine, name, ssh, port, engine, place_config, config_from_release); its paths are read relative to it." } }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["lease", "arch", "price", "place_id", "release", "sign_up_status"],
+          "properties": {
+            "lease": { "type": "object" }, "host_name": { "type": "string" }, "arch": { "type": "string" },
+            "price": { "type": ["object", "null"] }, "place_id": { "type": ["string", "null"] }, "release": { "type": "string" }, "sign_up_status": { "type": ["integer", "null"] }
+>>>>>>> 8ccc2b84
           }
         },
         "invoke": {
           "kind": "on-your-computer",
+<<<<<<< origin/main
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
             "build or install the Trillion engine's trillion-local program"
@@ -190,6 +218,109 @@
         "provenance": {
           "source": "Written for the Workshop: the engine's place config (trillion-rust src/native_entry/place.rs), `place id` (src/native_entry/place/join.rs) and `serve` (src/main.rs) made one step"
         }
+=======
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "node tools/start-a-place/do-work/start-a-place.mjs start {request_file}",
+          "needs": ["node", "ssh"],
+          "say": "This runs on the person's computer from the root of the Workshop checkout. Hand the machine provider row's vault_key credential on descriptor 3 and the names row's on descriptor 4, read from the person's vault, never in argv or a file. Tell the person the place's public name, its price and whether the sign-up page answered 200. If it stops part way, run the same command again: the saved lease resumes it."
+        },
+        "needs": { "expected_seconds": 240, "network_egress": true },
+        "maker": "maker:start-a-place",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-place-price",
+        "label": "Read a place's price",
+        "job": "See what a machine for a place would cost each month before renting it",
+        "description": "Reads the monthly price of the request's machine size at its location from the provider row's price request. Rents nothing.",
+        "status": "active",
+        "input_schema": { "type": "object", "required": ["request_file"], "additionalProperties": false, "properties": { "request_file": { "type": "string" } } },
+        "output_schema": { "type": "object", "required": ["provider", "placement", "price"], "properties": { "provider": { "type": "string" }, "placement": { "type": "object" }, "price": { "type": ["object", "null"] } } },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "node tools/start-a-place/do-work/start-a-place.mjs price {request_file}",
+          "needs": ["node"],
+          "say": "Hand the machine provider row's vault_key credential on descriptor 3. A null price means the row reads none (a machine the person already runs and gave no price for)."
+        },
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:start-a-place",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-place",
+        "label": "Read a place",
+        "job": "See whether a place's machine is running and its sign-up page answers",
+        "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the place's public name.",
+        "status": "active",
+        "input_schema": { "type": "object", "required": ["lease_file"], "additionalProperties": false, "properties": { "lease_file": { "type": "string" } } },
+        "output_schema": { "type": "object", "required": ["name", "provider", "lease_state", "machine"], "properties": { "name": { "type": "string" }, "provider": { "type": "string" }, "lease_state": { "type": "string" }, "machine": { "type": "object" }, "host_name": { "type": ["string", "null"] }, "sign_up_status": { "type": ["integer", "null"] } } },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "node tools/start-a-place/do-work/start-a-place.mjs status {lease_file}",
+          "needs": ["node"],
+          "say": "Hand the machine provider row's vault_key credential on descriptor 3 (none for a machine the person already runs)."
+        },
+        "needs": { "expected_seconds": 15, "network_egress": true },
+        "maker": "maker:start-a-place",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:give-a-place-a-new-release",
+        "label": "Give a place a new release",
+        "job": "Put a new engine release on a running place and restart it",
+        "description": "Installs the request's engine release beside the old ones, points the place at it, restarts the service and reads back the sign-up page. The old release stays on the machine, so going back is the same command with the old release_name.",
+        "status": "active",
+        "input_schema": { "type": "object", "required": ["lease_file", "request_file"], "additionalProperties": false, "properties": { "lease_file": { "type": "string" }, "request_file": { "type": "string" } } },
+        "output_schema": { "type": "object", "required": ["release", "sign_up_status"], "properties": { "release": { "type": "string" }, "sign_up_status": { "type": ["integer", "null"] } } },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "node tools/start-a-place/do-work/start-a-place.mjs install {lease_file} {request_file}",
+          "needs": ["node", "ssh"],
+          "say": "No credential is needed; this reaches the machine over SSH only."
+        },
+        "needs": { "expected_seconds": 60, "network_egress": true },
+        "maker": "maker:start-a-place",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:give-back-a-place",
+        "label": "Give back a place",
+        "job": "Stop paying for a place's machine: remove its public name and give the machine back",
+        "description": "Removes the public name the lease made, then deletes the machine and the SSH key the lease made, each only after reading it back and finding this lease's own label. A machine the person already runs is only forgotten, never touched. Move the place's accounts to another place first: this deletes the machine's disk.",
+        "status": "active",
+        "input_schema": { "type": "object", "required": ["lease_file"], "additionalProperties": false, "properties": { "lease_file": { "type": "string" } } },
+        "output_schema": { "type": "object", "required": ["name", "provider", "state", "adopted"], "properties": { "name": { "type": "string" }, "provider": { "type": "string" }, "state": { "type": "string" }, "adopted": { "type": "boolean" } } },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "node tools/start-a-place/do-work/start-a-place.mjs remove {lease_file}",
+          "needs": ["node"],
+          "say": "Hand the machine provider row's vault_key credential on descriptor 3 and the names row's on descriptor 4. Confirm with the person that the place holds no account that has not moved."
+        },
+        "needs": { "expected_seconds": 15, "network_egress": true },
+        "maker": "maker:start-a-place",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+>>>>>>> 8ccc2b84
       }
     }
   ]
