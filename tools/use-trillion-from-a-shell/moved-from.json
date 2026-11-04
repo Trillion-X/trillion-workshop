@@ -1,0 +1,42 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "harness/ag-ui-agent.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/use-trillion-from-a-shell/do-work/ag-ui-agent.mjs",
+      "source_identity": "1f:25a4240d80eb5fde2caf681f37278ce4a421ca4b6616688fff79270c5fa9f5c0",
+      "identity": "1f:9c0d77a44952e33db6dce6a7276ffbdeed2c13dd708ca08768a410ba67a6f8e9",
+      "reused": true,
+      "adapted": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "harness/trillion.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/use-trillion-from-a-shell/do-work/trillion.json",
+      "source_identity": "1f:caec97cc92934a8c3cbf099a1943145c7ee4d1f30bba35cdab2164ff249e9937",
+      "identity": "1f:f3835b5e01546021cc43086fe2c125c9ded89d44e1a8284604635da00e77b458",
+      "reused": true,
+      "adapted": "an earlier lane adapted it here (the one same-name file); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "harness/trillion.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/use-trillion-from-a-shell/do-work/trillion.mjs",
+      "source_identity": "1f:2e3067daba9a442f4d6fb538667559c7ef1ce2605673e2cfaffdc24cf8fa64bd",
+      "identity": "1f:771392b805217461e7a06ba82084c0ce1dd4bd2dddf4d8e511e1269a9f69633a",
+      "reused": true,
+      "adapted": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "test/ag-ui-agent.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/use-trillion-from-a-shell/test/ag-ui-agent.test.mjs",
+      "source_identity": "1f:347dfb5af6b977ec5a2f803cfbaea2c59a1ca1fa80fe66e2f4592600011151a5",
+      "identity": "1f:a4dddecb78e1b36af345ece7e37ba8ec4ec4e8e26526f9d28ec0fedd360f4ca0"
+    }
+  ]
+}

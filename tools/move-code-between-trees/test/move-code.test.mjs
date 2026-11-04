@@ -341,6 +341,39 @@ test('a module the runtime provides (node:, cloudflare:), or a request a templat
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
 
+test('a file its row names as an adapted copy is home there: the test lands beside it, imports it, and its receipt says adapted', () => {
+  const source = repository({
+    'package.json': json({ name: 'old-app', type: 'module' }),
+    'src/sum.mjs': "// the old sum\nexport const sum = (a, b) => a + b;\n",
+    'test/sum.test.mjs': "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { sum } from '../src/sum.mjs';\ntest('sum', () => { assert.equal(sum(2, 3), 5); });\n",
+  });
+  const destination = repository({
+    'package.json': json({ name: 'tool-box', type: 'module' }),
+    'tools/add-numbers/tool-rows.json': json({ rows: [] }),
+    'tools/add-numbers/do-work/add.mjs': "// adds two numbers, in this tool's own shape\nexport function sum(a, b) { return [a, b].reduce((x, y) => x + y, 0); }\n",
+  });
+  const row = { id: 'move:old-app-adapted', source: { name: 'old-app', test_folders: ['test'] }, destination: { name: 'tool-box', package: 'tool-box', shared_folder: 'tools/shared-code' },
+    groups: [{ id: 'sum-tests', owner: ['test/sum.test.mjs'], to: 'tools/add-numbers', joins_tool: 'the tests of the code it holds' }] };
+  try {
+    const held = moveCode({ step: 'plan', row, source_folder: source, destination_folder: destination });
+    assert.equal(held.files.find(file => file.from === 'src/sum.mjs').reused, false, 'with no row, the adapted copy is not the same bytes and is no home');
+    const adapted = { ...row, adapted_homes: [{ from: 'src/sum.mjs', home: 'tools/add-numbers/do-work/add.mjs', why: 'the tool adds in its own shape' }] };
+    assert.throws(() => moveCode({ step: 'plan', row: { ...row, adapted_homes: [{ from: 'src/sum.mjs', home: 'tools/add-numbers/nowhere.mjs', why: 'x' }] }, source_folder: source, destination_folder: destination }), /does not hold/);
+    const plan = moveCode({ step: 'plan', row: adapted, source_folder: source, destination_folder: destination });
+    const to = Object.fromEntries(plan.files.map(file => [file.from, file]));
+    assert.equal(to['src/sum.mjs'].to, 'tools/add-numbers/do-work/add.mjs');
+    assert.equal(to['src/sum.mjs'].adapted, 'the tool adds in its own shape');
+    assert.deepEqual(to['test/sum.test.mjs'].import_changes.map(change => change.specifier), ['../do-work/add.mjs']);
+    moveCode({ step: 'apply', row: adapted, source_folder: source, destination_folder: destination });
+    const receipt = JSON.parse(readFileSync(join(destination, 'tools/add-numbers/moved-from.json'), 'utf8'));
+    assert.equal(receipt.files.find(file => file.from === 'src/sum.mjs').adapted, 'the tool adds in its own shape');
+    git(destination, 'add', '-A'); git(destination, 'commit', '-q', '-m', 'tests');
+    const checked = moveCode({ step: 'check', row: adapted, source_folder: source, destination_folder: destination, folders: ['tools/add-numbers'] });
+    assert.deepEqual(checked.folders[0].problems, []);
+    assert.equal(checked.folders[0].tests.pass, 1);
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
+
 test('a test rides with the group it reaches when what else it imports is home already in the destination', () => {
   const source = repository({
     'package.json': json({ name: 'old-app', type: 'module' }),
