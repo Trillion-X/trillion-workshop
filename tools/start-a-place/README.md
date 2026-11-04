@@ -9,8 +9,9 @@ Make a machine into a place that keeps people's accounts: rent a server through 
 | `read-data/providers.json` | The provider rows. `machines` rows rent and release a machine (`host`, `access_key`, `price` name which `requests` do each step); a row with `base: null` adopts a machine the person already runs. `names` rows point one DNS name at the machine (`zone`, `record`). Each row's `requests` are the only calls sent. |
 | `do-work/rent-a-machine.mjs` | The lease: rent, read, price, release, point and forget a name, all through a row. Nothing is deleted without this lease's own label on it. |
 | `do-work/set-up-the-machine.sh` | Runs as root on the machine over SSH: a `place` system user owning `/var/lib/place`, Caddy for the public name, a firewall (22, 80, 443), and a `place` service running the release `/opt/place/current` points at. Debian and Ubuntu. |
+| `do-work/check-a-sign-up.mjs` | `tool:check-a-sign-up`: sign up a synthetic account at an origin with a software passkey made for the run, sign in with it and read a signed-in page. |
 | `do-work/start-a-place.mjs` | The command every row in `tool-rows.json` runs: `price`, `start`, `status`, `install`, `remove`. |
-| `tool-rows.json` | `tool:start-a-place`, `tool:read-a-place-price`, `tool:read-a-place`, `tool:give-a-place-a-new-release`, `tool:give-back-a-place`. |
+| `tool-rows.json` | `tool:start-a-place`, `tool:read-a-place-price`, `tool:read-a-place`, `tool:check-a-sign-up`, `tool:give-a-place-a-new-release`, `tool:give-back-a-place`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/start-a-place.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. |
 
@@ -18,7 +19,7 @@ Make a machine into a place that keeps people's accounts: rent a server through 
 
 | Name | Signature / Shape | Role |
 |------|-------------------|------|
-| request file | `{ lease_file, machine: { provider, name, placement, lifetime, expires_at?, public_key \| public_key_file }, name: { provider?, zone?, host_name }, ssh: { known_hosts, identity_file? }, port, engine: { file, data_env, data_dir, id_argv?, release_name, release: { tarball } \| { on_machine } }, place_config, config_from_release?, release_feed?, default_places? }` | What to start. Paths are relative to the request file. The engine's file, data folder and id command are input: this folder names no engine. |
+| request file | `{ lease_file, public_origin?, machine: { provider, name, placement, lifetime, expires_at?, public_key \| public_key_file }, name: { provider?, zone?, host_name }, ssh: { known_hosts, identity_file? }, port, engine: { file, data_env, data_dir, id_argv?, release_name, release: { tarball } \| { on_machine } }, place_config, config_from_release?, release_feed?, default_places? }` | What to start. Paths are relative to the request file. `public_origin` is where people reach the machine's accounts when a forwarder stands in front of it; without it, the machine's own name. The engine's file, data folder and id command are input: this folder names no engine. |
 | lease file | `{ schema: "place-lease/1", provider, name, serverType, location, image, lifetime, startedAt, expiresAt, state, serverId, sshKeyId, sharedSshKeyId?, address, adopted?, names?, zone?, zoneId?, hostName?, recordId? }` | Every identity the lease owns, never a credential. `start` resumes from it. |
 | `providerClient` | `(row, token, { fetchImpl? }) => request(method, path, body)` | Sends only the calls the row's `requests` declare. |
 | `rentMachine` / `releaseMachine` / `readMachine` | `({ request, file, provider, ... }) => lease` | Rent (or adopt), give back, read state. A public key the provider already holds (same fingerprint) is used as it is and never removed. |
