@@ -1,0 +1,84 @@
+/* parts/screen-look/show/look-bridges.css
+ * One look for a whole page. The shared screens draw with three palettes: the look's own roles (--bg-primary,
+ * --text-primary, ...), the record views' Twenty tokens (--t-*), and the shared controls' component palette
+ * (--color-*). On a page whose body carries `screen-look-page`, the other two read the chosen look, so a table is
+ * never a white island on a paper page and a button never takes a colour the look did not choose. The text faces
+ * follow the look's fonts (--font-primary for text, --font-display for titles). Same bridge as Expansion's
+ * media-workspace.css hosted page, carried here as a shared part.
+ */
+/* The look alone decides light or dark (ApplyCurrentScreenLook sets data-look-scheme from the look's own ground):
+ * marked important so a host that frames the page (an AI app's theme on the frame's root) cannot turn the page's
+ * built-in colours, form controls and light-dark() values to its own scheme under the look's colours. */
+html[data-look-scheme="light"] { color-scheme: light !important; }
+html[data-look-scheme="dark"] { color-scheme: dark !important; }
+
+/* The arrival wash takes the existing record-reveal pace. A theme's authored root
+   property may replace it; ordinary pages need no test or host to inject a duration. */
+:root { --motion-arrival: calc(2400ms * var(--motion-scale, 1)); }
+@media (prefers-reduced-motion: reduce) { :root { --motion-scale: 0; } }
+
+body.screen-look-page {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  /* Muted words are still words. The raw look token is decorative and can fall below AA on a reading surface. */
+  --text-muted: color-mix(in srgb, var(--text-primary) 67%, transparent);
+  font-family: var(--font-primary, system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  /* Shared overlay, status and sketch parts use this body-face role. Keep it bound
+     to the selected look so their font shorthand never falls back to browser defaults. */
+  --font-body: var(--font-primary, 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  --font-sans: var(--font-primary, system-ui, sans-serif);
+  --t-font-family: var(--font-primary, inherit);
+  /* Twenty's sizes are rems of its own 13px root; a page keeps its 16px root, so they are read as those same pixels
+     here (a board card at 13px, not 16px). */
+  --t-font-size-xxs: 8px;
+  --t-font-size-xs: 11px;
+  --t-font-size-sm: 12px;
+  --t-font-size-md: 13px;
+  --t-font-size-lg: 16px;
+  --t-font-size-xl: 20px;
+  --t-font-size-xxl: 24px;
+  --t-background-primary: var(--glass-bg-primary);
+  --t-background-secondary: var(--glass-bg-subtle);
+  --t-background-tertiary: var(--glass-bg-hover);
+  --t-background-transparent-light: var(--glass-bg-subtle);
+  --t-font-color-primary: var(--text-primary);
+  --t-font-color-secondary: var(--text-secondary);
+  --t-font-color-tertiary: var(--text-secondary);
+  --t-font-color-light: var(--text-muted);
+  --t-border-color-light: var(--border-primary);
+  --t-border-color-medium: var(--border-secondary);
+  --t-accent-quaternary: var(--glass-bg-active);
+  --t-box-shadow-light: none;
+  --color-background: var(--glass-bg-primary);
+  --color-foreground: var(--text-primary);
+  /* Everything that floats over the work (menus, selects, popovers, hover cards) paints the look's one floating
+     surface, the same --glass-bg-popover the shared Card popover and the Look editor name. */
+  --color-popover: var(--glass-bg-popover);
+  --color-popover-foreground: var(--text-primary);
+  --color-card: var(--bg-surface);
+  --color-card-foreground: var(--text-primary);
+  --color-accent: var(--glass-bg-hover);
+  --color-accent-foreground: var(--text-primary);
+  --color-muted: var(--glass-bg-subtle);
+  --color-muted-foreground: var(--text-secondary);
+  --color-input: var(--border-secondary);
+  --color-border: var(--border-secondary);
+  --color-primary: var(--button-primary-bg);
+  --color-primary-foreground: var(--button-primary-text);
+  --color-secondary: var(--glass-bg-subtle);
+  --color-secondary-foreground: var(--text-primary);
+  --color-ring: var(--focus-ring-color);
+  --color-destructive: var(--color-error);
+  --color-destructive-foreground: var(--color-error);
+  /* The app-navigation palette (--bg, --surface, --text, --line, ...) reads the look on :root in app-navigation.css. */
+  /* The shared parts' surface steps (ui Container background primary/secondary/tertiary, floating windows, popovers,
+     the empty pane's kept-screens bar) read the same look; no look defined them, so each painted transparent and
+     whatever lay behind showed through. */
+  --surface-primary: var(--bg-surface, var(--bg-primary));
+  --surface-secondary: var(--glass-bg-subtle);
+  --surface-tertiary: var(--glass-bg-hover);
+}
+/* The hover card (ui/show/surface-preview, the 21st.dev Hover Card) paints with the navigation palette's --surface;
+   it floats over the work, so it wears the same floating surface as every other popover. */
+body.screen-look-page .surface-preview { --surface: var(--glass-bg-popover); }

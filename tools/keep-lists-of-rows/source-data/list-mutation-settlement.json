@@ -1,0 +1,8 @@
+{
+  "kind": "mutation-settlement.policy-set",
+  "schema_version": 1,
+  "active_revision": "list-read-back",
+  "descriptors": [
+    { "revision": "list-read-back", "timeout_ms": 20000, "poll_interval_ms": 250 }
+  ]
+}

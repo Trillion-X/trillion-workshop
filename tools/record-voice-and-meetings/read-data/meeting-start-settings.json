@@ -1,0 +1,112 @@
+{
+  "preference_key": "record-audio-meeting-start",
+  "default_mode": "manual",
+  "capture_source": "meeting-audio",
+  "title": "Meeting recording",
+  "description": "Choose how Trillion records your meetings.",
+  "mode_label": "When to start",
+  "mode_control_kind": "radio",
+  "join_reminder": "Your meeting is opening. Record audio?",
+  "app_reminder": "{app} is using your microphone. Record audio?",
+  "reminder_action": "Start recording",
+  "reminder_ended": "This recording reminder has ended. You can still start a recording manually.",
+  "policy_unavailable": "The current meeting recording preference could not be checked. You can still start a recording manually.",
+  "mode_section_title": "Start recording",
+  "options": [
+    {
+      "id": "automatic",
+      "label": "Start automatically",
+      "description": "Record when you join a call from Trillion or an enabled app starts using your microphone."
+    },
+    {
+      "id": "through-app",
+      "label": "When you select Join call",
+      "description": "Start recording when you open a meeting from Trillion."
+    },
+    {
+      "id": "reminder",
+      "label": "Remind me",
+      "description": "Show a reminder when you join a call or an enabled app starts using your microphone."
+    },
+    {
+      "id": "manual",
+      "label": "Start manually",
+      "description": "Choose Start recording when you are ready."
+    }
+  ],
+  "apps_title": "Apps that have used your microphone",
+  "apps_description": "Choose which apps can start a recording or show a reminder.",
+  "observation_status_copy": {
+    "inactive": "App detection is paused.",
+    "observing": "Apps using your microphone appear here.",
+    "inspected": "Apps shown here were observed using your microphone.",
+    "inspected_empty": "No apps have been observed using your microphone.",
+    "unavailable": "App detection is unavailable right now. You can still start a recording manually."
+  },
+  "composition": {
+    "kept_at": "screen-arrangement-of::trillion.record-audio::meeting-start-settings",
+    "words": {
+      "arrange": "Arrange recording settings",
+      "done": "Done arranging",
+      "layout": "Recording settings"
+    },
+    "arrangement": {
+      "kind": "split",
+      "dir": "column",
+      "unit": "px",
+      "keep": true,
+      "sizes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "children": [
+        {
+          "kind": "pane",
+          "surfaces": [
+            "recording"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "meeting-start-settings"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "meeting-notes-settings"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "ai-instructions-settings"
+          ]
+        }
+      ]
+    },
+    "policy_controls": {
+      "kept_at": "screen-arrangement-of::trillion.record-audio::meeting-start-policy-controls",
+      "words": {
+        "arrange": "Arrange meeting settings",
+        "done": "Done arranging",
+        "layout": "Meeting settings"
+      },
+      "arrangement": {
+        "kind": "split",
+        "dir": "column",
+        "unit": "px",
+        "keep": true,
+        "sizes": [0, 0],
+        "children": [
+          { "kind": "pane", "surfaces": ["start-mode"] },
+          { "kind": "pane", "surfaces": ["observed-apps"] }
+        ]
+      }
+    }
+  },
+  "context_label": "New recordings for {title}"
+}

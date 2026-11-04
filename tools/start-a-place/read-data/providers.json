@@ -1,0 +1,63 @@
+{
+  "what_this_is": "The providers start-a-place may use. A `machines` row rents and releases one machine (or adopts one the person already runs, when `base` is null); a `names` row points one DNS name at it. Each row's `requests` are the only calls sent to that provider, and its credential is named by vault handle (`vault_key`), never held here. Add a provider by adding a row; the code knows none of them.",
+  "machines": [
+    {
+      "id": "hetzner",
+      "name": "Hetzner Cloud",
+      "base": "https://api.hetzner.cloud/v1",
+      "auth": { "header": "authorization", "prefix": "Bearer " },
+      "vault_key": "hetzner-api-token",
+      "error_code_at": "error.code",
+      "placement": { "size": "cx23", "location": "hel1", "image": "ubuntu-24.04" },
+      "fill": { "server_type": "{size}", "key_name": "{name}-access", "labels": { "place-lease": "{name}" } },
+      "requests": {
+        "find_servers_by_name": { "notes": "The servers with one exact name, with labels and public address. Reads only.", "url": "https://api.hetzner.cloud/v1/servers?name={name}", "method": "GET" },
+        "create_server": {
+          "notes": "Rent one server. Billed from the moment it exists, so look for one with the name first.",
+          "url": "https://api.hetzner.cloud/v1/servers",
+          "method": "POST",
+          "body_template": { "name": "{name}", "server_type": "{server_type}", "location": "{location}", "image": "{image}", "ssh_keys": ["{ssh_key_id}"], "labels": "{labels}", "public_net": { "enable_ipv4": true, "enable_ipv6": true } }
+        },
+        "read_server": { "notes": "One server with its labels and address. Read it before removing it.", "url": "https://api.hetzner.cloud/v1/servers/{server_id}", "method": "GET" },
+        "delete_server": { "notes": "Remove one server and its disk; it cannot be undone.", "url": "https://api.hetzner.cloud/v1/servers/{server_id}", "method": "DELETE" },
+        "find_ssh_key_by_fingerprint": { "notes": "The stored SSH key with one exact fingerprint, if any. Reads only.", "url": "https://api.hetzner.cloud/v1/ssh_keys?fingerprint={fingerprint}", "method": "GET" },
+        "add_ssh_key": { "notes": "Store one public SSH key for new servers.", "url": "https://api.hetzner.cloud/v1/ssh_keys", "method": "POST", "body_template": { "name": "{key_name}", "public_key": "{public_key}", "labels": "{labels}" } },
+        "read_ssh_key": { "notes": "One stored SSH key with its labels.", "url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}", "method": "GET" },
+        "delete_ssh_key": { "notes": "Remove one stored SSH key; servers already made keep it.", "url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}", "method": "DELETE" },
+        "read_size_price": { "notes": "One server type with its price in every location. Reads only.", "url": "https://api.hetzner.cloud/v1/server_types?name={size}", "method": "GET" }
+      },
+      "host": {
+        "find": "find_servers_by_name", "list_at": "servers", "create": "create_server", "created_at": "server", "read": "read_server", "found_at": "server", "remove": "delete_server",
+        "id_is": "server_id", "id_pattern": "^[0-9]+$", "owner_at": "labels.place-lease", "address_at": "public_net.ipv4.ip", "state_at": "status"
+      },
+      "access_key": { "find": "find_ssh_key_by_fingerprint", "list_at": "ssh_keys", "create": "add_ssh_key", "read": "read_ssh_key", "found_at": "ssh_key", "remove": "delete_ssh_key", "id_is": "ssh_key_id", "id_pattern": "^[0-9]+$", "id_at": "ssh_key.id", "owner_at": "labels.place-lease" },
+      "price": { "read": "read_size_price", "list_at": "server_types.0.prices", "location_at": "location", "monthly_at": "price_monthly.gross", "currency": "EUR" }
+    },
+    {
+      "id": "existing-machine",
+      "name": "A Linux machine you already run, over SSH",
+      "notes": "Set placement.address to the machine's public IPv4 and placement.monthly_price_cents to what it costs you, if anything. Starting adopts that address; removing forgets it and never touches the machine.",
+      "base": null,
+      "placement": { "address": null, "monthly_price_cents": null }
+    }
+  ],
+  "names": [
+    {
+      "id": "cloudflare",
+      "name": "Cloudflare DNS",
+      "base": "https://api.cloudflare.com/client/v4",
+      "auth": { "header": "authorization", "prefix": "Bearer " },
+      "vault_key": "cloudflare-api-token",
+      "error_code_at": "errors.0.code",
+      "requests": {
+        "find_zone": { "notes": "The zone with one exact name. Reads only.", "url": "https://api.cloudflare.com/client/v4/zones?name={zone}", "method": "GET" },
+        "find_record": { "notes": "The A records with one exact name. Reads only.", "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records?type=A&name={host_name}", "method": "GET" },
+        "create_record": { "notes": "Point one name at the machine, unproxied, so the machine answers its own certificate.", "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records", "method": "POST", "body_template": { "type": "A", "name": "{host_name}", "content": "{address}", "ttl": 60, "proxied": false, "comment": "place-lease {name}" } },
+        "read_record": { "notes": "One record. Read it before removing it.", "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{record_id}", "method": "GET" },
+        "delete_record": { "notes": "Remove one record.", "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{record_id}", "method": "DELETE" }
+      },
+      "zone": { "find": "find_zone", "list_at": "result", "id_is": "zone_id", "id_pattern": "^[0-9a-f]{32}$", "id_at": "id" },
+      "record": { "find": "find_record", "list_at": "result", "create": "create_record", "created_at": "result", "read": "read_record", "found_at": "result", "remove": "delete_record", "id_is": "record_id", "id_pattern": "^[0-9a-f]{32}$", "id_at": "id", "owner_at": "comment", "owner_is": "place-lease {name}", "address_at": "content" }
+    }
+  ]
+}

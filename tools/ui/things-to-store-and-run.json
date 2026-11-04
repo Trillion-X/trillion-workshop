@@ -1,0 +1,1192 @@
+{
+  "package": "ui",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::ui::checks",
+      "path": [
+        "packages",
+        "ui",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "show/file-preview/FilePreview.test.tsx",
+          "show/region-drop-intent/region-drop-nest.test.tsx",
+          "show/container-size/container-size.test.ts",
+          "show/floating-panel-opener/no-blocking-modal.test.ts",
+          "show/action-menu/__tests__/action-menu.test.tsx",
+          "show/record-views/record-views.primary-action.test.tsx",
+          "show/record-views/record-views.edges.test.ts",
+          "show/media-preview/MediaPreview.test.tsx",
+          "show/layer-order/layer-order.test.ts",
+          "show/surface-preview/surface-glance.test.ts",
+          "show/coss/__tests__/empty-lists.test.tsx",
+          "show/coss/__tests__/decorate-controls-variant.test.tsx",
+          "show/request/safe-json-request.test.mjs",
+          "show/expandable-tabs/ExpandableTabs.test.tsx",
+          "show/expandable-tabs/ExpandableTabs.guard.test.ts",
+          "show/card-layouts/CardLayouts.test.tsx",
+          "show/action-row/action-row.test.tsx",
+          "show/fact-chips/FactChips.test.tsx",
+          "show/action-feedback/action-feedback.test.ts",
+          "show/scrollable-surface/ScrollViewport.test.tsx",
+          "show/browsing-surface-presentation-value/browsing-surface-presentation-value.test.tsx",
+          "show/placeable-surface-intent/surface-completion-target.test.ts",
+          "show/placeable-surface-intent/pending-placeable-surface-intent.test.ts",
+          "show/placeable-surface-intent/a-surface-says-who-it-is-for.test.ts",
+          "show/action-affordance/ActionForm.test.tsx",
+          "show/action-affordance/local-actor-admission.test.ts",
+          "show/output-field-list/OutputFieldList.test.tsx",
+          "show/safe-error-card/SafeErrorCard.test.ts",
+          "show/provider-mark/ProviderMark.test.tsx",
+          "show/provider-mark/provider-icon-registry.test.ts",
+          "show/marketing-page/MarketingPagePrimitives.test.tsx",
+          "show/coss/__tests__/project-tree.test.tsx",
+          "show/coss/__tests__/account-profile.test.tsx",
+          "show/coss/__tests__/workspace-controls.test.tsx",
+          "show/coss/workspace-controls.schedule-destination.test.tsx",
+          "show/coss/mount-hour-grid.test.tsx",
+          "show/coss/__tests__/publication-post-preview.test.tsx",
+          "show/coss/__tests__/media-grid-preview-click.test.tsx",
+          "show/record-views/record-views.test.tsx",
+          "show/rule-filter/RuleFilter.test.tsx",
+          "show/record-views/record-views.custom-fields.test.tsx",
+          "show/record-views/record-views.group-order.test.tsx",
+          "show/record-views/record-views.saved-views.test.tsx",
+          "show/record-views/record-views.grouping.test.tsx",
+          "show/record-views/record-views.drag-out.test.tsx",
+          "show/record-views/record-views.multi-select.test.tsx",
+          "show/record-views/record-views.preview.test.tsx",
+          "show/hover-preview/HoverPreview.test.tsx",
+          "show/pane-tab/PaneTab.test.tsx",
+          "show/transport-bar/TransportBar.test.tsx",
+          "show/tooltip/Tooltip.test.tsx",
+          "show/tooltip/title-tooltips.test.tsx",
+          "show/floating-occlusion/reserve-bottom-inset.test.ts",
+          "show/selection/movable-toolbar.test.mjs",
+          "show/nested-navigation/NestedNavigationList.test.tsx",
+          "show/source-citation/SourceCitation.test.tsx",
+          "show/server-rendered-page/pending-destination-html.test.mjs",
+          "show/server-rendered-page/page-sections-html.test.mjs",
+          "show/placement-history/PlacementHistoryMenu.test.tsx",
+          "show/dropdown/Dropdown.test.tsx",
+          "show/nav-arrows/NavArrows.test.tsx",
+          "show/linked-identity/LinkedIdentity.test.tsx",
+          "show/record-views/record-views.caller-view.test.tsx",
+          "show/record-views/record-views.windowing.test.tsx",
+          "show/disclosure-heading/DisclosureHeading.test.tsx",
+          "show/record-views/record-views.view-bar.test.tsx",
+          "show/record-kind/RecordKindMark.test.tsx",
+          "show/notifications/notification-center.test.ts",
+          "show/notifications/notifications-render.test.tsx",
+          "show/connection-list/ConnectionSection.test.tsx",
+          "show/record-views/record-views.row-actions.test.tsx",
+          "show/status-overview/StatusOverview.test.tsx",
+          "show/dropdown/menu-search.test.ts"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::entry::ui",
+      "path": [
+        "packages",
+        "ui",
+        "entries",
+        "ui"
+      ],
+      "payload": {
+        "entry_name": "ui",
+        "kind": "bitfield-package-entry",
+        "source_path": "index.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-ui"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::public-source::show",
+      "path": [
+        "packages",
+        "ui",
+        "public-sources",
+        "show"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "show"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::public-source::read-data",
+      "path": [
+        "packages",
+        "ui",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::public-source::motion",
+      "path": [
+        "packages",
+        "ui",
+        "public-sources",
+        "motion"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "motion"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::adyen",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "adyen",
+        "icon_id": "simple-icons:adyen",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "simple-icons:adyen"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::alibaba",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "alibaba",
+        "icon_id": "simple-icons:alibabadotcom",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "simple-icons:alibabadotcom"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::alpaca",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "alpaca",
+        "icon_id": "official:alpaca-symbol",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "official:alpaca-symbol"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::anthropic",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "anthropic",
+        "icon_id": "logos:anthropic-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:anthropic-icon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::discord",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "discord",
+        "icon_id": "logos:discord-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:discord-icon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::facebook-messenger",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "facebook-messenger",
+        "icon_id": "logos:messenger",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:messenger"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::ghost",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "ghost",
+        "icon_id": "simple-icons:ghost",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "simple-icons:ghost"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::github",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "github",
+        "icon_id": "logos:github-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:github-icon"
+        },
+        "profile_link": {
+          "prefix": "https://github.com/",
+          "suffix": ""
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::google",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "google",
+        "icon_id": "logos:google-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:google-icon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::google-account",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "google-account",
+        "icon_id": "logos:google-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:google-icon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::imessage",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "imessage",
+        "icon_id": "simple-icons:imessage",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "simple-icons:imessage"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::instagram",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "instagram",
+        "icon_id": "skill-icons:instagram",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "skill-icons:instagram"
+        },
+        "profile_link": {
+          "prefix": "https://www.instagram.com/",
+          "suffix": "/"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::instagram-dm",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "instagram-dm",
+        "icon_id": "skill-icons:instagram",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "skill-icons:instagram"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::lemon-squeezy",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "lemon-squeezy",
+        "icon_id": "simple-icons:lemonsqueezy",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "simple-icons:lemonsqueezy"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::linear",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "linear",
+        "icon_id": "logos:linear-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:linear-icon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::notion",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "notion",
+        "icon_id": "logos:notion-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:notion-icon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::ollama",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "ollama",
+        "icon_id": "simple-icons:ollama",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "simple-icons:ollama"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::openai",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "openai",
+        "icon_id": "logos:openai-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:openai-icon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::paddle",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "paddle",
+        "icon_id": "simple-icons:paddle",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "simple-icons:paddle"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::polygon",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "polygon",
+        "icon_id": "simple-icons:polygon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "simple-icons:polygon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::printify",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "printify",
+        "icon_id": "official:printify-logo-small",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "official:printify-logo-small"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::railway",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "railway",
+        "icon_id": "simple-icons:railway",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "simple-icons:railway"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::shopify",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "shopify",
+        "icon_id": "logos:shopify",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:shopify"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::slack",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "slack",
+        "icon_id": "logos:slack-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:slack-icon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::stripe",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "stripe",
+        "icon_id": "simple-icons:stripe",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "simple-icons:stripe"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::substack",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "substack",
+        "icon_id": "simple-icons:substack",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "simple-icons:substack"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::telegram",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "telegram",
+        "icon_id": "logos:telegram",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:telegram"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::tiktok",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "tiktok",
+        "icon_id": "logos:tiktok-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:tiktok-icon"
+        },
+        "profile_link": {
+          "prefix": "https://www.tiktok.com/@",
+          "suffix": ""
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::tiktok-shop",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "tiktok-shop",
+        "icon_id": "logos:tiktok-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:tiktok-icon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::tradier",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "tradier",
+        "icon_id": "official:tradier-logo",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "official:tradier-logo"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::trello",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "trello",
+        "icon_id": "logos:trello",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:trello"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::twilio",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "twilio",
+        "icon_id": "logos:twilio-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:twilio-icon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::twitch",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "twitch",
+        "icon_id": "logos:twitch",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:twitch"
+        },
+        "profile_link": {
+          "prefix": "https://www.twitch.tv/",
+          "suffix": ""
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::whatsapp",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "whatsapp",
+        "icon_id": "logos:whatsapp-icon",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:whatsapp-icon"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::x",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "x",
+        "icon_id": "logos:x",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "logos:x"
+        },
+        "profile_link": {
+          "prefix": "https://x.com/",
+          "suffix": ""
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::provider-icon::youtube",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "provider-icon",
+        "provider_slug": "youtube",
+        "icon_id": "postiz:youtube",
+        "asset": {
+          "kind": "bundled-svg",
+          "id": "postiz:youtube"
+        },
+        "profile_link": {
+          "prefix": "https://www.youtube.com/@",
+          "suffix": ""
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::input::viewer-access-refs",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "viewer-access-refs",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "viewer-access-refs",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::input::selector-source-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "selector-source-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::reaches-past-the-engine::network",
+      "path": [
+        "current-item",
+        "reaches-past-the-engine"
+      ],
+      "payload": {
+        "kind": "reaches-past-the-engine",
+        "reach_class": "network",
+        "why": "reading the running engine's own HTTP byte routes from the browser is this package's job: show/media-bytes holds the one shared producer-blind reader that turns an ordered chunk manifest at /cas/<hash> into a Blob, and the engine cannot hand a Blob to a surface through context, so a surface that wants engine bytes imports this reader instead of reaching itself and the count of packages touching the network stays at one."
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-ui",
+      "source_path": "built-stored-bytes/entry-bytes-ui",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-ui.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::ui::target::invoke-local-guarded-media-reader",
+      "path": [
+        "packages",
+        "ui",
+        "targets",
+        "invoke-local-guarded-media-reader"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "ui.invoke-local-guarded-media-reader",
+        "exposure": "hosted-session-admitted",
+        "admission": {
+          "target": "access-rule.evaluate",
+          "action_ref": "ui.invoke-local-guarded-media-reader",
+          "authorized_action_refs": [
+            "ui.invoke-local-guarded-media-reader"
+          ],
+          "constraints": {},
+          "predicate_ref": "predicate:authenticated-session",
+          "predicate_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "literal",
+              "value": true
+            }
+          },
+          "subject_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "context",
+              "path": "payload.relation_ref"
+            }
+          },
+          "resource_revision_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "context",
+              "path": "payload.relation_ref"
+            }
+          }
+        },
+        "entry_name": "invoke-local-guarded-media-reader-target",
+        "export_name": "invokeLocalGuardedMediaReaderTarget",
+        "source_path": "show/action-affordance/invoke-local-content-media-materializer-target.ts",
+        "fixed_owner_targets": [
+          "engine.operation",
+          "access-rule.evaluate",
+          "access-rule.verify-decision",
+          "content-media-evidence.read-guarded-artifact"
+        ],
+        "input_contract": {
+          "payload": "resolved media-owner input from the current local workflow",
+          "caller_authority": "public calls require current shell admission for the local desktop actor; workflow calls require the native carrier's unforgeable current command-list provenance propagated outside workflow DATA",
+          "materializer_rule": "read from the exact current content-media target descriptor; caller-supplied rules are refused"
+        },
+        "output_contract": {
+          "bytes_base64": "bounded verified media bytes",
+          "byte_length": "verified byte length",
+          "integrity_hash": "verified content hash"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::entry::invoke-local-guarded-media-reader-target",
+      "path": [
+        "packages",
+        "ui",
+        "entries",
+        "invoke-local-guarded-media-reader-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "invoke-local-guarded-media-reader-target",
+        "export_name": "invokeLocalGuardedMediaReaderTarget",
+        "source_path": "show/action-affordance/invoke-local-content-media-materializer-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-invoke-local-guarded-media-reader-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-invoke-local-guarded-media-reader-target",
+      "source_path": "built-stored-bytes/entry-bytes-invoke-local-guarded-media-reader-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-invoke-local-guarded-media-reader-target.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::ui::target::invoke-local-content-media-materializer",
+      "path": [
+        "packages",
+        "ui",
+        "targets",
+        "invoke-local-content-media-materializer"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "ui.invoke-local-content-media-materializer",
+        "exposure": "hosted-session-admitted",
+        "admission": {
+          "target": "access-rule.evaluate",
+          "action_ref": "ui.invoke-local-content-media-materializer",
+          "authorized_action_refs": [
+            "ui.invoke-local-content-media-materializer"
+          ],
+          "constraints": {},
+          "predicate_ref": "predicate:authenticated-session",
+          "predicate_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "literal",
+              "value": true
+            }
+          },
+          "subject_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "context",
+              "path": "payload.idempotency_ref"
+            }
+          },
+          "resource_revision_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "context",
+              "path": "payload.idempotency_ref"
+            }
+          }
+        },
+        "entry_name": "invoke-local-content-media-materializer-target",
+        "export_name": "invokeLocalContentMediaMaterializerTarget",
+        "source_path": "show/action-affordance/invoke-local-content-media-materializer-target.ts",
+        "fixed_owner_targets": [
+          "engine.operation",
+          "access-rule.evaluate",
+          "access-rule.verify-decision",
+          "content-media-evidence.materialize-artifact"
+        ],
+        "input_contract": {
+          "payload": "resolved media-owner input from the current local workflow",
+          "caller_authority": "public calls require current shell admission for the local desktop actor; workflow calls require the native carrier's unforgeable current command-list provenance propagated outside workflow DATA",
+          "materializer_rule": "read from the exact current content-media target descriptor; caller-supplied rules are refused"
+        },
+        "output_contract": {
+          "kind": "content-media.materialized-relation/v1",
+          "relation_ref": "owner-issued guarded media relation"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ui::entry::invoke-local-content-media-materializer-target",
+      "path": [
+        "packages",
+        "ui",
+        "entries",
+        "invoke-local-content-media-materializer-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "invoke-local-content-media-materializer-target",
+        "export_name": "invokeLocalContentMediaMaterializerTarget",
+        "source_path": "show/action-affordance/invoke-local-content-media-materializer-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-invoke-local-content-media-materializer-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-invoke-local-content-media-materializer-target",
+      "source_path": "built-stored-bytes/entry-bytes-invoke-local-content-media-materializer-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-invoke-local-content-media-materializer-target.source-closure.json"
+    }
+  ]
+}

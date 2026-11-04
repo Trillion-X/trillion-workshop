@@ -1,0 +1,19 @@
+{
+  "_what": "How computer/confined-run.mjs runs a program on this Mac under a generated Seatbelt (sandbox-exec) profile. The profile starts from `allow default` and then takes away: every file write except the roots a tier names plus `always_writable`, every read of the credential folders, and the network when the tier says so. `{workspace}` in a tier is the folder the caller names; `{tmp}` is this run's temporary folder; `~` is the home folder. A tier is a row; a new confinement is one more row. `env_allow` are the only variable names a program inherits (a caller adds named scoped values beside them, never in arguments). `pin` checks a program before it runs: its BLAKE3 and/or the Team ID of its code signature.",
+  "sandbox_program": "/usr/bin/sandbox-exec",
+  "codesign_program": "/usr/bin/codesign",
+  "always_writable": ["/dev/null", "/dev/dtracehelper", "/dev/tty"],
+  "credential_folders": ["~/.ssh", "~/.aws", "~/.gnupg", "~/.netrc", "~/.config/gh", "~/.docker", "~/Library/Keychains", "~/Library/Application Support/com.apple.TCC"],
+  "env_allow": ["PATH", "LANG", "LC_ALL", "TMPDIR", "HOME"],
+  "tiers": [
+    { "id": "read-only", "label": "Reads, writes nothing, no network", "writable": [], "network": false },
+    { "id": "workspace", "label": "Writes only in the workspace and the temporary folder, no network", "writable": ["{workspace}", "{tmp}"], "network": false },
+    { "id": "workspace-online", "label": "Writes only in the workspace and the temporary folder, may use the network", "writable": ["{workspace}", "{tmp}"], "network": true }
+  ],
+  "words": {
+    "unknown_tier": "There is no confinement named {tier} on this Mac.",
+    "pin_blake3": "{program} is not the program pinned for this run (its content differs), so it was not started.",
+    "pin_team": "{program} is not signed by the pinned developer ({team}), so it was not started.",
+    "no_sandbox": "This Mac has no sandbox-exec, so the run was not started."
+  }
+}

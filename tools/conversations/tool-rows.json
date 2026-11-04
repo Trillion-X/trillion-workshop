@@ -89,7 +89,180 @@
             }
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "message",
+              "erase_fields": [
+                "conversation_id",
+                "source_ref",
+                "origin",
+                "evidence",
+                "attachments"
+              ],
+              "parts": [
+                {
+                  "role": "about",
+                  "path": [
+                    "about"
+                  ],
+                  "each": [
+                    "id"
+                  ],
+                  "role_from": [
+                    "kind"
+                  ]
+                }
+              ],
+              "erasable": [
+                "text"
+              ],
+              "erase_action": {
+                "label": "Forget",
+                "glyph": "🗑",
+                "confirm": "Forget this message? Replies and results that quoted it keep their own words."
+              },
+              "erase_with": [
+                {
+                  "id": "message-duplicate-correction:{id}"
+                },
+                {
+                  "type": "message-duplicate-correction",
+                  "index": "kept"
+                },
+                {
+                  "id": "message-provenance-correction:{id}"
+                },
+                {
+                  "field": "corrected_from",
+                  "type": "message"
+                },
+                {
+                  "type": "arrival",
+                  "index": "message_id"
+                },
+                {
+                  "type": "agent-handoff",
+                  "index": "message"
+                },
+                {
+                  "type": "told-the-person",
+                  "index": "message"
+                },
+                {
+                  "id": "resource-input-provenance:{id}",
+                  "type": "resource-input-provenance"
+                },
+                {
+                  "id": "resource-input-interpretation:{id}",
+                  "type": "resource-input-interpretation"
+                },
+                {
+                  "id": "ask-again:{id}",
+                  "type": "ask-again"
+                }
+              ],
+              "guard_properties": {
+                "about": "objects",
+                "app": "text",
+                "at": "text",
+                "attachments": "objects",
+                "authored_at": "text",
+                "captured_at": "text",
+                "captured_road": "text",
+                "clock": "object",
+                "conversation_id": "text",
+                "corrected_from": "text",
+                "entity_resolution": "object",
+                "evidence": "text",
+                "final_reply": "boolean",
+                "id": "text",
+                "model": "text",
+                "named_at": "text",
+                "named_from": "text",
+                "origin": "text",
+                "recorded_app": "text",
+                "recorded_at": "text",
+                "recorded_by": "text",
+                "reworded_at": "text",
+                "source_at": "text",
+                "source_ref": "text",
+                "speaker": "text",
+                "text": "text",
+                "unconfirmed_at": "text",
+                "unconfirmed_from": "text"
+              }
+            }
+          ],
+          "indexes": [
+            {
+              "type": "message",
+              "name": "recorded_at",
+              "paths": [
+                [
+                  "recorded_at"
+                ]
+              ],
+              "_read_by": "src/awareness.mjs awarenessInputs"
+            },
+            {
+              "type": "message",
+              "name": "speaker",
+              "backfill": "message-speaker-v1",
+              "paths": [
+                [
+                  "speaker"
+                ],
+                [
+                  "app"
+                ],
+                [
+                  "at"
+                ]
+              ],
+              "carry": [
+                [
+                  "captured_road"
+                ]
+              ],
+              "carry_presence": [],
+              "_read_by": "src/messages.mjs unnamedSpeakers and capturedTurns (the same bounded speaker window carries capture provenance; no separate capture index or prompt read after backfill)"
+            },
+            {
+              "type": "message",
+              "name": "capture",
+              "retired": true,
+              "backfill": "message-capture-v1",
+              "paths": [
+                [
+                  "captured_road"
+                ],
+                [
+                  "speaker"
+                ],
+                [
+                  "app"
+                ],
+                [
+                  "at"
+                ]
+              ],
+              "_read_by": "retired: capture provenance now travels with the speaker entry; bounded idle cleanup removes previously stored capture keys"
+            },
+            {
+              "type": "message",
+              "name": "conversation_id",
+              "paths": [
+                [
+                  "conversation_id"
+                ]
+              ],
+              "_read_by": "src/messages.mjs"
+            }
+          ]
+        }
       }
     },
     {

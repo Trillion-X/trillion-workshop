@@ -1,0 +1,60 @@
+/* packages/screen-look/show/edge-fade.css
+ *
+ * A scrolling list of text (a transcript, captions) fades out at its top and
+ * bottom edges instead of cutting a line in half. Any scroll container takes
+ * the look by adding the class `screen-edge-fade`; the fade depth is one
+ * custom property (--screen-edge-fade-size) so a dense list can ask for less.
+ *
+ * The mask keeps the list itself transparent at the edges, so the fade shows
+ * whatever sits behind it (the player, the page) and needs no colour of its
+ * own. Where the engine drives animations from scrolling, an edge fades only
+ * while there is more text beyond it: nothing fades at the very top, the very
+ * bottom, or in a list short enough not to scroll.
+ */
+@property --screen-edge-fade-top{syntax:'<length>';inherits:false;initial-value:0px}
+@property --screen-edge-fade-bottom{syntax:'<length>';inherits:false;initial-value:0px}
+.screen-edge-fade{
+  --screen-edge-fade-size:28px;
+  --screen-edge-fade-top:var(--screen-edge-fade-size);
+  --screen-edge-fade-bottom:var(--screen-edge-fade-size);
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 var(--screen-edge-fade-top),#000 calc(100% - var(--screen-edge-fade-bottom)),transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 var(--screen-edge-fade-top),#000 calc(100% - var(--screen-edge-fade-bottom)),transparent 100%);
+}
+@supports (animation-timeline:scroll()){
+  .screen-edge-fade{
+    --screen-edge-fade-top:0px;
+    --screen-edge-fade-bottom:0px;
+    animation:screen-edge-fade-follows-scroll linear both;
+    animation-timeline:scroll(self block);
+  }
+}
+@keyframes screen-edge-fade-follows-scroll{
+  0%{--screen-edge-fade-top:0px;--screen-edge-fade-bottom:var(--screen-edge-fade-size)}
+  6%{--screen-edge-fade-top:var(--screen-edge-fade-size)}
+  94%{--screen-edge-fade-bottom:var(--screen-edge-fade-size)}
+  100%{--screen-edge-fade-top:var(--screen-edge-fade-size);--screen-edge-fade-bottom:0px}
+}
+
+/* A strip that moves sideways (a live waveform, a ticker) fades in at the edge new things arrive from and out at the
+ * edge they leave by, the same depth at both unless a look sets one edge on its own: the class `screen-edge-fade-x`,
+ * its depths the tokens --screen-edge-fade-start (left) and --screen-edge-fade-end (right). */
+.screen-edge-fade-x{
+  --screen-edge-fade-start:14%;
+  --screen-edge-fade-end:var(--screen-edge-fade-start);
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--screen-edge-fade-start),#000 calc(100% - var(--screen-edge-fade-end)),transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0,#000 var(--screen-edge-fade-start),#000 calc(100% - var(--screen-edge-fade-end)),transparent 100%);
+}
+
+/* A pane shorter than its screen's own layout height shows the part that fits (screen-arrangement
+ * SplitTreeArranger, `data-pane-cut`): the bottom edge blurs and fades out over --pane-cut-fade, so a
+ * squashed pane reads as tucked away rather than broken. Across, a screen always reflows to its pane. */
+[data-pane-cut]{position:relative}
+[data-pane-cut="y"]{
+  -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - var(--pane-cut-fade,28px)),transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 calc(100% - var(--pane-cut-fade,28px)),transparent 100%);
+}
+[data-pane-cut]::after{
+  content:'';position:absolute;pointer-events:none;z-index:1;left:0;right:0;bottom:0;height:var(--pane-cut-fade,28px);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  -webkit-mask-image:linear-gradient(to bottom,transparent,#000);mask-image:linear-gradient(to bottom,transparent,#000);
+}

@@ -1,0 +1,76 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-RECORDING-RULES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f2",
+      "path": "src/recording-rules.mjs",
+      "multihash": "1f:0e6d8f781d156979ef5a118231d119eefa80c9b7ecff2c8b13399e73a3e199f9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the paired Trillion-X/trillion change that moves computer/listen.mjs and computer/listening-rules.mjs, the old copy's callers; until then the old copy is a duplicate"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/listen-for-a-while/read-data/recording-rules.mjs"
+    }
+  ],
+  "preserve": [
+    "default open: no rule matching means allowed, and a rule only restricts what its own DATA row says",
+    "block wins, a required fact that is false blocks, an unknown one is pending, and each refusal is distinct",
+    "mid-session a withdrawn consent stops a recording and an unknown fact does not",
+    "a once grant is spent by its first use, a persistent one stays, revoke removes",
+    "the meeting notice has one sender, never types into a field in use, falls back to the camera picture, and can stop",
+    "consent events are per meeting and person, the latest choice decides, and only that person's words are removed"
+  ],
+  "allowed_deltas": [
+    "the header and the DATA path name this folder, and the product is not named (baseline.redactions)"
+  ],
+  "banned_substitutions": [
+    "a recording allowed while a required fact is unknown",
+    "a notice typed into a chat field someone is using"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:00:00Z",
+    "copied_before_adaptation": true,
+    "redactions": [
+      {
+        "from": "// src/recording-rules.mjs",
+        "to": "// tools/listen-for-a-while/read-data/recording-rules.mjs"
+      },
+      {
+        "from": "a gate Trillion imposes",
+        "to": "a gate the product imposes"
+      },
+      {
+        "from": "(src/recording-rules.json",
+        "to": "(recording-rules.json"
+      }
+    ],
+    "source_multihash": "1f:0e6d8f781d156979ef5a118231d119eefa80c9b7ecff2c8b13399e73a3e199f9",
+    "target_multihash_at_baseline": "1f:cc803178b2cd4a458517c6339f099f9fe6b453b62bf32ec52efae2072971969b",
+    "commit": "ba1ba62c035be0ff923beb2de45b42e6cec63e0a"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/listen-for-a-while/test/recording-rules.test.mjs with no rules everything is allowed, and a rule only restricts what it names",
+      "tools/listen-for-a-while/test/recording-rules.test.mjs block wins, a false required fact blocks, an unknown one is pending, and the refusals are distinct",
+      "tools/listen-for-a-while/test/recording-rules.test.mjs mid-session: consent withdrawn stops a recording, an unknown fact does not",
+      "tools/listen-for-a-while/test/recording-rules.test.mjs request and grant: once is spent by its first use, persistent stays, revoke removes",
+      "tools/listen-for-a-while/test/recording-rules.test.mjs the notice has one sender, never types into a field in use, falls back to the camera picture, and can stop",
+      "tools/listen-for-a-while/test/recording-rules.test.mjs consent events are per meeting and person, the latest choice decides, and only that person's words are removed"
+    ]
+  }
+}

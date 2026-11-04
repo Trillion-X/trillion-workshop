@@ -1,0 +1,17 @@
+{
+  "_what": "How a tool's own samples (verify rows of kind sample-run) are run where its placement runs it, by the placement's executor (src/workshop-sample-rules.mjs, used by src/workshop.mjs sampleChecked, describe and publish). A placement whose executor has no row runs its samples as before. `safe`: the only kinds of sample allowed there, each sample saying its own `safety`; a sample that names another is refused before it runs, at save and at every run. A `dry-run` sample sets the tool's own boolean input `dry_run_field` to true, so it shows what it would do and does nothing. `unconnected: owed`: when the computer the placement names is not connected, the sample is not failed; it is recorded as owed until `owed_until`, with the tests the sample names as its `evidence`, and it runs by itself the first time that computer connects (its agent publishes its card). `readback`: how an account that did not publish the tool proves a published one: describe-only, because a run needs that account's own computer. Words are what a person or an AI reads.",
+  "executors": {
+    "agent": {
+      "safe": ["read-only", "dry-run"],
+      "dry_run_field": "dry_run",
+      "unconnected": "owed",
+      "owed_until": "first-connected-computer",
+      "readback": "describe-only",
+      "words": {
+        "unsafe": "{tool} runs on the person's own computer, so each of its sample-run checks must say its safety: {safe}. Give the sample \"safety\": \"read-only\" when it only reads, or \"dry-run\" with {field}: true when it would act.",
+        "dry_run": "{tool}'s dry-run sample must set its boolean input {field} to true, so the sample shows what it would do and does nothing.",
+        "owed": "Owed: it runs on the first computer this account connects."
+      }
+    }
+  }
+}

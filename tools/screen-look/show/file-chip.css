@@ -1,0 +1,24 @@
+/* parts/screen-look/show/file-chip.css
+ *
+ * The look of the shared file chip (parts/ui/show/file-chip/FileChip.tsx): the file's kind icon and name in a quiet
+ * rounded pill, then its folder as a small badge in the folder's own palette hue ([data-colour], whose --record-kind
+ * coss-workspace.css sets, the one colour attribute every coloured thing uses). The full path opens in the coss
+ * popover on hover or press. After 21st.dev 19226 "Tag" (rounded outlined tag, coloured mark) and the file rows of
+ * Dropbox Dash on Mobbin (icon, name, small coloured source).
+ */
+.file-chips { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; min-width: 0; }
+.file-chip {
+  max-width: 100%; min-width: 0; gap: 0.35rem; padding-inline: 0.45rem 0.3rem;
+  border: 1px solid var(--border-subtle); border-radius: var(--radius-chip, 0.375rem); background: var(--glass-bg-subtle);
+  color: var(--text-primary); font-weight: 500;
+}
+.file-chip:hover, .file-chip[data-popup-open] { background: var(--glass-bg-hover); }
+.file-chip [data-slot="file-chip-icon"] { flex: none; color: var(--text-tertiary); }
+.file-chip-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-chip-folder {
+  flex: none; max-width: 9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 0 0.4rem; border-radius: var(--radius-chip, 0.375rem); font-size: var(--font-size-micro, 0.6875rem); line-height: 1.35rem; font-weight: 600;
+  color: color-mix(in oklab, var(--record-kind) 72%, var(--text-primary, currentColor));
+  background: color-mix(in oklab, var(--record-kind) 16%, transparent);
+}
+.file-chip-path { font-family: var(--font-mono, ui-monospace, monospace); font-size: var(--font-size-caption, 0.75rem); overflow-wrap: anywhere; }
