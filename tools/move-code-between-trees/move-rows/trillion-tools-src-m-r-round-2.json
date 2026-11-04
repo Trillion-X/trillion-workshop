@@ -330,6 +330,14 @@
    "capability": "publish what I offer and seek in the network under a random id so anyone's AI can find me by meaning without seeing my contact details"
   },
   {
+   "id": "put-a-site-on-the-persons-own-web-address-through--public-app-domains",
+   "owner": [
+    "src/public-app-domains.mjs"
+   ],
+   "to": "tools/put-a-site-on-the-persons-own-web-address-through",
+   "capability": "put a site on the person's own web address through the hosting provider and check the address belongs to it"
+  },
+  {
    "id": "read-a-public-web-link-whole-its-card",
    "owner": [
     "src/read-link.mjs"
