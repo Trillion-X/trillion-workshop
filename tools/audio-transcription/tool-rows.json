@@ -93,6 +93,7 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [{"kind":"sample-run","input":{"file":"/Recordings/sample-talk.wav","model_path":"{grant:start-a-program}/sample-whisper.bin","whisper_cli":"whisper-cli","ffmpeg":"ffmpeg"},"door_files":{"/Recordings/sample-talk.wav":"made-up sound bytes"},"files":[{"grant":"start-a-program","path":"sample-whisper.bin","text":"made-up model"}],"stand_in_programs":{"whisper-cli":"base=\"\"\nwhile [ $# -gt 0 ]; do [ \"$1\" = \"-of\" ] && base=\"$2\"; shift; done\ncat > \"$base.json\" <<'JSON'\n{\"result\":{\"language\":\"en\"},\"transcription\":[{\"offsets\":{\"from\":0,\"to\":2500},\"text\":\" Welcome to the sample meeting, said Ada Example.\"},{\"offsets\":{\"from\":2500,\"to\":5000},\"text\":\" The next item is the garden budget.\"}]}\nJSON","ffmpeg":"last=\"\"; decode=0\nfor a in \"$@\"; do last=\"$a\"; [ \"$a\" = \"-y\" ] && decode=1; done\nif [ \"$decode\" = 1 ]; then printf 'RIFF' > \"$last\"; else echo \"  Duration: 00:00:05.00, start: 0.000000, bitrate: 256 kb/s\" >&2; fi"}}],
         "needs": {"expected_seconds": 300, "network_egress": false, "memory_mb": 4096},
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
@@ -142,6 +143,7 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [{"kind":"sample-run","input":{"url":"https://videos.example.com/watch?v=sample"},"stand_in_programs":{"yt-dlp":"folder=\"\"; out=\"\"\nwhile [ $# -gt 0 ]; do [ \"$1\" = \"-o\" ] && out=\"$2\"; [ \"$1\" = \"--dump-single-json\" ] && info=1; shift; done\nif [ -n \"$info\" ]; then echo '{\"title\": \"Sample garden talk\", \"duration\": 12.5}'; exit 0; fi\nfolder=$(dirname \"$out\")\nprintf 'WEBVTT\\n\\n00:00:00.000 --> 00:00:02.500\\nWelcome to the sample garden talk.\\n\\n00:00:02.500 --> 00:00:05.000\\nToday we plant tomatoes.\\n' > \"$folder/captions.en.vtt\""}}],
         "needs": {"expected_seconds": 900, "network_egress": true, "memory_mb": 4096},
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],

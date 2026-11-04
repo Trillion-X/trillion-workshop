@@ -100,7 +100,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind":"sample-run","input":{"link":"zoommtg://zoom.us/join?confno=123456789&uname=Ada%20Example"}}]
       }
     },
     {
@@ -202,7 +203,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind":"needs-a-machine","requires":"macOS with /usr/bin/open and a meeting app registered for the link's scheme (the program runs the absolute path /usr/bin/open, which does not exist on Linux and cannot be stood in for by PATH)","proved_on":null}]
       }
     }
   ]

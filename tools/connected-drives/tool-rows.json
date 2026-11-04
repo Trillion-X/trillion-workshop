@@ -65,6 +65,7 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {}}],
         "needs": {
           "expected_seconds": 5,
           "network_egress": false
@@ -175,6 +176,7 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); the folder listing exits 1 for any path not on a connected drive", "proved_on": null}],
         "needs": {
           "expected_seconds": 5,
           "network_egress": false
@@ -263,6 +265,7 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); exits 1 when the mount is not a connected drive", "proved_on": null}],
         "needs": {
           "expected_seconds": 10,
           "network_egress": false
@@ -366,6 +369,7 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); exits 1 when the mount is not a connected drive", "proved_on": null}],
         "needs": {
           "expected_seconds": 10,
           "network_egress": false
@@ -464,6 +468,7 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes, and /usr/bin/osascript drawing the Finder icon (called by absolute path, so no stand-in program can supply it); exits 1 when the mount is not a connected drive", "proved_on": null}],
         "needs": {
           "expected_seconds": 5,
           "network_egress": false
