@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:e6b33d4a7994ec7a6317ccc19d6508acc5452a45da377ab8832407963463e069"
+  "blake3": "1f:b9c29d06eb787fb7efeef41333e3bcf3a6e475f7a782abdda5d31907dac0ef3d"
  },
  "fields": [
   {
@@ -1179,6 +1179,21 @@
      "placement:your-computer"
     ],
     "folder": "check-a-rendered-video"
+   }
+  },
+  {
+   "id": "tool:check-a-sign-up",
+   "values": {
+    "title": "Check a sign-up",
+    "job": "Prove a public address takes a new account end to end: sign up, sign in and read a signed-in page",
+    "description": "Signs up one synthetic account at the origin with a software passkey made for this run only, signs in with it under the new account's address, and reads a page only a signed-in person sees, then the same page without the session. Answers each step's HTTP status, the new address and whether the signed-in read answered 200. The passkey leaves with the process, so the synthetic account can never be signed in to again.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-place"
    }
   },
   {
