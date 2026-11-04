@@ -6391,9 +6391,9 @@
   },
   {
    "path": "src/native-historical-site-inventory.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-historical-site-inventory.mjs",
+   "why": "a bounded carry of the sites that predate native source reservations: no running consumer once the Worker retired"
   },
   {
    "path": "src/native-identity-owner.mjs",
@@ -6540,9 +6540,9 @@
   },
   {
    "path": "src/native-network-moderation-carry.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-network-moderation-carry.mjs",
+   "why": "a one-time carry of the old store into the native records (cold source, copied and read back once, then retired): no running consumer once the Worker retired"
   },
   {
    "path": "src/native-network-moderation-resource.mjs",
@@ -6591,9 +6591,9 @@
   },
   {
    "path": "src/native-network-stay-carry.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-network-stay-carry.mjs",
+   "why": "a one-time carry of the old store into the native records (cold source, copied and read back once, then retired): no running consumer once the Worker retired"
   },
   {
    "path": "src/native-network-stay-host.mjs",
@@ -6609,9 +6609,9 @@
   },
   {
    "path": "src/native-network-trust-carry.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-network-trust-carry.mjs",
+   "why": "a one-time carry of the old store into the native records (cold source, copied and read back once, then retired): no running consumer once the Worker retired"
   },
   {
    "path": "src/native-network-trust-resource.mjs",
@@ -7485,9 +7485,9 @@
   },
   {
    "path": "src/pages-domain-provider.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/pages-domain-provider.mjs",
+   "why": "a file of the retired Worker host: a separate Cloudflare Worker with no public route, called only by the old app's service binding"
   },
   {
    "path": "src/pages.mjs",
@@ -7939,15 +7939,16 @@
   },
   {
    "path": "src/public-app-domain-provider.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/public-app-domain-provider.mjs",
+   "why": "a file of the retired Worker host: the Cloudflare hosting-provider Worker behind a service binding, with no public route"
   },
   {
    "path": "src/public-app-domains.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/put-a-site-on-the-persons-own-web-address-through/src/public-app-domains.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/public-app-error-words.json",
@@ -8014,15 +8015,15 @@
   },
   {
    "path": "src/public-app-name-carry.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/public-app-name-carry.mjs",
+   "why": "the operator carry of the retired name-claim stores (scripts/carry-public-app-name-claims.mjs, the raw export of 2026-10-17): no running consumer"
   },
   {
    "path": "src/public-app-name-claim.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/public-app-name-claim.mjs",
+   "why": "the retired one-object-per-name claim store, with no caller since dde82f553 (src/public-app-name-carry.mjs header)"
   },
   {
    "path": "src/public-app-names.json",
