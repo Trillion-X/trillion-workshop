@@ -19,11 +19,26 @@
       "identity": "1f:49637033e9020b9bc122505eb3b391574b999a4f73ce08d6bbb2453b1cc6333d"
     },
     {
+      "from": "src/done-when.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/stop-a-reminder-about-a-waiting-or-held-thing/src/done-when.mjs",
+      "source_identity": "1f:4691d7f47a7ea1cb5838a59c601346d07ec0c3b6cf8936409ce29cd30e0e011b",
+      "identity": "1f:49637033e9020b9bc122505eb3b391574b999a4f73ce08d6bbb2453b1cc6333d",
+      "reused": true
+    },
+    {
       "from": "src/waiting-notice-guard.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/stop-a-reminder-about-a-waiting-or-held-thing/src/waiting-notice-guard.mjs",
       "source_identity": "1f:1fd5c61415a64a1f085c424b810d5a6ff6a26c6777691087a8f381bcaee93b41",
       "identity": "1f:7df5631921afa8f698f16aa82e2dcf8f379528dec6cc33046c7b5ceab6edde80"
+    },
+    {
+      "from": "test/handoff-done-when.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/stop-a-reminder-about-a-waiting-or-held-thing/test/handoff-done-when.test.mjs",
+      "source_identity": "1f:79d47f72f1799e893fd9a3ae24ee9920057673cc4b583fe469e03393f973cdb5",
+      "identity": "1f:945bf71fdcb1491e15884414faba04d055d6c7405b36d3c73d2dd021d03ad00f"
     }
   ]
 }
