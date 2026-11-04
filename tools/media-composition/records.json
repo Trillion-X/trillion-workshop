@@ -4684,7 +4684,7 @@
        "moves": [{ "from": "/work/sample/Card/CLIP", "to": "/work/sample/Drive/Clips" }],
        "projects": []
       },
-      "stand_in_programs": { "python3": "exit 1" }
+      "stand_in_programs": { "python3": "cat >/dev/null; exit 1" }
      }
     ],
     "screen": {
