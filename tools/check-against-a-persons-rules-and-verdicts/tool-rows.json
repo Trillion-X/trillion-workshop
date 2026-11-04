@@ -986,7 +986,7 @@
     "label": "Split a document into its pieces",
     "status": "active",
     "job": "Split a document into its smallest self-contained pieces, each as the row a person keeps so every check can name the piece it came from",
-    "description": "Give the text of a document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block under its headings is one piece; titles, rules and table headers are not. Each piece comes back as the row a person keeps in their Checks list: id (piece- and the first 24 hex of its identity), kind piece, says (its lead: its bold opening or its first words), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and its place in the file), and empty groups, kinds and checked_by for the person to fill. The same text twice is one row with two sources. Nothing is read from or written to anyone's records.",
+    "description": "Give the text of a document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block under its headings is one piece; titles, rules and table headers are not. Each piece comes back as the row a person keeps in their Checks list: id (piece- and the first 24 hex of its identity), kind piece, says (its lead: its bold opening or its first words), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line of the file where it starts), and empty groups, kinds and checked_by for the person to fill. The same text twice is one row with two sources. Nothing is read from or written to anyone's records.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -1113,6 +1113,13 @@
         "at": "/opt/content-identity"
        },
        {
+        "package": "documents-as-list-rows",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/documents-as-list-rows"
+       },
+       {
         "module": "@noble/hashes",
         "paths": [
          "LICENSE",
@@ -1154,7 +1161,7 @@
     ],
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
     "provenance": {
-     "source": "old trillion scripts/method-atoms.mjs atomsOf, moved one to one"
+     "source": "old trillion scripts/method-atoms.mjs atomsOf, read from its home tools/documents-as-list-rows/read-data/atoms.mjs"
     },
     "verify": [
      {
@@ -1323,6 +1330,13 @@
          "read-data"
         ],
         "at": "/opt/content-identity"
+       },
+       {
+        "package": "documents-as-list-rows",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/documents-as-list-rows"
        },
        {
         "module": "@noble/hashes",

@@ -21,7 +21,7 @@
    "ownership": "repository-owned",
    "old_copy": {
     "deleted_by": "2026-11-07T00:00:00Z",
-    "deleted_with": "old trillion removes scripts/method-atoms.mjs and sweepAtoms (with scripts/method-sources.mjs --coverage and its tests in test/method-sources.test.mjs) and calls tool:split-a-document-into-pieces and tool:check-every-piece-is-covered; this session may not write to old trillion, so the PR names it as open"
+    "deleted_with": "old trillion removes sweepAtoms (with scripts/method-sources.mjs --coverage and the sweep test of test/method-sources.test.mjs) and calls tool:check-every-piece-is-covered; this session may not write to old trillion, so the PR names it as open"
    }
   }
  ],
@@ -46,11 +46,11 @@
   "a pass while any piece is uncovered"
  ],
  "baseline": {
-  "recorded_at": "2026-11-04T04:07:46Z",
+  "recorded_at": "2026-11-04T04:20:35Z",
   "copied_before_adaptation": true,
   "source_multihash": "1f:285118688f79da23f4681b60ca56476f214d11fc5b4fa881d536d164ba5f2bf4",
   "target_multihash_at_baseline": "1f:285118688f79da23f4681b60ca56476f214d11fc5b4fa881d536d164ba5f2bf4",
-  "commit": "8417a78ec58f2ba595710d1b66d4cf47cbc9f441"
+  "commit": "a632932adee9050cd0525233d3bfa7ad99462516"
  },
  "proof": {
   "minimum_meaningful_line_retention": 0.6,

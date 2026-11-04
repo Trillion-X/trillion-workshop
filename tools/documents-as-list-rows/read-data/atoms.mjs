@@ -15,7 +15,7 @@ const LEAD_WORDS = 8;
 const identity = text => makeHashCodeHexFromBytes(new TextEncoder().encode(text.replace(/\s+/g, ' ').trim()));
 const plain = text => text.replace(/[`*_]/g, '').replace(/\s+/g, ' ').trim();
 
-function lead(text) {
+export function lead(text) {
   const bold = text.match(/^\s*(?:[-*]|\d+\.)?\s*\*\*(.+?)\*\*/);
   if (bold) return plain(bold[1]).replace(/[.:]$/, '');
   const cells = text.match(/^\s*\|(.+?)\|/);
