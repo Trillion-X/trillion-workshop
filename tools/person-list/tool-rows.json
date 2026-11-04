@@ -171,7 +171,15 @@
        "output_selector": "$.total"
       }
      }
-    ]
+    ],
+    "record_model": {
+     "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+     "kinds": [
+      {
+       "type": "record:people"
+      }
+     ]
+    }
    }
   },
   {
