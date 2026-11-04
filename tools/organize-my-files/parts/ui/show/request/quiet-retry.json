@@ -1,0 +1,5 @@
+{
+  "_what": "How a read asks again by itself while the service is busy or out of reach, as DATA (parts/ui/show/request/quiet-retry.ts). `waits_ms` is the wait before each new try, so the person sees the calm loading state for about two minutes (1+2+4+8+15+30+60 s) before a message. `busy_statuses` are the answers that mean busy now, not refused: 408 (timed out), 425, 429 (too many), 502, 503, 504. A request that never reached the service, or gave up waiting, is busy too (`unreached`, status 0). Any other answer is final and is never asked again.",
+  "waits_ms": [1000, 2000, 4000, 8000, 15000, 30000, 60000],
+  "busy_statuses": [408, 425, 429, 502, 503, 504]
+}

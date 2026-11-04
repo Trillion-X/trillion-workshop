@@ -1,0 +1,16 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/safe-error-card/sanitize-error-text.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/ui/show/safe-error-card/sanitize-error-text.ts",
+      "source_identity": "1f:81eaa3d42a76a7faf19ea33b06d579b600f73b97ca44c95997f5e7b6690ce28d",
+      "identity": "1f:81eaa3d42a76a7faf19ea33b06d579b600f73b97ca44c95997f5e7b6690ce28d",
+      "reused": true
+    }
+  ]
+}

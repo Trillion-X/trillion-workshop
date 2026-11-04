@@ -1,0 +1,408 @@
+{
+  "id": "move:trillion-app-screens-to-apps",
+  "about": "The app-screen rows of trillion-workshop docs/worker-retirement-port-backlog.json that had no home on any main and are not carried by trillion-apps PR #11, moved byte for byte from the tag old-trillion-before-worker-retire into trillion-apps web/ under their source paths (the two native app build scripts to scripts/). records/workshop-screen-tool-records.json is read as rows: trillion-apps main already holds it at web/records/ (changed there since, PR #8), and the moved files read that copy at the same relative path.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-apps",
+    "package": "trillion-apps",
+    "shared_folder": "web"
+  },
+  "keep": [
+    "src/chat-import.mjs",
+    "src/chat-archives.mjs",
+    "src/ai-conversations-list.json",
+    "parts/record-log/**",
+    "parts/eeaf/**"
+  ],
+  "provider_calls": [
+    {
+      "id": "durable-object",
+      "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+    },
+    {
+      "id": "kv",
+      "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+    }
+  ],
+  "calls": [],
+  "groups": [
+    {
+      "id": "show-ai-app-bridge",
+      "owner": [
+        "parts/ui/show/ai-app-bridge/ai-app-site-page.mjs",
+        "parts/ui/show/ai-app-bridge/ai-app-view-document.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "show-anatomy",
+      "owner": [
+        "parts/ui/show/anatomy/explainer-page.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "show-coss",
+      "owner": [
+        "parts/ui/show/coss/ui/toast.tsx"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "show-file-view-document",
+      "owner": [
+        "parts/ui/show/file-view-document/file-view-bridge.mjs",
+        "parts/ui/show/file-view-document/file-view-document.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "show-layer-diagram",
+      "owner": [
+        "parts/ui/show/layer-diagram/author-input.json",
+        "parts/ui/show/layer-diagram/author-input.mjs",
+        "parts/ui/show/layer-diagram/change-graph.json",
+        "parts/ui/show/layer-diagram/change-graph.mjs",
+        "parts/ui/show/layer-diagram/graph-authoring.json",
+        "parts/ui/show/layer-diagram/graph-authoring.mjs",
+        "parts/ui/show/layer-diagram/graph-live.json",
+        "parts/ui/show/layer-diagram/graph-live.mjs",
+        "parts/ui/show/layer-diagram/graph-patch.json",
+        "parts/ui/show/layer-diagram/graph-patch.mjs",
+        "parts/ui/show/layer-diagram/graph-svg.json",
+        "parts/ui/show/layer-diagram/graph-svg.mjs",
+        "parts/ui/show/layer-diagram/select-glob.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "show-media-preview",
+      "owner": [
+        "parts/ui/show/media-preview/picture-readiness.json",
+        "parts/ui/show/media-preview/picture-readiness.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "show-merchant-storefront",
+      "owner": [
+        "parts/ui/show/merchant-storefront/merchant-storefront.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "show-public-app-editor",
+      "owner": [
+        "parts/ui/show/public-app-editor/placed-capability-runtime.mjs",
+        "parts/ui/show/public-app-editor/public-app-run-form.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "show-scroll-thread",
+      "owner": [
+        "parts/ui/show/scroll-thread/thread-geometry.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "show-server-rendered-page",
+      "owner": [
+        "parts/ui/show/server-rendered-page/page-egress.mjs",
+        "parts/ui/show/server-rendered-page/page-sections-html.mjs",
+        "parts/ui/show/server-rendered-page/page-work.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "show-thread-cover",
+      "owner": [
+        "parts/ui/show/thread-cover/thread-cover.json",
+        "parts/ui/show/thread-cover/thread-cover.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "native-app-build",
+      "owner": [
+        "scripts/build-native-app.mjs",
+        "scripts/build-native-source-app.mjs"
+      ],
+      "to": "."
+    },
+    {
+      "id": "ai-apps-screen",
+      "owner": [
+        "src/ai-apps-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "billing-screen",
+      "owner": [
+        "src/billing-screen.json",
+        "src/billing-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "brand-static-assets",
+      "owner": [
+        "src/brand-static-assets.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "browser-pages",
+      "owner": [
+        "src/browser-pages.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "business-screen",
+      "owner": [
+        "src/business-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "community-screen",
+      "owner": [
+        "src/community-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "connector-screen",
+      "owner": [
+        "src/connector-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "drives-screen",
+      "owner": [
+        "src/drives-screen.json",
+        "src/drives-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "error-page-lines",
+      "owner": [
+        "src/error-page-lines.json"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "first-answers-copy",
+      "owner": [
+        "src/first-answers-copy.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "html-page",
+      "owner": [
+        "src/html-page.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "link-page-pages",
+      "owner": [
+        "src/link-page-pages.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "link-page-screen",
+      "owner": [
+        "src/link-page-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "narrowed-screen",
+      "owner": [
+        "src/narrowed-screen.json",
+        "src/narrowed-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "native-work-screen",
+      "owner": [
+        "src/native-work-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "old-tab-repaint",
+      "owner": [
+        "src/old-tab-repaint.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "page-look",
+      "owner": [
+        "src/page-look.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "page-words",
+      "owner": [
+        "src/page-words.json"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "photograph-page",
+      "owner": [
+        "src/photograph-page.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "presentation-content",
+      "owner": [
+        "src/presentation-content.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "price-tests-screen",
+      "owner": [
+        "src/price-tests-screen.json",
+        "src/price-tests-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "privacy-screen",
+      "owner": [
+        "src/privacy-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "public-site-pages",
+      "owner": [
+        "src/public-site-pages.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "pursuit-detail-screen",
+      "owner": [
+        "src/pursuit-detail-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "referral-screen",
+      "owner": [
+        "src/referral-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "screen-capabilities",
+      "owner": [
+        "src/screen-capabilities.json",
+        "src/screen-capabilities.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "screen-day",
+      "owner": [
+        "src/screen-day.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "screen-host",
+      "owner": [
+        "src/screen-host.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "screen-pictures",
+      "owner": [
+        "src/screen-pictures.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "screen-reads",
+      "owner": [
+        "src/screen-reads.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "screen-view",
+      "owner": [
+        "src/screen-view.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "screen-words",
+      "owner": [
+        "src/screen-words.json"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "share-pages",
+      "owner": [
+        "src/share-pages.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "show-as-a-page",
+      "owner": [
+        "src/show-as-a-page.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "story-pages",
+      "owner": [
+        "src/story-pages.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "typed-on-signed-in-screen",
+      "owner": [
+        "src/typed-on-signed-in-screen.mjs"
+      ],
+      "to": "web"
+    },
+    {
+      "id": "webhooks-screen",
+      "owner": [
+        "src/webhooks-screen.json",
+        "src/webhooks-screen.mjs"
+      ],
+      "to": "web"
+    }
+  ],
+  "read_as_rows": [
+    "records/workshop-screen-tool-records.json"
+  ]
+}

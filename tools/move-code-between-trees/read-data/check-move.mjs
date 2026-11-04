@@ -26,7 +26,7 @@ export function receiptsIn(destinationFolder, folders) {
   const found = [];
   const look = folder => { const path = join(destinationFolder, folder, 'moved-from.json'); if (existsSync(path)) found.push({ folder, receipt: JSON.parse(readFileSync(path, 'utf8')) }); };
   if (folders?.length) folders.forEach(look);
-  else for (const name of readdirSync(join(destinationFolder, 'tools'))) {
+  else if (existsSync(join(destinationFolder, 'tools'))) for (const name of readdirSync(join(destinationFolder, 'tools'))) {
     if (statSync(join(destinationFolder, 'tools', name)).isDirectory()) look(`tools/${name}`);
   }
   return found;
@@ -42,9 +42,12 @@ const withoutRequests = text => {
 
 export function checkMove({ sources, destinationFolder, sourceAfterFolder, folders, run = true, timeoutMs = 600000 }) {
   const receipts = receiptsIn(destinationFolder, folders);
-  const allReceipts = folders?.length ? receiptsIn(destinationFolder) : receipts;
+  // A tree that keeps its moved files outside tools/ (an app's web/) has its receipts only in the folders named.
+  const allReceipts = folders?.length ? [...receipts, ...receiptsIn(destinationFolder).filter(item => !folders.includes(item.folder))] : receipts;
+  // A source file an earlier lane moved and a later one found home already (or two lanes each carried) has every place a
+  // receipt names: an import reaching any of them reaches that file.
   const landing = new Map();
-  for (const { receipt } of allReceipts) for (const file of receipt.files) landing.set(`${file.commit}:${file.from}`, file.to);
+  for (const { receipt } of allReceipts) for (const file of receipt.files) landing.set(`${file.commit}:${file.from}`, [...(landing.get(`${file.commit}:${file.from}`) ?? []), file.to]);
   const destinationExists = path => existsSync(join(destinationFolder, path)) && statSync(join(destinationFolder, path)).isFile();
 
   const results = receipts.map(({ folder, receipt }) => {
@@ -57,10 +60,10 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
       if (identity(now) !== file.identity) problems.push(`${file.to} is not the bytes its receipt names`);
       const before = tree.read(file.from);
       if (identity(before) !== file.source_identity) problems.push(`${file.from} at ${file.commit.slice(0, 10)} is not the bytes the receipt names`);
-      if (file.reused) { if (!now.equals(before)) problems.push(`${file.to} was reused but differs from ${file.from}`); }
+      if (file.reused) { if (isCode(file.from) ? withoutRequests(now.toString('utf8')) !== withoutRequests(before.toString('utf8')) : !now.equals(before)) problems.push(`${file.to} was reused but differs from ${file.from}${isCode(file.from) ? ' beyond its import paths' : ''}`); }
       else if (isCode(file.from)) {
         const used = new Set(file.calls ?? []);
-        const swapped = swapCalls(before.toString('utf8'), receipt.calls.filter(row => used.has(row.id))).text;
+        const swapped = swapCalls(before.toString('utf8'), (receipt.calls ?? []).filter(row => used.has(row.id))).text;
         if (withoutRequests(swapped) !== withoutRequests(now.toString('utf8'))) problems.push(`${file.to} differs from ${file.from} beyond its import paths and swapped calls`);
         const was = requestsIn(swapped);
         const is = requestsIn(now.toString('utf8'));
@@ -77,7 +80,7 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
           const target = targetOf(file.from, was[at].specifier, tree.exists, alias);
           const expected = target && (landing.get(`${file.commit}:${target}`) ?? null);
           const reached = resolveRequest(file.to, is[at].specifier, destinationExists);
-          if (target && reached !== expected) problems.push(`${file.to}: ${is[at].specifier} reaches ${reached ?? 'nothing'}, where ${file.from} reached ${target} (now ${expected ?? 'not moved'})`);
+          if (target && (expected ? !expected.includes(reached) : reached !== null)) problems.push(`${file.to}: ${is[at].specifier} reaches ${reached ?? 'nothing'}, where ${file.from} reached ${target} (now ${expected?.join(' or ') ?? 'not moved'})`);
         }
       } else if (!now.equals(before)) problems.push(`${file.to} differs from ${file.from}`);
       if (sourceAfterFolder && existsSync(join(sourceAfterFolder, file.from))) problems.push(`${file.from} is still in the source: two copies`);

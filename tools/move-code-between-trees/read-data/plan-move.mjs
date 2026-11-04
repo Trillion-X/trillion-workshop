@@ -95,15 +95,48 @@ export function planMove(row, source, destination) {
   });
   const moving = () => groups.filter(group => !group.held.length);
 
-  // 2. Tests that move: every file they reach moves, or is test help in a test folder; they reach a moving group's file.
+  // Where the destination already holds a source file elsewhere, with the same bytes once import paths are set aside (an
+  // earlier move carried it under another group's folder, say). Of several such copies, the one whose path ends most like
+  // the source path is the one.
+  const withoutRequests = text => { let out = ''; let at = 0; for (const item of requestsIn(text)) { out += text.slice(at, item.start) + '\u0000'; at = item.end; } return out + text.slice(at); };
+  const byName = new Map();
+  for (const path of destination.files) byName.set(posix.basename(path), [...(byName.get(posix.basename(path)) ?? []), path]);
+  const bare = (path, bytes) => (isCode(path) ? withoutRequests(bytes.toString('utf8')) : bytes.toString('binary'));
+  const sharedTail = (a, b) => { const x = a.split('/').reverse(); const y = b.split('/').reverse(); let n = 0; while (n < x.length && x[n] === y[n]) n += 1; return n; };
+  const homes = new Map();
+  const homeElsewhere = path => {
+    if (homes.has(path)) return homes.get(path);
+    const named = byName.get(posix.basename(path)) ?? [];
+    destination.readMany(named);
+    const before = source.exists(path) ? bare(path, source.read(path)) : null;
+    const there = before === null ? null : (named.filter(other => bare(other, destination.read(other)) === before)
+      .sort((a, b) => sharedTail(b, path) - sharedTail(a, path) || a.localeCompare(b))[0] ?? null);
+    homes.set(path, there);
+    return there;
+  };
+
+  // 2. Tests that move: every file they reach moves, is test help in a test folder, or is home already in the destination
+  // (what that file imports is settled there, so it is not followed); they reach a moving group's file.
   const inTestFolder = path => testFolders.some(folder => path.startsWith(`${folder.replace(/\/+$/, '')}/`));
   const movingFiles = new Set(moving().flatMap(group => [...group.closure]));
+  const reachOf = start => {
+    const found = new Set();
+    const stack = [start];
+    while (stack.length) {
+      const path = stack.pop();
+      if (found.has(path) || !source.exists(path) || readAsRows(path)) continue;
+      found.add(path);
+      if (path !== start && !movingFiles.has(path) && !inTestFolder(path) && homeElsewhere(path)) continue;
+      for (const item of requestsOf(path)) if (item.target) stack.push(item.target);
+    }
+    return found;
+  };
   for (const path of [...source.files].filter(file => TEST_FILE.test(file) && inTestFolder(file)).sort()) {
     if (movingFiles.has(path)) continue;
-    const reach = closureOf([path]);
+    const reach = reachOf(path);
     const owner = moving().find(group => group.roots.some(root => reach.has(root)));
     if (!owner) continue;
-    if ([...reach].every(file => movingFiles.has(file) || (inTestFolder(file) && !kept(file)))) owner.tests.push({ path, reach });
+    if ([...reach].every(file => movingFiles.has(file) || (inTestFolder(file) && !kept(file)) || homeElsewhere(file))) owner.tests.push({ path, reach });
   }
   for (const group of moving()) for (const test of group.tests) for (const file of test.reach) group.closure.add(file);
 
@@ -129,6 +162,43 @@ export function planMove(row, source, destination) {
     const there = destinationByIdentity.get(makeHashCodeHexFromBytes(new Uint8Array(source.read(path))));
     if (there) { reused.set(path, there); landing.set(path, there); }
   }
+  // A file the destination already holds at the very place it would land, with the same bytes once import paths are
+  // set aside, is home already: it is not copied again, and the files that move import it there.
+  const homeAlready = new Map();
+  for (const [path, to] of landing) {
+    if (reused.has(path) || !destination.exists(to)) continue;
+    const here = destination.read(to);
+    const before = source.read(path);
+    if (here.equals(before) || (isCode(path) && withoutRequests(here.toString('utf8')) === withoutRequests(before.toString('utf8')))) {
+      reused.set(path, to);
+      homeAlready.set(path, makeHashCodeHexFromBytes(new Uint8Array(here)));
+    }
+  }
+  // A file an earlier move already carried to another place in the destination (under another group's folder, say), with
+  // the same bytes once import paths are set aside, is home already there: what moves now imports it there, no second
+  // copy is made. Of several such copies, the one whose path ends most like the source path is the one.
+  const elsewhere = [...landing.keys()].filter(path => !reused.has(path) && !destination.exists(landing.get(path)) && byName.has(posix.basename(path)));
+  for (const path of elsewhere) {
+    const there = homeElsewhere(path);
+    if (!there) continue;
+    reused.set(path, there);
+    landing.set(path, there);
+    homeAlready.set(path, makeHashCodeHexFromBytes(new Uint8Array(destination.read(there))));
+  }
+  // A file reached only through a file that is home already is not moved: that file's imports are already settled where
+  // it is.
+  if (homeAlready.size) {
+    const reach = new Set();
+    const stack = moving().flatMap(group => [...group.roots, ...group.tests.map(item => item.path)]);
+    while (stack.length) {
+      const path = stack.pop();
+      if (reach.has(path) || !landing.has(path)) continue;
+      reach.add(path);
+      if (reused.has(path)) continue;
+      for (const item of requestsOf(path)) if (item.target) stack.push(item.target);
+    }
+    for (const path of [...landing.keys()]) if (!reach.has(path)) { landing.delete(path); reused.delete(path); homeAlready.delete(path); }
+  }
 
   // 4. Each moved file's new bytes: imports written for the new places, and provider calls swapped.
   const files = new Map();
@@ -139,7 +209,7 @@ export function planMove(row, source, destination) {
   const packagesToAdd = new Map();
   for (const [path, to] of landing) {
     const owners = needed.get(path);
-    const plan = { from: path, to, groups: owners, reused: reused.has(path), source_identity: makeHashCodeHexFromBytes(new Uint8Array(source.read(path))) };
+    const plan = { from: path, to, groups: owners, reused: reused.has(path), source_identity: makeHashCodeHexFromBytes(new Uint8Array(source.read(path))), ...(homeAlready.has(path) ? { identity_here: homeAlready.get(path) } : {}) };
     if (!reused.has(path) && destination.exists(to)) {
       for (const id of owners) byId.get(id).held.push(`${to} is already in the destination with other bytes`);
     }

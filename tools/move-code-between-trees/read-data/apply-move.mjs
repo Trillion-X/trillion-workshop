@@ -52,7 +52,7 @@ export function applyMove(plan, row, source, destination, { sourceFolder, destin
       writeFileSync(there, after);
       if (source.mode(file.from) === '100755') chmodSync(there, 0o755);
       file.identity = identity(after);
-    } else file.identity = file.source_identity;
+    } else file.identity = file.identity_here ?? file.source_identity;
     const folder = receiptFolder(file.to, plan, row);
     if (!receipts.has(folder)) receipts.set(folder, []);
     receipts.get(folder).push({ from: file.from, commit: source.commit, to: file.to, source_identity: file.source_identity, identity: file.identity, ...(file.reused ? { reused: true } : {}), ...(file.swaps?.length ? { calls: file.swaps.map(hit => hit.id) } : {}), ...(file.reads_rows ? { reads_rows: file.reads_rows } : {}) });
@@ -62,8 +62,14 @@ export function applyMove(plan, row, source, destination, { sourceFolder, destin
     const kept = existsSync(path) ? json(path) : { about: 'Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.', source: row.source?.name ?? null, package: row.destination?.package ?? null, calls: [], files: [] };
     const usedCalls = new Set(entries.flatMap(entry => entry.calls ?? []));
     for (const call of calls.filter(item => usedCalls.has(item.id))) if (!kept.calls.some(item => item.id === call.id)) kept.calls.push(call);
-    const byTo = new Map(kept.files.map(entry => [entry.to, entry]));
-    for (const entry of entries) byTo.set(entry.to, entry);
+    // A file written here replaces the entry for its place; a file found home already here (moved by an earlier move)
+    // keeps that move's entry, and is named again only as what this move's files import.
+    const keyOf = entry => (entry.reused ? `${entry.to}\u0000${entry.commit}\u0000${entry.from}` : entry.to);
+    const byTo = new Map(kept.files.map(entry => [keyOf(entry), entry]));
+    for (const entry of entries) {
+      if (entry.reused && kept.files.some(other => other.to === entry.to && other.commit === entry.commit && other.from === entry.from)) continue;
+      byTo.set(keyOf(entry), entry);
+    }
     kept.files = [...byTo.values()].sort((a, b) => a.to.localeCompare(b.to));
     writeJson(path, kept);
     describeFolder(destinationFolder, folder, row, plan);

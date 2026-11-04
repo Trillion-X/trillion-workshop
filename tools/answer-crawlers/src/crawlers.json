@@ -1,0 +1,144 @@
+{
+  "schema": "trillion.crawlers",
+  "about": "Public crawler discovery for this host. A page enters the share sitemap only when its owner lists it.",
+  "robots": {
+    "content_signals": "# As a condition of accessing this website, you agree to abide by the following\n# content signals:\n\n# (a)  If a content-signal = yes, you may collect content for the corresponding\n#      use.\n# (b)  If a content-signal = no, you may not collect content for the\n#      corresponding use.\n# (c)  If the website operator does not include a content signal for a\n#      corresponding use, the website operator neither grants nor restricts\n#      permission via content signal with respect to the corresponding use.\n\n# The content signals and their meanings are:\n\n# search:   building a search index and providing search results (e.g., returning\n#           hyperlinks and short excerpts from your website's contents). Search does not\n#           include providing AI-generated search summaries.\n# ai-input: inputting content into one or more AI models (e.g., retrieval\n#           augmented generation, grounding, or other real-time taking of content for\n#           generative AI search answers).\n# ai-train: training or fine-tuning AI models.\n\n# ANY RESTRICTIONS EXPRESSED VIA CONTENT SIGNALS ARE EXPRESS RESERVATIONS OF\n# RIGHTS UNDER ARTICLE 4 OF THE EUROPEAN UNION DIRECTIVE 2019/790 ON COPYRIGHT\n# AND RELATED RIGHTS IN THE DIGITAL SINGLE MARKET.",
+    "groups": [
+      {
+        "user_agents": [
+          "*"
+        ],
+        "allow": [
+          "/"
+        ],
+        "disallow": []
+      },
+      {
+        "user_agents": [
+          "meta-webindexer",
+          "OAI-SearchBot",
+          "ChatGPT-User",
+          "PerplexityBot",
+          "Claude-SearchBot",
+          "Claude-User"
+        ],
+        "allow": [
+          "/"
+        ],
+        "disallow": []
+      }
+    ],
+    "sitemaps": [
+      "/share/sitemap.xml"
+    ]
+  },
+  "indexnow_word": "20009f9d870f048936b64324566673c2",
+  "public_app_robots": {
+    "about": "What a public app's own robots.txt says when the app has not written one. Every engine may read the whole app unless its owner turned AI crawlers off (`allow_ai_crawlers` false on the installation); then the AI and answer-engine agents named in `without_ai_crawlers` are kept out and search engines still read it.",
+    "groups": [
+      {
+        "user_agents": [
+          "*"
+        ],
+        "allow": [
+          "/"
+        ],
+        "disallow": []
+      },
+      {
+        "user_agents": [
+          "meta-webindexer",
+          "OAI-SearchBot",
+          "ChatGPT-User",
+          "PerplexityBot",
+          "Claude-SearchBot",
+          "Claude-User"
+        ],
+        "allow": [
+          "/"
+        ],
+        "disallow": []
+      }
+    ],
+    "without_ai_crawlers": {
+      "groups": [
+        {
+          "user_agents": [
+            "*"
+          ],
+          "allow": [
+            "/"
+          ],
+          "disallow": []
+        },
+        {
+          "user_agents": [
+            "meta-webindexer",
+            "OAI-SearchBot",
+            "ChatGPT-User",
+            "PerplexityBot",
+            "Claude-SearchBot",
+            "Claude-User"
+          ],
+          "allow": [],
+          "disallow": [
+            "/"
+          ]
+        }
+      ]
+    }
+  },
+  "discovery": {
+    "about": "How an agent finds what this host offers from any page: the Link header set on every HTML page that has none, and the API catalog (RFC 9727) at api_catalog.path. A path is on this host.",
+    "link_header": [
+      {
+        "rel": "describedby",
+        "path": "/stories/llms.txt",
+        "type": "text/plain"
+      },
+      {
+        "rel": "api-catalog",
+        "path": "/.well-known/api-catalog"
+      },
+      {
+        "rel": "oauth-protected-resource",
+        "path": "/.well-known/oauth-protected-resource/mcp",
+        "type": "application/json"
+      },
+      {
+        "rel": "sitemap",
+        "path": "/stories/sitemap.xml",
+        "type": "application/xml"
+      }
+    ],
+    "api_catalog": {
+      "path": "/.well-known/api-catalog",
+      "profile": "https://www.rfc-editor.org/info/rfc9727",
+      "apis": [
+        {
+          "path": "/mcp",
+          "title": "Trillion MCP server",
+          "relations": {
+            "service-desc": [
+              {
+                "path": "/.well-known/oauth-protected-resource/mcp",
+                "type": "application/json"
+              }
+            ],
+            "service-doc": [
+              {
+                "path": "/stories/llms.txt",
+                "type": "text/plain"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "markdown": {
+    "about": "Markdown on request (Accept: text/markdown) for the pages this service draws. A token is estimated as this share of a character.",
+    "tokens_per_character": 0.25,
+    "most_html_characters": 2000000
+  }
+}

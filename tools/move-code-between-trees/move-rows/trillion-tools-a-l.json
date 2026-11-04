@@ -1,0 +1,544 @@
+{
+  "id": "move:trillion-tools-a-l",
+  "about": "Port backlog slice: the workshop-tool rows under src/ whose file name starts with a to l, moved byte for byte from the tag old-trillion-before-worker-retire into Workshop tool folders, one group per job. Rows that already have a home on trillion-workshop, trillion-rust or trillion-apps main (found by content) are not moved; src/chat-import.mjs, src/chat-archives.mjs and src/ai-conversations-list.json belong to the conversations job and are left alone.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [
+    "parts/eeaf/do-work/eeaf-sqlite-store.mjs",
+    "parts/record-log/do-work/erasable.mjs",
+    "parts/record-log/do-work/json-members.mjs",
+    "parts/record-log/do-work/kept-runs.mjs",
+    "parts/record-log/do-work/record-log-store.mjs",
+    "src/chat-import.mjs",
+    "src/chat-archives.mjs",
+    "src/ai-conversations-list.json"
+  ],
+  "provider_calls": [
+    {
+      "id": "durable-object",
+      "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+    },
+    {
+      "id": "kv",
+      "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+    }
+  ],
+  "calls": [],
+  "groups": [
+    {
+      "id": "hand-off-jobs-between-agents",
+      "owner": [
+        "src/agent-surface.json",
+        "src/agent-tool-runs.mjs",
+        "src/agent-work-queue.mjs",
+        "src/agents.mjs",
+        "src/ai-side-work.json",
+        "src/ai-space-projection.mjs",
+        "src/delivery-words.json",
+        "src/handoff-notice.mjs",
+        "src/handoff-projection.mjs",
+        "src/item-links.json",
+        "src/item-links.mjs",
+        "src/live-work.mjs"
+      ],
+      "to": "tools/hand-off-jobs-between-agents"
+    },
+    {
+      "id": "see-and-limit-what-each-ai-can-reach",
+      "owner": [
+        "src/ai-reach-words.json",
+        "src/ai-reach.mjs",
+        "src/ais.json",
+        "src/ais.mjs",
+        "src/app-places.json",
+        "src/asks-for-your-ais.mjs",
+        "src/computer-sources.mjs"
+      ],
+      "to": "tools/see-and-limit-what-each-ai-can-reach"
+    },
+    {
+      "id": "address-installed-capabilities",
+      "owner": [
+        "src/addressed-capabilities.mjs",
+        "src/addressed-capability-contract.mjs",
+        "src/addressed-capability-tools.mjs",
+        "src/addressed-operation.mjs",
+        "src/behavior-routing.mjs",
+        "src/built-in-tools.mjs",
+        "src/context-workshop-tools.mjs",
+        "src/creation-resource-mount.mjs",
+        "src/creation-resource-owner.mjs"
+      ],
+      "to": "tools/address-installed-capabilities"
+    },
+    {
+      "id": "offer-my-work-as-ag-ui-events",
+      "owner": [
+        "src/ag-ui.json",
+        "src/ag-ui.mjs"
+      ],
+      "to": "tools/offer-my-work-as-ag-ui-events"
+    },
+    {
+      "id": "feed-and-correct-the-answer-engine",
+      "owner": [
+        "src/answer-lists.json",
+        "src/answer-tools.mjs"
+      ],
+      "to": "tools/feed-and-correct-the-answer-engine"
+    },
+    {
+      "id": "assemble-and-publish-an-app-project",
+      "owner": [
+        "src/app-project-assembly.mjs",
+        "src/app-project-output-composition.mjs",
+        "src/app-project-publish.mjs",
+        "src/app-project-web-mounts.mjs",
+        "src/app-project.mjs"
+      ],
+      "to": "tools/assemble-and-publish-an-app-project"
+    },
+    {
+      "id": "publish-an-approved-insight",
+      "owner": [
+        "src/approved-insights.mjs"
+      ],
+      "to": "tools/publish-an-approved-insight"
+    },
+    {
+      "id": "answer-while-records-catch-up",
+      "owner": [
+        "src/ask-again-while-busy.json",
+        "src/ask-again-while-busy.mjs"
+      ],
+      "to": "tools/answer-while-records-catch-up"
+    },
+    {
+      "id": "notice-what-needs-attention",
+      "owner": [
+        "src/attention.mjs",
+        "src/brought-in.json",
+        "src/brought-in.mjs"
+      ],
+      "to": "tools/notice-what-needs-attention",
+      "held_until": "its opinion content (src/attention.json, src/awareness.json, src/life-map.json, records/execution-mode-records.json) is read_as_rows: the files load only once the code takes those rows from its caller, which is an adaptation, not a byte-for-byte move"
+    },
+    {
+      "id": "keep-a-continuous-awareness-reading",
+      "owner": [
+        "src/awareness-owner.mjs",
+        "src/awareness.json",
+        "src/awareness.mjs"
+      ],
+      "to": "tools/keep-a-continuous-awareness-reading",
+      "held_until": "its opinion content (src/attention.json, src/awareness.json, src/life-map.json, records/execution-mode-records.json) is read_as_rows: the files load only once the code takes those rows from its caller, which is an adaptation, not a byte-for-byte move"
+    },
+    {
+      "id": "gather-audience-questions",
+      "owner": [
+        "src/audience-question-admission.mjs",
+        "src/audience-question-sources.mjs"
+      ],
+      "to": "tools/gather-audience-questions"
+    },
+    {
+      "id": "run-rules-and-schedules-by-themselves",
+      "owner": [
+        "src/automation-guards.json",
+        "src/automation-health-looks.json",
+        "src/automation-health.mjs",
+        "src/automation-open-id.mjs",
+        "src/automation-tools.mjs",
+        "src/automations.mjs",
+        "src/backing-automations.mjs",
+        "src/compare-readings.mjs"
+      ],
+      "to": "tools/run-rules-and-schedules-by-themselves"
+    },
+    {
+      "id": "price-and-sell-by-contract",
+      "owner": [
+        "src/billing-usage-tree.mjs",
+        "src/checkout-welcome.json",
+        "src/commercial-events.mjs",
+        "src/contract-checkout.mjs",
+        "src/contract-entitlements.mjs",
+        "src/contract-stripe-webhook.mjs",
+        "src/credit.mjs",
+        "src/funded-usage.mjs",
+        "src/geometric-pricing.json",
+        "src/geometric-pricing.mjs"
+      ],
+      "to": "tools/price-and-sell-by-contract"
+    },
+    {
+      "id": "keep-a-space-board",
+      "owner": [
+        "src/board-record-values.mjs"
+      ],
+      "to": "tools/keep-a-space-board"
+    },
+    {
+      "id": "copy-records-into-this-browser",
+      "owner": [
+        "src/browser-record-copy.mjs",
+        "src/browser-session-recorder.mjs",
+        "src/kept-answers.mjs"
+      ],
+      "to": "tools/copy-records-into-this-browser",
+      "held_until": "tools/keep-my-records-on-this-device/do-work/account-copy.mjs (the old parts/device-copy, already here) imports ./frame-compression.mjs, which is not beside it: the group's tests fail on that until the device-copy lane lands frame-compression.mjs there"
+    },
+    {
+      "id": "set-up-my-devices-and-cameras",
+      "owner": [
+        "src/camera-tools.mjs",
+        "src/device-facts-tools.mjs",
+        "src/devices.json",
+        "src/devices.mjs"
+      ],
+      "to": "tools/set-up-my-devices-and-cameras"
+    },
+    {
+      "id": "check-every-capability-still-works",
+      "owner": [
+        "src/capability-checks.json",
+        "src/capability-checks.mjs"
+      ],
+      "to": "tools/check-every-capability-still-works"
+    },
+    {
+      "id": "find-and-keep-my-connections",
+      "owner": [
+        "src/carried-connections.json",
+        "src/carried-connections.mjs",
+        "src/connection-recommendations.mjs",
+        "src/connection-records.mjs",
+        "src/connection-summaries.mjs",
+        "src/connector-catalog.mjs",
+        "src/integration-requests.json",
+        "src/integration-requests.mjs"
+      ],
+      "to": "tools/find-and-keep-my-connections"
+    },
+    {
+      "id": "carry-an-account-into-its-own-records",
+      "owner": [
+        "src/carried-rows-prune.mjs",
+        "src/carry-forward.mjs",
+        "src/carry-tables-into-records.mjs",
+        "src/duplicate-work-fold.mjs",
+        "src/growth-admission.mjs",
+        "src/history-continuation.mjs",
+        "src/imported-history-receipt.mjs"
+      ],
+      "to": "tools/carry-an-account-into-its-own-records"
+    },
+    {
+      "id": "refuse-changes-sent-from-other-sites",
+      "owner": [
+        "src/change-from-elsewhere.mjs"
+      ],
+      "to": "tools/refuse-changes-sent-from-other-sites"
+    },
+    {
+      "id": "picture-a-code-change",
+      "owner": [
+        "src/change-picture.json",
+        "src/change-picture.mjs"
+      ],
+      "to": "tools/picture-a-code-change"
+    },
+    {
+      "id": "lock-out-stale-pages",
+      "owner": [
+        "src/client-version.json",
+        "src/client-version.mjs"
+      ],
+      "to": "tools/lock-out-stale-pages"
+    },
+    {
+      "id": "match-community-members",
+      "owner": [
+        "src/community-logic/get-path.ts",
+        "src/community-logic/match/bounded-candidates.mjs"
+      ],
+      "to": "tools/match-community-members"
+    },
+    {
+      "id": "run-a-community",
+      "owner": [
+        "src/community-tools.mjs"
+      ],
+      "to": "tools/run-a-community"
+    },
+    {
+      "id": "say-what-an-action-does-to-the-world",
+      "owner": [
+        "src/consequence-classes.json",
+        "src/consequence-classes.mjs"
+      ],
+      "to": "tools/say-what-an-action-does-to-the-world"
+    },
+    {
+      "id": "organize-my-files",
+      "owner": [
+        "src/content-tags.json",
+        "src/content-tags.mjs",
+        "src/file-organization.json",
+        "src/file-organization.mjs",
+        "src/file-tidy.json",
+        "src/file-tidy.mjs",
+        "src/file-tools.mjs",
+        "src/file-versions.json",
+        "src/file-versions.mjs"
+      ],
+      "to": "tools/organize-my-files"
+    },
+    {
+      "id": "make-screen-layouts-and-controls",
+      "owner": [
+        "src/controls-tools.mjs",
+        "src/layouts-tools.mjs",
+        "src/layouts.mjs"
+      ],
+      "to": "tools/make-screen-layouts-and-controls"
+    },
+    {
+      "id": "keep-copies-near-far-readers",
+      "owner": [
+        "src/copy-followers.mjs"
+      ],
+      "to": "tools/keep-copies-near-far-readers"
+    },
+    {
+      "id": "answer-crawlers",
+      "owner": [
+        "src/crawlers.json",
+        "src/crawlers.mjs"
+      ],
+      "to": "tools/answer-crawlers"
+    },
+    {
+      "id": "read-vendor-tables-as-rows",
+      "owner": [
+        "src/data-rows.mjs"
+      ],
+      "to": "tools/read-vendor-tables-as-rows"
+    },
+    {
+      "id": "move-a-dated-plan",
+      "owner": [
+        "src/date-shift.json",
+        "src/date-shift.mjs"
+      ],
+      "to": "tools/move-a-dated-plan"
+    },
+    {
+      "id": "track-decision-obligations",
+      "owner": [
+        "src/decision-workflows.mjs"
+      ],
+      "to": "tools/track-decision-obligations"
+    },
+    {
+      "id": "draw-a-diagram",
+      "owner": [
+        "src/diagram-tools.mjs"
+      ],
+      "to": "tools/draw-a-diagram"
+    },
+    {
+      "id": "tell-directories-and-reviewers-about-trillion",
+      "owner": [
+        "src/directory-listing.json",
+        "src/how-to-start-for-reviewers.json"
+      ],
+      "to": "tools/tell-directories-and-reviewers-about-trillion"
+    },
+    {
+      "id": "send-an-edit-to-my-video-editor",
+      "owner": [
+        "src/editor-handoff.json",
+        "src/editor-handoff.mjs"
+      ],
+      "to": "tools/send-an-edit-to-my-video-editor",
+      "held_until": "tools/media-composition/do-work/filmcraft-edit-job.mjs (already here) imports tools/live-namespace/do-work/shared-file-reference.mjs, which no lane has moved yet: the group's test fails on that"
+    },
+    {
+      "id": "disclose-what-leaves-the-device",
+      "owner": [
+        "src/egress-disclosure.json",
+        "src/egress-disclosure.mjs"
+      ],
+      "to": "tools/disclose-what-leaves-the-device"
+    },
+    {
+      "id": "start-from-any-landing-page",
+      "owner": [
+        "src/entry-points.json",
+        "src/entry-points.mjs"
+      ],
+      "to": "tools/start-from-any-landing-page"
+    },
+    {
+      "id": "name-event-inboxes",
+      "owner": [
+        "src/event-inbox-names.mjs"
+      ],
+      "to": "tools/name-event-inboxes"
+    },
+    {
+      "id": "introduce-two-people",
+      "owner": [
+        "src/first-match-check.mjs",
+        "src/introduction-states.json",
+        "src/introduction-states.mjs"
+      ],
+      "to": "tools/introduce-two-people"
+    },
+    {
+      "id": "host-tool-servers-and-sites",
+      "owner": [
+        "src/hosted-mcp-apps.mjs",
+        "src/hosted-sites.mjs"
+      ],
+      "to": "tools/host-tool-servers-and-sites"
+    },
+    {
+      "id": "send-notes-in-by-mail",
+      "owner": [
+        "src/inbound-address-words.json",
+        "src/inbound-mail-addresses.mjs",
+        "src/inbound-mail-settings.json"
+      ],
+      "to": "tools/send-notes-in-by-mail"
+    },
+    {
+      "id": "see-what-an-account-has-installed",
+      "owner": [
+        "src/installed-set.mjs"
+      ],
+      "to": "tools/see-what-an-account-has-installed"
+    },
+    {
+      "id": "withhold-from-visit-counting",
+      "owner": [
+        "src/interaction-consent.json"
+      ],
+      "to": "tools/withhold-from-visit-counting"
+    },
+    {
+      "id": "keep-a-short-list",
+      "owner": [
+        "src/kept-list.mjs"
+      ],
+      "to": "tools/keep-a-short-list"
+    },
+    {
+      "id": "learn-a-workflow-from-a-job",
+      "owner": [
+        "src/learned-workflows.json",
+        "src/learned-workflows.mjs"
+      ],
+      "to": "tools/learn-a-workflow-from-a-job"
+    },
+    {
+      "id": "share-links",
+      "owner": [
+        "src/link-page-tools.mjs",
+        "src/link-previews.mjs"
+      ],
+      "to": "tools/share-links"
+    },
+    {
+      "id": "keep-saved-actions-in-folders",
+      "owner": [
+        "src/action-folders.mjs"
+      ],
+      "to": "tools/keep-saved-actions-in-folders"
+    },
+    {
+      "id": "query-and-change-list-rows",
+      "owner": [
+        "src/list-aggregates.mjs",
+        "src/list-filters.mjs",
+        "src/list-identity.mjs",
+        "src/list-input-grammar.mjs",
+        "src/list-keys.mjs",
+        "src/list-pairs.mjs",
+        "src/list-paths.mjs",
+        "src/list-people.mjs",
+        "src/list-plain-files.mjs",
+        "src/list-proposals.mjs",
+        "src/list-relationships.mjs",
+        "src/list-rollups.mjs",
+        "src/list-row-operations.mjs",
+        "src/list-row-transfer.mjs",
+        "src/list-snapshots.mjs",
+        "src/list-stamps.mjs",
+        "src/list-tool-actions.mjs",
+        "src/list-tools.mjs",
+        "src/list-view-parameters.mjs"
+      ],
+      "to": "tools/query-and-change-list-rows"
+    },
+    {
+      "id": "show-live-words-while-recording",
+      "owner": [
+        "src/live-words.json"
+      ],
+      "to": "tools/show-live-words-while-recording"
+    },
+    {
+      "id": "choose-locally",
+      "owner": [
+        "src/local-choice-tasks.json"
+      ],
+      "to": "tools/choose-locally"
+    },
+    {
+      "id": "choose-and-publish-screen-looks",
+      "owner": [
+        "src/looks.mjs"
+      ],
+      "to": "tools/choose-and-publish-screen-looks"
+    }
+  ],
+  "read_as_rows": [
+    "methods/",
+    "records/workflow-recipe-records.json",
+    "records/execution-mode-records.json",
+    "records/starting-rules.json",
+    "records/copy-rules.json",
+    "records/commercial-offer-records.json",
+    "records/content-format-starters.json",
+    "records/feel-moments.json",
+    "records/delight-moments.json",
+    "communities/",
+    "cases/",
+    "src/awareness.json",
+    "src/life-map.json",
+    "src/pursuit-plan.json",
+    "src/story-settings.json",
+    "src/attention.json",
+    "src/workspace/walkthroughs/",
+    "src/error-page-lines.json"
+  ],
+  "keep_reasons": {
+    "parts/eeaf/": "The EEAF job (trillion-workshop PR #121) owns parts/eeaf/** and parts/record-log/**; this move leaves them alone.",
+    "parts/record-log/": "The EEAF job (trillion-workshop PR #121) owns parts/eeaf/** and parts/record-log/**; this move leaves them alone.",
+    "src/chat-import.mjs": "The conversations job owns it.",
+    "src/chat-archives.mjs": "The conversations job owns it.",
+    "src/ai-conversations-list.json": "The conversations job owns it."
+  }
+}

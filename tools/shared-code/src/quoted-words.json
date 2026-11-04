@@ -1,0 +1,8 @@
+{
+  "_what": "How other people's words are put in a tool answer an AI reads, read by src/quoted-words.mjs. The cleaning itself (NFC, control and format characters, markup lookalikes, cut by code points) is src/untrusted-text.json. `line_prefix` starts every line; `end_marker` closes the block; `limit` is the most code points of the words; `fields` names the keys whose string values are other people's words in a tool answer (src/carried-connections.mjs read_recent_messages); `label_limit` bounds a name or title shown beside them.",
+  "limit": 1200,
+  "line_prefix": "> ",
+  "end_marker": "(End of quoted words from {source}.)",
+  "label_limit": 80,
+  "fields": ["text", "words", "body"]
+}

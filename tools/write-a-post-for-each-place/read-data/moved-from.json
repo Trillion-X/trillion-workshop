@@ -1,0 +1,24 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/server-rendered-page/escape-html.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/write-a-post-for-each-place/read-data/escape-html.mjs",
+      "source_identity": "1f:7735e3da0d51b4971f1f8ba7f7577d8b7de56bcf651941546e4e978636b4e144",
+      "identity": "1f:7735e3da0d51b4971f1f8ba7f7577d8b7de56bcf651941546e4e978636b4e144",
+      "reused": true
+    },
+    {
+      "from": "src/surface-compose.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/write-a-post-for-each-place/read-data/surface-compose.json",
+      "source_identity": "1f:92376611f8a8295b38e6e5ee034e52bdc74d754d83f55450720705eaacb5fcac",
+      "identity": "1f:92376611f8a8295b38e6e5ee034e52bdc74d754d83f55450720705eaacb5fcac",
+      "reused": true
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "_what": "Documents as rows (src/document-properties.mjs): a folder of the person's text documents read as a list's rows, each with its own properties (written in the document itself, as frontmatter), what the file is (name, folder, times, size, links, backlinks, tags) and formulas worked out from both. A list names the folder with row_sources [{ source: <source>, of: <folder> }]; a saved view names a value by its namespace and key (note.status, file.mtime, formula.late), the namespaces being src/lists.json source_namespaces.documents. The kinds of property, the file facts, the link and tag syntaxes and every bound are rows here; the code names none of them.",
+  "source": "documents",
+  "_source": "The row source name a list uses for a folder of documents (src/lists.mjs withRowSources).",
+  "sidecar_name": "property-types.json",
+  "_sidecar_name": "The one small file, at the top of the folder a list reads, that says each property's kind and the folder's formulas: { types: { <property>: <field kind> }, formulas: { <name>: <formula-engine binding> } }. Without it every property is text and there are no formulas.",
+  "staging_suffix": ".pending",
+  "_staging_suffix": "A changed document's new bytes are first kept under <name><staging_suffix> and then given the document's name only if the document still is what was read (the Namespace's expected_identity), so a change made meanwhile is never overwritten. The staging name is removed in the same step.",
+  "document_extensions": ["md", "markdown", "txt"],
+  "property_kinds": ["text", "long-text", "number", "date", "choice", "tags", "email", "phone", "link-address", "file"],
+  "_property_kinds": "The list field kinds (src/lists.json field_kinds) a property may have. Computed and rule kinds are not properties: a formula is one of the folder's formulas.",
+  "property_key": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+  "tag_keys": ["tags", "tag"],
+  "alias_keys": ["aliases", "alias"],
+  "_tag_keys": "Property keys read as the document's tags and aliases, compared without case (Obsidian's tags/aliases convention).",
+  "file_facts": [
+    { "key": "name", "kind": "text", "from": "leaf" },
+    { "key": "basename", "kind": "text", "from": "stem" },
+    { "key": "ext", "kind": "text", "from": "extension" },
+    { "key": "path", "kind": "text", "from": "name" },
+    { "key": "folder", "kind": "text", "from": "folder" },
+    { "key": "size", "kind": "number", "from": "byte_length" },
+    { "key": "ctime", "kind": "date", "from": "named_at" },
+    { "key": "mtime", "kind": "date", "from": "modified_at_ms" },
+    { "key": "identity", "kind": "text", "from": "identity" },
+    { "key": "links", "kind": "tags", "from": "links" },
+    { "key": "backlinks", "kind": "tags", "from": "backlinks" },
+    { "key": "embeds", "kind": "tags", "from": "embeds" },
+    { "key": "tags", "kind": "tags", "from": "tags" },
+    { "key": "aliases", "kind": "tags", "from": "aliases" }
+  ],
+  "_file_facts": "The file.* values of every document: key is the name a view uses (file.<key>), kind its list field kind, from the fact it is read from (a Namespace listing column, a part of its name, or what its words link to).",
+  "links": [
+    { "pattern": "!\\[\\[([^\\]|#]+)(?:[#|][^\\]]*)?\\]\\]", "resolve": "name", "embed": true },
+    { "pattern": "(?<!!)\\[\\[([^\\]|#]+)(?:[#|][^\\]]*)?\\]\\]", "resolve": "name", "embed": false },
+    { "pattern": "!\\[[^\\]]*\\]\\(([^)\\s]+)\\)", "resolve": "path", "embed": true },
+    { "pattern": "(?<!!)\\[[^\\]]*\\]\\(([^)\\s]+)\\)", "resolve": "path", "embed": false }
+  ],
+  "_links": "How a document's words link to another document: a regular expression whose first group is the target, resolved by name (a document's name without its folder or extension, as [[Weekly review]]) or by path (a name starting with / or relative to the document's folder, as [notes](../plan.md)). Web addresses (with a scheme) are not documents and are left out. embed says whether it is shown inside the document (file.embeds) rather than linked (file.links).",
+  "inline_tag": "(?:^|\\s)#([A-Za-z][A-Za-z0-9_/-]{0,63})",
+  "_inline_tag": "A tag written in the words (#project/alpha); its first group is the tag. Tags are kept without their #.",
+  "metadata_index": { "entry_prefix": "document-meta:", "order_prefix": "document-meta-order:", "state_key": "document-meta-state", "kept": 4000, "chunk": 200 },
+  "_metadata_index": "The persistent index of parsed documents by content identity (src/document-meta-index.mjs): entry_prefix + identity holds one document's parsed properties, links, tags and aliases; identities are listed in chunks of `chunk` under order_prefix + n in the order first kept; state_key holds { head, tail }. Past `kept` documents the oldest chunk is forgotten whole.",
+  "limits": { "write_attempts": 3, "documents_per_read": 2000, "folders_per_read": 200, "listing_page": 1000, "bytes_per_document": 262144, "frontmatter_chars": 20000, "properties_per_document": 100, "links_per_document": 500, "formulas_per_folder": 50, "sidecar_bytes": 65536, "parsed_kept": 4000, "plain_file_rows": 2000 },
+  "_limits": "write_attempts: how many times a property change is made again on a document that changed meanwhile (each time on what it now says, so the other change is kept). documents_per_read: the documents one read of a folder looks at (backlinks are worked out among them; past it the read says complete: false). bytes_per_document: the most of a document read for its properties and links. parsed_kept: how many documents' parsed properties this isolate keeps, by content identity (a document's bytes never change under one identity, so nothing kept is ever stale). plain_file_rows: the most rows one export or import of a list moves.",
+  "plain_files": {
+    "links_name": "links.json",
+    "row_extension": "md",
+    "_what": "A list as plain files (src/list-plain-files.mjs): one document per row (<row id>.<row_extension>, its values as frontmatter and its first long-text field as the words), the list's field kinds in the folder's sidecar (sidecar_name above, with the list's own id, label and title field), and its links as one id-keyed graph (links_name: { nodes: { <row id>: { list } }, edges: { <edge id>: { from, field, to } } }). Links live only in the graph, never in a row's frontmatter, so they have one home; an edge whose end is missing is dropped on import."
+  }
+}

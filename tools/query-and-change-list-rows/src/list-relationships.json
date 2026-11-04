@@ -1,0 +1,23 @@
+{
+  "_what": "How well a person knows someone, worked out on every read of a list row from the records that name it (src/list-relationships.mjs), never kept and never typed: a relationship field is always derived. `sources` are the stored interactions: a record `type` that names a row under participation `role` (src/record-model.json parts: a message's `about` names a row it mentions under role `record`, an arrival names who spoke under `speaker`), when it happened (the first of `at` its value has) and the `kind` of interaction it counts as. `attributes` are what a field can show: `of` is first, last or next (the earliest interaction after now), count, or strength; `answers` is the field kind views compare it as; `kinds`, when given, counts only those interaction kinds. `strength` bands are read in order: the first whose `min` interactions all fall within `within_days` gives the label. Past `holders_read` records naming one row, or once a read has looked at `reads_per_list_read` records, a row's relationship fields answer nothing rather than a partial value.",
+  "holders_read": 500,
+  "reads_per_list_read": 5000,
+  "sources": [
+    { "type": "message", "role": "record", "at": ["authored_at", "at", "recorded_at"], "kind": "message" },
+    { "type": "arrival", "role": "speaker", "at": ["at"], "kind": "heard" }
+  ],
+  "attributes": [
+    { "id": "first_interaction", "label": "First interaction", "of": "first", "answers": "date" },
+    { "id": "last_interaction", "label": "Last interaction", "of": "last", "answers": "date" },
+    { "id": "next_interaction", "label": "Next interaction", "of": "next", "answers": "date" },
+    { "id": "last_message", "label": "Last message", "of": "last", "answers": "date", "kinds": ["message"] },
+    { "id": "last_heard", "label": "Last heard speaking", "of": "last", "answers": "date", "kinds": ["heard"] },
+    { "id": "interactions", "label": "Interactions", "of": "count", "answers": "number" },
+    { "id": "strength", "label": "How well you know them", "of": "strength", "answers": "choice" }
+  ],
+  "strength": [
+    { "id": "strong", "label": "Strong", "min": 10, "within_days": 90 },
+    { "id": "warm", "label": "Warm", "min": 3, "within_days": 180 },
+    { "id": "known", "label": "Known", "min": 1, "within_days": 3650 }
+  ]
+}

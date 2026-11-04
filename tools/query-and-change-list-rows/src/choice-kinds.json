@@ -1,0 +1,14 @@
+{
+  "_what": "What kind of state a choice value is, so a row that moves to a list with different choices keeps its meaning (src/choice-mapping.mjs). A kind is a row here: `id`, a `label`, and `names`, the words that name it when a choice field does not say (compared whole, case and spacing ignored). A choice field may say its own kinds with `kinds: { <choice>: <kind id> }`; that always wins over the names. A value moves to the target field's choice of the same kind: the same name when the target has several of that kind, otherwise the first of that kind in the target's order. A value whose kind the target does not have goes to the target's `starts` value, or is left empty when it has none, and the move says so. A new kind is a row here.",
+  "kinds": [
+    { "id": "backlog", "label": "Not started", "names": ["backlog", "to do", "todo", "to-do", "open", "new", "planned", "not started", "triage", "queued", "waiting"] },
+    { "id": "active", "label": "In progress", "names": ["in progress", "doing", "started", "active", "working", "in review", "review", "underway", "ongoing"] },
+    { "id": "done", "label": "Finished", "names": ["done", "complete", "completed", "finished", "shipped", "closed", "resolved", "delivered"] },
+    { "id": "cancelled", "label": "Dropped", "names": ["cancelled", "canceled", "dropped", "won't do", "wont do", "abandoned", "rejected", "duplicate", "archived"] }
+  ],
+  "words": {
+    "unmapped": "{value} has no match in {field}; {fallback}.",
+    "fell_to_start": "it starts at {start}",
+    "fell_to_empty": "it is left empty"
+  }
+}

@@ -1,0 +1,149 @@
+{
+ "_what": "Which Marketplace configuration holds each of Trillion's own tools, workflows, rules and event rules (scripts/build-starting-set.mjs writes records/starting-set-records.json from this and the shipped rows). configurations: slug \u2192 the words people read. sets: where a row comes from \u2192 the configuration that holds it (a tool's set is its records file name without `workshop-` and `-tool-records.json`; `workflows`, `rules` and `event-sources` are the others). ids: one row's configuration, which wins over its set. split_every: a group cut into numbered configurations (slug-1, slug-2) of that many, in id order. A configuration with no rows yet (trillion-background-care, trillion-your-computer) is left out until a package gives it some. core: always on, in no configuration. pinned: called by name in code until the job slots land (src/job-slots.mjs), so an account cannot remove them.",
+ "configurations": {
+  "trillion-work": {
+   "title": "Trillion: your work",
+   "description": "The tools your AIs use to keep your work, rules, schedules, saved examples and recently deleted things in one place."
+  },
+  "trillion-files-and-media": {
+   "title": "Trillion: files and media",
+   "description": "Tools for your drives, tidying files, listening, transcribing and speaking, and recording."
+  },
+  "trillion-publishing": {
+   "title": "Trillion: publishing",
+   "description": "Tools to publish pages and sites, send email, ship apps and release stored files."
+  },
+  "trillion-money": {
+   "title": "Trillion: money",
+   "description": "Tools for payments, prices, sales and contracts."
+  },
+  "trillion-people-and-spaces": {
+   "title": "Trillion: people and shared pursuits",
+   "description": "Tools for sharing with people and working on pursuits together."
+  },
+  "trillion-workflows": {
+   "title": "Trillion: workflows",
+   "description": "Ready-made workflows your AIs can find and run.",
+   "split_every": 100
+  },
+  "trillion-starting-rules": {
+   "title": "Trillion: starting rules",
+   "description": "The rules and schedules every account starts with, each with its own switch."
+  },
+  "trillion-event-rules": {
+   "title": "Trillion: event rules",
+   "description": "A rule for each kind of event on the accounts you connect, handing it to one of your AIs."
+  },
+  "trillion-background-care": {
+   "title": "Trillion: background care",
+   "description": "The checks Trillion keeps making for you in the background."
+  },
+  "trillion-look-and-help": {
+   "title": "Trillion: looks and help",
+   "description": "Screens, looks, sounds and the help that opens them."
+  },
+  "trillion-connections": {
+   "title": "Trillion: connected accounts",
+   "description": "Check, rename and disconnect connected accounts, and choose how Trillion uses each account."
+  },
+  "trillion-your-computer": {
+   "title": "Trillion: your computer",
+   "description": "What Trillion does on your computer when it is running there."
+  }
+ },
+ "sets": {
+  "account": "trillion-work",
+  "automation": "trillion-work",
+  "engine": "trillion-work",
+  "who-does-it": "trillion-work",
+  "hold-to-it": "trillion-work",
+  "ask-a-model": "trillion-work",
+  "practice": "trillion-work",
+  "recently-deleted": "trillion-work",
+  "capability": "trillion-work",
+  "saved-example": "trillion-work",
+  "harness-setup": "trillion-work",
+  "tool": "trillion-work",
+  "saved-links": "trillion-work",
+  "browse": "trillion-work",
+  "drives": "trillion-files-and-media",
+  "file-tidy": "trillion-files-and-media",
+  "listening": "trillion-files-and-media",
+  "voice-and-formats": "trillion-files-and-media",
+  "recording": "trillion-files-and-media",
+  "publishing": "trillion-publishing",
+  "site": "trillion-publishing",
+  "brand": "trillion-publishing",
+  "app-distribution": "trillion-publishing",
+  "chrome-web-store": "trillion-publishing",
+  "email": "trillion-publishing",
+  "storage-release": "trillion-publishing",
+  "money": "trillion-money",
+  "sales-contract": "trillion-money",
+  "space": "trillion-people-and-spaces",
+  "sharing": "trillion-people-and-spaces",
+  "tray": "trillion-people-and-spaces",
+  "screen": "trillion-look-and-help",
+  "ambience": "trillion-look-and-help",
+  "mac-program": "trillion-your-computer",
+  "workflows": "trillion-workflows",
+  "rules": "trillion-starting-rules",
+  "event-sources": "trillion-event-rules",
+  "screen-driving": "trillion-your-computer"
+ },
+ "ids": {
+  "tool:check-connection": "trillion-connections",
+  "tool:rename-connection": "trillion-connections",
+  "tool:disconnect-service": "trillion-connections",
+  "tool:set-connection-capability-choice": "trillion-connections",
+  "tool:screen-calendar-grid": "trillion-people-and-spaces",
+  "tool:screen-calendar-tasks": "trillion-people-and-spaces",
+  "tool:screen-calendar-settings": "trillion-people-and-spaces",
+  "tool:screen-show-rules-admin": "trillion-work"
+ },
+ "core": [
+  "tool:filter-rows-by-rules",
+  "tool:when-to-run-next",
+  "tool:evaluate-binding",
+  "tool:run-workflow-definition"
+ ],
+ "pinned": [
+  "tool:add-to-a-space",
+  "tool:attach-finished-video",
+  "tool:check-connection",
+  "tool:copy-a-site",
+  "tool:disconnect-service",
+  "tool:drives",
+  "tool:evaluate-rules-over-records",
+  "tool:fill-a-list-from-a-feed",
+  "tool:hold-to-it",
+  "tool:inspiration",
+  "tool:list-file-tidy",
+  "tool:listen",
+  "tool:manage-sales-contracts",
+  "tool:open-a-layout",
+  "tool:open-purchase-billing",
+  "tool:practice",
+  "tool:publish-a-post",
+  "tool:read-file-words",
+  "tool:read-purchase-card",
+  "tool:read-source-health",
+  "tool:recently-deleted",
+  "tool:rename-connection",
+  "tool:run-at-a-time",
+  "tool:run-when-something-happens",
+  "tool:save-browser-saved-items",
+  "tool:screen-board",
+  "tool:send-edit-to-editor",
+  "tool:send-to-an-audience",
+  "tool:set-file-facts",
+  "tool:set-connection-capability-choice",
+  "tool:set-up-paid-plan",
+  "tool:show-a-tour",
+  "tool:tell-trillions-makers",
+  "tool:transcribe-file",
+  "tool:voice-for",
+  "tool:watch-sources",
+  "tool:weigh-steps-ais-left-you"
+ ]
+}
