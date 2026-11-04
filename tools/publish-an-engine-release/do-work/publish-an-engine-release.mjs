@@ -74,8 +74,7 @@ export async function hostTarget(rustc = 'rustc', env = process.env) {
   return checkTarget(host?.slice(6).trim());
 }
 
-/** The files under each of `paths` (relative to `root`) as tarGz entries, executable when the owner may run them;
- *  a folder named in `skip` is left out, and anything but a file or a folder is refused. */
+/** The files under `paths` (relative to `root`) as tarGz entries; folders named in `skip` are left out. */
 export function filesUnder(root, paths, skip = []) {
   return paths.flatMap(path => {
     const status = lstatSync(join(root, path));
