@@ -22,6 +22,7 @@ import { randomBytes } from 'node:crypto';
 import settings from './site-addresses.json' with { type: 'json' };
 import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
 import { checkedPublicAppFiles } from '../../shared-code/src/public-app-files.mjs';
+import { answerSiteLlms } from '../../choose-which-site-pages-ai-may-show/src/public-app-ai-pages.mjs';
 
 const words = settings.words;
 const names = settings;
@@ -140,8 +141,29 @@ export async function publishSite(input = {}, { door, newId = () => randomBytes(
       { mediaType: file.media_type, pieceBytes: settings.piece_bytes });
     bytes += file.size;
   }
+  // A site that already has an address lists its pages for AI apps at /llms.txt (the AI page listing of
+  // tools/choose-which-site-pages-ai-may-show, old trillion's site answer at that path), unless it ships its own.
+  const live = (await readOrigins(door)).find(origin => origin.installation === installation && !origin.moved_to);
+  let llms = false;
+  if (live && !checked['llms.txt']) {
+    const text = await siteLlms(checked, `https://${live.host}`, live.host);
+    await writeWholeFile(door, `${settings.files_folder}/${installation}/llms.txt`, Buffer.from(text),
+      { mediaType: 'text/plain; charset=utf-8', pieceBytes: settings.piece_bytes });
+    llms = true;
+  }
   const suggested = nameFromPage(Buffer.from(checked['index.html'].bytes).toString('utf8'));
-  return { installation, files: Object.keys(checked).length, bytes, ...(suggested ? { suggested_name: suggested } : {}) };
+  return { installation, files: Object.keys(checked).length, bytes, llms, ...(suggested ? { suggested_name: suggested } : {}) };
+}
+
+/** The site's AI page listing for `origin`, from its checked files in hand (no read of the person's files). */
+export async function siteLlms(checked, origin, name) {
+  const rows = Object.entries(checked).map(([path, file]) => ({ path, media_type: file.media_type })).sort((a, b) => a.path.localeCompare(b.path));
+  const pages = {
+    list: async () => ({ rows, cursor: null }),
+    open: async path => checked[path] ? new Blob([checked[path].bytes]).stream() : null,
+  };
+  const answer = await answerSiteLlms(new Request(`${origin}/llms.txt`), { pages, origin, name });
+  return answer.text();
 }
 
 async function published(door, installation) {

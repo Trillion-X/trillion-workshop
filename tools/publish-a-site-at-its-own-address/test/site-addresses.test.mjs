@@ -57,7 +57,7 @@ test('a domain is the person\'s own, in its one form, never a name under the nam
 test('publishing keeps each file under its installation with its media type and suggests a name', async () => {
   const files = door();
   const published = await publishSite({ files: { 'index.html': '<title>Field Notes</title>', 'img/logo.svg': '<svg/>' } }, { door: files, newId: () => INSTALL });
-  assert.deepEqual(published, { installation: INSTALL, files: 2, bytes: 32, suggested_name: 'field-notes' });
+  assert.deepEqual(published, { installation: INSTALL, files: 2, bytes: 32, llms: false, suggested_name: 'field-notes' });
   assert.equal(files.stored.get(`/installations/${INSTALL}/img/logo.svg`).toString(), '<svg/>');
   assert.equal(files.media.get(`/installations/${INSTALL}/index.html`), 'text/html; charset=utf-8');
   await assert.rejects(publishSite({ files: { 'about.html': 'x' } }, { door: files }), /index.html/);
@@ -65,6 +65,17 @@ test('publishing keeps each file under its installation with its media type and 
   const fromCopy = door({ '/Copies/site.json': JSON.stringify({ files: { 'index.html': '<h1>copied</h1>' } }) });
   assert.equal((await publishSite({ site: '/Copies/site.json', installation: OTHER }, { door: fromCopy })).installation, OTHER);
   assert.equal(fromCopy.stored.get(`/installations/${OTHER}/index.html`).toString(), '<h1>copied</h1>');
+});
+
+test('a site with an address lists its pages for AI apps at /llms.txt when it is published again', async () => {
+  const files = door({ [`/installations/${INSTALL}/index.html`]: 'x' });
+  await nameSite({ installation: INSTALL, name: 'field-notes' }, { door: files });
+  const again = await publishSite({ installation: INSTALL, files: { 'index.html': '<title>Field Notes</title>', 'about.html': '<title>About us</title>', 'logo.svg': '<svg/>' } }, { door: files });
+  assert.equal(again.llms, true);
+  assert.equal(files.stored.get(`/installations/${INSTALL}/llms.txt`).toString(), '# field-notes.trillion.run\n\n> Public pages of https://field-notes.trillion.run/\n\n## Pages\n\n'
+    + '- [About us](https://field-notes.trillion.run/about.html)\n- [Field Notes](https://field-notes.trillion.run/)\n');
+  const own = await publishSite({ installation: INSTALL, files: { 'index.html': 'x', 'llms.txt': 'mine' } }, { door: files });
+  assert.equal(own.llms, false, 'a site that ships its own keeps it');
 });
 
 test('a renamed site keeps every earlier name pointing at its new name, never a chain', async () => {
