@@ -207,6 +207,37 @@ test('a removal on either side reaches the other; a file changed after the list 
   } finally { await b.done(); }
 });
 
+test('a restore from an older copy never removes: newer files come back up and rows without files stay', async () => {
+  const files = { 'ada/rye.md': NOTE('rye', 'one'), 'bo/oven.md': NOTE('oven', 'two'), 'bo/tray.md': NOTE('tray', 'three') };
+  const b = await bakery({ files });
+  try {
+    b.setClock(Date.parse('2026-10-25T21:00:00Z'));
+    await b.sync();
+    // The older copy the account is restored from: the list had removed oven, and the folder lost rye after it.
+    b.keep(recordOf('/notes/bo/oven.md'), null);
+    await unlink(join(b.root, 'notes/ada/rye.md'));
+    // Meanwhile the folder kept a newer copy of tray than the restored rows.
+    await writeFile(join(b.root, 'notes/bo/tray.md'), NOTE('tray', 'written after the copy the account came back from'));
+    b.setClock(Date.parse('2026-11-03T19:57:00Z'));
+    b.keep('setting:restore-generation', { value: { generation: 2, restored_at: '2026-11-03T19:57:00Z' } });
+    b.setClock(Date.parse('2026-11-03T20:30:00Z'));
+    const run = await b.sync();
+    assert.equal(run.removed_files, 0);
+    assert.equal(run.removed_rows, 0);
+    assert.equal(run.carried_after_restore, 1);
+    assert.equal(run.kept_after_restore, 1);
+    assert.equal(await b.file('bo/oven.md'), files['bo/oven.md'], 'the file the older copy had removed is kept');
+    assert.equal(textOf(b.rowsOf('bo/oven.md')), files['bo/oven.md'], 'and it is back in the list');
+    assert.equal(textOf(b.rowsOf('bo/tray.md')), NOTE('tray', 'written after the copy the account came back from'));
+    assert.equal(textOf(b.rowsOf('ada/rye.md')), files['ada/rye.md'], 'a row whose file is gone keeps its rows');
+    // A removal made in the list after the restore is judged as always.
+    b.keep(recordOf('/notes/bo/oven.md'), null);
+    const after = await b.sync();
+    assert.equal(after.removed_files, 1);
+    await assert.rejects(stat(join(b.root, 'notes/bo/oven.md')));
+  } finally { await b.done(); }
+});
+
 test('a value only the list changed goes into the frontmatter, and a field the list added stays on the row', async () => {
   const b = await bakery({ files: { 'ada/rye.md': NOTE('rye', 'Rye wants a long proof.') } });
   try {
