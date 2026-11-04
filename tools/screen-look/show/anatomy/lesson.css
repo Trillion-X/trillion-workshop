@@ -1,0 +1,8 @@
+.anatomy-lesson{display:grid;gap:1.25rem;max-width:1180px;margin:0 auto;padding:clamp(1rem,3vw,2rem);color:var(--foreground,#20211e)}
+.anatomy-lesson__opening{max-width:58rem}.anatomy-lesson__opening h1{margin:0 0 .45rem;text-wrap:balance}.anatomy-lesson p{max-width:68ch;margin:.45rem 0;text-wrap:pretty;line-height:1.55}
+.anatomy-lesson__work{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(17rem,.7fr);gap:1rem;align-items:center}
+.anatomy-lesson__figure{min-width:0;min-height:18rem;display:grid;align-items:center;overflow:hidden}
+.anatomy-lesson__controls{display:grid;gap:.75rem;align-content:center;min-width:0}.anatomy-lesson-choices{display:flex;flex-wrap:wrap;gap:.45rem}
+.anatomy-lesson__teaching{min-height:3em}.anatomy-lesson__distinctions{border-top:1px solid color-mix(in srgb,currentColor 18%,transparent);padding-top:.65rem}
+@media(max-width:720px){.anatomy-lesson__work{grid-template-columns:minmax(0,1fr)}.anatomy-lesson__figure{min-height:12rem}.anatomy-lesson__controls{grid-row:1}.anatomy-lesson__figure{grid-row:2}}
+@media(prefers-reduced-motion:reduce){.anatomy-lesson *{scroll-behavior:auto!important;transition:none!important}}

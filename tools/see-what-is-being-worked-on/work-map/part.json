@@ -1,0 +1,6 @@
+{
+  "public": [
+    "read-data/join-records.mjs",
+    "read-data/work-map-sources.json"
+  ]
+}
