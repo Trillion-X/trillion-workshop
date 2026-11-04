@@ -7,7 +7,6 @@ import assert from 'node:assert/strict';
 import { recordsDoorFromCall, RecordsDoorError } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
 import { searchEverything } from '../do-work/search-everything.mjs';
-import { merged } from '../read-data/merged.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const K = 60;
@@ -67,16 +66,22 @@ function personDoor({ records = [], files = [], filesRefused = null, recordsRefu
   return { door: recordsDoorFromCall(call, { resource: '@own-records', filesResource: '@namespace' }), asked };
 }
 
-test('several owners\' answers merge by score and keep what could not answer (moved from the engine\'s merged)', () => {
-  const records = { results: [{ id: 'record:a', score: 0.01639 }, { id: 'record:b', score: 0.01613 }], unavailable: [], pending: [] };
-  const files = { results: [{ id: 'file:f', score: 0.01311 }], unavailable: [], pending: [{ place: 'name' }] };
-  const refused = [{ place: 'said', source: 'files', reason: 'namespace_unavailable' }];
-  const answer = merged('q', ['q'], [records, files], refused, 2);
-  assert.deepEqual(answer.results.map(hit => hit.id), ['record:a', 'record:b']);
-  assert.equal(answer.unavailable[0].reason, 'namespace_unavailable');
-  assert.deepEqual(answer.pending, [{ place: 'name' }]);
-  assert.equal(answer.question, 'q');
-  assert.deepEqual(answer.terms, ['q']);
+test('lanes merge by reciprocal rank and keep what could not answer (old finish, which the engine\'s merged ported)', async () => {
+  const door = recordsDoorFromCall(async (method, input) => (method === 'records:search'
+    ? { question: input.question, terms: ['q'], results: [
+      { id: 'record:a', type: 'alpha', record: 'a', said: 'q a', score: 0.01639 },
+      { id: 'record:b', type: 'alpha', record: 'b', said: 'q b', score: 0.01613 },
+      { id: 'record:c', type: 'beta', record: 'c', said: 'q c', score: 0.01639 }], unavailable: [], pending: [{ place: 'said' }] }
+    : { results: [{ id: 'file:f', identity: 'f', name: 'q.txt', score: 0.01311 }], unavailable: [], pending: [] }), { resource: '@own-records', filesResource: '@namespace' });
+  const answer = await searchEverything({ question: 'quill', limit: 4 }, { door });
+  // The first of each kind ties at 1 / (k + 1); alpha's second is worth 1 / (k + 2), above the file's 0.8 / (k + 1).
+  assert.deepEqual(answer.results.map(hit => hit.id), ['record:a', 'record:c', 'record:b', 'file:f']);
+  assert.deepEqual((await searchEverything({ question: 'quill', limit: 2 }, { door })).results.map(hit => hit.id), ['record:a', 'record:c']);
+  assert.equal(answer.results[0].score, answer.results[1].score);
+  assert.equal(answer.results[0].score, Math.round(1e5 / 61) / 1e5);
+  assert.deepEqual(answer.results[3].found_in, ['name']);
+  assert.deepEqual(answer.pending, [{ place: 'said' }]);
+  assert.deepEqual(answer.terms, ['quill']);
 });
 
 test('a search over 10,000 rows in three lists answers row 9,731 first, under 200 ms, and reads it back', async () => {
@@ -99,8 +104,9 @@ test('a search over 10,000 rows in three lists answers row 9,731 first, under 20
   const { address } = found.results[0];
   const read = await door.readRecord(address.input.type, address.input.id);
   assert.equal(read.value.notes, 'quartzbeacon left at the dock');
-  // The files were asked first, with only the question and limit; the records with the whole input.
-  assert.deepEqual(asked.slice(0, 2).map(({ method, address }) => [method, address]), [['search', '@namespace'], ['records:search', '@own-records']]);
+  // Both lanes were asked with the same question: the records with the whole input, the files with only the question.
+  assert.deepEqual(asked.slice(0, 2).map(({ method, address }) => `${method} ${address}`).sort(), ['records:search @own-records', 'search @namespace']);
+  assert.deepEqual(asked.find(item => item.method === 'search').input, { question: 'quartzbeacon' });
 });
 
 test('a caller the files refuse gets the records\' answer, with the files named unavailable, never guessed', async () => {
@@ -108,11 +114,11 @@ test('a caller the files refuse gets the records\' answer, with the files named 
   const { door } = personDoor({ records, files: ['/kestrel.jpg'], filesRefused: 'current_workspace_rights_refused' });
   const found = await searchEverything({ question: 'kestrel', limit: 5 }, { door });
   assert.deepEqual(found.results.map(hit => hit.id), ['record:r1']);
-  assert.deepEqual(found.unavailable, [{ place: 'name', source: 'files', reason: 'current_workspace_rights_refused' }]);
+  assert.deepEqual(found.unavailable, [{ lane: 'file-names', place: 'name', source: 'files', reason: 'current_workspace_rights_refused' }]);
   // A door handed no files right at all is refused before anything is sent, and named the same way.
   const bare = recordsDoorFromCall(async () => ({ question: 'kestrel', terms: ['kestrel'], results: [], unavailable: [], pending: [] }), { resource: '@own-records' });
   const none = await searchEverything({ question: 'kestrel' }, { door: bare });
-  assert.deepEqual(none.unavailable, [{ place: 'name', source: 'files', reason: 'no_files' }]);
+  assert.deepEqual(none.unavailable, [{ lane: 'file-names', place: 'name', source: 'files', reason: 'no_files' }]);
 });
 
 test('with a type only that kind is asked, the files are not, and the records\' answer is answered as it is', async () => {
