@@ -1,0 +1,38 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/community-logic/board-habit-cadence.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/read-data/board-habit-cadence.ts",
+      "source_identity": "1f:fba0898270b93c8588592b60ffa8e90b563ba73cebd6ec01c8543100c9f8becb",
+      "identity": "1f:fba0898270b93c8588592b60ffa8e90b563ba73cebd6ec01c8543100c9f8becb",
+      "reused": true
+    },
+    {
+      "from": "src/community-logic/board-habit.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/read-data/board-habit.ts",
+      "source_identity": "1f:a17b425aea3017980994a02bd67324294a0ae257101d2286a7a12131bdee0e99",
+      "identity": "1f:a17b425aea3017980994a02bd67324294a0ae257101d2286a7a12131bdee0e99",
+      "reused": true
+    },
+    {
+      "from": "test/community-logic/board-habit-cadence.test.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/test/community-logic/board-habit-cadence.test.ts",
+      "source_identity": "1f:e10fc6ab167dddc38652cb298560e368c7cf70f74c2fcf2d7f079592b0a03b5d",
+      "identity": "1f:e4a8c97f490bced06c10d1681f7836d522a1207d349a39198850647c7b958817"
+    },
+    {
+      "from": "test/community-logic/board-habit.test.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/test/community-logic/board-habit.test.ts",
+      "source_identity": "1f:c68ad2fa9197fd5d349e5951ebb88ade01be9d0cb098fa8bc2bc2ffe3a2d5246",
+      "identity": "1f:980a36db3fdc14451f495c0ca0067b21d8a7e741743ed896b1c273fa66850e11"
+    }
+  ]
+}
