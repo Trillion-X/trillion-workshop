@@ -206,7 +206,7 @@
  "allowed_deltas": [
   "the rows are read through the records door (seeMyDecisions) once, and the moved screen reads them from there",
   "access and allowance are what the caller's place reports (input), not an account owner this folder has no door to",
-  "the check questions are the person's own method-check rows, not a checks file",
+  "the check questions are the person's own check rows (list:checks, rows with a step), not a checks file",
   "a decision's status and result use decision-outcome.mjs with the decision tools' precedence setting",
   "a checklist kept as { checks } (the decision tools' layout) is read as its list",
   "one bounded page also answers helped_check_text, agent_work and next_before, and each helped item keeps its decision's id, as the engine's copy did"

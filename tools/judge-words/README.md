@@ -4,13 +4,15 @@ Judges words a person will read, and any JSON a person makes (a plan, a take's m
 
 The content gate (bitfield-packages `packages/content-gate`) is merged in, so there is one judge: its pattern, required-kinds, kind-order and length-bound evaluators are word, path and count rows; its framework, feeling, remembering, voice and humour evaluators are `groups` rows (named groups of markers, the share found, groups found together in one line, a marker said again later, one word said three times); its weighted score and least score are row `weight` and the request's `min_score`; its non-gating outcomes are rows with `at_most`; its evidence evaluators are `evidence` rows. Every framework, word list, share, weight and least score is the person's DATA, handed in as rows; none is in the code.
 
+There is one judge for every check. `tool:judge-against-rules` is that judge with rules only: the caller hands in the rows. `tool:check-against-a-persons-rules-and-verdicts` (tools/check-against-a-persons-rules-and-verdicts) runs the same `makeJudge` with the person's verdicts and stands besides, and, given a `branch`, reads the rows itself from the person's one Checks list. Neither copies judging code.
+
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `do-work/judge-words.mjs` | The judge: compiles rule rows once, walks any JSON for the words a person reads or the values a path names, judges rows per item or `across` every item, returns machine-readable findings, a weighted score and plain-word lines. `judge` is the tool's whole answer. |
 | `do-work/evidence-checks.mjs` | The evidence checks a row names with `evidence`: exact UTF-8 source and destination spans, complete per-block review, a captured answer set against its pinned identities and thresholds. Ported from the content gate's provenance evaluators. |
-| `do-work/judge-against-rules.mjs` | `tool:judge-against-rules`: one JSON request on standard input, `{ result }` on the last line; a request that is not JSON or a row it cannot compile is refused with `{ error }`. |
+| `do-work/judge-against-rules.mjs` | `tool:judge-against-rules`, the one judge with rules only: one JSON request on standard input, `{ result }` on the last line; a request that is not JSON or a row it cannot compile is refused with `{ error }`. |
 | `do-work/plain-work-title.mjs` | A short plain title from a job's own words (`workTitle`, `titleOf`): the first sentence a person reads, links, addresses, paths, ids and markdown taken out, first letter in capitals, at most 80 UTF-16 units. Moved from the Trillion engine's `src/work_title.rs`; the fallback words are the caller's. |
 | `do-work/make-a-plain-work-title.mjs` | `tool:make-a-plain-work-title`: `{ job, said?, fallback? }` on standard input, `{ result: { title, from } }` on the last line; a request without job text is refused with `{ error }`. |
 | `part.json` | `do-work/judge-words.mjs` and `do-work/plain-work-title.mjs` are public, so a check may import the same judge and a caller the same titles. |

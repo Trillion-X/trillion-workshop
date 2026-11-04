@@ -7,7 +7,7 @@
     "plan": "plan",
     "plan_order": "plan/updated_at",
     "stance": "record-stance",
-    "method_checks": "record:method-check",
+    "method_checks": "record:check",
     "agent_work": { "type": "setting", "prefix": "setting:agent-work:" }
   },
   "limit": 100,
