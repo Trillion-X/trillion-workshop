@@ -30,7 +30,7 @@ import contract from './graph-contract.json' with { type: 'json' };
 import { element, serialise, textOf } from '../server-rendered-page/markup-tree.mjs';
 import { graphIdentity, identityOf, validateGraphDocument } from './graph-contract.mjs';
 import { HEAD_BOX, layerDiagramAtlas, layerDiagramLayout, layerDiagramNodeParts } from './layer-diagram.mjs';
-import { screenLookFontFamily } from '../../../../../screen-looks/read-data/resolve-screen-look-palette.js';
+import { screenLookFontFamily } from '../../../../../screen-look/read-data/resolve-screen-look-palette.js';
 
 const round = (value) => Math.round(value * 10) / 10;
 const fill = (template, values) => template.replace(/\{(\w+)\}/gu, (whole, name) => (name in values ? String(values[name]) : whole));

@@ -9,7 +9,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/choose-and-publish-screen-looks/src/looks.mjs",
       "source_identity": "1f:22a2855c2cd5fdd1bc969e82fcb7d51c98df980b5d346f0da2b82428cc49d8ac",
-      "identity": "1f:41b3811b8029817b5e6dc899549a8ab927f55978da557a4da5d8c8426a9cdba4"
+      "identity": "1f:dd0e0d55b65cbb07c67d44b66cbab42c477e02409bf184c4fab688e92cc32a0e"
     },
     {
       "from": "src/workspace/inputs.json",
@@ -37,14 +37,14 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/choose-and-publish-screen-looks/test/theme-from-inputs.test.ts",
       "source_identity": "1f:d311e2d080f6ac7a5afd15949357dc4372839b2eff32d8e8ff664a47b15cd529",
-      "identity": "1f:db7717127c4f4296f71c787fbe0b029a951b7b3b3889f327bed3b5dd3a4c1902"
+      "identity": "1f:22187e7c13f893e9199b7af8930a1ef02be15bf72a1c4d922e0a37bf56071b04"
     },
     {
       "from": "test/type-register.test.ts",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/choose-and-publish-screen-looks/test/type-register.test.ts",
       "source_identity": "1f:eb1860d07a8aeb09cd6cd1f44d97fa7160f4a269743fb183ef5fb7e9c803f20c",
-      "identity": "1f:a7f8606fc5bacea5034d482f53c7fe17bffcf51842658cdef91cd8c74eaaf38d"
+      "identity": "1f:5403e878e17168a2aa91c9e9bbe8e4fc16342f936e1c2a9f9fd94e051ea07296"
     }
   ]
 }

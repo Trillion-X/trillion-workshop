@@ -3,9 +3,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { makeLooks } from '../src/looks.mjs';
-import { unofferedFaces, wearRegister } from '../../screen-looks/read-data/type-register.ts';
-import { DEFAULT_EDITABLE_SCREEN_LOOK_THEME } from '../../screen-looks/read-data/read-editable-screen-look-themes.ts';
-import { contrastOf, oklchOfRgb, parseHex } from '../../screen-looks/read-data/tint-look.ts';
+import { unofferedFaces, wearRegister } from '../../screen-look/read-data/type-register.ts';
+import { DEFAULT_EDITABLE_SCREEN_LOOK_THEME } from '../../screen-look/read-data/read-editable-screen-look-themes.ts';
+import { contrastOf, oklchOfRgb, parseHex } from '../../screen-look/read-data/tint-look.ts';
 import appLooks from '../src/workspace/looks.json' with { type: 'json' };
 
 const records: Record<string, unknown> = {};
