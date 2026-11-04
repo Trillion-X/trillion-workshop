@@ -1,0 +1,233 @@
+{
+  "_what": "Every device surface Trillion ships, and how each one wears the one look (parts/ui + parts/screen-look over src/workspace/looks.json). A new platform (a watch, Windows, Android, glasses) is a row here, never a new design. draws says how the host gets the look: shared-parts hosts run the web parts themselves (a browser, the Chrome extension, a native window around a web view); compiled-look hosts cannot run them (a widget, a share sheet, a Live Activity, a complication) and read the look compiled into their own language by scripts/make-device-looks.mjs, one file per generated row. source_roots are the folders a host draws from: scripts/check-device-hosts.mjs refuses any line there that draws content with a platform's stock control (stock_controls, by the host's language), so a stock menu, alert, form or list cannot reach a person. A language with no stock_controls row and no emitter is a gap the check names, never a pass. A compiled-look host's first-launch look is src/workspace/looks.json start_with, the look every page and a new account start with (scripts/make-device-looks.mjs); once the account answers, every compiled-look host draws the look the person wears now (GET /looks/device, ios/Shared/WornLook.swift). `surfaces` names a theme for a part of a host whose ground the platform fixes whatever the person wears (the Dynamic Island is always black glass), so its words stay readable there; the worn look still gives it the accent and states. `look_literals` are, by language, the ways a line can decide a colour, a face or a theme itself instead of reading the look (scripts/check-device-hosts.mjs refuses them in every host's source, strings included); `look_files` are the only files that may, because they are where the look is read (the generated files are look files too).",
+  "hosts": [
+    {
+      "id": "web",
+      "label": "app.gettrillion.ai",
+      "draws": "shared-parts",
+      "language": "tsx",
+      "source_roots": []
+    },
+    {
+      "id": "chrome-extension",
+      "label": "Trillion for Chrome",
+      "draws": "shared-parts",
+      "language": "tsx",
+      "source_roots": [
+        "extension/src"
+      ],
+      "generated": [
+        {
+          "emitter": "css-button",
+          "path": "extension/dist/look.css",
+          "written_by": "scripts/build-extension.mjs (the theme its extension/settings.json look names)"
+        }
+      ]
+    },
+    {
+      "id": "mac",
+      "label": "Trillion for Mac",
+      "draws": "shared-parts",
+      "language": "swift",
+      "source_roots": [
+        "macos/App",
+        "macos/Widgets",
+        "macos/Files",
+        "assistants/apple"
+      ]
+    },
+    {
+      "id": "iphone",
+      "label": "Trillion for iPhone, its Share extension, notices and Live Activity",
+      "draws": "compiled-look",
+      "language": "swift",
+      "surfaces": {
+        "island": "trillion-black"
+      },
+      "source_roots": [
+        "ios/App",
+        "ios/Shared",
+        "ios/ShareExtension",
+        "ios/Notices",
+        "ios/NotificationService",
+        "ios/LiveActivity",
+        "ios/Activity",
+        "assistants/apple"
+      ],
+      "generated": [
+        {
+          "emitter": "swift-button",
+          "path": "ios/Shared/ButtonLook.swift"
+        },
+        {
+          "emitter": "swift-palette",
+          "path": "ios/Shared/LookPalette.swift"
+        }
+      ]
+    },
+    {
+      "id": "watch",
+      "label": "Trillion for Apple Watch and its complications",
+      "draws": "compiled-look",
+      "language": "swift",
+      "source_roots": [
+        "ios/Watch",
+        "ios/WatchComplication"
+      ]
+    }
+  ],
+  "language_files": {
+    "swift": [
+      ".swift"
+    ],
+    "tsx": [
+      ".tsx",
+      ".ts",
+      ".mjs",
+      ".css"
+    ],
+    "kotlin": [
+      ".kt"
+    ],
+    "csharp": [
+      ".cs",
+      ".xaml"
+    ]
+  },
+  "stock_controls": {
+    "swift": [
+      {
+        "pattern": "\\bMenu\\s*\\{",
+        "control": "SwiftUI Menu (the platform's pop-up menu)",
+        "use_instead": "ChoiceSheet (ios/Shared/ChoiceSheet.swift: cards in a sheet; a row with a symbol is an action that runs and closes)"
+      },
+      {
+        "pattern": "\\.contextMenu\\b",
+        "control": "SwiftUI context menu",
+        "use_instead": "ChoiceSheet (ios/Shared/ChoiceSheet.swift: cards in a sheet; a row with a symbol is an action that runs and closes)"
+      },
+      {
+        "pattern": "\\.alert\\s*\\(",
+        "control": "SwiftUI alert",
+        "use_instead": "a ChoiceSheet maker step (ios/Shared/ChoiceSheet.swift newLabel/maker: one question at a time on the look's surface)"
+      },
+      {
+        "pattern": "\\.confirmationDialog\\s*\\(",
+        "control": "SwiftUI confirmation dialog",
+        "use_instead": "ChoiceSheet (ios/Shared/ChoiceSheet.swift: cards in a sheet; a row with a symbol is an action that runs and closes)"
+      },
+      {
+        "pattern": "\\bUIAlertController\\b",
+        "control": "UIKit alert",
+        "use_instead": "a ChoiceSheet maker step (ios/Shared/ChoiceSheet.swift newLabel/maker: one question at a time on the look's surface)"
+      },
+      {
+        "pattern": "\\bUIMenu\\b",
+        "control": "UIKit menu",
+        "use_instead": "ChoiceSheet (ios/Shared/ChoiceSheet.swift: cards in a sheet; a row with a symbol is an action that runs and closes)"
+      },
+      {
+        "pattern": "\\bForm\\s*\\{",
+        "control": "SwiftUI Form (grouped system list)",
+        "use_instead": "Look rows on Look surfaces (ChoiceRow cards, Glass, PressStyle in ios/Shared/ChoiceSheet.swift)"
+      },
+      {
+        "pattern": "\\bList\\s*[({]",
+        "control": "SwiftUI List (system list)",
+        "use_instead": "Look rows on Look surfaces (ChoiceRow cards, Glass, PressStyle in ios/Shared/ChoiceSheet.swift)"
+      },
+      {
+        "pattern": "\\bPicker\\s*\\(",
+        "control": "SwiftUI Picker",
+        "use_instead": "ChoiceSheet (ios/Shared/ChoiceSheet.swift: cards in a sheet; a row with a symbol is an action that runs and closes)"
+      },
+      {
+        "pattern": "\\bToggle\\s*\\(",
+        "control": "SwiftUI Toggle (system switch)",
+        "use_instead": "a ChoiceSheet card with its round check (ios/Shared/ChoiceSheet.swift)"
+      },
+      {
+        "pattern": "\\bNSAlert\\b",
+        "control": "AppKit alert",
+        "use_instead": "the web workspace hosted in the Mac window"
+      },
+      {
+        "pattern": "\\bNSMenuItem\\s*\\(\\s*title\\s*:",
+        "control": "AppKit menu row drawing content",
+        "use_instead": "the web part hosted in a Mac panel"
+      },
+      {
+        "pattern": "\\bSFSafariViewController\\b",
+        "control": "Safari's own browser chrome",
+        "use_instead": "the workspace hosted in the app's own web view"
+      }
+    ],
+    "tsx": []
+  },
+  "look_files": [
+    "ios/Shared/Look.swift",
+    "ios/Shared/WornLook.swift",
+    "ios/Shared/ButtonFace.swift"
+  ],
+  "look_literals": {
+    "swift": [
+      {
+        "pattern": "\\bColor\\s*\\(\\s*(red|\\.sRGB|\\.displayP3|white|hue)\\b",
+        "literal": "a colour built from numbers",
+        "use_instead": "a role of Look.current (ios/Shared/Look.swift), or Look.color(_:) for a colour handed over as data"
+      },
+      {
+        "pattern": "\\b(UI|NS)Color\\s*\\(\\s*(red|white|srgbRed|calibratedRed|calibratedWhite|deviceRed|displayP3Red|hue|hex)\\b",
+        "literal": "a platform colour built from numbers",
+        "use_instead": "UIColor(look.<role>) or NSColor(look.<role>) of Look.current"
+      },
+      {
+        "pattern": "\\b(UI|NS)?Color\\.(white|black|red|green|blue|orange|yellow|gray|grey|pink|purple|brown|cyan|mint|teal|indigo|darkGray|lightGray|system[A-Z]\\w*)\\b",
+        "literal": "a named colour",
+        "use_instead": "a role of Look.current (ios/Shared/Look.swift)"
+      },
+      {
+        "pattern": "[(\\[:,]\\s*\\.(white|black|red|green|blue|orange|yellow|gray|pink|purple|brown|cyan|mint|teal|indigo)\\b",
+        "literal": "a named colour",
+        "use_instead": "a role of Look.current (ios/Shared/Look.swift)"
+      },
+      {
+        "pattern": "\"#[0-9a-fA-F]{3,8}\"",
+        "literal": "a colour written as #hex",
+        "use_instead": "a role of the worn look (ios/Shared/WornLook.swift)"
+      },
+      {
+        "pattern": "\\bFont\\s*\\.\\s*(system|custom)\\s*\\(|\\.font\\(\\s*\\.(system|custom)\\s*\\(",
+        "literal": "a face chosen in place",
+        "use_instead": "Typeface (ios/Shared/Look.swift): the worn look's faces by role, Typeface.symbol for an SF Symbol"
+      },
+      {
+        "pattern": "\\b(UI|NS)Font\\s*(\\.\\s*(systemFont|boldSystemFont|italicSystemFont|monospacedDigitSystemFont|monospacedSystemFont)\\b|\\(\\s*name\\s*:)",
+        "literal": "a platform face chosen in place",
+        "use_instead": "LookFaces (ios/Shared/Look.swift): the worn look's faces by role"
+      },
+      {
+        "pattern": "\\.theme\\s*\\(\\s*\"",
+        "literal": "a theme picked by its id",
+        "use_instead": "Look.current, the look the person wears (ios/Shared/WornLook.swift); a fixed surface is a device-hosts.json surfaces row"
+      }
+    ],
+    "tsx": [
+      {
+        "pattern": "[\\'\"`]#[0-9a-fA-F]{3,8}[\\'\"`]|:\\s*#[0-9a-fA-F]{3,8}\\b",
+        "literal": "a colour written as #hex",
+        "use_instead": "a look token (var(--<token>), or the worn look kept by extension/src/worn-look.mjs)"
+      },
+      {
+        "pattern": "\\b(rgba?|hsla?)\\(\\s*\\d",
+        "literal": "a colour built from numbers",
+        "use_instead": "a look token (var(--<token>))"
+      },
+      {
+        "pattern": "font-family\\s*:\\s*[^v;]|fontFamily\\s*:\\s*[\\'\"`]",
+        "literal": "a face chosen in place",
+        "use_instead": "the look's faces (var(--font-primary), var(--font-display))"
+      }
+    ]
+  }
+}

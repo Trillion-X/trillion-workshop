@@ -24,6 +24,7 @@ import argparse
 import glob
 import json
 import os
+import re
 import runpy
 import subprocess
 import sys
@@ -61,10 +62,22 @@ def environment(args):
     return env
 
 
-def probe_duration(path):
-    answer = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
-                            capture_output=True, text=True, check=True)
-    return float(answer.stdout.strip())
+def probe_duration(path, ffmpeg=None):
+    """The recording's length in seconds: ffprobe's, else read from the ffmpeg the person gave (a computer run is granted
+    ffmpeg and whisper-cli only, so ffprobe may not start there)."""
+    try:
+        answer = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
+                                capture_output=True, text=True, check=True)
+        return float(answer.stdout.strip())
+    except (OSError, subprocess.CalledProcessError, ValueError):
+        if not ffmpeg:
+            raise
+    said = subprocess.run([ffmpeg, "-hide_banner", "-nostdin", "-i", path], capture_output=True, text=True).stderr
+    found = re.search(r"Duration: (\d+):(\d+):(\d+(?:\.\d+)?)", said)
+    if not found:
+        raise RuntimeError(f"ffmpeg did not say how long {path} is")
+    hours, minutes, seconds = found.groups()
+    return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
 
 
 def command_transcribe(args):
@@ -82,7 +95,7 @@ def command_transcribe(args):
         print(payload["code"] + ": " + payload["message"], file=sys.stderr)
         args.exit_code = 2
         return {"failed": {"code": payload["code"], "message": payload["message"]}}
-    result["duration"] = probe_duration(args.audio)
+    result["duration"] = probe_duration(args.audio, args.ffmpeg)
     result["source"] = os.path.abspath(args.audio)
     result["recorded_at"], result["recorded_at_from"] = reports.recorded_at(args.audio)
     write_json(args.out, result)
@@ -162,7 +175,7 @@ def command_repair(args):
     if "repaired_windows" in doc:
         print("already repaired")
         return {"transcript": args.transcript, "repaired_windows": doc["repaired_windows"], "skipped": True}
-    windows = loops.regions(doc, doc.get("duration") or probe_duration(args.audio))
+    windows = loops.regions(doc, doc.get("duration") or probe_duration(args.audio, args.ffmpeg))
     if not windows:
         print("clean")
         return {"transcript": args.transcript, "repaired_windows": [], "clean": True}

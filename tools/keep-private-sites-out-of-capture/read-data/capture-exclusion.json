@@ -1,0 +1,82 @@
+{
+  "_what": "Categories of places the reader must not read (read-data/capture-exclusion.mjs). `categories` says which are on by default; the person turns any on or off in their own `prefs`, given with each run. `seed` maps categories to domains and ships with the app; it is only a starting set. More coverage arrives as a cursor diff (action `diff`, answered as the new `state` the caller keeps): new domains with their category and `removed` domains as tombstones, so a domain reclassified or withdrawn stays gone after a later seed reload. A domain belongs to a category if it equals a listed domain or ends with `.` and one.",
+  "categories": [
+    {
+      "id": "adult-content",
+      "label": "Adult content",
+      "default": true
+    },
+    {
+      "id": "banking-finance",
+      "label": "Banking and finance",
+      "default": true
+    },
+    {
+      "id": "health",
+      "label": "Health",
+      "default": false
+    },
+    {
+      "id": "social",
+      "label": "Social networks",
+      "default": false
+    },
+    {
+      "id": "shopping",
+      "label": "Shopping",
+      "default": false
+    },
+    {
+      "id": "entertainment",
+      "label": "Entertainment",
+      "default": false
+    }
+  ],
+  "cursor": 0,
+  "seed": {
+    "banking-finance": [
+      "chase.com",
+      "bankofamerica.com",
+      "wellsfargo.com",
+      "citi.com",
+      "capitalone.com",
+      "schwab.com",
+      "fidelity.com",
+      "paypal.com"
+    ],
+    "health": [
+      "webmd.com",
+      "mayoclinic.org",
+      "nih.gov",
+      "cdc.gov",
+      "mychart.org"
+    ],
+    "social": [
+      "facebook.com",
+      "instagram.com",
+      "x.com",
+      "twitter.com",
+      "linkedin.com",
+      "reddit.com",
+      "tiktok.com"
+    ],
+    "shopping": [
+      "amazon.com",
+      "ebay.com",
+      "etsy.com",
+      "walmart.com",
+      "target.com"
+    ],
+    "entertainment": [
+      "netflix.com",
+      "hulu.com",
+      "disneyplus.com",
+      "spotify.com",
+      "twitch.tv"
+    ]
+  },
+  "words": {
+    "no_category": "There is no category {category}.",
+    "stale_diff": "The diff starts at {from} but this Mac is at {cursor}; it was not applied."
+  }
+}

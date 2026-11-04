@@ -1,0 +1,94 @@
+{
+  "_what": "What computer/shell-string-scan.mjs refuses in the code that runs on a person's Mac and in the Worker: running a program by building ONE command string a shell reads (page-, model- or person-supplied words can then become commands). A helper is called with an argument array (execFile, spawn without a shell, Swift Process.arguments), so each word stays one word. `roots` are the folders scanned (relative to the repository), `skip_folders` are never read, `extensions` are the files read. Each rule has a `files` list (the extensions it applies to), a `pattern` (a JavaScript regular expression source, flags `m`), an optional `only_when_file_matches` (the rule applies only to a file whose text matches it, so the name `exec` of a database handle is not confused with child_process.exec), and the `say` shown for a hit. `allowed` names a file and the reason a hit there is safe; a row with no reason is refused by the test. Adding a rule or an exception is a row here, flipped without compiling.",
+  "roots": [
+    "computer",
+    "src",
+    "harness",
+    "scripts",
+    "parts",
+    "macos",
+    "extension"
+  ],
+  "skip_folders": [
+    "node_modules",
+    "dist",
+    "proof",
+    "docs",
+    "test",
+    "tests",
+    "Assets.xcassets",
+    ".git"
+  ],
+  "extensions": [
+    ".mjs",
+    ".js",
+    ".cjs",
+    ".ts",
+    ".tsx",
+    ".swift",
+    ".sh",
+    ".zsh"
+  ],
+  "rules": [
+    {
+      "id": "exec-string",
+      "files": [
+        ".mjs",
+        ".js",
+        ".cjs",
+        ".ts",
+        ".tsx"
+      ],
+      "pattern": "(?<![.\\w])(?:exec|execSync)\\(\\s*(?:`|'|\"|[A-Za-z_$])",
+      "only_when_file_matches": "(?:import\\s*\\{[^}]*\\b(?:exec|execSync)\\b[^}]*\\}\\s*from\\s*['\"](?:node:)?child_process['\"]|(?:const|let|var)\\s*\\{[^}]*\\b(?:exec|execSync)\\b[^}]*\\}\\s*=\\s*require\\(\\s*['\"](?:node:)?child_process['\"]\\))",
+      "say": "child_process exec/execSync hands one string to a shell; call the program with execFile and an argument array."
+    },
+    {
+      "id": "exec-string-qualified",
+      "files": [
+        ".mjs",
+        ".js",
+        ".cjs",
+        ".ts",
+        ".tsx"
+      ],
+      "pattern": "\\bchild_process\\.(?:exec|execSync)\\(",
+      "say": "child_process exec/execSync hands one string to a shell; call the program with execFile and an argument array."
+    },
+    {
+      "id": "shell-true",
+      "files": [
+        ".mjs",
+        ".js",
+        ".cjs",
+        ".ts",
+        ".tsx"
+      ],
+      "pattern": "\\bshell\\s*:\\s*true\\b",
+      "say": "A spawn or execFile with shell set runs its arguments through a shell; leave shell off and pass an argument array."
+    },
+    {
+      "id": "shell-dash-c-built-string",
+      "files": [
+        ".mjs",
+        ".js",
+        ".cjs",
+        ".ts",
+        ".tsx",
+        ".swift"
+      ],
+      "pattern": "(?:\\b(?:sh|bash|zsh)\\b['\"]?\\s*,\\s*\\[\\s*['\"]-[a-z]*c['\"]\\s*,\\s*(?:`[^`]*\\$\\{|[^,\\]]*['\"`]\\s*\\+|[A-Za-z_$][\\w$.]*\\s*[,\\]])|\"-c\"\\s*,\\s*\"[^\"]*\\\\\\()",
+      "say": "A shell -c command built from variables lets those words become commands; pass them to the program as separate arguments."
+    }
+  ],
+  "allowed": [
+    {
+      "file": "harness/agent-receiver.mjs",
+      "because": "the command is typed by the person on this receiver's own command line (--work, --wake, --on); the job and event words reach it on standard input, never in the command string"
+    },
+    {
+      "file": "scripts/ship-apple-app.mjs",
+      "because": "the only word placed in the string is a commit id read from git rev-parse of origin/main, and the folder is the script's own build folder; this release script belongs to the release owner"
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:tell-a-repeated-capture-from-a-new-one",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:capture-dedupe",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "label": "Is this capture a repeat?",
+        "job": "Say whether a captured text (screen words, a transcript) is the same as, or nearly the same as, one already seen, before it is kept or uploaded, and forget what was seen in a span when that span is erased",
+        "description": "Give action seen with text (and at, an ISO time; now when left out), or action erase with from and to (ISO times). Give entries, the memory the last run answered (none on a first run). Answers duplicate (false, exact or near) and of (the exact hash of the earlier text), or forgotten (how many were erased), and always entries, the memory to give back next time. Exact means the same text after normalising; near means a 64-bit SimHash within near_bits; texts under least_words_for_near words are never near. Settings: read-data/capture-dedupe.json.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "seen",
+                "erase"
+              ]
+            },
+            "text": {
+              "type": "string"
+            },
+            "at": {
+              "type": "string"
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            },
+            "entries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "exact": {
+                    "type": "string"
+                  },
+                  "near": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "at": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "entries"
+          ],
+          "properties": {
+            "duplicate": {
+              "enum": [
+                false,
+                "exact",
+                "near"
+              ]
+            },
+            "of": {
+              "type": "string"
+            },
+            "forgotten": {
+              "type": "integer"
+            },
+            "entries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "exact": {
+                    "type": "string"
+                  },
+                  "near": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "at": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/tell-a-repeated-capture-from-a-new-one",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/tell-a-repeated-capture-from-a-new-one/read-data/capture-dedupe.mjs",
+            "dedupe"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "tell-a-repeated-capture-from-a-new-one",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/tell-a-repeated-capture-from-a-new-one"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion capture-dedupe (computer/, deleted in dc79bb0a87)"
+        }
+      }
+    }
+  ]
+}

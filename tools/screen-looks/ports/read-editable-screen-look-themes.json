@@ -1,0 +1,75 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-READ-EDITABLE-SCREEN-LOOK-THEMES-FROM-OLD-TRILLION",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "rea pm/ws move 2026-11-03: not-yet-moved product modules and workshop tool parts",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+      "path_multihash": "1f:cdc76c5d30b4a97072e5ffa3ed4a222b0620a4f18526e0aaafaaf2dc37ef0ca3",
+      "multihash": "1f:2620fb1f1d074f54ca4810bb2d160484083ba142a8c948cab9d79d8527b7519a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T12:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/screen-looks/read-data/read-editable-screen-look-themes.ts",
+      "baseline_commit_message": "screen-looks and page-critic: move the look colour modules and build the frame, reduced-motion and page-order checks"
+    }
+  ],
+  "preserve": [
+    "pure and blind: no page, storage, look, token or colour is named; ranges, rules and words are DATA",
+    "a token the look lacks is skipped, never invented",
+    "every value written goes through changeScreenLookTokens, which keeps each token kind and bounds"
+  ],
+  "allowed_deltas": [
+    "the file header and the import and comment paths name the file's new place (baseline.redactions)"
+  ],
+  "banned_substitutions": [
+    "a second look validator or colour parser",
+    "a colour, look or font named in code"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:2620fb1f1d074f54ca4810bb2d160484083ba142a8c948cab9d79d8527b7519a",
+    "target_multihash_at_baseline": "1f:881485ed86f0971de23cf95b700b4112854774ac87874adcafb5bfcd638a2419",
+    "redactions": [
+      {
+        "from": "// packages/screen-look/read-data/read-editable-screen-look-themes.ts",
+        "to": "// tools/screen-looks/read-data/read-editable-screen-look-themes.ts"
+      },
+      {
+        "from": "parts/screen-look/read-data/",
+        "to": "tools/screen-looks/read-data/"
+      }
+    ],
+    "commit": "9712f603f701c4efc880979d13b8e00adb5e55b4",
+    "recorded_at": "2026-11-03T12:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export const DEFAULT_SCREEN_LOOK",
+      "export const DEFAULT_EDITABLE_SCREEN_LOOK_THEME_ID",
+      "export type EditableScreenLookTokenKind",
+      "export interface EditableScreenLookToken",
+      "export interface EditableScreenLookSection",
+      "export interface EditableScreenLookTheme"
+    ],
+    "test_refs": [
+      "tools/screen-looks/test/colour-ladder.test.ts",
+      "tools/screen-looks/test/tint-look.test.ts"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

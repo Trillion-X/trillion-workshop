@@ -157,7 +157,76 @@
         "maker": "maker:calendar",
         "result_selector": "$",
         "provenance": { "source": "bitfield-packages packages/calendar (the Google calendar sync workflow's request and normalizer)" },
-        "verify": null
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "range_start": "2030-08-12T00:00:00Z",
+            "range_end": "2030-08-13T00:00:00Z",
+            "connection_ref": "sample-account"
+          },
+          "held": {
+            "google-calendar-client-id": "sample-client-id.example.test",
+            "google-calendar-client-secret": "sample-client-secret",
+            "google-calendar-refresh-token": "sample-refresh-token"
+          },
+          "replies": [
+            {
+              "request": {
+                "method": "POST",
+                "url": "https://oauth2.googleapis.com/token"
+              },
+              "status": 200,
+              "body": {
+                "access_token": "sample-access-token",
+                "expires_in": 3599,
+                "scope": "https://www.googleapis.com/auth/calendar.readonly",
+                "token_type": "Bearer"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "url": "https://www.googleapis.com/calendar/v3/calendars/primary/events"
+              },
+              "status": 200,
+              "body": {
+                "kind": "calendar#events",
+                "summary": "Sample calendar",
+                "timeZone": "UTC",
+                "items": [
+                  {
+                    "kind": "calendar#event",
+                    "id": "sampleevent1",
+                    "status": "confirmed",
+                    "htmlLink": "https://calendar.example.test/event?eid=sampleevent1",
+                    "summary": "Sample meeting",
+                    "start": {
+                      "dateTime": "2030-08-12T15:00:00Z",
+                      "timeZone": "UTC"
+                    },
+                    "end": {
+                      "dateTime": "2030-08-12T16:00:00Z",
+                      "timeZone": "UTC"
+                    }
+                  },
+                  {
+                    "kind": "calendar#event",
+                    "id": "sampleevent2",
+                    "status": "confirmed",
+                    "summary": "Sample day off",
+                    "start": {
+                      "date": "2030-08-12"
+                    },
+                    "end": {
+                      "date": "2030-08-13"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     }
   ]

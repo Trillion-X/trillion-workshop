@@ -1,0 +1,15 @@
+{
+  "_what": "The instruction and skill files other AIs keep on this Mac that the person can bring into Trillion as saved instructions (read-data/ai-setups.mjs, tool:read-ai-setups). Each `sources` row is a place, written as path segments where `~` is the person's home folder, read at run time: `files` are single files, `folder` lists a folder's entries (those ending in one of `endings`, or a folder holding `entry`). `kind` says what it is (instructions, command or skill). Reading goes through read-data/file-arguments.mjs, so its roots and protected names apply. Nothing is written to those places. A new AI is one more row.",
+  "sources": [
+    { "id": "claude-instructions", "label": "Claude instructions", "kind": "instructions", "files": [["~", ".claude", "CLAUDE.md"]] },
+    { "id": "claude-commands", "label": "Claude commands", "kind": "command", "folder": ["~", ".claude", "commands"], "endings": [".md"] },
+    { "id": "claude-skills", "label": "Claude skills", "kind": "skill", "folder": ["~", ".claude", "skills"], "entry": "SKILL.md" },
+    { "id": "codex-instructions", "label": "Codex instructions", "kind": "instructions", "files": [["~", ".codex", "AGENTS.md"], ["~", "AGENTS.md"]] },
+    { "id": "codex-prompts", "label": "Codex prompts", "kind": "command", "folder": ["~", ".codex", "prompts"], "endings": [".md"] },
+    { "id": "cursor-rules", "label": "Cursor rules", "kind": "instructions", "folder": ["~", ".cursor", "rules"], "endings": [".mdc", ".md"] }
+  ],
+  "most_items": 200,
+  "most_chars_per_item": 2000,
+  "label_chars": 120,
+  "imported_from": "ai-setups"
+}

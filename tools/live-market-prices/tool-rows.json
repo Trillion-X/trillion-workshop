@@ -79,7 +79,41 @@
             "kind": "sample-run",
             "input": { "limit": 1 },
             "output_selector": "$.status.state",
-            "contains": "live"
+            "contains": "live",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://gamma-api.polymarket.com/markets?active=true&closed=false&order=volume24hr&ascending=false&limit=1"
+                },
+                "status": 200,
+                "body": [
+                  {
+                    "id": "100001",
+                    "question": "Will the sample event happen by 2030?",
+                    "conditionId": "0xsamplecondition0001",
+                    "slug": "will-the-sample-event-happen-by-2030",
+                    "endDate": "2030-12-31T12:00:00Z",
+                    "startDate": "2026-01-01T00:00:00Z",
+                    "image": "https://images.example.test/sample.png",
+                    "outcomes": "[\"Yes\", \"No\"]",
+                    "outcomePrices": "[\"0.42\", \"0.58\"]",
+                    "clobTokenIds": "[\"1111\", \"2222\"]",
+                    "volume": "12345.67",
+                    "volumeNum": 12345.67,
+                    "liquidity": "890.12",
+                    "liquidityNum": 890.12,
+                    "active": true,
+                    "closed": false,
+                    "acceptingOrders": true,
+                    "enableOrderBook": true,
+                    "orderPriceMinTickSize": 0.01,
+                    "orderMinSize": 5
+                  }
+                ]
+              }
+            ],
+            "shape_read_at": "2026-11-03"
           }
         ]
       }
@@ -159,7 +193,46 @@
             "kind": "sample-run",
             "input": { "token_id": "0" },
             "output_selector": "$.status.token_id",
-            "contains": "0"
+            "contains": "0",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://clob.polymarket.com/book?token_id=0"
+                },
+                "status": 200,
+                "body": {
+                  "market": "0xsamplecondition0001",
+                  "asset_id": "0",
+                  "timestamp": "1793750400000",
+                  "hash": "samplehash0001",
+                  "bids": [
+                    {
+                      "price": "0.40",
+                      "size": "100"
+                    },
+                    {
+                      "price": "0.41",
+                      "size": "50"
+                    }
+                  ],
+                  "asks": [
+                    {
+                      "price": "0.44",
+                      "size": "75"
+                    },
+                    {
+                      "price": "0.43",
+                      "size": "20"
+                    }
+                  ],
+                  "min_order_size": "5",
+                  "tick_size": "0.01",
+                  "neg_risk": false
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03"
           }
         ]
       }
@@ -216,7 +289,88 @@
         "maker": "maker:live-market-prices",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
-        "provenance": { "source": "bitfield-packages packages/market-data-feed (the pull-market-bars request and bar normalizer), ported" }
+        "provenance": { "source": "bitfield-packages packages/market-data-feed (the pull-market-bars request and bar normalizer), ported" },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "feed": {
+              "url": "https://market-data.example.test/v1/bars",
+              "query": {
+                "timeframe": "5Min"
+              },
+              "query_names": [
+                "symbols",
+                "timeframe",
+                "limit"
+              ],
+              "credential_injections": [
+                {
+                  "field": "key_id",
+                  "placement": {
+                    "kind": "header",
+                    "name": "X-Sample-Key"
+                  }
+                },
+                {
+                  "field": "secret",
+                  "placement": {
+                    "kind": "header",
+                    "name": "X-Sample-Secret"
+                  }
+                }
+              ],
+              "bars_at": "bars",
+              "fields": {
+                "timestamp": "t",
+                "open": "o",
+                "high": "h",
+                "low": "l",
+                "close": "c",
+                "volume": "v"
+              }
+            },
+            "query": {
+              "symbols": "SAMPLE",
+              "limit": "2"
+            }
+          },
+          "held": {
+            "market-data-credentials": "{\"key_id\": \"sample-key-id\", \"secret\": \"sample-secret\"}"
+          },
+          "replies": [
+            {
+              "request": {
+                "method": "GET",
+                "url": "https://market-data.example.test/v1/bars"
+              },
+              "status": 200,
+              "body": {
+                "bars": {
+                  "SAMPLE": [
+                    {
+                      "t": "2026-11-02T15:00:00Z",
+                      "o": 10,
+                      "h": 11,
+                      "l": 9.5,
+                      "c": 10.5,
+                      "v": 300
+                    },
+                    {
+                      "t": "2026-11-02T15:05:00Z",
+                      "o": 10.5,
+                      "h": 12,
+                      "l": 10,
+                      "c": 11.75,
+                      "v": 120
+                    }
+                  ]
+                },
+                "next_page_token": null
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     }
   ]

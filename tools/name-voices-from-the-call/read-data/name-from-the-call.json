@@ -1,0 +1,40 @@
+{
+  "_what": "Names the voices of a recorded call from the call app's own screen (read-data/name-from-the-call.mjs). While a call is recorded, something reads the app's accessibility elements every moment (tools/read-what-is-on-screen or the Mac app's screen reader; elements have role, title, description, value, identifier, label) and `namesSpeaking` finds who the app shows as speaking by the first row of `apps` whose `app_contains` matches the app (a row without it matches every app). A row says which element field marks a speaker (`speaking.field` contains any of `speaking.contains_any`), how a name is cut out of it (`name.strip`, regular expressions removed, then trimmed) and how far the app's picture trails the sound (`lag_seconds`). Rows for particular call apps are added here as they are checked on the real app; none is assumed. Only turns whose voice label matches `unnamed_label` (how listening words a voice it could not name) are laid over; a voice already named is left alone. `reconcile` says: a voice takes the name shown for at least `sure_share` of the time it spoke, and at least `least_overlap_seconds` of it; a name goes to one voice only; otherwise the voice is left unnamed and its candidates are listed.",
+  "apps": [
+    {
+      "id": "any-call-app",
+      "lag_seconds": 0.5,
+      "speaking": {
+        "field": "label",
+        "contains_any": [
+          "is speaking",
+          "active speaker",
+          "speaking now"
+        ]
+      },
+      "name": {
+        "strip": [
+          ",?\\s*(is speaking|active speaker|speaking now)\\.?",
+          "\\s*\\((host|co-host|me|you|guest)\\)",
+          "^(active speaker|speaker):?\\s*",
+          "^[:,\\-\\s]+"
+        ]
+      }
+    }
+  ],
+  "unnamed_label": "^(Someone|Unsure) \\(",
+  "sampling": {
+    "most_gap_seconds": 5
+  },
+  "reconcile": {
+    "sure_share": 0.6,
+    "least_overlap_seconds": 3
+  },
+  "evidence": "Shown as speaking by the call app on screen ({share} of the time this voice spoke, {seconds} seconds).",
+  "words": {
+    "needs_turns": "Give turns: [{ start, end, who }] in seconds, such as the speakers tool:who-is-in-this answered.",
+    "needs_samples": "Give samples: [{ at, names }] or [{ at, elements }] in milliseconds from the start of the recording.",
+    "needs_apply": "To name the voices in the person's Trillion give apply: { app, since, until }, where since and until are ISO times.",
+    "needs_caller": "Naming the voices in the person's Trillion is done by the caller that holds the name_speaker door; this run gives the assignments only. Leave out apply."
+  }
+}

@@ -267,7 +267,33 @@
             "output_selector": "$.hold.held.key",
             "contains": "sample-sign-in"
           }
-        ]
+        ],
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "indexes": [
+            {
+              "type": "record:waiting-on-you",
+              "name": "open-status",
+              "backfill": "waiting-open-status",
+              "where": [
+                {
+                  "path": [
+                    "status"
+                  ],
+                  "not": [
+                    "Done"
+                  ]
+                }
+              ],
+              "paths": [
+                [
+                  "status"
+                ]
+              ],
+              "_read_by": "src/lists.mjs read(open): only unsettled waiting rows, including declared starts; old rows join on the scheduler through fillOpen"
+            }
+          ]
+        }
       }
     },
     {

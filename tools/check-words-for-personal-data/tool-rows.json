@@ -1,0 +1,151 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-words-for-personal-data",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:check-personal-data",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "label": "Check words for personal data",
+        "job": "Before words go to a model that is not on the person's computer, check on the computer whether they hold personal data (email addresses, phone numbers, card numbers that pass the checksum, IBANs, national ids, and by a model on the computer a name with an address or health details), and offer the person the choice: send as it is, do it on this computer only, or keep it back",
+        "description": "Give text, and model ({ endpoint, model, timeout_seconds } of a model served on this computer) to also ask the model questions. Answers contains, kinds ([{ kind, how: rule | model, count or share }]), model_checked, choices (when something was found) and said. Only counts and kinds come back, never the matched text. With no model named, or one that does not answer, said says only the rules were checked. Shapes, questions, threshold and choices: read-data/personal-data.json.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "text"
+          ],
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1
+            },
+            "model": {
+              "type": "object",
+              "required": [
+                "endpoint",
+                "model",
+                "timeout_seconds"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "endpoint": {
+                  "type": "string"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "timeout_seconds": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "contains",
+            "kinds",
+            "model_checked",
+            "choices"
+          ],
+          "properties": {
+            "contains": {
+              "type": "boolean"
+            },
+            "kinds": {
+              "type": "array"
+            },
+            "model_checked": {
+              "type": "boolean"
+            },
+            "choices": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/check-words-for-personal-data",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/check-words-for-personal-data/read-data/personal-data.mjs",
+            "check"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-words-for-personal-data",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/check-words-for-personal-data"
+              },
+              {
+                "package": "ask-a-small-model-for-a-verdict",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/ask-a-small-model-for-a-verdict"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion personal-data (computer/, deleted in dc79bb0a87)"
+        }
+      }
+    }
+  ]
+}

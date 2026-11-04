@@ -1,0 +1,59 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-APP-RELEASE-DISTRIBUTION",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "Jibran, 2026-11-03: move code, never rewrite it: port the correct parts one to one, carry the original tests."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "path": "src/device-distribution.mjs",
+      "lines": [
+        8,
+        91
+      ],
+      "multihash": "1f:5699b80086c18223c39e3f73e93c5a21bcbc67cad0864cd6fa8d790966494524",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:00:00Z",
+        "deleted_with": "old trillion's src/device-distribution.mjs leaves with the account server it serves (src/devices.mjs, src/setup-access.mjs, src/screen-reads.mjs); the engine's own reader is trillion-rust src/local_account/setup_distribution/value.rs"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/app-release-access/read-data/distribution.mjs"
+    }
+  ],
+  "preserve": [
+    "only the safe public projection is kept: no tester identity or arbitrary provider payload",
+    "an observation needs its real check time and a bounded expiry",
+    "an available route needs an allowed HTTPS destination with no credentials",
+    "a route cannot outlive its observation"
+  ],
+  "allowed_deltas": [
+    "the bounds and sources are this folder's read-data/distribution.json, as the engine's product/devices.json distribution block holds them",
+    "routeEligibility and compareVersion, used only by the account's install-way reader, are not carried"
+  ],
+  "banned_substitutions": [
+    "a private or unconfigured channel in a shared observation"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:38:26Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:5699b80086c18223c39e3f73e93c5a21bcbc67cad0864cd6fa8d790966494524",
+    "target_multihash_at_baseline": "1f:5699b80086c18223c39e3f73e93c5a21bcbc67cad0864cd6fa8d790966494524",
+    "commit": "b657df564849916a920e9eb7d9d756b107ab7c6a"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/app-release-access/test/app-distribution.test.mjs the public projection keeps only safe data and never includes tester identities or arbitrary provider payloads",
+      "tools/app-release-access/test/app-distribution.test.mjs source identity, route identity, safe HTTPS destination and bounded clock window are required"
+    ]
+  }
+}

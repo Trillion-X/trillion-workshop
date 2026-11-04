@@ -1,0 +1,66 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-LAN-PEERS-FROM-OLD-TRILLION-COMPUTER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-computer-computer",
+  "message_multihash": "1f:0138daaf63aaf9da6077efe80902c12683a1893a7063c6918ccd53b38b5ef9b6",
+  "quote": "Job: move the file sharing and drive serving modules of old trillion computer/ (WebDAV, the Trillion drive, folder bindings, LAN peers) into Trillion-X/trillion-workshop tools. Port the correct parts one to one with their original tests and assertions, and drop only what this design rules out (Cloudflare Worker coupling, fixed addresses, the old Mac host's wiring). \"move code, never rewrite it\""
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b56b1e1adfa0dd59b31a0c076c2926c9d8d08d2f",
+   "path": "computer/lan-peers.mjs",
+   "multihash": "1f:5845d7214db6bf2e42a14e4ded494c22b2fde717557b0a4335cc66dd872e6d9e",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-04T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/sync-files-between-my-computers/do-work/lan-peers.mjs",
+   "baseline_commit_message": "sync-files-between-my-computers: lan-peers, drive-sync-status and folder-bindings from old trillion computer/, byte for byte"
+  }
+ ],
+ "preserve": [
+  "off unless peers.enabled: nothing listens and nothing is announced otherwise",
+  "a request is signed with a BLAKE3 keyed MAC from a key derived from the account key; the account key itself is never sent",
+  "a request outside window_seconds, with a bad MAC or from this computer itself is refused",
+  "a fetched file is accepted only when the BLAKE3 of all its bytes equals the identity named; a peer that sends anything else is cooled for bad_peer_seconds",
+  "announcements are signed and heard only from the same account"
+ ],
+ "allowed_deltas": [
+  "the header names the tool folder and says where whoever keeps the files mounts it, instead of computer/trillion-drive.mjs",
+  "the DATA block is read from sync-files.json instead of trillion-drive.json"
+ ],
+ "banned_substitutions": [
+  "a second peer table or signer",
+  "a listen address or broadcast address written in code",
+  "the account key sent or used as the MAC key"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:5845d7214db6bf2e42a14e4ded494c22b2fde717557b0a4335cc66dd872e6d9e",
+  "target_multihash_at_baseline": "1f:5845d7214db6bf2e42a14e4ded494c22b2fde717557b0a4335cc66dd872e6d9e",
+  "commit": "b98f5c945685259ba0ff58ec1578f87b9bdc10a5",
+  "recorded_at": "2026-11-03T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export const peerKey",
+   "export function createPeers",
+   "function verify",
+   "function heard",
+   "function announce",
+   "async function fetchWhole"
+  ],
+  "test_refs": [
+   "tools/sync-files-between-my-computers/test/lan-peers.test.mjs"
+  ]
+ }
+}

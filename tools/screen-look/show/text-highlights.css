@@ -1,0 +1,7 @@
+/*
+ * How text marks look (parts/ui/show/text-highlights): each kind is a CSS Custom Highlight, so the marked words keep
+ * their own element, colour and selection; only the background is painted. Kinds are named in text-highlights.json.
+ */
+::highlight(trillion-find) { background-color: color-mix(in srgb, var(--color-primary, Highlight) 28%, transparent); color: inherit; }
+::highlight(trillion-citation) { background-color: color-mix(in srgb, var(--color-primary, Highlight) 16%, transparent); text-decoration: underline; text-decoration-color: var(--color-primary, currentColor); }
+::highlight(trillion-review) { background-color: color-mix(in srgb, var(--color-warning, Mark) 30%, transparent); color: inherit; }

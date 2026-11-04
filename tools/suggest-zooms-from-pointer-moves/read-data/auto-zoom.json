@@ -1,0 +1,33 @@
+{
+  "_what": "Suggesting zooms from pointer telemetry (read-data/auto-zoom.mjs). The telemetry is a sidecar of samples normalised to the captured source (`space: normalized-source`). The pointer is sampled every `step_seconds`; a dwell is a stretch where it stays within `radius` of where it settled for at least `least_ms` (and at most `most_ms`, after which a new one starts). A click inside a dwell makes it one `strength` band stronger. `bands` give the strength by duration, `levels` the zoom each strength asks for, and `merge_gap_ms` joins suggestions that follow each other closely. `export_flags` are the command-line words that hand a telemetry file and the suggestions to a compositor; `{file}` and `{zooms}` are filled.",
+  "step_seconds": 0.02,
+  "least_ms": 450,
+  "most_ms": 2600,
+  "radius": 0.04,
+  "merge_gap_ms": 300,
+  "bands": [
+    {
+      "id": "light",
+      "under_ms": 900
+    },
+    {
+      "id": "medium",
+      "under_ms": 1600
+    },
+    {
+      "id": "strong",
+      "under_ms": null
+    }
+  ],
+  "levels": {
+    "light": 1.3,
+    "medium": 1.6,
+    "strong": 2.0
+  },
+  "export_flags": [
+    "--zoom-telemetry",
+    "{file}",
+    "--zoom-regions",
+    "{zooms}"
+  ]
+}

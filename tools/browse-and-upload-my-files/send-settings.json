@@ -1,0 +1,14 @@
+{
+  "what_this_is": "How hard the shared sender pushes one person's namespace (do-work/send-window.mjs). Every upload this computer or page runs for one account (a camera receiver, a folder copy, a drive copy, files chosen in the browser) shares one window of chunks in flight: it starts at start, opens by one after each round of chunks the service took, up to most, and halves (never below least) when the service answers with one of busy_statuses, any 5xx, or nothing. So several files at once go as fast as the person's service keeps up, and back off together the moment it does not. Files sent together (send_files): small files go many to a request, files_at_once requests or larger files run at the same time, each larger file asks for chunks_per_file chunks at once, and bytes_in_flight bounds the memory the chunks being sent take.",
+  "in_flight_per_person": {
+    "start": 4,
+    "least": 1,
+    "most": 32,
+    "busy_statuses": [408, 425, 429]
+  },
+  "send_files": {
+    "files_at_once": 4,
+    "chunks_per_file": 8,
+    "bytes_in_flight": 201326592
+  }
+}
