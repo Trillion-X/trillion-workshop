@@ -43,7 +43,7 @@
 //
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { canonical } from './decision-store.mjs';
+import { canonical } from '../../decide-with-a-method/read-data/decision-records.mjs';
 import { partFrom } from './responses.mjs';
 import { canonicalApp, harnessOf, isFinalReply, transcriptHookNames } from './harnesses.mjs';
 import { claimedTime, claimedTimeProblem } from './claimed-time.mjs';

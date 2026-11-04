@@ -1,0 +1,14 @@
+{
+  "about": "Relative imports in this tool whose target the Workshop does not hold, because the web shell (Trillion-X/trillion-apps web/parts/ui) owns it and its build answers any Workshop import into tools/ui with web/parts/ui (web/scripts/workshop-shell-imports.mjs). Only files the page bundles may import these; a file node loads (lists.mjs) may not. Read by test/imports-resolve.test.mjs; every other relative import here must resolve in the Workshop.",
+  "prefixes": [
+    {
+      "path": "tools/ui/show/node-graph/",
+      "why": "the node graph screen (NodeGraph.tsx, project-topology.ts) is the web shell's; read-data/visual-database.ts names its types only"
+    },
+    {
+      "path": "tools/ui/show/record-views/",
+      "why": "RecordViews (record-views.tsx) is the web shell's screen; read-data/configuration-controller.d.mts names its types only"
+    }
+  ],
+  "node_entries": ["lists.mjs"]
+}

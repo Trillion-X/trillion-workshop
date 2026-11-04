@@ -544,8 +544,21 @@
             "plan": "text",
             "contactId": "text"
           }
+        },
+        {
+          "type": "customer-database",
+          "table": true,
+          "properties": {
+            "name": "text",
+            "created_at": "text",
+            "changed_at": "text",
+            "archived_at": "text",
+            "deleted_at": "text"
+          },
+          "_read_by": "src/customer-databases.mjs: a customer-named private record database backed by its own RecordBook Durable Object"
         }
-      ]
+      ],
+      "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
     }
    }
   },

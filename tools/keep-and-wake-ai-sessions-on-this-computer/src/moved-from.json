@@ -155,6 +155,62 @@
       "source_identity": "1f:c506a90ae6559d92e57b2002fa38edc5085b25ab0db8e9b752c6c5544e244d8a",
       "identity": "1f:c506a90ae6559d92e57b2002fa38edc5085b25ab0db8e9b752c6c5544e244d8a",
       "reused": true
+    },
+    {
+      "from": "src/live-keys.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/live-keys.mjs",
+      "source_identity": "1f:19728aada6fdb75344b7244f5a34e49e8acf8c61065ee41f96484947d43b5e7a",
+      "identity": "1f:19728aada6fdb75344b7244f5a34e49e8acf8c61065ee41f96484947d43b5e7a"
+    },
+    {
+      "from": "src/live-keys.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/live-keys.json",
+      "source_identity": "1f:20f259be3a77d3d483208056b841440c09ed99ab080b91bf3ed03352b3fe4951",
+      "identity": "1f:20f259be3a77d3d483208056b841440c09ed99ab080b91bf3ed03352b3fe4951"
+    },
+    {
+      "from": "src/entity-mentions.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/entity-mentions.mjs",
+      "source_identity": "1f:ba51d74f985f351064ca834ee7fac0d8d193904034c79696fec53d027e8d0c6d",
+      "identity": "1f:ba51d74f985f351064ca834ee7fac0d8d193904034c79696fec53d027e8d0c6d"
+    },
+    {
+      "from": "src/entity-mentions.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/entity-mentions.json",
+      "source_identity": "1f:0b9a366abac6f043256d3b1ce31228e959209ad221a4238898085729e4a204d8",
+      "identity": "1f:0b9a366abac6f043256d3b1ce31228e959209ad221a4238898085729e4a204d8"
+    },
+    {
+      "from": "src/local-store.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs",
+      "source_identity": "1f:21752f055744801d826d637b90d965fdeb65f7c4840bf15b347a583d8545f710",
+      "identity": "1f:21752f055744801d826d637b90d965fdeb65f7c4840bf15b347a583d8545f710"
+    },
+    {
+      "from": "src/local-store-safety.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/local-store-safety.mjs",
+      "source_identity": "1f:a76c7010c414c1b3d7c30e6b4b0aa38acb64b06c48adc6ff6748802802d63abd",
+      "identity": "1f:a76c7010c414c1b3d7c30e6b4b0aa38acb64b06c48adc6ff6748802802d63abd"
+    },
+    {
+      "from": "src/local-store-safety.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/local-store-safety.json",
+      "source_identity": "1f:ca848c84a46c2541f0c0c5860fe5f71b47f5a7e2f1952fcd4388af75aa45d0d3",
+      "identity": "1f:ca848c84a46c2541f0c0c5860fe5f71b47f5a7e2f1952fcd4388af75aa45d0d3"
+    },
+    {
+      "from": "src/hosts/local/sqlite-host.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/hosts/local/sqlite-host.mjs",
+      "source_identity": "1f:afa8f5be249525e7ec80983345207525204aabd81a0f76e0f1ec9125fd8127d7",
+      "identity": "1f:afa8f5be249525e7ec80983345207525204aabd81a0f76e0f1ec9125fd8127d7"
     }
   ]
 }

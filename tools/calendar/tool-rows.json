@@ -52,7 +52,26 @@
             "output_selector": "$.blocks[0].id",
             "contains": "bakery:orders:p1"
           }
-        ]
+        ],
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "space-calendar-event",
+              "guard_properties": {
+                "calendar": "text",
+                "calendar_event_id": "text",
+                "changed_at": "text",
+                "ends_at": "text",
+                "event_id": "text",
+                "placed": "number",
+                "space_id": "text",
+                "starts_at": "text",
+                "state": "text"
+              }
+            }
+          ]
+        }
       }
     },
     {

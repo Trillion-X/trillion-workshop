@@ -50,6 +50,8 @@
 #   {"op": "typedstream-text"}  {"op": "strip-prefixes", "prefixes": [{"prefix", "through"?}]}
 #   {"op": "fold-at-least", "at_least": n, "minus": m}   {"op": "json"}
 #   {"op": "slice", "to": n}    {"op": "strip-pattern", "pattern": re}
+#   {"op": "html-text"}  the words of an HTML fragment: tags out, a <br> or a closing block a line break,
+#                        entities read (&amp; -> &), runs of blank lines folded
 # A condition: {"equals": [a, b]}, {"present": getter}, {"truthy": getter},
 #   {"in": getter, "values": [...]}, {"at_least": getter, "value": n},
 #   {"every": getter, "get": getter, "equals": v}, {"not": c}, {"all": [c, ...]}
@@ -82,6 +84,7 @@
 from __future__ import annotations
 
 import datetime
+import html
 import importlib
 import json
 import pathlib
@@ -268,6 +271,12 @@ def _op(value, op):
         return re.sub(op["pattern"], "", value.strip()).strip()
     if name == "strip":
         return value.strip() if isinstance(value, str) else value
+    if name == "html-text":
+        if not isinstance(value, str):
+            return None
+        text = re.sub(r"(?i)<br\s*/?>|</(?:p|div|li|h[1-6]|tr|pre|blockquote)>", "\n", value)
+        text = html.unescape(re.sub(r"<[^>]+>", "", text))
+        return re.sub(r"\n{3,}", "\n\n", text).strip() or None
     raise ValueError(f"unknown value operation {name!r}")
 
 
@@ -635,6 +644,9 @@ def _threads(shape, scope):
       group           a flat message list grouped by a key
       fixed           threads the row names, each reading one list of the snapshot
       per_item        one thread per item of a list
+      per_item_turns  one thread per item of a list (kept when its `when` holds), each item read as the turns the
+                      row names in order ({name}); a turn is the message {"turn": name, "item": item}, so a record
+                      that holds a question and its answer (an activity log) is two messages
       one             the whole file is one thread (its messages getter)"""
     rule = shape["threads"]
     if "chats_or_group" in rule:
@@ -658,6 +670,11 @@ def _threads(shape, scope):
         return [({"id": fixed["session_id"], "title": fixed["title"], "__values": fixed.get("values", {})},
                  list(enumerate(_listed(value(fixed["messages"], scope, "snapshot")))))
                 for fixed in rule["fixed"]]
+    if "per_item_turns" in rule:
+        spec = rule["per_item_turns"]
+        return [(item, list(enumerate({"turn": turn["name"], "item": item} for turn in spec["turns"])))
+                for item in _listed(value(spec["list"], scope, "snapshot"))
+                if isinstance(item, dict) and holds(spec.get("when"), scope.with_(thread=item), "thread")]
     if "per_item" in rule:
         return [(item, [(0, item)]) for item in _listed(value(rule["per_item"], scope, "snapshot"))
                 if isinstance(item, dict)]
