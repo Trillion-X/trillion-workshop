@@ -1,0 +1,160 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:suggest-what-to-ask-on-a-screen",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:list-ideas-for-what-to-ask-on-a-screen",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Ideas for what to ask an AI on a screen",
+        "job": "Show the written ideas for what to ask an AI on one screen, each with the request a Do this for me button would hand over",
+        "description": "Give screen (a screen key: calendar, marketplace, home, files, spaces and the others in workspace/examples.json). Answers heading, count_words, words (the strip's words) and examples, each { id, title, detail, do_this, from: 'written' }: the ideas written for that screen (or for the screen it reuses), do_this being the request an AI would be handed. It reads only workspace/examples.json and writes nothing. It never hands a request to an AI (the screen's Do this for me button is the app's), never adds published stories or ideas from the account's current tools (those need the person's account), and refuses a screen with no written row, naming the screens it has.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "screen"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "screen": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "heading",
+            "count_words",
+            "examples"
+          ],
+          "properties": {
+            "heading": {
+              "type": "string"
+            },
+            "count_words": {
+              "type": "string"
+            },
+            "words": {
+              "type": "object"
+            },
+            "examples": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "title",
+                  "do_this",
+                  "from"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "do_this": {
+                    "type": "string"
+                  },
+                  "from": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/suggest-what-to-ask-on-a-screen",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/suggest-what-to-ask-on-a-screen/ideas-for-a-screen.mjs",
+            "ideasForAScreen"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "suggest-what-to-ask-on-a-screen",
+                "paths": [
+                  "ideas-for-a-screen.mjs",
+                  "work-examples.mjs",
+                  "workspace"
+                ],
+                "at": "/opt/suggest-what-to-ask-on-a-screen"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/work-examples.mjs, moved in a9ee258 (#76); src/workspace/examples.json brought in byte for byte from 4ffa1dc4a2^ (moved-from.json); old capability row capabilities.json:379 at 4ffa1dc4a2^ (show ideas for what to ask an AI on each screen, with a Do this for me button)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "screen": "calendar"
+            },
+            "output_selector": "$.examples[0].title",
+            "contains": "Fill next week"
+          }
+        ]
+      }
+    }
+  ]
+}
