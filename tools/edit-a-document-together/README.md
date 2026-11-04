@@ -134,8 +134,5 @@ distinct guarantees.
 
 | File | Purpose |
 |------|---------|
-| `do-work/document-operations.mjs` | The document engine moved from Trillion `src/workspace/document-operations.mjs` (`moved-from.json`): words as a sequence CRDT, block places and props as last-writer registers, per-editor undo |
-| `do-work/document-operations.json` | The engine's DATA: schema version, block text formats and every bound (batch, document, undo depth) |
-| `do-work/edit-together.mjs` | `editADocumentTogether({ blocks, edits, undo })`: each editor's copy turned into operations, merged in every order, one editor's edit taken back (what `tool-rows.json` runs) |
-| `moved-from.json` | Where the two engine files came from and the identity of their bytes |
-| `tool-rows.json` | The row `tool:edit-one-document-together`, with a sample run where two editors' words both survive the merge |
+| `do-work/open-a-shared-document.mjs` | `openASharedDocument({ pages })`: which document each page of Write opens, by `show/write-screen-input.mjs` (what `tool-rows.json` runs) |
+| `tool-rows.json` | The row `tool:open-the-document-a-pursuit-edits-together`, with a sample where two members of one pursuit open the same room and a personal page keeps its own |
