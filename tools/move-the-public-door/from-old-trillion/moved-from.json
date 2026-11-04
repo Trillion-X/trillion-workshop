@@ -1,0 +1,51 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on with no home and no backlog row, moved here byte for byte from the parent of the commit that deleted each (commit; deleted_by names the deleting commit). Nothing here is rewritten: a file waits here for its wiring, under its old path, so the files keep importing each other as they did. A redaction replaces a real person's name or address with a made-up one, and is listed on the file; source_identity is the BLAKE3 identity of the bytes at commit, identity of the bytes here.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "docs/portable-dns-cutover.md",
+      "commit": "be67a47735e6faa940ebedc7c7eb2cb672802ccb",
+      "deleted_by": "d672df8e59",
+      "to": "tools/move-the-public-door/from-old-trillion/docs/portable-dns-cutover.md",
+      "source_identity": "1f:582c277d86bdd8baad68d0c0d9e27ac16b633cbc8066c1bec3af58777f1921e2",
+      "identity": "1f:582c277d86bdd8baad68d0c0d9e27ac16b633cbc8066c1bec3af58777f1921e2"
+    },
+    {
+      "from": "ports/public-door-hosting.json",
+      "commit": "be67a47735e6faa940ebedc7c7eb2cb672802ccb",
+      "deleted_by": "d672df8e59",
+      "to": "tools/move-the-public-door/from-old-trillion/ports/public-door-hosting.json",
+      "source_identity": "1f:55efe8271e3c1459b1b9533a083169daa1ee140accb22e9dbad190949177855f",
+      "identity": "1f:55efe8271e3c1459b1b9533a083169daa1ee140accb22e9dbad190949177855f"
+    },
+    {
+      "from": "test/portable-dns-cutover.test.mjs",
+      "commit": "be67a47735e6faa940ebedc7c7eb2cb672802ccb",
+      "deleted_by": "d672df8e59",
+      "to": "tools/move-the-public-door/from-old-trillion/test/portable-dns-cutover.test.mjs.held",
+      "source_identity": "1f:867db4b512d4101be281c0f1a4bf8d65d5cfea372a56daa0bd4e612658fa596b",
+      "identity": "1f:867db4b512d4101be281c0f1a4bf8d65d5cfea372a56daa0bd4e612658fa596b",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/portable-host-lease.test.mjs",
+      "commit": "be67a47735e6faa940ebedc7c7eb2cb672802ccb",
+      "deleted_by": "d672df8e59",
+      "to": "tools/move-the-public-door/from-old-trillion/test/portable-host-lease.test.mjs.held",
+      "source_identity": "1f:f30cf62520b7ed72b84aef186ad61fabb02b2ae68de138bf6325831509bb6d6f",
+      "identity": "1f:f30cf62520b7ed72b84aef186ad61fabb02b2ae68de138bf6325831509bb6d6f",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/public-door.test.mjs",
+      "commit": "be67a47735e6faa940ebedc7c7eb2cb672802ccb",
+      "deleted_by": "d672df8e59",
+      "to": "tools/move-the-public-door/from-old-trillion/test/public-door.test.mjs.held",
+      "source_identity": "1f:000377c467e36c8c5598fff790d8b6da656eff71d2df459f42adaf8dc3f5ff2c",
+      "identity": "1f:000377c467e36c8c5598fff790d8b6da656eff71d2df459f42adaf8dc3f5ff2c",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    }
+  ]
+}

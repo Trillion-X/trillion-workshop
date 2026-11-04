@@ -1,0 +1,132 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { comparisonIndexSections, comparisonRowSections, comparisonRows } from '../src/list-public-comparison.mjs';
+import { htmlPage } from '../src/html-page.mjs';
+import { shareableCopy } from '../src/person-spaces.mjs';
+import { answerRecordShare } from './share-consumer-owner-fixture.mjs';
+
+const page = { layout: 'comparison', own_label: 'Trillion', fields: Object.fromEntries([
+  'product', 'category', 'summary', 'ours', 'theirs', 'better', 'price', 'sources', 'checked',
+  'pick_ours', 'pick_theirs', 'switching', 'faq', 'replacement_set',
+].map(name => [name, name])) };
+const row = { id: 'one', title: 'Trillion vs Paper', address: 'trillion-vs-paper', values: {
+  product: 'Paper', category: 'Documents', summary: 'Paper signs documents.',
+  ours: 'Trillion shares records for signing.', theirs: 'Paper signs documents and keeps an audit trail.',
+  better: '- Paper has identity verification.', price: '$11/month with an annual commitment',
+  sources: 'https://paper.example/plans https://paper.example/learn', checked: '2026-10-07',
+  pick_ours: 'Choose Trillion when the agreement is already a record.',
+  pick_theirs: 'Choose Paper when identity verification is needed.',
+  switching: 'Check the agreement before you send a replacement link.',
+  faq: '### Can I sign?\nYes, a shared record can ask for a signature.',
+  replacement_set: `paper-kit@${'a'.repeat(24)}`,
+} };
+
+test('one native row makes a complete comparison and a real same-origin install form', async () => {
+  const sections = comparisonRowSections({ page, copy: { title: 'Compared' }, row, rows: [row], listPath: '/share/compared', rowPath: other => `/share/compared/${other.address}` });
+  const html = await htmlPage({ title: row.title, sections }).text();
+  assert.match(html, /See the difference/);
+  assert.match(html, /Scroll the table sideways to see both products/);
+  assert.match(html, /Published plan price/);
+  assert.match(html, /\$11\/month with an annual commitment/);
+  assert.match(html, /Where Paper is stronger/);
+  assert.match(html, /Which fits your work/);
+  assert.match(html, /If you switch/);
+  assert.match(html, /Questions people ask/);
+  assert.match(html, /method="post" action="\/marketplace\/paper-kit%40[a-f0-9]{24}"/);
+  assert.match(html, /name="context" value="private"/);
+  assert.match(html, /href="https:\/\/paper\.example\/plans"/);
+  assert.doesNotMatch(html, />https:\/\/paper\.example\/plans</);
+});
+
+test('a list-supplied real product view appears beside the comparison hero', async () => {
+  const withImage = { ...page, hero_image: { src: '/workspace/illustrations/live-workspace.webp', alt: 'Trillion workspace' } };
+  const sections = comparisonRowSections({ page: withImage, copy: { title: 'Compared' }, row, rows: [row], listPath: '/share/compared', rowPath: () => '' });
+  const html = await htmlPage({ title: row.title, sections }).text();
+  assert.match(html, /src="\/workspace\/illustrations\/live-workspace\.webp" alt="Trillion workspace"/);
+});
+
+test('unsafe sources and malformed replacement ids never become public actions', async () => {
+  const untrusted = { ...row, values: { ...row.values, sources: 'javascript:alert(1) http://paper.example/plans https://paper.example/plans', replacement_set: 'paper-kit@broken' } };
+  const sections = comparisonRowSections({ page, copy: {}, row: untrusted, rows: [untrusted], listPath: '/share/compared', rowPath: () => '' });
+  const html = await htmlPage({ title: untrusted.title, sections }).text();
+  assert.doesNotMatch(html, /javascript:alert/);
+  assert.doesNotMatch(html, /action="\/marketplace\//);
+  assert.equal((html.match(/href="https:\/\/paper\.example\/plans"/g) ?? []).length, 1);
+});
+
+test('the directory groups current rows without writing product names into the renderer', () => {
+  const other = { ...row, id: 'two', title: 'Trillion vs Ink', address: 'trillion-vs-ink', values: { ...row.values, product: 'Ink' } };
+  const third = { ...row, id: 'three', title: 'Trillion vs Sheets', address: 'trillion-vs-sheets', values: { ...row.values, product: 'Sheets', category: 'Lists' } };
+  const sections = comparisonIndexSections({ page, copy: { title: 'Compared', body: { about: 'Choices and tradeoffs.' } }, rows: [row, other, third], rowPath: item => `/share/compared/${item.address}` });
+  assert.equal(sections[1].heading, 'Documents');
+  assert.deepEqual(sections[1].items.map(item => item.heading), ['Trillion vs Paper', 'Trillion vs Ink']);
+  const rowSections = comparisonRowSections({ page, copy: { title: 'Compared' }, row, rows: [row, other, third], listPath: '/share/compared', rowPath: item => `/share/compared/${item.address}` });
+  assert.equal(rowSections.at(-1).heading, 'Compare more by category');
+  assert.deepEqual(rowSections.at(-1).items.map(item => item.heading), ['Documents', 'Lists']);
+  assert.deepEqual(rowSections.at(-1).items[0].actions.map(action => action.label), ['Trillion vs Paper', 'Trillion vs Ink']);
+  assert.equal(rowSections.at(-1).items[1].actions[0].href, '/share/compared/trillion-vs-sheets');
+});
+
+test('sourced evidence rows supply comparison facts while staying out of the public directory', async () => {
+  const sourced = { ...page, evidence_rows: { kind_field: 'record_kind', comparison_kind: 'comparison',
+    claim_kind: 'claim', source_kind: 'source', owner_field: 'comparison_id', role_field: 'claim_role',
+    text_field: 'claim_text', source_ref_field: 'source_id', source_url_field: 'source_url' } };
+  const comparison = { ...row, values: { ...row.values, record_kind: 'comparison', theirs: 'Old text', price: 'Old price' } };
+  const source = { id: 'source-one', title: 'Paper pricing', values: { record_kind: 'source', source_url: 'https://paper.example/current' } };
+  const claim = (id, role, text) => ({ id, title: id, values: { record_kind: 'claim', comparison_id: 'one', claim_role: role,
+    claim_text: text, source_id: 'source-one' } });
+  const all = [comparison, source, claim('claim-one', 'theirs', 'Paper offers signing.'), claim('claim-two', 'price', '$12/month')];
+  assert.deepEqual(comparisonRows(sourced, all), [comparison]);
+  const sections = comparisonRowSections({ page: sourced, copy: { title: 'Compared' }, row: comparison, rows: all,
+    listPath: '/share/compared', rowPath: item => `/share/compared/${item.address}` });
+  const html = await htmlPage({ title: comparison.title, sections }).text();
+  assert.match(html, /Paper offers signing/);
+  assert.match(html, /\$12\/month/);
+  assert.match(html, /https:\/\/paper\.example\/current/);
+  assert.doesNotMatch(html, /Old text|Old price/);
+  const directory = comparisonIndexSections({ page: sourced, copy: { title: 'Compared', body: {} }, rows: all, rowPath: item => item.address });
+  assert.equal(directory[1].items.length, 1);
+  const copy = shareableCopy('list', 'list:compared', { label: 'Compared', about: 'Sourced choices',
+    fields: [...Object.keys(page.fields), 'record_kind', 'comparison_id', 'claim_role', 'claim_text', 'source_id', 'source_url']
+      .map(id => ({ id, label: id, kind: 'text' })), rows: all, public_page: sourced });
+  const person = { async sharedPageForLink() { return { access: { admitted: true, listed: true, needs: null, closed: false,
+    can: ['view'], acts_need_proof: false, proven: false, sender: 'Ana', look: { kind: 'trillion', name: 'Trillion' },
+    signatures: [], signed_by_you: false, paid: false }, copy }; } };
+  const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
+  const hidden = await answerRecordShare(new Request('https://app.gettrillion.ai/share/' + 'c'.repeat(32) + '/paper-pricing'),
+    { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  assert.equal(hidden.status, 404);
+  const splitCopy = shareableCopy('list', 'list:compared', { label: 'Compared', about: 'Sourced choices',
+    fields: copy.body.fields, rows: [comparison], public_page: sourced });
+  splitCopy.body.evidence_rows = [source, claim('claim-one', 'theirs', 'Paper offers signing.'), claim('claim-two', 'price', '$12/month')];
+  person.sharedPageForLink = async () => ({ access: { admitted: true, listed: true, needs: null, closed: false,
+    can: ['view'], acts_need_proof: false, proven: false, sender: 'Ana', look: { kind: 'trillion', name: 'Trillion' },
+    signatures: [], signed_by_you: false, paid: false }, copy: splitCopy });
+  const pageResponse = await answerRecordShare(new Request('https://app.gettrillion.ai/share/' + 'c'.repeat(32) + '/trillion-vs-paper'),
+    { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const pageHtml = await pageResponse.text();
+  assert.match(pageHtml, /Paper offers signing/);
+  assert.match(pageHtml, /\$12\/month/);
+  assert.doesNotMatch(pageHtml, /Old text|Old price/);
+});
+
+test('the comparison presentation survives the existing shared-list copy boundary', () => {
+  const copy = shareableCopy('list', 'list:compared', { label: 'Compared', about: 'Sourced choices',
+    fields: Object.keys(page.fields).map(id => ({ id, label: id, kind: 'text' })), rows: [row], public_page: page });
+  assert.deepEqual(copy.body.public_page, page);
+  assert.equal(copy.body.rows[0].values.product, 'Paper');
+});
+
+test('a comparison install form sends a same-origin Origin without revealing the shared URL to outside sites', async () => {
+  const copy = shareableCopy('list', 'list:compared', { label: 'Compared', about: 'Sourced choices',
+    fields: Object.keys(page.fields).map(id => ({ id, label: id, kind: 'text' })), rows: [row], public_page: page });
+  const person = { async sharedPageForLink() { return { access: { admitted: true, listed: true, needs: null, closed: false,
+    can: ['view'], acts_need_proof: false, proven: false, sender: 'Ana', look: { kind: 'trillion', name: 'Trillion' },
+    signatures: [], signed_by_you: false, paid: false }, copy }; } };
+  const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
+  const response = await answerRecordShare(new Request('https://app.gettrillion.ai/share/' + 'c'.repeat(32) + '/trillion-vs-paper'),
+    { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('referrer-policy'), 'same-origin');
+  assert.match(await response.text(), /method="post" action="\/marketplace\/paper-kit%40[a-f0-9]{24}"/);
+});

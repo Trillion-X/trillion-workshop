@@ -1,0 +1,9 @@
+{
+  "_what": "The check row as the person's Checks list holds it (list:checks, record:check). The person's check list runner (tools/check-every-tool-call) reads it through their door and runs workshop_run on every git commit and git push in trillion, trillion-rust, trillion-workshop and trillion-apps. Written into the person's list with records:write; this file is its text, and test/check-row.test.mjs runs this exact row.",
+  "id": "record:check:deleted-code-names-its-home",
+  "type": "record:check",
+  "value": {
+    "method": "code-changes",
+    "full_definition": "{\"id\":\"deleted-code-names-its-home\",\"says\":\"A commit or push that deletes a source or test file names its new home (a moved-from receipt) or the decision that retired it.\",\"on\":[{\"harness\":\"claude\",\"event\":\"PreToolUse\",\"tools\":\"Bash\",\"scope\":\"every-repository\"}],\"acts_on\":{\"tools\":\"Bash\",\"fields\":[\"command\"],\"matches\":\"\\\\bgit\\\\b[^\\\\n]*\\\\b(commit|push)\\\\b\"},\"workshop_run\":[\"node\",\"{tools}/check-deleted-code-names-its-home/do-work/check-deleted-code-names-its-home.mjs\",\"--root\",\"{repository}\",\"--for-command\",\"{tool_input.command}\"],\"failure_policy\":\"deny\",\"timeout_s\":120}"
+  }
+}
