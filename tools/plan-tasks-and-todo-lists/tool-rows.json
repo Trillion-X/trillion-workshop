@@ -167,16 +167,14 @@
             "input": {
               "messages": [
                 {
-                  "subject": "Invitation: Team lunch",
-                  "from": "host@example.com"
+                  "subject": "Invitation: Team lunch"
                 },
                 {
                   "subject": "Your weekly deals",
                   "list_unsubscribe": true
                 },
                 {
-                  "subject": "Can you review the draft?",
-                  "from": "sam@example.com"
+                  "subject": "Can you review the draft?"
                 }
               ]
             },
