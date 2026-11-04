@@ -5,10 +5,10 @@
   "commit": "5dc302be373027de2185edcf1d6137fd4cca3552"
  },
  "counts": {
-  "being_moved": 601,
-  "moved": 500,
+  "being_moved": 766,
+  "moved": 549,
   "retired": 26,
-  "to_move": 531
+  "to_move": 317
  },
  "rows": [
   {
@@ -271,8 +271,9 @@
   },
   {
    "path": "crates/built-stored-bytes/composition-engine/composition_engine_bg.wasm",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/built-stored-bytes/composition-engine/composition_engine_bg.wasm",
+   "evidence": "Compiled output; trillion-apps/web/crates/built-stored-bytes/composition-engine/composition_engine_bg.wasm is the same module rebuilt from newer sources (sim 0.675); newest change there: c4a49d2 2026-11-04 web: the shell builds again with the engine at trillion-rust main, and its formula-engine tests read the Workshop. Old bytes are an older build of the same crates, not separate content.",
    "group": "src-crates"
   },
   {
@@ -283,20 +284,23 @@
   },
   {
    "path": "crates/built-stored-bytes/composition-engine/composition_engine.wasm",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/built-stored-bytes/composition-engine/composition_engine.wasm",
+   "evidence": "Compiled output; trillion-apps/web/crates/built-stored-bytes/composition-engine/composition_engine.wasm is the same module rebuilt from newer sources (sim 0.606); newest change there: c4a49d2 2026-11-04 web: the shell builds again with the engine at trillion-rust main, and its formula-engine tests read the Workshop. Old bytes are an older build of the same crates, not separate content.",
    "group": "src-crates"
   },
   {
    "path": "crates/built-stored-bytes/fingerprint.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/built-stored-bytes/fingerprint.json",
+   "evidence": "Compiled output; trillion-apps/web/crates/built-stored-bytes/fingerprint.json is the same module rebuilt from newer sources (sim 0.176); newest change there: 3860736 2026-11-04 The committed compiled modules stay current when trillion-rust adds a crate they do not build from. Old bytes are an older build of the same crates, not separate content.",
    "group": "src-crates"
   },
   {
    "path": "crates/built-stored-bytes/held-values/credentials_vault_bg.wasm",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/built-stored-bytes/held-values/credentials_vault_bg.wasm",
+   "evidence": "Compiled output; trillion-apps/web/crates/built-stored-bytes/held-values/credentials_vault_bg.wasm is the same module rebuilt from newer sources (sim 1); newest change there: 18651f5 2026-11-04 web/crates/built-stored-bytes: the compiled modules, built from trillion-rust b6532912 and web/crates. Old bytes are an older build of the same crates, not separate content.",
    "group": "src-crates"
   },
   {
@@ -307,8 +311,9 @@
   },
   {
    "path": "crates/built-stored-bytes/held-values/http_client_bg.wasm",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/built-stored-bytes/held-values/http_client_bg.wasm",
+   "evidence": "Compiled output; trillion-apps/web/crates/built-stored-bytes/held-values/http_client_bg.wasm is the same module rebuilt from newer sources (sim 0.998); newest change there: 18651f5 2026-11-04 web/crates/built-stored-bytes: the compiled modules, built from trillion-rust b6532912 and web/crates. Old bytes are an older build of the same crates, not separate content.",
    "group": "src-crates"
   },
   {
@@ -331,8 +336,9 @@
   },
   {
    "path": "crates/built-stored-bytes/trigger-engine/trigger_engine_web_bg.wasm",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/built-stored-bytes/trigger-engine/trigger_engine_web_bg.wasm",
+   "evidence": "Compiled output; trillion-apps/web/crates/built-stored-bytes/trigger-engine/trigger_engine_web_bg.wasm is the same module rebuilt from newer sources (sim 0.666); newest change there: c4a49d2 2026-11-04 web: the shell builds again with the engine at trillion-rust main, and its formula-engine tests read the Workshop. Old bytes are an older build of the same crates, not separate content.",
    "group": "src-crates"
   },
   {
@@ -343,14 +349,16 @@
   },
   {
    "path": "crates/built-stored-bytes/workflow-engine/workflow_engine_bg.wasm",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/built-stored-bytes/workflow-engine/workflow_engine_bg.wasm",
+   "evidence": "Compiled output; trillion-apps/web/crates/built-stored-bytes/workflow-engine/workflow_engine_bg.wasm is the same module rebuilt from newer sources (sim 0.788); newest change there: c4a49d2 2026-11-04 web: the shell builds again with the engine at trillion-rust main, and its formula-engine tests read the Workshop. Old bytes are an older build of the same crates, not separate content.",
    "group": "src-crates"
   },
   {
    "path": "crates/built-stored-bytes/workflow-engine/workflow_engine.js",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/built-stored-bytes/workflow-engine/workflow_engine.js",
+   "evidence": "diff old@5dc302be vs trillion-apps/web/crates/built-stored-bytes/workflow-engine/workflow_engine.js: trillion-apps/web/ carries the old app's history (web/crates entered by e6d15ba/578cd0c, the same commits as old trillion's) and has moved on since: relative paths one level deeper (web/), and newer adaptations (ProductWordIds rename, wasm32-wasip1 link fix, compiled modules rebuilt from trillion-rust's crates). Newest change there: 18651f5 2026-11-04 web/crates/built-stored-bytes: the compiled modules, built from trillion-rust b6532912 and web/crates. Old file is an older state of the file the new tree holds; nothing in it is absent from the newer version except the old names.",
    "group": "src-crates"
   },
   {
@@ -361,14 +369,16 @@
   },
   {
    "path": "crates/Cargo.toml",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/Cargo.toml",
+   "evidence": "diff old@5dc302be vs trillion-apps/web/crates/Cargo.toml: trillion-apps/web/ carries the old app's history (web/crates entered by e6d15ba/578cd0c, the same commits as old trillion's) and has moved on since: relative paths one level deeper (web/), and newer adaptations (ProductWordIds rename, wasm32-wasip1 link fix, compiled modules rebuilt from trillion-rust's crates). Newest change there: 777bf6f 2026-11-04 web/ builds its compiled modules from trillion-rust's engine crates and its own page crates; the page reads them through compiled-modules.mjs again. Old file is an older state of the file the new tree holds; nothing in it is absent from the newer version except the old names.",
    "group": "src-crates"
   },
   {
    "path": "crates/composition-engine-core/Cargo.toml",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/composition-engine-core/Cargo.toml",
+   "evidence": "diff old@5dc302be vs trillion-apps/web/crates/composition-engine-core/Cargo.toml: trillion-apps/web/ carries the old app's history (web/crates entered by e6d15ba/578cd0c, the same commits as old trillion's) and has moved on since: relative paths one level deeper (web/), and newer adaptations (ProductWordIds rename, wasm32-wasip1 link fix, compiled modules rebuilt from trillion-rust's crates). Newest change there: 777bf6f 2026-11-04 web/ builds its compiled modules from trillion-rust's engine crates and its own page crates; the page reads them through compiled-modules.mjs again. Old file is an older state of the file the new tree holds; nothing in it is absent from the newer version except the old names.",
    "group": "src-crates"
   },
   {
@@ -781,8 +791,9 @@
   },
   {
    "path": "crates/composition-engine/src/slot_entry/mod.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/composition-engine/src/slot_entry/mod.rs",
+   "evidence": "diff old@5dc302be vs trillion-apps/web/crates/composition-engine/src/slot_entry/mod.rs: trillion-apps/web/ carries the old app's history (web/crates entered by e6d15ba/578cd0c, the same commits as old trillion's) and has moved on since: relative paths one level deeper (web/), and newer adaptations (ProductWordIds rename, wasm32-wasip1 link fix, compiled modules rebuilt from trillion-rust's crates). Newest change there: c4a49d2 2026-11-04 web: the shell builds again with the engine at trillion-rust main, and its formula-engine tests read the Workshop. Old file is an older state of the file the new tree holds; nothing in it is absent from the newer version except the old names.",
    "group": "src-crates"
   },
   {
@@ -1081,8 +1092,9 @@
   },
   {
    "path": "crates/formula-core/Cargo.toml",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/formula-core/Cargo.toml",
+   "evidence": "Old trillion scripts/retired-paths.json:169 retires crates/formula-core (retired_at 2026-11-03, tag retired/formula-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/formula-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/formula-core/Cargo.toml: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 2e5e258 2026-11-03 Merge pull request #29 from Trillion-X/claude/trillion-rust-product-content-al64e5. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
@@ -1207,8 +1219,9 @@
   },
   {
    "path": "crates/formula-core/src/rules/README.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/formula-core/src/rules/README.md",
+   "evidence": "Old trillion scripts/retired-paths.json:169 retires crates/formula-core (retired_at 2026-11-03, tag retired/formula-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/formula-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/formula-core/src/rules/README.md: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 2e5e258 2026-11-03 Merge pull request #29 from Trillion-X/claude/trillion-rust-product-content-al64e5. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
@@ -1369,14 +1382,16 @@
   },
   {
    "path": "crates/http-client/src/slot_entry/mod.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/http-client/src/slot_entry/mod.rs",
+   "evidence": "diff old@5dc302be vs trillion-apps/web/crates/http-client/src/slot_entry/mod.rs: trillion-apps/web/ carries the old app's history (web/crates entered by e6d15ba/578cd0c, the same commits as old trillion's) and has moved on since: relative paths one level deeper (web/), and newer adaptations (ProductWordIds rename, wasm32-wasip1 link fix, compiled modules rebuilt from trillion-rust's crates). Newest change there: 777bf6f 2026-11-04 web/ builds its compiled modules from trillion-rust's engine crates and its own page crates; the page reads them through compiled-modules.mjs again. Old file is an older state of the file the new tree holds; nothing in it is absent from the newer version except the old names.",
    "group": "src-crates"
   },
   {
    "path": "crates/http-client/src/slot_work/call_external.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/http-client/src/slot_work/call_external.rs",
+   "evidence": "diff old@5dc302be vs trillion-apps/web/crates/http-client/src/slot_work/call_external.rs: trillion-apps/web/ carries the old app's history (web/crates entered by e6d15ba/578cd0c, the same commits as old trillion's) and has moved on since: relative paths one level deeper (web/), and newer adaptations (ProductWordIds rename, wasm32-wasip1 link fix, compiled modules rebuilt from trillion-rust's crates). Newest change there: 777bf6f 2026-11-04 web/ builds its compiled modules from trillion-rust's engine crates and its own page crates; the page reads them through compiled-modules.mjs again. Old file is an older state of the file the new tree holds; nothing in it is absent from the newer version except the old names.",
    "group": "src-crates"
   },
   {
@@ -1447,8 +1462,9 @@
   },
   {
    "path": "crates/README.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/crates/README.md",
+   "evidence": "diff old@5dc302be vs trillion-apps/web/crates/README.md: trillion-apps/web/ carries the old app's history (web/crates entered by e6d15ba/578cd0c, the same commits as old trillion's) and has moved on since: relative paths one level deeper (web/), and newer adaptations (ProductWordIds rename, wasm32-wasip1 link fix, compiled modules rebuilt from trillion-rust's crates). Newest change there: c4a49d2 2026-11-04 web: the shell builds again with the engine at trillion-rust main, and its formula-engine tests read the Workshop. Old file is an older state of the file the new tree holds; nothing in it is absent from the newer version except the old names.",
    "group": "src-crates"
   },
   {
@@ -1837,32 +1853,37 @@
   },
   {
    "path": "crates/trigger-engine-web/Cargo.toml",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/trigger-engine-web/Cargo.toml",
+   "evidence": "Old trillion scripts/retired-paths.json:196 retires crates/trigger-engine-web (retired_at 2026-11-03, tag retired/trigger-engine-web-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/trigger-engine-web; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/trigger-engine-web/Cargo.toml: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 2e5e258 2026-11-03 Merge pull request #29 from Trillion-X/claude/trillion-rust-product-content-al64e5. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/trigger-engine-web/README.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/trigger-engine-web/README.md",
+   "evidence": "Old trillion scripts/retired-paths.json:196 retires crates/trigger-engine-web (retired_at 2026-11-03, tag retired/trigger-engine-web-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/trigger-engine-web; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/trigger-engine-web/README.md: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 2e5e258 2026-11-03 Merge pull request #29 from Trillion-X/claude/trillion-rust-product-content-al64e5. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/trigger-engine-web/src/lib.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/trigger-engine-web/src/lib.rs",
+   "evidence": "Old trillion scripts/retired-paths.json:196 retires crates/trigger-engine-web (retired_at 2026-11-03, tag retired/trigger-engine-web-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/trigger-engine-web; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/trigger-engine-web/src/lib.rs: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 8d4f2b2 2026-11-04 WIP: the rules' kinds, the told head and the agent-handoff order leave the engine; the first install comes before the first request. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/trigger-engine/Cargo.toml",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/trigger-engine/Cargo.toml",
+   "evidence": "Old trillion scripts/retired-paths.json:187 retires crates/trigger-engine (retired_at 2026-11-03, tag retired/trigger-engine-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/trigger-engine; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/trigger-engine/Cargo.toml: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 2e5e258 2026-11-03 Merge pull request #29 from Trillion-X/claude/trillion-rust-product-content-al64e5. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/trigger-engine/README.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/trigger-engine/README.md",
+   "evidence": "Old trillion scripts/retired-paths.json:187 retires crates/trigger-engine (retired_at 2026-11-03, tag retired/trigger-engine-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/trigger-engine; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/trigger-engine/README.md: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 2e5e258 2026-11-03 Merge pull request #29 from Trillion-X/claude/trillion-rust-product-content-al64e5. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
@@ -1927,14 +1948,16 @@
   },
   {
    "path": "crates/workflow-core/Cargo.toml",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-core/Cargo.toml",
+   "evidence": "Old trillion scripts/retired-paths.json:205 retires crates/workflow-core (retired_at 2026-11-03, tag retired/workflow-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-core/Cargo.toml: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 2e5e258 2026-11-03 Merge pull request #29 from Trillion-X/claude/trillion-rust-product-content-al64e5. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/workflow-core/README.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-core/README.md",
+   "evidence": "Old trillion scripts/retired-paths.json:205 retires crates/workflow-core (retired_at 2026-11-03, tag retired/workflow-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-core/README.md: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 2e5e258 2026-11-03 Merge pull request #29 from Trillion-X/claude/trillion-rust-product-content-al64e5. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
@@ -1993,8 +2016,9 @@
   },
   {
    "path": "crates/workflow-core/src/executor/automation.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-core/src/executor/automation.rs",
+   "evidence": "Old trillion scripts/retired-paths.json:205 retires crates/workflow-core (retired_at 2026-11-03, tag retired/workflow-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-core/src/executor/automation.rs: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 26c296c 2026-11-04 Namespace is now the account's files; the product word and a supply's store name. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
@@ -2011,38 +2035,44 @@
   },
   {
    "path": "crates/workflow-core/src/executor/context.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-core/src/executor/context.rs",
+   "evidence": "Old trillion scripts/retired-paths.json:205 retires crates/workflow-core (retired_at 2026-11-03, tag retired/workflow-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-core/src/executor/context.rs: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 26c296c 2026-11-04 Namespace is now the account's files; the product word and a supply's store name. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/workflow-core/src/executor/interactive.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-core/src/executor/interactive.rs",
+   "evidence": "Old trillion scripts/retired-paths.json:205 retires crates/workflow-core (retired_at 2026-11-03, tag retired/workflow-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-core/src/executor/interactive.rs: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 26c296c 2026-11-04 Namespace is now the account's files; the product word and a supply's store name. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/workflow-core/src/executor/mod.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-core/src/executor/mod.rs",
+   "evidence": "Old trillion scripts/retired-paths.json:205 retires crates/workflow-core (retired_at 2026-11-03, tag retired/workflow-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-core/src/executor/mod.rs: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 26c296c 2026-11-04 Namespace is now the account's files; the product word and a supply's store name. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/workflow-core/src/executor/polling.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-core/src/executor/polling.rs",
+   "evidence": "Old trillion scripts/retired-paths.json:205 retires crates/workflow-core (retired_at 2026-11-03, tag retired/workflow-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-core/src/executor/polling.rs: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 26c296c 2026-11-04 Namespace is now the account's files; the product word and a supply's store name. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/workflow-core/src/executor/README.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-core/src/executor/README.md",
+   "evidence": "Old trillion scripts/retired-paths.json:205 retires crates/workflow-core (retired_at 2026-11-03, tag retired/workflow-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-core/src/executor/README.md: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 26c296c 2026-11-04 Namespace is now the account's files; the product word and a supply's store name. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/workflow-core/src/executor/step_executor.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-core/src/executor/step_executor.rs",
+   "evidence": "Old trillion scripts/retired-paths.json:205 retires crates/workflow-core (retired_at 2026-11-03, tag retired/workflow-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-core/src/executor/step_executor.rs: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 26c296c 2026-11-04 Namespace is now the account's files; the product word and a supply's store name. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
@@ -2161,26 +2191,30 @@
   },
   {
    "path": "crates/workflow-core/tests/t14_emergent_topology.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-core/tests/t14_emergent_topology.rs",
+   "evidence": "Old trillion scripts/retired-paths.json:205 retires crates/workflow-core (retired_at 2026-11-03, tag retired/workflow-core-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-core; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-core/tests/t14_emergent_topology.rs: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 26c296c 2026-11-04 Namespace is now the account's files; the product word and a supply's store name. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/workflow-engine/Cargo.toml",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-engine/Cargo.toml",
+   "evidence": "Old trillion scripts/retired-paths.json:214 retires crates/workflow-engine (retired_at 2026-11-03, tag retired/workflow-engine-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-engine; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-engine/Cargo.toml: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 2e5e258 2026-11-03 Merge pull request #29 from Trillion-X/claude/trillion-rust-product-content-al64e5. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/workflow-engine/README.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-engine/README.md",
+   "evidence": "Old trillion scripts/retired-paths.json:214 retires crates/workflow-engine (retired_at 2026-11-03, tag retired/workflow-engine-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-engine; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-engine/README.md: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 26c296c 2026-11-04 Namespace is now the account's files; the product word and a supply's store name. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
    "path": "crates/workflow-engine/src/lib.rs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-rust/crates/workflow-engine/src/lib.rs",
+   "evidence": "Old trillion scripts/retired-paths.json:214 retires crates/workflow-engine (retired_at 2026-11-03, tag retired/workflow-engine-crate-2026-11-03) (replaced_by names ../trillion-rust/crates/workflow-engine; old commit b9a8cb42 says the crates 'moved into it byte for byte (trillion-rust 5e8d2216, from d273ef3049 here...)'). diff old@5dc302be vs trillion-rust/crates/workflow-engine/src/lib.rs: differs only in path-dependency depth and in trillion-rust's later adaptation (ExecutionNamespace->ProductWordIds / 'Cloudflare Worker'->'wasm host' wording); newest change there: 26c296c 2026-11-04 Namespace is now the account's files; the product word and a supply's store name. trillion-rust holds the newer adaptation.",
    "group": "src-crates"
   },
   {
@@ -7360,32 +7394,42 @@
   },
   {
    "path": "src/account-app-erasure-tables.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/account-app-erasure-tables.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/account-speech.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/generate-speech/from-old-trillion/src/account-speech.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/generate-speech/moved-from.json. Import specifiers changed: trillion-workshop/tools/audio-transcription/src/account-transcription.mjs -> ../../../audio-transcription/src/account-transcription.mjs. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/account-storage-erasure.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/account-storage-erasure.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/activation.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/hand-work-to-ais/from-old-trillion/src/activation.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/hand-work-to-ais/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/activation.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/hand-work-to-ais/from-old-trillion/src/activation.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/hand-work-to-ais/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
@@ -7396,74 +7440,98 @@
   },
   {
    "path": "src/after-work-review.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/learn-a-workflow-from-a-job/src/after-work-review.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/learn-a-workflow-from-a-job/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/after-work-review.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/learn-a-workflow-from-a-job/src/after-work-review.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/learn-a-workflow-from-a-job/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/alarm-pace.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/alarm-pace.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/api-spend.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/guard-ai-spending/from-old-trillion/src/api-spend.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/guard-ai-spending/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/api-spend.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/guard-ai-spending/from-old-trillion/src/api-spend.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/guard-ai-spending/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/apns.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/tell-the-person-something-on-all-of-their-own-phones-computers/src/apns.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/tell-the-person-something-on-all-of-their-own-phones-computers/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/attention-calibration.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/notice-what-needs-attention/src/attention-calibration.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/notice-what-needs-attention/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/attention.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/notice-what-needs-attention/src/attention.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/notice-what-needs-attention/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/audience-sends.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/send-messages/from-old-trillion/src/audience-sends.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/send-messages/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/behavior-command-readbacks.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/behavior-command-readbacks.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/behavior-command-readbacks.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/behavior-command-readbacks.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/bounded-turns.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/bounded-turns.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -7480,26 +7548,32 @@
   },
   {
    "path": "src/calendar.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar.json",
+   "evidence": "Receipt trillion-workshop tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/moved-from.json names it (from b6ae0ebf). diff old@5dc302be vs there: only the _what text, where old trillion later rewrote a path to name the Workshop copy (src/space-calendars.mjs -> trillion-workshop tools/find-when-a-space-is-free/src/space-calendars.mjs); no other change.",
    "group": "src-crates"
   },
   {
    "path": "src/calendar.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar.mjs",
+   "evidence": "Receipt trillion-workshop tools/keep-my-calendar-.../moved-from.json names it. diff: only import specifiers (trillion-workshop/tools/... vs ../../...) and two comments that name the same file by its path.",
    "group": "src-crates"
   },
   {
    "path": "src/capability-admission.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/capability-admission.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/capability-selection.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/capability-selection.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -7510,8 +7584,9 @@
   },
   {
    "path": "src/catch-up.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/keep-copies-in-step/read-data/catch-up.mjs",
+   "evidence": "Adapted copy (header names \"moved from trillion src/catch-up.mjs\"). diff: header/comment paths, settings import ../records/catch-up.json -> ./catch-up.json, KEPT_APART inlined as a const instead of imported from record-sync.mjs. Same logic otherwise (line overlap 1.0).",
    "group": "src-crates"
   },
   {
@@ -7528,50 +7603,63 @@
   },
   {
    "path": "src/close-many.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/hand-off-jobs-between-agents/src/close-many.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/hand-off-jobs-between-agents/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/close-many.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/hand-off-jobs-between-agents/src/close-many.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/hand-off-jobs-between-agents/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/community-logic/corroboration-gate.ts",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/evaluate-progress/read-data/corroboration-gate.ts",
+   "evidence": "Adapted copy: diff shows only the vendoring header comment rewritten; code lines overlap 1.0. The old test/community-logic/corroboration-gate.test.ts was carried against it and passes 6/6 (PR #204).",
    "group": "src-crates"
   },
   {
    "path": "src/community-logic/match/select-configurations.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/community-logic-match/src/community-logic/match/select-configurations.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/community-logic-match/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/community-logic/README.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/community-logic/src/community-logic/README.md",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/community-logic/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/community-logic/safety-gate.ts",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/community-logic/src/community-logic/safety-gate.ts",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/community-logic/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/community-own.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "personal data: needs redaction to synthetic before public home. Its header quotes the owner by first name (line 4). Home when redacted: trillion-workshop tools/run-a-community; it also imports ../communities/own-default.json (group records-docs).",
    "group": "src-crates"
   },
   {
    "path": "src/compound-select.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/compound-select.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -7624,8 +7712,10 @@
   },
   {
    "path": "src/done-when-index.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/stop-a-reminder-about-a-waiting-or-held-thing/src/done-when-index.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/stop-a-reminder-about-a-waiting-or-held-thing/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
@@ -7636,8 +7726,10 @@
   },
   {
    "path": "src/effect-followups.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/effect-followups.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -7654,38 +7746,49 @@
   },
   {
    "path": "src/erasure-check.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/erasure-check.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/escape-chain.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/escape-chain.json",
+   "evidence": "Receipt trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json names it (from b6ae0ebf). Old trillion later (f369400e) added a left_this_repository map; the Workshop copy adapted the same need its own way (built rows name repo:Trillion-X/<repo>/<path>, checked by its escape-chain test). Note: old bytes quote a real person by first name; the Workshop copy is the home.",
    "group": "src-crates"
   },
   {
    "path": "src/event-route-members.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/event-route-members.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/file-words.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/search/from-old-trillion/src/file-words.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/search/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/file-words.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/search/from-old-trillion/src/file-words.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/search/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/formula-evaluate.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/formula-evaluate.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -7708,8 +7811,10 @@
   },
   {
    "path": "src/heard-echo.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/heard-echo.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -7720,86 +7825,114 @@
   },
   {
    "path": "src/hold-to-it.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/hold-to-it/from-old-trillion/src/hold-to-it.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/hold-to-it/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/hosts/cloudflare/saved-module-worker-loader.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/hosts/cloudflare/saved-module-worker-loader.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/hosts/http/identity-routes.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/hosts/http/identity-routes.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/hosts/local/sqlite-kv.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/hosts/local/sqlite-kv.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/hosts/memory/memory-blob.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/hosts/memory/memory-blob.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/hosts/memory/memory-kv.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/hosts/memory/memory-kv.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/hosts/memory/memory-service.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/hosts/memory/memory-service.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/hosts/README.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/hosts/README.md",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/hosts/schema-on-first-write.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/hosts/schema-on-first-write.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/import-not-imported.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/import-not-imported.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/import-record-types.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/import-record-types.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/import-workspace-not-imported.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/import-workspace-not-imported.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/inbound-fields.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/inbound-fields.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/index-readiness.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/index-readiness.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -7810,14 +7943,18 @@
   },
   {
    "path": "src/keep-running.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/run-rules-and-schedules-by-themselves/src/keep-running.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/run-rules-and-schedules-by-themselves/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/keep-running.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/run-rules-and-schedules-by-themselves/src/keep-running.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/run-rules-and-schedules-by-themselves/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
@@ -7834,20 +7971,25 @@
   },
   {
    "path": "src/kept-work.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/credit-kept-lines-to-their-writer/src/kept-work.mjs",
+   "evidence": "Receipt trillion-workshop tools/credit-kept-lines-to-their-writer/moved-from.json names it (commit b92aa549). diff: BLAKE3 now from tools/content-identity instead of @noble/hashes; nothing else.",
    "group": "src-crates"
   },
   {
    "path": "src/lapsed-asks.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/hand-off-jobs-between-agents/src/lapsed-asks.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/hand-off-jobs-between-agents/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/lapsed-asks.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/hand-off-jobs-between-agents/src/lapsed-asks.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/hand-off-jobs-between-agents/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
@@ -7888,8 +8030,9 @@
   },
   {
    "path": "src/list-settlements.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/settle-amounts-and-reconcile/read-data/list-settlements.mjs",
+   "evidence": "diff: BLAKE3 now from tools/content-identity instead of @noble/hashes (blake3Hex helper); every other line the same (overlap 0.997).",
    "group": "src-crates"
   },
   {
@@ -7912,8 +8055,10 @@
   },
   {
    "path": "src/local-rule-commit.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/local-rule-commit.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -7930,14 +8075,18 @@
   },
   {
    "path": "src/mcp-tool-review.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/mcp-tool-review.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/mcp-tool-review.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/mcp-tool-review.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -7948,80 +8097,106 @@
   },
   {
    "path": "src/media-next-edit.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/show-the-media-library-and-search-what-was/from-old-trillion/src/media-next-edit.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/show-the-media-library-and-search-what-was/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/media-next-edit.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/show-the-media-library-and-search-what-was/from-old-trillion/src/media-next-edit.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/show-the-media-library-and-search-what-was/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/media-search.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/show-the-media-library-and-search-what-was/from-old-trillion/src/media-search.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/show-the-media-library-and-search-what-was/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/message-retention.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/conversations/from-old-trillion/src/message-retention.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/conversations/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/message-retention.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/conversations/from-old-trillion/src/message-retention.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/conversations/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/meter-commands-owed.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/meter-commands-owed.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/model-waits.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/route-model-calls/src/model-waits.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/route-model-calls/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/money-out-mail.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/money-out/src/money-out-mail.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/money-out/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/money-sources.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/money-out/src/money-sources.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/money-out/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/namespace-carry-follows.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/namespace-carry-follows.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/namespace-carry-follows.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/namespace-carry-follows.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/namespace-frozen-schema.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/namespace-frozen-schema.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/native-account-action-requirements.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/native-account-action-requirements.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -8032,74 +8207,96 @@
   },
   {
    "path": "src/native-availability-calendar.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/booking-slots-and-invitations/from-old-trillion/src/native-availability-calendar.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/booking-slots-and-invitations/moved-from.json. Import specifiers changed: ./calendar.json -> ../../../keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar.json; ./calendar-actions.mjs -> ../../../keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar-actions.mjs; ./typed-operation-contract.mjs -> ../../../keep-and-wake-ai-sessions-on-this-computer/src/typed-operation-contract.mjs; trillion-workshop/tools/booking-slots-and-invitations/do-work/derive-open-slots.ts -> ../../do-work/derive-open-slots.ts. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/native-computer-send.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/native-computer-send.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/native-media-account-actions.fixture.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/native-media-account-actions.fixture.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/native-own-collection-carry.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/native-own-collection-carry.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/native-revision-heads.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/native-revision-heads.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/native-scheduler-route.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/native-scheduler-route.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/native-share-upload-carrier.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/native-share-upload-carrier.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/network-account-privacy.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/list-the-person-for-others-to-find-ask-the-network/src/network-account-privacy.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/list-the-person-for-others-to-find-ask-the-network/moved-from.json. Import specifiers changed: ./typed-operation-contract.mjs -> ../../keep-and-wake-ai-sessions-on-this-computer/src/typed-operation-contract.mjs. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/network-ai-ping-credit.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/send-invitations-and-introductions-to-people-in-the-network-and/src/network-ai-ping-credit.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/send-invitations-and-introductions-to-people-in-the-network-and/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/network-profile-fill.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "personal data: needs redaction to synthetic before public home. Its header quotes a real person by first name (line 4). Home when redacted: trillion-workshop tools/person-profile.",
    "group": "src-crates"
   },
   {
    "path": "src/not-the-person.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/not-the-person.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/outside-readings.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/keep-the-last-good-answer/from-old-trillion/src/outside-readings.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/keep-the-last-good-answer/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
@@ -8116,26 +8313,34 @@
   },
   {
    "path": "src/payment-effects-read.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/payment-effects-read.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/person-access-index.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/person-access-index.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/person-work-identity.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/person-work-identity.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/person-work-intents.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/person-work-intents.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -8146,14 +8351,18 @@
   },
   {
    "path": "src/place-lists.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/src/place-lists.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/place-lists.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/src/place-lists.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
@@ -8164,26 +8373,30 @@
   },
   {
    "path": "src/post-publisher-facebook-page.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/social-posts/read-data/publisher-facebook-page.mjs",
+   "evidence": "Adapted copy: diff only in header/comment paths (src/... -> read-data/...) and product-name wording; code the same (overlap 0.953 of non-import lines, rest are comments).",
    "group": "src-crates"
   },
   {
    "path": "src/post-publisher-substack.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/social-posts/read-data/publisher-substack.mjs",
+   "evidence": "Adapted copy: diff only in header/comment paths and one refusal sentence that no longer names the product (\"A Substack post from Trillion carries words only.\").",
    "group": "src-crates"
   },
   {
    "path": "src/post-publishers.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/social-posts/read-data/send-a-post.mjs",
+   "evidence": "Adapted: its whole content (the map of @opencoredev/social-sdk publishers plus facebook-page and substack) is tools/social-posts/read-data/send-a-post.mjs:47 PUBLISHERS (which adds `requests`).",
    "group": "src-crates"
   },
   {
    "path": "src/post-ready.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/social-posts/read-data/post-ready.mjs",
+   "evidence": "Adapted copy: diff only in header/comments (paths to read-data/post-places.json, posts.json; product-name wording); code the same (overlap 0.971).",
    "group": "src-crates"
   },
   {
@@ -8194,26 +8407,34 @@
   },
   {
    "path": "src/practice.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/practice-and-review/from-old-trillion/src/practice.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/practice-and-review/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/practice.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/practice-and-review/from-old-trillion/src/practice.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/practice-and-review/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/public-app-domain-carrier.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/public-app-domain-carrier.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/pursuit-rooms.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/from-old-trillion/src/pursuit-rooms.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
@@ -8224,8 +8445,10 @@
   },
   {
    "path": "src/read-budgets.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/read-budgets.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -8242,98 +8465,130 @@
   },
   {
    "path": "src/record-kind-words.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/show-my-automations-on-the-signed-in-page-what-sets/from-old-trillion/src/record-kind-words.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/show-my-automations-on-the-signed-in-page-what-sets/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/record-kind-words.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/show-my-automations-on-the-signed-in-page-what-sets/from-old-trillion/src/record-kind-words.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/show-my-automations-on-the-signed-in-page-what-sets/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/record-log-state.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/record-log-state.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/resource-placement-owner.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/resource-placement-owner.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/resource-record-set-projection.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/resource-record-set-projection.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/resource-tool-use.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/resource-tool-use.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/resource-work-runtime.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/resource-work-runtime.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/retired-exit.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/retired-exit.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/rows-written-budget.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/rows-written-budget.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/rpc-phase-probe.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/rpc-phase-probe.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/rpc-storage-probe.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/rpc-storage-probe.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/said-done.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/close-a-list-row-when-i-say/from-old-trillion/src/said-done.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/close-a-list-row-when-i-say/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/sales-contracts.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/build-and-send-a-sales-contract/from-old-trillion/src/sales-contracts.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/build-and-send-a-sales-contract/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/save-cost.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/save-cost.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/saved-examples.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/saved-examples/from-old-trillion/src/saved-examples.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/saved-examples/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/saved-module-executor.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/saved-module-executor.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -8356,8 +8611,10 @@
   },
   {
    "path": "src/send-from.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/run-the-connections-and-automations-my-computers-carry-keeping/src/send-from.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/run-the-connections-and-automations-my-computers-carry-keeping/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
@@ -8368,26 +8625,34 @@
   },
   {
    "path": "src/shared-resource-operation-declarations.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/shared-resource-operation-declarations.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/shared-resource-operations.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/shared-resource-operations.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/show-as-a-page.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/show-as-a-page.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/sidebar.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/read-the-sidebar-add-a-note-to-it-and-change-it-from/src/sidebar.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/read-the-sidebar-add-a-note-to-it-and-change-it-from/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
@@ -8404,74 +8669,95 @@
   },
   {
    "path": "src/space-assignment-delivery.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/give-shared-tasks-to-people-and-ais-keep/from-old-trillion/src/space-assignment-delivery.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/give-shared-tasks-to-people-and-ais-keep/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/space-item-rules.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-item-rules.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/keep-a-shared-spaces-posts-files-and-tasks/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/space-mail.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-mail.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/keep-a-shared-spaces-posts-files-and-tasks/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/space-mail.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-mail.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/keep-a-shared-spaces-posts-files-and-tasks/moved-from.json. Import specifiers changed: trillion-workshop/tools/ui/read-data/declared-selector.ts -> ../../../ui/read-data/declared-selector.ts. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/space-shard-reference-context.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/space-shard-reference-context.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/steps-ais-leave-runs.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/steps-ais-leave-runs.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/check-that-everything-waiting-on-a-person-reaches-them/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/steps-ais-leave.json",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "personal data: needs redaction to synthetic before public home. Its _what quotes a real person by first name (line 2). Home when redacted: trillion-workshop tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/ beside steps-ais-leave.mjs.held, which is held on it.",
    "group": "src-crates"
   },
   {
    "path": "src/steps-ais-leave.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/steps-ais-leave.mjs.held",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/check-that-everything-waiting-on-a-person-reaches-them/moved-from.json. No import changed. Held as .held: it imports src/steps-ais-leave.json, or a file held on it, and that file is not carried because of personal data.",
    "group": "src-crates"
   },
   {
    "path": "src/store-health.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/store-health.json",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/stream-core.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/media-composition/do-work/stream-core.mjs",
+   "evidence": "diff: header path line and one comment (cut-by-events.json -> detect-events.json); code identical (overlap 1.0).",
    "group": "src-crates"
   },
   {
    "path": "src/subject-boards.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/keep-a-space-board/src/subject-boards.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/keep-a-space-board/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/subject-boards.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/keep-a-space-board/src/subject-boards.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/keep-a-space-board/moved-from.json. Import specifiers changed: trillion-workshop/tools/ui/read-data/declared-selector.ts -> ../../ui/read-data/declared-selector.ts. Loads here.",
    "group": "src-crates"
   },
   {
@@ -8482,14 +8768,18 @@
   },
   {
    "path": "src/team-review.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/shared-code/src/team-review.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/shared-code/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
    "path": "src/tell-quiet-hours.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/tell-one-person-something-through-every-way-they/from-old-trillion/src/tell-quiet-hours.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/tell-one-person-something-through-every-way-they/moved-from.json. No import changed.",
    "group": "src-crates"
   },
   {
@@ -8524,38 +8814,47 @@
   },
   {
    "path": "src/typed-operation-contract.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/shared-code/src/typed-operation-contract.mjs",
+   "evidence": "Receipt trillion-workshop tools/shared-code/moved-from.json names it (commits b6ae0ebf and 1e886c3f). The Workshop copy is newer: import paths relative, plus two later schema formats (namespace file identity, time-zone); every old line is there.",
    "group": "src-crates"
   },
   {
    "path": "src/voice-guesses.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/name-voices-from-the-call/from-old-trillion/src/voice-guesses.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/name-voices-from-the-call/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/waiting-filing.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "personal data: needs redaction to synthetic before public home. Comment lines 5 and 23 quote a real person by first name. Home when redacted: trillion-workshop tools/what-is-waiting-on-me/from-old-trillion/src/ beside waiting-weigh.mjs. It also imports ./card-sections.mjs, which is in trillion-apps web/src.",
    "group": "src-crates"
   },
   {
    "path": "src/waiting-nudge.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/what-is-waiting-on-me/from-old-trillion/src/waiting-nudge.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/what-is-waiting-on-me/moved-from.json. Import specifiers changed: trillion-workshop/tools/http-client/do-work/same-origin.mjs -> ../../../http-client/do-work/same-origin.mjs. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/waiting-weigh.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/what-is-waiting-on-me/from-old-trillion/src/waiting-weigh.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/what-is-waiting-on-me/moved-from.json. Import specifiers changed: trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs -> ../../../hold-one-thing-until-done/read-data/needs-you-hold.mjs. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/wake-pace.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/wake-pace.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -8566,20 +8865,26 @@
   },
   {
    "path": "src/work-item-rows.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/see-what-is-being-worked-on/from-old-trillion/src/work-item-rows.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/see-what-is-being-worked-on/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/work-results.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/see-what-my-ais-did/from-old-trillion/src/work-results.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/see-what-my-ais-did/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
    "path": "src/work-rounds.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/what-is-waiting-on-me/from-old-trillion/src/work-rounds.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/what-is-waiting-on-me/moved-from.json. No import changed. Loads here.",
    "group": "src-crates"
   },
   {
@@ -8590,20 +8895,26 @@
   },
   {
    "path": "src/workflow-run-cards.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/workflow-run-cards.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/workshop-grants.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/workshop-grants.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
    "path": "src/workshop-screen-contexts.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/src/workshop-screen-contexts.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json.",
    "group": "src-crates"
   },
   {
@@ -8620,8 +8931,10 @@
   },
   {
    "path": "test/account-app-erasure-tables.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/account-app-erasure-tables.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
@@ -8632,8 +8945,10 @@
   },
   {
    "path": "test/activation.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/hand-work-to-ais/from-old-trillion/test/activation.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/hand-work-to-ais/moved-from.json. No import changed. Runs here: 3 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -8666,8 +8981,10 @@
   },
   {
    "path": "test/apns.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/tell-the-person-something-on-all-of-their-own-phones-computers/test/apns.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/tell-the-person-something-on-all-of-their-own-phones-computers/moved-from.json. No import changed. Runs here: 3 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -8782,8 +9099,10 @@
   },
   {
    "path": "test/bounded-turns.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/bounded-turns.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
@@ -8808,8 +9127,10 @@
   },
   {
    "path": "test/calendar.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/test/calendar.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/moved-from.json. No import changed. Runs here: 8 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -8820,8 +9141,10 @@
   },
   {
    "path": "test/card-sections-retention.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/card-sections-retention.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/49",
+   "evidence": "Copied byte for byte. The receipt is in trillion-apps/web/moved-from.json. No import changed. Runs here: 6 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -8924,20 +9247,26 @@
   },
   {
    "path": "test/community-logic/corroboration-gate.test.ts",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/community-logic/test/community-logic/corroboration-gate.test.ts",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/community-logic/moved-from.json. Import specifiers changed: ../vitest-shim.mjs -> ../../../match-community-members/test/vitest-shim.mjs; ../../src/community-logic/corroboration-gate.ts -> ../../../evaluate-progress/read-data/corroboration-gate.ts. Runs here: 6 pass, 0 fail.",
    "group": "src-crates"
   },
   {
    "path": "test/community-logic/match/stewardship-configuration-gauntlet.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/community-logic-match/test/community-logic/match/stewardship-configuration-gauntlet.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/community-logic-match/moved-from.json. No import changed. Runs here: 8 pass, 0 fail.",
    "group": "src-crates"
   },
   {
    "path": "test/community-logic/safety-gate.test.ts",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/community-logic/test/community-logic/safety-gate.test.ts",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/community-logic/moved-from.json. Import specifiers changed: ../vitest-shim.mjs -> ../../../match-community-members/test/vitest-shim.mjs. Runs here: 7 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -8974,8 +9303,10 @@
   },
   {
    "path": "test/composition-authored-state.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/composition-authored-state.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/49",
+   "evidence": "Copied byte for byte. The receipt is in trillion-apps/web/moved-from.json. No import changed. Runs here: 0 pass, 1 fail (/home/user/wt/src-crates/trillion-apps/web/test/composition-authored-state.test.mjs). It fails the same way in old trillion on this machine.",
    "group": "src-crates"
   },
   {
@@ -8988,8 +9319,10 @@
   },
   {
    "path": "test/compound-select-builders.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/compound-select-builders.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
@@ -9136,7 +9469,7 @@
   {
    "path": "test/decision-evals.test.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "It tests scripts/measure-decision-evals.mjs (group scripts, another worker's lane) and src/decision-evals.json (already in trillion-workshop tools/introduce-two-people). It moves with that script, to wherever the scripts lane puts it.",
    "group": "src-crates"
   },
   {
@@ -9255,8 +9588,10 @@
   },
   {
    "path": "test/dropped-tables-are-not-used.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/dropped-tables-are-not-used.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
@@ -9292,8 +9627,9 @@
   },
   {
    "path": "test/escape-chain.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/test/escape-chain.test.mjs",
+   "evidence": "Receipt trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json names it. The Workshop copy is adapted to its escape-chain.json (repo:<owner>/<repo>/<path> names instead of left_this_repository).",
    "group": "src-crates"
   },
   {
@@ -9803,7 +10139,7 @@
   {
    "path": "test/guard-selection.test.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "It tests scripts/guard-continue.mjs, scripts/guard-selection.mjs and scripts/deploy-guard-tests.json (group scripts, another worker's lane). It moves with them.",
    "group": "src-crates"
   },
   {
@@ -9888,14 +10224,18 @@
   },
   {
    "path": "test/index-readiness.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/index-readiness.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
    "path": "test/inspiration.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/browse-inspiration-clips/from-old-trillion/test/inspiration.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/browse-inspiration-clips/moved-from.json. Import specifiers changed: trillion-workshop/tools/browse-inspiration-clips/inspiration.mjs -> ../../inspiration.mjs; ../src/inspiration.json -> ../../inspiration.json. Runs here: 2 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -9914,8 +10254,10 @@
   },
   {
    "path": "test/keep-running.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/run-rules-and-schedules-by-themselves/test/keep-running.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/run-rules-and-schedules-by-themselves/moved-from.json. No import changed. Runs here: 31 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -9998,8 +10340,10 @@
   },
   {
    "path": "test/local-document-and-catalogue.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/run-on-a-persons-computer/from-old-trillion/test/local-document-and-catalogue.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/run-on-a-persons-computer/moved-from.json. Import specifiers changed: trillion-workshop/tools/run-on-a-persons-computer/versioned-document.mjs -> ../../versioned-document.mjs; ../src/session-pairing.mjs -> ../../../media-composition/read-data/session-pairing.mjs. Runs here: 2 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -10101,8 +10445,10 @@
   },
   {
    "path": "test/model-waits-continuation.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/route-model-calls/test/model-waits-continuation.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/route-model-calls/moved-from.json. No import changed. Runs here: 6 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -10113,8 +10459,10 @@
   },
   {
    "path": "test/money-out-mail.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/money-out/test/money-out-mail.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/money-out/moved-from.json. No import changed. Runs here: 13 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -10197,14 +10545,18 @@
   },
   {
    "path": "test/native-app-icon.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/test/native-app-icon.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/49",
+   "evidence": "Copied byte for byte. The receipt is in trillion-apps/test/moved-from.json. No import changed. Runs here: 3 pass, 1 fail (generated iPhone and Mac catalogs use the published art or a Studioform name mark). It fails the same way in old trillion on this machine.",
    "group": "src-crates"
   },
   {
    "path": "test/native-availability-calendar.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/booking-slots-and-invitations/from-old-trillion/test/native-availability-calendar.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/booking-slots-and-invitations/moved-from.json. Import specifiers changed: ../src/typed-operation-contract.mjs -> ../../../keep-and-wake-ai-sessions-on-this-computer/src/typed-operation-contract.mjs; ../src/calendar-connections.mjs -> ../../../keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar-connections.mjs. Runs here: 22 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -10227,8 +10579,10 @@
   },
   {
    "path": "test/network-account-privacy.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/list-the-person-for-others-to-find-ask-the-network/test/network-account-privacy.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/list-the-person-for-others-to-find-ask-the-network/moved-from.json. No import changed. Runs here: 3 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -10386,8 +10740,10 @@
   },
   {
    "path": "test/practice.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/practice-and-review/from-old-trillion/test/practice.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/practice-and-review/moved-from.json. No import changed. Runs here: 2 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -10433,7 +10789,7 @@
   {
    "path": "test/public-app-name-claim-readback.test.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "It tests scripts/carry-public-app-name-claims.mjs (group scripts, another worker's lane). It moves with it. It also imports src/typed-operation-contract.mjs (Workshop tools/shared-code).",
    "group": "src-crates"
   },
   {
@@ -10539,20 +10895,26 @@
   },
   {
    "path": "test/resource-placement-owner.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/resource-placement-owner.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
    "path": "test/resource-record-set-projection.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/resource-record-set-projection.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
    "path": "test/resource-work-runtime.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/resource-work-runtime.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
@@ -10627,14 +10989,18 @@
   },
   {
    "path": "test/rpc-storage-probe-runtime.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/rpc-storage-probe-runtime.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
    "path": "test/rpc-storage-probe.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/rpc-storage-probe.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
@@ -10874,20 +11240,25 @@
   },
   {
    "path": "test/steps-ais-leave-runs.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/test/steps-ais-leave-runs.test.mjs.held",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/check-that-everything-waiting-on-a-person-reaches-them/moved-from.json. No import changed. Held as .held: it imports src/steps-ais-leave.json, or a file held on it, and that file is not carried because of personal data.",
    "group": "src-crates"
   },
   {
    "path": "test/steps-ais-leave.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/test/steps-ais-leave.test.mjs.held",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/check-that-everything-waiting-on-a-person-reaches-them/moved-from.json. Import specifiers changed: ../records/starting-rules.json -> ../../../starting-set/starting-rules.json. Held as .held: it imports src/steps-ais-leave.json, or a file held on it, and that file is not carried because of personal data.",
    "group": "src-crates"
   },
   {
    "path": "test/stream-core.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/media-composition/test/stream-core.test.mjs",
+   "evidence": "Adapted copy: diff only in header/comment paths and import specifiers (../src/stream-core.mjs -> ../do-work/stream-core.mjs; trillion-workshop/... -> relative, cut-by-events.json -> read-data/detect-events.json).",
    "group": "src-crates"
   },
   {
@@ -10900,8 +11271,10 @@
   },
   {
    "path": "test/subject-boards.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/keep-a-space-board/test/subject-boards.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/204",
+   "evidence": "Copied byte for byte. The receipt is in trillion-workshop/tools/keep-a-space-board/moved-from.json. Import specifiers changed: ../records/workshop-account-tool-records.json -> ../../keep-and-wake-ai-sessions-on-this-computer/records/workshop-account-tool-records.json; ../records/starting-rules.json -> ../../starting-set/starting-rules.json. Runs here: 8 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -11143,8 +11516,10 @@
   },
   {
    "path": "test/whats-new-rows.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/whats-new-rows.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/49",
+   "evidence": "Copied byte for byte. The receipt is in trillion-apps/web/moved-from.json. No import changed. Runs here: 4 pass, 0 fail.",
    "group": "src-crates"
   },
   {
@@ -11181,14 +11556,18 @@
   },
   {
    "path": "test/workshop-grants.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/workshop-grants.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
    "path": "test/workshop-screen-contexts.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-rust/docs/from-old-trillion/test/workshop-screen-contexts.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-rust/pull/167",
+   "evidence": "Engine work (storage, door, account files or running tools), so its home is trillion-rust docs/from-old-trillion, the folder for old JavaScript a Rust port starts from. Copied with the same bytes, unchanged; the receipt is in docs/from-old-trillion/moved-from.json. Passes in old trillion at 5dc302be. It is not run in trillion-rust, which runs no JavaScript.",
    "group": "src-crates"
   },
   {
