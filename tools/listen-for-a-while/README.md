@@ -12,10 +12,14 @@ Listens to the microphone until an end time the person gives, and writes each tu
 | `read-data/meeting-ledger.mjs` | What the listener says about a listening: `isFalseText` (a line that is only text a hearing model makes up out of silence), `livenessOf` (a listening whose heartbeat is older than the window reads as finished, decided when read, nothing swept) and `jobState` (a notes job's typed state in plain words with its controls). The loop leaves out a made-up stretch before it is named or written. |
 | `read-data/meeting-ledger.json` | The liveness window, the made-up phrases and their word limit, and the notes-job states. |
 | `read-data/leaves.json` | What listening sends off this computer and what stays on it, as rows `leavesOf` shows while their `when` tests hold. |
+| `read-data/private-mode.mjs` | The opt-in private mode for a meeting or space: `available(mode, feature)` (mode off: everything; mode on: only features whose row says `private: true`, an unlisted feature is off), one plain sentence per feature, and a security code (BLAKE3 of the sorted keys, in digit groups) both sides compare out of band. |
+| `read-data/private-mode.json` | Which features exist and which private mode keeps, and its words. |
+| `ports/private-mode.json`, `ports/recording-rules.json` | The SOURCE_FIRST_PORT contracts for `private-mode.mjs` and `recording-rules.mjs`, both moved from the older owner. |
 | `tool-rows.json` | The row `tool:listen-for-a-while`: a `computer` row with the `use-the-microphone` capability, rights to write `heard` and `listening-voices` rows, to list `voice-print` and `recording-rule` rows, and to read the listening's `recording-facts` and `listening-switch` rows. |
 | `test/listen-for-a-while.test.mjs` | The loop on a fake recorder, hearing, naming and records door; the recorder reader on a fake process; pause, recording rules, the leaves list, and the microphone closed when listening ends early. |
 | `test/meeting-ledger.test.mjs` | Made-up text told apart from real words, a stale heartbeat read as finished, the notes-job words, and the loop leaving a made-up stretch out. |
 | `test/recording-rules.test.mjs` | The rules: open by default, block wins, pending, the mid-session recheck, grants, the notice step and consent events. |
+| `test/private-mode.test.mjs` | Private mode: off means everything, on keeps only what the table says and anything unlisted is off; the security code is the same for the same keys in any order and changes with one key. |
 | `part.json` | Nothing here is imported by other code. |
 
 ## How a run goes

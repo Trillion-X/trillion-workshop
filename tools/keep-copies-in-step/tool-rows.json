@@ -1,0 +1,530 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-copies-in-step-tool-rows",
+  "what_this_is": "The Workshop rows for tools/keep-copies-in-step: whether every copy of a person's things is in step, each device's report, and settling a record two copies changed apart, over the person's own rows.",
+  "records": [
+    {
+      "id": "package::keep-copies-in-step::tool::see-if-my-copies-are-in-step",
+      "address": "package::keep-copies-in-step::tool::see-if-my-copies-are-in-step",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-if-my-copies-are-in-step",
+        "label": "See if my copies are in step",
+        "status": "active",
+        "job": "Show me whether every copy of my things is in step, and which records two of my devices changed apart",
+        "description": "Reads your device rows (setting:catch_up_devices) and every record two copies changed apart (kept-apart records) of the kind you name as thing_type, and answers devices (each device's state, waiting changes and when it last caught up; a copy of your records you send in positions is shown once, as the device that named it or as a copy of its own) and versions (each record kept apart: the record as it is now first, then one side per other version, with the words of its keep button). other_kinds names the kinds of other records kept apart, to ask about next. It reads and changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "thing_type"
+          ],
+          "properties": {
+            "thing_type": {
+              "type": "string",
+              "description": "The kind of record whose versions to read or settle (one kind per call; other_kinds names the rest)"
+            },
+            "positions": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "How far each copy of your records took: [{ copy, settled_at }]"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "devices",
+            "versions",
+            "other_kinds"
+          ],
+          "properties": {
+            "devices": {
+              "type": "array"
+            },
+            "versions": {
+              "type": "array"
+            },
+            "other_kinds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-copies-in-step",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/keep-copies-in-step"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/keep-copies-in-step",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-copies-in-step/do-work/copies.mjs",
+            "seeIfMyCopiesAreInStep"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "setting",
+                "id": "setting:catch_up_devices",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "kept-apart",
+                "operations": [
+                  "records:list",
+                  "records:read"
+                ]
+              },
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "thing_type"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:keep-copies-in-step",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/catch-up.mjs and records/catch-up.json (b4e3c05abe), moved here as read-data/catch-up.mjs and read-data/catch-up.json; the engine copy (trillion-rust src/catch_up.rs, src/local_account/catch_up.rs, GET /catch-up, POST /catch-up/here and /catch-up/settle) is deleted"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "thing_type": "note"
+            },
+            "output_selector": "$",
+            "contains": "other_kinds"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::keep-copies-in-step::tool::say-how-this-device-stands",
+      "address": "package::keep-copies-in-step::tool::say-how-this-device-stands",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:say-how-this-device-stands",
+        "label": "Say how this device stands",
+        "status": "active",
+        "job": "Keep how this device of mine stands: caught up, offline or still holding changes",
+        "description": "Keeps one device's report in your device rows (setting:catch_up_devices): device_id (the id the device keeps for itself), state, waiting (the changes it still holds), at (when its writes last reached your store), title, kind and copy_id (the copy of your records it keeps). The row is written only when what you would see changed, or when its last catch-up moved by more than an hour; at most 40 devices are kept, newest first. One write, only while the rows are still what was read: rows changed meanwhile answer conflict and nothing is written.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "device_id",
+            "state",
+            "request_key"
+          ],
+          "properties": {
+            "device_id": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "waiting": {
+              "type": "integer"
+            },
+            "at": {
+              "type": [
+                "string",
+                "number"
+              ]
+            },
+            "title": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "copy_id": {
+              "type": "string"
+            },
+            "request_key": {
+              "type": "string",
+              "description": "Names this change, so sending it again changes nothing twice"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to report at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "written"
+          ],
+          "properties": {
+            "written": {
+              "type": "boolean"
+            },
+            "device": {
+              "type": "object"
+            },
+            "conflict": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-copies-in-step",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/keep-copies-in-step"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/keep-copies-in-step",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-copies-in-step/do-work/copies.mjs",
+            "sayHowThisDeviceStands"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "setting",
+                "id": "setting:catch_up_devices",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:keep-copies-in-step",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/catch-up.mjs and records/catch-up.json (b4e3c05abe), moved here as read-data/catch-up.mjs and read-data/catch-up.json; the engine copy (trillion-rust src/catch_up.rs, src/local_account/catch_up.rs, GET /catch-up, POST /catch-up/here and /catch-up/settle) is deleted"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "device_id": "d-sample01",
+              "state": "caught-up",
+              "request_key": "sample-report",
+              "now": "2026-01-01T00:00:00.000Z"
+            },
+            "output_selector": "$",
+            "contains": "d-sample01"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::keep-copies-in-step::tool::settle-two-versions",
+      "address": "package::keep-copies-in-step::tool::settle-two-versions",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:settle-two-versions",
+        "label": "Settle two versions",
+        "status": "active",
+        "job": "Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
+        "description": "Writes what you chose for one record kept apart (id, from see-if-my-copies-are-in-step): keep one (side, the id of the version to keep), both (each other version is kept as a record of its own, named after it with -kept- and a number that no record holds yet), or merged (value, the merged record). What you chose is written first and the kept versions are removed in the same write, so every copy takes it like any change. thing_type is the kind of the record. Every write stands only on what was read: a record changed meanwhile answers conflict and nothing is written.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "keep",
+            "thing_type",
+            "request_key"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The record kept apart, as the read names it"
+            },
+            "keep": {
+              "type": "string",
+              "enum": [
+                "one",
+                "both",
+                "merged"
+              ]
+            },
+            "side": {
+              "type": "string"
+            },
+            "value": {},
+            "thing_type": {
+              "type": "string",
+              "description": "The kind of record whose versions to read or settle (one kind per call; other_kinds names the rest)"
+            },
+            "request_key": {
+              "type": "string",
+              "description": "Names this change, so sending it again changes nothing twice"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "written"
+          ],
+          "properties": {
+            "settled": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "written": {
+              "type": "array"
+            },
+            "conflict": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-copies-in-step",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/keep-copies-in-step"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/keep-copies-in-step",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-copies-in-step/do-work/copies.mjs",
+            "settleTwoVersions"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "kept-apart",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "thing_type"
+                  }
+                },
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:keep-copies-in-step",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/catch-up.mjs and records/catch-up.json (b4e3c05abe), moved here as read-data/catch-up.mjs and read-data/catch-up.json; the engine copy (trillion-rust src/catch_up.rs, src/local_account/catch_up.rs, GET /catch-up, POST /catch-up/here and /catch-up/settle) is deleted"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "id": "kept-apart:sample-note",
+              "keep": "one",
+              "side": "now",
+              "thing_type": "note",
+              "request_key": "sample-settle"
+            },
+            "output_selector": "$",
+            "contains": "kept-apart:sample-note"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,308 @@
+{
+  "_what": "Work programs on this computer are doing that Trillion should show while it runs, read by computer/report-progress.mjs (started beside the connection by harness/wake-sessions.mjs). Each row names the progress files a program writes (`files`, ~ is the home folder and * one folder name, which fills {folder}), how to read each into one report for the person's Trillion (POST /mcp/api/tell/progress, src/tell-the-person.mjs report), and the words: `key`, `title` and `body` fill {name} from `values` (a value is a path into the file, optionally split on `split` and the `pick`th part taken) and from {folder} and {computer}. `done` and `total` are paths to counts in `unit` (a list of paths is their sum, and a \"*\" step is every item of a list there); `state` maps the file's own state word to running, done or failed (a word not listed is left out of the report); a file whose `pid` path names a program that is no longer running reports failed with `stopped_words`, once the file has not changed for `stopped_after_seconds` (until then the program is taken to be starting again on the same work, so nothing is said). A `key` names the work, never one start of the program doing it, so a program started again keeps changing the same notice. `kind` picks the card's look, channels and address in records/tell-the-person.json. A file that already says its work ended, or whose program stopped, is reported only when its `updated` time is within `settled_within_minutes`, so old finished work is never announced again. A file is read every `every_seconds` and reported only when what it says changed, and running work again every `resend_running_seconds` so a long quiet stretch never reads as stopped. `chips` (and `chips_by_state`) are short facts the card shows instead of the body, each words with {name} values (a chip naming a value the file does not carry is left out) and an optional tone. `title_by_state` and `body_by_state` word the title and body for one of the file's own state words, and a value the file stops carrying (a finished copy names no file in flight) keeps what it said last. `actions` (at most two shown, those whose `when` lists the file's state word) are what the person can press on the card: `write` writes `value` (with `stamp` set to the time) to `file` beside the progress file, `remove` removes that file; it is the program's own control file, so nothing here knows what pause or stop means. A new program is a row here and nothing else.",
+  "origin": "https://app.gettrillion.ai",
+  "every_seconds": 5,
+  "settled_within_minutes": 30,
+  "stopped_after_seconds": 180,
+  "resend_running_seconds": 60,
+  "rows": [
+    {
+      "id": "ai-session-run",
+      "files": "~/.trillion/wake-sessions/progress/*/progress.json",
+      "kind": "working",
+      "key": "session-run:{computer}:{folder}",
+      "title": "{app} is working on this computer",
+      "title_by_state": {
+        "finished": "{app} finished on this computer",
+        "failed": "{app} stopped before it finished"
+      },
+      "body": "{last_text}",
+      "source": "{computer}",
+      "values": {
+        "app": { "path": ["app"] },
+        "last_text": { "path": ["last_text"] },
+        "tool": { "path": ["tool"] },
+        "tools_started": { "path": ["tools_started"] },
+        "tools_done": { "path": ["tools_done"] }
+      },
+      "pid": ["pid"],
+      "updated": ["updated_at"],
+      "stopped_words": "The AI's run stopped before it finished.",
+      "state": {
+        "path": ["state"],
+        "map": { "running": "running", "finished": "done", "failed": "failed" }
+      },
+      "chips": [
+        "{tools_done} of {tools_started} tool steps done",
+        "Last tool: {tool}"
+      ]
+    },
+    {
+      "id": "drive-keep",
+      "files": "~/.trillion/computer-sources/drives/*/progress.json",
+      "kind": "transfer",
+      "key": "keep:{computer}:{folder}",
+      "title": "Keeping {drive} in your files",
+      "title_by_state": {
+        "finished": "{drive} is in your files",
+        "incomplete": "{drive} was not all kept",
+        "stopped": "Stopped keeping {drive}",
+        "waiting-for-the-drive": "{drive} was unplugged before everything was kept",
+        "refused": "Your files would not take more from {drive}",
+        "paused": "Keeping {drive} is paused"
+      },
+      "body": "{files_done} of {files_total} files · heard {heard} of {recordings} recordings · {handed_on} sent to your AIs",
+      "body_by_state": {
+        "paused": "Paused · {files_done} of {files_total} files"
+      },
+      "source": "{computer}",
+      "values": {
+        "drive": {
+          "path": [
+            "drive"
+          ]
+        },
+        "files_done": {
+          "path": [
+            "files_done"
+          ]
+        },
+        "files_total": {
+          "path": [
+            "files_total"
+          ]
+        },
+        "heard": {
+          "path": [
+            "heard"
+          ]
+        },
+        "recordings": {
+          "path": [
+            "recordings"
+          ]
+        },
+        "handed_on": {
+          "path": [
+            "handed_on"
+          ]
+        }
+      },
+      "done": [
+        [
+          "bytes_done"
+        ],
+        [
+          "sending",
+          "*",
+          "bytes_sent"
+        ]
+      ],
+      "total": [
+        "bytes_total"
+      ],
+      "unit": "bytes",
+      "pid": [
+        "pid"
+      ],
+      "updated": [
+        "updated_at"
+      ],
+      "stopped_words": "Keeping the drive stopped before it finished.",
+      "state": {
+        "path": [
+          "state"
+        ],
+        "map": {
+          "measuring": "running",
+          "keeping": "running",
+          "paused": "running",
+          "finished": "done",
+          "incomplete": "failed",
+          "stopped": "failed",
+          "refused": "failed",
+          "waiting-for-the-drive": "failed"
+        }
+      },
+      "actions": [
+        {
+          "id": "pause",
+          "label": "Pause",
+          "when": [
+            "measuring",
+            "keeping"
+          ],
+          "write": {
+            "file": "control.json",
+            "value": {
+              "action": "pause",
+              "resume_at": null,
+              "by": "person"
+            },
+            "stamp": "set_at"
+          }
+        },
+        {
+          "id": "resume",
+          "label": "Resume",
+          "when": [
+            "paused"
+          ],
+          "remove": "control.json"
+        },
+        {
+          "id": "stop",
+          "label": "Stop",
+          "when": [
+            "measuring",
+            "keeping",
+            "paused"
+          ],
+          "write": {
+            "file": "control.json",
+            "value": {
+              "action": "stop",
+              "resume_at": null,
+              "by": "person"
+            },
+            "stamp": "set_at"
+          }
+        }
+      ],
+      "chips": [
+        "{files_done} of {files_total} files",
+        "{heard} heard",
+        "{handed_on} to your AIs"
+      ],
+      "chips_by_state": {
+        "paused": [
+          {
+            "text": "Paused",
+            "tone": "attention"
+          },
+          "{files_done} of {files_total} files"
+        ]
+      }
+    },
+    {
+      "id": "drive-transfer",
+      "files": "~/.trillion/computer-sources/transfers/*/progress.json",
+      "kind": "transfer",
+      "key": "transfer:{computer}:{folder}",
+      "title": "{doing} {what} to {to}",
+      "title_by_state": {
+        "finished": "{what} is on {to}",
+        "stopped": "Stopped: {what} to {to}",
+        "failed": "{what} did not reach {to}",
+        "paused": "{doing} {what} to {to} is paused"
+      },
+      "body": "{files_done} of {files_total} files",
+      "body_by_state": {
+        "paused": "Paused · {files_done} of {files_total} files",
+        "planning": "Counting what to copy"
+      },
+      "source": "{computer}",
+      "values": {
+        "doing": {
+          "path": [
+            "doing"
+          ]
+        },
+        "what": {
+          "path": [
+            "what"
+          ]
+        },
+        "to": {
+          "path": [
+            "to"
+          ]
+        },
+        "files_done": {
+          "path": [
+            "files_done"
+          ]
+        },
+        "files_total": {
+          "path": [
+            "files_total"
+          ]
+        }
+      },
+      "done": [
+        [
+          "bytes_done"
+        ]
+      ],
+      "total": [
+        "bytes_total"
+      ],
+      "unit": "bytes",
+      "pid": [
+        "pid"
+      ],
+      "updated": [
+        "updated_at"
+      ],
+      "stopped_words": "The copy stopped before it finished.",
+      "state": {
+        "path": [
+          "state"
+        ],
+        "map": {
+          "planning": "running",
+          "running": "running",
+          "paused": "running",
+          "finished": "done",
+          "stopped": "failed",
+          "failed": "failed"
+        }
+      },
+      "actions": [
+        {
+          "id": "pause",
+          "label": "Pause",
+          "when": [
+            "planning",
+            "running"
+          ],
+          "write": {
+            "file": "control.json",
+            "value": {
+              "action": "pause",
+              "resume_at": null,
+              "by": "person"
+            },
+            "stamp": "set_at"
+          }
+        },
+        {
+          "id": "resume",
+          "label": "Resume",
+          "when": [
+            "paused"
+          ],
+          "remove": "control.json"
+        },
+        {
+          "id": "stop",
+          "label": "Stop",
+          "when": [
+            "planning",
+            "running",
+            "paused"
+          ],
+          "write": {
+            "file": "control.json",
+            "value": {
+              "action": "stop",
+              "resume_at": null,
+              "by": "person"
+            },
+            "stamp": "set_at"
+          }
+        }
+      ]
+    }
+  ]
+}

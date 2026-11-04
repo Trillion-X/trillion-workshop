@@ -1,0 +1,106 @@
+{
+  "_what": "The shared full-setup progress and capability readiness. Capability requirements live in src/setup-policy.json and are checked through the saved workflow and current owners. Existing limited free access has separate explicit workspace readiness; it never becomes full setup proof. Optional computer permission diagnostics reuse current device reports and exact existing OS pane addresses. The existing AI picker and queued-work owner carry the whole setup to the person’s AI. Existing show-rules select setup requirements separately from full runtime verification. Operator rules and account-scoped setup-context can require native devices; personal rules change presentation only. Native installation prerequisites come from intact admitted workflow discovery and current device owners, never from a URL or a display rule. Requirements use one canonical projection, with capability progress in steps and necessary device actions in person_actions. A deliberately reduced admission cohort does not claim the full workflow finished. Setup does not lock the workspace; each operation retains its own authority and capability requirements. gate.read_every_seconds retains the shared guide refresh interval.",
+  "connect_requires_choice": true,
+  "words": {
+    "title": "What Trillion is using",
+    "complete_title": "You are all set",
+    "lead": "Your AI connects what you already use and checks that each part works. Only something that needs your own hand asks you.",
+    "title_first": "Connect your AI to start",
+    "complete_lead": "Your setup has been checked. Ask your AI for what you want next.",
+    "unknown": "Trillion is checking this. It updates by itself.",
+    "not_applicable": "Checked: this does not apply to your setup.",
+    "waiting": "Your AI will complete this and check that it works.",
+    "unavailable": "This app is not available to install yet. Trillion will check its access again.",
+    "steps_heading": "Setup",
+    "optional_heading": "If you want it",
+    "connect_heading": "Connect your AI",
+    "connect_body": "Pick the AI you use. Once it is connected, it does the rest of the setup itself.",
+    "connect_lead": "Open your AI chat and paste the prepared connection message there. This connects Trillion to that AI.",
+    "stopped_heading": "Setup is stopped",
+    "stopped_body": "Further setup steps are stopped. Restart when you want your AI to continue.",
+    "restart": "Restart setup",
+    "email_title": "Confirm your email",
+    "email_body": "Confirm your account email so Trillion can send you the app invitation.",
+    "invite_body": "Trillion emails you an invitation to install the app.",
+    "invite_title": "Get the app invitation"
+  },
+  "gate": {
+    "read_every_seconds": 15
+  },
+  "computer_switches": {
+    "id": "computer-switches",
+    "fresh_hours": 72,
+    "title": "Turn on {switch}",
+    "body": "Trillion needs your permission to read {sources}. Your AI handles the setup around this switch.",
+    "action": "Open this switch",
+    "done_title": "No permission switches waiting",
+    "done_body": "Your AI also checks that information actually arrives before completing full setup.",
+    "unchecked_title": "Check source access",
+    "more": "{first} and {count} more",
+    "unknown_title": "Your computers",
+    "owner": "computer-switches",
+    "required": false,
+    "audience": "person_only"
+  },
+  "policy": {
+    "version": 1,
+    "subject": "setup-step",
+    "context_record": "setup-context",
+    "account_context_key": "accounts",
+    "context_defaults": {
+      "cohorts": [],
+      "experiments": [],
+      "required_devices": {}
+    },
+    "bucket_epoch": "setup-v1",
+    "bucket_count": 100,
+    "unresolved_step": {
+      "id": "setup-policy",
+      "title": "Check which setup steps you need",
+      "body": "Trillion could not confirm the setup requirements for your account. It will check again. Ask for help if this continues.",
+      "href": "mailto:hello@gettrillion.ai",
+      "action": "Get help with setup"
+    },
+    "inventory_requirement": "devices",
+    "inventory_field": "device_ids"
+  },
+  "native_steps": [
+    {
+      "id": "iphone",
+      "owner": "device",
+      "device": "iphone",
+      "required": false,
+      "applicable": false,
+      "audience": "person_only",
+      "done_text": "Trillion is installed on your iPhone."
+    },
+    {
+      "id": "desktop",
+      "owner": "device",
+      "device": "desktop",
+      "required": false,
+      "applicable": false,
+      "audience": "optional",
+      "done_text": "Trillion is installed on your computer."
+    },
+    {
+      "id": "extension",
+      "owner": "device",
+      "device": "extension",
+      "required": false,
+      "applicable": false,
+      "audience": "optional",
+      "done_text": "Send to Trillion is added to your browser."
+    },
+    {
+      "id": "watch",
+      "owner": "device",
+      "device": "watch",
+      "required": false,
+      "optional": true,
+      "applicable": false,
+      "audience": "person_only",
+      "done_text": "Trillion is on your Apple Watch."
+    }
+  ]
+}

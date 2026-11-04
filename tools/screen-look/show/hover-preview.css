@@ -1,0 +1,72 @@
+/* packages/screen-look/show/hover-preview.css
+ *
+ * Appearance of the shared HoverPreview (packages/ui/show/hover-preview): the
+ * screen at the top of a hover card, which holds THE one file preview
+ * (file-preview.css) in its glance size, and, with several items, the
+ * row that moves between them. The card itself is the record-preview look in
+ * navigation-preview.css. Anatomy follows Dropbox Dash's file hover card
+ * (picture first, name, then facts; mobbin.com/screens/45d0683f-4dce-47b9-af7b-8413b6a17db2)
+ * with the carousel's position kept to one quiet line under the picture.
+ */
+
+.hover-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.hover-preview-screen {
+  display: block;
+  overflow: hidden;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-foreground, #eee) 6%, transparent);
+}
+
+/* A playing video gets a definite height: the shared file preview fits its
+ * player inside a size container, which has no height of its own to give. */
+.hover-preview-screen[data-preview-screen="video"] { height: min(42vh, 340px); background: #000; }
+.hover-preview-screen[data-preview-screen="video"] [data-media-playback-browser-source] {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  max-height: 42vh;
+  margin-inline: auto;
+}
+
+.hover-preview-screen[data-preview-screen="picture"],
+.hover-preview-screen[data-preview-screen="pdf"],
+.hover-preview-screen[data-preview-screen="office"],
+.hover-preview-screen[data-preview-screen="file"],
+.hover-preview-screen[data-preview-screen="card"] {
+  height: min(42vh, 340px);
+}
+
+.hover-preview-screen[data-preview-screen="text"] { max-height: min(34vh, 300px); }
+.hover-preview-screen[data-preview-screen="text"] .file-preview { height: auto; max-height: min(34vh, 300px); }
+
+.hover-preview-screen[data-preview-screen="sound"] {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+}
+
+.hover-preview-waveform { height: 72px; }
+
+/* A sound's player is a card sized by its own content, not by a box. */
+.hover-preview-screen[data-preview-screen="sound"] [data-file-preview-player] { container-type: normal; }
+
+.hover-preview-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.hover-preview-position {
+  min-width: 56px;
+  text-align: center;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted, var(--color-muted-foreground, #9298a6));
+}

@@ -1,0 +1,244 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DECISIONS-SCREEN-READ-FROM-THE-OLD-APP",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "engine-shrink lane 3 2026-11-03: the decision screen leaves the engine",
+  "message_multihash": "1f:3bea6b64965b546996ecf6e48942cf64b18f9476c1748691fdaaf09fd4b74871",
+  "quote": "Product behaviour lives in Workshop tools, run through running-tools. Move code, never rewrite it. Carry the original tests and their assertions. Delete the engine copy in the same change."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/native-work-screen.mjs",
+   "multihash": "1f:19cce609c6131ecd9c1c011f3bf92cd4dbab75e65b636fb3f377a71186c5f998",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/check-uses.mjs",
+   "lines": [
+    13,
+    58
+   ],
+   "multihash": "1f:5671eacd21787c84461b5e0ab8e37d04f26a78a2d9099b0e3f7d9d6e70a2cd20",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/check-uses.mjs",
+   "lines": [
+    147,
+    233
+   ],
+   "multihash": "1f:8861592abf74aa6846eaf2976d2e947749c0cc7ee09c3342c40f777eef92b1bd",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/work-progress.mjs",
+   "lines": [
+    1,
+    25
+   ],
+   "multihash": "1f:d954f8f93f74cbbccfa47a9233deefb5b4b542038d37f8ef72bee382775a6bac",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/decision-store.mjs",
+   "lines": [
+    74,
+    78
+   ],
+   "multihash": "1f:85161e47b380b8f62de215e0912e7f3658bebc381ff90b98d194c7e96d973427",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/decision-store.mjs",
+   "lines": [
+    475,
+    496
+   ],
+   "multihash": "1f:c51fae3e6ccb3b96f43c6ce861c77219706334d1477aa11a19c9ef3fca42b95a",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/record-scope.mjs",
+   "lines": [
+    103,
+    132
+   ],
+   "multihash": "1f:1e37ca832862ff2445ef7d17ac3d0177c31c88e54669b498360b27c6ff84dafd",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/record-scope.mjs",
+   "lines": [
+    923,
+    942
+   ],
+   "multihash": "1f:e85f99af467d03fde610f6feb17a223fb7804d200dc689087e9d7668d9217053",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/allowance.mjs",
+   "lines": [
+    33,
+    38
+   ],
+   "multihash": "1f:0bcb7521061b99de87b8860bf5c38140c86b2c3c8b954a4103a7b12b98a95e86",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/allowance.mjs",
+   "lines": [
+    137,
+    147
+   ],
+   "multihash": "1f:608cae6ead682316ceec535382f3c826988d429df64e90f9f0914d4f584c2e60",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/engine.mjs",
+   "lines": [
+    185,
+    185
+   ],
+   "multihash": "1f:5745c14fbbc3f8cfa057b652e8e839255f3385c2fcf6a1841b5a16f9a60f1ffa",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/payment.mjs",
+   "lines": [
+    627,
+    628
+   ],
+   "multihash": "1f:b0e051fd5b1bbb5d10640dba0fb09986af8ad56ba2b31e4510cd6799e939d052",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path": "src/plan-records.mjs",
+   "lines": [
+    23,
+    34
+   ],
+   "multihash": "1f:32a499ac7d7551b2340f368cf4b642b57f0c1a3db46b17c5f9a634a0d3afb311",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T10:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/decide-with-a-method/read-data/work-screen.mjs",
+   "baseline_commit_message": "decide-with-a-method: the old app's Decisions/Home screen read (trillion src/native-work-screen.mjs at d273ef3), moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "a bounded page carries collection_coverage: its limit and whether more decisions, pursuits or plans exist; full-history statistics are never approximated from a page",
+  "a decision summary's status and result come from the current evidence of its current generation; a person's report with no signed-in source never counts as checked",
+  "progress counts only the steps the decision's own facts show (decision-progress.json) and names the furthest",
+  "a check is revised when a refusal named it or the answer says it changed it, skipped when handled is false, refused while a refusal has no accepted answer",
+  "a pursuit's parents and children come from the links and the person's record-scope choice rows; a removed link (not) and a pursuit no longer current are left out",
+  "a limited access that does not keep decisions answers free with nothing listed; metadata reads no decision",
+  "the optional Space pursuit read is bounded and never holds the screen"
+ ],
+ "allowed_deltas": [
+  "the rows are read through the records door (seeMyDecisions) once, and the moved screen reads them from there",
+  "access and allowance are what the caller's place reports (input), not an account owner this folder has no door to",
+  "the check questions are the person's own method-check rows, not a checks file",
+  "a decision's status and result use decision-outcome.mjs with the decision tools' precedence setting",
+  "a checklist kept as { checks } (the decision tools' layout) is read as its list",
+  "one bounded page also answers helped_check_text, agent_work and next_before, and each helped item keeps its decision's id, as the engine's copy did"
+ ],
+ "banned_substitutions": [
+  "a second reader of the person's decisions with its own status or outcome rules",
+  "a checks file or a words file copied into this folder in place of the person's rows",
+  "an allowance or limit invented when the place reports none"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:19cce609c6131ecd9c1c011f3bf92cd4dbab75e65b636fb3f377a71186c5f998",
+  "target_multihash_at_baseline": "1f:19cce609c6131ecd9c1c011f3bf92cd4dbab75e65b636fb3f377a71186c5f998",
+  "commit": "4eba696780c0196aec51c7de31f093c8b11ff16e",
+  "recorded_at": "2026-11-03T23:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export function nativeWorkScreen",
+   "export function checkUses",
+   "export function helpedItem",
+   "export function whatHelpedOf",
+   "export function progressFromSteps",
+   "scopePursuitTree(pursuits)",
+   "export function choiceLinks",
+   "export async function seeMyDecisions"
+  ],
+  "test_refs": [
+   "tools/decide-with-a-method/test/work-screen.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

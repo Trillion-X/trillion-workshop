@@ -507,7 +507,46 @@
         "source": "tell-the-person GET /tell/notices and POST /tell/notices/read behavior, ported through the Workshop records door"
       },
       "verify": [],
-      "result_selector": "$.result"
+      "result_selector": "$.result",
+      "record_model": {
+        "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+        "kinds": [
+          {
+            "type": "told-the-person",
+            "erasable": [
+              [
+                "item",
+                "title"
+              ],
+              [
+                "item",
+                "body"
+              ]
+            ],
+            "guard_properties": {
+              "item": "object",
+              "seqs": "numbers",
+              "indexed_fields": "texts",
+              "field_counts": "objects"
+            }
+          }
+        ],
+        "indexes": [
+          {
+            "type": "told-the-person",
+            "name": "message",
+            "backfill": "told-message",
+            "paths": [
+              [
+                "item",
+                "refs",
+                "message_id"
+              ]
+            ],
+            "_read_by": "parts/record-log record-log-store erase (a message erased takes what the person was told of it, built from its words, with it: src/record-model.json erase_with)"
+          }
+        ]
+      }
     }
   },
   {

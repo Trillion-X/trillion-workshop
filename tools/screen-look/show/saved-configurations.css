@@ -1,0 +1,13 @@
+/* Saved configuration controls extend the shared RecordViews editor: one
+ * inline form for a name and the aspects that will travel with it. */
+.record-views-configuration-editor { min-width: 0; margin-block: 8px; }
+.record-views-configuration-aspects { display: flex; flex-wrap: wrap; gap: 10px 20px; min-width: 0; margin: 8px 0; padding: 10px 12px; border: 1px solid var(--color-border, var(--glass-border)); border-radius: var(--radius-control, 8px); }
+.record-views-configuration-aspects > legend { padding-inline: 4px; font-size: 12px; color: var(--text-muted, var(--color-muted-foreground)); }
+.record-views-configuration-aspects > label { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; font-size: 13px; color: var(--text-primary, var(--color-foreground)); }
+.record-views-configuration-aspects > p { flex-basis: 100%; margin: 0; font-size: 12px; color: var(--text-muted, var(--color-muted-foreground)); }
+.record-views-configuration-error { margin-block: 8px; font-size: 13px; color: var(--color-destructive, var(--status-error)); }
+.record-views-time-editor > fieldset { display: contents; }
+@media (max-width: 420px) {
+  .record-views-configuration-editor .record-views-saved-view-editor { flex-wrap: wrap; }
+  .record-views-configuration-editor .record-views-saved-view-editor > input { flex-basis: 100%; min-width: 0; font-size: 16px; }
+}

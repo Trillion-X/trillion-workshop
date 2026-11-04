@@ -1,0 +1,148 @@
+/* Navigation previews and live badges. Hover preview of a screen (packages/ui/show/surface-preview/SurfacePreviewCard.tsx).
+   The card is opaque on the screen-look surface token, sized for a readable
+   glance at another screen's live content, and grows from the side it opens
+   toward. References: 21st.dev #11873 and #221 "Hover Card" (fade + zoom from
+   the trigger side); Mobbin Linear inbox density. */
+
+.surface-preview{box-sizing:border-box;width:min(360px,calc(100vw - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px)));height:min(440px,calc(100dvh - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),var(--available-height,440px));display:flex;flex-direction:column;overflow:hidden;
+  border-radius:14px;background:var(--surface,var(--color-popover,#13151a));color:var(--text,var(--color-foreground,#eee));
+  border:1px solid var(--line-strong,color-mix(in srgb,var(--color-foreground,#eee) 12%,transparent));
+  box-shadow:0 24px 60px -18px rgb(0 0 0/.55),0 2px 8px -2px rgb(0 0 0/.28);
+  transform-origin:var(--transform-origin);transition:opacity var(--motion-fast) var(--ease-enter),transform var(--motion-base) var(--ease-snap)}
+.surface-preview[data-starting-style],.surface-preview[data-ending-style]{opacity:0;transform:scale(.96)}
+.surface-preview[data-side="right"][data-starting-style],.surface-preview[data-side="right"][data-ending-style]{transform:translateX(-6px) scale(.97)}
+.surface-preview[data-side="left"][data-starting-style],.surface-preview[data-side="left"][data-ending-style]{transform:translateX(6px) scale(.97)}
+.surface-preview-heading{flex:none;display:flex;align-items:center;justify-content:flex-start;gap:4px;width:100%;height:36px;padding:0 6px 0 8px;border-radius:0;
+  border-bottom:1px solid var(--line,color-mix(in srgb,var(--color-foreground,#eee) 8%,transparent));font-size:12.5px;font-weight:600}
+.surface-preview-open{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-start;gap:8px;height:34px;padding:0 4px;border-radius:0;font-size:inherit;font-weight:inherit}
+.surface-preview-dismiss{flex:none;width:30px;height:30px}
+.surface-preview-label{flex:1;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.surface-preview-open-mark{width:14px;height:14px;opacity:.55;transition:opacity .15s,transform .15s}
+.surface-preview-heading:hover .surface-preview-open-mark{opacity:1;transform:translate(1px,-1px)}
+.surface-preview-body{position:relative;flex:1 1 auto;min-height:0;overflow:hidden}
+.surface-preview-body>*{height:100%}
+/* Glance mode: a short summary sized to its content (Tana flyout sections,
+   Basecamp activity lines, Mintlify one-line status plus action). */
+.surface-preview[data-mode="glance"]{height:auto;max-height:min(440px,calc(100vh - 32px));max-height:min(440px,calc(100dvh - 32px));width:min(320px,calc(100vw - 24px))}
+.surface-preview[data-mode="glance"] .surface-preview-body{overflow-y:auto}
+.surface-preview[data-mode="glance"] .surface-preview-body>*{height:auto}
+.surface-glance{display:flex;flex-direction:column;gap:10px;padding:10px 12px 12px}
+.surface-glance-summary{margin:0;font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--muted,var(--color-muted-foreground,#9298a6))}
+.surface-glance-summary[aria-busy="true"]{opacity:.7}
+.surface-glance-description{margin:0;font-size:12.5px;line-height:1.45;color:var(--muted,var(--color-muted-foreground,#9298a6))}
+.surface-glance-group{display:flex;flex-direction:column;gap:4px}
+.surface-glance-label{display:flex;align-items:center;gap:6px;margin:0;font-size:11px;font-weight:650;color:var(--faint,var(--color-muted-foreground,#888))}
+.surface-glance-live{width:6px;height:6px;border-radius:999px;background:var(--notification-tone-blue,#6aa8ff)}
+.surface-glance-list{display:flex;flex-direction:column}
+.surface-glance-loading{display:grid;gap:8px;padding-block:2px}
+.surface-glance-loading [data-slot=skeleton]{height:10px;border-radius:999px;background:color-mix(in srgb,var(--text,var(--color-foreground,#eee)) 12%,transparent);animation:none}
+.surface-glance-skeleton-title{width:42%;max-width:132px}
+.surface-glance-skeleton-detail{width:76%;max-width:236px;opacity:.72}
+.surface-glance-retry{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.surface-glance-list{gap:2px;margin-inline:-6px}
+.surface-glance-item [data-slot=listing-card]{border-color:transparent;background:transparent;box-shadow:none;padding-inline:6px;min-height:40px;border-radius:10px}
+.surface-glance-item [data-slot=listing-card][role=link]:hover,.surface-glance-item [data-slot=listing-card][role=link]:focus-visible{background:var(--glass-bg-hover,color-mix(in srgb,var(--color-foreground,#eee) 7%,transparent))}
+.surface-glance-item [data-slot=listing-card] [data-listing-line]{min-width:0}
+.surface-glance-item-controls{display:flex;align-items:center;gap:2px;opacity:.55;transition:opacity .15s}
+.surface-glance-item:hover .surface-glance-item-controls,.surface-glance-item:focus-within .surface-glance-item-controls{opacity:1}
+@media(hover:none){.surface-glance-item-controls{opacity:1}}
+.surface-glance-inside{display:flex;flex-direction:column}
+.surface-glance-inside-heading{display:flex;align-items:center;gap:6px;padding:8px 8px 0}
+.surface-glance-inside-title{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:600}
+.surface-preview-actions{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 8px;border-top:1px solid var(--line,color-mix(in srgb,var(--color-foreground,#eee) 8%,transparent))}
+.surface-preview-actions>[data-slot=button]{flex:0 0 auto;min-height:28px}
+.surface-preview-actions svg{width:14px;height:14px;opacity:.8}
+
+@media(prefers-reduced-motion:reduce){.surface-preview,.surface-preview *{transition:none!important;animation:none!important}}
+
+/* Live badge on a collapsed rail icon (ui/show/surface-badges, surface DATA
+   `badge_source`), drawn with the mark its kind has in
+   parts/sidebar/read-data/sidebar-badge-marks.json. Red is kept for
+   notifications: an unread notification is a small red dot at the icon's
+   corner; a number there is the same quiet grey as on the open sidebar. */
+[data-sidebar-activate][data-live-badge]{position:relative}
+.sidebar-rail-badge.sidebar-rail-badge{position:absolute;top:2px;left:calc(50% + 4px);min-width:15px;height:15px;padding:0 4px;border-radius:var(--radius-chip, 0.375rem);display:grid;place-items:center;
+  font-size:9.5px;font-weight:700;line-height:1;color:var(--text-tertiary);background:var(--glass-bg-hover);
+  box-shadow:0 0 0 2px var(--surface,var(--color-popover,#13151a));pointer-events:none}
+.sidebar-rail-dot.sidebar-rail-dot{position:absolute;top:6px;left:calc(50% + 5px);width:8px;height:8px;
+  box-shadow:0 0 0 2px var(--surface,var(--color-popover,#13151a));pointer-events:none}
+.sidebar-row-dot.sidebar-row-dot{width:8px;height:8px}
+/* Red is for notifications (status error); a dot drawn in a state's tone keeps the StatusDot colour it was given. */
+.sidebar-rail-dot.sidebar-rail-dot[data-status=error],.sidebar-row-dot.sidebar-row-dot[data-status=error]{background:var(--notification-tone-red,#e5484d)}
+
+/* A record's hover preview (packages/ui/show/hover-preview HoverPreview, used by record-views): the record's
+   content screen, the name and the fields the caller marks `preview`, on the same opaque surface as the screen preview. References: 21st.dev
+   #11873 and #221 "Hover Card"; Google Ads video template cards (https://mobbin.com/screens/e9428e4e-eb35-492f-a3dd-acb3475b36fd)
+   and Descript's media cards (https://mobbin.com/screens/9859433a-7969-405c-8850-00bdbca467bd) for picture-first
+   hierarchy with a short meta list under the name. */
+.record-preview{box-sizing:border-box;width:min(580px,calc(100vw - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px)));max-height:min(76vh,680px,var(--available-height,680px));overflow:auto;display:flex;flex-direction:column;gap:8px;padding:12px;
+  border-radius:14px;background:var(--surface,var(--color-popover,#13151a));color:var(--text,var(--color-foreground,#eee));
+  border:1px solid var(--line-strong,color-mix(in srgb,var(--color-foreground,#eee) 12%,transparent));
+  box-shadow:0 24px 60px -18px rgb(0 0 0/.55),0 2px 8px -2px rgb(0 0 0/.28);
+  transform-origin:var(--transform-origin);transition:opacity var(--motion-fast) var(--ease-enter),transform var(--motion-base) var(--ease-snap)}
+.record-preview[data-starting-style],.record-preview[data-ending-style]{opacity:0;transform:scale(.96)}
+/* The name keeps room to read as lines of words: a heading fact beside it shrinks to the room left (its own words
+   cut with an ellipsis) and moves under the name when even that is too narrow, never squeezing the name to one letter
+   a line beside a fact held at its whole one-line width. */
+.record-preview-heading{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-width:0}
+.record-preview-heading-fact{flex:0 1 auto;min-width:0;max-width:100%;overflow:hidden}
+.record-preview-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.record-preview-title{flex:1 1 12rem;min-width:0;margin:0;font-size:13px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}
+/* A page's record facts (record-views RecordFacts): the same name/value rows as the preview's, as a quiet two-column
+   grid on the page itself, names in the look's muted colour and values in its text colour. */
+.record-facts{display:grid;grid-template-columns:fit-content(40%) minmax(0,1fr);align-items:baseline;gap:8px 24px;margin:0;font-size:13px;line-height:1.5}
+.record-facts .record-preview-field dt{min-width:0;overflow-wrap:anywhere}
+.record-facts .record-preview-field dd{color:var(--color-foreground,inherit)}
+.record-preview-field{display:contents}
+.record-preview-field dt{color:var(--muted,var(--color-muted-foreground,#9298a6))}
+.record-preview-field dd{display:flex;flex-wrap:wrap;gap:4px;min-width:0;margin:0}
+.record-preview-field[data-kind="excerpt"] dt,.record-preview-field[data-kind="excerpt"] dd{grid-column:1/-1}
+.record-preview-field[data-kind="excerpt"] dd{margin-top:-4px}
+.record-preview-field[data-kind="transcript"] dt,.record-preview-field[data-kind="transcript"] dd{grid-column:1/-1}
+.record-preview-field[data-kind="transcript"] dd{margin-top:-4px}
+.record-preview-transcript{max-height:min(34vh,320px);overflow:auto;overscroll-behavior:contain;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;scrollbar-gutter:stable}
+.record-preview-transcript:focus-visible{outline:2px solid var(--notification-tone-blue,#6aa8ff);outline-offset:2px}
+/* A record's first useful facts stay visible on its surface; the rest open from Details on the look's inset surface. */
+.record-preview .record-preview-facts{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:baseline;gap:6px 14px;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.5;box-shadow:none;background:var(--color-muted,rgba(127,127,127,.08));animation:record-preview-facts-in .16s ease-out}
+.record-preview .record-preview-facts::before{display:none}
+.record-preview .record-preview-facts[data-priority="primary"]{border-top:1px solid var(--line-strong,color-mix(in srgb,var(--color-foreground,#eee) 12%,transparent));border-radius:0;background:transparent;padding:10px 2px 4px;font-size:13px;animation:none}
+.record-preview .record-preview-facts[data-priority="primary"] dd{line-height:1.45}
+@keyframes record-preview-facts-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.record-preview .record-preview-facts{animation:none}}
+.record-preview-info{color:var(--muted,var(--color-muted-foreground,#9298a6))}
+.record-preview-info[data-open]{color:var(--color-foreground,currentColor);background:var(--color-accent,rgba(127,127,127,.12))}
+/* A text excerpt (record-views `excerpt` field kind, e.g. a document's first lines): quoted and held to four lines. */
+.record-view-excerpt{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;color:var(--text,var(--color-foreground,#eee))}
+.record-view-excerpt::before{content:"\201C"}
+.record-view-excerpt::after{content:"\201D"}
+.record-view-excerpt:empty{display:none}
+
+/* A note left on a sidebar row or list (parts/ui/show/surface-notes, written by the person's AI through
+   note_in_sidebar). Highlight: the row is tinted in the look's accent (never a bar down its side); a message alone
+   adds only a small accent dot. Its message sits at the top of the row's hover card, above the look at the screen.
+   References: Dropbox Dash's accent dot on a sidebar row (https://mobbin.com/screens/89fd06da-976c-4c67-a665-e0072e01d61c),
+   AirOps' quiet count beside Inbox (https://mobbin.com/screens/417496b0-1dfd-495d-8e13-134bfc93eeea). */
+[data-sidebar-surface-id][data-sidebar-note]{position:relative}
+[data-sidebar-surface-id][data-sidebar-note=highlight] [data-sidebar-activate]{background:color-mix(in srgb,var(--accent,#3b82f6) 13%,transparent)}
+[data-sidebar-surface-id][data-sidebar-note=message] [data-sidebar-activate]::after{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--accent,#3b82f6)}
+[data-sidebar-section-id][data-sidebar-note=highlight]>.sidebar-section-heading{border-radius:var(--radius-control,8px);background:color-mix(in srgb,var(--accent,#3b82f6) 13%,transparent)}
+.sidebar-list-note{display:block;margin:-2px 0 4px;color:var(--text-secondary,inherit)}
+.surface-preview-note{flex:none;display:flex;flex-direction:column;gap:2px;margin:0 8px 8px;padding:8px 10px;border-radius:10px;
+  background:color-mix(in srgb,var(--accent,#3b82f6) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent,#3b82f6) 24%,transparent)}
+.surface-preview-note-by{font-size:11px;font-weight:600;letter-spacing:.01em;color:var(--text-secondary,inherit)}
+.surface-preview-note-message{margin:0;font-size:13px;line-height:1.45;color:var(--text,inherit)}
+
+/* A sidebar row drawn in a colour of the shared palette (surface DATA `sidebar_colour`, or the person's or their AI's
+   change_sidebar colour): the icon and name take the hue and the row a faint wash of it; `--record-kind` comes from
+   `[data-colour]` in coss-workspace.css, so it reads right in every look. */
+[data-sidebar-surface-id][data-colour] [data-sidebar-activate]{color:var(--record-kind);background:color-mix(in srgb,var(--record-kind) 10%,transparent)}
+[data-sidebar-surface-id][data-colour] [data-sidebar-activate]:hover{background:color-mix(in srgb,var(--record-kind) 18%,transparent)}
+/* The same colour on the empty pane's tile for that screen (PickerTile `colour`, from the same DATA). */
+[data-picker-tile][data-colour]:not([data-picker-tile-layout=row]){border-color:color-mix(in srgb,var(--record-kind) 45%,transparent);background:color-mix(in srgb,var(--record-kind) 9%,transparent)}
+[data-picker-tile][data-colour]:not([data-picker-tile-layout=row]) svg{color:var(--record-kind)}
+/* An open sidebar list's body holds the guide beside its rows (nesting-guide.css), down the column a row's move grip
+   shows in on hover, so the grip sits on it and the rows' own highlight never covers it. */
+.sidebar-list-body{position:relative;--nesting-guide-left:10.5px}
+/* A row's children start below its label. Saved rows also reserve the shared move-grip gutter. */
+.sidebar-owned-navigation{padding-inline-start:16px}
+.sidebar-owned-navigation[data-list-member]{padding-inline-start:56px}

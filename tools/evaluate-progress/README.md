@@ -22,6 +22,9 @@ This is taken from the progression evaluator package. Its measure reducer, op ca
 | `read-data/verify-grounding.ts` | Every claim cites a source that was really read |
 | `read-data/score-instrument.ts` | Questionnaire responses into scored facts, reverse-keyed items reflected |
 | `read-data/cohort-stitch.ts` | Records sharing a key become one person with a stage, a source and a value |
+| `read-data/progression.mjs` | Levels, rewards and streaks from facts, all DATA: measures through `derive-measure.ts` with two added ops (`weighted_count`, each input's count times its weight, and `capped_count`, per-period, total and minimum limits so a reward cannot be gamed), levels through `band-membership.ts`, rewards through `evaluate-progression.ts`, streaks through `board-habit-cadence.ts` |
+| `read-data/board-habit.ts`, `read-data/board-habit-cadence.ts` | A habit's log and its cadence (`{ period: day / week / month, times }`): the streak and the current period's progress |
+| `ports/progression.json` | The SOURCE_FIRST_PORT contract for the three files above, moved from the older owner |
 | `do-work/requests.mjs` | One function per row: checks the request, refuses with a sentence, calls the above |
 | `do-work/run-request.mjs` | `node do-work/run-request.mjs <function>`: the request on standard input, `{ result }` or `{ error }` out |
 | `part.json` | The one public module |

@@ -1,0 +1,62 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DRIVE-SYNC-STATUS-FROM-OLD-TRILLION-COMPUTER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-computer-computer",
+  "message_multihash": "1f:0138daaf63aaf9da6077efe80902c12683a1893a7063c6918ccd53b38b5ef9b6",
+  "quote": "Job: move the file sharing and drive serving modules of old trillion computer/ (WebDAV, the Trillion drive, folder bindings, LAN peers) into Trillion-X/trillion-workshop tools. Port the correct parts one to one with their original tests and assertions, and drop only what this design rules out (Cloudflare Worker coupling, fixed addresses, the old Mac host's wiring). \"move code, never rewrite it\""
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b56b1e1adfa0dd59b31a0c076c2926c9d8d08d2f",
+   "path": "computer/drive-sync-status.mjs",
+   "multihash": "1f:c2e5519d80cec1b416340a147c629b8c797c041460b7f6db024e36bee69482c1",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-04T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/sync-files-between-my-computers/do-work/drive-sync-status.mjs",
+   "baseline_commit_message": "sync-files-between-my-computers: lan-peers, drive-sync-status and folder-bindings from old trillion computer/, byte for byte"
+  }
+ ],
+ "preserve": [
+  "a state is the first DATA row whose every condition holds",
+  "a failure is filed under the first causes row its status holds, else cause_otherwise",
+  "a feed that was never answered is its own fact (checked: false), never read as reached or empty",
+  "names, file identities and the account key never enter the record"
+ ],
+ "allowed_deltas": [
+  "readDriveSync is left out: it read the deleted Drive at GET /?sync on its fixed loopback listen address",
+  "sayWhereFileSyncStands, the tool seam the row runs, and settingsOf, which reads sync-files.json beside the file"
+ ],
+ "banned_substitutions": [
+  "a second sync status record",
+  "a state or cause written in code instead of DATA",
+  "a fixed address to read the record from"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:c2e5519d80cec1b416340a147c629b8c797c041460b7f6db024e36bee69482c1",
+  "target_multihash_at_baseline": "1f:c2e5519d80cec1b416340a147c629b8c797c041460b7f6db024e36bee69482c1",
+  "commit": "b98f5c945685259ba0ff58ec1578f87b9bdc10a5",
+  "recorded_at": "2026-11-03T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export function causeOf",
+   "export function driveSyncStatus",
+   "const holds ="
+  ],
+  "test_refs": [
+   "tools/sync-files-between-my-computers/test/drive-sync-status.test.mjs"
+  ]
+ }
+}

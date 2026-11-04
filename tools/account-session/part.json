@@ -1,0 +1,7 @@
+{
+  "public": [
+    "do-work/browser-session-browser-id.ts",
+    "do-work/read-current-browser-session.ts",
+    "read-data/read-browser-session.ts"
+  ]
+}
