@@ -7,21 +7,21 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
-import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../parts/formula-engine/rules/filter-rows-by-rules.mjs';
-import data from '../src/workspace/show-rules.json' with { type: 'json' };
+import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
+import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import simpleWorkspace from './fixtures/simple-workspace-profile.json' with { type: 'json' };
-import accountFactsData from '../src/work-for-ais.json' with { type: 'json' };
-import openChoices from '../parts/ui/show/placeable-surface-intent/open-choices.json' with { type: 'json' };
-import trayData from '../src/workspace/tray.json' with { type: 'json' };
-import paletteData from '../src/workspace/command-palette.json' with { type: 'json' };
+import accountFactsData from '../read-data/work-for-ais.json' with { type: 'json' };
+import openChoices from '../read-data/open-choices.json' with { type: 'json' };
+import trayData from './fixtures/tray.json' with { type: 'json' };
+import paletteData from './fixtures/command-palette.json' with { type: 'json' };
 import { readdirSync } from 'node:fs';
-import { accountFacts } from '../src/work-for-ais.mjs';
-import { changedRecord, givenEditRules, givenRules, heldTypes, showDecision, typesOf, withChanges } from '../src/workspace/show-rules.mjs';
-import { givenAccountFields, makeShowRules } from '../src/show-rules-store.mjs';
-import { DECLARED_CONTROLS } from '../parts/ui/show/show-rules/declared-controls.mjs';
+import { accountFacts } from '../read-data/account-facts.mjs';
+import { changedRecord, givenEditRules, givenRules, heldTypes, showDecision, typesOf, withChanges } from '../../set-up-my-account/read-data/show-rules.mjs';
+import { givenAccountFields, makeShowRules } from '../read-data/show-rules-store.mjs';
+import { DECLARED_CONTROLS } from '../read-data/declared-controls.mjs';
 
-const wasm = () => readFileSync(new URL('../parts/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
+const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
 const filter = makeRowFilter({ operators, wasm });
 await filter.load();
 const now = filter.filterRowsByRulesNow;
@@ -233,12 +233,12 @@ test('type assignment cannot exceed the cohort bound or partially change audienc
 });
 
 // Structural: every control a part draws is declared by that part as DATA and asks the one primitive.
-const ROOT = new URL('..', import.meta.url).pathname;
+const ROOT = new URL('../..', import.meta.url).pathname;
 const read = path => readFileSync(join(ROOT, path), 'utf8');
 const json = path => JSON.parse(read(path));
 // Every part's manifest, so a control a new part declares is known with no list here.
-const manifests = readdirSync(join(ROOT, 'parts'), { withFileTypes: true }).filter(entry => entry.isDirectory())
-  .map(entry => `parts/${entry.name}/part.json`).filter(path => { try { read(path); return true; } catch { return false; } });
+const manifests = readdirSync(ROOT, { withFileTypes: true }).filter(entry => entry.isDirectory())
+  .flatMap(entry => [`${entry.name}/part.json`, ...readdirSync(join(ROOT, entry.name), { withFileTypes: true }).filter(inner => inner.isDirectory()).map(inner => `${entry.name}/${inner.name}/part.json`)]).filter(path => { try { read(path); return true; } catch { return false; } });
 const declaredRows = manifests.flatMap(path => json(path).controls ?? []);
 const declared = new Set([
   ...declaredRows.map(row => row.id),
@@ -294,7 +294,7 @@ test('an empty pane and Find anything are decided by the same rules, part by par
   assert.equal(shown(hiding(['automations']), 'automations.run'), false);
 });
 test('the Simple workspace preset names only declared controls and known screens', () => {
-  const screens = new Set(json('records/workshop-screen-tool-records.json').records.flatMap(row => [...JSON.stringify(row).matchAll(/"id": ?"(trillion\.[a-z0-9.-]+)"/g)].map(match => match[1])));
+  const screens = new Set(json('decide-when-things-show/test/fixtures/workshop-screen-tool-records.json').records.flatMap(row => [...JSON.stringify(row).matchAll(/"id": ?"(trillion\.[a-z0-9.-]+)"/g)].map(match => match[1])));
   const values = node => (node?.kind === 'group' ? node.rules.flatMap(values) : [{ field: node.field, values: node.params?.values ?? [] }]);
   for (const type of [simpleWorkspace]) for (const rule of type.rules) for (const { field, values: named } of rule.when ? values(rule.when) : []) {
     if (field === 'within') for (const control of named) assert.ok(declared.has(control), `${type.id} names ${control}`);
@@ -304,9 +304,9 @@ test('the Simple workspace preset names only declared controls and known screens
 
 test('the rules screen and an AI are offered every declared control, as the tree its paths make', async () => {
   // Every manifest that declares controls is read by the one list, so a new part's controls reach the picker.
-  const listing = read('parts/ui/show/show-rules/declared-controls.mjs');
+  const listing = read('decide-when-things-show/read-data/declared-controls.mjs');
   for (const path of manifests.filter(path => (json(path).controls ?? []).length)) {
-    const relative = path === 'parts/ui/part.json' ? '../../part.json' : `../../../${path.slice('parts/'.length)}`;
+    const relative = `../../${path}`;
     assert.ok(listing.includes(`'${relative}'`), `${path} is read by declared-controls.mjs`);
   }
   assert.deepEqual(new Set(DECLARED_CONTROLS.map(row => row.id)), declared, 'the list is exactly the declarations');

@@ -1,0 +1,139 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DECIDE-WHEN-THINGS-SHOW-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:finish:simple-workspace-by-rules, 2026-11-03: show rules become a Workshop tool a person, an AI and a wake can run",
+  "message_multihash": "1f:506f4df492083e12871b2d1ecb81cef87dc15e8c34357f473359f1b231a596ff",
+  "quote": "it coudl all be confiurable thorugh hte workflwo trigger formuela engiens ... to drastically rduce the comlexityand capcbclties of the s the sdiabr and screen arnamgent"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "190f72754ee03a35fbfb697b3bb9aacf1e50b246",
+   "path": "src/show-rules-store.mjs",
+   "multihash": "1f:1e8a1f6a951cd95848c5aa1ae1265375c41496b97e7fbacdf9da2743325dcdb0",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "trillion 4ffa1dc4a (Retire old trillion's Worker) deleted these paths from its main line"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "190f72754ee03a35fbfb697b3bb9aacf1e50b246",
+   "path": "parts/ui/show/show-rules/declared-controls.mjs",
+   "multihash": "1f:1ceb5ad742f67f2f62d1244c62a84f1fb71b73ce5a7e8ed1588a4a4a2a8b9fa1",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "trillion 4ffa1dc4a (Retire old trillion's Worker) deleted these paths from its main line"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "190f72754ee03a35fbfb697b3bb9aacf1e50b246",
+   "path": "src/work-for-ais.mjs",
+   "lines": [
+    74,
+    122
+   ],
+   "multihash": "1f:88c00457284923df9232e29ec078e73f971132432783de308e1e7444105036e7",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "trillion 4ffa1dc4a (Retire old trillion's Worker) deleted these paths from its main line"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/show-rules-tools.mjs",
+   "multihash": "1f:83896f213940b50907f58d30636c10d47d48101bf5e2a3a3327730cfc159bd00",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "trillion 4ffa1dc4a (Retire old trillion's Worker) deleted these paths from its main line"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/decide-when-things-show/read-data/show-rules-store.mjs"
+  },
+  {
+   "path": "tools/decide-when-things-show/read-data/declared-controls.mjs"
+  },
+  {
+   "path": "tools/decide-when-things-show/read-data/account-facts.mjs"
+  },
+  {
+   "path": "tools/decide-when-things-show/read-data/show-rules-tools.mjs"
+  }
+ ],
+ "preserve": [
+  "every change is src/workspace/show-rules.mjs changedRecord, and a rule with a problem is refused in its words",
+  "the edit rules decide who may change rules, types and edit rules, before and after the change, and a change that would lock the actor out is refused",
+  "a profile applies only while the person has switched it on (in_use), never by audience",
+  "nothing names a subject, a fact, an effect, a control or a type"
+ ],
+ "allowed_deltas": [
+  "import paths: the store reads show-rules.json, show-rules.mjs, rule-decisions.mjs, failure.mjs and setup-steps.json from tools/set-up-my-account/read-data, the rule engine from tools/formula-engine/rules, and its neighbours here",
+  "account-facts.mjs is work-for-ais.mjs lines 74-122 (the account facts the store imports) with a header and the three imports those lines read; the rest of work-for-ais.mjs (sending work rows to AIs) is not this job",
+  "declared-controls.mjs reads the part manifests where the Workshop keeps them (arrange-screens-in-panes, find-anything-from-one-box, organize-the-sidebar/sidebar, ui) and open-choices.json beside it"
+ ],
+ "banned_substitutions": [
+  "a rewritten show-rules store or change function",
+  "a second store for the person's rules: every change is the one show-rules record"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:1e8a1f6a951cd95848c5aa1ae1265375c41496b97e7fbacdf9da2743325dcdb0",
+  "target_multihash_at_baseline": "1f:1e8a1f6a951cd95848c5aa1ae1265375c41496b97e7fbacdf9da2743325dcdb0",
+  "recorded_at": "2026-11-04T00:00:00Z",
+  "rows": [
+   {
+    "path": "tools/decide-when-things-show/read-data/show-rules-store.mjs",
+    "source_multihash": "1f:1e8a1f6a951cd95848c5aa1ae1265375c41496b97e7fbacdf9da2743325dcdb0",
+    "target_multihash_at_baseline": "1f:1e8a1f6a951cd95848c5aa1ae1265375c41496b97e7fbacdf9da2743325dcdb0"
+   },
+   {
+    "path": "tools/decide-when-things-show/read-data/declared-controls.mjs",
+    "source_multihash": "1f:1ceb5ad742f67f2f62d1244c62a84f1fb71b73ce5a7e8ed1588a4a4a2a8b9fa1",
+    "target_multihash_at_baseline": "1f:1ceb5ad742f67f2f62d1244c62a84f1fb71b73ce5a7e8ed1588a4a4a2a8b9fa1"
+   },
+   {
+    "path": "tools/decide-when-things-show/read-data/account-facts.mjs",
+    "source_multihash": "1f:88c00457284923df9232e29ec078e73f971132432783de308e1e7444105036e7",
+    "target_multihash_at_baseline": "1f:88c00457284923df9232e29ec078e73f971132432783de308e1e7444105036e7"
+   },
+   {
+    "path": "tools/decide-when-things-show/read-data/show-rules-tools.mjs",
+    "source_multihash": "1f:83896f213940b50907f58d30636c10d47d48101bf5e2a3a3327730cfc159bd00",
+    "target_multihash_at_baseline": "1f:83896f213940b50907f58d30636c10d47d48101bf5e2a3a3327730cfc159bd00"
+   }
+  ],
+  "commit": "a669629507e510074ebdd491b2d6b7c14bb84002"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.8,
+  "required_mechanisms": [
+   "export function makeShowRules",
+   "export async function handleShowRulesRequest",
+   "export const DECLARED_CONTROLS",
+   "export function accountFacts",
+   "export const showRuleTools"
+  ],
+  "test_refs": [
+   "tools/decide-when-things-show/test/show-rules-given-decide.test.mjs",
+   "tools/decide-when-things-show/test/show-rules-edit-authority.test.mjs",
+   "tools/decide-when-things-show/test/show-types-and-controls.test.mjs",
+   "tools/decide-when-things-show/test/show-type-precedence.test.mjs",
+   "tools/decide-when-things-show/test/show-rules-accounts.test.mjs",
+   "tools/decide-when-things-show/test/show-rules.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

@@ -4,11 +4,11 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../parts/formula-engine/rules/filter-rows-by-rules.mjs';
-import { makeShowRules } from '../src/show-rules-store.mjs';
+import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
+import { makeShowRules } from '../read-data/show-rules-store.mjs';
 
-const wasm = () => readFileSync(new URL('../parts/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
+const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
 const filter = makeRowFilter({ operators, wasm });
 await filter.load();
 const now = filter.filterRowsByRulesNow;

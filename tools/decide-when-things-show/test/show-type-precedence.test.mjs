@@ -4,14 +4,14 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../parts/formula-engine/rules/filter-rows-by-rules.mjs';
-import data from '../src/workspace/show-rules.json' with { type: 'json' };
-import accountFactsData from '../src/work-for-ais.json' with { type: 'json' };
-import { accountFacts } from '../src/work-for-ais.mjs';
-import { givenRules, heldTypes, showDecision, typesOf } from '../src/workspace/show-rules.mjs';
+import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
+import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
+import accountFactsData from '../read-data/work-for-ais.json' with { type: 'json' };
+import { accountFacts } from '../read-data/account-facts.mjs';
+import { givenRules, heldTypes, showDecision, typesOf } from '../../set-up-my-account/read-data/show-rules.mjs';
 
-const wasm = () => readFileSync(new URL('../parts/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
+const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
 const filter = makeRowFilter({ operators, wasm });
 await filter.load();
 const now = filter.filterRowsByRulesNow;
