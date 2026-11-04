@@ -186,6 +186,8 @@ The report goes to standard error and each row to standard output as one JSON li
 | `most_sources` | A row lists at most this many places in `sources`; `source_count` is always the true number. |
 | `most_text_bytes` | A row's text is at most this many bytes; a longer piece says so (`text_clipped`, `text_bytes` holds its whole length) and is counted in the report as `rows_with_text_clipped`. |
 
+| `record` | The row's shape as DATA: `{ type, id, value, source }`, each a template. `{name}` alone takes the value as it is (a number, a list); words around it have it written in. Names: `id` (the identity's hex, `id_hex` digits), `identity`, `key`, `heading_path`, `text`, `lead`, `source_count`, `sources` (each place through `source`); in `source`: `file`, `line`, `file_identity` (the BLAKE3 of the file's exact bytes), `section`. Without `record` the row is the note shape above. One cutter serves a notes list and a checks list, and no code names either. |
+
 `sources` and `folders` can be given together: the exact documents first, then every document under the folders. With `--stdin` the mapping is the JSON on standard input.
 
 A row's value is `key` (heading path plus the piece's lead), `heading_path`, `b3` (the BLAKE3 of the whitespace-folded text), `text` and `sources` (the `{ path, line }` places the piece was found at) and `source_count`. A piece with an identity already seen, in the same document or another, adds a source to its row and is never a second row. The report counts the atoms read, the rows, the pieces found again and the pieces too short to keep, and the cut is refused if they disagree.
@@ -199,7 +201,7 @@ A row's value is `key` (heading path plus the piece's lead), `heading_path`, `b3
 | `read-data/folder-files.mjs` | The `files` of one folder on the person's computer: names only in a listing, bytes with their identity, and the identity-checked write. |
 | `read-data/namespace-files.mjs` | The `files` of the person's Namespace, through the run's records door: names from list_files, bytes from read_file by name; no write. |
 | `read-data/split.mjs` | Splitting documents into one document per item by a mapping. |
-| `read-data/atoms.mjs` | The atoms rule: a document cut into pieces (`atomsOf`, with `lead`, a piece's bold opening or first words, exported), and a mapping's pieces as rows, one per identity. Public: `tools/check-against-a-persons-rules-and-verdicts` makes its piece rows from `atomsOf`. |
+| `read-data/atoms.mjs` | The atoms rule: a document cut into pieces, and a mapping's pieces as rows, one per identity. |
 | `read-data/rows.mjs` | The functions the rows run: `readDocumentRows`, `changeDocumentRows`, `splitIntoDocuments`, `cutIntoRecords`. |
 | `read-data/json-items.mjs` | The `json-items` row source: one JSON file whose array at one path holds many items, each item a row (`readJsonItemRows`: its keys as they are, its JSON text `copy.text`, that text's identity `copy.identity`, the file's `file.mtime`), and `changeJsonItemRows`, which writes or removes one item only while it is still the one read and keeps the rest of the file. read-a-list-view's list-copy keeps a list and such a file the same both ways. |
 | `do-work/documents.mjs` | The command line above. |
@@ -209,4 +211,4 @@ A row's value is `key` (heading path plus the piece's lead), `heading_path`, `b3
 
 **Depends on:** Node, `tools/content-identity` (BLAKE3 identities, with `@noble/hashes`), and for the Namespace row `tools/records-door` (`run-an-export.mjs` and its `door.files`).
 
-**Depended on by:** a list whose `row_sources` names the `documents` source; `tools/check-against-a-persons-rules-and-verdicts` `do-work/pieces.mjs` (`atomsOf`, `lead`).
+**Depended on by:** a list whose `row_sources` names the `documents` source.

@@ -105,11 +105,15 @@ export async function splitAtoms(mapping, read) {
   const hex = mapping.id_hex ?? 32, minLetters = mapping.min_letters ?? 0;
   const mostSources = mapping.most_sources ?? Infinity, mostBytes = mapping.most_text_bytes ?? Infinity;
   for (const source of mapping.sources) {
-    for (const atom of atomsOf(await read(source.file))) {
+    // `read` answers the document's text, or { text, identity } when it knows the identity of the file's exact bytes.
+    const got = await read(source.file);
+    const documentText = typeof got === 'string' ? got : got.text;
+    const fileIdentity = (typeof got === 'string' ? null : got.identity) ?? makeHashCodeHexFromBytes(new TextEncoder().encode(documentText));
+    for (const atom of atomsOf(documentText)) {
       atomsIn += 1;
       if (minLetters && (atom.text.match(/[\p{L}\p{N}]/gu) ?? []).length < minLetters) { tooShort += 1; continue; }
       const id = atom.identity.slice(3, 3 + hex);
-      const place = { path: source.file, line: atom.line };
+      const place = { path: source.file, line: atom.line, file_identity: fileIdentity, section: atom.key };
       const found = items.get(id);
       if (found) {
         sourcesAdded += 1; found.fields.source_count += 1;
@@ -123,14 +127,46 @@ export async function splitAtoms(mapping, read) {
         text = Buffer.from(text).subarray(0, mostBytes).toString('utf8').replace(/�+$/, '');
         fields.text_bytes = bytes; fields.text_clipped = true; clipped += 1;
       }
-      items.set(id, { fields, parts: [['text', text]] });
+      items.set(id, { fields, lead: lead(atom.text), parts: [['text', text]] });
     }
   }
   if (items.size + sourcesAdded + tooShort !== atomsIn) throw Object.assign(new Error(`Atom accounting failed: ${items.size} rows, ${sourcesAdded} sources and ${tooShort} too short for ${atomsIn} atoms.`), { code: 'bad_input' });
   return { items, leftover: {}, report: { atoms_in: atomsIn, rows: items.size, found_again_as_a_source: sourcesAdded, too_short_to_keep: tooShort, rows_with_text_clipped: clipped } };
 }
 
+// The row's shape is DATA: `mapping.record` names the id, the type, the value's fields and one source's fields as
+// templates, so one cutter writes a note list and a checks list alike and no code names either list.
+//
+//   record: { type: "record:check", id: "record:check:piece-{id}",
+//             value: { id: "piece-{id}", kind: "piece", says: "{lead}", text: "{text}", identity: "{identity}", key: "{key}",
+//                      sources: "{sources}", tags: [], checked_by: [] },
+//             source: { file: "{file}", section: "{section}", file_identity: "{file_identity}", at: "{line}" } }
+//
+// A string that is exactly one `{name}` takes the value as it is (a number, a list); a string with words around it
+// has the values written in. Names: id (the identity's hex, `id_hex` digits), identity, key, heading_path, text, lead,
+// source_count, sources (each place through `source`), and in `source`: file, line, file_identity, section. Without
+// `record` the row is the default note shape below.
+const fill = (template, names) => {
+  if (Array.isArray(template)) return template.map(one => fill(one, names));
+  if (template && typeof template === 'object') return Object.fromEntries(Object.entries(template).map(([key, one]) => [key, fill(one, names)]));
+  if (typeof template !== 'string') return template;
+  const whole = template.match(/^\{(\w+)\}$/);
+  if (whole) return whole[1] in names ? names[whole[1]] : template;
+  return template.replace(/\{(\w+)\}/g, (match, name) => (name in names ? String(names[name]) : match));
+};
+
 export function atomRecords(items, mapping = {}) {
+  if (mapping.record) {
+    const { type, id, value, source } = mapping.record;
+    if (typeof id !== 'string' || typeof type !== 'string' || !value) throw Object.assign(new Error('`record` needs `type`, `id` and `value`.'), { code: 'bad_input' });
+    return [...items].map(([hexId, item]) => {
+      const places = item.fields.sources.map(place => fill(source ?? { file: '{file}', line: '{line}' }, { file: place.path, line: place.line, file_identity: place.file_identity, section: place.section }));
+      const names = { id: hexId, identity: item.fields.b3, key: item.fields.key, heading_path: item.fields.heading_path, text: item.parts[0][1], lead: item.lead,
+        source_count: item.fields.source_count, sources: places };
+      return { id: fill(id, names), type, value: fill(value, names) };
+    });
+  }
   const type = mapping.record_type ?? 'note', prefix = mapping.id_prefix ?? 'note:';
-  return [...items].map(([id, item]) => ({ id: `${prefix}${id}`, type, value: { ...item.fields, text: item.parts[0][1] } }));
+  return [...items].map(([id, item]) => ({ id: `${prefix}${id}`, type,
+    value: { ...item.fields, sources: item.fields.sources.map(({ path, line }) => ({ path, line })), text: item.parts[0][1] } }));
 }
