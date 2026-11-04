@@ -1,0 +1,85 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/connection-recommendations.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/src/connection-recommendations.mjs",
+      "source_identity": "1f:ed3b68c2fae0a8dbf8ff7fdb812671db8db320783749c5541278ff2c4992824f",
+      "identity": "1f:9d8ad9acedb49189bae9992e9cace720fb994daab3f7cbdd8b29f67cee5fdc13"
+    },
+    {
+      "from": "src/connection-records.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/src/connection-records.mjs",
+      "source_identity": "1f:3b9b816e688549104a45e902499ddd1eec952a0f30e33c8116c4519bf878db45",
+      "identity": "1f:3b9b816e688549104a45e902499ddd1eec952a0f30e33c8116c4519bf878db45"
+    },
+    {
+      "from": "src/connection-summaries.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/src/connection-summaries.mjs",
+      "source_identity": "1f:29355061f1a3b0517e38ed465653416e07e52afc5f8556105478423b5ed67456",
+      "identity": "1f:29355061f1a3b0517e38ed465653416e07e52afc5f8556105478423b5ed67456"
+    },
+    {
+      "from": "src/connector-catalog.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/src/connector-catalog.mjs",
+      "source_identity": "1f:6733477a7e52a0e2eb649c86f8205ef2719e24445fe66e0af2103d69d4b26a9d",
+      "identity": "1f:6733477a7e52a0e2eb649c86f8205ef2719e24445fe66e0af2103d69d4b26a9d"
+    },
+    {
+      "from": "src/integration-requests.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/src/integration-requests.json",
+      "source_identity": "1f:ee4d0611bf48fc9d4ef103119d3e1bed8f3afb7dcb07e8ca626d688ee708bf2f",
+      "identity": "1f:ee4d0611bf48fc9d4ef103119d3e1bed8f3afb7dcb07e8ca626d688ee708bf2f"
+    },
+    {
+      "from": "src/integration-requests.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/src/integration-requests.mjs",
+      "source_identity": "1f:e704391438343246749dc9c49b213dbfaa84ad98c9fae033b87c75a279411cf0",
+      "identity": "1f:e704391438343246749dc9c49b213dbfaa84ad98c9fae033b87c75a279411cf0"
+    },
+    {
+      "from": "src/optional-read.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/src/optional-read.mjs",
+      "source_identity": "1f:89b593fa57310bba3ea337b582e8ab1fbd9342b8fb58bfa747b223a480ddd5d6",
+      "identity": "1f:89b593fa57310bba3ea337b582e8ab1fbd9342b8fb58bfa747b223a480ddd5d6"
+    },
+    {
+      "from": "src/tool-effect-signals.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/src/tool-effect-signals.json",
+      "source_identity": "1f:d55d6649c6eb9b7b85bc72c91d8200f19b9a9fc5d2de2435d508903658723462",
+      "identity": "1f:d55d6649c6eb9b7b85bc72c91d8200f19b9a9fc5d2de2435d508903658723462"
+    },
+    {
+      "from": "src/tool-sources.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/src/tool-sources.mjs",
+      "source_identity": "1f:3bc6a6f04ac8c2f0276a1857d65491ae0cb6a5e754d61de6e607378b092a3127",
+      "identity": "1f:3bc6a6f04ac8c2f0276a1857d65491ae0cb6a5e754d61de6e607378b092a3127"
+    },
+    {
+      "from": "test/connection-links.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/test/connection-links.test.mjs",
+      "source_identity": "1f:bff23e1836af2284572b63b228f6a1fcb3d8788f0d0a692af544aceb6e0645f1",
+      "identity": "1f:4402caac6e6642b329982e27fc54105b389ebb93c30f9427a6beb7e928c4fa0e"
+    },
+    {
+      "from": "test/connection-records.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/test/connection-records.test.mjs",
+      "source_identity": "1f:fab5d76203f590e20840271795bc6cef9ac6eb997b33cd184d02702dd9af4c26",
+      "identity": "1f:fab5d76203f590e20840271795bc6cef9ac6eb997b33cd184d02702dd9af4c26"
+    }
+  ]
+}

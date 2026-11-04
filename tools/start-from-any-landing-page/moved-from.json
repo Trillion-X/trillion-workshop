@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/entry-points.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/start-from-any-landing-page/src/entry-points.json",
+      "source_identity": "1f:34cadbe43b8edf91ebac6d643dbd7e21beec63b5b342287bf06a837ad2f2f94d",
+      "identity": "1f:34cadbe43b8edf91ebac6d643dbd7e21beec63b5b342287bf06a837ad2f2f94d"
+    },
+    {
+      "from": "src/entry-points.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/start-from-any-landing-page/src/entry-points.mjs",
+      "source_identity": "1f:fd24cc2c0f91225a2989389f0025d326d73521ac7be03331d00d8bc3e91f5572",
+      "identity": "1f:fd24cc2c0f91225a2989389f0025d326d73521ac7be03331d00d8bc3e91f5572"
+    },
+    {
+      "from": "src/sign-in-email.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/start-from-any-landing-page/src/sign-in-email.json",
+      "source_identity": "1f:90455a45d11c32366aac97d48f63acad2dcf8196dc7b637aee942450499e1139",
+      "identity": "1f:90455a45d11c32366aac97d48f63acad2dcf8196dc7b637aee942450499e1139"
+    },
+    {
+      "from": "src/sign-in-email.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/start-from-any-landing-page/src/sign-in-email.mjs",
+      "source_identity": "1f:fa09175675e1acdd7b596d2eceb933143cb91fbdb16b640eb98551859efa6d5b",
+      "identity": "1f:fa09175675e1acdd7b596d2eceb933143cb91fbdb16b640eb98551859efa6d5b"
+    },
+    {
+      "from": "src/sign-in-phone.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/start-from-any-landing-page/src/sign-in-phone.mjs",
+      "source_identity": "1f:77c72b19a16f66db9ca32a27c92c173e2a88870d0c7be77d079fe544065745f1",
+      "identity": "1f:77c72b19a16f66db9ca32a27c92c173e2a88870d0c7be77d079fe544065745f1"
+    },
+    {
+      "from": "src/worker-secrets.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/start-from-any-landing-page/src/worker-secrets.json",
+      "source_identity": "1f:fcab5b1216b55074263eb6700915d79c204145140df9481b58455170203c8b04",
+      "identity": "1f:fcab5b1216b55074263eb6700915d79c204145140df9481b58455170203c8b04"
+    },
+    {
+      "from": "src/worker-secrets.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/start-from-any-landing-page/src/worker-secrets.mjs",
+      "source_identity": "1f:0d9faae9659cb56b49ab0348d9170437a64104c2da354f487b88b24895e826b6",
+      "identity": "1f:0d9faae9659cb56b49ab0348d9170437a64104c2da354f487b88b24895e826b6"
+    }
+  ]
+}

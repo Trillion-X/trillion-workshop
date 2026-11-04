@@ -1,0 +1,61 @@
+{
+  "comment": "The network's rules as DATA (src/network.mjs). cost_by_distance is what asking to meet someone costs from daily_credits, by steps in the trust graph (sharing a group, event or introduction is one step), searched to max_distance; anyone farther costs stranger_cost. membership_labels are the kinds of membership record, which are all one shape: every one is a pursuit (src/spaces.mjs), and each label carries its DATA defaults. joined_by says how people get in: invitation (members choose each other in, by an introduction, an invitation or an invite link, and two members may read each other's contact while both stay) or rules (anyone the pursuit's own join rules let in joins by themselves, so it never releases a contact, members see each other only by the name they chose, and nobody makes invite links). size_limit caps how many may be in it. members_are is who the people in a pursuit of that label are by default (a kind of src/space-membership-kinds.json: team, whom joining asks for a paid plan or a seat the owner pays for, or customers, who never need anything from this service); a pursuit names its own in its configuration. configuration is what a pursuit of that label starts with when it is created (src/community.mjs communityProblems validates it; what the creator sends replaces these keys): who may join, which of its places are on and who sees each, and so on. A digest by email is on only when the configuration names one, so it is off by default. An event started inside a pursuit joined by rules is joined the same way as that pursuit. labels are the moderation labels people can give; a listing is hidden from an asker when hide_after_labelers different people gave it a hiding label, or when anyone one step from the asker did. stays are places a person hosts people in, shown with their listing only while they can be found (src/network-stays.mjs): per_host caps how many one person offers; lengths caps each written field (where is a city or area, never an address); price_kinds are how a stay is paid for, each with the words a host picks it by (choice) and the words it reads as (says, where {amount} is the price), and amount true when it needs amount_cents and currency; a nightly price is snapshotted at request time. Asking to stay costs introduction credits and accepting opens a private stay pursuit. The Accounts payment owner handles Checkout and marks a stay paid only after verifying the provider event.",
+  "daily_credits": 30,
+  "cost_by_distance": { "1": 1, "2": 3, "3": 8 },
+  "stranger_cost": 15,
+  "max_distance": 3,
+  "min_similarity": 0.5,
+  "introduction_requests": {
+    "_what": "How long a person has to answer an introduction request (src/network-introduction-expiry.mjs): past answer_hours after it was sent, the Network's alarm stores it as expired, it no longer waits for them and cannot be answered, and the asker reads expired whether it was declined or never answered. A request to join a space or a stay keeps its own lifecycle. page bounds how many one wake expires. An introduction is accepted only for what its person was shown (src/consent-fingerprint.mjs): who asks, why, what they offer, what accepting shares with them (shares) and the answer time.",
+    "answer_hours": 168,
+    "page": 200,
+    "shares": "contact",
+    "words": { "ended": "This request ended without an answer.", "changed": "This request changed since it was shown. Look at it again, then accept it as it is now." }
+  },
+  "first_matches": { "_what": "A new account's first matches without an AI (src/network-first-matches.mjs): when a listing is written while its person has never asked or been proposed anyone, up to count people open to messages, among the scan_listings most recently changed listings, whose profile meets what the person seeks by the fit rule (fit, below), are proposed to the person, then checked on the person's own computer with the measured decision `check_with` (src/first-match-check.mjs; one found no fit is passed before it is shown) (a request in state proposed, costing nothing and reaching nobody until the person sends it). why quotes both profiles.", "count": 3, "min_share": 0.3, "scan_listings": 5000, "check_with": "first-match-fit", "fit": {"_what": "How first-match fit reads two profiles (src/network-first-matches.mjs firstMatchFit): complementarity, never sameness. A text is split at the first of `wants` into what its person is or offers and what they want. What one person seeks must be met by what the other is or offers (at least min_share of its words, each `concepts` group counted as one word, `ignore` words and words after a `negations` prefix like non- left out); someone who wants what I seek is no fit, unless the sought role is one two people fill together (`reciprocal`) and they already are it; someone seeking a role for themselves (`seeker_is`) is met by whoever is hiring (`hires`) people like them. Words that mean something else in another field (a property developer, a civil engineer) still match here: that is what a model reading both profiles is for.", "wants": ["looking for", "looking to", "seeking", "need", "needs", "trying to", "raising", "struggling to", "want to", "hoping to", "pitching", "learning", "is hiring", "are hiring", "hiring", "searching for"], "hires": ["is hiring", "are hiring", "hiring"], "reciprocal": ["cofounder", "co-host"], "seeker_is": ["job as", "role as", "work as", "job at", "developer job", "job"], "negations": ["non"], "ignore": ["someone", "somebody", "help", "advice", "ready", "glad", "happy", "still", "also", "own", "new", "first", "former", "small", "early", "stage", "years", "weeks"], "concepts": [["investor", "investors", "angel", "angels", "vc", "venture", "fund", "funds", "cheque", "cheques", "check", "backer", "back", "backing", "invest", "investing", "pre-seed"], ["raise", "raising", "fundraise", "fundraising", "round"], ["hire", "hiring", "recruit", "recruiter", "recruiting", "placed", "talent", "open", "roles"], ["engineer", "engineers", "developer", "developers", "programmer", "coder", "backend", "frontend", "full-stack", "react", "swiftui", "swift", "kotlin", "rust", "technical", "cto"], ["ios", "iphone", "swiftui", "app", "apps"], ["design", "designer", "designers", "webflow", "figma", "logo", "logos", "visual", "brand", "identity", "identities"], ["price", "pricing", "monetisation", "monetization", "revenue"], ["saas", "software", "b2b"], ["lawyer", "attorney", "legal", "solicitor", "incorporation", "formation", "incorporate", "incorporating", "safe", "safes"], ["mentor", "mentoring", "coach", "coaching", "advise", "adviser", "advisor", "consult", "consults"], ["manager", "managers", "management", "director", "lead"], ["user", "users", "customer", "customers", "member", "members", "club", "community", "beta"], ["distribution", "sales", "agency", "reseller", "dach", "germany"], ["copywriter", "copy", "copywriting"], ["growth", "followers", "grew", "audience"], ["host", "co-host", "presenter", "podcast", "show", "radio"], ["intro", "intros", "introduce", "introductions", "introduction"], ["buyer", "buyers", "procurement", "purchasing", "category"], ["manufacturer", "factory", "production", "garment", "apparel", "runs", "batches"], ["translator", "translation", "translate", "native"], ["deck", "decks", "pitch"], ["mvp", "agency", "shop", "build", "building", "studio"], ["accountant", "accounting", "bookkeeping", "chartered", "books", "cfo", "finance"], ["speaking", "speaker", "stage", "programme", "conference", "events", "event", "slots"], ["hospital", "nhs", "health", "clinical", "nurse", "medtech"], ["cofounder", "partner"]]}, "words": { "why": "You are looking for {seeking}, and {name} offers {offering}.", "member": "A member", "no_proposal": "No proposal with that id is waiting for you.", "heading": "Trillion thinks you should meet", "send": "Ask to meet", "pass": "Not now", "sent": "Your request was sent to {name}.", "passed": "We will not suggest {name} again." } },
+  "on_your_path": { "_what": "People and pursuits on the same pursuit (src/network.mjs onPath, src/person-store.mjs onYourPath): a person who shows their pursuits keeps up to pursuits_shown of them on their listing; another person's own pursuits are compared with them by meaning, and those at least min_similarity close are suggested, at most people people and pursuits pursuits (open pursuits joined by their own rules that they are not in yet). Service suggestions count only distinct, findable people who separately agreed to show pursuits and share connected service names; provider ids appear only after minimum_service_cohort eligible people match.", "pursuits_shown": 8, "min_similarity": 0.72, "people": 12, "spaces": 6, "minimum_service_cohort": 5, "words": { "heading": "On the same path as you", "spaces_heading": "Pursuits on your path", "person_text": "Working on {theirs}, close to your {yours}.", "space_text": "Close to your {yours}.", "members": "Members", "open_space": "Open the pursuit" } },
+  "membership_labels": {
+    "one-to-one": { "joined_by": "invitation", "size_limit": 2 },
+    "stay": { "joined_by": "invitation", "size_limit": 2 },
+    "group": { "joined_by": "invitation", "members_are": "team" },
+    "project": { "joined_by": "invitation", "members_are": "team" },
+    "event": { "joined_by": "invitation" },
+    "community": {
+      "members_are": "customers",
+      "joined_by": "rules",
+      "configuration": { "join": [{ "free": true }], "spaces": { "feed": "members", "events": "members", "members": "members" }, "events_by": "owner" }
+    }
+  },
+  "labels": [
+    { "id": "unwanted-requests", "hides": true, "says": "Sends requests people did not want" },
+    { "id": "unsafe", "hides": true, "says": "Made someone feel unsafe" },
+    { "id": "vouched", "hides": false, "says": "Someone who met them vouches for them" }
+  ],
+  "hide_after_labelers": 3,
+  "stays": {
+    "membership_label": "stay",
+    "per_host": 6,
+    "lengths": { "title": 120, "where": 80, "about": 1500, "when": 300, "note": 1000 },
+    "max_amount_cents": 10000000,
+    "default_currency": "USD",
+    "price_kinds": {
+      "free": { "choice": "Free", "says": "Free" },
+      "per-night": { "choice": "A price a night", "says": "{amount} a night", "amount": true },
+      "ask": { "choice": "Ask me", "says": "Ask the host" }
+    },
+    "request_says": "Asks to stay at {title} ({dates}): {note}"
+  },
+  "profile_fill": {
+    "_what": "How Trillion fills a person's Network profile from what it already knows (src/network-profile-fill.mjs), so nobody types a profile Trillion could have written. Each row names a profile field and where its value comes from; the first source with a value wins: account (the name or email the account was made with), picture (a path into the awareness picture, src/awareness.mjs), picture-trait (the names of one trait in that picture, at most `most`, joined), pursuits (the titles of the person's current pursuits, at most `most`, joined). A field the person wrote themselves is never touched again; a field Trillion filled follows what Trillion knows, at most once every every_hours. The handle is made from the name with the end of the person's network id, so it is unique, and follows the name only while the person never changed it. A new source is a row here and a reader in that module's FROM map.",
+    "every_hours": 24,
+    "join": ", ",
+    "fields": [
+      { "field": "name", "from": [{ "kind": "account", "part": "name" }] },
+      { "field": "contact", "from": [{ "kind": "account", "part": "email" }] },
+      { "field": "about", "from": [{ "kind": "picture", "path": ["trajectory"] }] },
+      { "field": "offering", "from": [{ "kind": "picture-trait", "trait": "skills", "most": 4 }] },
+      { "field": "seeking", "from": [{ "kind": "picture-trait", "trait": "goals", "most": 3 }, { "kind": "pursuits", "most": 3 }] }
+    ],
+    "handle": { "from_field": "name", "most_chars": 22, "id_chars": 6, "otherwise": "member" }
+  }
+}

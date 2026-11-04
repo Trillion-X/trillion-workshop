@@ -35,7 +35,11 @@ One JSON request on standard input, `{ result }` or `{ error: { code, message } 
   `#names`, followed to the end), the tests that move with it (a test in a test folder whose every import moves), and
   every reason it is held. For each file: where it lands (its group's folder under the source's own path, so the files
   import each other as they did; or `shared_folder` when more than one group needs it; or a file the destination already
-  holds byte for byte), how its imports change and which calls are swapped. And the source files that stay and import a
+  holds byte for byte; or the file already at the place it would land, when its bytes there differ from the source's in
+  import paths only; or a file an earlier move carried to another place, with the same bytes once import paths are set
+  aside: what moves imports it there, and nothing reached only through it moves), how its imports change and which calls
+  are swapped. A test moves with a group when every file it reaches moves, is test help, or is home already in the
+  destination, so a lane that moves the last of a test's imports carries the test too. And the source files that stay and import a
   moved file: they import it from `destination.package` instead (a file read by its address,
   `new URL('<path>', import.meta.url)`, is found with `import.meta.resolve`).
 - `apply` plans, then carries out the plan on both working copies. It refuses before writing anything when a source

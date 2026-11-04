@@ -1,0 +1,47 @@
+{
+  "_what": "The few commands a reader's own AI may send to steer an open graph picture (graph-live.mjs), as DATA. Each command is a row: `fields` are typed (`text` with a most length, `ids` a list of the document's own ids, `flag`, `list` of items with their own fields, `ops` a list of graph patch operations) and `required` names what must be present. The app only checks every id against the document and relays the result; the AI does the reading and the writing. A node or lane is addressed by its own id, an edge by `from>to`. `answer` leads a reader through steps that each focus on parts of the picture, with `cannot_tell` for an honest 'the document does not say'; `show` focuses without words; `sketch` hangs proposed operations on a copy, never on the document. Adding a command is one row.",
+  "edge_separator": ">",
+  "commands": {
+    "answer": {
+      "required": ["question", "steps"],
+      "fields": {
+        "question": { "type": "text", "most": 500 },
+        "steps": { "type": "list", "min": 1, "most": 4, "item": {
+          "required": ["heading"],
+          "fields": {
+            "heading": { "type": "text", "most": 120 },
+            "focus": { "type": "ids", "most": 20 },
+            "parts": { "type": "list", "most": 3, "item": { "type": "text", "most": 600 } },
+            "cannot_tell": { "type": "flag" }
+          } } }
+      }
+    },
+    "show": {
+      "required": ["focus"],
+      "fields": {
+        "focus": { "type": "ids", "most": 20 },
+        "note": { "type": "text", "most": 300 }
+      }
+    },
+    "sketch": {
+      "required": ["under", "ops"],
+      "fields": {
+        "under": { "type": "ids", "most": 8 },
+        "ops": { "type": "ops", "most": 50 }
+      }
+    }
+  },
+  "words": {
+    "errors": {
+      "NOT_AN_OBJECT": "{path} must be an object.",
+      "UNKNOWN_COMMAND": "{path} names the command \"{found}\"; the commands are {commands}.",
+      "MISSING_FIELD": "{path} is required.",
+      "UNKNOWN_FIELD": "{path} is not a field of this command.",
+      "WRONG_TYPE": "{path} has the wrong type: {expected} was expected.",
+      "TOO_LONG": "{path} is longer than {most}.",
+      "TOO_FEW": "{path} needs at least {least} entries.",
+      "TOO_MANY": "{path} holds more than {most} entries.",
+      "UNKNOWN_ID": "{path} points at \"{found}\", which the document does not hold."
+    }
+  }
+}

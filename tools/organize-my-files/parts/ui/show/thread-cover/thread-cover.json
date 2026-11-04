@@ -1,0 +1,123 @@
+{
+  "_what": "The opening cover (thread-cover.mjs): what it says and how it moves, as DATA. quotes: one is shown each time Trillion opens, never the one shown last time on this device. timing_ms: how long each part of the thread's loop lasts (the needle drawing thread all over, pulling it in until it bunches into a ball, the ball held, pulled straight, resting straight) and how long the cover takes to dissolve away. look: the landing page's paper, ink and thread colours, the mesh colours it dissolves through, and the type the quote is set in. needle: the logo's needle (public/brand/trillion-needle.svg) as drawn on the cover: its body, where the thread is tied (eye), the angle eye-to-tip points along and its length, in the drawing's own units; it turns to head the way it moves, taking about turn_ms to turn, once it moves faster than turns_above_px_per_ms. thread: how many points the thread is drawn through, how many places the needle steers through as it draws (strewn_turns), how tightly it may turn (strewn_bend, a share of the window's short side) and the area the strewn thread may lie in, as shares of the window, clear of the quote. layout: where the thread lies, as shares of the window (row, left, right) and how big the needle is drawn (at least needle_min px, else needle_share of the window's short side); the thread stops needle_back needle-lengths short of right so the needle stays in the window. A host app draws the cover's first frame (the straight thread) natively from these same rows.",
+  "label": "Opening Trillion",
+  "quotes": [
+    {
+      "words": "The best way out is always through.",
+      "by": "Robert Frost"
+    },
+    {
+      "words": "Nothing will ever be attempted if all possible objections must first be overcome.",
+      "by": "Samuel Johnson"
+    },
+    {
+      "words": "Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away.",
+      "by": "Antoine de Saint-Exupéry"
+    },
+    {
+      "words": "The impediment to action advances action. What stands in the way becomes the way.",
+      "by": "Marcus Aurelius"
+    },
+    {
+      "words": "Waste no more time arguing about what a good man should be. Be one.",
+      "by": "Marcus Aurelius"
+    },
+    {
+      "words": "If I have seen further it is by standing on the shoulders of giants.",
+      "by": "Isaac Newton"
+    },
+    {
+      "words": "Plans are worthless, but planning is everything.",
+      "by": "Dwight D. Eisenhower"
+    },
+    {
+      "words": "Genius is one percent inspiration and ninety-nine percent perspiration.",
+      "by": "Thomas Edison"
+    },
+    {
+      "words": "Real artists ship.",
+      "by": "Steve Jobs"
+    },
+    {
+      "words": "Focusing is about saying no.",
+      "by": "Steve Jobs"
+    },
+    {
+      "words": "Make it work, make it right, make it fast.",
+      "by": "Kent Beck"
+    },
+    {
+      "words": "Well done is better than well said.",
+      "by": "Benjamin Franklin"
+    },
+    {
+      "words": "Lost time is never found again.",
+      "by": "Benjamin Franklin"
+    },
+    {
+      "words": "Do what you can, with what you have, where you are.",
+      "by": "Theodore Roosevelt"
+    },
+    {
+      "words": "We are what we repeatedly do.",
+      "by": "Will Durant"
+    },
+    {
+      "words": "Stay hungry. Stay foolish.",
+      "by": "The Whole Earth Catalog"
+    }
+  ],
+  "timing_ms": {
+    "draw": 1800,
+    "gather": 1300,
+    "hold": 350,
+    "straighten": 1000,
+    "rest": 450,
+    "dissolve": 950
+  },
+  "look": {
+    "paper": "#fbf8f2",
+    "ink": "#191919",
+    "thread": "#ff1d1d",
+    "quiet": "#6b6b6b",
+    "mesh": [
+      "#ff1d1d",
+      "#ff8a65",
+      "#ffd3c4",
+      "#fbf8f2",
+      "#ff5a4a"
+    ],
+    "quote_font": "var(--font-display)",
+    "by_font": "var(--font-primary)"
+  },
+  "needle": {
+    "path": "m0.5641 0.1584c-0.04263 0-0.08313 0.07-0.09325 0.09312l-0.2649 0.6206c-0.001125 0.00475 0.009375 0.00475 0.01325 0l0.3414-0.5455c0.02338-0.03925 0.0415-0.08262 0.0415-0.1189 0-0.03125-0.0115-0.04938-0.038-0.04938zm-0.083 0.2111c-0.0155-0.00575-0.005125-0.03962 0.01825-0.09 0.01725-0.03762 0.04025-0.061 0.0505-0.05925 0.01412 0.002375 0.009875 0.03525-0.0095 0.08025-0.01962 0.04475-0.04612 0.07288-0.05925 0.069z",
+    "eye": {
+      "x": 0.53,
+      "y": 0.21
+    },
+    "points_along": 119.7,
+    "length": 0.645,
+    "turn_ms": 90,
+    "turns_above_px_per_ms": 0.03
+  },
+  "layout": {
+    "row": 0.34,
+    "left": 0.08,
+    "right": 0.94,
+    "needle_min": 52,
+    "needle_share": 0.09,
+    "needle_back": 0.8
+  },
+  "thread": {
+    "points": 64,
+    "strewn_turns": 6,
+    "strewn_bend": 0.06,
+    "strewn_area": {
+      "left": 0.05,
+      "right": 0.95,
+      "top": 0.06,
+      "bottom": 0.5
+    }
+  }
+}

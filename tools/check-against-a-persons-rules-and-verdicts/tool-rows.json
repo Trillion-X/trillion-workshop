@@ -985,95 +985,113 @@
     "id": "tool:split-a-document-into-pieces",
     "label": "Split a document into its pieces",
     "status": "active",
-    "job": "Split a document into its smallest self-contained pieces, each as the row a person keeps so every check can name the piece it came from",
-    "description": "Give the text of a document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block under its headings is one piece; titles, rules and table headers are not. Each piece comes back as the row a person keeps in their Checks list: id (piece- and the first 24 hex of its identity), kind piece, says (its lead: its bold opening or its first words), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line of the file where it starts), and empty tags, kinds and checked_by for the person to fill. The same text twice is one row with two sources. Nothing is read from or written to anyone's records.",
+    "job": "Split a document into its smallest self-contained pieces and keep each as the row a person keeps, so every check can name the piece it came from",
+    "description": "Give one of the person's files by name (as /folder/file.md, read through their files door page by page, so a file of any size up to 4 MB is never sent in one request body), or the text of a short document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block (``` or ~~~, as CommonMark fences them) under its headings is one piece; titles, rules and table headers are not. Every piece is kept in one call as a row of the person's Checks list (record:check:piece- and the first 24 hex of its identity, kind piece): says (its lead), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line where it starts), and empty tags, kinds and checked_by for the person to fill. A piece already kept keeps its checked_by, no_check, tags and kinds and gains this file as a source; the same text twice is one row with two sources. Every write is conditional on what was read and fits one door message. The answer counts the pieces (new, found again as a source, unchanged), names the first ids and any piece too large for one write; tool:check-every-piece-is-covered then says what each piece lacks.",
     "input_schema": {
      "type": "object",
-     "required": [
-      "text"
-     ],
      "additionalProperties": false,
+     "oneOf": [
+      {
+       "required": [
+        "name"
+       ]
+      },
+      {
+       "required": [
+        "text"
+       ]
+      }
+     ],
      "properties": {
+      "name": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of one of the person's files to split, as /folder/file.md, read by reference through their files door"
+      },
       "text": {
        "type": "string",
-       "description": "The words of the document, as Markdown"
+       "description": "The words of a short document, as Markdown, in place of name (a request body over 64 KiB is refused by the door: send name for a larger file)"
       },
       "file": {
        "type": "string",
-       "description": "The document's name, kept in each piece's sources"
+       "description": "The document's name kept in each piece's sources; name when left out"
       },
       "file_identity": {
        "type": "string",
-       "description": "The document's identity (1f: and 64 hex); the identity of the text's bytes when left out"
+       "description": "The document's identity (1f: and 64 hex); the identity of its bytes when left out"
       }
      }
     },
     "output_schema": {
      "type": "object",
      "required": [
-      "pieces"
+      "file",
+      "file_identity",
+      "pieces",
+      "new",
+      "sources_added",
+      "unchanged",
+      "writes",
+      "ids",
+      "more_ids",
+      "too_large",
+      "lines"
      ],
      "properties": {
+      "file": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "file_identity": {
+       "type": "string"
+      },
       "pieces": {
+       "type": "integer",
+       "description": "The pieces of the document, one per identity"
+      },
+      "new": {
+       "type": "integer",
+       "description": "Kept as new rows"
+      },
+      "sources_added": {
+       "type": "integer",
+       "description": "Rows already kept that gained this file as a source"
+      },
+      "unchanged": {
+       "type": "integer",
+       "description": "Rows already kept with this source as it is"
+      },
+      "writes": {
+       "type": "integer",
+       "description": "Door writes the rows took"
+      },
+      "ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "The first piece ids, in reading order"
+      },
+      "more_ids": {
+       "type": "integer"
+      },
+      "too_large": {
        "type": "array",
        "items": {
         "type": "object",
         "required": [
          "id",
-         "kind",
-         "says",
-         "text",
-         "identity",
-         "key",
-         "sources",
-         "tags",
-         "kinds",
-         "checked_by"
-        ],
-        "properties": {
-         "id": {
-          "type": "string"
-         },
-         "kind": {
-          "const": "piece"
-         },
-         "says": {
-          "type": "string"
-         },
-         "text": {
-          "type": "string"
-         },
-         "identity": {
-          "type": "string"
-         },
-         "key": {
-          "type": "string"
-         },
-         "sources": {
-          "type": "array",
-          "items": {
-           "type": "object",
-           "required": [
-            "file",
-            "section",
-            "file_identity",
-            "at"
-           ]
-          }
-         },
-         "tags": {
-          "type": "array"
-         },
-         "kinds": {
-          "type": "array"
-         },
-         "checked_by": {
-          "type": "array",
-          "items": {
-           "type": "string"
-          }
-         }
-        }
+         "section",
+         "bytes"
+        ]
+       }
+      },
+      "lines": {
+       "type": "array",
+       "items": {
+        "type": "string"
        }
       }
      }
@@ -1132,6 +1150,32 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "record:check",
+        "prefix": "record:check:piece-",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "read_file"
+        ]
        }
       ]
      },
@@ -1151,7 +1195,7 @@
     },
     "result_selector": "$.result",
     "needs": {
-     "expected_seconds": 5,
+     "expected_seconds": 30,
      "network_egress": false,
      "memory_mb": 128
     },
@@ -1167,11 +1211,24 @@
      {
       "kind": "sample-run",
       "input": {
-       "text": "# Made-up title\n\n## Made-up part\n\n**Made-up lead.** Then the rest.\n\n- one made-up item\n",
+       "name": "/Notes/made-up.md"
+      },
+      "door_files": {
+       "/Notes/made-up.md": "# Made-up title\n\n## Made-up part\n\n**Made-up lead.** Then the rest.\n\n~~~\nmade-up fenced line\n\nstill fenced\n~~~\n\n- one made-up item\n"
+      },
+      "records": [],
+      "output_selector": "$.file",
+      "contains": "/Notes/made-up.md"
+     },
+     {
+      "kind": "sample-run",
+      "input": {
+       "text": "## Made-up part\n\n**Made-up lead.** Then the rest.\n",
        "file": "made-up.md"
       },
-      "output_selector": "$.pieces[0].key",
-      "contains": "Made-up part / Made-up lead"
+      "records": [],
+      "output_selector": "$.file",
+      "contains": "made-up.md"
      }
     ]
    }
@@ -1189,20 +1246,38 @@
     "label": "Check every piece of a person's files has a check or a reason",
     "status": "active",
     "job": "Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered",
-    "description": "Reads, through the person's records door and read only, the rows of their Checks list whose kind is piece (as tool:split-a-document-into-pieces makes them) and each check row those pieces name. A piece is covered when checked_by names check rows that all exist, or when no_check has a reason (and every row its covered_by names exists). The answer, per source file: its pieces, those with a check, those with a reason, and the uncovered pieces by id, section and lead; status failed when any piece is uncovered. Checks and covered_by naming rows that do not exist are listed. Nothing is written.",
+    "description": "Reads, through the person's records door, read only and in bounded pages, the ids of their Checks list and then its rows whose kind is piece (as tool:split-a-document-into-pieces keeps them, without their text), folding each page into a running tally, so a list of any size (40,000 rows and more) is read in one call. A piece is covered when checked_by names check rows that all exist, or when no_check has a reason (and every row its covered_by names exists). The answer: totals over every file, and per source file its pieces, those with a check, those with a reason and how many are uncovered, naming the first uncovered pieces by id, section and lead; status failed when any piece is uncovered. Checks and covered_by naming rows that do not exist are counted and the first named. The answer fits one door message (at most most_bytes of JSON): when more files remain, next is the after of the next page; with file, the page names that file's uncovered pieces by id, after after. Nothing is written.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "properties": {}
+     "properties": {
+      "file": {
+       "type": "string",
+       "description": "One source file: its counts and its uncovered pieces by id, page by page"
+      },
+      "after": {
+       "type": "string",
+       "description": "The next of the answer before: the last file shown (over every file) or the last piece named (with file)"
+      },
+      "most_bytes": {
+       "type": "integer",
+       "minimum": 2000,
+       "maximum": 28000,
+       "description": "The most bytes of JSON the answer takes (28000 when left out)"
+      }
+     }
     },
     "output_schema": {
      "type": "object",
      "required": [
       "status",
+      "totals",
       "files",
       "missing_checks",
       "missing_covered_by",
-      "lines"
+      "missing_count",
+      "lines",
+      "next"
      ],
      "properties": {
       "status": {
@@ -1221,6 +1296,7 @@
          "pieces",
          "with_check",
          "with_reason",
+         "uncovered_count",
          "uncovered"
         ],
         "properties": {
@@ -1246,6 +1322,9 @@
             "says"
            ]
           }
+         },
+         "uncovered_count": {
+          "type": "integer"
          }
         }
        }
@@ -1275,6 +1354,29 @@
        "items": {
         "type": "string"
        }
+      },
+      "totals": {
+       "type": "object",
+       "required": [
+        "files",
+        "pieces",
+        "with_check",
+        "with_reason",
+        "uncovered"
+       ]
+      },
+      "missing_count": {
+       "type": "object",
+       "required": [
+        "checks",
+        "covered_by"
+       ]
+      },
+      "next": {
+       "type": [
+        "string",
+        "null"
+       ]
       }
      }
     },
@@ -1286,8 +1388,7 @@
        {
         "kind": "record:check",
         "operations": [
-         "records:list",
-         "records:read"
+         "records:list"
         ]
        }
       ]
@@ -1370,7 +1471,7 @@
     },
     "result_selector": "$.result",
     "needs": {
-     "expected_seconds": 5,
+     "expected_seconds": 60,
      "network_egress": false,
      "memory_mb": 128
     },
