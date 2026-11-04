@@ -11,7 +11,7 @@ import { nativeResultRetirer, nativeResultUploader, needsResultSource, prepareNa
 //   handed to it by name and finishes each with the tool's answer. It replaces Trillion Media's trillion-tool-host.mjs,
 //   which forwarded the same runs to that app's server, so the Mac's drives no longer need that app open.
 //   It is a handler of harness/wake-sessions.mjs (it exports start and takes no events); `node computer/mac-tools.mjs`
-//   runs it by itself with the key from the Keychain item.
+//   runs it by itself with the key on the first line of stdin.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Blind: which tool runs which function is computer/mac-tools.json `tools`; a tool id not listed there is answered
@@ -32,7 +32,7 @@ import { nativeResultRetirer, nativeResultUploader, needsResultSource, prepareNa
 //      does not name it (trillion-your-computer does not) never hides it. A Mac without the module never lists it.
 //
 // SECURITY
-//   The account key comes from the helper that started it (or the Keychain item) and is only sent to the account's own
+//   The account key comes from the helper that started it, on stdin, and is only sent to the account's own
 //   origin. Only modules this file's own folder names in its DATA are loaded.
 //
 import { existsSync, readFileSync } from 'node:fs';
@@ -50,7 +50,6 @@ import { expandFileArguments } from './file-arguments.mjs';
 import { hostLog } from './host-log.mjs';
 import { runIsolated } from './isolated-run.mjs';
 import { makePlaces } from '../drive-the-screen/read-data/work-places.mjs';
-import { requireAccountKey } from '../harness/account-key.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const settingsOf = () => JSON.parse(readFileSync(join(HERE, 'mac-tools.json'), 'utf8'));
@@ -786,6 +785,10 @@ export function start({ key, origin, log: plainLog = () => {}, argv = process.ar
 export const wants = () => false;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const key = requireAccountKey({ timeout: 0 });
+  // The app that starts this hands it the personal key on the first line of stdin; nothing here reads a key store.
+  let key = '';
+  for await (const chunk of process.stdin) { key += chunk; if (key.includes('\n')) break; }
+  key = key.split('\n')[0].trim();
+  if (!key) throw new Error('No personal key: give it on the first line of stdin.');
   start({ key, origin: settingsOf().origin, log: line => process.stderr.write(`${JSON.stringify(line)}\n`) });
 }

@@ -8,8 +8,8 @@
 //   Connected once its first item arrives. It is the one runner for every program that reads a computer: the helper
 //   starts it as one of its handlers (harness/wake-sessions.json `handlers`), and the Trillion Mac app imports it and starts it with its own account
 //   caller and file keeper.
-//     node computer/read-this-computer.mjs --once    one look and one read, then stop (key from the Keychain item, or
-//                                                   from stdin when stdin is not a terminal)
+//     node computer/read-this-computer.mjs --once    one look and one read, then stop (key on stdin, from
+//                                                   the program that starts it)
 //     node computer/read-this-computer.mjs --keep-reading
 //                                                   reads until SIGTERM or until the program that started it is gone;
 //                                                   how the Trillion Mac app runs it as its own child on the runtime
@@ -57,7 +57,6 @@ import { offerInBrowsers } from './offer-in-browsers.mjs';
 import { endWithTheApp } from './end-with-the-app.mjs';
 import { installedPrograms, readerGates } from './program-host.mjs';
 import { pacedEvery } from './pace.mjs';
-import { requireAccountKey } from '../harness/account-key.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const rowsOf = () => JSON.parse(readFileSync(join(HERE, 'computer-sources.json'), 'utf8'));
@@ -239,13 +238,12 @@ export const wants = () => false;
 export const handle = () => null;
 export const start = ({ key, origin, log }) => startReading({ key, origin, log });
 
-const keychainKey = name => requireAccountKey({ item: name, timeout: 5000 });
 async function keyFromStdin() { let text = ''; for await (const chunk of process.stdin) text += chunk; return text.trim(); }
 
 const keepReading = process.argv.includes('--keep-reading');
 if (process.argv[1] === fileURLToPath(import.meta.url) && (keepReading || process.argv.includes('--once'))) {
   const rows = rowsOf();
-  const key = process.stdin.isTTY ? keychainKey(rows.keychain_item) : await keyFromStdin();
+  const key = await keyFromStdin();
   // Started by the app: ends with it (computer/end-with-the-app.mjs).
   if (keepReading) endWithTheApp();
   const option = name => { const at = process.argv.indexOf(name); return at > 0 ? process.argv[at + 1] : undefined; };
