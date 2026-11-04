@@ -1,0 +1,19 @@
+{
+  "_what": "People kept in a list from a source (src/list-people.mjs): which list fields a person's values fill, how each merges (trillion-workshop tools/person-list/do-work/merge-people.mjs), how an existing list's fields are matched so no near-duplicate is added, the limits and the words of every refusal. A new value a source can send is one fill row here.",
+  "fills": [
+    { "from": "name", "field": { "id": "name", "label": "Name", "kind": "text" }, "merge": "fill", "title": true, "match": "unique", "normalize": "words" },
+    { "from": "phones", "field": { "id": "phone", "label": "Phone", "kind": "phone" }, "merge": "keys", "normalize": "digits", "suffix_digits": 7, "join": ", ", "same_kind": true },
+    { "from": "emails", "field": { "id": "email", "label": "Email", "kind": "email" }, "merge": "keys", "normalize": "lowercase", "join": ", ", "same_kind": true },
+    { "from": "organization", "field": { "id": "company", "label": "Company", "kind": "text" }, "merge": "fill", "also_named": ["organization", "organisation", "business", "company name"] },
+    { "from": "job_title", "field": { "id": "job_title", "label": "Job title", "kind": "text" }, "merge": "fill", "also_named": ["title", "role", "position"] },
+    { "from": "source", "field": { "id": "source", "label": "Source", "kind": "tags" }, "merge": "union", "also_named": ["sources", "came from", "from"] }
+  ],
+  "limits": { "people_per_request": 500, "text_chars": 300, "values_per_person": 20, "body_bytes": 2000000 },
+  "words": {
+    "bad_source": "Name the source as { id, label }: id a short name of letters, digits and dashes like \"mac-contacts\", label the words people see like \"Mac Contacts\".",
+    "bad_people": "Send people as a list of at most {limit}, each { key, name?, phones?, emails?, organization?, job_title? }; key is the id the person has where they came from.",
+    "bad_person": "Person {index} has no key: the id it has where it came from, so the next sync finds the same person.",
+    "needs_label": "The list {list_id} does not exist yet; send list_label, the name people see, so it can be made.",
+    "too_large": "That request is too large; send at most {limit} people at a time."
+  }
+}

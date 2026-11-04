@@ -1,0 +1,12 @@
+{
+  "_what": "How links in messages are kept as previews (src/link-previews.mjs). A link is judged the same link when its normalized form is: lowercase scheme and host, no fragment, no default port, no tracking parameters (names in `strip_params`, or starting with one of `strip_param_prefixes`), remaining parameters sorted. Every number is a bound; change a row here, not the code.",
+  "strip_params": ["fbclid", "gclid", "dclid", "msclkid", "mc_cid", "mc_eid", "igshid", "ref_src"],
+  "strip_param_prefixes": ["utm_"],
+  "max_links_per_message": 5,
+  "max_links_per_page": 100,
+  "settle_per_turn": 3,
+  "retry_failed_after_seconds": 3600,
+  "fetching_stale_after_seconds": 300,
+  "card_fields": ["url", "final_url", "host", "site", "title", "description", "image", "icon"],
+  "description_chars": 400
+}

@@ -1,0 +1,7 @@
+{
+  "what_this_is": "How long an AI may hold a job it took, and how long an AI's word about how many jobs it can work on at once lasts (src/agents.mjs). A job is held for its own hold_minutes (default_hold_minutes when whoever handed it off gave none, at most longest_hold_minutes). Taking a held job again by its handoff_id renews the hold, but one attempt is never held past its hold_minutes times longest_hold_times from when it was taken: renewing proves the AI is still there, not that the work moved, so a job renewed without being finished goes back up for any AI to take. A held job with something in the way (its holder said so, or a finish was reopened as wrong) is stuck rather than being worked on, so it takes none of the holder's slots. An AI's capacity report lasts capacity_report_minutes unless it gives its own ttl_minutes; once it runs out, the AI is shown as not known to be ready, and the count it gave no longer holds it back from taking work.",
+  "default_hold_minutes": 60,
+  "longest_hold_minutes": 10080,
+  "longest_hold_times": 3,
+  "capacity_report_minutes": 60
+}

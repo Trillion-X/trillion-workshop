@@ -1,0 +1,112 @@
+{
+  "_what": "When the stored bytes of a file the person deleted for good leave the place that keeps them, read by src/namespace-byte-release.mjs (the store's part) and src/namespace.mjs releaseGoneBytes (the part that removes objects). A file is a candidate only once Recently Deleted forgets it for good (src/namespace-set-aside.mjs sweep), never because it has no name: some files are held by identity on purpose. `holders` are the places that keep a file in use: while any row in one of them names the file (by any of its identities), its bytes stay. A new kind of holder is one row. `every_hours` is how often a pass runs per person; `continue_after_seconds` is the wait between pages of one pass while work is left; `candidates_per_page` and `keys_per_page` bound each page. `recorded_margin_seconds` covers clocks that differ between the Worker and the store: bytes written for an upload are only recorded when no release of the same key was claimed or finished after the write began, minus this margin. `claim_stale_minutes` is how long a removal that never reported back stays claimed before it is tried again.",
+  "holders": [
+    {
+      "table": "namespace_names",
+      "column": "identity",
+      "why": "a live name in Files"
+    },
+    {
+      "table": "namespace_set_aside_names",
+      "column": "identity",
+      "why": "a name in Recently Deleted or Archived whose days are not over"
+    },
+    {
+      "table": "namespace_moves",
+      "column": "identity",
+      "why": "a move to another store in progress"
+    }
+  ],
+  "every_hours": 24,
+  "continue_after_seconds": 60,
+  "candidates_per_page": 50,
+  "keys_per_page": 100,
+  "recorded_margin_seconds": 120,
+  "claim_stale_minutes": 30,
+  "_rules": "Release rules (src/namespace-release-rules.mjs): a person's own rows, kept as the setting `release_rules`, each { id, label, on, when, after_days, storage_above_bytes, order }. `when` is a formula-engine rule tree over `item_facts` (the same facts and ids the Recently Deleted screen filters by); null covers everything in Recently Deleted and Archived. after_days gives a matching item's storage back that many days after it was deleted, sooner than its keep-for when that is shorter; storage_above_bytes gives back matching items, `order` first, while the bytes kept are above it. Keep-for (the setting keep_for, src/namespace-set-aside.json) stays the longest anything waits. `forecast_days` is how far ahead the storage screen draws what leaves; `rules_most` bounds a person's rows; `orders` are the ways storage rules pick first. `after_days_choices` and `storage_choices_bytes` are what the storage screen offers to pick.",
+  "item_facts": [
+    {
+      "id": "id",
+      "label": "Item",
+      "kind": "choice",
+      "icon": "FileText"
+    },
+    {
+      "id": "label",
+      "label": "Name",
+      "kind": "text",
+      "icon": "FileText"
+    },
+    {
+      "id": "kind",
+      "label": "Kind",
+      "kind": "choice",
+      "icon": "Shapes"
+    },
+    {
+      "id": "where",
+      "label": "Was in",
+      "kind": "choice",
+      "icon": "Folder"
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "kind": "bytes",
+      "icon": "HardDrive"
+    },
+    {
+      "id": "days_deleted",
+      "label": "Days since deleted",
+      "kind": "number",
+      "icon": "Hourglass"
+    },
+    {
+      "id": "state",
+      "label": "In",
+      "kind": "choice",
+      "icon": "Inbox"
+    },
+    {
+      "id": "by",
+      "label": "By",
+      "kind": "choice",
+      "icon": "User"
+    },
+    {
+      "id": "count",
+      "label": "Files",
+      "kind": "number",
+      "icon": "Files"
+    }
+  ],
+  "orders": [
+    {
+      "id": "oldest",
+      "label": "Oldest first"
+    },
+    {
+      "id": "largest",
+      "label": "Largest first"
+    }
+  ],
+  "forecast_days": 30,
+  "rules_most": 50,
+  "after_days_choices": [
+    0,
+    1,
+    3,
+    7,
+    14,
+    30
+  ],
+  "storage_choices_bytes": [
+    10000000000,
+    50000000000,
+    100000000000,
+    250000000000,
+    500000000000,
+    1000000000000,
+    2000000000000
+  ]
+}

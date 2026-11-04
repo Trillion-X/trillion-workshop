@@ -231,6 +231,14 @@
       "source_identity": "1f:042cc820ae64501385424077b3c4eb9c7e0b5e7a6c8585c8b629f1ff5d72f3d5",
       "identity": "1f:81e67018def4927ea5d24c455fb98835bad9a5e3149a786145b8a9dcb2c855b7",
       "changed": "the video-list-rule row payloads, as `rules`, folded into the settings list-a-channel.mjs reads"
+    },
+    {
+      "from": "src/handoff-result-source.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-on-a-persons-computer/handoff-result-source.json",
+      "source_identity": "1f:4be63a06bfb2d1a553d08ecfa478230a615f0d6a51818b8d2a3f64c7de4ebcfa",
+      "identity": "1f:4be63a06bfb2d1a553d08ecfa478230a615f0d6a51818b8d2a3f64c7de4ebcfa",
+      "reused": true
     }
   ]
 }

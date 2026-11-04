@@ -17,6 +17,293 @@
       "to": "tools/shared-code/src/public-app-files.mjs",
       "source_identity": "1f:0e56adbe64d317888f08543afefc15bbb0e59458fda4d307a822eaa91c6cacf4",
       "identity": "1f:0e56adbe64d317888f08543afefc15bbb0e59458fda4d307a822eaa91c6cacf4"
+    },
+    {
+      "from": "parts/live-namespace/do-work/byte-identity.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/parts/live-namespace/do-work/byte-identity.mjs",
+      "source_identity": "1f:877c581838ad807e31f36c1a89c2c9182f6b3ab65e0535d9047081516d778b50",
+      "identity": "1f:0ab23984be72809a7ee32e369bc18b7bb0996f139f5e8d28be8ebe2183351f4e"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/author-input.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/parts/ui/show/layer-diagram/author-input.json",
+      "source_identity": "1f:d0734efd48c9db0891100a8c03b1215e26ff30f07dd4b4842a5f996625fae9a5",
+      "identity": "1f:d0734efd48c9db0891100a8c03b1215e26ff30f07dd4b4842a5f996625fae9a5"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/author-input.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/parts/ui/show/layer-diagram/author-input.mjs",
+      "source_identity": "1f:5aefcec9d7e69d92da8ca5c427a7494c0620a0bee0c344ba727b4c568aa22d20",
+      "identity": "1f:5aefcec9d7e69d92da8ca5c427a7494c0620a0bee0c344ba727b4c568aa22d20"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/graph-contract.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/parts/ui/show/layer-diagram/graph-contract.json",
+      "source_identity": "1f:e6d6413abd313eab2603cddb505ffb316976754ac287c429e8374387ffeef5dd",
+      "identity": "1f:e6d6413abd313eab2603cddb505ffb316976754ac287c429e8374387ffeef5dd"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/graph-contract.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/parts/ui/show/layer-diagram/graph-contract.mjs",
+      "source_identity": "1f:6abe8d2d87ac57babf0138f6b121263e1ad3922145a4c528e55705362cfc9f2c",
+      "identity": "1f:5464ed34eed3e040e6114267d49cd02595f28134e2f78cd4a2208ef87d774947"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/graph-svg.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/parts/ui/show/layer-diagram/graph-svg.json",
+      "source_identity": "1f:efeaaf4ae4f5a62c2341f137dce1f15db0f70bf4467ae9b123a71a0f6f3073db",
+      "identity": "1f:efeaaf4ae4f5a62c2341f137dce1f15db0f70bf4467ae9b123a71a0f6f3073db"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/graph-svg.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/parts/ui/show/layer-diagram/graph-svg.mjs",
+      "source_identity": "1f:6f5d431493b265c98d622834bdc020b95bc20f16a4d26be5c541807aab34795b",
+      "identity": "1f:1b704477492c1cb040384f89d315b8b8c379b144700b334afa541137a188b2bb"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/layer-diagram.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/parts/ui/show/layer-diagram/layer-diagram.mjs",
+      "source_identity": "1f:14cf048fe7e0a2e3e42e1b850b4f7adde5a97ac669cf273b79559d62e784d400",
+      "identity": "1f:ac7cd446909de7b4f52b5fdb898c0e38e6551e6a8fb508c1b376b9d83860e872"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/select-glob.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/parts/ui/show/layer-diagram/select-glob.mjs",
+      "source_identity": "1f:ccdc37d85230250a5b835a7c4270215ce71a617cff6c771382902005a5cff4b0",
+      "identity": "1f:ccdc37d85230250a5b835a7c4270215ce71a617cff6c771382902005a5cff4b0"
+    },
+    {
+      "from": "parts/ui/show/server-rendered-page/markup-tree.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/parts/ui/show/server-rendered-page/markup-tree.mjs",
+      "source_identity": "1f:7c09bae5b6b46feb197e6d7a5dd38422a38bea8a2783975eff6d1d557d5f5ed7",
+      "identity": "1f:b811f26a1f9f0ceedc2bf649f69b53a8656a5f194db7dd43a9b99a2e293cf624"
+    },
+    {
+      "from": "src/agent-delivery.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/agent-delivery.mjs",
+      "source_identity": "1f:1f66131dabb94be766a0da8847244d1bc9a50380e25277308bc7872169a7c375",
+      "identity": "1f:9a2e01d41a820b0381f81e527d940757549a1479b991f803e1c475f95915a85d"
+    },
+    {
+      "from": "src/agent-loop-guard.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/agent-loop-guard.json",
+      "source_identity": "1f:8c94a02825552ff4c1d3321ff390c8b434d7f16bf1219faa9466db622ab19fd3",
+      "identity": "1f:8c94a02825552ff4c1d3321ff390c8b434d7f16bf1219faa9466db622ab19fd3"
+    },
+    {
+      "from": "src/agent-surface.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/agent-surface.json",
+      "source_identity": "1f:19d7f9f6b91f81b295d1a2b78bc5b2e0a2fbb2737531b4d9261fcfea06917c54",
+      "identity": "1f:19d7f9f6b91f81b295d1a2b78bc5b2e0a2fbb2737531b4d9261fcfea06917c54"
+    },
+    {
+      "from": "src/agents.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/agents.mjs",
+      "source_identity": "1f:1636fd2e4414fae911bda8421eb9429a3829a2c8083d1849428c5c46805fc4cc",
+      "identity": "1f:662a1af6bfb24dc3ccfc69eba817d5657a1f187d8812bb5395e4998847caf733"
+    },
+    {
+      "from": "src/ai-side-work.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/ai-side-work.json",
+      "source_identity": "1f:65d90ec49e2946a89c7a8f53d5818a7dc491d16e12ef694cc34f90bd642c37f6",
+      "identity": "1f:65d90ec49e2946a89c7a8f53d5818a7dc491d16e12ef694cc34f90bd642c37f6"
+    },
+    {
+      "from": "src/answer-lists.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/answer-lists.json",
+      "source_identity": "1f:6e8dbd7d3e260729c7f7e70025b9d567c13a46ff024e9b48a239d34ab9d63a71",
+      "identity": "1f:6e8dbd7d3e260729c7f7e70025b9d567c13a46ff024e9b48a239d34ab9d63a71"
+    },
+    {
+      "from": "src/answer-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/answer-tools.mjs",
+      "source_identity": "1f:6e0ce2878af6def06de5498849501b9edfe427903657f26d25da3d387abe6eb5",
+      "identity": "1f:e93f338c0bc5ea41116f53374543500394c7df5988979668a262dcfeb73b88c9"
+    },
+    {
+      "from": "src/carried-connections.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/carried-connections.json",
+      "source_identity": "1f:1809b21a9ed303763d34fe8f67255d4714ba11cc12ebc1d671aba847d1427194",
+      "identity": "1f:1809b21a9ed303763d34fe8f67255d4714ba11cc12ebc1d671aba847d1427194"
+    },
+    {
+      "from": "src/carried-connections.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/carried-connections.mjs",
+      "source_identity": "1f:66cdff548b65d2c7492a07560f8f69aa4576bbad707ab676016d497dda6410be",
+      "identity": "1f:66cdff548b65d2c7492a07560f8f69aa4576bbad707ab676016d497dda6410be"
+    },
+    {
+      "from": "src/data-rows.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/data-rows.mjs",
+      "source_identity": "1f:dbb09cb2677cb35113f083584324d8b4e8912e94a15203a81be2f04f72cdd535",
+      "identity": "1f:dbb09cb2677cb35113f083584324d8b4e8912e94a15203a81be2f04f72cdd535"
+    },
+    {
+      "from": "src/delegation-ceilings.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/delegation-ceilings.json",
+      "source_identity": "1f:9db3be4970ad15a258466495dc866b596f0ac706c7860bf589ea656ea2afcacc",
+      "identity": "1f:9db3be4970ad15a258466495dc866b596f0ac706c7860bf589ea656ea2afcacc"
+    },
+    {
+      "from": "src/delegation-ceilings.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/delegation-ceilings.mjs",
+      "source_identity": "1f:7025915877fa3227cb0578ceb790126d069923982f42fa0e604aacb9b887ed68",
+      "identity": "1f:7025915877fa3227cb0578ceb790126d069923982f42fa0e604aacb9b887ed68"
+    },
+    {
+      "from": "src/failure.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/failure.mjs",
+      "source_identity": "1f:b2d2caec290a2a4fad02a20a2f2d9992086dfe091ae7d0038e060b1d86e3479c",
+      "identity": "1f:cc08f431988cb888be8ce80797a55636a1fc7a001e2de7e7516561d4ad092fa7"
+    },
+    {
+      "from": "src/handoff-projection.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/handoff-projection.mjs",
+      "source_identity": "1f:fb12fcb2a968f299ac9f70a3734247dab2bca2eb1c1590b54c53471f883d43c7",
+      "identity": "1f:fb12fcb2a968f299ac9f70a3734247dab2bca2eb1c1590b54c53471f883d43c7"
+    },
+    {
+      "from": "src/handoff-result-source.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/handoff-result-source.mjs",
+      "source_identity": "1f:acf6e462e2f31869bab53b2e7fcf53c43eb6bc24562c7b7cd036648b7dce85d9",
+      "identity": "1f:13ebb382fd285abb8af09de9734356022738c1eb9bb0e02a2204b91cef30a96f"
+    },
+    {
+      "from": "src/own-ais.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/own-ais.json",
+      "source_identity": "1f:5a25f0f4030988f4b890495359e61e2a01b5cd93cf24a85378ffd376bda5f01e",
+      "identity": "1f:5a25f0f4030988f4b890495359e61e2a01b5cd93cf24a85378ffd376bda5f01e"
+    },
+    {
+      "from": "src/own-ais.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/own-ais.mjs",
+      "source_identity": "1f:87bb3bc1bd0454d730e29c7a677f08c1beed9e12038011f13eb7ebed2a63e444",
+      "identity": "1f:87bb3bc1bd0454d730e29c7a677f08c1beed9e12038011f13eb7ebed2a63e444"
+    },
+    {
+      "from": "src/quoted-words.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/quoted-words.json",
+      "source_identity": "1f:fb7107024ca95cac50ee612fd7a2caef1b108f59b8b85445f7996d5512b71839",
+      "identity": "1f:fb7107024ca95cac50ee612fd7a2caef1b108f59b8b85445f7996d5512b71839"
+    },
+    {
+      "from": "src/quoted-words.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/quoted-words.mjs",
+      "source_identity": "1f:15c957928f95d0bd15af56c783036c977e79313aa07e2e08589159336a5098a8",
+      "identity": "1f:15c957928f95d0bd15af56c783036c977e79313aa07e2e08589159336a5098a8"
+    },
+    {
+      "from": "src/renamed-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/renamed-tools.mjs",
+      "source_identity": "1f:91056a46c9296022906c791c5d5dc18a4426a52476f542ca32a91f6f313d6199",
+      "identity": "1f:0414c7fdc3853dc30f7407311807702643c343c8f27db7017e13e80b02deee12"
+    },
+    {
+      "from": "src/repo-explorer.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/repo-explorer.mjs",
+      "source_identity": "1f:22acb2f564cf47c9b5924821bc0e3cd5fd4ce99d4ae6fe8ca15feab0884151f8",
+      "identity": "1f:22acb2f564cf47c9b5924821bc0e3cd5fd4ce99d4ae6fe8ca15feab0884151f8"
+    },
+    {
+      "from": "src/saved-instruction-provenance.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/saved-instruction-provenance.json",
+      "source_identity": "1f:bc458803b97afac576382e615da9471c94a26bcd9f5485538b35da0139b709b4",
+      "identity": "1f:bc458803b97afac576382e615da9471c94a26bcd9f5485538b35da0139b709b4"
+    },
+    {
+      "from": "src/sold-copies.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/sold-copies.mjs",
+      "source_identity": "1f:c84c4a57262eb1822b9daa97aa7d38bd3f965e257a5e1467746a4c0607626dcd",
+      "identity": "1f:fde449d83f9d4ce0d9bbfabed092c3ed21afda9a37b6990afbd58eef087ff847"
+    },
+    {
+      "from": "src/team-review.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/team-review.mjs",
+      "source_identity": "1f:ca03b584abe26601c1c3eb4acb01e15b77f1854a308569ebacf947ab0333d055",
+      "identity": "1f:ca03b584abe26601c1c3eb4acb01e15b77f1854a308569ebacf947ab0333d055"
+    },
+    {
+      "from": "src/typed-operation-contract.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/typed-operation-contract.mjs",
+      "source_identity": "1f:7ef560a846842cb6da043716be7509ad582fa0a74d41f081b7bec63fa3852b27",
+      "identity": "1f:d340a58bc9011e3f23e75a54b215e95a3f02b0f142d95b540e65d5575fbd64c9"
+    },
+    {
+      "from": "src/untrusted-text.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/untrusted-text.mjs",
+      "source_identity": "1f:bce56b995981b340f3f8ff298dfe4bb766549e79ea1d948d0b96d846ccc745e2",
+      "identity": "1f:69cf609201df4b0db386033f4805ebee195ef8aab4a76532fff70aeff7ee2994"
+    },
+    {
+      "from": "src/work-holds.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/work-holds.json",
+      "source_identity": "1f:cee78f33c3626f3c7bcac95f01bdf3deb807718cc83385dbe800a1663c62ae6c",
+      "identity": "1f:cee78f33c3626f3c7bcac95f01bdf3deb807718cc83385dbe800a1663c62ae6c"
+    },
+    {
+      "from": "src/work-sources.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/work-sources.json",
+      "source_identity": "1f:e143f0c5f8a7e4c9d7d701a07e37c11f8568d717ef481b4cb6ff9460ece98d19",
+      "identity": "1f:e143f0c5f8a7e4c9d7d701a07e37c11f8568d717ef481b4cb6ff9460ece98d19"
+    },
+    {
+      "from": "src/work-time-budget.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/work-time-budget.json",
+      "source_identity": "1f:0cd17abfb199c05d1fb4940da33b4940ea56429196288c43338a1acddc4ce1cf",
+      "identity": "1f:0cd17abfb199c05d1fb4940da33b4940ea56429196288c43338a1acddc4ce1cf"
+    },
+    {
+      "from": "src/work-title.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/work-title.mjs",
+      "source_identity": "1f:fde7a2c1f7a2f92e6123fc81789dbc812115f6256fdc6f991eb5d777f663167d",
+      "identity": "1f:fde7a2c1f7a2f92e6123fc81789dbc812115f6256fdc6f991eb5d777f663167d"
+    },
+    {
+      "from": "src/workspace/screens.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/workspace/screens.mjs",
+      "source_identity": "1f:f0ed2de02fce29b48abfd428ca7c5803bb99b1afb8bad71692dda7cec6454d27",
+      "identity": "1f:f03341b66d9ff05877e280c1f4356ddb14a1f2d5918cdc8b43cc29a54dab01fc"
     }
   ]
 }

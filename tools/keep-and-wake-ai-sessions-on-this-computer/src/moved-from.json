@@ -1,0 +1,88 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/connecting-without-the-store.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/connecting-without-the-store.json",
+      "source_identity": "1f:46282562cf4c98062832f8b22ad7722c667632352e0be79915640d9672787314",
+      "identity": "1f:46282562cf4c98062832f8b22ad7722c667632352e0be79915640d9672787314",
+      "reused": true
+    },
+    {
+      "from": "src/lists.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/lists.json",
+      "source_identity": "1f:ab0369f0c55ae828184b9c4ef1614421b3a55c36718821879010b09ac8180cfc",
+      "identity": "1f:ab0369f0c55ae828184b9c4ef1614421b3a55c36718821879010b09ac8180cfc",
+      "reused": true
+    },
+    {
+      "from": "src/read-bounded-json.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/read-bounded-json.mjs",
+      "source_identity": "1f:eb8773b1efb86a4d1a754876a9ea83a815b1fd390827e7382984ac6cee84b014",
+      "identity": "1f:eb8773b1efb86a4d1a754876a9ea83a815b1fd390827e7382984ac6cee84b014",
+      "reused": true
+    },
+    {
+      "from": "src/record-model.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/record-model.json",
+      "source_identity": "1f:bb2d8a4099a614e556b284db939c8d75b662287e9eb1094b21253ddc1d37bd24",
+      "identity": "1f:bb2d8a4099a614e556b284db939c8d75b662287e9eb1094b21253ddc1d37bd24",
+      "reused": true
+    },
+    {
+      "from": "src/record-scope.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/record-scope.json",
+      "source_identity": "1f:9b13bbdbfdaad57ec929b9df618eb1abc612b35beb5e8524b2301bff24c53759",
+      "identity": "1f:9b13bbdbfdaad57ec929b9df618eb1abc612b35beb5e8524b2301bff24c53759",
+      "reused": true
+    },
+    {
+      "from": "src/renamed-tools.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/renamed-tools.json",
+      "source_identity": "1f:fc897abeeef43fcbfb8a0992ca0066d13a3765d44ce130e8589a4a091cda48a0",
+      "identity": "1f:fc897abeeef43fcbfb8a0992ca0066d13a3765d44ce130e8589a4a091cda48a0",
+      "reused": true
+    },
+    {
+      "from": "src/scheduler.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/scheduler.json",
+      "source_identity": "1f:f555eccaa21bbf1317986c8f7569fc44033739cdcfa673da712349e7cab1f347",
+      "identity": "1f:f555eccaa21bbf1317986c8f7569fc44033739cdcfa673da712349e7cab1f347",
+      "reused": true
+    },
+    {
+      "from": "src/sold-copies.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/sold-copies.json",
+      "source_identity": "1f:3a06810095aab588e3cc2654dc7d0e017b9c8583438e4d2372c19e3f548d429b",
+      "identity": "1f:3a06810095aab588e3cc2654dc7d0e017b9c8583438e4d2372c19e3f548d429b",
+      "reused": true
+    },
+    {
+      "from": "src/table-generation.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/table-generation.mjs",
+      "source_identity": "1f:3ade1867f3c16c94d7f55840b14b71925e6a1780b7454a2fb1a9707bb8f515eb",
+      "identity": "1f:3ade1867f3c16c94d7f55840b14b71925e6a1780b7454a2fb1a9707bb8f515eb",
+      "reused": true
+    },
+    {
+      "from": "src/work-progress.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/work-progress.mjs",
+      "source_identity": "1f:c506a90ae6559d92e57b2002fa38edc5085b25ab0db8e9b752c6c5544e244d8a",
+      "identity": "1f:c506a90ae6559d92e57b2002fa38edc5085b25ab0db8e9b752c6c5544e244d8a",
+      "reused": true
+    }
+  ]
+}

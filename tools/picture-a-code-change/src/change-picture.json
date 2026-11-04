@@ -1,0 +1,28 @@
+{
+  "_what": "How a change between two points in a code host becomes a picture and, when asked, one comment of ours on the pull request (src/change-picture.mjs). Each entry of `forges` is a code host written as DATA: the connector tools that read the change and write comments (`tools`, names of the connection's operations), how a connector answer maps to the generic comment (`comment`: dotted paths), which surface capability record the comment is written for (`surface`, src/surface-compose.json), and how the author of our comments is found (`whoami`). `marker` is the hidden text that makes a comment ours (it is a link-reference line, which no reader draws); `compare_pages_most` and `page_size` bound how much of a change is read; `peek_files` is how many files the model-input listing names before it says how many more. `words` are plain.",
+  "forges": {
+    "github": {
+      "tools": { "compare": "tool:github-compare_commits", "list": "tool:github-list_issue_comments", "create": "tool:github-create_issue_comment", "update": "tool:github-update_issue_comment", "whoami": "tool:github-find_my_account" },
+      "surface": "github_comment",
+      "whoami": { "author_path": "login" },
+      "comment": { "id": "id", "author": "user.login", "body": "body" },
+      "compare": { "files": "files", "commits": "commits" },
+      "page_size": 100
+    }
+  },
+  "default_forge": "github",
+  "marker": "[trillion-change-picture:{key}]: #",
+  "compare_pages_most": 10,
+  "comment_pages_most": 20,
+  "words": {
+    "heading": "What this change touches",
+    "fold": "All {count} files",
+    "no_picture": "The picture is not attached here because no image address was given.",
+    "bounded_note": "Nothing left this machine to make the picture: only file names and counts were read."
+  },
+  "errors": {
+    "UNKNOWN_FORGE": "No code host of that name is described.",
+    "BAD_DOCUMENT": "The graph document you gave is not valid: {first}",
+    "NO_FILES": "The two points have no changed files between them."
+  }
+}

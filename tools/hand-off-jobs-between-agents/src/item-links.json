@@ -1,0 +1,17 @@
+{
+  "_what": "Which fields of a tool answer name one thing in the person's Trillion, read by src/item-links.mjs, so every MCP answer that touches a thing carries that thing's own link (`open_field`, a whole address on the service's origin) and any AI can put it in its reply: one click lands on the exact thing. `things` are tried in order on every object in an answer, and the first whose `id` field holds a value (matching `matches` when it gives one) names it: `kind` is a kind a screen opens (the screen's `opens_kinds`), and `item`, when the object also has it, is the one item inside it (a space's message, a list's row). The address is the same one every notice, widget and email uses (src/workspace/addresses.mjs thingAddress). `own_address_fields` are fields that already hold the thing's address (a Waiting on you card's `address`, a notice's `open`): a path, or a whole address on one of `own_origins`, becomes the link as it is. Nothing under a key named in `not_under` is given a link: a suggested call's `arguments` are what the AI sends back, and a field the tool does not take would be refused. A new kind of thing is a row here and its kind on a screen; nothing in the code names one.",
+  "open_field": "open_url",
+  "not_under": ["arguments"],
+  "own_origins": ["https://app.gettrillion.ai", "https://gettrillion.ai"],
+  "own_address_fields": ["address", "open"],
+  "things": [
+    { "kind": "space", "id": "space_id", "item": "item_id" },
+    { "kind": "handoff", "id": "handoff_id" },
+    { "kind": "decision", "id": "case_id", "matches": "^(?!run_)" },
+    { "kind": "list", "id": "list_id", "item": "row_id" },
+    { "kind": "workflow", "id": "workflow_id" },
+    { "kind": "task", "id": "task_id" },
+    { "kind": "pursuit", "id": "id", "matches": "^pursuit:" },
+    { "kind": "file", "id": "identity", "matches": "^(1f|12):[0-9a-f]{64}$" }
+  ]
+}

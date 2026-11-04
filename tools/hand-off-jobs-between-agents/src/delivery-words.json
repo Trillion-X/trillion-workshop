@@ -1,0 +1,15 @@
+{
+  "about": "What the person is told after sending a message to one AI (src/work-messages.mjs). {app} becomes the AI's name. Each line matches how the AI can be reached: the stream route (a helper on its computer holds Trillion's live connection), an address Trillion posts to, or nothing until it next connects (a chat app on the web). src/agent-delivery.mjs says which.",
+  "sent": {
+    "stream_live": "Sent to {app}. It is on your computer now and its reply will appear here.",
+    "stream_away": "{app} is not reachable right now, so your message is saved for it. To reach it at once, run node harness/wake-sessions.mjs on the computer it runs on.",
+    "push": "Trillion is reaching {app} and has not heard back yet.",
+    "next_connection": "Saved for {app}. It will see your message the next time it connects to Trillion.",
+    "not_confirmed": "Your message is saved, but Trillion could not confirm delivery to {app}. It will still be available the next time it connects."
+  },
+  "later": {
+    "delivered": "Trillion reached the AI. It has not confirmed reading your message.",
+    "dead": "Trillion could not reach the AI. Your message is saved for its next connection.",
+    "waiting": "Trillion is still trying to reach the AI and has not heard back yet."
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "_what": "A server-rendered picture that failed can check its exact same-origin address and recover at most twice. HEAD checks current permission without reading picture bytes. Only the shared quiet-retry busy statuses, or a request that could not reach the service, are asked again. A successful HEAD permits another ordinary image read; only the image's actual loaded dimensions make it ready. No original-file, alternate-address, query or cache bypass is used.",
+  "waits_ms": [1000, 2000],
+  "head_timeout_ms": 5000
+}

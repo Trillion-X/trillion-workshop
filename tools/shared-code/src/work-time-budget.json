@@ -1,0 +1,10 @@
+{
+  "_what": "A job may carry a time budget (hand_off time_budget_seconds): the seconds its attempts may hold it in all. When the attempts that ended have used it, the job stops with a typed stop (blocked_kind time_budget) and stays stopped until someone takes it by name, like a job that ran out of attempts. `stays_stopped` lists the stop kinds Trillion itself sets that wait for someone to take the job by name. Money budgets are the spending owner's.",
+  "max_seconds": 2592000,
+  "stays_stopped": ["attempts", "time_budget"],
+  "stop_kind": "time_budget",
+  "words": {
+    "stopped": "Its attempts have held it for {used} of the {budget} seconds it was given.",
+    "recovery": "Take it again by its handoff_id to give it more time, or hand the job to another AI."
+  }
+}

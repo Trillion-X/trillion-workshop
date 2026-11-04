@@ -1,0 +1,99 @@
+{
+  "_what": "The lists the answer engine reads besides the person's files and records, as DATA read by src/answer-tools.mjs. `content` is content an app or a Marketplace tool sends in to be answered from: each item is one row of the content list keyed by (root, id) -- its row id is `row_id_prefix` + the first `row_id_hex` hex digits of the BLAKE3 of the root and the id, so sending the same item again changes that one row -- and every root is a row of the roots list a person or an AI makes first (the link field `root` requires its target, so content sent to a root nobody made is refused). `reports` is the work queue of answers people said were wrong or missing: a report is a row with an assignee, a rating and a status; `statuses` are the states a report moves through, each naming the fields it `requires` before a report may hold it and the date field it `stamps` when it starts holding it; `comments` are rows of their own linked to the report. The search lanes over these lists (src/search.json lanes `indexed-content` and `corrected-answers`) make an item and a solved report's corrected answer sources the next answer cites, with the date it was last changed (`at`). Lists are made on first use by /lists/<id>/ensure, so a person who never uses them keeps none.",
+  "content": {
+    "row_id_prefix": "c-",
+    "row_id_hex": 40,
+    "roots": {
+      "id": "content-roots",
+      "label": "Content sent in for answers",
+      "row_type": "content-root",
+      "title_field": "title",
+      "icon": "FolderInput",
+      "about": "Places apps and tools send content into, so answers can cite it.",
+      "fields": [
+        { "id": "title", "label": "Name", "kind": "text", "required": true },
+        { "id": "about", "label": "What it holds", "kind": "long-text" }
+      ]
+    },
+    "list": {
+      "id": "indexed-content",
+      "label": "Content for answers",
+      "row_type": "indexed-content",
+      "title_field": "title",
+      "icon": "FileSearch",
+      "about": "Content apps and tools sent in, answered from like your own notes.",
+      "stamps": true,
+      "fields": [
+        { "id": "root", "label": "Sent into", "kind": "link", "links_to": "content-roots", "required": true, "link_constraints": { "max_links": 1, "require_target": true } },
+        { "id": "item_id", "label": "Its id where it came from", "kind": "text", "required": true },
+        { "id": "title", "label": "Title", "kind": "text", "required": true },
+        { "id": "text", "label": "Text", "kind": "long-text" },
+        { "id": "url", "label": "Where it lives", "kind": "text" },
+        { "id": "updated_at", "label": "Last changed", "kind": "date" }
+      ],
+      "views": [
+        { "id": "by-root", "label": "Sent into one place", "rules": { "kind": "group", "combinator": "and", "negate": false, "rules": [ { "kind": "rule", "field": "root", "operator": "has_any_of", "params": { "values": [ { "parameter": "root" } ] } } ] } }
+      ]
+    }
+  },
+  "reports": {
+    "assignees": { "id": "answer-fixers", "label": "Your AIs", "row_type": "ai-name", "title_field": "name", "fields": [{ "id": "name", "label": "Name", "kind": "text" }], "row_sources": [{ "source": "account-ais" }], "about": "Names read directly from your native AI records. Choosing a name gives no connection, delivery or readiness authority; no identities are copied here." },
+    "list": {
+      "id": "answer-reports",
+      "label": "Answers to fix",
+      "row_type": "answer-report",
+      "title_field": "question",
+      "icon": "MessageSquareWarning",
+      "about": "Questions whose answer was wrong or missing, until someone fixes them.",
+      "stamps": true,
+      "fields": [
+        { "id": "question", "label": "Question", "kind": "text", "required": true },
+        { "id": "issue", "label": "What was wrong", "kind": "choice", "choices": ["wrong", "missing", "out-of-date", "unclear"], "required": true },
+        { "id": "answer_given", "label": "Answer given", "kind": "long-text" },
+        { "id": "sources_cited", "label": "Sources it cited", "kind": "tags" },
+        { "id": "status", "label": "Status", "kind": "choice", "choices": ["open", "assigned", "solved", "dismissed"], "starts": "open" },
+        { "id": "assignee", "label": "Who fixes it", "kind": "record", "from": { "holds": "people", "lists": ["answer-fixers"] } },
+        { "id": "rating", "label": "How bad", "kind": "number" },
+        { "id": "corrected_answer", "label": "Corrected answer", "kind": "long-text" },
+        { "id": "reported_at", "label": "Reported", "kind": "date" },
+        { "id": "solved_at", "label": "Solved", "kind": "date" }
+      ],
+      "views": [
+        { "id": "open", "label": "Still to fix", "rules": { "kind": "group", "combinator": "and", "negate": false, "rules": [ { "kind": "rule", "field": "status", "operator": "is_any_of", "params": { "values": ["open", "assigned"] } } ] } },
+        { "id": "assigned-to", "label": "Given to one person", "rules": { "kind": "group", "combinator": "and", "negate": false, "rules": [ { "kind": "rule", "field": "assignee", "operator": "is_text", "params": { "text": { "parameter": "assignee" } } }, { "kind": "rule", "field": "status", "operator": "is_any_of", "params": { "values": ["open", "assigned"] } } ] } },
+        { "id": "solved", "label": "Fixed", "rules": { "kind": "group", "combinator": "and", "negate": false, "rules": [ { "kind": "rule", "field": "status", "operator": "is_any_of", "params": { "values": ["solved"] } } ] } }
+      ]
+    },
+    "statuses": [
+      { "id": "open", "clears": ["solved_at"] },
+      { "id": "assigned", "requires": ["assignee"], "clears": ["solved_at"] },
+      { "id": "solved", "requires": ["corrected_answer"], "stamps": "solved_at" },
+      { "id": "dismissed", "clears": ["solved_at"] }
+    ],
+    "assigned_status": "assigned",
+    "rating": { "min": 1, "max": 5 },
+    "comments": {
+      "id": "answer-report-comments",
+      "label": "Comments on answers to fix",
+      "row_type": "answer-report-comment",
+      "title_field": "text",
+      "icon": "MessageSquare",
+      "stamps": true,
+      "fields": [
+        { "id": "report", "label": "On", "kind": "link", "links_to": "answer-reports", "required": true, "link_constraints": { "max_links": 1, "require_target": true } },
+        { "id": "text", "label": "Comment", "kind": "long-text", "required": true },
+        { "id": "said_at", "label": "Said", "kind": "date" }
+      ]
+    }
+  },
+  "words": {
+    "no_root": "Name the root (a place made with save_content_root) and give at most {most} items, each with an id and a title.",
+    "bad_item": "Item {index} needs an id and a title, at most {chars} characters of text, and an id with no slash.",
+    "bad_report": "Give the question and what was wrong with its answer ({issues}).",
+    "no_report": "There is no answer report {report_id}; read_answer_reports lists them.",
+    "needs": "A report is {status} only with {fields}: give them in the same call.",
+    "bad_status": "status is one of {statuses}.",
+    "bad_rating": "rating is a whole number from {min} to {max}.",
+    "bad_comment": "Give report_id and the comment's text."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/kept-list.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-short-list/src/kept-list.mjs",
+      "source_identity": "1f:fc35fd031a00796b9b6609dc5f3dc00a37e9eb8873fef79b182454143336f5ae",
+      "identity": "1f:fc35fd031a00796b9b6609dc5f3dc00a37e9eb8873fef79b182454143336f5ae"
+    },
+    {
+      "from": "test/kept-list.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-short-list/test/kept-list.test.mjs",
+      "source_identity": "1f:7a2e1f3afbb6de6f5d4631a208448738f4e35bdc5194792843fc88c190251efe",
+      "identity": "1f:7a2e1f3afbb6de6f5d4631a208448738f4e35bdc5194792843fc88c190251efe"
+    }
+  ]
+}
