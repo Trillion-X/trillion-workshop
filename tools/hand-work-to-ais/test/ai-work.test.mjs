@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { runRow, rowOf } from '../../records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { handAJob, moveAJob, seeAiWork, seeMyAis, takeAJob, workRules } from '../read-data/ai-work.mjs';
 
 const RULES = JSON.parse(readFileSync(new URL('../read-data/ai-work.json', import.meta.url), 'utf8'));
@@ -234,16 +234,16 @@ test('the work list is newest first, kept to what matches, and says when more ma
 
 test('each row runs as the container runs it, with exactly its own rights at the door', async () => {
   const records = [...AIS, { id: 'ai-job:row', type: 'ai-job', value: { kind: 'ai-job', status: 'waiting', job: 'From a row', to: null, from: 'ai:east', priority: 5, sent_at: '2026-11-01T20:00:00.000Z' } }];
-  const sent = await runRow(rowOf(ROWS, 'tool:hand-a-job-to-an-ai'), { input: { as: 'ai:east', job: 'Water the plants', to: 'ai:north' }, task: { request_key: 'row-send' } }, { records });
+  const sent = await answerOf(rowOf(ROWS, 'tool:hand-a-job-to-an-ai'), { as: 'ai:east', job: 'Water the plants', to: 'ai:north' }, { records, task: { request_key: 'row-send' } });
   assert.equal(sent.status, 0, JSON.stringify(sent));
   assert.equal(sent.result.job_id, 'ai-job:row-send');
-  const taken = await runRow(rowOf(ROWS, 'tool:take-an-ai-job'), { input: { as: 'ai:north' }, task: { request_key: 'row-take' } }, { records });
+  const taken = await answerOf(rowOf(ROWS, 'tool:take-an-ai-job'), { as: 'ai:north' }, { records, task: { request_key: 'row-take' } });
   assert.equal(taken.result.taken.id, 'ai-job:row');
   assert.equal(taken.kept.find(record => record.id === 'ai-job:row').value.taker, 'ai:north');
-  const moved = await runRow(rowOf(ROWS, 'tool:change-an-ai-job'), { input: { as: 'ai:east', id: 'ai-job:row', action: 'withdraw' }, task: { request_key: 'row-move' } }, { records });
+  const moved = await answerOf(rowOf(ROWS, 'tool:change-an-ai-job'), { as: 'ai:east', id: 'ai-job:row', action: 'withdraw' }, { records, task: { request_key: 'row-move' } });
   assert.equal(moved.result.to, 'withdrawn');
-  const work = await runRow(rowOf(ROWS, 'tool:see-ai-work'), { input: { status: 'waiting' }, task: {} }, { records });
+  const work = await answerOf(rowOf(ROWS, 'tool:see-ai-work'), { status: 'waiting' }, { records });
   assert.deepEqual(work.result.jobs.map(one => one.id), ['ai-job:row']);
-  const mine = await runRow(rowOf(ROWS, 'tool:see-my-ais'), { input: {}, task: {} }, { records });
+  const mine = await answerOf(rowOf(ROWS, 'tool:see-my-ais'), {}, { records });
   assert.deepEqual(mine.result.ais.map(one => one.id).sort(), ['ai:east', 'ai:north', 'ai:south']);
 });

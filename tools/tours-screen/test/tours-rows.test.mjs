@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { runRow, rowOf } from '../../records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import settings from '../read-data/tours.json' with { type: 'json' };
 import showRules from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import { foldWalkthroughProgress } from '../read-data/walkthrough-eeaf.ts';
@@ -24,7 +24,7 @@ const QUIET = { rules: [], starting: Object.fromEntries(showRules.starting_rules
 const records = ({ own = OWN, progress = null, rules = QUIET } = {}) => ({
   [settings.tours_label]: own, ...(progress ? { [settings.progress_label]: progress } : {}), ...(rules ? { [showRules.record]: rules } : {}),
 });
-const run = (slug, input, held) => runRow(row(slug), { now: NOW, ...input }, { doorOptions: { workspaceRecords: held } });
+const run = (slug, input, held) => answerOf(row(slug), { now: NOW, ...input }, { doorOptions: { workspaceRecords: held } });
 
 test('every action is one row, and every row only reads the tours, the progress and the show rules', () => {
   assert.deepEqual(ROWS.records.map(one => one.payload.id), ['tool:list-workspace-tours', 'tool:list-waiting-tours', 'tool:dismiss-waiting-tours']);

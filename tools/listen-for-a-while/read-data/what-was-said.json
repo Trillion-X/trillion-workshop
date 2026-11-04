@@ -1,0 +1,18 @@
+{
+  "_what": "What happens to a listening's heard rows after they are written, and what an ask about a listening waits for (read-data/what-was-said.mjs). `rename`: the speaker label an unknown voice is written under (a regular expression) and how many rows one write carries. `keep_sound`: the compressed file a piece's sound is kept as, made by the ffmpeg the person granted (`encode`, {input} and {output} filled). `write_back`: the name of the speakers file written beside a recording. `captions`: the ops a caption change can be, and how many captions an answer gives (`last`, at most `most`). `transcriber`: how long one device holds the role without hearing another piece. `ask`: how long an ask waits for what was said before it to be written, at most, and how often it looks.",
+  "rename": { "unknown_speaker": "^Someone \\(voice-\\d+\\)$", "batch": 100 },
+  "keep_sound": { "ext": "m4a", "media_type": "audio/mp4", "encode": ["-v", "error", "-nostdin", "-i", "{input}", "-ac", "1", "-c:a", "aac", "-b:a", "32k", "-y", "{output}"] },
+  "write_back": { "suffix": ".speakers.json" },
+  "captions": { "ops": ["on", "off", "edit", "speaker", "hide", "show", "undo"], "last": 50, "most": 500 },
+  "transcriber": { "keepalive_seconds": 180 },
+  "ask": { "wait_seconds": 40, "most_wait_seconds": 120, "poll_ms": 2000 },
+  "words": {
+    "rename_needs": "Say which listening (`listening`), which voices it heard (`voices`, the enrol tool's heard_as) and the person's name (`name`).",
+    "renamed": "{count} turns are now {name}'s.",
+    "sound_not_kept": "The sound was not kept: {why}. The words were written.",
+    "needs_listening": "Say which listening: `listening` is its name.",
+    "caption_needs_id": "The caption op {op} needs `id`: the heard row it changes.",
+    "caption_unknown_op": "{op} is not a caption op. Ops: {ops}.",
+    "ask_needs": "Say which listening (`listening`) and which conversation asks (`conversation`), so it is given only what it has not been given."
+  }
+}

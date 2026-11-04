@@ -2,16 +2,18 @@
 //
 // Purpose
 //   The branch mode of tool:check-against-a-persons-rules-and-verdicts: one judge for every check, reading the person's
-//   one Checks list by branch. A branch is one of their method rows (list:methods); it `extends` another, up to a base
-//   (do-work/branch.mjs). The rules of a branch are the check rows (list:checks) whose `method` is a branch of its
-//   lineage, plus the rows of every list a branch of it names in `check_lists`. The nearest branch carrying
-//   `judge_settings` (a rule document's settings) makes the person's verdict rows: its rows and the rows of the branches
-//   that extend it; the rows inherited from above it are generic rules. Then the existing `check`
+//   one Checks list by branch: one tree in one list. A branch is a node of that list of kind branch; every node names
+//   the node it is part of in one link (`part_of`, read-data/branch.json `link_field`), up to a root (do-work/branch.mjs).
+//   The rules of a branch are the nodes part of a branch of its lineage, plus the rows of every list a branch of it
+//   names in `check_lists`. The nearest branch carrying `judge_settings` (a rule document's settings) makes the person's
+//   verdict rows: its rows and the rows of the branches below it; the rows inherited from above it are generic rules. Then the existing `check`
 //   (do-work/rules-and-verdicts.mjs) runs, unchanged. Ported from the old app's methods/checks.json check rows picked
 //   per step and src/private-method.mjs:25 (`extends`).
 //
 // Non-negotiable invariants
-//   1. Only the branches of the lineage are read: each with the door's `where { method }`, never the whole list.
+//   1. The branch rows are read once with the door's `where { kind: branch }`, then only the rows of the branches of
+//      the lineage, each with `where { part_of }`, never the whole list. A branch part of a branch is a branch below,
+//      never judged: it is counted in rows_used.skipped.branch.
 //   2. A row with `step` is a question of a decision step (tools/decide-with-a-method asks it); its `check` is question
 //      text, not a judge-words check name, so it never reaches makeJudge. A row whose `on` is "Off" is not judged.
 //   3. A row that states no test (none of tools/judge-words SELECTOR_NAMES, imported from there, never a second list)
@@ -29,8 +31,8 @@
 //
 // Shapes
 //   rulesOfBranch(door, branch) -> { rules, verdict_rules | null, lineage, rows_used, read_by_a_model }
-//     rows_used: { branches: { <method id>: n }, lists: { <list id>: n }, skipped: { step: n, off: n, no_test: n } }
-//     read_by_a_model: { rows: [{ id, says, kind? }], more: n, settings_from: <method id> | null }
+//     rows_used: { branches: { <branch id>: n }, lists: { <list id>: n }, skipped: { branch: n, step: n, off: n, no_test: n } }
+//     read_by_a_model: { rows: [{ id, says, kind? }], more: n, settings_from: <branch id> | null }
 //   readingRow(row, settings)   -> the row with its `ask` ({ question, options, fail, per, calibration?, model?, ... })
 //   checkABranch(input, door)   -> rulesOfBranch, then check; the answer of the rules mode plus branch, lineage, rows_used,
 //                                  read_by_a_model; with no row to judge or read, status no-applicable-rule
@@ -84,18 +86,19 @@ async function rowsOfList(door, method, listId) {
 /** The rules and the person's rule document of one branch, read from their records through `door`. */
 export async function rulesOfBranch(door, branch) {
   if (typeof branch !== 'string' || !branch.trim()) throw new CheckRefusal(WORDS.branch);
-  const methods = await valuesOf(door, { type: SETTINGS.method_type });
+  const methods = await valuesOf(door, { type: SETTINGS.check_type, where: SETTINGS.branch_where });
   if (!methods.length) throw new CheckRefusal(WORDS.no_methods);
   let lineage;
-  try { lineage = lineageOf(methods, branch); } catch (error) { throw new CheckRefusal(error.message); }
+  try { lineage = lineageOf(methods, branch, SETTINGS.link_field); } catch (error) { throw new CheckRefusal(error.message); }
   const methodById = new Map(methods.map(row => [row.id, row]));
   const judgeAt = lineage.findIndex(id => object(methodById.get(id).judge_settings));
   const settings_from = lineage.find(id => object(methodById.get(id)[READING.settings_field])) ?? null;
   const readingSettings = settings_from === null ? null : methodById.get(settings_from)[READING.settings_field];
-  const rows_used = { branches: {}, lists: {}, skipped: { step: 0, off: 0, no_test: 0 } };
+  const rows_used = { branches: {}, lists: {}, skipped: { branch: 0, step: 0, off: 0, no_test: 0 } };
   const seen = new Set(), rules = [], verdictRows = [], readByAModel = [];
   const take = (rows, isVerdict) => {
     for (const row of rows) {
+      if (row[SETTINGS.kind_field] === SETTINGS.branch_kind) { rows_used.skipped.branch += 1; continue; }
       if (row[SETTINGS.step_field] !== undefined) { rows_used.skipped.step += 1; continue; }
       if (row[SETTINGS.on_field] === SETTINGS.off) { rows_used.skipped.off += 1; continue; }
       if (typeof row.id !== 'string' || seen.has(row.id)) continue;
@@ -112,7 +115,7 @@ export async function rulesOfBranch(door, branch) {
   const listsRead = new Set();
   for (const [at, id] of lineage.entries()) {
     const isVerdict = judgeAt >= 0 && at <= judgeAt;
-    const own = (await valuesOf(door, { type: SETTINGS.check_type, where: { [SETTINGS.branch_field]: id } }))
+    const own = (await valuesOf(door, { type: SETTINGS.check_type, where: { [SETTINGS.link_field]: id } }))
       .sort((a, b) => (String(a.id) < String(b.id) ? -1 : 1));
     rows_used.branches[id] = own.length;
     take(own, isVerdict);

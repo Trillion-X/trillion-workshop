@@ -29,7 +29,7 @@ test('the listening loop leaves out a stretch that is only made-up text before i
   const file = join(folder, '0.wav');
   writeFileSync(file, 'x');
   const writes = [];
-  const door = { async *list() {}, async read() { return null; }, async write(records) { writes.push(records); return { changed: records.length }; } };
+  const door = { async *list() {}, async read() { return null; }, async write(records) { if (!records.every(row => ['listening-status', 'transcriber'].includes(row.type))) writes.push(records); return { changed: records.length }; } };
   let named = null;
   async function* record() { yield { file, startMs: 1_000_000, endMs: 1_030_000 }; }
   const hear = async () => [{ start: 0, end: 2, text: 'Thanks for watching.' }, { start: 3, end: 5, text: 'Ship it on Friday.' }];

@@ -34,6 +34,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { askLocal, localModelSettings } from '../../models-on-this-computer/read-data/models-on-this-computer.mjs';
 
 /** BLAKE3-256 of the bytes as 64 hex digits, from the one content-identity owner (its `1f:` prefix dropped). */
 const blake3Hex = bytes => makeHashCodeHexFromBytes(bytes).slice(3);
@@ -299,11 +300,12 @@ export const dictationTools = {
       if (!String(input.text ?? '').trim()) throw fail(settings.words.no_text);
       const out = clean(input.text, { settings, rows, context: input.context ?? {} });
       if (input.polish || input.command) {
-        // The Mac app's local model (computer/local-models.mjs) is not carried: without a model handed in, nothing answers
-        // and the text is left as it was (modelStep's own rule).
+        // The model is handed in: the caller's own, else this computer's model server through
+        // tools/models-on-this-computer (askLocal, the port of the Mac app's computer/local-models.mjs) on the job DATA
+        // names. When none answers, the text is left as it was (modelStep's own rule).
         const ask = askModel ?? (async () => null);
         const stepped = input.command ? await modelStep('command', out.text, { settings, ask, instruction: String(input.command) }) : await modelStep('polish', out.text, { settings, ask });
-        out.text = stepped.text; out.model = { changed: stepped.changed, said: stepped.said ?? null };
+        out.text = stepped.text; out.model = { changed: stepped.changed, said: stepped.said ?? null, ...(stepped.model ? { by: stepped.model } : {}) };
       }
       return { ...out, entry_id: input.entry_id ?? newEntryId(), notes: out.skipped.map(step => fill(settings.words.step_missing, { step })) };
     }
@@ -360,10 +362,10 @@ const inFolder = folder => {
 };
 
 /** tool:dictate: { input, folder } -> every action but insert, the person's rows and history kept in the granted folder. */
-export async function dictate({ input = {}, folder } = {}) {
+export async function dictate({ input = {}, folder } = {}, { askModel = request => askLocal(request, localModelSettings()) } = {}) {
   const settings = inFolder(folder);
   if (input.action === 'insert') throw fail(settings.words.insert_elsewhere);
-  return dictationTools.dictate(input, { settings });
+  return dictationTools.dictate(input, { settings, askModel });
 }
 
 /** tool:type-dictated-text: { input: { text, entry_id?, context? }, folder } -> the clipboard transaction's outcome. */

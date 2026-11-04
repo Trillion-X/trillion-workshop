@@ -161,7 +161,7 @@ test('polish and command are model steps through the dictate tool; no answer or 
   const answer = content => async request => { asked.push(request); return { model: 'fake', choices: [{ message: { content } }] }; };
   const polished = await dictationTools.dictate({ text: 'um hello trillion ai how are you', polish: true }, { settings, askModel: answer(JSON.stringify({ text: 'Hello, Trillion. How are you?' })) });
   assert.equal(polished.text, 'Hello, Trillion. How are you?');
-  assert.deepEqual(polished.model, { changed: true, said: null });
+  assert.deepEqual(polished.model, { changed: true, said: null, by: 'fake' });
   assert.equal(asked[0].job, settings.polish.job);
   const commanded = await dictationTools.dictate({ text: 'meet at three', command: 'make it formal' }, { settings, askModel: answer(JSON.stringify({ text: 'Let us meet at three o\'clock.' })) });
   assert.match(asked[1].messages[1].content, /Instruction: make it formal/);

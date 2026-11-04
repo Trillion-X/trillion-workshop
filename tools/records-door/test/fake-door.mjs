@@ -7,7 +7,7 @@
 // `mostRequestBytes` refuses a request body over it with 413, as the door refuses one over its message. Given `usageDays` (the engine's
 // usage day rows, { day, stored_bytes, source_bytes_read, work_ms }, made up) and a files right to usage_days, it
 // answers usage_days the way the engine's files door pages them: { days, next_after, stored_bytes_now }. find_file
-// finds a made-up file by name or identity, and write_file_start / _piece / _finish keep a file sent in pieces under
+// finds a made-up file by name or identity, share_file answers a made-up signed link to one (under `shareOrigin`), and write_file_start / _piece / _finish keep a file sent in pieces under
 // one upload id among the made-up files, so a run that keeps what it made reads it back.
 import { createServer } from 'node:http';
 import { mkdtempSync, writeFileSync } from 'node:fs';
@@ -22,7 +22,7 @@ const WRITE_CAP = 256;
 const FILES_RESOURCE = '@own-files';
 const FILE_SPAN = 65_536;
 
-export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null } = {}) {
+export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
   const capability = 'run_fake_capability';
   // The ids of each kind, sorted once for every page of a list until anything kept changes (a test may change it too).
   const sorted = new Map();
@@ -176,6 +176,17 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       const bytes = bytesOf(name);
       const part = bytes.subarray(offset, offset + Math.min(length || FILE_SPAN, FILE_SPAN));
       return { structuredContent: { identity: makeHashCodeHexFromBytes(bytes), byte_length: bytes.length, offset, bytes_returned: part.length, encoding: 'base64', content: part.toString('base64') } };
+    },
+    // A signed link to a made-up file that expires after `seconds`, the way the engine's files door shares one for a
+    // place to fetch: { url, identity, byte_length, expires_at }. The link is made up, under `shareOrigin`; nothing
+    // answers it here.
+    share_file: ({ name_or_identity: wanted, seconds = 3600 }) => {
+      const name = [...stored.keys()].find(each => each === wanted || makeHashCodeHexFromBytes(bytesOf(each)) === wanted);
+      if (!name || !mayFile('share_file', name)) return refuse(OUTSIDE);
+      const identity = makeHashCodeHexFromBytes(bytesOf(name));
+      const expires = new Date(Date.now() + Math.max(1, Number(seconds) || 3600) * 1000);
+      const url = `${shareOrigin}/shared/${encodeURIComponent(identity)}?expires=${Math.floor(expires.getTime() / 1000)}&signature=made-up`;
+      return { structuredContent: { url, identity, byte_length: bytesOf(name).length, expires_at: expires.toISOString() } };
     },
     find_file: ({ name_or_identity: wanted }) => {
       const name = [...stored.keys()].find(each => each === wanted || makeHashCodeHexFromBytes(bytesOf(each)) === wanted);

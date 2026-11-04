@@ -17,7 +17,7 @@
         },
         "label": "Dictation text and dictionary",
         "job": "Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history",
-        "description": "Give action: clean (text, context, entry_id?; polish or command need a model and leave the text as it was without one), bias (context), learn (inserted, final, entry_id?), add (from and to, or kind: snippet with says and expands_to), list, edit (id and fields), delete (id), history, or erase (entry_id, or all). The rows and the history are kept in the folder the person granted. Putting text at the cursor is tool:type-dictated-text.",
+        "description": "Give action: clean (text, context, entry_id?; polish or command are asked of the model server on this computer (the dictation-polish job of tool:ask-a-model's models) and leave the text as it was when none answers), bias (context), learn (inserted, final, entry_id?), add (from and to, or kind: snippet with says and expands_to), list, edit (id and fields), delete (id), history, or erase (entry_id, or all). The rows and the history are kept in the folder the person granted. Putting text at the cursor is tool:type-dictated-text.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -123,6 +123,13 @@
                   "read-data"
                 ],
                 "at": "/opt/type-what-i-say"
+              },
+              {
+                "package": "models-on-this-computer",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/models-on-this-computer"
               },
               {
                 "package": "records-door",
@@ -241,6 +248,13 @@
                   "read-data"
                 ],
                 "at": "/opt/type-what-i-say"
+              },
+              {
+                "package": "models-on-this-computer",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/models-on-this-computer"
               },
               {
                 "package": "records-door",

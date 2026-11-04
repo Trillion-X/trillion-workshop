@@ -2,14 +2,15 @@
 //
 // The method a decision is walked through, one question at a time. Ported from the old app's src/private-method.mjs.
 // The one change: the methods in use are not a module-wide catalogue loaded from the app's own files; they are the
-// rows the caller passes (the person's own Methods and Method checks lists), and `methodCatalogue(methods, checks)`
-// returns every function over them. A method may extend another and
-// reword or preset it; a check sharpens one step and applies when its switch is on. No code here names a method: the
-// default for each purpose is the row whose `default_for` lists that purpose.
+// rows the caller passes (the branch and check nodes of the person's one Checks list), and
+// `methodCatalogue(methods, checks, { link })` returns every function over them. A method may be part of another (one
+// link, `link`, the caller's DATA: `part_of` in place of the old `extends`) and reword or preset it; a check sharpens
+// one step and applies when its switch is on. No code here names a method: the default for each purpose is the row
+// whose `default_for` lists that purpose.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Every stage of a method's backbone keeps a step no switch can turn off; a set of rows that breaks this, or
-//      names an unknown `extends`, is refused whole.
+//      links to an unknown method, is refused whole.
 //   2. A decision runs under the method snapshot it was opened with; later edits to the rows never rewrite it.
 //   3. The question's answer_schema is built from the same rows validation reads, so the two cannot disagree.
 import { publicAddressOrNull } from './public-address.mjs';
@@ -20,14 +21,14 @@ export const kindOf = spec => spec.kind ?? (spec.list ? 'list' : 'text');
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
-function loadMethods(methodData) {
+function loadMethods(methodData, link) {
   const raw = new Map(methodData.map(data => [data.id, data]));
   const resolved = new Map();
   const resolve = id => {
     if (resolved.has(id)) return resolved.get(id);
     const data = raw.get(id);
     if (!data) throw new Error(`Unknown method ${id}`);
-    const base = data.extends ? resolve(data.extends) : { checks: [], steps: [], preset: {} };
+    const base = data[link] ? resolve(data[link]) : { checks: [], steps: [], preset: {} };
     const method = {
       id: data.id, name: data.name, about: data.about,
       checks: data.checks && Array.isArray(data.checks) ? data.checks : base.checks,
@@ -123,9 +124,9 @@ export function ungradedOf(entry) {
   return { checks, graded, missing: Math.max(0, checks - graded) };
 }
 
-export function methodCatalogue(methodData, checkRows = [], { grader = { grader: 'self', words: '' } } = {}) {
+export function methodCatalogue(methodData, checkRows = [], { grader = { grader: 'self', words: '' }, link = 'part_of' } = {}) {
   if (!Array.isArray(methodData) || !methodData.length) throw new Error('Install at least one method.');
-  const methods = loadMethods(methodData);
+  const methods = loadMethods(methodData, link);
   const voices = new Map();
   for (const data of methodData) if (data.voice) voices.set(data.id, { rows: data.voice, avoid: data.voice_avoid ?? [] });
   const checks = [...new Map(checkRows.map(row => [row.id, row])).values()];
@@ -138,7 +139,7 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
   // default, otherwise the first method.
   const defaultMethodId = (purpose = 'decision') => defaults.get(purpose) ?? defaults.get('decision') ?? methods.keys().next().value;
   const methodOf = record => record.method ?? methods.get(defaultMethodId());
-  const voiceOf = id => voices.get(id) ?? (methodData.find(data => data.id === id)?.extends ? voiceOf(methodData.find(data => data.id === id).extends) : { rows: [], avoid: [] });
+  const voiceOf = id => voices.get(id) ?? (methodData.find(data => data.id === id)?.[link] ? voiceOf(methodData.find(data => data.id === id)[link]) : { rows: [], avoid: [] });
 
   // How the decision is told to the person: the method's voice rows, with the phrases each rules out.
   const howToSayIt = record => {
@@ -202,19 +203,19 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     };
   }
 
-  // A method and every method it extends (tools/check-against-a-persons-rules-and-verdicts/do-work/branch.mjs). A case
+  // A method and every method it is part of (tools/check-against-a-persons-rules-and-verdicts/do-work/branch.mjs). A case
   // kept under a method no longer among the rows keeps the checks of that method alone.
-  const lineageFor = id => (methods.has(id) ? lineageOf(methodData, id) : [id]);
+  const lineageFor = id => (methods.has(id) ? lineageOf(methodData, id, link) : [id]);
 
   // The checks that apply to this step of this case: the step's rows whose switch is on (or that have none), then the
   // rows the step names by id (`check_ids`), whatever switch they carry. A method with no scope question has no
   // switches: its first step asks its rows without one.
-  // A check row names its method: it is asked of that method and of the methods extending it.
+  // A check row is part of its method: it is asked of that method and of the methods below it.
   function checklistFor(record, step) {
     if (step.kind === 'scope') return [];
     const active = context(record) ?? {};
     const lineage = lineageFor(methodOf(record).id);
-    const own = checksOfBranch(checksByStep.get(step.id) ?? [], lineage).filter(row => !row.when || active[row.when] === true);
+    const own = checksOfBranch(checksByStep.get(step.id) ?? [], lineage, link).filter(row => !row.when || active[row.when] === true);
     const named = (step.check_ids ?? []).map(id => checksById.get(id)).filter(row => row && !own.includes(row));
     return [...own, ...named];
   }

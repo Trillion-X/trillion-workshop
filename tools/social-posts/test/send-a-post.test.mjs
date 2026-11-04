@@ -11,7 +11,7 @@ import { createHmac } from 'node:crypto';
 import { heldFetch, publisherFor, sendAPost, sendEachPostAtItsTime } from '../read-data/send-a-post.mjs';
 import { publishAPostNow } from '../read-data/posts.mjs';
 import { approvalValues } from '../read-data/post-shape.mjs';
-import { rowOf, runRow } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import settings from '../read-data/posts.json' with { type: 'json' };
 import { heldFields } from '../read-data/posts.mjs';
 
@@ -232,7 +232,7 @@ const changes = (...ids) => ({ cause: { kind: 'record', detail: { resource: 'own
 const timed = rowOf(rows, 'tool:send-each-post-at-its-time');
 
 test('a post set to go at its time answers one timed send at that time, through the place\'s send row', async () => {
-  const ran = await runRow(timed, { input: {}, task: changes('post:p1') }, { records: [armed(), connection] });
+  const ran = await answerOf(timed, {}, { task: changes('post:p1'), records: [armed(), connection] });
   assert.equal(ran.status, 0, JSON.stringify(ran));
   assert.deepEqual(ran.wake_effects, [{ wake: { tool: 'tool:send-a-post-to-x', at_ms: Date.parse('2026-01-02T00:00:00Z'), input: { post_id: 'post:p1', account_id: ACCOUNT, armed_at: ARMED }, budget: settings.at_its_time.child_budget } }]);
   assert.equal(ran.result.set.length, 1);
