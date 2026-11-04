@@ -1,0 +1,6 @@
+{
+  "public": [
+    "show/FunnelCanvas.tsx",
+    "read-data/stage-projection.ts"
+  ]
+}

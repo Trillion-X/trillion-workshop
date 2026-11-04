@@ -1,0 +1,25 @@
+/* parts/screen-look/show/mention-picker.css
+ *
+ * The look of what `@` shows (parts/ui/show/mention-picker/MentionPicker.tsx): a row of kinds that narrows the list,
+ * then the things grouped under faint kind headers, each with its kind's icon in a soft disc of the kind's colour.
+ * After Dropbox Dash's composer suggestions and Notion's @-menu on Mobbin, and 21st.dev 29425 "Tabs with Count Badge"
+ * (coss) for the kind row. Colours ride [data-colour] (coss-workspace.css sets --record-kind for it).
+ */
+.mention-picker { min-width: 0; }
+.mention-picker-kinds {
+  flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 0.1rem 2.5rem 0.35rem 0.1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  /* More kinds than fit scroll sideways; the far edge fades so a cut-off kind reads as "more this way". */
+  mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+}
+.mention-picker-kinds::-webkit-scrollbar { display: none; }
+.mention-picker-kinds > * { flex-shrink: 0; gap: 0.3rem; }
+.mention-picker-kind-icon:not([data-colour]), .mention-picker-mark:not([data-colour]) { --record-kind: var(--record-kind-grey); }
+.mention-picker-kind-icon { color: var(--record-kind); }
+.mention-picker-list { min-width: 0; }
+.mention-picker-heading { padding: 0.45rem 0.6rem 0.15rem; }
+.mention-picker-option { width: 100%; min-height: 2.5rem; justify-content: flex-start; gap: 0.55rem; text-align: left; }
+.mention-picker-mark {
+  width: 1.5rem; height: 1.5rem; flex-shrink: 0; color: var(--record-kind);
+  background: color-mix(in oklab, var(--record-kind) 16%, transparent);
+}

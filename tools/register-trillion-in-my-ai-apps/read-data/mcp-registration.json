@@ -1,0 +1,147 @@
+{
+  "_what": "The rows tools/register-trillion-in-my-ai-apps reads, moved from Trillion-X/trillion harness/setup.json: `mac_app` (where the installed Trillion Mac app is, its harness payload folder and its own node; the local-stdio rows run that node with the app's Keychain bridge) and `mcp_registration` (the entry name, the default MCP address and one row per AI app).",
+  "mac_app": {
+    "path": "/Applications/Trillion.app",
+    "payload": "Contents/Resources/harness",
+    "runtime": "Contents/MacOS/node"
+  },
+  "mcp_registration": {
+    "_what": "Trillion's MCP entry in other AIs' own config files, written only by the person's explicit setup action (do-work/mcp-registration.mjs, do-work/register-in-ai-apps.mjs --action mcp-inspect|mcp-preview|mcp-register|mcp-unregister --client <ids>). Each `clients` row is one AI app (its id is the client id of Trillion's connect guide): where its config is, its format, the entry written and the signatures that identify an existing Trillion entry. Claude Code and Codex use the installed Mac app's stdio bridge; the bridge reads the current loopback port from the app-owned local-runtime descriptor for every request. It holds the existing Keychain key in memory and sends it only to that local door. If the door is unavailable it reports an error and never uses the paused hosted MCP address. Other app rows keep their configured transport. An existing entry that matches neither a Trillion signature is the person's own (custom) and is never changed or removed. `sign_in` refers to that client's current stage in the shared connect guide (rendered by /docs); it never copies an app's commands. A new AI app is a row here.",
+    "name": "trillion",
+    "url": "https://app.gettrillion.ai/mcp",
+    "clients": [
+      {
+        "id": "claude-code",
+        "file": ".claude.json",
+        "home_variable": "CLAUDE_CONFIG_DIR",
+        "home_file": ".claude.json",
+        "installed_when": [
+          ".claude"
+        ],
+        "format": "json",
+        "path": [
+          "mcpServers"
+        ],
+        "transport": "local-stdio",
+        "entry": {
+          "command": "{runtime}",
+          "args": [
+            "{bridge}"
+          ]
+        },
+        "remove_fields": [
+          "url",
+          "type"
+        ],
+        "same_when": [
+          {
+            "url": "https://app.gettrillion.ai/mcp"
+          },
+          {
+            "url": "{local_mcp}"
+          },
+          {
+            "command": "{runtime}",
+            "args": [
+              "{bridge}"
+            ]
+          }
+        ],
+        "sign_in": {
+          "client": "claude-code",
+          "path": "/docs",
+          "stage": "sign_in"
+        }
+      },
+      {
+        "id": "codex",
+        "file": ".codex/config.toml",
+        "home_variable": "CODEX_HOME",
+        "home_file": "config.toml",
+        "installed_when": [
+          ".codex"
+        ],
+        "format": "toml-table",
+        "path": [
+          "mcp_servers"
+        ],
+        "transport": "local-stdio",
+        "entry": {
+          "command": "{runtime}",
+          "args": [
+            "{bridge}"
+          ]
+        },
+        "remove_fields": [
+          "url"
+        ],
+        "same_when": [
+          {
+            "url": "https://app.gettrillion.ai/mcp"
+          },
+          {
+            "url": "{local_mcp}"
+          },
+          {
+            "command": "{runtime}",
+            "args": [
+              "{bridge}",
+              "{local_mcp}"
+            ]
+          },
+          {
+            "command": "{runtime}",
+            "args": [
+              "{bridge}"
+            ]
+          }
+        ],
+        "sign_in": {
+          "client": "codex",
+          "path": "/docs",
+          "stage": "sign_in"
+        }
+      },
+      {
+        "id": "gemini-cli",
+        "file": ".gemini/settings.json",
+        "installed_when": [
+          ".gemini"
+        ],
+        "format": "json",
+        "path": [
+          "mcpServers"
+        ],
+        "entry": {
+          "httpUrl": "{mcp}"
+        },
+        "same_when": "httpUrl",
+        "sign_in": {
+          "client": "gemini-cli",
+          "path": "/docs",
+          "stage": "sign_in"
+        }
+      },
+      {
+        "id": "cursor",
+        "file": ".cursor/mcp.json",
+        "installed_when": [
+          ".cursor"
+        ],
+        "format": "json",
+        "path": [
+          "mcpServers"
+        ],
+        "entry": {
+          "url": "{mcp}"
+        },
+        "same_when": "url",
+        "sign_in": {
+          "client": "cursor",
+          "path": "/docs",
+          "stage": "sign_in"
+        }
+      }
+    ]
+  }
+}

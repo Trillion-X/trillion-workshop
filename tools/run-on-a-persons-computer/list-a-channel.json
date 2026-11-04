@@ -1,0 +1,11 @@
+{
+  "_what": "How computer/list-a-channel.mjs (tool:list-every-video-on-a-channel) lists every video a channel, a channel's tab or a playlist holds, on the person's computer. The link readers are the `hear-fetcher` rows (records/hear-fetcher-records.json) that have a `list` command, tried in order as tool:hear-a-link tries them; what a page's list needs beyond one read (the other lists that hold the same videos, how many the page states it has, which videos are shorts or live) is the `video-list-rule` rows (records/video-list-rule-records.json), both read through src/data-rows.mjs. `most_minutes` is the longest one list may take to read. Every word the AI reads is under `words`; a link that lists nothing is always answered with why.",
+  "most_minutes": 10,
+  "words": {
+    "needs_url": "Send the link to a channel, a channel's tab or a playlist as url.",
+    "no_fetcher": "This computer has no program that lists the videos at a link (such as yt-dlp), so {url} could not be listed.",
+    "list_failed": "Could not list {url} on this computer: {error}",
+    "stale_fetcher": "Could not list {url} on this computer: {error}. The page refused this computer's copy of {fetcher}; updating it often fixes this ({hint}).",
+    "no_entries": "{url} was read on this computer, but it lists no videos."
+  }
+}

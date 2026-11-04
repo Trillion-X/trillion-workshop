@@ -1,0 +1,96 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-BUILD-A-SCREEN-FROM-PATCHES-VIEW-PATCH-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "move the product modules of old trillion src/ (part 5 of 5) into Trillion-X/trillion-workshop tools. Move code, never rewrite it. Port the correct parts one to one with their original tests and assertions."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/view-patch.mjs",
+   "multihash": "1f:595225de0da08d3b492e97d5978cd59846322db4893235486843f5c929cd8b90",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/screen-view.mjs, src/worker.mjs, src/screen-spec.mjs and src/workspace/screen-view.tsx (the callers) and then deletes src/view-patch.mjs, src/view-patch.json and test/view-patch.test.mjs"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/view-patch.json",
+   "multihash": "1f:03ab5b305fe1bb5248aa2f62fe70189fa6d96e2a6c81c00be78eff2cf2926e4c",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/screen-view.mjs, src/worker.mjs, src/screen-spec.mjs and src/workspace/screen-view.tsx (the callers) and then deletes src/view-patch.mjs, src/view-patch.json and test/view-patch.test.mjs"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/build-a-screen-from-patches/read-data/view-patch.mjs"
+  },
+  {
+   "path": "tools/build-a-screen-from-patches/read-data/view-patch.json"
+  }
+ ],
+ "preserve": [
+  "a patch is made only against the answer held for the same key whose identity is the one the screen says it holds; anything else answers whole",
+  "an identity is the BLAKE3 of the answer's canonical JSON text",
+  "a patch is sent only when it is smaller than patch_share of the whole answer",
+  "an answer shorter than least_chars, longer than most_chars, not 200 or not JSON is answered whole",
+  "the screen checks the identity of what it rebuilt and reads whole again on a mismatch",
+  "applyPatch copies only the path a change touches and never changes the model given",
+  "the limits are data (view-patch.json)"
+ ],
+ "allowed_deltas": [
+  "the rows hand two answers' texts to patchedAnswer with a fresh cache, and a held text and an answer to textAfter, through read-data/screen-patch-tools.mjs"
+ ],
+ "banned_substitutions": [
+  "a rewritten copy of this job",
+  "a second live copy kept in Trillion-X/trillion after its deleted_by"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:595225de0da08d3b492e97d5978cd59846322db4893235486843f5c929cd8b90",
+  "target_multihash_at_baseline": "1f:595225de0da08d3b492e97d5978cd59846322db4893235486843f5c929cd8b90",
+  "recorded_at": "2026-11-03T21:00:00Z",
+  "rows": [
+   {
+    "path": "tools/build-a-screen-from-patches/read-data/view-patch.mjs",
+    "source_multihash": "1f:595225de0da08d3b492e97d5978cd59846322db4893235486843f5c929cd8b90",
+    "target_multihash_at_baseline": "1f:595225de0da08d3b492e97d5978cd59846322db4893235486843f5c929cd8b90"
+   },
+   {
+    "path": "tools/build-a-screen-from-patches/read-data/view-patch.json",
+    "source_multihash": "1f:03ab5b305fe1bb5248aa2f62fe70189fa6d96e2a6c81c00be78eff2cf2926e4c",
+    "target_multihash_at_baseline": "1f:03ab5b305fe1bb5248aa2f62fe70189fa6d96e2a6c81c00be78eff2cf2926e4c"
+   }
+  ],
+  "commit": "c5ed66b0e3d5fffe4ed6f8416617783be59892bc"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.8,
+  "required_mechanisms": [
+   "export const identityOf",
+   "export function diff",
+   "export function applyPatch",
+   "export function makeAnswerCache",
+   "export function patchedAnswer",
+   "export function textAfter",
+   "blake3(encoder.encode(text))"
+  ],
+  "test_refs": [
+   "tools/build-a-screen-from-patches/test/view-patch.test.mjs",
+   "tools/build-a-screen-from-patches/test/screen-patch-rows.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

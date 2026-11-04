@@ -1,0 +1,39 @@
+/* The one picker of a choice drawn as tiles (parts/ui/show/choice-tiles), after Klaviyo's "Who is your reviews
+ * provider?" picker (mobbin.com/screens/0c6903c3-5ec3-40bd-befb-4b8d5f68dfe4): equal bordered tiles in a grid that fills
+ * the width and wraps into rows of the same size, each with the choice's logo before its name; the chosen tile is
+ * ringed. The button that opens the chosen one (OpenChoice) wears the choice's logo before its words, and a small
+ * button beside it opens the tiles in a popover. */
+.choice-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)); gap: 0.5rem; }
+.choice-tiles .choice-tile { border-color: color-mix(in srgb, var(--color-foreground, #1f1f1f) 12%, transparent); justify-content: flex-start; gap: 0.6rem; height: auto; min-height: 2.9rem; padding: 0.5rem 0.75rem; border-radius: 0.75rem; white-space: normal; text-align: left; line-height: 1.25; color: var(--color-foreground, #1f1f1f); }
+.choice-tiles .choice-tile[data-selected] { border-color: var(--color-foreground, #1f1f1f); box-shadow: 0 0 0 1px var(--color-foreground, #1f1f1f); background: var(--color-card, #fff); }
+.choice-tiles .choice-tile:focus-visible { outline: 2px solid var(--color-ring, var(--color-foreground, #1f1f1f)); outline-offset: 3px; }
+.choice-tile-label { min-width: 0; overflow-wrap: anywhere; display: inline-flex; align-items: center; gap: 0.35rem; }
+.choice-tile-text { display: grid; min-width: 0; gap: 0.25rem; }
+.choice-tile-description { color: var(--color-muted-foreground, #666); font-size: 0.875rem; font-weight: 400; line-height: 1.5; overflow-wrap: anywhere; }
+/* Explained single choices use the same picker as guides and account choices.
+   The caller supplies all rows and words; Screen Look owns their spacing/state. */
+.choice-tiles[data-choice-kind="radio"] { grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 0.625rem; }
+.choice-tiles[data-choice-kind="radio"] .choice-tile { min-height: 4.75rem; padding: 0.875rem 1rem; gap: 0.875rem; background: var(--color-muted, #f4f4f4); }
+.choice-tiles[data-choice-kind="radio"] .choice-tile[data-selected] { background: var(--color-card, #fff); }
+.choice-tile-radio { width: 1.25rem; height: 1.25rem; flex: none; border: 2px solid var(--color-muted-foreground, #666); border-radius: var(--radius-pill); corner-shape: round; display: grid; place-items: center; }
+.choice-tile[data-selected] .choice-tile-radio { border-color: currentColor; }
+.choice-tile[data-selected] .choice-tile-radio::after { content: ""; width: 0.625rem; height: 0.625rem; border-radius: var(--radius-pill); corner-shape: round; background: currentColor; }
+/* Copy labels share one grid cell to keep a stable size. In a tile the full label wraps within its column rather
+   than inheriting the ordinary copy button's single-line text, including while its success words are displayed. */
+.choice-tile-label .copy-words { min-width: 0; max-width: 100%; }
+.choice-tile-label .copy-words-layer { white-space: normal; overflow-wrap: anywhere; }
+.choice-tiles .choice-tile-mark { width: 1.6rem; height: 1.6rem; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.45rem; background: var(--color-card, #fff); color: var(--color-muted-foreground, #666); }
+.choice-tiles .choice-tile-mark img { object-fit: contain; }
+.choice-tiles .choice-tile-mark svg { width: 1rem; height: 1rem; opacity: 1; margin: 0; }
+.choice-tiles .choice-tile .logo-fallback svg { width: 55%; height: 55%; }
+
+.open-choice-split { display: inline-flex; align-items: stretch; }
+.open-choice-split .open-choice { border-start-end-radius: 0; border-end-end-radius: 0; }
+.open-choice-split .open-choice-more { border-start-start-radius: 0; border-end-start-radius: 0; margin-inline-start: -1px; }
+.open-choice .open-choice-mark { width: 1.15rem; height: 1.15rem; border-radius: 0.3rem; flex: none; }
+.open-choice .open-choice-mark img { object-fit: contain; }
+.open-choice .open-choice-mark .logo-fallback svg { width: 60%; height: 60%; }
+.open-choice .open-choice-icon { width: 1rem; height: 1rem; }
+.open-choice-popup { width: min(22rem, calc(100vw - 2rem)); }
+.open-choice-popup .open-choice-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.6rem; }
+.open-choice-popup .choice-tiles { grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); }

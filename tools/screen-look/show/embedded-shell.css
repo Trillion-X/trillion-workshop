@@ -1,0 +1,23 @@
+/* The shell of a screen drawn inside another AI app, before (or without) the service's own stylesheet.
+   Every colour, face, radius and size is a look token (the :root block the embedded document writes from the person's
+   look), so the page, its loading rows and its failed state wear the look even when nothing else could be fetched.
+   scripts/make-embedded-shell-css.mjs joins this with screen-state.css, media-loading.css and loading-mark.css into
+   embedded-shell-css.mjs; the full workspace stylesheet, when it arrives, only refines what is here. */
+html,body {margin:0;background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-primary),system-ui,sans-serif;font-size:var(--font-size-body,1rem);line-height:1.5;-webkit-font-smoothing:antialiased}
+*,*::before,*::after {box-sizing:border-box}
+#trillion-screen-view {min-height:0}
+[data-slot=empty] {display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--text-primary)}
+[data-slot=empty-header] {display:flex;flex-direction:column;align-items:center;gap:8px}
+[data-slot=empty-icon] {display:flex;align-items:center;justify-content:center}
+[data-slot=empty-title] {margin:0;font-family:var(--font-display),var(--font-primary),system-ui,sans-serif}
+[data-slot=empty-description] {margin:0;color:var(--text-secondary,var(--text-primary))}
+[data-slot=empty-content] {display:flex;flex-direction:column;align-items:center;gap:8px}
+[data-slot=button] {display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:0 14px;border:1px solid var(--border-primary);border-radius:var(--radius-control);background:var(--button-primary-bg);color:var(--button-primary-text);font:inherit;font-weight:500;cursor:pointer}
+[data-slot=button]:hover {background:var(--button-primary-bg-hover)}
+[data-slot=button]:focus-visible {outline:2px solid var(--border-focus);outline-offset:2px}
+[data-slot=button][disabled],[data-slot=button][aria-busy=true] {cursor:progress;opacity:.7}
+.screen-state-actions [data-slot=button]:not(:first-child) {background:transparent;color:var(--text-primary)}
+[data-slot=button] svg {width:1em;height:1em;flex:none}
+[data-slot=skeleton] {display:block;border-radius:var(--radius-chip);background:var(--border-primary);animation:embedded-shell-rest 1.6s ease-in-out infinite}
+@keyframes embedded-shell-rest {50% {opacity:.55}}
+@media(prefers-reduced-motion:reduce){[data-slot=skeleton] {animation:none}}

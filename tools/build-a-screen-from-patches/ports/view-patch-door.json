@@ -1,0 +1,59 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-BUILD-A-SCREEN-FROM-PATCHES-VIEW-PATCH-FROM-TRILLION-DOOR",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "Every job of old trillion ends as a Workshop tool; a Workshop tool reaches the person's records through the records door."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "make a view patch between two answers, apply a view patch to the answer a screen holds, and build a screen spec from lines of JSON changes, as container rows over the moved view-patch and screen-spec code",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/build-a-screen-from-patches/read-data/screen-patch-tools.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/build-a-screen-from-patches/",
+   "why": "This tool itself: the patching is read-data/view-patch.mjs and the spec stream is read-data/screen-spec.mjs, moved from trillion src/view-patch.mjs and src/screen-spec.mjs; this file only hands them a row's input."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "make a view patch between two answers, apply a view patch to the answer a screen holds, and build a screen spec from lines of JSON changes, as container rows over the moved view-patch and screen-spec code",
+    "view patch between two answers",
+    "text after a view patch",
+    "screen spec from lines of changes"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "viewPatchBetween",
+    "textAfterViewPatch",
+    "screenSpecFromLines"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "02aa88a30db2f3bb1881b62b04dca782f2250f5c"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/build-a-screen-from-patches/test/view-patch.test.mjs",
+   "tools/build-a-screen-from-patches/test/screen-patch-rows.test.mjs"
+  ]
+ }
+}

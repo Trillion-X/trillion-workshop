@@ -1,0 +1,22 @@
+{
+  "_what": "How an uploaded video is made one playable format at ingest (src/ingest-normalization.mjs reads it). `target` is the one format every video is kept playable as. Each `convert` row is a type that is not that format: its extension, whether it carries no sound (`silent`, so the runner drops audio and makes the size even), and the words used for the type. `ffmpeg_args` are the arguments an ffmpeg-like runner takes to make the target (`{input}` and `{output}` are filled with the runner's own paths). A type with no row is kept as it came, and the answer lists what Trillion does convert. `convert_max_bytes` is the largest file one conversion takes; a bigger one is kept as it came and the answer says why. Changing a row changes ingest; nothing is compiled.",
+  "target": { "media_type": "video/mp4", "extension": "mp4", "label": "MP4" },
+  "convert_max_bytes": 4294967296,
+  "ffmpeg_args": ["-v", "error", "-nostdin", "-y", "-i", "{input}", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-movflags", "+faststart", "{output}"],
+  "ffmpeg_args_silent": ["-v", "error", "-nostdin", "-y", "-i", "{input}", "-an", "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "{output}"],
+  "convert": {
+    "video/quicktime": { "extension": "mov", "label": "QuickTime MOV", "silent": false },
+    "video/webm": { "extension": "webm", "label": "WebM", "silent": false },
+    "video/x-msvideo": { "extension": "avi", "label": "AVI", "silent": false },
+    "video/x-matroska": { "extension": "mkv", "label": "Matroska MKV", "silent": false },
+    "image/gif": { "extension": "gif", "label": "animated GIF", "silent": true },
+    "image/webp": { "extension": "webp", "label": "animated WebP", "silent": true }
+  },
+  "words": {
+    "kept": "{label} is already the one playable format, so it was kept as it came.",
+    "convert": "{from} is not kept as it came: it is made {to} so every screen can play it.",
+    "too_big": "This {from} file is {size} MiB, more than the {limit} MiB one conversion takes, so it was kept as it came and may not play everywhere. Converts: {supported}.",
+    "not_listed": "{type} is not a video type Trillion converts, so it was kept as it came. Converts: {supported}; kept as is: {target}."
+  },
+  "source": { "kind": "hand-typed", "from": "Spatial's add_video text: 'Supported: mp4, mov, webm, webp, gif, avi' and 'Couldn't convert that ... file to mp4' (REA finding F-0835)", "read_on": "2026-10-19" }
+}
