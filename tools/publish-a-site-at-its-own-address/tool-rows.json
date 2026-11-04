@@ -778,7 +778,7 @@
     "label": "My site addresses",
     "status": "active",
     "job": "List the addresses my published websites answer at",
-    "description": "Every address your sites answer at: each host, its https address, the installation it shows, and for an earlier name the address it sends visitors on to.",
+    "description": "Every address your sites answer at: each host, its https address, the installation it shows, and for an earlier name the address it sends visitors on to. told says what the forwarder last answered: answering, or refused and why.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -812,6 +812,29 @@
          "moved_to": {
           "type": "string"
          }
+        }
+       }
+      },
+      "told": {
+       "type": [
+        "object",
+        "null"
+       ],
+       "properties": {
+        "state": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "told_at": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "why": {
+         "type": "string"
         }
        }
       }
@@ -925,7 +948,8 @@
       "kind": "sample-run",
       "input": {},
       "door_files": {
-       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.trillion.run\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.trillion.run\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+       "/installations/origins-told.json": "{\"state\": \"refused\", \"why\": \"host_taken\", \"told_at_ms\": 1762257600000}"
       }
      }
     ]
