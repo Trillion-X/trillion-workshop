@@ -60,6 +60,22 @@
       "to": "tools/conversations/test/chat-source-time.test.mjs",
       "source_identity": "1f:87b4c6da3be2dd563ede41f0f0db4027a9bfda1bc882640fd738a4a82c9bf582",
       "identity": "1f:87b4c6da3be2dd563ede41f0f0db4027a9bfda1bc882640fd738a4a82c9bf582"
+    },
+    {
+      "from": "test/chat-attachments.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/conversations/test/chat-attachments.test.mjs",
+      "source_identity": "1f:f583dc20bd70614845fa5de58f388c51335b719f84b4d2aa17052b754830fac4",
+      "identity": "1f:63d459525f62c85e211ea2f9befe8a842b03fc4d57248e4d2a9a3482ca9ac51c",
+      "note": "Its made-up chat and assertions moved onto the Workshop tool (the namespace finder and the import over the records door) instead of the Worker's PersonStore, Network and Namespace routes; the space tests stay behind with the Worker's space owner."
+    },
+    {
+      "from": "test/native-chat-import.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/conversations/test/native-chat-import.test.mjs",
+      "source_identity": "1f:7a741a5824e07472e0b2fbbd89466f0e0c2e961a9165a4cbf4100fc56822ad69",
+      "identity": "1f:bced585c2d47918064eb5be54c357ade86aba7eb79d48146eef1e7ca367303a3",
+      "note": "Its made-up chat and assertions moved onto the Workshop tool (the namespace finder and the import over the records door) instead of the Worker's PersonStore, Network and Namespace routes; the space tests stay behind with the Worker's space owner."
     }
   ]
 }
