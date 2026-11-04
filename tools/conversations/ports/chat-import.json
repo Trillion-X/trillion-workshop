@@ -1,0 +1,66 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CONVERSATIONS-CHAT-IMPORT",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:7de166d829d2caaae8f3f2a60003dcb1f41d528042bca1cb64da7d792f2e41c3",
+    "quote": "Port the importers and decoders one to one into trillion-workshop tools/conversations/ (keep names, tests, moved-from.json, a tool row per action). Move code, never rewrite."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/chat-import.mjs",
+      "multihash": "1f:1c9fc56101d46d9dcd7a4e7dc0ea70ae69c1c50c9692b67e0c327235686c18a8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T00:00:00Z",
+        "deleted_with": "already gone from Trillion-X/trillion main (absent at 9bed45cbd8) when the Worker retired; the tag old-trillion-before-worker-retire keeps the history"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/conversations/read-data/chat-import.mjs"
+    }
+  ],
+  "preserve": [
+    "importConversation keeps one chat through the message owner's record(), a hundred messages a batch, each with its source_ref, so a repeat adds nothing twice",
+    "keepConversationRow writes only facts read from the chat (title, app, conversation, started, last, messages, models), so labels, people, pursuits and follow-ups set by the person stay on a re-import",
+    "attachmentFinder and the space branch unchanged; a file that cannot be found is reported, never an error",
+    "exportedConversations reads a JSON export or the conversations*.json of an export zip through the one archive reader"
+  ],
+  "allowed_deltas": [
+    "the Worker's store becomes the records door: eeaf is stagedRecords(door).eeaf and commit its commit (reads first, then the step's writes in door-sized batches); lists are listsOverDoor(door)",
+    "importChatExport (the Worker reading an export from hosted files in pages) becomes the resumable run over files on this computer, with a cursor row per file and per source",
+    "writes and reads are sent again after a growing wait on 503, timeouts and unknown outcomes, with the same request key",
+    "local AI apps' sessions are read by the moved harness rules (harness/record-every-message.mjs rowsFrom and messagesOf)",
+    "the files a message carried are copied into the person's files through the files door (fileKeeper over records-door writeWholeFile): an export's files found beside it on this computer (exportFilesBeside, attachmentFinder's own id rule) or at the path the person gave, a session's pasted images under old Trillion's recorder names; importConversation takes that finder as `find`, and attachmentFinder stays for a namespace"
+  ],
+  "banned_substitutions": [
+    "a new message store or identity instead of the moved message owner",
+    "a source location written into the code",
+    "an inference model reading or rewriting the conversations"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T09:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:1c9fc56101d46d9dcd7a4e7dc0ea70ae69c1c50c9692b67e0c327235686c18a8",
+    "target_multihash_at_baseline": "1f:1c9fc56101d46d9dcd7a4e7dc0ea70ae69c1c50c9692b67e0c327235686c18a8",
+    "commit": "e2783ba391632183c35293ee51ccff81393dd652"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/conversations/test/import-conversations.test.mjs each source keeps one row per conversation and its messages, and a second run adds nothing",
+      "tools/conversations/test/import-conversations.test.mjs a door that answers 503 midway stops the run where it was kept, and a resume finishes with nothing kept twice",
+      "tools/conversations/test/chat-history-identity.test.mjs trusted history preserves its complete conversation identity, files and timestamps without opening work",
+      "tools/conversations/test/chat-export-zip.test.mjs a zip export gives the conversations of every conversations*.json",
+      "tools/conversations/test/import-attachments.test.mjs the files each source's messages carried are copied through the files door, named the way old Trillion named them",
+      "tools/conversations/test/import-attachments.test.mjs a door that answers 503 in the middle of a file's pieces stops the run, and a resume keeps every file once and whole",
+      "tools/conversations/test/chat-attachments.test.mjs a private import links each found file in its message, reports the rest, and a second import links what was added since",
+      "tools/conversations/test/native-chat-import.test.mjs an export's files are found beside it, linked in their messages, and a repeat adds nothing twice"
+    ]
+  }
+}
