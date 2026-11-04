@@ -1,0 +1,10 @@
+{
+  "about": "The MCP methods an AI app sends to connect (read the instructions, list the tools, say hello) and how long they wait for the person's store. Their answers are the same shipped text for every account, so a busy or resetting store never stops an AI from connecting; only calls that read or change the person's records wait for the store and say it is busy. `page_answers_ms` is the longest the workspace page's own response stays open for the answers it carries (src/workspace-files.mjs withAnswers): past it the answers that have not settled are left out and the page asks for them itself. `brand_fresh_seconds` is how long the operator's brand presentation is used again without asking the store (src/brand-assets.mjs readBrandPresentationWithin), which otherwise waits `store_wait_ms` and answers with the last one kept; each ask costs the operator store three reads (about 2 s of its CPU on 2026-10-13), once per edge location per window, so 30 s kept that store busy and 300 s means a brand change shows within five minutes. `connect_work_ms` is the longest initialize waits to hand the account its work and read what waits for the AI (src/worker.mjs waitingAtConnect). src/connecting-without-the-store.mjs reads this.",
+  "methods": ["initialize", "server/discover", "ping", "tools/list", "resources/list", "resources/templates/list"],
+  "method_prefixes": ["notifications/"],
+  "store_wait_ms": 2000,
+  "connect_work_ms": 1500,
+  "page_answers_ms": 2500,
+  "brand_fresh_seconds": 300,
+  "kept_answer_seconds": 900
+}

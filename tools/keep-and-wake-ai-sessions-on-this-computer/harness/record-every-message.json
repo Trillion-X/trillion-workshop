@@ -1,0 +1,1351 @@
+{
+  "what_this_is": "Settings for record-every-message.mjs: an AI's replies go up to batch_size in one request (a person's message, or one carrying files, goes alone, since each reaches the arrival road on its own); where Trillion is, how each AI harness writes its transcript, which rows are the person's words and which are the AI's replies, and which text a harness injects that nobody said. Adding a harness, a row shape or an injected note is a row here, never a code change. Optional harness fields: source_ref_paths (where a message's own id lives in its row), final_reply_when (conditions an AI row must meet to be the AI's final answer; absent means every AI row is final), source_return (which final rows are checked for handoff ids, where their id and words are), await_human_transcript (a prompt whose origin is not marked human waits for its transcript row), prompt_requires_transcript (a prompt always waits for its transcript row) and prompt_wait (the prompt hook waits up to prompt_wait_ms for that row).",
+  "origin": "https://app.gettrillion.ai",
+  "messages_path": "/mcp/api/messages",
+  "executions_path": "/mcp/api/executions",
+  "execution_result_fields": {
+    "provider": [
+      [
+        "provider"
+      ]
+    ],
+    "account": [
+      [
+        "provider_account"
+      ],
+      [
+        "account_id"
+      ]
+    ],
+    "object_id": [
+      [
+        "provider_id"
+      ],
+      [
+        "messageId"
+      ],
+      [
+        "message_id"
+      ],
+      [
+        "id"
+      ]
+    ],
+    "route": [
+      [
+        "route"
+      ]
+    ],
+    "source_ref": [
+      [
+        "source_ref"
+      ]
+    ]
+  },
+  "execution_references": {
+    "_what": "Only explicitly named identity metadata from a supported tool's structured input/result. Arbitrary typed record kinds are accepted as claims, not verified records; URI schemes, native paths and unqualified provider ids are not identities here. Namespace file identities retain their exact complete hash. No payload, prose or shell parsing. Limits match the execution receipt owner; a refusal retains the transcript cursor. The complete native result already has its own result_source owner: link that identity without duplicating its bytes.",
+    "max_references": 201,
+    "max_bytes": 524288,
+    "identity_patterns": [
+      "^(?:file:)?(?:1f|12):[0-9a-f]{64}$",
+      "^(?![a-z][a-z0-9+.-]*:/)(?!(?:file|https?|ftp|data|mailto|urn|ssh|s3|gs|blob|tel|sms|wss?|javascript|about):)[a-z][a-z0-9_-]+:[^\\s\\\\]+$"
+    ],
+    "fields": [
+      {
+        "path": [
+          "id"
+        ]
+      },
+      {
+        "path": [
+          "item"
+        ]
+      },
+      {
+        "path": [
+          "record"
+        ]
+      },
+      {
+        "path": [
+          "record_ref"
+        ]
+      },
+      {
+        "path": [
+          "source_ref"
+        ]
+      },
+      {
+        "path": [
+          "proof_ref"
+        ]
+      },
+      {
+        "path": [
+          "execution_ref"
+        ]
+      },
+      {
+        "path": [
+          "file_id"
+        ]
+      },
+      {
+        "path": [
+          "file_ref"
+        ]
+      },
+      {
+        "path": [
+          "identity"
+        ]
+      },
+      {
+        "path": [
+          "result_source",
+          "identity"
+        ]
+      },
+      {
+        "path": [
+          "finish",
+          "result_source",
+          "identity"
+        ]
+      },
+      {
+        "path": [
+          "record_refs"
+        ],
+        "each": true
+      },
+      {
+        "path": [
+          "references"
+        ],
+        "each": true,
+        "ref_path": [
+          "ref"
+        ],
+        "role_path": [
+          "role"
+        ]
+      },
+      {
+        "path": [
+          "files"
+        ],
+        "each": true,
+        "ref_path": [
+          "id"
+        ]
+      },
+      {
+        "path": [
+          "files"
+        ],
+        "each": true,
+        "ref_path": [
+          "identity"
+        ]
+      },
+      {
+        "path": [
+          "records"
+        ],
+        "each": true,
+        "ref_path": [
+          "id"
+        ]
+      }
+    ]
+  },
+  "inbound_path": "/mcp/api/inbound",
+  "keychain_item": "trillion-agent-work-key",
+  "batch_size": 100,
+  "time_box_ms": 4000,
+  "transcript_read_bytes": 262144,
+  "transcript_row_bytes": 8388608,
+  "drain_most_ms": 600000,
+  "drain_session_ms": 20000,
+  "prompt_wait_ms": 90000,
+  "sweep_time_box_ms": 120000,
+  "sweep": {
+    "every_seconds": 180,
+    "changed_within_days": 7,
+    "head_bytes": 1048576,
+    "cursor_file": "sweep-order.json"
+  },
+  "drain_wait_ms": {
+    "first": 500,
+    "most": 60000
+  },
+  "cursor_folder": "~/.trillion/record-every-message",
+  "history": {
+    "cursor_folder": "~/.trillion/ai-chat-history",
+    "read_bytes": 4194304,
+    "row_bytes": 8388608
+  },
+  "source_return_recheck_minutes": [
+    1,
+    5,
+    15,
+    60,
+    240,
+    720
+  ],
+  "_injected_text": "Text a harness or another AI puts into a chat that nobody typed (one AI session relaying words into another, \"From <someone>'s <AI> session: ...\", included). Each row: a pattern matched against the start (or the whole) of one text part, and kept_as, the speaker the words are kept under when they reach Trillion anyway (src/not-the-person.mjs at the /inbound door): peer for another AI's message, generated context for anything a program wrote. This hook drops every matching part; the door keeps a whole message that matches under its kept_as and opens no decision for it. Adding a shape is a row here.",
+  "injected_text": [
+    {
+      "kept_as": "generated context",
+      "pattern": "^\\s*<(system-reminder|trillion-message|environment_context|codex_internal_context|codex_delegation|codex_app\\.send_message_to_thread|heartbeat|hook_prompt(?=\\s+hook_run_id=)|user_instructions|skills_instructions|recommended_plugins|permissions instructions|collaboration_mode|INSTRUCTIONS|task-notification|local-command-caveat|local-command-stdout|local-command-stderr|bash-stdout|bash-stderr|turn_aborted|user_shell_command|subagent_notification|channel)\\b"
+    },
+    {
+      "kept_as": "peer",
+      "pattern": "^\\s*<(agent-message|teammate-message|cross-session-message)\\b"
+    },
+    {
+      "kept_as": "peer",
+      "pattern": "^\\s*From [^\\n]{0,60}?\\b(?:AI|Claude|Codex|ChatGPT|GPT|Gemini|agent|assistant)\\b[^\\n]{0,30}?\\b(?:session|orchestrator)\\b"
+    },
+    {
+      "kept_as": "peer",
+      "pattern": "^\\s*Another Claude session sent a message:\\s*<(teammate-message|cross-session-message|agent-message)\\b"
+    },
+    {
+      "kept_as": "generated context",
+      "pattern": "^\\s*# AGENTS\\.md instructions\\b"
+    },
+    {
+      "kept_as": "generated context",
+      "pattern": "^\\s*\\[Request interrupted by user"
+    },
+    {
+      "kept_as": "generated context",
+      "pattern": "^\\s*\\[Image: source: "
+    }
+  ],
+  "harnesses": [
+    {
+      "id": "claude-code",
+      "executions": [
+        {
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "assistant"
+            }
+          ],
+          "parts_path": [
+            "message",
+            "content"
+          ],
+          "part_when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "tool_use"
+            }
+          ],
+          "call_id_path": [
+            "id"
+          ],
+          "operation_path": [
+            "name"
+          ],
+          "input_paths": [
+            [
+              "input"
+            ]
+          ],
+          "phase": "called"
+        },
+        {
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "user"
+            }
+          ],
+          "parts_path": [
+            "message",
+            "content"
+          ],
+          "part_when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "tool_result"
+            }
+          ],
+          "call_id_path": [
+            "tool_use_id"
+          ],
+          "result_path": [
+            "content"
+          ],
+          "phase": "returned",
+          "failed_path": [
+            "is_error"
+          ]
+        }
+      ],
+      "app": "Claude Code",
+      "await_human_transcript": true,
+      "source_ref_paths": [
+        [
+          "uuid"
+        ]
+      ],
+      "final_reply_when": [
+        {
+          "path": [
+            "message",
+            "stop_reason"
+          ],
+          "one_of": [
+            "end_turn",
+            "stop_sequence"
+          ]
+        }
+      ],
+      "source_return": {
+        "when": [
+          {
+            "path": [
+              "type"
+            ],
+            "is": "assistant"
+          },
+          {
+            "path": [
+              "isSidechain"
+            ],
+            "is_not": true
+          },
+          {
+            "path": [
+              "message",
+              "stop_reason"
+            ],
+            "one_of": [
+              "end_turn",
+              "stop_sequence"
+            ]
+          }
+        ],
+        "id_path": [
+          "uuid"
+        ],
+        "text": {
+          "path": [
+            "message",
+            "content"
+          ],
+          "part_types": [
+            "text"
+          ]
+        }
+      },
+      "recognized_by": [
+        {
+          "path": [
+            "sessionId"
+          ],
+          "present": true
+        }
+      ],
+      "session_id_path": [
+        "sessionId"
+      ],
+      "time_path": [
+        "timestamp"
+      ],
+      "transcript_roots": [
+        {
+          "folder": "~/.claude/projects",
+          "depth": 1
+        }
+      ],
+      "context": [],
+      "awaits_transcript_when": [
+        {
+          "name": "CLAUDE_CODE_SESSION_ATTENDED",
+          "is": "0"
+        }
+      ],
+      "awaits_transcript_why": "Claude Code's daemon runs a background job with CLAUDE_CODE_SESSION_ATTENDED=0 (the daemon sets it, no launcher does). The prompt hook can fire before the transcript row that says sessionKind bg exists, so until that row is read the prompt is not sent as the person's words.",
+      "awaits_transcript_when_session": [
+        {
+          "path": [
+            "sessionKind"
+          ],
+          "is": "bg"
+        }
+      ],
+      "awaits_transcript_when_session_why": "Not every background job runs under the daemon's variable, and its scheduled wakeups reach the prompt hook marked as typed. A session whose transcript rows Claude Code marks sessionKind bg is another AI's job, so a prompt in it is only ever kept from its transcript row, which says who wrote it.",
+      "messages": [
+        {
+          "speaker": "generated context",
+          "why": "A harness-written system prompt is preserved as generated context, never as a person or peer. Compaction summaries and sidechain copies remain excluded.",
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "user"
+            },
+            {
+              "path": [
+                "promptSource"
+              ],
+              "is": "system"
+            },
+            {
+              "path": [
+                "isCompactSummary"
+              ],
+              "is_not": true
+            },
+            {
+              "path": [
+                "isSidechain"
+              ],
+              "is_not": true
+            }
+          ],
+          "text": {
+            "path": [
+              "message",
+              "content"
+            ],
+            "part_types": [
+              "text"
+            ]
+          }
+        },
+        {
+          "speaker": "peer",
+          "why": "A claude --bg job is started by another AI (or a program) with a brief it wrote, and Claude Code marks every row of such a job sessionKind bg. The brief's own row says origin human and promptSource typed, so provenance alone calls an AI-written brief the person's words (nine coordinator briefs became his messages, handoffs and decisions on 2026-10-07). The mark is written by Claude Code itself, so no launcher has to cooperate. Kept as a peer message, never dropped.",
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "user"
+            },
+            {
+              "path": [
+                "sessionKind"
+              ],
+              "is": "bg"
+            },
+            {
+              "path": [
+                "origin",
+                "kind"
+              ],
+              "is_not": "peer"
+            },
+            {
+              "path": [
+                "promptSource"
+              ],
+              "is_not": "sdk"
+            },
+            {
+              "path": [
+                "entrypoint"
+              ],
+              "is_not": "sdk-cli"
+            },
+            {
+              "path": [
+                "isMeta"
+              ],
+              "is_not": true
+            },
+            {
+              "path": [
+                "isCompactSummary"
+              ],
+              "is_not": true
+            },
+            {
+              "path": [
+                "isSidechain"
+              ],
+              "is_not": true
+            }
+          ],
+          "text": {
+            "path": [
+              "message",
+              "content"
+            ],
+            "part_types": [
+              "text"
+            ]
+          }
+        },
+        {
+          "speaker": "peer",
+          "why": "A message sent into a background job is queued for it by whoever drives that job; the row says origin human the same way the brief does.",
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "attachment"
+            },
+            {
+              "path": [
+                "attachment",
+                "type"
+              ],
+              "is": "queued_command"
+            },
+            {
+              "path": [
+                "sessionKind"
+              ],
+              "is": "bg"
+            },
+            {
+              "path": [
+                "isSidechain"
+              ],
+              "is_not": true
+            }
+          ],
+          "text": {
+            "path": [
+              "attachment",
+              "prompt"
+            ],
+            "part_types": [
+              "text"
+            ]
+          }
+        },
+        {
+          "speaker": "person",
+          "why": "Only a row Claude Code marks as typed by a human is the person's words (an allow-list: a row of any other origin, or none, is never theirs). A scheduled wakeup or a harness-written prompt (promptSource system, turnOrigin scheduled) became about 300 message-intake decisions and jobs a day as the person's words (2026-10-08).",
+          "origin_path": [
+            "origin",
+            "kind"
+          ],
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "user"
+            },
+            {
+              "path": [
+                "origin",
+                "kind"
+              ],
+              "is": "human"
+            },
+            {
+              "path": [
+                "promptSource"
+              ],
+              "is_not": "sdk"
+            },
+            {
+              "path": [
+                "promptSource"
+              ],
+              "is_not": "system"
+            },
+            {
+              "path": [
+                "turnOrigin"
+              ],
+              "is_not": "scheduled"
+            },
+            {
+              "path": [
+                "entrypoint"
+              ],
+              "is_not": "sdk-cli"
+            },
+            {
+              "path": [
+                "isMeta"
+              ],
+              "is_not": true
+            },
+            {
+              "path": [
+                "isCompactSummary"
+              ],
+              "is_not": true
+            },
+            {
+              "path": [
+                "isSidechain"
+              ],
+              "is_not": true
+            }
+          ],
+          "text": {
+            "path": [
+              "message",
+              "content"
+            ],
+            "part_types": [
+              "text"
+            ]
+          },
+          "attachments": {
+            "path": [
+              "message",
+              "content"
+            ],
+            "part_types": [
+              "image",
+              "document",
+              "file"
+            ],
+            "data_paths": [
+              [
+                "source",
+                "data"
+              ],
+              [
+                "data"
+              ],
+              [
+                "image_url"
+              ],
+              [
+                "file_data"
+              ]
+            ],
+            "media_type_paths": [
+              [
+                "source",
+                "media_type"
+              ],
+              [
+                "media_type"
+              ],
+              [
+                "mime_type"
+              ]
+            ],
+            "name_paths": [
+              [
+                "name"
+              ],
+              [
+                "filename"
+              ],
+              [
+                "file_name"
+              ]
+            ]
+          }
+        },
+        {
+          "speaker": "person",
+          "origin_path": [
+            "attachment",
+            "origin",
+            "kind"
+          ],
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "attachment"
+            },
+            {
+              "path": [
+                "attachment",
+                "type"
+              ],
+              "is": "queued_command"
+            },
+            {
+              "path": [
+                "attachment",
+                "origin",
+                "kind"
+              ],
+              "is": "human"
+            },
+            {
+              "path": [
+                "isMeta"
+              ],
+              "is_not": true
+            },
+            {
+              "path": [
+                "isSidechain"
+              ],
+              "is_not": true
+            }
+          ],
+          "text": {
+            "path": [
+              "attachment",
+              "prompt"
+            ],
+            "part_types": [
+              "text"
+            ]
+          }
+        },
+        {
+          "speaker": "person",
+          "await_source": true,
+          "why": "A queue row has no sender. Retain it across retries and restarts until a consumed row identifies who wrote it; a delay or closed window never makes its origin human.",
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "queue-operation"
+            },
+            {
+              "path": [
+                "operation"
+              ],
+              "is": "enqueue"
+            }
+          ],
+          "superseded_by": {
+            "why": "The consumed user or queued_command row carries the same words and authoritative sender evidence. Awaited queues have no elapsed-time cutoff.",
+            "rows": [
+              {
+                "when": [
+                  {
+                    "path": [
+                      "type"
+                    ],
+                    "is": "user"
+                  }
+                ],
+                "text_path": [
+                  "message",
+                  "content"
+                ]
+              },
+              {
+                "when": [
+                  {
+                    "path": [
+                      "type"
+                    ],
+                    "is": "attachment"
+                  },
+                  {
+                    "path": [
+                      "attachment",
+                      "type"
+                    ],
+                    "is": "queued_command"
+                  }
+                ],
+                "text_path": [
+                  "attachment",
+                  "prompt"
+                ]
+              }
+            ],
+            "within_ms": 600000
+          },
+          "text": {
+            "path": [
+              "content"
+            ],
+            "part_types": [
+              "text"
+            ]
+          }
+        },
+        {
+          "speaker": "ai",
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "assistant"
+            },
+            {
+              "path": [
+                "isSidechain"
+              ],
+              "is_not": true
+            },
+            {
+              "path": [
+                "message",
+                "model"
+              ],
+              "is_not": "<synthetic>"
+            }
+          ],
+          "text": {
+            "path": [
+              "message",
+              "content"
+            ],
+            "part_types": [
+              "text"
+            ]
+          },
+          "model": {
+            "path": [
+              "message",
+              "model"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "codex",
+      "executions": [
+        {
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "response_item"
+            },
+            {
+              "path": [
+                "payload",
+                "type"
+              ],
+              "one_of": [
+                "function_call",
+                "custom_tool_call"
+              ]
+            }
+          ],
+          "part_path": [
+            "payload"
+          ],
+          "call_id_path": [
+            "call_id"
+          ],
+          "operation_path": [
+            "name"
+          ],
+          "input_paths": [
+            [
+              "arguments"
+            ],
+            [
+              "input"
+            ]
+          ],
+          "phase": "called"
+        },
+        {
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "response_item"
+            },
+            {
+              "path": [
+                "payload",
+                "type"
+              ],
+              "one_of": [
+                "function_call_output",
+                "custom_tool_call_output"
+              ]
+            }
+          ],
+          "part_path": [
+            "payload"
+          ],
+          "call_id_path": [
+            "call_id"
+          ],
+          "result_path": [
+            "output"
+          ],
+          "phase": "returned"
+        }
+      ],
+      "app": "Codex",
+      "prompt_requires_transcript": true,
+      "prompt_wait": true,
+      "source_ref_paths": [
+        [
+          "payload",
+          "id"
+        ]
+      ],
+      "final_reply_when": [
+        {
+          "path": [
+            "payload",
+            "phase"
+          ],
+          "one_of": [
+            "final_answer"
+          ]
+        }
+      ],
+      "source_return": {
+        "when": [
+          {
+            "path": [
+              "type"
+            ],
+            "is": "response_item"
+          },
+          {
+            "path": [
+              "payload",
+              "type"
+            ],
+            "is": "message"
+          },
+          {
+            "path": [
+              "payload",
+              "role"
+            ],
+            "is": "assistant"
+          },
+          {
+            "path": [
+              "payload",
+              "phase"
+            ],
+            "is": "final_answer"
+          }
+        ],
+        "id_path": [
+          "payload",
+          "id"
+        ],
+        "text": {
+          "path": [
+            "payload",
+            "content"
+          ],
+          "part_types": [
+            "output_text",
+            "text"
+          ]
+        }
+      },
+      "recognized_by": [
+        {
+          "path": [
+            "type"
+          ],
+          "is": "session_meta"
+        }
+      ],
+      "person_when_session": [
+        {
+          "path": [
+            "payload",
+            "source"
+          ],
+          "one_of": [
+            "vscode",
+            "cli"
+          ]
+        }
+      ],
+      "session_id_path": [
+        "payload",
+        "id"
+      ],
+      "time_path": [
+        "timestamp"
+      ],
+      "transcript_roots": [
+        {
+          "folder": "~/.codex/sessions",
+          "home_variable": "CODEX_HOME",
+          "home_subfolder": "sessions",
+          "depth": 3
+        },
+        {
+          "folder": "~/.codex/archived_sessions",
+          "home_variable": "CODEX_HOME",
+          "home_subfolder": "archived_sessions",
+          "depth": 0
+        }
+      ],
+      "context": [
+        {
+          "name": "model",
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "turn_context"
+            }
+          ],
+          "path": [
+            "payload",
+            "model"
+          ]
+        }
+      ],
+      "messages": [
+        {
+          "speaker": "person",
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "response_item"
+            },
+            {
+              "path": [
+                "payload",
+                "type"
+              ],
+              "is": "message"
+            },
+            {
+              "path": [
+                "payload",
+                "role"
+              ],
+              "is": "user"
+            }
+          ],
+          "text": {
+            "path": [
+              "payload",
+              "content"
+            ],
+            "part_types": [
+              "input_text",
+              "text"
+            ],
+            "content_kinds_path": [
+              "payload",
+              "internal_chat_message_metadata_passthrough",
+              "content_item_kinds"
+            ],
+            "human_kind_prefix": "user.",
+            "strip_generated_request_prefix": true
+          },
+          "attachments": {
+            "path": [
+              "payload",
+              "content"
+            ],
+            "part_types": [
+              "input_image",
+              "input_file"
+            ],
+            "content_kinds_path": [
+              "payload",
+              "internal_chat_message_metadata_passthrough",
+              "content_item_kinds"
+            ],
+            "human_kind_prefix": "user.",
+            "data_paths": [
+              [
+                "image_url"
+              ],
+              [
+                "data"
+              ],
+              [
+                "file_data"
+              ]
+            ],
+            "media_type_paths": [
+              [
+                "media_type"
+              ],
+              [
+                "mime_type"
+              ]
+            ],
+            "name_paths": [
+              [
+                "name"
+              ],
+              [
+                "filename"
+              ],
+              [
+                "file_name"
+              ]
+            ]
+          }
+        },
+        {
+          "speaker": "ai",
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "is": "response_item"
+            },
+            {
+              "path": [
+                "payload",
+                "type"
+              ],
+              "is": "message"
+            },
+            {
+              "path": [
+                "payload",
+                "role"
+              ],
+              "is": "assistant"
+            }
+          ],
+          "text": {
+            "path": [
+              "payload",
+              "content"
+            ],
+            "part_types": [
+              "output_text",
+              "text"
+            ]
+          },
+          "model": {
+            "context": "model"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gemini-cli",
+      "app": "Gemini CLI",
+      "sweep": true,
+      "document": {
+        "rows_path": [
+          "messages"
+        ]
+      },
+      "recognized_by": [
+        {
+          "path": [
+            "document",
+            "projectHash"
+          ],
+          "present": true
+        },
+        {
+          "path": [
+            "document",
+            "sessionId"
+          ],
+          "present": true
+        }
+      ],
+      "session_id_path": [
+        "document",
+        "sessionId"
+      ],
+      "time_path": [
+        "row",
+        "timestamp"
+      ],
+      "transcript_roots": [
+        {
+          "folder": "~/.gemini/tmp",
+          "depth": 2,
+          "suffix": ".json",
+          "name_includes": "session-"
+        }
+      ],
+      "context": [],
+      "messages": [
+        {
+          "speaker": "person",
+          "when": [
+            {
+              "path": [
+                "row",
+                "type"
+              ],
+              "is": "user"
+            }
+          ],
+          "text": {
+            "path": [
+              "row",
+              "content"
+            ],
+            "part_types": [
+              "text"
+            ]
+          }
+        },
+        {
+          "speaker": "ai",
+          "when": [
+            {
+              "path": [
+                "row",
+                "type"
+              ],
+              "is": "gemini"
+            }
+          ],
+          "text": {
+            "path": [
+              "row",
+              "content"
+            ],
+            "part_types": [
+              "text"
+            ]
+          },
+          "model": {
+            "path": [
+              "row",
+              "model"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "hermes",
+      "app": "Hermes",
+      "sweep": true,
+      "document": {
+        "rows_path": [
+          "messages"
+        ]
+      },
+      "recognized_by": [
+        {
+          "path": [
+            "document",
+            "session_id"
+          ],
+          "present": true
+        },
+        {
+          "path": [
+            "document",
+            "session_start"
+          ],
+          "present": true
+        }
+      ],
+      "session_id_path": [
+        "document",
+        "session_id"
+      ],
+      "time_path": [
+        "row",
+        "timestamp"
+      ],
+      "time_fallback_path": [
+        "document",
+        "session_start"
+      ],
+      "transcript_roots": [
+        {
+          "folder": "~/.hermes/sessions",
+          "depth": 0,
+          "suffix": ".json",
+          "name_includes": "session_"
+        }
+      ],
+      "context": [
+        {
+          "name": "model",
+          "when": [
+            {
+              "path": [
+                "document",
+                "model"
+              ],
+              "present": true
+            }
+          ],
+          "path": [
+            "document",
+            "model"
+          ]
+        }
+      ],
+      "messages": [
+        {
+          "speaker": "person",
+          "when": [
+            {
+              "path": [
+                "row",
+                "role"
+              ],
+              "is": "user"
+            }
+          ],
+          "text": {
+            "path": [
+              "row",
+              "content"
+            ],
+            "part_types": [
+              "text"
+            ]
+          }
+        },
+        {
+          "speaker": "ai",
+          "when": [
+            {
+              "path": [
+                "row",
+                "role"
+              ],
+              "is": "assistant"
+            }
+          ],
+          "text": {
+            "path": [
+              "row",
+              "content"
+            ],
+            "part_types": [
+              "text"
+            ]
+          },
+          "model": {
+            "context": "model"
+          }
+        }
+      ]
+    }
+  ]
+}

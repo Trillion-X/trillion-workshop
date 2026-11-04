@@ -1,0 +1,125 @@
+{
+  "rewrite_model": {
+    "id": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+    "source": {
+      "kind": "hand-typed",
+      "read_on": "2026-09-25",
+      "from": "https://developers.cloudflare.com/workers-ai/models/"
+    }
+  },
+  "check_model": {
+    "id": "@cf/mistralai/mistral-small-3.1-24b-instruct",
+    "source": {
+      "kind": "hand-typed",
+      "read_on": "2026-09-25",
+      "from": "https://developers.cloudflare.com/workers-ai/models/"
+    }
+  },
+  "embedding_model": {
+    "id": "@cf/baai/bge-base-en-v1.5",
+    "source": {
+      "kind": "hand-typed",
+      "read_on": "2026-09-25",
+      "from": "https://developers.cloudflare.com/workers-ai/models/"
+    }
+  },
+  "candidate_scorer": {
+    "comment": "score_candidates (src/score-candidates.mjs): the model that embeds the state and each candidate, the softmax scale (the inverse of the contrastive temperature the model was trained with: 0.01 on the BGE model card), the confidence under which the answer is escalate, and the limits (the model reads the first 512 tokens of each text). Model chosen by measurement on the saved decisions, 2026-09-26: best of five Workers AI embedding models at picking the outcome a result matched and the option the method chose. Measured confidence does not yet separate right from wrong picks, so escalate_below is a line to recalibrate once picks are graded.",
+    "model": {
+      "id": "@cf/baai/bge-large-en-v1.5",
+      "source": {
+        "kind": "read",
+        "read_on": "2026-09-26",
+        "from": "npx wrangler ai models (Cloudflare Workers AI model list)"
+      }
+    },
+    "scale": 100,
+    "escalate_below": 0.5,
+    "max_candidates": 200,
+    "max_characters": 8000,
+    "kept_vectors": 5000
+  },
+  "search": {
+    "min_similarity": 0.55,
+    "limit": 5
+  },
+  "outcome_judge_model": {
+    "id": "@cf/mistralai/mistral-small-3.1-24b-instruct",
+    "source": {
+      "kind": "hand-typed",
+      "read_on": "2026-09-25",
+      "from": "https://developers.cloudflare.com/workers-ai/models/"
+    }
+  },
+  "pooled_outcomes": {
+    "comment": "How results are learned from everyone (src/pooled-learning.mjs). epsilon is the privacy loss of the one randomized bit a person's store sends (ln 3, as RAPPOR); min_people is the fewest distinct people an answer is ever given for; shards split contributors so the median across shards resists poisoning and a withdrawal recomputes one shard; query_epsilon sets the fixed per-question noise; people_bucket and share_step round what is shown.",
+    "epsilon": 1.0986,
+    "min_people": 10,
+    "shards": 16,
+    "query_epsilon": 1,
+    "people_bucket": 5,
+    "share_step": 0.05
+  },
+  "choice_points": [
+    {
+      "id": "rewrite_model",
+      "comment": "Which model rewrites a decision before it is shared. The control is rewrite_model above; a candidate replaces it only by promotion. success: the rewrite passed the re-identification check; guardrail: it needed more than one round.",
+      "candidates": [
+        "@cf/google/gemma-4-26b-a4b-it"
+      ],
+      "min_trials": 30,
+      "promote_at_z": 3,
+      "guardrail_margin": 0.02,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-09-26",
+        "from": "npx wrangler ai models (Cloudflare Workers AI model list)"
+      }
+    },
+    {
+      "id": "free_decision_allowance",
+      "comment": "How many free decisions a free account gets, and over what period: a taste of the method that leads to the paid plan (a free account keeps nothing whatever its arm, and no arm is ever unlimited). The control is the free offer row's allowance (commercial-offer-records), named `<count>-per-<period>`; each candidate names its own count and period in arm_allowances. An account gets its arm once, by its hash, at its first free decision, and keeps it. Success: it starts a paid plan within success_within_days of that first free decision; every payment it makes inside that window adds to the arm's revenue, which breaks ties between arms that do equally well.",
+      "candidates": [
+        "2-per-week",
+        "3-per-week",
+        "3-per-month"
+      ],
+      "arm_allowances": {
+        "2-per-week": {
+          "count": 2,
+          "per": "week"
+        },
+        "3-per-week": {
+          "count": 3,
+          "per": "week"
+        },
+        "3-per-month": {
+          "count": 3,
+          "per": "month"
+        }
+      },
+      "success_within_days": 90,
+      "min_trials": 30,
+      "promote_at_z": 3,
+      "guardrail_margin": 0.02
+    }
+  ],
+  "workspace_records": {
+    "comment": "How much of the workspace's own records (src/workspace/records.ts, kept by PersonStore.putWorkspaceRecords) one person's store keeps: records per save, distinct address labels, label length, and characters of one record's JSON. A layout with many panes and saved layouts is a few tens of kilobytes.",
+    "writes": 64,
+    "labels": 256,
+    "label_chars": 300,
+    "value_chars": 1000000,
+    "read_bytes": 4194304,
+    "read_expanded_bytes": 16777216,
+    "shown_only_in_records": {
+      "comment": "Labels whose value no screen draws except the workspace's own records read (first-answers.json paths.records): writing one moves no screen revision, so every open screen (and every copy kept by revision) stays as it is, and only that read is told it changed (src/live-screen.mjs changedFor). screen-arrangement-shown is what the person sees, written each time the arrangement changes shape and on every open (parts/screen-arrangement PublishShownArrangement), read by an AI asking read_layouts; on 2026-10-05 it moved the revision on every open and every screen of every device read itself again.",
+      "labels": ["screen-arrangement-shown"]
+    }
+  },
+  "sharing_defaults": {
+    "comment": "What a person shares when they never chose (src/sharing-choice.mjs). share: their decisions, rewritten without anything identifying, go to the shared pool other people learn from. stories: their finished decisions are published at /stories after the same rewrite and privacy check; a story that could point to them is held back. A default covers only decisions made on or after from_day, so nothing made under the earlier promise is shared. A person's own on or off always wins. Decided in case source:dHJpbGxpb24tc2hhcmluZy1kZWZhdWx0LWFuZC1leGFtcGxlcy0yMDI2LTA5LTI4.",
+    "share": { "on": true, "from_day": "2026-09-28" },
+    "stories": { "on": true, "from_day": "2026-09-28" }
+  }
+}

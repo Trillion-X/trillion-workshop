@@ -1,0 +1,4 @@
+{
+  "about": "Who the current outcome of a decision belongs to when the person and a check disagree. A report the person made themselves (personReportVerified) is their confirmed value; a check or observation is the AI's inference. The inference is always shown beside the current outcome (`inference`). With person_confirmed_wins on, a later check can no longer replace the person's confirmed value; the person's own newer report or a retraction (a later report that supersedes it) is what changes it, and retracting returns the inference as the current outcome. Off by default: the newest current evidence wins.",
+  "person_confirmed_wins": false
+}

@@ -1,0 +1,82 @@
+{
+  "_what": "Settings for harness/wake-sessions.mjs, the helper that keeps this computer's AI sessions reachable from Trillion with no public address. It holds one outbound connection to the person's Trillion (/mcp/api/live?agent=<id>, the stream route in src/agent-delivery.mjs), and each event for a session it hosts is handed to the handler modules listed in `handlers`, in order, until one takes it. `harnesses` says how each AI's existing session is started on a message: `resume` is that AI's own documented command (argv, with {session_id}, {message} and {reply_file} filled in), `reply` says where its answer is (the file {reply_file} or stdout), and `records_transcript` is the record-every-message harness id whose transcript reader carries the reply back into the same conversation. An optional `stream` row turns on the CLI's own event stream for a run (`flags` inserted right after the argv part `after`) and maps its lines to the normalised kinds text, thinking, tool_start, tool_done and reply (`events`: each row matches a line by `when` paths, optionally walks the list at `each` filtered by `item_when`, and reads `text`, `name` and `id` paths); harness/session-runs.mjs keeps them as a progress file under `progress_folder` in `folder` that computer/report-progress.mjs shows live, and a `reply` event is the run's answer. An optional `allowed_tools` row is the CLI's own allow-list flag: the tools the person allows in one workspace folder (wake-sessions.mjs --allow-tools <folder> <tools>, --tools, --clear-tools <folder>) are passed with it; no list means the CLI's own permission rules, and nothing is ever skipped. The person's chosen AI is kept once, as its id in the settings file (`chosen_ai`, set with --choose-ai), and its headless command is its row in take-open-work.json `ais`; nothing is chosen until the person chooses. A handler module that also exports start({ key, origin, log }) is started once beside the connection and keeps running: ../computer/read-this-computer.mjs reads this computer's places for the person's Trillion and takes no events, and ../computer/report-progress.mjs shows the work programs here are doing, and ./wake-handlers/keep-every-message.mjs runs the message recorder's sweep every few minutes so every chat's messages reach Trillion even while its turn runs or when its own hook did not run, and ./wake-handlers/keep-web-chats.mjs keeps every web chat conversation (ChatGPT on the web) read through a tab of it the person already has open, so a chat whose AI could not write to Trillion still lands (keep-web-chats.json), and ./wake-handlers/wake-stopped-chats.mjs hands every chat or lane that stopped before its turn finished (a usage limit, an outage, a restart) to the person's Trillion once, so the taker and other chats carry it on a few at a time (wake-stopped-chats.json). Adding an AI, an event handler or a placement is a row here, never a code change.",
+  "origin": "https://app.gettrillion.ai",
+  "keychain_item": "trillion-agent-work-key",
+  "folder": "~/.trillion/wake-sessions",
+  "hosted_file": "hosted.json",
+  "settings_file": "settings.json",
+  "keep_sessions": 30,
+  "ping_seconds": 30,
+  "reconnect_seconds": [2, 5, 15, 30, 60],
+  "busy_backoff_seconds": [1, 2, 4, 8],
+  "retries": 1,
+  "most_at_once": 8,
+  "wake_timeout_seconds": 900,
+  "progress_folder": "progress",
+  "handlers": [
+    "./wake-handlers/confirm-source-return.mjs",
+    "./wake-handlers/wake-named-session.mjs",
+    "./wake-handlers/run-tools-here.mjs",
+    "./wake-handlers/send-requests-here.mjs",
+    "./wake-handlers/take-open-work.mjs",
+    "./wake-handlers/keep-every-message.mjs",
+    "./wake-handlers/keep-web-chats.mjs",
+    "./wake-handlers/wake-stopped-chats.mjs",
+    "../computer/read-this-computer.mjs",
+    "../computer/report-progress.mjs",
+    "../computer/watch-this-mac.mjs",
+    "../computer/mac-tools.mjs"
+  ],
+  "helper_agent": {
+    "name": "This computer",
+    "description": "Runs Trillion tools that live on the person's own computer, sends the requests a connection sends from this computer, and wakes the AI sessions it hosts.",
+    "runs": ["placement:caller-sandbox", "placement:your-computer-network"]
+  },
+  "wake_on": ["message.created", "handoff.created"],
+  "message": "<trillion-message from=\"the person, through Trillion\" message_id=\"{message_id}\">\n{text}\n</trillion-message>\nThis message already has Trillion decision {case_id}. Resolve that same case with Trillion before your final reply: answer its current questions, decide whether to act or keep it as context, and report the checked result when action applies. Do not start another case or handoff. Then answer the person in the format they asked for; Trillion sends your reply back to them.",
+  "handoff_message": "<trillion-message from=\"Trillion\" handoff_id=\"{handoff_id}\">\nA job is addressed to this exact chat. Your registered Trillion agent_id is {agent_id}; your model name is not this ID. First call take_work with exactly {\"agent_id\":\"{agent_id}\",\"handoff_id\":\"{handoff_id}\"}. Read the job returned by that call, do its requested work, check the result, then call finish_work for the same handoff and agent. Do not answer this notice without taking the job.\n</trillion-message>",
+  "harnesses": {
+    "codex": {
+      "app": "Codex",
+      "resume": ["codex", "exec", "resume", "--skip-git-repo-check", "-o", "{reply_file}", "{session_id}", "{message}"],
+      "reply": "reply_file",
+      "records_transcript": "codex",
+      "stream": {
+        "flags": ["--json"],
+        "after": "exec",
+        "show_text": ["text", "reply"],
+        "show_text_characters": 280,
+        "progress_every_ms": 1000,
+        "events": [
+          { "when": [{ "path": ["type"], "is": "item.completed" }, { "path": ["item", "type"], "is": "agent_message" }], "kind": "text", "text": ["item", "text"] },
+          { "when": [{ "path": ["type"], "is": "item.completed" }, { "path": ["item", "type"], "is": "reasoning" }], "kind": "thinking", "text": ["item", "text"] },
+          { "when": [{ "path": ["type"], "is": "item.started" }, { "path": ["item", "type"], "is": "command_execution" }], "kind": "tool_start", "name": ["item", "command"], "id": ["item", "id"] },
+          { "when": [{ "path": ["type"], "is": "item.completed" }, { "path": ["item", "type"], "is": "command_execution" }], "kind": "tool_done", "id": ["item", "id"] },
+          { "when": [{ "path": ["type"], "is": "item.started" }, { "path": ["item", "type"], "is": "mcp_tool_call" }], "kind": "tool_start", "name": ["item", "tool"], "id": ["item", "id"] },
+          { "when": [{ "path": ["type"], "is": "item.completed" }, { "path": ["item", "type"], "is": "mcp_tool_call" }], "kind": "tool_done", "id": ["item", "id"] }
+        ]
+      }
+    },
+    "claude-code": {
+      "app": "Claude Code",
+      "resume": ["claude", "--resume", "{session_id}", "--mcp-config", "{mcp_config}", "--append-system-prompt", "This run was started for the current -p message. Earlier conversation and compaction summaries are background. If the current message names a Trillion handoff, call take_work first with exactly the agent_id and handoff_id in that message, then do that job and call finish_work for the same IDs. Do not continue an earlier task before the current message is handled. If Trillion is unavailable, say so and end this run so delivery can retry.", "-p", "{message}"],
+      "reply": "stdout",
+      "records_transcript": "claude-code",
+      "allowed_tools": { "flag": "--allowedTools", "join": ",", "after": "claude" },
+      "stream": {
+        "flags": ["--output-format", "stream-json", "--verbose"],
+        "after": "claude",
+        "show_text": ["text", "reply"],
+        "show_text_characters": 280,
+        "progress_every_ms": 1000,
+        "events": [
+          { "when": [{ "path": ["type"], "is": "assistant" }], "each": ["message", "content"], "item_when": [{ "path": ["type"], "is": "text" }], "kind": "text", "text": ["text"] },
+          { "when": [{ "path": ["type"], "is": "assistant" }], "each": ["message", "content"], "item_when": [{ "path": ["type"], "is": "thinking" }], "kind": "thinking", "text": ["thinking"] },
+          { "when": [{ "path": ["type"], "is": "assistant" }], "each": ["message", "content"], "item_when": [{ "path": ["type"], "is": "tool_use" }], "kind": "tool_start", "name": ["name"], "id": ["id"] },
+          { "when": [{ "path": ["type"], "is": "user" }], "each": ["message", "content"], "item_when": [{ "path": ["type"], "is": "tool_result" }], "kind": "tool_done", "id": ["tool_use_id"] },
+          { "when": [{ "path": ["type"], "is": "result" }], "kind": "reply", "text": ["result"] }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "_what": "Every kind of thing a person's AIs send out in the world (src/sent.mjs, the Sent screen, the list_sent and record_sent tools, and each Workshop row's invoke.external_effect.sent `kind`). A kind says how one sent record reads: `label` and `icon` (a lucide icon name) for its row, `view` (`email` draws the email as it was sent; `text` shows its words), `title_field` and `preview_field` (the record fields its row shows; the preview falls back to body_text, then body_markdown), and `open_outside`, the link that opens it where it went: `label`, and `url_template` whose {holes} are filled from the record's own fields, or from a named `holes` entry (a record field with the listed characters trimmed from its ends), each URL-encoded; an empty or unknown hole means no link. A record's own open_url always wins over the template. A record whose kind has no row reads as `other`. Adding a kind is one row. `view` is how the list of sent records reads on the one shared record-set screen (parts/ui/show/record-views/record-set.tsx): its columns as field rows, the empty words, and how an opened record is drawn (`open`: the kind row's `view` id picks a registered open view, and `roles` name the record fields each view reads, first non-empty path wins). Adding a column is one field row; adding a kind is one kind row; neither touches screen code.",
+  "kinds": [
+    {
+      "id": "email",
+      "label": "Email",
+      "icon": "Mail",
+      "view": "email",
+      "title_field": "subject",
+      "preview_field": "body_text",
+      "open_outside": {
+        "label": "Open in Gmail",
+        "url_template": "https://mail.google.com/mail/#search/rfc822msgid%3A{provider_id_bare}",
+        "holes": { "provider_id_bare": { "field": "provider_id", "trim": ["<", ">"] } }
+      }
+    },
+    {
+      "id": "post",
+      "label": "Post",
+      "icon": "Megaphone",
+      "view": "text",
+      "title_field": "subject",
+      "preview_field": "body_text",
+      "open_outside": { "label": "Open the post", "url_template": "{open_url}" }
+    },
+    {
+      "id": "comment",
+      "label": "Comment",
+      "icon": "MessageSquare",
+      "view": "text",
+      "title_field": "subject",
+      "preview_field": "body_text",
+      "open_outside": { "label": "Open the comment", "url_template": "{open_url}" }
+    },
+    {
+      "id": "dm",
+      "label": "Direct message",
+      "icon": "MessageCircle",
+      "view": "text",
+      "title_field": "subject",
+      "preview_field": "body_text",
+      "open_outside": { "label": "Open the conversation", "url_template": "{open_url}" }
+    },
+    {
+      "id": "reply",
+      "label": "Reply",
+      "icon": "Reply",
+      "view": "text",
+      "title_field": "subject",
+      "preview_field": "body_text",
+      "open_outside": { "label": "Open the reply", "url_template": "{open_url}" }
+    },
+    {
+      "id": "order",
+      "label": "Order",
+      "icon": "ShoppingCart",
+      "view": "text",
+      "title_field": "subject",
+      "preview_field": "body_text",
+      "open_outside": { "label": "Open the order", "url_template": "{open_url}" }
+    },
+    {
+      "id": "other",
+      "label": "Sent",
+      "icon": "Send",
+      "view": "text",
+      "title_field": "subject",
+      "preview_field": "body_text",
+      "open_outside": { "label": "Open where it went", "url_template": "{open_url}" }
+    }
+  ],
+  "view": {
+    "label": "Sent",
+    "preference_key": "trillion-sent",
+    "first_view": {"wide": "table", "narrow": "gallery"},
+    "empty": {"icon": "Send", "title": "Nothing sent yet", "description": "When your AI sends an email or posts something, it shows here."},
+    "no_match": "Nothing sent matches.",
+    "fields": [
+      {"id": "kind", "label": "Kind", "icon": "Shapes", "kind": "tag", "rule_kind": "choice", "filterable": true, "groupable": true, "sortable": true, "width": 140, "values_from": {"path": ["kinds"], "label": "label", "icon": "icon"}},
+      {"id": "to", "label": "To", "icon": "AtSign", "rule_kind": "text", "filterable": true, "sortable": true, "width": 220},
+      {"id": "from", "label": "From", "icon": "UserRound", "rule_kind": "choice", "filterable": true, "groupable": true, "width": 200},
+      {"id": "title", "label": "Title", "icon": "Text", "rule_kind": "text", "filterable": true, "sortable": true, "width": 280},
+      {"id": "preview", "label": "Preview", "icon": "AlignLeft", "rule_kind": "text", "filterable": true, "width": 360},
+      {"id": "app", "label": "Sent by", "icon": "Bot", "path": ["by", "app"], "rule_kind": "choice", "filterable": true, "groupable": true, "width": 160, "hidden_by_default": true},
+      {"id": "state", "label": "State", "icon": "CircleDot", "kind": "tag", "rule_kind": "choice", "filterable": true, "groupable": true, "width": 130, "hidden_by_default": true},
+      {"id": "sent_at", "label": "When", "icon": "CalendarClock", "kind": "date", "rule_kind": "date", "filterable": true, "groupable": true, "sortable": true, "width": 170}
+    ],
+    "open": {
+      "kinds": ["kinds"],
+      "kind_field": ["kind"],
+      "view_field": "view",
+      "label_field": "label",
+      "fallback_view": "text",
+      "link": ["open"],
+      "link_words": "Open where it lives",
+      "caption": [
+        {"path": ["by", "app"], "words": "Sent by {value}"},
+        {"path": ["provider"], "words": "through {value}"}
+      ],
+      "roles": {
+        "title": [["title"], ["subject"]],
+        "subject": [["subject"], ["title"]],
+        "from": [["from"]],
+        "to": [["to"]],
+        "reply_to": [["reply_to"]],
+        "copies": [["copies"]],
+        "preheader": [["preheader"]],
+        "when": [["sent_at"]],
+        "markdown": [["body_markdown"]],
+        "text": [["body_text"]],
+        "words": [["body_markdown"], ["body_text"], ["preview"]]
+      }
+    }
+  }
+}

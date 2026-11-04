@@ -1,0 +1,132 @@
+{
+  "what_this_is": "Settings for take-open-work.mjs, the part of the person's own computer helper that gets open work done by the AI the person chose: work handed to no agent in particular is claimed by id and given to that AI run headless; work that came from one of the person's chats is given back to that same chat when it is idle. Which AI runs, its command, how a chat is resumed, the limits and every word the AIs are told are rows here; the program names none of them. daily_cap bounds the runs started in a day, except what the person said themselves (priority at or above src/inbound-words.json from_person), which goes first and is held only by max_concurrent; full_pass_every_minutes is how often all the waiting work is looked at again, beside each announcement and each finished run; a pass that sorted and started nothing doubles that wait, up to idle_pass_most_minutes, until new work is announced or a pass does something. One pass reads the open work once for sorting and taking.",
+  "origin": "https://app.gettrillion.ai",
+  "keychain_item": "trillion-agent-work-key",
+  "state_folder": "~/.trillion/take-open-work",
+  "working_folder": "~",
+  "program_paths_what": "Folders where a program a command names (its first word: an AI row, a chat row, a triage model, a harness resume) may be installed, in the order looked in, after this process's PATH and before the person's login shell (login_shell_lookup). A helper the Mac app starts has only /usr/bin:/bin:/usr/sbin:/sbin on its PATH, so these are what let it find Codex or Claude Code where a terminal would. ~ is the person's home.",
+  "program_paths": ["~/.local/bin", "~/.npm-global/bin", "~/.bun/bin", "~/.claude/local", "~/.superconductor/bin", "/opt/homebrew/bin", "/usr/local/bin"],
+  "login_shell_lookup": true,
+  "agent_id_prefix": "take-open-work-",
+  "agent_name": "{ai} on {computer}",
+  "agent_description": "Takes work handed to any of the person's AIs and runs {ai} on {computer} to do it.",
+  "max_concurrent": 1,
+  "daily_cap": 20,
+  "full_pass_every_minutes": 10,
+  "idle_pass_most_minutes": 60,
+  "run_timeout_minutes": 30,
+  "work_mcp": {
+    "what_this_is": "The authenticated Trillion tool connection every full AI run receives. Before any job is claimed, the helper starts this same keychain-backed stdio bridge and requires a successful MCP initialize. The account key stays in Keychain and bridge memory; it is never put in AI arguments, config, environment or logs.",
+    "bridge": "./keychain-mcp-bridge.mjs",
+    "preflight_timeout_seconds": 10
+  },
+  "use_ai": "claude",
+  "ais": [
+    { "id": "claude", "label": "Claude Code", "command": ["claude", "-p", "{prompt}", "--permission-mode", "bypassPermissions"], "work_mcp": { "insert_at": 1, "args": ["--mcp-config", "{mcp_config}", "--strict-mcp-config"] } },
+    { "id": "codex", "label": "Codex", "command": ["codex", "exec", "--ephemeral", "--enable", "hooks", "--skip-git-repo-check", "-m", "gpt-6-luna", "--dangerously-bypass-approvals-and-sandbox", "{prompt}"], "work_mcp": { "insert_at": 2, "args": ["-c", "mcp_servers.trillion.command={runtime_toml}", "-c", "mcp_servers.trillion.args=[{bridge_toml}]"] } }
+  ],
+  "chats": [
+    {
+      "id": "claude-code",
+      "source_prefix": "claude-code:",
+      "session_file": "~/.claude/projects/*/{session}.jsonl",
+      "working_folder_at": ["cwd"],
+      "later": { "time_path": ["timestamp"], "role_path": ["type"], "roles": ["user", "assistant"], "text_path": ["message", "content"] },
+      "command": ["claude", "-p", "--resume", "{session}", "{prompt}", "--permission-mode", "bypassPermissions"],
+      "retry_command": ["claude", "-p", "--resume", "{session}", "{prompt}", "--model", "sonnet", "--permission-mode", "bypassPermissions", "--betas", "context-1m-2025-08-07"],
+      "work_mcp": { "insert_at": 1, "args": ["--mcp-config", "{mcp_config}", "--strict-mcp-config"] }
+    },
+    {
+      "id": "codex",
+      "source_prefix": "codex:",
+      "session_file": "~/.codex/sessions/*/*/*/rollout-*-{session}.jsonl",
+      "working_folder_at": ["payload", "cwd"],
+      "later": { "time_path": ["timestamp"], "role_path": ["payload", "role"], "roles": ["user", "assistant"], "text_path": ["payload", "content"] },
+      "command": ["codex", "exec", "--dangerously-bypass-approvals-and-sandbox", "resume", "{session}", "{prompt}"],
+      "work_mcp": { "insert_at": 2, "args": ["-c", "mcp_servers.trillion.command={runtime_toml}", "-c", "mcp_servers.trillion.args=[{bridge_toml}]"] }
+    }
+  ],
+  "triage": {
+    "what_this_is": "Before any job gets a full AI run, a cheap model reads it, and for work from one of the person's chats what was said in that chat after it arrived, and sorts it by one of outcomes. The model is the first of the `models` rows of the person's chosen AIs (take-open-work `ai_order`, in their order) that answers; a row of any AI the person did not choose is never asked. Each row is a command run with provider settings retained, tools and hooks disabled, and no saved session (so sorting is never itself recorded as something the person wrote), and a row that answers nothing give_up_after times in a row (a usage limit reached) gives way to the next chosen row. Each outcome's `then` says what happens: close (finished with the one-line reason), digest (folded with the others into one daily digest job), take (queued for the full run, which keeps max_concurrent and daily_cap). Jobs to close or gather are sent batch_size at a time to the account (POST /handoffs/close-many, src/close-many.json holds its words), each as its row's closes_as. An answer that names no outcome counts as when_unsure.",
+    "agent_id_prefix": "take-open-work-triage-",
+    "agent_name": "Sorting waiting work on {computer}",
+    "agent_description": "Reads each waiting job once and closes what is already done, gathers what is only information, and passes on real work.",
+    "models": [
+      { "id": "claude-haiku", "ai": "claude", "command": ["claude", "-p", "--model", "haiku", "--tools", "", "--strict-mcp-config", "--setting-sources", "", "--no-session-persistence", "--system-prompt", "{system}"], "stdin": "{prompt}" },
+      { "id": "codex-small", "ai": "codex", "isolate_tool_config": true, "command": ["codex", "exec", "--ephemeral", "--disable", "hooks", "--disable", "apps", "--disable", "plugins", "--disable", "shell_tool", "--disable", "browser_use", "--disable", "computer_use", "--disable", "multi_agent", "--disable", "multi_agent_v2", "--disable", "view_image", "--disable", "image_generation", "--disable", "code_mode_host", "--disable", "sleep_tool", "--disable", "goals", "--disable", "tool_suggest", "-c", "notify=[]", "-c", "web_search=\"disabled\"", "-s", "read-only", "--skip-git-repo-check", "-m", "gpt-6-luna", "-c", "model_reasoning_effort=\"low\"", "-"], "stdin": "{system}\n\n{prompt}" }
+    ],
+    "attached": {
+      "what_this_is": "Which files a job points at, read and given to the model beside the job so it sorts by what the person said or sent, not by the standing words every job of that kind carries. key_pattern: a job input key (at any depth) whose text value names a file. chars: how much of all of them together is given. unreadable: said in place of a file that is not text (a recording's sound, a picture) or could not be read.",
+      "key_pattern": "_file$",
+      "chars": 6000,
+      "unreadable": "(not text, or could not be read: a recording's sound or a picture; its words, if any, are in the other file named here)"
+    },
+    "give_up_after": 2,
+    "timeout_seconds": 300,
+    "at_once": 4,
+    "per_pass": 400,
+    "daily_cap": 1000,
+    "job_chars": 4000,
+    "later_chars": 6000,
+    "read_bytes": 4000000,
+    "when_unsure": "work",
+    "batch_size": 50,
+    "outcomes": [
+      { "id": "handled", "then": "close", "closes_as": "handled", "means": "The chat it came from took it up afterwards: it answered it, did it, or started the work it asks for (that chat owns the work even when it is still going on there or stopped on an error); or it no longer needs anything (superseded, withdrawn, or visibly done)." },
+      { "id": "information", "then": "digest", "closes_as": "digest", "means": "It asks for nothing: a note, a status, an update, a notice or a record worth knowing, with no action the person wants taken. A message, recording or shared thing whose own words (in <said> or <attached>) are casual talk, a reply in passing, chatter or an ordinary moment with no request, idea or decision in them is information, however the job around it is worded." },
+      { "id": "work", "then": "take", "means": "It asks for something to be done and nothing in the chat afterwards shows anyone took it up." }
+    ],
+    "system": "You sort one waiting job for a person's AIs. Sort by what the person said or sent (what is in <said> and <attached>, and the job's own words), never by the standing instructions every job of its kind carries, such as \"read it and turn it into work\". Answer with one JSON object and nothing else: {\"outcome\": \"<id>\", \"reason\": \"<one plain sentence a person can check, naming what in the chat or the job shows it>\", \"meaning\": \"<one plain sentence saying what the person's words in the job say or ask>\"}. The outcomes:\n{outcomes}\nWhen you cannot tell, answer {\"outcome\": \"{when_unsure}\"}.",
+    "prompt": "The job, as it was handed to the person's AIs on {handed_at}:\n<job>\n{job}\n</job>\n\nThe person's own words as the job shows them (what they said, wrote or sent). Empty when the job shows none.\n<said>\n{said}\n</said>\n\nWhat the job points at (the files its input names: the person's own words, recording transcript or sent text). Empty when it points at nothing.\n<attached>\n{attached}\n</attached>\n\nWhat was said in the chat it came from after it arrived: its first part, then (after a line of dots) its latest part. Empty when nothing was said or the job did not come from a chat.\n<later>\n{later}\n</later>"
+  },
+  "limit_patterns": ["^You've hit your (weekly |daily |)(usage )?limit", "usage_limit_reached"],
+  "limit_rest_hours": 6,
+  "limit_reset": {
+    "what_this_is": "How a usage-limit message names when it resets, so the AI rests until then instead of limit_rest_hours (which stays the rest when the words name no time). pattern: 'resets [<month> <day> at] <hour>[:<minutes>](am|pm) (<IANA time zone>)', read as that wall time in that zone; with no date it is the next such time. months: the first three letters of each month name, in order.",
+    "pattern": "resets (?:(?<month>[A-Za-z]{3})[a-z]* (?<day>\\d{1,2}) at )?(?<hour>\\d{1,2})(?::(?<minute>\\d{2}))? ?(?<meridiem>am|pm) \\((?<zone>[A-Za-z_]+(?:/[A-Za-z_+-]+)*)\\)",
+    "months": ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+  },
+  "computer_args": [
+    {
+      "what_this_is": "Arguments this computer adds to every command of a program, only when its setting in ~/.trillion/wake-sessions/settings.json is set (a path may start with ~): they go right after the program name, in the AI rows, the chat rows and the triage models. Claude's own sign-in can be weekly-limited while a local proxy has quota; a settings file with an apiKeyHelper routes it through the proxy.",
+      "program": "claude",
+      "setting": "claude_settings_file",
+      "args": ["--settings", "{claude_settings_file}"]
+    }
+  ],
+  "trillion_marks_as": "trillion",
+  "chat_idle_minutes": 5,
+  "retry_unfinished_minutes": [0, 1, 5, 0],
+  "chat_largest_bytes": 20000000,
+  "busy": {
+    "what_this_is": "When the account answers busy: each call is sent again after each of backoff_seconds in turn; while a run is alive the account is looked at every check_every_seconds, and after tries busy checks in a row the run is stopped and its job released at once, never held until its hold runs out.",
+    "tries": 3,
+    "backoff_seconds": [5, 15, 45],
+    "check_every_seconds": 60
+  },
+  "page_retry": {
+    "what_this_is": "A page of open work whose read fails (a dropped connection) is read again after each of backoff_seconds in turn, so one failure partway through the walk over all the waiting work does not throw the walk away; after the last the error stands.",
+    "backoff_seconds": [2, 5, 15]
+  },
+  "chat_agent_id": "chat-{session}",
+  "prompts": {
+    "claim": "<trillion-message from=\"Trillion\" handoff_id=\"{handoff_id}\">\nTrillion work {handoff_id} is waiting for you on the trillion MCP server, already claimed for you as agent {agent_id}.\n1. Call take_work with agent_id \"{agent_id}\" and handoff_id \"{handoff_id}\". It returns the job and what arrived.\n2. Run the job through the Marketplace workflow coordinate-work-with-cheapest-capable-agents: call start_workflow with purpose \"coordinate-work-with-cheapest-capable-agents\", a request_key of \"{handoff_id}\" and input {task: the job in plain words, source_message_id: the message it arrived from, if it names one}. You are the coordinator: hand each bounded part to a helper on the cheapest capable model your tools list (Claude Code: a subagent with model haiku or sonnet; Codex: the smaller model in its catalog), and submit each step with submit_workflow_step. A small job may need one helper or none; say so in the run.\n3. Do the job the way the trillion server's instructions say. When the job asks you to resolve a decision for a message, open or continue that decision, answer every step and decide it before finishing.\n4. Call finish_work with handoff_id \"{handoff_id}\", agent_id \"{agent_id}\", a result saying what you did, and a one-line summary.\nIf something only the person can do stands in the way, call say_what_is_in_the_way with the same ids instead of finishing. Do nothing else.\n</trillion-message>",
+    "chat": "<trillion-message from=\"Trillion\" handoff_id=\"{handoff_id}\">\nTrillion work {handoff_id} came from this chat ({source_id}) and is waiting for it on the trillion MCP server.\n1. Call publish_agent with agent_id \"{chat_agent_id}\", a short name and description of this chat, takes_work true and source_id \"{source_id}\".\n2. Call take_work with agent_id \"{chat_agent_id}\" and handoff_id \"{handoff_id}\". It returns the job and what arrived.\n3. Run the job through the Marketplace workflow coordinate-work-with-cheapest-capable-agents: call start_workflow with purpose \"coordinate-work-with-cheapest-capable-agents\", a request_key of \"{handoff_id}\" and input {task: the job in plain words, source_message_id: the message it arrived from, if it names one}. You are the coordinator: hand each bounded part to a helper on the cheapest capable model your tools list (Claude Code: a subagent with model haiku or sonnet; Codex: the smaller model in its catalog), and submit each step with submit_workflow_step. A small job may need one helper or none; say so in the run.\n4. Do the job the way the trillion server's instructions say. When the job asks you to resolve a decision for a message, open or continue that decision, answer every step and decide it before finishing.\n5. Call finish_work with handoff_id \"{handoff_id}\", agent_id \"{chat_agent_id}\" and result {\"state\": \"completed\", \"outcome\": \"<what you did>\"}, then end your reply with the handoff id and that outcome.\nIf something only the person can do stands in the way, call say_what_is_in_the_way with the same ids instead of finishing.\n</trillion-message>"
+  },
+  "words": {
+    "not_finished": "The AI run for this job ended (exit {code}) without finishing it; its words are in {log} on {computer}.",
+    "mcp_unavailable_trouble": "Trillion MCP preflight failed before any job was claimed: {error}",
+    "released_busy": "Trillion kept answering busy, so this computer stopped the AI run and gave the job back for the next AI.",
+    "released_timeout": "The AI run for this job ran past {minutes} minutes and was stopped; its words show no usage limit, so no AI rests. The job is given back; the words are in {log} on {computer}.",
+    "released_limit": "{ai} reached its usage limit and rests until {until}; the job is given back for the next AI.",
+    "rested_because": "it reached its usage limit ({said})",
+    "released_start_failed": "{ai} could not be started on this computer ({error}); the job is given back for the next AI.",
+    "start_failed_trouble": "could not start: {error}",
+    "program_missing_trouble": "{program} is not installed where Trillion looks ({folders})",
+    "timed_out_trouble": "its last run timed out after {minutes} minutes with no usage limit in its words, so it is not resting",
+    "resting_line": "{ai} resting until {until} because {because}.",
+    "all_resting": "Every chosen AI is resting, so work waits for the first to reset: {resting}",
+    "trouble_line": "{ai}: {what}."
+  }
+}
+

@@ -1,0 +1,23 @@
+{
+  "isError": true,
+  "content": [{ "type": "text", "text": "Use the error reference to investigate the failure." }],
+  "structuredContent": {
+    "error": {
+      "code": "unexpected",
+      "retryable": false,
+      "fatal": true,
+      "remediation": "Use the error reference to investigate the failure.",
+      "reference": "e93c8507-70db-40",
+      "error_class": "Error",
+      "correlation": {
+        "protocol_request": { "type": "number", "value": 1 },
+        "method": "tools/call",
+        "calls": [{ "capture": "not_observed", "dispatch": "not_observed" }],
+        "calls_omitted": 0,
+        "basis": "request_local_server_observation",
+        "last_worker_phase": "authorization",
+        "reply": "failed"
+      }
+    }
+  }
+}

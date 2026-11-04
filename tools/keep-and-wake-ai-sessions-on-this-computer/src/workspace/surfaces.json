@@ -1,0 +1,417 @@
+{
+  "_what": "The signed-in workspace's settings, as DATA: its lists, its addresses and what opens at start. Its screens are Workshop rows (records/workshop-screen-tool-records.json, each row's screen.surface), read together with these settings through src/workspace/screens.mjs, which every module imports. The sidebar lists them, the screen arrangement holds them in tabs and panes, and src/workspace/main.tsx mounts each by its package_entry.entry_name. A screen's glance (what its hover card reads, as paths into its source) and actions (window events the page listens for) fill the sidebar's hover card. A screen's opens_kinds are the kinds of thing it opens one of (a mention of a decision opens the decision screen on it, src/workspace/mentions.ts). A screen's route_paths are its own addresses: the workspace opens there with that screen. A screen's route_prefix opens it for every address under that prefix, with the rest of the address as its route_input (one decision per tab); listed:false keeps it out of every list, since it only opens for one thing. A screen naming an audience is offered only to a viewer holding it. A collection's icon is what a collapsed rail shows for it. The sidebar's switches are DATA at three levels, narrower winning (parts/sidebar/read-data/sidebar-settings.ts): a collection's settings for its list, a screen's sidebar_settings for its row (remove_from_list:false keeps Plan in its list; move_between_lists:false keeps it from being dragged into another). A collection named in sidebar_content_host_by_section_id hosts a shared panel instead of rows (the arrangement's pane map). sidebar_header_content_host names the shared panel at the top of the sidebar, above every list: the workspace's focus (src/workspace/scope-focus.ts), which names what the whole workspace is about and switches it. Addresses are resolved in one place, src/workspace/addresses.mjs: home_path opens the workspace on its starting screens; an address under one of moved_from is an old address, answered with a permanent redirect to the same address without that prefix when that opens a screen; a screen with signed_out_visitor \"public-page\" shares its address with a page for people who are not signed in (the sign-in page), and every other screen address signs a visitor in and brings them back. An address that is, or is one step under, a `from` of signed_in_moved opens, for someone signed in, the same address under its `to` (/community/<id> is the pursuit at /spaces/<id>); it moves only for someone signed in, since a visitor who is not signed in keeps the public page answered there (a community's open page), and the bare `from` signs them in and brings them to `to`. A list may hold rows by a rule (`holds.rules`, the formula engine's rule tree) and show only while its own rule holds (`shown_when`); the rules name the facts `sidebar_row_facts` declares, each reading a path of the row or of one of the person's records kept by row id (`from`, an inputs.json name: `sidebar-seen` when a row was first offered to them, `sidebar-notes` the notes their AI left), and measured against now when it has a `time` (days_since or days_until). A list whose settings say `repeats_rows` (New) shows rows that also sit in their own lists. A surface row's `sidebar_new_until` (a date, a tool's screen.new_until) keeps it in New until then, and its `listed_on` (when it was added to Trillion, each tool row's own) orders New newest first (`order_by`, a path and descending). A fact with `clock` is now itself (a rule Today is before a date shows until that date); `on` says whether a fact describes rows, lists or both, which is what a person's list menu offers. The person's own lists and their rows carry the same rules (made through change_sidebar or a list's When it shows), kept in their own list records and decided the same way (parts/sidebar/read-data/apply-list-rules.ts). A list's `row_chip` ({ label, variant: a shared Badge variant }) marks each row it holds with that chip wherever else the row is drawn (New's rows say New in their own lists).",
+  "address_label": "placeable-surface-list::trillion",
+  "home_path": "/",
+  "narrowing": { "entry": "guide", "fields": ["show_row", "show_section"] },
+  "moved_from": [
+    "/work"
+  ],
+  "signed_in_moved": [
+    {
+      "from": "/community",
+      "to": "/spaces"
+    }
+  ],
+  "open_at_start": [
+    "trillion.home"
+  ],
+  "sidebar_collections": [
+    {
+      "id": "everyday",
+      "name": "Workspace",
+      "icon": "House",
+      "order_by": {
+        "path": [
+          "order"
+        ]
+      }
+    },
+    {
+      "id": "new",
+      "name": "New",
+      "icon": "Sparkles",
+      "row_chip": {
+        "label": "New",
+        "variant": "success"
+      },
+      "show_at_most": 15,
+      "settings": {
+        "repeats_rows": true
+      },
+      "order_by": {
+        "path": [
+          "listed_on"
+        ],
+        "descending": true
+      },
+      "holds": {
+        "rules": {
+          "kind": "group",
+          "combinator": "and",
+          "negate": false,
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "sidebar_new_eligible",
+              "operator": "is_true",
+              "params": {}
+            },
+            {
+              "kind": "group",
+              "combinator": "or",
+              "negate": false,
+              "rules": [
+                { "kind": "rule", "field": "days_since_listed", "operator": "less_than", "params": { "value": 2 } },
+                { "kind": "rule", "field": "days_since_first_seen", "operator": "less_than", "params": { "value": 7 } },
+                { "kind": "rule", "field": "days_left_as_new", "operator": "greater_than", "params": { "value": 0 } },
+                { "kind": "rule", "field": "note_count", "operator": "greater_than", "params": { "value": 0 } }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tell-us",
+      "name": "Tell us",
+      "icon": "MessageSquareHeart",
+      "holds": {
+        "path": [
+          "source",
+          "group"
+        ],
+        "equals": "tell-us"
+      },
+      "show_at_most": 4
+    },
+    {
+      "id": "start",
+      "name": "Start",
+      "icon": "House",
+      "order_by": {
+        "path": [
+          "order"
+        ]
+      },
+      "show_at_most": 8
+    },
+    {
+      "id": "arrangement",
+      "name": "Panes",
+      "icon": "LayoutGrid"
+    },
+    {
+      "id": "things-you-do-as-input",
+      "name": "Things you do as input",
+      "icon": "Inbox",
+      "show_at_most": 8
+    },
+    {
+      "id": "content",
+      "name": "Content",
+      "icon": "Clapperboard",
+      "collections": [
+        {
+          "id": "content-plan",
+          "name": "Plan",
+          "icon": "Lightbulb",
+          "holds": {
+            "path": [
+              "source",
+              "group"
+            ],
+            "equals": "content-plan"
+          },
+          "show_at_most": 8
+        },
+        {
+          "id": "content-make",
+          "name": "Make",
+          "icon": "Scissors",
+          "holds": {
+            "path": [
+              "source",
+              "group"
+            ],
+            "equals": "content-make"
+          },
+          "show_at_most": 8
+        },
+        {
+          "id": "content-publish",
+          "name": "Publish",
+          "icon": "Send",
+          "holds": {
+            "path": [
+              "source",
+              "group"
+            ],
+            "equals": "content-publish"
+          },
+          "show_at_most": 8
+        },
+        {
+          "id": "content-files",
+          "name": "Files",
+          "icon": "HardDrive",
+          "holds": {
+            "path": [
+              "source",
+              "group"
+            ],
+            "equals": "content-files"
+          },
+          "show_at_most": 8
+        },
+        {
+          "id": "files",
+          "name": "Your files",
+          "icon": "FolderTree",
+          "settings": {
+            "add_to_list": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "pursuits",
+      "name": "Pursuits",
+      "icon": "Compass",
+      "show_at_most": 8,
+      "hierarchy": {
+        "parent_path": ["source", "pursuit_parent_id"],
+        "applies_when": {
+          "path": ["source", "kind"],
+          "equals": "pursuit-navigation"
+        },
+        "rows_in_parent_when": {
+          "path": ["source", "part_of_pursuit"],
+          "equals": true
+        },
+        "lead_where_empty": true
+      }
+    },
+    {
+      "id": "information-being-acted-on",
+      "name": "Information",
+      "icon": "ListChecks"
+    },
+    {
+      "id": "talk-to-and-see-trillion",
+      "name": "Talk to and see Trillion",
+      "icon": "MessagesSquare",
+      "show_at_most": 10
+    },
+    {
+      "id": "things-trillion-uses",
+      "name": "Things Trillion uses",
+      "icon": "Wrench",
+      "show_at_most": 8,
+      "collections": [
+        {
+          "id": "your-ai-will",
+          "name": "Your AI will",
+          "icon": "Sparkles"
+        },
+        {
+          "id": "tools",
+          "name": "Your tools",
+          "icon": "Wrench",
+          "holds": {
+            "path": [
+              "source",
+              "kind"
+            ],
+            "equals": "tool"
+          },
+          "leftovers": true,
+          "show_at_most": 6,
+          "collections": [
+            {
+              "id": "tools-make-pictures-and-sounds",
+              "name": "Make pictures and sound",
+              "icon": "Sparkles",
+              "holds": {
+                "path": [
+                  "source",
+                  "group"
+                ],
+                "equals": "make-pictures-and-sounds"
+              },
+              "show_at_most": 6
+            },
+            {
+              "id": "tools-business",
+              "name": "Business",
+              "icon": "Briefcase",
+              "holds": {
+                "path": [
+                  "source",
+                  "group"
+                ],
+                "equals": "business"
+              },
+              "show_at_most": 6
+            },
+            {
+              "id": "tools-automations",
+              "name": "Automations",
+              "icon": "Zap",
+              "holds": {
+                "path": [
+                  "source",
+                  "group"
+                ],
+                "equals": "automations"
+              },
+              "show_at_most": 6
+            },
+            {
+              "id": "tools-saving-links",
+              "name": "Saving links",
+              "icon": "Link",
+              "holds": {
+                "path": [
+                  "source",
+                  "group"
+                ],
+                "equals": "saving-links"
+              },
+              "show_at_most": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "things-trillion-made",
+      "name": "Things Trillion made",
+      "icon": "FolderTree",
+      "show_at_most": 8
+    },
+    {
+      "id": "people",
+      "name": "People",
+      "icon": "UsersRound",
+      "show_at_most": 8
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "icon": "Settings",
+      "show_at_most": 8,
+      "holds": {
+        "path": [
+          "source",
+          "group"
+        ],
+        "equals": "settings"
+      }
+    }
+  ],
+  "sidebar_row_facts": [
+    {
+      "id": "sidebar_new_eligible",
+      "label": "Can appear in New",
+      "on": [ "rows" ],
+      "kind": "boolean",
+      "path": [ "sidebar_new_eligible" ],
+      "default": true
+    },
+    {
+      "id": "days_since_listed",
+      "label": "Days since it was added to Trillion",
+      "icon": "CalendarPlus",
+      "on": [
+        "rows"
+      ],
+      "kind": "number",
+      "path": [
+        "listed_on"
+      ],
+      "time": "days_since"
+    },
+    {
+      "id": "days_since_first_seen",
+      "label": "Days since you first had it",
+      "icon": "Eye",
+      "on": [
+        "rows"
+      ],
+      "kind": "number",
+      "from": "sidebar-seen",
+      "path": [],
+      "time": "days_since"
+    },
+    {
+      "id": "days_left_as_new",
+      "label": "Days left as new",
+      "icon": "Sparkles",
+      "on": [
+        "rows"
+      ],
+      "kind": "number",
+      "path": [
+        "sidebar_new_until"
+      ],
+      "time": "days_until"
+    },
+    {
+      "id": "note_count",
+      "label": "Count your AI left on it",
+      "icon": "Hash",
+      "on": [
+        "rows",
+        "lists"
+      ],
+      "kind": "number",
+      "from": "sidebar-notes",
+      "path": [
+        "count"
+      ]
+    },
+    {
+      "id": "group",
+      "label": "Folder",
+      "icon": "Folder",
+      "on": [
+        "rows"
+      ],
+      "kind": "choice",
+      "path": [
+        "source",
+        "group"
+      ]
+    },
+    {
+      "id": "days_since_made",
+      "label": "Days since it was made",
+      "icon": "CalendarPlus",
+      "on": [
+        "lists"
+      ],
+      "kind": "number",
+      "path": [
+        "made_at"
+      ],
+      "time": "days_since"
+    },
+    {
+      "id": "now",
+      "label": "Today",
+      "icon": "Clock",
+      "on": [
+        "rows",
+        "lists"
+      ],
+      "kind": "date",
+      "clock": true
+    }
+  ],
+  "sidebar_header_content_host": "focus-editor",
+  "sidebar_content_host_by_section_id": {
+    "collection:trillion-arrangement": "arrangement-navigator",
+    "collection:trillion-files": "files-tree",
+    "collection:trillion-your-ai-will": "send-actions-tree"
+  }
+}

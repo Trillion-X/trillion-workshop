@@ -1,0 +1,22 @@
+{
+  "what_this_is": "Settings for harness/ask-trillion-first.mjs. Which harness consults Trillion, by which road and with which read tools is DATA on that harness's row in src/harnesses.json (consults_trillion: road, read_tools, claims_need_read). Nothing here names a harness.",
+  "harness_rows": ["harnesses.json", "../src/harnesses.json"],
+  "harness_flag": "--harness",
+  "enforcing_road": "turn-end-hook",
+  "native_callers": [
+    {
+      "executables": ["node", "{node}"],
+      "script": "~/.codex/hooks/trillion-mcp-call.mjs",
+      "tools": { "export_decision": { "case_id": "string" } }
+    }
+  ],
+  "native_shells": ["/bin/zsh", "/bin/bash", "/bin/sh", "zsh", "bash", "sh"],
+  "native_shell_flags": ["-c", "-lc"],
+  "until_the_row_carries_it": {
+    "road": "turn-end-hook",
+    "read_tools": ["read_messages", "take_work", "list_pursuits", "list_connections", "list_decisions", "export_decision", "find_tool_for_job", "search", "what_is_waiting_on_me"],
+    "claims_need_read": true
+  },
+  "refusal": "Ask Trillion before you finish. Nothing in this turn has read from Trillion yet, and the person has told you to consult it every time. Call one read tool now ({tools}), use what it returns, then answer.{claims} This turn is only refused once.",
+  "claims_sentence": " That includes before you say something is missing, not connected or not possible: Trillion holds the person's connected accounts, messages, files and decisions, so look there first and say what it answered."
+}

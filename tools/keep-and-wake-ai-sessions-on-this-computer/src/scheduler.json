@@ -1,0 +1,49 @@
+{
+  "retry": {
+    "first_after_seconds": 60,
+    "factor": 2,
+    "longest_after_seconds": 3600,
+    "attempts_before_held": 6
+  },
+  "no_progress": {
+    "_what": "A run that made no progress (its result says progress false) is not run again a second later (src/scheduler.mjs invariant 12): its action waits first_after_seconds, then factor times longer each time it again makes none, up to longest_after_seconds. A run that made progress, or the action falling due earlier, ends the wait.",
+    "first_after_seconds": 2,
+    "factor": 2,
+    "longest_after_seconds": 60
+  },
+  "wake": {
+    "most_runs": 16,
+    "max_wall_ms": 10000,
+    "cold_heavy_runs": 1,
+    "stage_budget_ms": 2000,
+    "aging_seconds": 300,
+    "max_aging_steps": 99
+  },
+  "spread": {
+    "_what": "How fires are spread so many stores do not all run at :00 (parts/timed-action/do-work/spread-fires.ts). A recurring occurrence starts later by recurring_frac of its own interval at most recurring_cap_seconds; a one-off on a minute divisible by one_shot_minute_mod fires earlier by between one_shot_floor_seconds and one_shot_max_seconds, never before it was created. `on` false moves nothing: a time a person pinned is on time until an operator turns this on.",
+    "on": false,
+    "recurring_frac": 0.1,
+    "recurring_cap_seconds": 900,
+    "one_shot_minute_mod": 30,
+    "one_shot_floor_seconds": 0,
+    "one_shot_max_seconds": 90
+  },
+  "cpu_share": {
+    "what_this_is": "The background work that repeats on its own (catch-ups, merges, reviews), each on a share of the hour in seconds of its own running time (src/scheduler.mjs invariant 9): a source that ran for D ms rests D x (3600 / seconds_per_hour - 1) ms before it is read or run again, so its running time over an hour is at most its share however much is waiting behind it. The clock a Durable Object reads does not move while a wake works in SQLite, so a run is charged at least floor_ms, about what it cost in the 2026-10-09 tail (measure-after/run4). The shares add up to at most budget_seconds_per_hour, which is what these sources may take of the store's CPU between them. Index builds that reads wait on, and work that waits on other services (their wall time is not CPU), have no share.",
+    "budget_seconds_per_hour": 900,
+    "sources": {
+      "agent-work-reviews": { "seconds_per_hour": 90, "floor_ms": 300 },
+      "record-runs": { "seconds_per_hour": 90, "floor_ms": 100 },
+      "files-move-on": { "seconds_per_hour": 90, "floor_ms": 700 },
+      "record-history": { "seconds_per_hour": 90, "floor_ms": 500 },
+      "message-retention": { "seconds_per_hour": 30, "floor_ms": 200 },
+      "file-words": { "seconds_per_hour": 60, "floor_ms": 200 },
+      "video-preview-catch-up": { "seconds_per_hour": 60, "floor_ms": 500 },
+      "voice-sessions": { "seconds_per_hour": 60, "floor_ms": 200 },
+      "agent-duplicate-fold": { "seconds_per_hour": 40, "floor_ms": 100 },
+      "agent-work-titles": { "seconds_per_hour": 40, "floor_ms": 200 },
+      "record-move": { "seconds_per_hour": 40, "floor_ms": 200 }
+    }
+  },
+  "kept_under": "scheduler_failures"
+}
