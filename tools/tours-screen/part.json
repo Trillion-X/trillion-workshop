@@ -8,6 +8,7 @@
     "show/package-onboarding.ts",
     "show/walkthrough-events.ts",
     "do-work/walkthrough-progress.ts",
-    "show/step-card.ts"
+    "show/step-card.ts",
+    "do-work/tours.mjs"
   ]
 }

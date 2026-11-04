@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:539c5cf8eda9bfd99363b281b3b8ebdcb203322d09c73fa282f94bac9efb8505"
+  "blake3": "1f:ae6a859bd114de7b780d00772e386dc0ad7cfbd945fae59310b593837d6515b4"
  },
  "fields": [
   {
@@ -2275,6 +2275,21 @@
     ],
     "listed_on": "2026-11-03T16:00:00Z",
     "folder": "type-what-i-say"
+   }
+  },
+  {
+   "id": "tool:dismiss-waiting-tours",
+   "values": {
+    "title": "Dismiss waiting tours",
+    "job": "Dismiss the tours waiting for me without showing them",
+    "description": "Marks waiting tours seen without showing them: every waiting tour, or those named in tour_ids, in one move of your tour progress record (the move closing a tour makes), so none starts by itself again; each can still be shown by name. A run's key cannot write your records, so it answers keep, the progress record to write with the value read as expected, which your page or a write you grant keeps.",
+    "status": "active",
+    "maker": "maker:tours-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "tours-screen"
    }
   },
   {
@@ -4865,6 +4880,24 @@
    }
   },
   {
+   "id": "tool:list-waiting-tours",
+   "values": {
+    "title": "List the tours waiting to show",
+    "job": "Show me the tours waiting to start by themselves, and which my show rules are holding",
+    "description": "Every tour that would start by itself on an event (opening Trillion, by default), with the facts your show rules decide it over (reason, urgency, hours since one like it) and how your show-rules record leaves it now: held, the rules holding it (held_by) and until when. The same trigger choice, facts and rules the tour host asks before it starts one, so this list and what shows agree. It changes nothing.",
+    "status": "active",
+    "maker": "maker:tours-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "tours-screen",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:list-what-is-due",
    "values": {
     "title": "List what is due for review",
@@ -4893,6 +4926,24 @@
     ],
     "listed_on": "2026-11-04T00:00:00Z",
     "folder": "see-what-my-ais-did",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:list-workspace-tours",
+   "values": {
+    "title": "List the workspace tours",
+    "job": "Show me every tour in my workspace and which ones I have finished",
+    "description": "Reads the tours your AIs wrote (guided-overlay::own-walkthroughs) and your tour progress, with the app's own tours when the caller passes them as tours, and answers each tour in its order: tour_id, title, summary, steps, finished, the event that starts it by name (start_event), when the change it shows landed (changed_at) and whether it is one of your own. It changes nothing.",
+    "status": "active",
+    "maker": "maker:tours-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "tours-screen",
     "flags": [
      "read-only"
     ]
