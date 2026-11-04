@@ -93,8 +93,10 @@ The old file's other cases proved the old JS record engine, which the Workshop d
   `holders_are_answered_in_order_and_follow_every_change`.
 - "availability rows index exact current holds" (record-log and eeaf): strict model admission refuses an undeclared
   field. That is `src/record_write_model.rs` `check_write`, with its own tests.
-- "record-log erasure cascades through availability reservations, holds and private operation inputs": **a gap**. The
-  Rust engine has no declared erasure cascade yet (old `src/record-model.json` cascade rules).
+- "record-log erasure cascades through availability reservations, holds and private operation inputs": the engine's
+  `RecordStore::erase_cascading` (Trillion-X/trillion-rust `src/storage/record_store/cascade.rs`, rules in its
+  `settings.json` `erase_with`, ported from old `src/record-model.json`), proven by its test
+  `erasing_a_booking_link_erases_its_reservations_holds_and_operations_together`.
 - "decomposed EEAF records expose no physical erasure operation": not applicable. The engine has no decomposed backend
   to choose.
 - The two "multi-record rollback" engine variants are one rollback test here.
