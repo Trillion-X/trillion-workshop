@@ -1,0 +1,33 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on with no home and no backlog row, moved here byte for byte from the parent of the commit that deleted each (commit; deleted_by names the deleting commit). Nothing here is rewritten: a file waits here for its wiring, under its old path, so the files keep importing each other as they did. A redaction replaces a real person's name or address with a made-up one, and is listed on the file; source_identity is the BLAKE3 identity of the bytes at commit, identity of the bytes here.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "computer/secret-references.json",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/connect-a-service-and-seal-its-key/from-old-trillion/computer/secret-references.json",
+      "source_identity": "1f:754c9d02642afd702b57d98f6d07972994f063b6639c4e2312025204986e76fb",
+      "identity": "1f:754c9d02642afd702b57d98f6d07972994f063b6639c4e2312025204986e76fb"
+    },
+    {
+      "from": "computer/secret-references.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/connect-a-service-and-seal-its-key/from-old-trillion/computer/secret-references.mjs",
+      "source_identity": "1f:ce3371caaa35df6f5ffe9f561bf4bc36eaea869fab451f4bad4101fc47954da3",
+      "identity": "1f:ce3371caaa35df6f5ffe9f561bf4bc36eaea869fab451f4bad4101fc47954da3"
+    },
+    {
+      "from": "test/secret-references.test.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/connect-a-service-and-seal-its-key/from-old-trillion/test/secret-references.test.mjs.held",
+      "source_identity": "1f:e5f4a0c4e4dcd534096b9058daf17ab0da40af9590c362e8a2367cffaf9cfb25",
+      "identity": "1f:e5f4a0c4e4dcd534096b9058daf17ab0da40af9590c362e8a2367cffaf9cfb25",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    }
+  ]
+}

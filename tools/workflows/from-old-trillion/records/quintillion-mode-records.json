@@ -1,0 +1,230 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "quintillion-mode-records",
+  "aliases": [
+    {"mode_id": "mode:trillion-x", "names": ["Trillion X Hardcore Mode", "Hard-core Mode"]}
+  ],
+  "stage_requirements": [
+    {"id": "capability-review", "instruction": "At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.", "applicability": "always"}
+  ],
+  "records": [
+    {
+      "kind": "execution-mode",
+      "id": "mode:infinity",
+      "version": 3,
+      "label": "Infinity Mode",
+      "aliases": ["Infinity Mode", "Infinite Mode", "Keep expanding"],
+      "job": "Keep improving quality, depth, breadth, scale, granularity and continuity while driving energy, effort, cost, latency and setup toward zero against observed reality.",
+      "workflow_id": "workflow:infinity-mode",
+      "means": "An evidence-directed improvement loop with a finite work budget: each pass finds the current bottleneck, makes the highest-value bounded change, checks it, and continues only while evidence and available resources justify another pass. Infinity is an aspiration, never a claim of literal completion.",
+      "authority": "This mode adds no permissions. Keep effects within the user's request and the rights, consent, preferences and opt-outs of other people. Use bounded batches and current resource limits; stop or cancel cleanly when the boundary is reached.",
+      "stages": [
+        {"id": "baseline", "label": "Measure the current result"},
+        {"id": "bottleneck", "label": "Find the highest-value constraint"},
+        {"id": "improve", "label": "Change and check one useful mechanism"},
+        {"id": "continue", "label": "Continue from evidence or stop cleanly"}
+      ],
+      "requirements": [
+        {"id": "baseline", "stage": "baseline", "instruction": "Name the outcome, its current observable baseline and provenance. Treat quality, depth, breadth, scale, granularity, reliability, continuity, energy, user effort, cost, latency, setup and resource use as independent open dimensions. Expand quality, depth, breadth, useful scale and granularity across nested levels without an assumed ceiling while driving energy, effort, cost, latency and setup toward zero. Discover the actual configurable conditions, including time and permission, and the person's ability to tune or disable behavior at the relevant account, organization, pursuit and action levels through existing settings owners. Do not assume every level or condition applies; preserve explicit choices and inherited defaults without granting new authority. Keep each chosen direction separately observable; do not reduce quality/depth, breadth, elapsed time and total energy to one efficiency ratio or assume that improving one must worsen another. Identify each measure and any observed tradeoff, then test whether apparent conflicts arise from assumptions, definitions, boundaries or the current architecture and whether deleting a requirement or changing the mechanism dissolves them. Include money, materials, labor, cognition, attention, coordination, opportunity cost, motivation, infrastructure and burdens transferred to others in total resource use; retain elapsed time as its own measurement even when it is also counted as a resource. Never claim measured zero without evidence. Finite per-pass limits protect execution only and never become the aspiration.", "applicability": "always"},
+        {"id": "bottleneck", "stage": "bottleneck", "instruction": "Find the current bottleneck from observed evidence. Search live Marketplace items, tools and workflows for the generative capability and current licensed owner that can remove it; describe and reuse the best fit before extending anything.", "applicability": "always"},
+        {"id": "bounded-change", "stage": "improve", "instruction": "Apply Trillion X/Hardcore through the actual workflow:trillion-x-mode run at this applicable stage, and read back that run's real result. Make the smallest generic improvement that addresses the bottleneck; preserve source identity, effects, dependencies and recovery.", "applicability": "always"},
+        {"id": "honest-recursion", "stage": "continue", "instruction": "Compare fresh observations with the baseline. Recursively examine the chosen dimensions, measures, levels, hierarchy, objectives, assumptions, experiment-selection and decision methods, and the process of questioning itself; no level is automatically exempt. Test whether each distinction improves the actual outcome or creates unnecessary work. Investigate exploratory synthetic-d3a3f445d9a6 without treating them as established facts or mistaking current observed limits for eternal ones. Continue only for a named remaining bottleneck, within finite per-pass batch, cost, concurrency and time boundaries derived from current limits. Closing one case or reaching a pass boundary does not end an ongoing pursuit. For an ongoing request retain its exact state, new-case discovery and next relevant event with the existing event-based scheduler/workflow owner, register the real continuation and read it back before claiming the flywheel is running. Keep it active until cancellation, expiry or the pursuit's actual closure, respecting rights and resource limits; do not abandon or idle-poll. Never recurse without new evidence, claim literal infinity, or call an unobserved result complete.", "applicability": "always"},
+        {"id": "real-test", "stage": "improve", "instruction": "When the changed outcome is user-facing, find the existing workflow by the job 'do real user testing', inspect its published identity, run it on the real interface and task, and read back its actual run evidence. Do not invent a workflow id or substitute simulated interaction for real use.", "applicability": "when_relevant"}
+      ]
+    },
+    {
+      "kind": "execution-mode",
+      "id": "mode:real-life-cases",
+      "version": 1,
+      "label": "Real Life Cases Mode",
+      "aliases": ["Real Life Cases Mode", "Find real cases"],
+      "job": "Discover real situations, people’s actual jobs and recurring friction that reveal a valuable outcome to improve.",
+      "workflow_id": "workflow:real-life-cases-mode",
+      "means": "Ground opportunity discovery in actual use, source material, complaints and observed behavior, preserving uncertainty and the path from evidence to an actionable case.",
+      "authority": "This mode adds no permissions. Respect source terms, privacy, consent and the independent rights of people whose cases or data are involved.",
+      "stages": [
+        {"id": "case", "label": "Find a real situation"},
+        {"id": "evidence", "label": "Understand what happened"},
+        {"id": "opportunity", "label": "Select a worthwhile outcome"}
+      ],
+      "requirements": [
+        {"id": "find-cases", "stage": "case", "instruction": "Discover worthwhile real-life cases in parallel from current authorized sources as relevant: user tasks and records, forums, Product Hunt, news releases, YouTube transcripts and comments, X, Instagram and other configurable sources. Search live Marketplace tools and workflows first. Use source-watch triggers and existing retained case lists with cursors/status when available; do not manufacture demand or freeze this open source set into code.", "applicability": "always"},
+        {"id": "test-claims", "stage": "evidence", "instruction": "For each case retain exact author/source, URL, date and excerpt or transcript range; cluster duplicates without erasing originals. Record supporting and contradictory evidence, what each source actually observed, and what remains untested. Keep firsthand observation, reported experience, inference and hypothesis distinct.", "applicability": "always"},
+        {"id": "choose-case", "stage": "opportunity", "instruction": "Compare worthwhile cases against actual customer need, evidence strength and available capacity; keep multiple independent cases when worthwhile rather than forcing a single winner. Derive the shared generic primitive from the recurring constraint, while preserving each original task and source identity.", "applicability": "always"},
+        {"id": "trillion-x", "stage": "opportunity", "instruction": "Apply Trillion X/Hardcore through the actual workflow:trillion-x-mode run for each applicable case decision and read back its actual result.", "applicability": "always"},
+        {"id": "infinity-review", "stage": "opportunity", "instruction": "Apply Infinity Mode to worthwhile cases: independently improve relevant quality, depth, breadth, scale, reliability and continuity while reducing effort and resource use against real baselines. Keep bounded passes and attach remaining work to the existing event-based continuation owner.", "applicability": "always"},
+        {"id": "rea-tools", "stage": "evidence", "instruction": "Always review whether REA, 21st.dev, Mobbin and other relevant research or design capabilities apply. Use each through its currently declared available route when relevant; if unavailable, retain the attempted failure and lost evidence or an equivalent, without claiming imaginary use.", "applicability": "always"}
+      ]
+    },
+    {
+      "kind": "execution-mode",
+      "id": "mode:put-it-in-the-world",
+      "version": 1,
+      "label": "Put It in the World Mode",
+      "aliases": ["Put It in the World Mode", "Launch the useful thing"],
+      "job": "Turn a supported opportunity into a real, accessible offer or experience and verify that intended people can reach it.",
+      "workflow_id": "workflow:put-it-in-the-world-mode",
+      "means": "Carry a generic useful capability through its real owner, marketplace and delivery surfaces, then verify the serving result and the intended audience path.",
+      "authority": "This mode adds no permissions. Follow current user scope, publication rights, accessibility needs and other people's privacy and consent.",
+      "stages": [
+        {"id": "reuse", "label": "Choose the capable owner"},
+        {"id": "shape", "label": "Make the offer usable"},
+        {"id": "publish", "label": "Publish through its owner"},
+        {"id": "reachability", "label": "Verify access in the world"}
+      ],
+      "requirements": [
+        {"id": "owner", "stage": "reuse", "instruction": "Search the live Marketplace and current tools and workflows for the generative primitive, license and capable owner. Reuse the current owner or extend its shared mechanism; keep product, audience and instance-specific details in data.", "applicability": "always"},
+        {"id": "user-path", "stage": "shape", "instruction": "Create the real usable offer: as relevant, a demo video, article, use-case page, comparison, and the corresponding reusable Marketplace tools, workflows and data. Use shared branding and actual publish destinations. Define the intended person's entry point, useful result, prerequisites and recovery path; a configured page is not yet a usable experience.", "applicability": "always"},
+        {"id": "trillion-x", "stage": "publish", "instruction": "Apply Trillion X/Hardcore through the actual workflow:trillion-x-mode run for this applicable stage, then read back its real run result. Publish or deliver through the existing authorized owner and retain exact version and destination identity.", "applicability": "always"},
+        {"id": "live-access", "stage": "reachability", "instruction": "Open the actual published destination, verify the served version and meaningful current content, and follow the real person's path to it. Read back the exact published destination and content; distinguish source change, publication, deployment, delivery and observed completion. Never claim an unpublished draft was published.", "applicability": "always"},
+        {"id": "real-test", "stage": "reachability", "instruction": "For human-visible work, find the existing workflow by the job 'do real user testing', inspect its published identity, and use its actual interface journey to check the full relevant result and repair any friction before closing it.", "applicability": "when_relevant"}
+      ]
+    },
+    {
+      "kind": "execution-mode",
+      "id": "mode:make-it-perform",
+      "version": 1,
+      "label": "Make It Perform Mode",
+      "aliases": ["Make It Perform Mode", "Improve discovery and performance"],
+      "job": "Improve discoverability, conversion and useful performance across search, answer engines, social channels and the live experience using current evidence.",
+      "workflow_id": "workflow:make-it-perform-mode",
+      "means": "Research how intended people find and evaluate the real offer, improve the shared content and experience mechanisms, and measure actual outcomes without promising rankings or reach.",
+      "authority": "This mode adds no permissions. Respect platform terms, privacy, accessibility, publication rights and audience preferences. Never promise rankings, placement, impressions or conversion.",
+      "stages": [
+        {"id": "discover", "label": "Research how people find it"},
+        {"id": "improve", "label": "Improve the whole path"},
+        {"id": "measure", "label": "Measure observed outcomes"}
+      ],
+      "requirements": [
+        {"id": "research", "stage": "discover", "instruction": "Research relevant SEO, GEO, AEO, LLMO and social discovery as open domains. For Google AI features, check current official guidance at https://developers.google.com/search/docs/appearance/ai-features and apply ordinary Search fundamentals; do not invent special AI markup requirements. For YouTube, check current official guidance at https://support.google.com/youtube/answer/16559650?hl=en. Also inspect actual queries, source-backed audience language, competitors and complaints. Search available Marketplace tools and workflows and reuse licensed capable owners; do not assume any channel or tactic is universally relevant.", "applicability": "always"},
+        {"id": "baseline", "stage": "discover", "instruction": "Capture the current surface, query or channel baseline, measurement source, time window and known limitations. Separate observed data from estimates and hypotheses; rankings are not a promised result.", "applicability": "always"},
+        {"id": "improve", "stage": "improve", "instruction": "Fix the actual bottleneck across content relevance, technical access, clarity, speed, accessibility and next action as applicable. For social, test audience appeal, engagement quality and satisfaction using real responses rather than promising reach. Apply Trillion X/Hardcore through the actual workflow:trillion-x-mode run and read back its result for this applicable stage.", "applicability": "always"},
+        {"id": "replay", "stage": "improve", "instruction": "For a user-facing change, find the existing workflow by the job 'do real user testing', inspect its published identity, and verify the real task through the interface; repair every touched failure before closing.", "applicability": "when_relevant"},
+        {"id": "measure", "stage": "measure", "instruction": "Compare fresh, source-backed observations over a stated window with the baseline. Attribute results cautiously, retain failed or unavailable measurements, and choose the next intervention only from a demonstrated remaining bottleneck.", "applicability": "always"}
+      ]
+    },
+    {
+      "kind": "execution-mode",
+      "id": "mode:personalized-reach-out",
+      "version": 1,
+      "label": "Personalized Reach Out Mode",
+      "aliases": ["Personalized Reach Out Mode", "Reach the right people"],
+      "job": "Identify relevant people and deliver individually useful, truthful outreach through suitable connected channels.",
+      "workflow_id": "workflow:personalized-reach-out-mode",
+      "means": "Use evidence about fit and context to prepare and perform relevant outreach, while preserving recipient rights and a bounded, respectful follow-up path.",
+      "authority": "This mode adds no permissions. Act only within the user's request and the channel's rules. Respect consent, recipient preferences, suppression lists, opt-outs and do-not-contact signals; never endlessly contact someone.",
+      "stages": [
+        {"id": "fit", "label": "Find relevant people"},
+        {"id": "message", "label": "Make each message useful"},
+        {"id": "deliver", "label": "Send and verify delivery state"},
+        {"id": "follow", "label": "Respond to real signals"}
+      ],
+      "requirements": [
+        {"id": "recipient-source", "stage": "fit", "instruction": "Find relevant original source authors or commenters for a same-thread/comment reply, or use current verified DMs/email and warm or cold CRM relationship records held as EEAF data. Verify each identity, source, relationship and channel; explain the concrete relevance and exclude unsupported assumptions or unrelated sensitive details. Keep the source set open and data-configurable.", "applicability": "always"},
+        {"id": "message-quality", "stage": "message", "instruction": "Research each recipient's context and write a specific, truthful message with a useful reason to engage and an easy way to decline. Reuse current licensed outreach tools or workflows found in the Marketplace; retain the source and message identity.", "applicability": "always"},
+        {"id": "bounded-delivery", "stage": "deliver", "instruction": "Use the requested connected channel and a finite batch sized to current limits. Make sends idempotent; record prepared, queued, accepted, delivered, seen, replied and acted states separately. Apply Trillion X/Hardcore through the actual workflow:trillion-x-mode run and read back the result for this applicable stage.", "applicability": "always"},
+        {"id": "recipient-rights", "stage": "deliver", "instruction": "Check consent, opt-outs, suppression, channel policy and recipient preferences before every send and follow-up. Stop on any opt-out or do-not-contact signal; do not infer awareness or interest from delivery or an open.", "applicability": "always"},
+        {"id": "followup", "stage": "follow", "instruction": "Follow up only when relevant new evidence or the recipient's stated preference supports it, within bounded cadence and duration. Stop on reply, decline, opt-out, expiry or exhausted bounded attempts; never use idle polling.", "applicability": "always"}
+      ]
+    },
+    {
+      "kind": "execution-mode",
+      "id": "mode:follow-through",
+      "version": 1,
+      "label": "Follow Through Mode",
+      "aliases": ["Follow Through Mode", "Finish the chain"],
+      "job": "Carry dependencies and commitments through to independently checked outcomes, with a clear owner and recovery path for every unresolved item.",
+      "workflow_id": "workflow:follow-through-mode",
+      "means": "Track the real state of each dependency from action through external response and verified consequence, then resume from the next relevant event without duplicating work.",
+      "authority": "This mode adds no permissions. Keep actions within their existing owner, authority, consent and resource boundaries.",
+      "stages": [
+        {"id": "state", "label": "Reconcile current state"},
+        {"id": "act", "label": "Advance owned dependencies"},
+        {"id": "verify", "label": "Check consequences and recover"}
+      ],
+      "requirements": [
+        {"id": "current-state", "stage": "state", "instruction": "Read the live source of truth for each dependency. Preserve identities, history and state distinctions such as queued, sent, received, acknowledged, acted and independently verified; do not infer completion from a handoff or status message.", "applicability": "always"},
+        {"id": "owner-next-event", "stage": "act", "instruction": "Give every unresolved dependency a real owner, source, next relevant event, finite boundary and stop condition. Search the current Marketplace for capable existing tools and workflows; reuse the owner and preserve idempotency and cancellation.", "applicability": "always"},
+        {"id": "trillion-x-each-stage", "stage": "act", "instruction": "Apply Trillion X/Hardcore through the actual workflow:trillion-x-mode run at each applicable stage, and read back the actual run result before claiming the stage advanced.", "applicability": "always"},
+        {"id": "recovery", "stage": "verify", "instruction": "Verify the requested consequence at its real destination. On failure, keep the exact evidence, retry only when safe and useful, repair the shared cause and resume from the relevant event; do not repeat completed effects or idle-poll.", "applicability": "always"},
+        {"id": "customer-benefit", "stage": "verify", "instruction": "Measure customer benefit against the actual customer baseline and intended outcome. A sent message, open, click, install, workflow run or positive self-report alone does not prove benefit; retain the evidence and its limits.", "applicability": "when_relevant"}
+      ]
+    },
+    {
+      "kind": "execution-mode",
+      "id": "mode:first-win",
+      "version": 1,
+      "label": "First Win Mode",
+      "aliases": ["First Win Mode", "Get the first customer result"],
+      "job": "Help an intended customer reach one meaningful, independently verified first result with the least avoidable effort.",
+      "workflow_id": "workflow:first-win-mode",
+      "means": "Start from a real customer's goal and starting conditions, remove the most important blocker, guide the actual path and verify the result in the customer's context.",
+      "authority": "This mode adds no permissions. Preserve customer choice, privacy, access boundaries, consent and resource limits.",
+      "stages": [
+        {"id": "goal", "label": "Understand the customer's goal"},
+        {"id": "path", "label": "Remove the first blocker"},
+        {"id": "result", "label": "Verify the first useful result"}
+      ],
+      "requirements": [
+        {"id": "customer-baseline", "stage": "goal", "instruction": "Use the actual customer's goal, account state, available sources and chosen provider as the baseline. Do not preload assumed facts, credentials, conversations or configuration, and do not substitute a demo account for the intended customer.", "applicability": "always"},
+        {"id": "path", "stage": "path", "instruction": "Cover the real entry and recovery path for new and existing users, account and provider setup, required sign-in, and free or paid access, payment and entitlement when relevant. Search live Marketplace tools and workflows for each blocker and reuse capable current owners. Minimize reader effort with clear guidance, but keep every Next, Back and Skip responsive and do not expose tour save bookkeeping as 'Saving…'.", "applicability": "always"},
+        {"id": "trillion-x", "stage": "path", "instruction": "Apply Trillion X/Hardcore through the actual workflow:trillion-x-mode run for this applicable stage and read back its actual result. Use the existing licensed interface components and owner for any visible change.", "applicability": "always"},
+        {"id": "real-use", "stage": "result", "instruction": "When the result depends on an interface, find the existing workflow by the job 'do real user testing', inspect its published identity, and exercise the real customer path through the actual interface. Keep first-attempt friction and repair it before closing.", "applicability": "when_relevant"},
+        {"id": "verify-benefit", "stage": "result", "instruction": "Read back the persisted result in the customer's context and compare it with the stated goal and baseline. Record what the customer can now do, what remains unresolved and the evidence source; an onboarding completion or success message is insufficient.", "applicability": "always"}
+      ]
+    },
+    {
+      "kind": "execution-mode",
+      "id": "mode:keep-it-working",
+      "version": 1,
+      "label": "Keep It Working Mode",
+      "aliases": ["Keep It Working Mode", "Maintain the result"],
+      "job": "Preserve a verified customer result over time by detecting meaningful change, repairing regressions and continuing within bounded resources.",
+      "workflow_id": "workflow:keep-it-working-mode",
+      "means": "Use current owners and event-driven signals to detect changed conditions, protect continuity and restore the intended result with bounded, evidence-based work.",
+      "authority": "This mode adds no permissions. Honor retention, privacy, consent, cancellation, resource and service limits.",
+      "stages": [
+        {"id": "health", "label": "Know what must keep working"},
+        {"id": "change", "label": "Respond to meaningful changes"},
+        {"id": "restore", "label": "Verify continuity after repair"}
+      ],
+      "requirements": [
+        {"id": "outcome-contract", "stage": "health", "instruction": "Name the real customer outcome, its current verified baseline, freshness needs and failure signals. Search the live Marketplace for current monitoring, event, workflow and recovery owners; use the existing event-based mechanism rather than creating a poller.", "applicability": "always"},
+        {"id": "resource-bounds", "stage": "health", "instruction": "Set finite per-run work, cost, time and concurrency boundaries from current owner limits. Define cancellation, retention and what happens when a dependency is unavailable; never represent unknown state as healthy or empty.", "applicability": "always"},
+        {"id": "meaningful-change", "stage": "change", "instruction": "Act only on a meaningful new event or fresh evidence. Reconcile live state, preserve identity and history, and route the bottleneck to its current capable owner; do not repeat unchanged failed attempts or idle-poll.", "applicability": "always"},
+        {"id": "trillion-x", "stage": "restore", "instruction": "Apply Trillion X/Hardcore through the actual workflow:trillion-x-mode run for this applicable repair and read back its actual run result. Fix the shared cause and check affected sibling consumers before declaring recovery.", "applicability": "always"},
+        {"id": "continuity-proof", "stage": "restore", "instruction": "Read back the same persisted customer target and verify that the intended result works again. Preserve unresolved causes, owner, next event and exact stop condition; continue only when new evidence and remaining budget warrant it.", "applicability": "always"}
+      ]
+    },
+    {
+      "kind": "execution-mode",
+      "id": "mode:quintillion",
+      "version": 3,
+      "label": "Quintillion Mode",
+      "aliases": ["Quintillion Mode", "Quintillion"],
+      "job": "Compose research, creation, distribution, customer follow-through and continued improvement into the best verified outcome for a real customer.",
+      "workflow_id": "workflow:quintillion-mode",
+      "means": "A nonlinear, evidence-directed coordinator that combines the independently useful Infinity, real-life cases, world delivery, performance, personalized outreach, follow-through, first win and continuity modes around the customer's actual bottleneck. It routes by observed need rather than forcing every mode through a fixed sequence.",
+      "authority": "This mode adds no permissions. Each composed workflow retains its own authority, licensed owner, recipient rights, opt-outs, finite resource limits and stop conditions. A stage advances only on actual workflow run readback and outcome evidence.",
+      "stages": [
+        {"id": "customer", "label": "Ground in the real customer and outcome"},
+        {"id": "compose", "label": "Find and compose current capabilities"},
+        {"id": "act", "label": "Advance the observed bottleneck"},
+        {"id": "learn", "label": "Measure benefit and route the next need"},
+        {"id": "continue", "label": "Continue or stop with a clear reason"}
+      ],
+      "requirements": [
+        {"id": "real-outcome", "stage": "customer", "instruction": "Start with a real customer's stated outcome, actual starting conditions and evidence-backed baseline. Preserve request and source identity, uncertainty, exclusions and the customer's rights; keep first-attempt interface evidence when applicable.", "applicability": "always"},
+        {"id": "find-composition", "stage": "compose", "instruction": "Search live Marketplace listings, find tools and find_workflow for the job at hand. Describe the current licensed capable owners, reuse their existing workflow runs, and compose only the modes and actions that resolve this customer's observed bottleneck. Do not create fake IDs or a second engine.", "applicability": "always"},
+        {"id": "trillion-x-each-stage", "stage": "compose", "instruction": "Require Trillion X/Hardcore through the actual workflow:trillion-x-mode run at every applicable stage and read back each real run result. Preserve run identity, outputs, checks, failures and continuation state; a mode record or queued run is not proof that the workflow ran.", "applicability": "always"},
+        {"id": "real-testing-transversal", "stage": "act", "instruction": "For every applicable human-facing path, search find_workflow for the exact job 'do real user testing', describe the returned published workflow ID, run it against the real interface and task, and read back its actual evidence. Keep the original attempt; repair every touched failure and replay the same path before closure.", "applicability": "when_relevant"},
+        {"id": "mode-research", "stage": "compose", "instruction": "Always review whether REA, 21st.dev, Mobbin and other research/design capabilities apply at each stage. Use the actually available declared route when relevant; record attempted failures, their evidential loss and a current equivalent. Never claim use without observed output.", "applicability": "always"},
+        {"id": "infinity-child", "stage": "compose", "instruction": "When continued multidimensional improvement applies, find and describe the current Infinity Mode workflow, workflow:infinity-mode, run it through the existing workflow engine, then read back its actual run. Keep quality, depth, breadth, scale, granularity across nested levels, reliability, continuity, energy, user effort, cost, latency, setup and resource consumption as independent dimensions. Keep chosen improvement directions separately observable rather than combining them into one ratio. Investigate apparent conflicts and recursively question the dimensions, measures, hierarchy, objectives and method itself against actual outcomes. Preserve the person's actual per-level settings and configurable conditions, including choices to tune or disable behavior; per-pass resource bounds do not cap the aspiration.", "applicability": "when_relevant"},
+        {"id": "nonlinear-route", "stage": "learn", "instruction": "After each actual run readback, compare observed results with the customer baseline and route the next action to the highest-value unresolved bottleneck. The next mode may be any relevant mode or a new Marketplace capability; do not force a sequence or rerun completed stages without a changed reason. Propagate a proven generic improvement to the actual affected workflow, tool, data or owner and check its consumers.", "applicability": "always"},
+        {"id": "bounded-continuity", "stage": "continue", "instruction": "Use finite batch, cost, time and concurrency limits derived from current owner constraints; preserve idempotency, cancellation, next owner, event and stop conditions. Continue on relevant new evidence through existing event-based scheduler/workflow owners, never idle-poll or recurse without bound. Close verified cases and pause a pass when no worthwhile bounded action remains or a rights/resource boundary applies. For an ongoing pursuit retain the real discovery and improvement continuation, register it through its existing owner and read back its active state; a completed case never silently closes the flywheel. End that ongoing continuation only on cancellation, expiry or the pursuit's actual closure. Do not claim an unregistered continuation is running.", "applicability": "always"},
+        {"id": "benefit-proof", "stage": "continue", "instruction": "Measure actual customer benefit against the real baseline and intended result. Sent, delivered, opened, replied, installed, published or deployed states do not by themselves prove benefit. Report source changes, publication, deployment, served behavior and observed customer outcome separately.", "applicability": "always"}
+      ]
+    }
+  ]
+}

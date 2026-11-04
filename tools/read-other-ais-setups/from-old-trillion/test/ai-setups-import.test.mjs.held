@@ -1,0 +1,64 @@
+// test/ai-setups-import.test.mjs
+// Read-only listing of the instruction files other AIs keep on this Mac, and the add-only import into saved
+// instructions (F-0267, F-0316).
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { realpathSync } from 'node:fs';
+import { readAiSetups, aiSetupSettings } from '../computer/ai-setups.mjs';
+import { makeAgents } from '../src/agents.mjs';
+import { agentStoreForTests } from './agent-store-for-tests.mjs';
+
+async function home() {
+  const base = realpathSync(await mkdtemp(join(tmpdir(), 'ai-setups-')));
+  await mkdir(join(base, '.claude/commands'), { recursive: true });
+  await mkdir(join(base, '.claude/skills/triage'), { recursive: true });
+  await mkdir(join(base, '.cursor/rules'), { recursive: true });
+  await writeFile(join(base, '.claude/CLAUDE.md'), 'Always answer briefly.');
+  await writeFile(join(base, '.claude/commands/review.md'), 'Review the diff for bugs.');
+  await writeFile(join(base, '.claude/skills/triage/SKILL.md'), 'Sort the inbox into three piles.');
+  await writeFile(join(base, '.cursor/rules/style.mdc'), 'x'.repeat(5000));
+  return base;
+}
+
+test('the listing reads each place read only, cuts long text and names a file the scope refuses', async () => {
+  const base = await home();
+  const outside = realpathSync(await mkdtemp(join(tmpdir(), 'ai-setups-outside-')));
+  await writeFile(join(outside, 'secret.md'), 'not for this');
+  await symlink(join(outside, 'secret.md'), join(base, '.claude/commands/linked.md'));
+  const scope = { ...JSON.parse(JSON.stringify((await import('../computer/file-arguments.mjs')).fileArgumentSettings())), roots: [base] };
+  const { items, sources } = await readAiSetups({}, { home: base, scope });
+  const by = id => items.find(item => item.id === id);
+  assert.equal(by('claude-instructions-claude').text, 'Always answer briefly.');
+  assert.equal(by('claude-commands-review').kind, 'command');
+  assert.equal(by('claude-skills-triage').kind, 'skill');
+  assert.equal(by('cursor-rules-style').cut, true);
+  assert.equal(Array.from(by('cursor-rules-style').text).length, aiSetupSettings().most_chars_per_item);
+  assert.match(by('claude-commands-linked').unreadable, /outside the folders/);
+  assert.deepEqual(sources['codex-prompts'], 0);
+  console.log('readback listing:', JSON.stringify(items.map(item => [item.id, item.unreadable ? 'unreadable' : item.text.length])));
+});
+
+test('add_instructions only adds: saved rows stay, duplicates are skipped and named, and each row records where it came from', () => {
+  const agents = makeAgents({ store: agentStoreForTests(), now: () => new Date('2026-10-19T10:00:00Z'), starters: [] });
+  agents.instructions({ instructions: [{ id: 'mine', label: 'Mine', words: 'Summarise it' }] });
+  const result = agents.instructions({ add_instructions: [
+    { id: 'mine', label: 'Other', words: 'Different words, same id' },
+    { label: 'Same words', words: 'Summarise it' },
+    { id: 'claude-commands-review', label: 'review', words: 'Review the diff for bugs.' },
+  ], imported_from: 'ai-setups' }, { reader: 'key:abc' });
+  assert.deepEqual(result.added, ['claude-commands-review']);
+  assert.deepEqual(result.skipped.map(row => row.why), ['an instruction with this id is already saved', 'an instruction with these words is already saved']);
+  const rows = Object.fromEntries(result.instructions.map(row => [row.id, row]));
+  assert.equal(rows.mine.words, 'Summarise it');
+  assert.equal(rows.mine.origin, undefined);
+  assert.deepEqual(rows['claude-commands-review'].origin, { class: 'agent', by: 'key:abc', at: '2026-10-19T10:00:00.000Z', imported_from: 'ai-setups' });
+  assert.throws(() => agents.instructions({ add_instructions: [] }), /never replaces or removes/);
+  // by the person themself the import still says where it came from
+  const person = agents.instructions({ add_instructions: [{ label: 'Rules', words: 'Be kind' }], imported_from: 'ai-setups' });
+  assert.deepEqual(person.instructions.at(-1).origin.imported_from, 'ai-setups');
+  assert.equal(person.instructions.at(-1).origin.class, 'person');
+  console.log('readback import:', JSON.stringify(result.instructions.map(row => [row.id, row.origin?.class ?? 'person'])));
+});

@@ -1,0 +1,50 @@
+// `trillion action SERVICE ACTION 'JSON'`: a shell-shaped line becomes one run_tool call the registry allows (harness/action-bus.mjs).
+import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import test from 'node:test';
+import { ActionRefused, actionCall, actionList, actionRegistry } from '../harness/action-bus.mjs';
+import { main, stateOf } from '../harness/trillion.mjs';
+
+const KEY = `nm_${'ab'.repeat(32)}`;
+
+test('a listed action becomes run_tool with the row\'s tool and the line\'s input; nothing else is reachable', () => {
+  assert.deepEqual(actionCall(['listening', 'rules', '{"action":"list"}']), { tool: 'run_tool', arguments: { tool_id: 'tool:recording-rules', input: { action: 'list' } }, idempotent: false });
+  assert.deepEqual(actionCall(['meetings', 'read-link']).arguments.input, {});
+  assert.throws(() => actionCall(['listening']), /Name the service and the action/);
+  assert.throws(() => actionCall(['shell', 'run']), error => error instanceof ActionRefused && /The services are: listening, meetings, capture/.test(error.message));
+  assert.throws(() => actionCall(['listening', 'tool:recording-rules']), /listening has no action called tool:recording-rules\. Its actions are: rules, dictate/);
+  assert.throws(() => actionCall(['listening', 'rules', '[1]']), /one JSON object/);
+  assert.throws(() => actionCall(['listening', 'rules', '{bad']), /one JSON object/);
+});
+
+test('every row names a tool this computer\'s host really keeps', async () => {
+  const { default: macTools } = await import('../computer/mac-tools.json', { with: { type: 'json' } });
+  for (const [service, row] of Object.entries(actionRegistry().services)) for (const [action, entry] of Object.entries(row.actions)) assert.ok(Object.hasOwn(macTools.tools, entry.tool_id), `${service} ${action} -> ${entry.tool_id}`);
+  assert.match(actionList(), /^listening rules {2}set, list and remove recording rules/);
+});
+
+test('through the trillion command: the line reaches the account as run_tool, and a refused line makes no call', async () => {
+  const calls = [];
+  const server = createServer(async (request, response) => {
+    let raw = '';
+    for await (const chunk of request) raw += chunk;
+    const message = JSON.parse(raw);
+    calls.push(message.params);
+    response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ jsonrpc: '2.0', id: message.id, result: { content: [{ type: 'text', text: '{"rules":[]}' }], structuredContent: { rules: [] } } }));
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const origin = `http://127.0.0.1:${server.address().port}`;
+  const seams = { store: { read: () => KEY, where: 'test' }, state: stateOf({ home: mkdtempSync(join(tmpdir(), 'action-bus-')) }), env: { CLAUDECODE: '1' }, place: () => ({}) };
+  try {
+    const answer = await main(['action', 'listening', 'rules', '{"action":"list"}', '--origin', origin, '--as', 'me'], seams);
+    assert.deepEqual(calls.at(-1), { name: 'run_tool', arguments: { tool_id: 'tool:recording-rules', input: { action: 'list' } } });
+    assert.match(answer, /rules/);
+    const before = calls.length;
+    await assert.rejects(main(['action', 'nowhere', 'x', '--origin', origin, '--as', 'me'], seams), /No service called nowhere/);
+    assert.equal(calls.length, before);
+    assert.match(await main(['actions'], seams), /meetings open-link/);
+  } finally { await new Promise(resolve => server.close(resolve)); }
+});
