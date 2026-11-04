@@ -11,7 +11,7 @@
     "label": "Publish a site",
     "status": "active",
     "job": "Publish a website's pages and files so it can be given its own address",
-    "description": "Keeps a site's files (files by path, index.html first, text or data: URLs; or site, the name of a site.json in your files such as copy_a_site leaves) under a new installation in your files, or a new version of one already published (installation). Returns the installation id, how many files and bytes, and a name its page title suggests. Give it an address with name_site or attach_domain.",
+    "description": "Keeps a site's files (files by path, index.html first, text or data: URLs; or site, the name of a site.json in your files such as copy_a_site leaves) under a new installation in your files, or a new version of one already published (installation). Returns the installation id, how many files and bytes, and a name its page title suggests. Give it an address with name_site or attach_domain. A site that already has an address also gets llms.txt, the list of its pages AI apps read, unless it ships its own.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -52,6 +52,9 @@
       },
       "suggested_name": {
        "type": "string"
+      },
+      "llms": {
+       "type": "boolean"
       }
      }
     },
@@ -95,6 +98,22 @@
         "at": "/opt/shared-code"
        },
        {
+        "package": "choose-which-site-pages-ai-may-show",
+        "paths": [
+         "src/public-app-ai-pages.mjs",
+         "src/public-app-ai-app.json"
+        ],
+        "at": "/opt/choose-which-site-pages-ai-may-show"
+       },
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/page-facts.mjs",
+         "do-work/page-conventions.json"
+        ],
+        "at": "/opt/browse-public-page"
+       },
+       {
         "package": "content-identity",
         "paths": [
          "read-data"
@@ -130,6 +149,9 @@
        {
         "files": "/installations/",
         "operations": [
+         "list_files",
+         "find_file",
+         "read_file",
          "write_file_start",
          "write_file_piece",
          "write_file_finish"
@@ -158,6 +180,9 @@
         "style.css": "h1{color:teal}"
        },
        "installation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "door_files": {
+       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.trillion.run\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
       }
      }
     ]
@@ -283,6 +308,22 @@
          "src/public-app-files.mjs"
         ],
         "at": "/opt/shared-code"
+       },
+       {
+        "package": "choose-which-site-pages-ai-may-show",
+        "paths": [
+         "src/public-app-ai-pages.mjs",
+         "src/public-app-ai-app.json"
+        ],
+        "at": "/opt/choose-which-site-pages-ai-may-show"
+       },
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/page-facts.mjs",
+         "do-work/page-conventions.json"
+        ],
+        "at": "/opt/browse-public-page"
        },
        {
         "package": "content-identity",
@@ -471,6 +512,22 @@
         "at": "/opt/shared-code"
        },
        {
+        "package": "choose-which-site-pages-ai-may-show",
+        "paths": [
+         "src/public-app-ai-pages.mjs",
+         "src/public-app-ai-app.json"
+        ],
+        "at": "/opt/choose-which-site-pages-ai-may-show"
+       },
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/page-facts.mjs",
+         "do-work/page-conventions.json"
+        ],
+        "at": "/opt/browse-public-page"
+       },
+       {
         "package": "content-identity",
         "paths": [
          "read-data"
@@ -634,6 +691,22 @@
         "at": "/opt/shared-code"
        },
        {
+        "package": "choose-which-site-pages-ai-may-show",
+        "paths": [
+         "src/public-app-ai-pages.mjs",
+         "src/public-app-ai-app.json"
+        ],
+        "at": "/opt/choose-which-site-pages-ai-may-show"
+       },
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/page-facts.mjs",
+         "do-work/page-conventions.json"
+        ],
+        "at": "/opt/browse-public-page"
+       },
+       {
         "package": "content-identity",
         "paths": [
          "read-data"
@@ -782,6 +855,22 @@
          "src/public-app-files.mjs"
         ],
         "at": "/opt/shared-code"
+       },
+       {
+        "package": "choose-which-site-pages-ai-may-show",
+        "paths": [
+         "src/public-app-ai-pages.mjs",
+         "src/public-app-ai-app.json"
+        ],
+        "at": "/opt/choose-which-site-pages-ai-may-show"
+       },
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/page-facts.mjs",
+         "do-work/page-conventions.json"
+        ],
+        "at": "/opt/browse-public-page"
        },
        {
         "package": "content-identity",
