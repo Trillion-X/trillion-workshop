@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:2a7e9112c170253d75c6fd586efb60e521d4702011328ff35a8662d24518ce41"
+  "blake3": "1f:8628f58ab0bf3d8141f72b84e47e76cbe576daa636661ccddcebb1ac4fce8c3c"
  },
  "fields": [
   {
@@ -3920,6 +3920,21 @@
    }
   },
   {
+   "id": "tool:install-an-engine-builder",
+   "values": {
+    "title": "Install an engine builder",
+    "job": "Set up a machine that publishes a signed engine release on every merge, so a fix reaches every account without an app install",
+    "description": "Over SSH as root on a Linux machine the person runs: a builder user, git, Node.js and rust, Caddy serving the feed folder at https://<name>/engine-releases/ and passing push deliveries to a receiver service, and a firewall. Copies this tool there, writes the publish config, makes the signing key once on the builder (0400; it never leaves) and answers its public key, stores the repository token and the push secret as systemd credentials encrypted with the builder's host key, and starts the receiver: a push to the branch whose HMAC holds runs publish. Answers the public key, the feed's address and where to point the repository's push webhook.",
+    "status": "active",
+    "maker": "maker:publish-an-engine-release",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "publish-an-engine-release"
+   }
+  },
+  {
    "id": "tool:install-the-built-receptionist",
    "values": {
     "title": "Install the built receptionist",
@@ -6026,6 +6041,21 @@
    }
   },
   {
+   "id": "tool:publish-an-engine-release",
+   "values": {
+    "title": "Publish an engine release",
+    "job": "Build the engine at a commit and publish it as a signed release every computer can adopt",
+    "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it with the repository's product/ folder as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
+    "status": "active",
+    "maker": "maker:publish-an-engine-release",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "publish-an-engine-release"
+   }
+  },
+  {
    "id": "tool:pull-my-discord-messages",
    "values": {
     "title": "Pull the messages from the Discord text channels my bot can read into my own records",
@@ -6545,6 +6575,21 @@
      "placement:your-computer"
     ],
     "folder": "email-sending-domains"
+   }
+  },
+  {
+   "id": "tool:read-an-engine-builder",
+   "values": {
+    "title": "Read an engine builder",
+    "job": "See whether the engine builder is receiving pushes and which release it published last",
+    "description": "Over SSH: whether the push receiver is running, the signing key's public half, how many releases the feed holds and the newest per target, how the last publish went, and the HTTP status of the feed at its public address.",
+    "status": "active",
+    "maker": "maker:publish-an-engine-release",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "publish-an-engine-release"
    }
   },
   {
