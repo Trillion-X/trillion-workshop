@@ -1,0 +1,41 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.kngf222/trillion",
+  "title": "Trillion",
+  "description": "Helps your AI find the needle mover, then gives it the tools, people and files to get it done.",
+  "websiteUrl": "https://app.gettrillion.ai",
+  "icons": [
+    {
+      "src": "https://app.gettrillion.ai/favicon.svg",
+      "mimeType": "image/svg+xml",
+      "sizes": ["any"]
+    },
+    {
+      "src": "https://app.gettrillion.ai/icon-48.png",
+      "mimeType": "image/png",
+      "sizes": ["48x48"]
+    },
+    {
+      "src": "https://app.gettrillion.ai/icon-192.png",
+      "mimeType": "image/png",
+      "sizes": ["192x192"]
+    },
+    {
+      "src": "https://app.gettrillion.ai/icon.png",
+      "mimeType": "image/png",
+      "sizes": ["256x256"]
+    },
+    {
+      "src": "https://app.gettrillion.ai/icon-512.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    }
+  ],
+  "version": "2026.9.28",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://app.gettrillion.ai/mcp"
+    }
+  ]
+}

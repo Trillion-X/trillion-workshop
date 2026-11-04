@@ -1,0 +1,26 @@
+{
+  "what_this_is": "Settings for harness/keep-web-chats.mjs: which chat sites the person uses in their own signed-in browser have their conversations kept in Trillion word for word, read through the site's own account pages in a tab the person already has open, so a chat whose AI could not write to Trillion (its own app refused or never sent the write) still lands. Each site row says which browser app holds the tab, the host a tab must be on, where the page's own sign-in hands its token (session, token_path), how conversations are listed newest first (list, with {offset} and {limit}; items_path, id_path, updated_path), and where one conversation is read whole (conversation, with {id}); the conversation comes back in the shape bring_in_chat keeps. A pass pages the list back to its cursor, reading at most `most_list_pages` pages of `page_size` (a pass that cannot reach its cursor in that many pages keeps nothing and says so), then keeps the oldest `most_per_pass` changed since it. Adding a site is a row here, never a code change.",
+  "every_seconds": 1800,
+  "first_look_back_days": 7,
+  "most_per_pass": 40,
+  "most_list_pages": 50,
+  "page_size": 100,
+  "chunk_bytes": 1000000,
+  "wait_ms": 180000,
+  "cursor_folder": "~/.trillion/keep-web-chats",
+  "sites": [
+    {
+      "id": "chatgpt",
+      "app": "ChatGPT",
+      "browser_app": "Arc",
+      "host": "chatgpt.com",
+      "session": "/api/auth/session",
+      "token_path": ["accessToken"],
+      "list": "/backend-api/conversations?offset={offset}&limit={limit}&order=updated",
+      "items_path": ["items"],
+      "id_path": ["id"],
+      "updated_path": ["update_time"],
+      "conversation": "/backend-api/conversation/{id}"
+    }
+  ]
+}

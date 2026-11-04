@@ -1,0 +1,13 @@
+{
+  "_what": "How a file a buyer receives from a paid Marketplace tool run is made traceable to that sale (src/sold-copies.mjs). Every such file is recorded by its content identity with its sale and an opaque buyer tag in the shared pool; where the file's type has a carrier here, an overt note naming the sale is added first, so each buyer's copy has its own identity. A carrier is the bytes added at the end of the file, written as parts: {\"text\"} literal text, {\"note\": true} the note, {\"length\": \"u32be\"} the whole addition's length as four big-endian bytes. Each carrier lists the media types whose readers ignore those bytes. A type with no carrier is still traced by its identity. Adding a format is one row here. Decision source:security-hardening-buyer-attribution-2026-10-05.",
+  "note": "Trillion sold copy: sale {sale} of {tool}",
+  "carriers": [
+    { "media_types": ["application/pdf"], "parts": [{ "text": "\n% " }, { "note": true }, { "text": "\n" }] },
+    { "media_types": ["image/png", "image/jpeg", "image/gif"], "parts": [{ "note": true }] },
+    { "media_types": ["video/mp4", "video/quicktime", "audio/mp4", "audio/x-m4a"], "parts": [{ "length": "u32be" }, { "text": "free" }, { "note": true }] }
+  ],
+  "words": {
+    "not_yours": "That file or sale is not one of your tools' sales.",
+    "unknown": "No sale of your tools delivered that file."
+  }
+}

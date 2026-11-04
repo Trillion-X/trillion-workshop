@@ -1,0 +1,24 @@
+{
+  "_what": "How a maker of a paid Marketplace tool sets up payouts and reads what they are owed (src/maker-payouts.mjs). Earnings are the tool_sales rows the shared pool already keeps (one per completed paid run, marked when the charge is given back). `operations` names the payment provider's operation rows (parts/stripe-payment-provider/data/stripe-operation-map.json) used to open a payee account, read it, make its one-time setup page and its dashboard sign-in; the provider collects the maker's identity and bank on its own page. `payee_settings` is what a new payee account is opened with, `country` the country it is opened in when the maker names none. `ready_when` is the payee fact that says it can receive money and `needs_path` where the provider lists what it still needs. `minimum_micros` is the least owed amount sent at once. `return_path` is the page a maker comes back to after the provider's page. Changing any of these is a change here only. Decision source:marketplace-maker-payout-onboarding-and-status-2026-10-04.",
+  "currency": "usd",
+  "minimum_micros": 10000000,
+  "country": "US",
+  "operations": {
+    "open_payee": "operation:create-connected-account",
+    "read_payee": "operation:read-connected-account",
+    "payee_form": "operation:create-account-link",
+    "payee_dashboard": "operation:create-login-link"
+  },
+  "payee_settings": {
+    "controller": {
+      "fees": { "payer": "application" },
+      "losses": { "payments": "application" },
+      "requirement_collection": "stripe",
+      "stripe_dashboard": { "type": "express" }
+    },
+    "capabilities": { "transfers": { "requested": true } }
+  },
+  "ready_when": { "path": ["capabilities", "transfers"], "equals": "active" },
+  "needs_path": ["requirements", "currently_due"],
+  "return_path": "/marketplace"
+}

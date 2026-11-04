@@ -1,0 +1,66 @@
+{
+  "id": "move:trillion-harness-to-workshop",
+  "about": "The AI session harness files Trillion-X/trillion PR #243 deleted with no ported home (the port backlog in its body), moved byte for byte from the tag old-trillion-before-worker-retire into one Workshop tool: one group, because its scripts read each other's settings files by path (setup.mjs reads setup.json, take-open-work.json names keychain-mcp-bridge.mjs beside it), so a split would part a reader from what it reads. Their files that stayed on trillion main (chosen-ai.mjs, local-door.mjs, the settings JSON beside each script) come with them as the import closure says; the old copies on trillion main have no importer left there. Three files the harness's tests read by path (src/server-instructions.json, records/workshop-account-tool-records.json, src/escape-chain.json) are named as owners, because the import closure does not follow a path read.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [],
+  "provider_calls": [
+    {
+      "id": "durable-object",
+      "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+    },
+    {
+      "id": "kv",
+      "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+    }
+  ],
+  "calls": [],
+  "groups": [
+    {
+      "id": "keep-and-wake-ai-sessions-on-this-computer",
+      "owner": [
+        "harness/record-every-message.*",
+        "harness/hook-run-receipt.mjs",
+        "harness/keep-web-chats.*",
+        "harness/keep-written-files.*",
+        "harness/decide-before-building.*",
+        "harness/ask-trillion-first.*",
+        "harness/decisions-since.*",
+        "harness/recheck-source-return.mjs",
+        "harness/request-source-return-check.mjs",
+        "harness/verify-source-return.mjs",
+        "harness/wake-handlers/keep-web-chats.mjs",
+        "harness/wake-handlers/confirm-source-return.mjs",
+        "harness/take-open-work.*",
+        "harness/triage-open-work.mjs",
+        "harness/quiet-open-source-work.*",
+        "harness/work-consumer.*",
+        "harness/wake-sessions.*",
+        "harness/register-session.mjs",
+        "harness/agent-receiver.mjs",
+        "harness/wake-handlers/take-open-work.mjs",
+        "harness/wake-handlers/wake-named-session.mjs",
+        "harness/wake-handlers/wake-stopped-chats.mjs",
+        "harness/wake-handlers/run-tools-here.mjs",
+        "harness/setup.*",
+        "harness/account-key.*",
+        "harness/keychain-mcp-bridge.mjs",
+        "src/server-instructions.json",
+        "records/workshop-account-tool-records.json",
+        "src/escape-chain.json"
+      ],
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer",
+      "capability": "keep every message, web chat and written file of each AI session on this computer as the person's records, ask the person's Trillion before building, take open work handed to this computer's AIs, wake their stopped sessions, run the tools a job needs here, and set up this computer's AI apps with the account's key, hooks and MCP connection"
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "what_this_is": "Settings for decide-before-building.mjs: which tool calls change lasting files, which calls count as deciding with Trillion, and which folders are free to change. Adding a harness or a tool is a row here, never a code change.",
+  "file_tools": [
+    "Edit",
+    "Write",
+    "MultiEdit",
+    "NotebookEdit",
+    "apply_patch"
+  ],
+  "path_fields": [
+    "file_path",
+    "notebook_path",
+    "path"
+  ],
+  "shell_tools": [
+    "Bash",
+    "exec_command",
+    "shell",
+    "exec",
+    "functions.exec",
+    "local_shell"
+  ],
+  "shell_changes": [
+    "\\bgit\\b(?:\\s+-C\\s+\\S+)?(?:\\s+-c\\s+\\S+)*\\s+commit\\b"
+  ],
+  "deciding_tools": [
+    "decide",
+    "export_decision"
+  ],
+  "deciding_servers": [
+    "trillion"
+  ],
+  "spilled_answers": [
+    {
+      "pattern": "Output has been saved to (\\S+?\\.(?:txt|json))\\.?(?:\\s|$)",
+      "folders": [
+        "~/.claude/projects"
+      ],
+      "subfolder": "tool-results"
+    },
+    {
+      "pattern": "Full output saved to: (\\S+?\\.(?:txt|json))\\.?(?:\\s|$)",
+      "folders": [
+        "~/.claude/projects"
+      ],
+      "subfolder": "tool-results"
+    }
+  ],
+  "free_folders": [
+    "~/.claude",
+    "~/.codex",
+    "~/.trillion",
+    "/tmp",
+    "/private/tmp",
+    "/private/var/folders"
+  ],
+  "refusal": "Before changing files, finish a Trillion decision in this turn: answer its questions, call decide, or export an already decided case (the signed-in Trillion tools or the saved-key caller both count). Opening a case is not a decision. If Trillion cannot keep a decision right now (store full, busy, no answer), run the method here in the same turn (node scripts/method-checks.mjs <step> in the Trillion checkout, the steps that bear on the change) and try again: the hook checks Trillion itself and lets the change through, and it is written to ~/.trillion/decisions-owed.jsonl to decide once Trillion answers.",
+  "deciding_commands": [
+    "(?:trillion-decision/call\\.py|trillion-mcp-call\\.mjs|trillion-mcp-call\\.py)\\S*\\s+['\"]?(decide|export_decision)\\b"
+  ],
+  "confirm_with": {
+    "_what": "Where the hook asks whether a case named in this turn is decided, when the printed answer did not show it: an MCP server that answers export_decision, and the keychain item holding the key it is asked with.",
+    "url": "https://app.gettrillion.ai/mcp",
+    "keychain_item": "trillion-agent-work-key",
+    "timeout_ms": 8000,
+    "total_timeout_ms": 30000
+  },
+  "when_trillion_is_down": {
+    "_what": "When the decisions' own server cannot keep a decision (its store full, a server error, no answer), a turn that ran the method on this computer may change files. The hook checks the server itself; a chat's word is never enough.",
+    "down_answers": [
+      "Exceeded the maximum database size",
+      "Something broke on our side",
+      "service is busy",
+      "service was busy",
+      "Wait for the service to clear",
+      "overloaded",
+      "is used up this hour"
+    ],
+    "local_method_commands": [
+      "scripts/method-checks\\.mjs"
+    ]
+  }
+}

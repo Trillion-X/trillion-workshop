@@ -1,0 +1,561 @@
+{
+  "what_this_is": "Every way a person can escape something that needs them, each with its counter and the next way out, until the last layer where the counter needs nothing from them at all (Jibran 2026-10-06: 'what ways do people already escape those? That is the next predictive thing... then what is the next thing people do... so you then implement everything'). Each row: `escape` in plain words, `layer` (where it happens: in-app, device, os, social, money, self, or terminal for a counter with no further escape), `seen_in` (products and studies where people do it), `counter`, `evidence` (sources), `next` (the escapes left once this counter holds), and `trillion`: how Trillion meets it now (`status` built, wall with the exact `wall`, or open with what would close it, and `by`, the files, tools or lane that do it). A new escape found is a new row and the row that leads to it names it in `next`; test/escape-chain.test.mjs checks every `next` resolves, every chain reaches a terminal row and every built row's files exist. Research behind it: commitment devices and app blockers (Opal, one sec, Freedom, Cold Turkey, ScreenZen, Screen Time, Brick, Unpluq, kSafe, Forest, Beeminder, stickK, Focusmate) and the studies cited in each row, gathered 2026-10-06.",
+  "rows": [
+    {
+      "id": "look-elsewhere-in-trillion",
+      "escape": "Click the sidebar or another screen instead of the thing that waits",
+      "layer": "in-app",
+      "seen_in": [
+        "Home's '160 things need you' with the sidebar one click away (Jibran 2026-10-06)"
+      ],
+      "counter": "While a thing truly needs the person, every Trillion page is covered by that one thing and the page under it cannot be reached",
+      "evidence": [],
+      "next": [
+        "too-many-do-none",
+        "press-later-forever",
+        "turn-the-hold-off",
+        "open-another-trillion-window"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/workspace/needs-you-hold.tsx",
+          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+        ]
+      }
+    },
+    {
+      "id": "too-many-do-none",
+      "escape": "Faced with 160 things, do none of them",
+      "layer": "self",
+      "seen_in": [
+        "Home's Needs you stack (Jibran 2026-10-06)"
+      ],
+      "counter": "Only one thing is ever shown; what an AI can do goes to the AIs first; many small things of one kind (52 voices) are one pass",
+      "evidence": [
+        "https://www.nber.org/system/files/working_papers/w7682/w7682.pdf"
+      ],
+      "next": [
+        "press-later-forever"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs",
+          "src/who-does-it.mjs",
+          "src/waiting-on-you.json"
+        ]
+      }
+    },
+    {
+      "id": "press-later-forever",
+      "escape": "Press later, again and again, so the thing never comes",
+      "layer": "in-app",
+      "seen_in": [
+        "one sec, ScreenZen: people learn to wait out the delay"
+      ],
+      "counter": "Setting it aside needs a reason in words, lasts a few hours, a few times a day; each reason goes to the AIs to do it instead, cut it to one step under a minute, or say when it can be done",
+      "evidence": [
+        "https://www.pnas.org/doi/10.1073/pnas.2213114120",
+        "https://help.beeminder.com/article/45-what-is-the-akrasia-horizon"
+      ],
+      "next": [
+        "fake-reason",
+        "turn-the-hold-off"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs",
+          "src/waiting-on-you.json"
+        ]
+      }
+    },
+    {
+      "id": "say-it-is-done",
+      "escape": "Say the held thing is already done, or does not work here, to get past it",
+      "layer": "in-app",
+      "seen_in": [
+        "2026-10-07: a person was held on a camera setup they had finished, with no asides left"
+      ],
+      "counter": "Handing it back needs words saying what happened; the thing goes to the AIs, who check it the way Trillion checks it, finish or fix the rest, and put one smaller row back if the person still has a part",
+      "evidence": [],
+      "next": [
+        "fake-reason"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs",
+          "src/waiting-on-you.json",
+          "src/workspace/hold-ways-out.tsx"
+        ]
+      }
+    },
+    {
+      "id": "fake-reason",
+      "escape": "Type any reason just to get past it",
+      "layer": "self",
+      "seen_in": [
+        "stickK: self-reports count as success unless failure is reported"
+      ],
+      "counter": "The reason is not accepted, it is weighed: the AIs do the thing or shrink it, so a fake reason gets the thing done for you or made ten seconds long",
+      "evidence": [
+        "https://news.ycombinator.com/item?id=25242783"
+      ],
+      "next": [
+        "turn-the-hold-off"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/waiting-on-you.json"
+        ]
+      }
+    },
+    {
+      "id": "turn-the-hold-off",
+      "escape": "Turn the hold off",
+      "layer": "in-app",
+      "seen_in": [
+        "Opal, Freedom, Cold Turkey: end the session"
+      ],
+      "counter": "Possible, but it costs what the person chose in advance, never takes effect at once, comes back by itself after a day, and each off within a week doubles the next wait",
+      "evidence": [
+        "https://support.freedom.to/en/articles/6350166-freedom-for-ios-app-options-explained",
+        "https://blog.beeminder.com/exponential/"
+      ],
+      "next": [
+        "lower-the-stake-first",
+        "pay-and-keep-going"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+        ]
+      }
+    },
+    {
+      "id": "lower-the-stake-first",
+      "escape": "Make turning it off cheap right before turning it off",
+      "layer": "money",
+      "seen_in": [
+        "Savings contracts: 55% defaulted on stakes people set for themselves"
+      ],
+      "counter": "A new stake only counts once the one in force has run its own delay, so it can never be lowered in the moment",
+      "evidence": [
+        "https://anettjohn.com/docs/John_When_Commitment_Fails.pdf"
+      ],
+      "next": [
+        "pay-and-keep-going"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+        ]
+      }
+    },
+    {
+      "id": "pay-and-keep-going",
+      "escape": "Pay the cost and keep going, so the cost becomes a price",
+      "layer": "money",
+      "seen_in": [
+        "Haifa daycare fines",
+        "Beeminder derailments"
+      ],
+      "counter": "The wait doubles with every off in a week, and the stake can be someone told rather than money, which no one can pay their way out of",
+      "evidence": [
+        "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=180117",
+        "https://yaledailynews.com/blog/2012/02/21/stickk-helps-the-irresolute/"
+      ],
+      "next": [
+        "walk-away"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+        ]
+      }
+    },
+    {
+      "id": "open-another-trillion-window",
+      "escape": "Open Trillion somewhere else: the Mac app, the menu bar, the phone",
+      "layer": "device",
+      "seen_in": [
+        "Brick does not cover the desktop"
+      ],
+      "counter": "The hold lives in the account, not the window: the web page, the Mac app, its menu bar panel and the iPhone app all draw the same cover",
+      "evidence": [
+        "https://cybernews.com/reviews/brick-phone-blocker-review/"
+      ],
+      "next": [
+        "ask-an-ai-instead",
+        "use-other-apps-on-the-computer",
+        "use-other-apps-on-the-phone"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/workspace/main.tsx",
+          "src/workspace/alone-page.tsx"
+        ]
+      }
+    },
+    {
+      "id": "ask-an-ai-instead",
+      "escape": "Talk to ChatGPT, Claude, or Claude Code and Codex in a terminal instead of opening Trillion",
+      "layer": "device",
+      "seen_in": [
+        "Trillion is reached from any AI chat"
+      ],
+      "counter": "Trillion itself reaches the person with the held thing on every surface the moment it changes (src/waiting-on-you.json hold.devices runs tool:take-me-there: the open page, the phone, the Mac, and every connected AI chat as a notice in its tool replies and its prompt hook), so no AI has to choose to paste it; every AI connected to Trillion is told to put the held thing first and take the person to it, keep doing all of its own work, everything around the held thing included (the hold is on the person, never on an AI), and never do the hold's ways out for them; a reason goes through the hold to be weighed",
+      "evidence": [],
+      "next": [
+        "use-other-apps-on-the-computer",
+        "use-an-app-the-mac-hold-keeps-open"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/server-instructions.json",
+          "tool:hold-on-what-needs-me",
+          "harness/decisions-since.mjs",
+          "src/waiting-on-you.json",
+          "tool:take-me-there"
+        ]
+      }
+    },
+    {
+      "id": "ignore-the-notices",
+      "escape": "Ignore the reminders",
+      "layer": "device",
+      "seen_in": [
+        "Notification fatigue in every habit app"
+      ],
+      "counter": "Louder the longer it waits: told, then kept on every live board (lock screen, menu bar, widgets), then the thing opened on the page, then what the person chose for walking away happens",
+      "evidence": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC6785720/"
+      ],
+      "next": [
+        "turn-notices-off"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/waiting-nudge.mjs",
+          "src/waiting-on-you.json"
+        ]
+      }
+    },
+    {
+      "id": "turn-notices-off",
+      "escape": "Turn Trillion's notifications off in the device's settings",
+      "layer": "os",
+      "seen_in": [
+        "Opal: remove the permission in Settings"
+      ],
+      "counter": "A device that stops Trillion's notices is itself something only the person can fix, so it is held like any other thing",
+      "evidence": [
+        "https://community.opalapp.com/t/bypass-to-deep-focus-found/2749"
+      ],
+      "next": [
+        "delete-the-app"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/waiting-on-you.json"
+        ]
+      }
+    },
+    {
+      "id": "delete-the-app",
+      "escape": "Delete the Trillion app",
+      "layer": "os",
+      "seen_in": [
+        "Freedom and Brick block uninstall during a session"
+      ],
+      "counter": "Deleting the app removes none of it: the account still holds the web, the other devices and every AI chat, and the walked-away stake still happens",
+      "evidence": [
+        "https://support.freedom.to/en/articles/6116638-how-to-prevent-uninstallation-of-the-freedom-app"
+      ],
+      "next": [
+        "walk-away"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/waiting-nudge.mjs",
+          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+        ]
+      }
+    },
+    {
+      "id": "use-other-apps-on-the-computer",
+      "escape": "Leave Trillion closed and use other apps on the Mac",
+      "layer": "os",
+      "seen_in": [
+        "Cold Turkey Frozen Turkey",
+        "Freedom locked mode"
+      ],
+      "counter": "On the Mac, a hold that keeps only the named apps open asks every other app to quit whenever it opens (tool:hold-a-device-quiet with only)",
+      "evidence": [
+        "https://getcoldturkey.com/support/user-guide/"
+      ],
+      "next": [
+        "use-an-app-the-mac-hold-keeps-open",
+        "another-computer"
+      ],
+      "trillion": {
+        "status": "wall",
+        "by": [
+          "node_modules/trillion-workshop/tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+          "lock-in-protocol lane"
+        ],
+        "wall": "The Mac helper that knows a hold with `only` ships only in the next notarized Trillion.app (a lane-built app cannot run on the owner's Mac), and the hold does not start a Mac hold by itself yet: that needs the store to run tool:hold-a-device-quiet on the person's Mac when a thing becomes held"
+      }
+    },
+    {
+      "id": "use-an-app-the-mac-hold-keeps-open",
+      "escape": "Use an app the Mac hold always keeps open: a terminal with Claude or Codex, Finder, System Settings, Shortcuts",
+      "layer": "os",
+      "seen_in": [
+        "Freedom and Cold Turkey allow-lists",
+        "trillion-workshop tools/hold-a-computer-quiet/read-data/hold-this-mac.json always_open"
+      ],
+      "counter": "What stays open is DATA: always_open names the Mac's own parts and the terminals, and keep_open_rows keeps every app computer/computer-sources.json lists as an AI app (category AI, or runs_ais: ChatGPT and its Codex, Claude, Cursor, super.engineering, Arc), matched by every name, executable and bundle path it has; an app on a live microphone (a recording or a call) is left until it ends. Terminals and AI apps stay open because the person's work runs there, but every turn written there starts with the held thing, so the AI there is not a way around it; Finder, System Settings, Shortcuts, the Dock and the login window stay open so the Mac can always be used and a hold released",
+      "evidence": [
+        "https://getcoldturkey.com/support/user-guide/"
+      ],
+      "next": [
+        "another-computer"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "node_modules/trillion-workshop/tools/hold-a-computer-quiet/read-data/hold-this-mac.json",
+          "harness/decisions-since.mjs"
+        ]
+      }
+    },
+    {
+      "id": "use-other-apps-on-the-phone",
+      "escape": "Leave Trillion closed and use other apps on the iPhone",
+      "layer": "os",
+      "seen_in": [
+        "Opal, one sec, Screen Time"
+      ],
+      "counter": "Screen Time's Family Controls shields every other app while the hold holds, with its passcode held by someone else",
+      "evidence": [
+        "https://developer.apple.com/forums/thread/809318"
+      ],
+      "next": [
+        "change-the-clock",
+        "learn-the-passcode"
+      ],
+      "trillion": {
+        "status": "wall",
+        "by": [
+          "lock-in-protocol lane",
+          "Waiting on you row family-controls-request"
+        ],
+        "wall": "Apple's Family Controls (Distribution) entitlement for bundle ai.gettrillion.ios is not requested yet: Apple's request form needs the developer team's Account Holder signed in with the 6-digit code Apple sends to the account holder's devices. It is on the owner's Waiting on you list as family-controls-request (so the hold itself puts it in front of them), and the submitter that finishes the request from the next code is ready in the lock-in lane"
+      }
+    },
+    {
+      "id": "change-the-clock",
+      "escape": "Change the phone's clock or time zone to end the limit",
+      "layer": "os",
+      "seen_in": [
+        "Screen Time, still on iOS 18.7.2"
+      ],
+      "counter": "Trillion's hold reads time from its own service, never the device, so a changed clock moves nothing",
+      "evidence": [
+        "https://developer.apple.com/forums/thread/809318"
+      ],
+      "next": [
+        "learn-the-passcode"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+        ]
+      }
+    },
+    {
+      "id": "learn-the-passcode",
+      "escape": "Learn or talk your way to the passcode",
+      "layer": "social",
+      "seen_in": [
+        "Screen Time: filming the screen",
+        "stickK referee"
+      ],
+      "counter": "No passcode exists to learn: turning the hold off is open to the person but costs the stake and waits; the person told is chosen in advance and agreed to it",
+      "evidence": [
+        "https://www.protectyoungeyes.com/blog-articles/12-ingenious-screen-time-hacks-how-to-beat-them"
+      ],
+      "next": [
+        "another-computer"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+        ]
+      }
+    },
+    {
+      "id": "another-computer",
+      "escape": "Use another computer or someone else's phone",
+      "layer": "device",
+      "seen_in": [
+        "A USB system skips an installed blocker"
+      ],
+      "counter": "Nothing is installed to skip: any device signed in to Trillion is held, and one not signed in leaves the walked-away stake running",
+      "evidence": [
+        "https://en.wikipedia.org/wiki/Live_USB"
+      ],
+      "next": [
+        "walk-away"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/workspace/needs-you-hold.tsx",
+          "src/waiting-nudge.mjs"
+        ]
+      }
+    },
+    {
+      "id": "mark-it-done-without-doing-it",
+      "escape": "Mark it done without doing it",
+      "layer": "self",
+      "seen_in": [
+        "Beeminder: lying about your data"
+      ],
+      "counter": "Where it can be seen, Trillion checks it itself and takes it off (Checked for you); a thing only the person can see stays a tap",
+      "evidence": [
+        "https://help.beeminder.com/article/34-cant-you-just-lie-about-your-data"
+      ],
+      "next": [
+        "walk-away"
+      ],
+      "trillion": {
+        "status": "open",
+        "by": [
+          "src/waiting-on-you.json"
+        ],
+        "open": "A tap on a physical task cannot be checked by software; the next counter is a person who checks proof (Boss as a Service), not built yet"
+      }
+    },
+    {
+      "id": "walk-away",
+      "escape": "Walk away from every device and do nothing at all",
+      "layer": "self",
+      "seen_in": [
+        "Every product above",
+        "Median 30-day retention 3.3% for wellbeing apps"
+      ],
+      "counter": "Nothing here needs the person to act: after two days the stake they chose happens by itself (someone they named is told, money they named is given), the AIs do what they can, and the rest is cut to one ten-second step",
+      "evidence": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC6785720/"
+      ],
+      "next": [
+        "someone-else-does-it",
+        "someone-is-told",
+        "shrink-it",
+        "make-it-the-default"
+      ],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/waiting-nudge.mjs",
+          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+        ]
+      }
+    },
+    {
+      "id": "someone-else-does-it",
+      "escape": "",
+      "layer": "terminal",
+      "seen_in": [
+        "Boss as a Service"
+      ],
+      "counter": "Someone else does it: whatever Trillion or the person's AIs can do never reaches the person",
+      "evidence": [
+        "https://blog.beeminder.com/baas/"
+      ],
+      "next": [],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/who-does-it.mjs",
+          "src/waiting-nudge.mjs"
+        ]
+      }
+    },
+    {
+      "id": "someone-is-told",
+      "escape": "",
+      "layer": "terminal",
+      "seen_in": [
+        "stickK referee: 29% to 59% success",
+        "Focusmate"
+      ],
+      "counter": "A person the owner chose, who agreed, is told and asked to help today",
+      "evidence": [
+        "https://yaledailynews.com/blog/2012/02/21/stickk-helps-the-irresolute/"
+      ],
+      "next": [],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/waiting-on-you.json"
+        ]
+      }
+    },
+    {
+      "id": "shrink-it",
+      "escape": "",
+      "layer": "terminal",
+      "seen_in": [
+        "Two-minute rule"
+      ],
+      "counter": "The thing is cut to one step under a minute and put in place of the big one",
+      "evidence": [
+        "https://s3.amazonaws.com/jamesclear/Atomic+Habits/Habits+Cheat+Sheet.pdf"
+      ],
+      "next": [],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/waiting-on-you.json"
+        ]
+      }
+    },
+    {
+      "id": "make-it-the-default",
+      "escape": "",
+      "layer": "terminal",
+      "seen_in": [
+        "Automatic retirement enrolment: 37% to 86%"
+      ],
+      "counter": "The hold is on unless turned off, and the thing is what every page opens on, so doing it is the default and not doing it takes effort",
+      "evidence": [
+        "https://www.nber.org/system/files/working_papers/w7682/w7682.pdf"
+      ],
+      "next": [],
+      "trillion": {
+        "status": "built",
+        "by": [
+          "src/waiting-on-you.json",
+          "src/workspace/needs-you-hold.tsx"
+        ]
+      }
+    }
+  ]
+}

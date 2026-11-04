@@ -1,0 +1,383 @@
+{
+  "what_this_is": "What is waiting on the person: everything only they can do (sign in, approve, answer, pay, press a button somewhere) gathered from every place it is kept into one answer, read by the shared card-sections reader (src/card-sections.mjs) in the person's own store (src/person-store.mjs waitingOnYou). tool:what-is-waiting-on-me answers it, the workflow for purpose \"tell-the-person-what-waits\" has every AI show it in the chat at its start and after its work (named in src/server-instructions.json), and Home's Waiting for you card shows the same rows. `list` is the person's own Waiting on you list, made the first time it is read: any AI that cannot do something itself keeps it there as a row (put_list_rows, one row per thing, with a short id naming it so adding it again changes the same row), and a row marked Done leaves the answer and stays done: its status settles on Done (src/lists.mjs), so an AI putting the same ask again cannot reopen it (null clears it on purpose), and a list made before a field property was added gains it on the next read. `sources` say where each kind of ask is read and how its card reads (`card` maps each card field to paths, the first holding a value wins, or a fixed { value }), `opens` is the screen it opens in Trillion (or the item's own `link`), and `address` is the page it opens on the web, filled from the item's fields. `sections` are the rows in order, most urgent first: each `read` names a source, `where` keeps only items passing every test (equals, not, one_of, none_of, at_least, at_most, present), `newest` sorts by a path, `distinct` keeps one card per value of a path; `limit` caps it; `action` is the words of what the person does; `on_home: false` leaves a row off Home when Home already asks it another way; `points_at` is the control a walkthrough points at when the person is taken to one of the row's things (tool:take-me-there, src/take-me-there.mjs), a selector with {item} standing for the thing's own id. `said` sums it up in one sentence for a chat or a notice. A new kind of ask is one source and one section here. Each section's `step` says what its things are as one step for src/who-does-it.mjs (`needs`, `only_a_person_because` a reason id of its `only_a_person` rows, `given_in.saved_instruction` the id of the saved instruction that records consent the person gave once): every card is weighed on it at the one reader before any section is cut to its `limit` (src/waiting-weigh.mjs; a card an AI filed with its own `needs` or `reason_id` is weighed on those), and only what says `you` or `one-tap` is shown. The AIs are the default doer: the rest is handed to them once each (a section's `step.job` and `step.said` say what its things are to them, else `nudge.weigh`; a section whose `step.already_ais` is true lists things that already are hand-offs to the AIs, such as stuck work, so they leave the person's view and no second job is made for them), in the one `order` below, so nothing leaves the person's view without an AI holding it; the same title twice in a section shows once. `order` is the one order of everything shown across sections (answer.order): what holds up most first (`blocks`), then the newest. 2026-10-11: drafts the person had already approved, files from AI tests, stuck AI jobs and decisions their AIs opened from their own words were shown to them as theirs. `assigned` is every thing in the person's spaces given to them (its `assignee` fact names them, by the name they show there or their member id; src/spaces.mjs assignedTo), so a thing someone gives a member in a space reaches that member here, with every nudge and device, not only when they open the space; `done_facts` are the facts Done sets on the thing in its space, so every member sees it done. `done_when_connected` is the path to a fact naming a service: a given thing carrying it (such as the connect step Trillion gives a member whose calendar is not connected, src/space-calendars.json `ask`) is done by itself once the person has that service connected, by whatever road they connected it, its `done_facts` set in its space so it leaves. Home draws the sections in their order above its board as the person's Needs you stack (src/workspace/needs-you.tsx), forcefully and on every board, under the person's show rules (subject needs-you): each row is one section with how many wait, its newest card, the section's `action` as one press, a `clip` to play when a card carries one, and a `form` when the action needs an answer (`runs`: Workshop tools run in order, each input value taken from the card (`card`), a form box (`field`) or fixed (`value`); a run with `when` needs every named box or card field filled). `finish` names the `finishes` row a section's cards are finished by when a card names none (src/workspace/waiting-queue.ts finishOf); `all_done` is the words of a press that marks every card of a source that is done by being opened (`done_by_opening`) as done; done marks are kept in the person's fact `done.fact`, the newest `done.most`. A source's `opens.screen` and `opens.input` may be paths, read from each item. A row of the person's own list whose `checked_by` rule (src/lists.json kind checked-by) passes on one device's facts (src/device-facts.mjs, reported by the person's own pages and apps) is set Done by itself when what waits is read and whenever a device reports, so a step a device can see for itself (a camera plugged in, a switch turned on) ticks itself. A row's `done_when_rule` (src/lists.json kind done-when-rule, src/done-when.mjs, src/done-when-facts.json) is a check Trillion makes itself against what is true now (saved logins, connections, device facts, files, work, another list): every read of what waits checks every waiting row's rule, a row whose rule passes is set Done with `closed_because` \"Checked: <says>\", and the same check runs shortly after any source changes (src/live-screen.mjs revisions, the saved logins, list rows and device facts writes), so it closes with no screen open. Every asks card carries `check` { state: done | not_yet | cannot_check | failed, words, checked_at } so a screen never has to say \"Checking...\" for more than a moment: not_yet says the real counts (\"740 of 741 logins your AIs can read\"), a row with no rule says Trillion cannot check it, and a check that threw or took over 5 seconds says it will try again. A notice about a row (src/waiting-ask-notices.mjs, src/waiting-nudge.mjs, any tell whose refs.card is `asks:<row id>`) is checked again right before it is sent (tell-the-person beforeSend, person-store waitingNoticeGuard) and not sent when the row is Done or its rule now passes. `nudge`: while anything has waited `after_minutes`, the person is told, louder the longer it waits (src/waiting-nudge.mjs, on the store's scheduler; the owner 2026-10-06: \"Hey, we are waiting on you\", escalating until it's done). Each `ladder` rung is reached when the oldest thing has waited its `after_minutes` and tells with its notice `kind` at most every `every_minutes` and `most_per_day` times a day; a rung with `board` keeps everything waiting on every live board (the iPhone's Live Activity and lock screen, the Mac menu bar, widgets) as the one running notice `board` (its words filled with {count}, {first}: the oldest thing's title, and {section}: the title of the row it is in, so it never shows a bare name such as one service's), ended quietly with `ended_kind` once nothing waits; a rung with `take_over` also opens the oldest thing itself on the open Trillion page (tool:take-me-there). Every notice opens the oldest thing's own address, `open` only when it has none inside Trillion. Before it asks, it weighs (src/who-does-it.mjs): a row an AI put on the list with what it `needs` and no `only_you_because` that Trillion can do is handed to the AIs with `weigh.job` and never shown to the person; a row that names a known reason (`reason_id`, such as a sign-in only they can give) is weighed on it with the helper that already tried (`tried_doer`), so a sign-in goes to the AIs holding the saved logins first and reaches the person only after one was stopped, so only what truly needs them is in their face. Voices are the speakers no one has named yet: labels matching `pattern` among the newest messages (messages.unnamedSpeakers), each with the newest clip a turn of it carried (computer/listen.mjs attaches one per voice), and `voice` when its label part matches `voice_pattern`; a voice whose turns carried no clip gets the moment it was heard in the sound the listener kept, found by its last words (`clip`: the newest `searches` voices per read, asked only of the search mechanisms `matches` names (the words in transcripts: a voice's own words are found by its words, and asking the meaning lanes read every kept vector, 1.5 million rows a read of this answer on the person's store on 2026-10-06), answers kept in the fact `fact`, a miss asked again after `retry_minutes`), drawn as `clip_at` seconds into that recording. A row of the person's own list may carry the `device` it is about (the model, such as ILCE-7M4; src/device-rows.mjs): it is shown only to someone whose devices or files show that device, and `devices` says how that is told. A row about a device nothing of theirs shows is left out of every reader (what waits, the hold, the reminders and the board, take-me-there, the lists reads) because all of them read through the person store's waitingOnYou, and a notice about it is not sent (waitingNoticeGuard). An AI filing a step that only an owner of one kind of device can do (a camera, a printer) puts that device's model in `device`, so everyone else is never asked.",
+  "presentation": {
+    "what_this_is": "The one presentation contract for everything that needs the person: the notification looks and every word used by Home, the one-at-a-time queue and the hold. Web and native renderers receive the same notice contract; they do not define a second Waiting on you kind.",
+    "notification_kinds": {
+      "needs-you-request": { "icon": "Hand", "tone": "yellow" },
+      "needs-you": { "icon": "Hand", "tone": "yellow" },
+      "needs-you-now": { "icon": "Hand", "tone": "yellow" }
+    },
+    "words": {
+      "needs_you": { "subject": "needs-you", "do": "Do it", "said": "What they said", "title": "Things need you", "title_one": "Thing needs you", "working": "Working…", "done": "Done", "finish_round": "Finish this round", "more": "Show {n} more", "fewer": "Show fewer", "go": "Go through them", "queue_screen": "trillion.waiting" },
+      "waiting_queue": {
+        "title": "Waiting on you", "position": "{n} of {total}", "loading": "Loading what is waiting on you", "failed": "What is waiting on you could not load", "later": "Later", "back": "Back", "open": "Open it", "by": "Asked by {by}", "round": "Round {round}: {round_step}", "due": "Due {when}", "success": "Done means: {success}", "pursuit_chip": { "label": "Goal: {pursuit}", "kind": "pursuit", "icon": "Target" }, "explain": "Why this needs you",
+        "explain_rows": [
+          {"card": "only_you_because","label": "Why only you","icon": "UserRound", "role": "purpose"},
+          {"card": "needs","label": "What it needs","icon": "ListTodo"},
+          {"card": "unlocks","label": "What this lets you do","icon": "ArrowRight", "role": "purpose"},
+          {"card": "serves","label": "Goal it serves","icon": "Target"},
+          {"card": "tried","label": "What else was tried","icon": "RotateCcw"},
+          {"card": "done_when","label": "Done when","icon": "CircleCheck", "role": "completion"},
+          {"card": "success","label": "What done looks like","icon": "CircleCheck", "role": "completion"}
+        ],
+        "all_done": "Nothing is waiting on you", "all_done_detail": "When your AIs need you for something only you can do, it shows up here, one thing at a time.", "skipped_all": "You put the rest off for later", "skipped_all_detail": "Start again to go through what you put off.", "again": "Start again", "home": "Back to Home", "steps_count": "{done} of {total} done", "step_tick": "Step {n} done", "copy": "Copy {value}", "copied": "Copied", "checking_label": "What Trillion is checking", "checking_status": "Checking", "checked_status": "Done", "checked_at": "Checked {when}", "thing_done_detail": "This is no longer waiting on you.", "short_clip": "Short clip", "full_recording": "Full recording", "clip_not_found": "No saved recording matched these words.", "clip_not_checked": "No recording is available for this voice.", "thing_unknown": "This is no longer waiting on you", "login_in_place": { "entry": "guide", "input": { "screen": "connections", "show_section": "saved-logins-list" }, "row_input": "show_row" }
+      },
+      "hold": {
+        "title": "This needs you before anything else", "free": "Nothing needs you right now", "back": "Back", "aside": "I can't do this now", "aside_title": "Why can't you do it now?", "aside_placeholder": "Say why, and your AIs will do it for you, make it smaller, or tell you when it can be done", "aside_submit": "Set it aside for now", "aside_left": "You can set {n} more aside today", "no_asides": "Nothing more can be set aside today.", "off": "Turn this off", "off_title": "Turning it off costs what you chose:", "off_ask": "Turn it off anyway", "off_pending": "It turns off {when} and comes back {back}. Until then this comes first.", "choose": "Change what it costs", "choose_title": "What should turning it off cost you?", "choose_submit": "Choose this", "choose_note": "A new choice counts once the one you have now has run its course, so it can't be made cheaper in the moment.", "next": "Next", "previous": "Back", "position": "{n} of {total}"
+      }
+    }
+  },
+  "new_ask_notice": { "kind": "needs-you-request", "key_prefix": "waiting-ask", "_retry_seconds": "A new row's notice whose telling failed is tried again by the resource's alarm after this many seconds (src/native-waiting-account-owner.mjs noticesDueAt).", "retry_seconds": 60 },
+  "devices": {
+    "what_this_is": "Rows about one kind of device (src/device-rows.mjs). A row's `device` is a model; the person shows that device when the model appears, as a whole word in any case, in one text of a device's reported facts (src/device-facts.mjs, such as the cameras a Mac sees) or in `files.path` of a `files.kind` result of a file they keep (the camera a clip says it was filmed on, src/container-facts.mjs). Files are asked only when a device row exists, at most `files.most` matches at a time, and the answer is kept for `recheck_minutes` while the answer is no (a yes is kept until the store restarts). A row that was written before `device` existed takes its device from `legacy_rows`: an id starting with `id_prefix` has the rest of the id, uppercased, as its device (`device_from`).",
+    "recheck_minutes": 5,
+    "files": { "kind": "facts", "path": "$.camera", "most": 20 },
+    "legacy_rows": [
+      { "id_prefix": "camera-ftp-to-this-mac-", "device_from": "id_suffix", "login_title": "Trillion camera receiver on this Mac" }
+    ],
+    "cleanup": { "fact": "device_rows_cleaned", "actor": "device-rows-cleanup" }
+  },
+  "list": {
+    "id": "waiting-on-you",
+    "label": "Waiting on you",
+    "icon": "Hand",
+    "about": "What your AIs could not do without you: sign-ins, approvals, payments and clicks, each with where to do it.",
+    "title_field": "what",
+    "fields": [
+      { "id": "what", "label": "What to do", "kind": "text" },
+      { "id": "why", "label": "Why it is needed", "kind": "long-text" },
+      { "id": "where", "label": "Where to do it", "kind": "link-address" },
+      { "id": "needs", "label": "What it needs", "kind": "text" },
+      { "id": "only_you_because", "label": "Why only you", "kind": "text" },
+      { "id": "reason_id", "label": "Which known reason it is yours", "kind": "text" },
+      { "id": "tried_doer", "label": "Which helper already tried and was stopped", "kind": "text", "free_text_because": "It names one of the person's AIs or helpers, which are agents and not rows of a list a link can hold; the AI that tried writes it." },
+      { "id": "unlocks", "label": "What it unlocks", "kind": "text" },
+      { "id": "waits_on", "label": "Waits on", "kind": "link", "links_to": "waiting-on-you" },
+      { "id": "do_it_in", "label": "Done in Trillion at", "kind": "link-address" },
+      { "id": "pursuit", "label": "Pursuit it serves", "kind": "text", "free_text_because": "It names a pursuit, which is a pursuit record and not a row of a list a link can hold; the AI that asks writes it and the card shows its words." },
+      { "id": "tried", "label": "What your AIs tried first", "kind": "long-text" },
+      { "id": "about_from", "label": "Start of the time it asks about", "kind": "date" },
+      { "id": "about_until", "label": "End of the time it asks about", "kind": "date" },
+      { "id": "arrivals_read", "label": "What your AIs read from what your places already brought, before asking", "kind": "long-text" },
+      { "id": "done_when", "label": "Done when", "kind": "text" },
+      { "id": "checking", "label": "What Trillion is watching for", "kind": "text" },
+      { "id": "uses_login", "label": "Saved login it uses", "kind": "text", "free_text_because": "It names a saved login by its exact title, and Trillion links the row to that login itself from these words; saved logins are kept locked, never as list rows." },
+      { "id": "response", "label": "Exact response surface (JSON)", "kind": "long-text" },
+      { "id": "checked_by", "label": "Done once", "kind": "checked-by" },
+      { "id": "done_when_rule", "label": "Done when (Trillion checks)", "kind": "done-when-rule" },
+      { "id": "finish", "label": "How you finish it", "kind": "choice", "choices": ["Tap done", "Paste it", "Send a file", "Send a link", "Tell Trillion", "Checked for you"] },
+      { "id": "device", "label": "The device it is about (its model id). Empty for any camera that can send by FTP. Shown only to someone whose devices or files show that device", "kind": "text", "free_text_because": "A device model id (CAM-100) matched against what the person's devices and files report about themselves (src/device-facts.mjs), not a row of a list." },
+      { "id": "setup_words", "label": "How to set that device to send here (its own words)", "kind": "long-text" },
+      { "id": "asked_by", "label": "Asked by", "kind": "text" },
+      { "id": "round_step", "label": "This round's step", "kind": "text" },
+      { "id": "next_step", "label": "Next round's step", "kind": "text" },
+      { "id": "rounds_done", "label": "Rounds finished", "kind": "number" },
+      { "id": "rounds_planned", "label": "Rounds planned", "kind": "number" },
+      { "id": "round_log", "label": "What each round showed", "kind": "long-text" },
+      { "id": "progress", "label": "Progress", "kind": "progress", "measure": { "done_field": "rounds_done", "total_field": "rounds_planned", "evidence_field": "round_log", "unit": "rounds", "unit_one": "round", "open_ended": true } },
+      { "id": "status", "label": "Status", "kind": "choice", "choices": ["Waiting", "Done"], "settles": ["Done"], "starts": "Waiting", "open_index": "open-status" },
+      { "id": "added", "label": "Added", "kind": "date" },
+      { "id": "closed_because", "label": "How it closed", "kind": "text" }
+    ],
+    "views": [
+      { "id": "waiting", "label": "Waiting", "rules": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "status", "operator": "is_none_of", "params": { "values": ["Done"] } }] } }
+    ]
+  },
+  "sources": {
+    "asks": {
+      "items": ["rows"],
+      "card": { "id": [["id"]], "title": [["values", "what"]], "detail": [["values", "why"]], "by": [["values", "asked_by"]], "at": [["values", "added"]], "needs": [["values", "needs"]], "only_you_because": [["values", "only_you_because"]], "reason_id": [["values", "reason_id"]], "tried_doer": [["values", "tried_doer"]], "unlocks": [["values", "unlocks"]], "waits_on": [["values", "waits_on"]], "does_in": [["values", "do_it_in"]], "checking": [["values", "checking"]], "uses_login": [["values", "uses_login"]], "pursuit": [["values", "pursuit"]], "tried": [["values", "tried"]], "done_when": [["values", "done_when"]], "response": [["values", "response"]], "finish": [["values", "finish"]], "setup_words": [["values", "setup_words"]], "round_step": [["values", "round_step"]], "rounds_done": [["values", "rounds_done"]], "progress": [["values", "progress"]], "arrivals_read": [["values", "arrivals_read"]] },
+      "opens": { "link": [["values", "where"]], "screen": "trillion.list", "input": { "id": { "value": "waiting-on-you" }, "row": [["id"]] }, "address": "/lists/waiting-on-you/{id}" },
+      "action": "Do it",
+      "done_sets": { "list": "waiting-on-you", "values": { "status": "Done" } }
+    },
+    "assigned": {
+      "items": ["items"],
+      "card": { "id": [["ref"]], "title": [["title"], ["body", "text"]], "detail": [["body", "text"]], "success": [["body", "success"]], "due": [["facts", "due"], ["body", "deadline"]], "by": [["provenance", "by"]], "at": [["provenance", "added_at"]], "pursuit": [["space_title"]] },
+      "opens": { "link": [["body", "link"]], "screen": "trillion.space", "input": { "id": [["space_id"]], "item": [["item_id"]] }, "address": "/spaces/{space_id}/{item_id}" },
+      "action": "Do it",
+      "done_facts": { "status": "done" },
+      "done_when_connected": ["facts", "connects"]
+    },
+    "connections": {
+      "items": ["connections"],
+      "card": { "id": [["vendor"]], "title": [["service"]], "detail": [["account_label"]], "at": [["connected_at"]] },
+      "opens": { "screen": "trillion.connections", "input": { "show_row": [["vendor"]] }, "address": "/connections?show_row={vendor}" }
+    },
+    "devices": {
+      "items": ["devices"],
+      "card": { "id": [["device_id"]], "title": [["label"]], "detail": { "value": "Notices from Trillion reach this device, but its settings stop them from showing, so nothing appears there." }, "at": [["added_at"]], "needs": { "value": "One switch in this device's settings" }, "only_you_because": { "value": "A device's own settings decide what may show on it, and only the person using it can change them." } },
+      "opens": { "link": [["turn_on"]], "screen": "trillion.connections", "input": {}, "address": "/connections" },
+      "action": "Turn on"
+    },
+    "work": {
+      "items": ["work"],
+      "card": { "id": [["handoff_id"]], "title": [["said"], ["job"]], "detail": [["in_the_way"]], "at": [["handed_at"]], "from": [["from_agent"]] },
+      "opens": { "screen": "trillion.job-run", "input": { "handoff": [["handoff_id"]] }, "address": "/jobs/{handoff_id}" }
+    },
+    "posts": {
+      "items": ["posts"],
+      "card": { "id": [["post_id"]], "title": [["caption"]], "at": [["updated_at"], ["created_at"]], "artifact_identity": [["media", "identity"]], "artifact_name": [["media", "name"]], "artifact_media_type": [["media", "media_type"]], "source_reference": [["source"]], "record_status": [["status"]], "delivery_context": [["destinations"]], "platform_urls": [["platform_urls"]] },
+      "opens": { "screen": "tool:check-a-post", "input": { "post_id": [["post_id"]] }, "address": "/use/check-a-post/{post_id}", "in_place": true }
+    },
+    "decisions": {
+      "items": ["summaries"],
+      "card": { "id": [["case_id"]], "title": [["goal"]], "detail": [["outcome_question"]], "at": [["created_at"]] },
+      "opens": { "screen": "trillion.decision", "input": { "id": [["case_id"]] }, "address": "/decisions/{case_id}" }
+    },
+    "voices": {
+      "items": ["voices"],
+      "page": { "cursor": [["page", "cursor"]], "has_more": [["page", "has_more"]] },
+      "pattern": "^(?:Someone|Unsure) \\((?<label>[^)]*)\\)",
+      "label_starts": ["Someone (", "Unsure ("],
+      "voice_pattern": "^voice-\\d+$",
+      "guess_pattern": "^Unsure \\((?<guess>[^)?]*)\\?\\)",
+      "session_gap_minutes": 30,
+      "sessions": { "_what": "Where in time each app heard speakers nobody has named (src/voice-sessions.mjs): one row per stretch of listening, each covering its app from its first_at to the next stretch and listing every unnamed label heard in it. A row is written only when its stretch hears a new label: at the newest end, a stretch already listing stretch_labels labels starts the next one; inside an older stretch at most labels_most are listed. A store with turns kept before the rows builds them build_pages pages of build_page messages per scheduler step; until then the voices read says `preparing` instead of answering from part of them.", "stretch_labels": 32, "labels_most": 256, "build_page": 200, "build_pages": 8, "preparing": "The voices heard before are still being gathered. They show here shortly." },
+      "clip": { "reads": 8, "searches": 20, "matches": ["words-in-results"], "kept": 200, "fact": "voice_clips", "retry_minutes": 30, "search_within_minutes": 10080, "clip_seconds": 6 },
+      "guess": {
+        "_what": "Who a heard voice probably is, from evidence the account already holds (src/voice-guesses.mjs). Each source that matches a person's row adds its weight and its `why` words ({name} the guessed name, {text} the words that matched); a row is matched by its whole title, or by its first word when that word has at least first_word_letters letters (then for first_word_share of the weight), on whole words, ignoring case and accents. The people are the rows of every list that holds people (lists.json holds), at most people_most. `said` is a name someone else said in the voice's conversation, within `said.minutes` of the voice's first and last turn and from at most `said.reads` messages; each source's `scope` says what its evidence is about: `voice` (this voice itself: the listener's own guess, a name chosen before for the same guess) or `moment` (the recording or the time it was heard in: its title, its file's own name without folders, the calendar, a name said nearby), the same for every voice heard there. Only voice evidence folds voices into one row or keeps a voice in another script from being left out as playback; a moment guess is preselected (`sure`) only when no other listed voice of that moment carries it.",
+        "holds": "people",
+        "people_most": 3000,
+        "owner_speaker": "person",
+        "first_word_letters": 3,
+        "first_word_share": 0.6,
+        "separators": [", ", " or "],
+        "most_suggestions": 3,
+        "evidence_chars": 80,
+        "join": "; ",
+        "calendar": { "minutes": 15, "reads": 6, "skip_all_day": true },
+        "said": { "minutes": 5, "reads": 60 },
+        "owner_turns": 40,
+        "owner_evidence": ["listener", "elsewhere"],
+        "playback": { "min_letters": 6, "other_share": 0.6, "scripts": { "latin": "\\p{Script=Latin}", "cyrillic": "\\p{Script=Cyrillic}", "greek": "\\p{Script=Greek}", "hangul": "\\p{Script=Hangul}", "han": "\\p{Script=Han}", "hiragana": "\\p{Script=Hiragana}", "katakana": "\\p{Script=Katakana}", "arabic": "\\p{Script=Arabic}", "hebrew": "\\p{Script=Hebrew}", "devanagari": "\\p{Script=Devanagari}", "thai": "\\p{Script=Thai}" } },
+        "sources": {
+          "listener": { "scope": "voice", "weight": 100, "why": "The listener thought it sounded like {name}" },
+          "elsewhere": { "scope": "voice", "weight": 80, "why": "You named {name} for this same guess in another session" },
+          "calendar": { "scope": "moment", "weight": 70, "why": "Your calendar had \"{text}\" at that time" },
+          "title": { "scope": "moment", "weight": 60, "why": "The recording is titled \"{text}\"" },
+          "file_name": { "scope": "moment", "weight": 40, "why": "The recording is named \"{text}\"" },
+          "said": { "scope": "moment", "weight": 30, "why": "Someone said \"{text}\" in the same conversation" }
+        }
+      },
+      "card": { "id": [["id"]], "title": [["speaker"]], "detail": [["last_words"]], "at": [["last_at"]], "count": [["turns"]], "clip": [["clip"]], "clip_at": [["clip_at"]], "clip_status": [["clip_status"]], "app": [["app"]], "speaker": [["speaker"]], "voice": [["voice"]], "since": [["since"]], "until": [["until"]], "suggestions": [["suggestions"]], "also": [["also"]], "why": [["why"]] },
+      "opens": { "screen": "trillion.waiting", "input": { "thing": [["card_id"]] }, "address": "/waiting?thing={card_id}" }
+    },
+    "made": {
+      "items": ["items"],
+      "card": { "id": [["item"]], "title": [["title"], ["item"]], "detail": [["label"]], "at": [["at"]] },
+      "opens": { "screen": [["opens_surface"]], "input": [["opens_input"]] },
+      "file_screen": "trillion.file",
+      "done_by_opening": true
+    }
+  },
+  "sections": [
+    { "id": "voices", "step": {"needs": ["name a voice"], "only_a_person_because": "who-someone-is"}, "title": "Whose voice is this?", "read": { "from": "voices", "newest": ["at"] }, "limit": 20, "supplemental": { "cursor_param": "voices_cursor", "page_size": 20 }, "action": "Name", "icon": "AudioLines",
+      "form": { "title": "Name this voice", "submit": "Name", "fields": [{ "name": "name", "label": "Their name", "placeholder": "Find who it is", "kind": "record", "from": { "holds": "people" }, "new": { "list": "people", "label": "person", "list_label": "People", "title_field": "name" }, "suggest": "suggestions" }, { "name": "agreed", "label": "Did they agree to be recognised next time? How?", "placeholder": "Said yes in today's meeting", "optional": true }], "runs": [{ "tool_id": "tool:name-a-voice", "input": { "app": { "card": "app" }, "speaker": { "card": "speaker" }, "name": { "field": "name" }, "same_as": { "field": "name", "part": "id" }, "same_as_list": { "field": "name", "part": "list_id" }, "since": { "card": "since" }, "until": { "card": "until" }, "evidence": { "value": "The person named this voice on Home after hearing it." } } }, { "tool_id": "tool:enroll-someone", "when": ["agreed", "voice"], "input": { "name": { "field": "name" }, "kind": { "value": "voice" }, "consent": { "field": "agreed" }, "heard_voice": { "card": "voice" } } }] } },
+    { "id": "asks", "title": "Your AIs need you to", "read": { "from": "asks", "where": [{ "field": ["values", "status"], "none_of": ["Done"] }], "newest": ["values", "added"] }, "limit": 20, "icon": "Hand", "finish": "Tap done" },
+    { "id": "given", "title": "Given to you in your pursuits", "read": { "from": "assigned", "where": [{ "field": ["facts", "status"], "none_of": ["done", "Done"] }], "newest": ["provenance", "added_at"] }, "limit": 20, "icon": "UserCheck", "finish": "Tap done" },
+    { "id": "approve", "step": {"needs": ["approve a post"], "only_a_person_because": "their-own-consent", "given_in": {"saved_instruction": "consent-publish-my-posts"}, "job": "This draft is the person's own post or article, and they already approved posting theirs without being asked: {said} Draft ({id}): {title}. If it is a test, a check, a copy of something already posted, or its words say not to publish it, delete the draft and say so; never publish it. Otherwise publish it now with tool:publish-a-post (the same as approving it), read its deliveries back, then say where it went.", "said": "Posting your approved draft: {title}"}, "title": "Posts to approve", "read": { "from": "posts", "where": [{ "field": ["status"], "equals": "draft" }], "newest": ["updated_at"] }, "limit": 10, "action": "Approve", "points_at": "[data-post=\"{item}\"] [data-post-action=\"approve\"]", "icon": "Send" },
+    { "id": "look", "step": {"needs": ["look at a new file"], "job": "A new file was made for the person: {title} ({id}). {detail} If it came from a test, a check or a copy, delete it and say so. Otherwise check it is right and finished, mark it seen, and tell the person in one line what it is and where it is. Never ask the person to look at it for you.", "said": "Checking a new file for you: {title}"}, "hold": false,
+      "title": "New things to look at", "read": { "from": "made", "where": [{ "field": ["tool"], "equals": "file_kept" }], "newest": ["at"] }, "limit": 8, "action": "Look", "icon": "Eye", "all_done": "Seen them" },
+    { "id": "decide", "step": {"needs": ["decide between options"], "job": "A decision the person's AIs opened is waiting ({id}): {title}. {detail} Its current step asks nothing only the person can answer, so decide it yourself: read it whole with export_decision, choose by its method and what the person already said, record the choice, and carry out its next step. Never ask the person.", "said": "Deciding it for you: {title}"}, "title": "Decisions waiting on you", "read": { "from": "decisions", "where": [{ "field": ["status"], "equals": "needs_decision" }], "newest": ["created_at"] }, "limit": 10, "action": "Decide", "icon": "Scale" },
+    { "id": "stuck", "step": {"needs": ["unblock the work"], "already_ais": true}, "title": "Stuck until you help", "read": { "from": "work", "where": [{ "field": ["status"], "equals": "blocked" }], "newest": ["handed_at"] }, "limit": 10, "action": "See what it needs", "icon": "CircleAlert" },
+    { "id": "turn-on-notices", "step": {"needs": ["turn on notifications"], "only_a_person_because": "a-switch-on-their-own-device"}, "title": "Turn on notifications", "read": { "from": "devices", "where": [{ "field": ["can_show"], "one_of": ["denied", "quiet"] }], "newest": ["added_at"] }, "limit": 20, "action": "Turn on", "icon": "BellOff" },
+    { "id": "sign-in", "step": {"needs": ["reconnect an account"], "only_a_person_because": "a-sign-in-only-they-can"}, "title": "Sign in again", "read": { "from": "connections", "unless_any": { "group": { "by": ["vendor"], "before": ":" }, "where": [{ "field": ["status"], "equals": "connected" }] }, "where": [{ "field": ["status"], "equals": "disconnected" }], "distinct": ["vendor"] }, "limit": 20, "action": "Sign in", "icon": "KeyRound" },
+    { "id": "answer", "step": {"needs": ["say how it went"], "job": "A decision asks how it went ({id}): {title}. {detail} Check the outcome yourself from what is true now (its records, the live service, the screen), record the outcome on the decision, and act on it if it did not work. Never ask the person.", "said": "Checking how it went: {title}"}, "title": "Say how it went", "read": { "from": "decisions", "where": [{ "field": ["outcome_question"], "present": true }] }, "limit": 10, "action": "Answer", "on_home": false, "icon": "MessageCircleQuestion" }
+  ],
+  "carried": ["list", "finishes", "hold"],
+  "finishes": [
+    { "choice": "Tap done", "press": "Done", "said": "Marked done." },
+    { "choice": "Paste it", "press": "Send", "said": "Sent to your AIs.", "form": { "fields": [{ "name": "answer", "label": "Paste it here", "kind": "long-text" }], "runs": [{ "tool_id": "tool:send-to-all-ais", "input": { "text": { "template": "{answer}\n\n(My answer to \"{title}\" from what is waiting on me)" } } }] } },
+    { "choice": "Send a link", "press": "Send", "said": "Sent to your AIs.", "form": { "fields": [{ "name": "answer", "label": "The link", "kind": "link" }], "runs": [{ "tool_id": "tool:send-to-all-ais", "input": { "text": { "template": "{answer}\n\n(The link for \"{title}\" from what is waiting on me)" } } }] } },
+    { "choice": "Send a file", "press": "Send", "said": "Sent to your AIs.", "form": { "fields": [{ "name": "file", "label": "The file", "kind": "file" }], "runs": [{ "tool_id": "tool:send-to-all-ais", "input": { "text": { "template": "The file for \"{title}\" from what is waiting on me." }, "files": { "field": "file" } } }] } },
+    { "choice": "Tell Trillion", "press": "Send", "said": "Sent to your AIs.", "form": { "fields": [{ "name": "answer", "label": "Tell your AIs", "kind": "long-text" }], "runs": [{ "tool_id": "tool:send-to-all-ais", "input": { "text": { "template": "{answer}\n\n(About \"{title}\" from what is waiting on me)" } } }] } },
+    { "choice": "Checked for you", "checked": "Trillion checks this itself and takes it off once it is done." }
+  ],
+  "said": { "some": "{count} waiting on you: {rows}.", "none": "Nothing is waiting on you.", "row": "{title} ({count})" },
+  "nudge": { "after_minutes": 120, "every_minutes": 240, "most_per_day": 3, "notice_kind": "needs-you", "title": "Waiting on you: {count}", "body": "{rows}. Open Home to do them.", "open": "/", "own_origins": ["https://app.gettrillion.ai", "https://gettrillion.ai"],
+    "ladder": [
+      { "id": "tell", "after_minutes": 120, "every_minutes": 240, "most_per_day": 3, "kind": "needs-you" },
+      { "id": "board", "after_minutes": 480, "every_minutes": 120, "most_per_day": 6, "kind": "needs-you-now", "board": true, "title": "Still waiting on you: {first}", "body": "{rows}. One tap opens it." },
+      { "id": "take-over", "after_minutes": 1440, "every_minutes": 120, "most_per_day": 8, "kind": "needs-you-now", "board": true, "take_over": true, "title": "Waiting on you since yesterday: {first}", "body": "Trillion opened it for you. {rows}." }
+    ,
+      {"id": "walked-away","after_minutes": 2880,"every_minutes": 120,"most_per_day": 8,"kind": "needs-you-now","board": true,"take_over": true,"carries_stake": true,"title": "Waiting on you for two days: {first}","body": "What you chose for walking away from it has happened. {rows}."}],
+    "board": { "key": "waiting-on-you", "title": "Waiting on you: {count}", "body": "{section}: {first}", "source": "Waiting on you", "ended_kind": "working", "ended_title": "Nothing is waiting on you" },
+    "weigh": { "job": "This was put on the person's Waiting on you list, but Trillion can do it: {title}. {detail} {said} Do it now with {doers}{needs}, then mark the row Done. Never ask the person to do it.", "said": "Doing it instead of asking you: {title}" }
+  },
+  "before_asking": {
+    "_what": "A row that asks the person for FACTS (a past-event ask such as what happened, how it went, how many were bought: `asks`, read in `ask_fields`; a plain request like 'describe the logo you want' or 'how many seats should we book' is never caught) must first have the person's connected arrivals read (src/waiting-filing.mjs rowArrivalsRefusal, a done-when check over `arrived`, src/done-when-facts.json). The window is the row's about_from..about_until (else the last `default_hours` hours) and the places are `routes` (each a live carrier route that captures what happened in the world: Photos, Voice Memos, Listening, watch, Screenshots; never an AI-chat carrier such as Claude Code or Codex, which arrive constantly). When something arrived there, the filing is refused listing the arrivals, so the AI reads them (a server cannot interpret footage or audio) and files again with `read_field` saying which it read and what they showed, naming at least one of them, and asking only for what they leave out; or does not ask at all. Why it exists: 2026-10-11 a card asked 'Say what happened at the Target shelf today' for a 4-6pm shelf test and said nothing reached Trillion, while 98 Photos items from that window had arrived (route Photos, /Photos/2026-10) and voice memos with transcripts had arrived on 2026-10-06. It asked him to repeat what his sources already brought. A check that cannot be made (a source too slow) never blocks a filing.",
+    "asks": "\\b(say what happened|what happened (at|in|during)|tell (me|us|trillion) what (happened|you saw|they did)|how did\\b.*\\bgo\\b|how many\\b.*\\b(did|were|picked|bought|stopped|came)\\b|walk (me|us) through what happened|report what happened|give (me|us) the (counts|results) (from|of))\\b",
+    "ask_fields": ["what", "why"],
+    "from_field": "about_from",
+    "until_field": "about_until",
+    "read_field": "arrivals_read",
+    "default_hours": 24,
+    "list_most": 20,
+    "routes": ["Photos", "Voice Memos", "Listening", "watch", "Screenshots"],
+    "rule": { "over": "arrived", "match": "any", "says": "arrivals in the window", "route_field": "route", "time_field": "at" },
+    "words": {
+      "refused": "\"{title}\" was not filed: it asks the person for facts, but {count} of their own arrivals from {from} to {until} already cover it ({places}). Read them first, then file it again. Newest first: {arrivals}{more}. Look at the Photos items and read the voice memos' transcripts, then put in {read_field} which you read and what they showed (name at least one by its file name), and ask only for what they leave out; if they answer it, do not ask at all. If the window is wrong, set {from_field} and {until_field} to the time it is really about.",
+      "arrival": "{route} {at} {files}",
+      "more": " (and {rest} more)"
+    }
+  },
+  "unchecked": {
+    "_what": "A step filed with its done described in words (`words_field`) but no rule Trillion checks (the list's field of kind `rule_kind`, src/done-when.mjs) waits until the person says it is done, and every AI keeps putting it in front of them meanwhile. put_list_rows keeps the row and names it under `unchecked` in its answer, with what Trillion can check, so the AI that filed it adds the rule while it can (src/waiting-filing.mjs uncheckedWaitingRows). Why it exists: on 2026-10-09 a certificate step said it was done when 'A Developer ID Application certificate file is in your Downloads folder'; the certificate arrived at 17:58, the Mac reported the download, and with no rule nothing looked, so the hold kept putting the step in the person's face.",
+    "words_field": "done_when",
+    "rule_kind": "done-when-rule",
+    "said": "\"{title}\" says it is done when \"{done_when}\", but nothing checks that, so it waits until the person says so. If one of these can see it, put done_when_rule on the row so it closes by itself: {sources}."
+  },
+  "done": { "fact": "waiting_done", "most": 500 },
+  "rounds": { "_what": "Work that runs in rounds (src/work-rounds.mjs): a row whose step_field holds words finishes only this round. Done counts the round in done_field, appends log_line (what the round showed) to log_field, opens next_field (else the same step) as the new step and restarts starts_field, so it waits again with its progress; once planned_field is reached the row is done the ordinary way.", "step_field": "round_step", "next_field": "next_step", "done_field": "rounds_done", "planned_field": "rounds_planned", "log_field": "round_log", "starts_field": "added", "log_line": "Round {round} ({at}): {step}. It showed: {showed}", "showed_unsaid": "finished, nothing said about it" }
+,
+  "hold":   {
+    "what_this_is": "The hold (trillion-workshop tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs, drawn over every Trillion page by src/workspace/needs-you-hold.tsx): while it is on, any page the person opens shows the ONE thing that needs them most, nothing else reachable, until it is done or set aside with a reason. the owner 2026-10-06: 'only one thing you can do, so the river flows in that one direction'. `held_fact`: the one thing held now, kept from every Waiting on you read and handed to every AI's turn (POST /notices/unseen `held`, harness/decisions-since.mjs). `devices`: the tools run on the person's own devices when the held thing changes (`when_held`: the Mac keeps only Trillion open, the Workshop tool tools/hold-a-computer-quiet, run by computer/mac-tools.mjs; tool:take-me-there opens the held thing on every open Trillion page and tells the person on every channel its notice kind reaches, with the link that opens it on any device, so the held thing reaches them by Trillion itself, an AI chat included, and no AI has to paste it) and when nothing is held any more (`when_free`); `{key}` and `{title}` in a run's input are the held thing's (trillion-workshop tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs heldInput); a new device lock or a new way to reach the person is a row here. `after_minutes`: how long a thing waits before it holds the page. `aside`: setting the thing aside needs `min_words` of reason, lasts `minutes`, `most_per_day` times a day, and each reason goes to the AIs as `job`. `hand_back`: when the person's part is done, or the thing does not work where they are, one of its `ways` hands the rest to the AIs with their words (`min_words`) as that way's `job`; the thing leaves the hold for `keep_days` while the AIs check, finish, fix or file one smaller row, and this is never counted against the asides. `off`: turning the hold off starts `delay_minutes` after asking (the chosen stake's), lasts `lasts_minutes`, then the hold comes back by itself; a stake with `job` is carried out by the AIs when the person asks off, and its `walked_away` job when the reminder ladder's `carries_stake` rung is reached (the person walked away from what waits); a newly chosen stake waits the old one's delay; each off asked within `escalate_days` multiplies the next wait by `escalate`. Every way out and its counter: src/escape-chain.json.",
+    "default_on": true,
+    "fact": "needs_you_hold",
+    "held_fact": "needs_you_held",
+    "devices": {
+      "when_held": [
+        { "tool_id": "tool:hold-a-device-quiet", "input": { "id": "needs-you-hold", "only": ["Trillion"], "focus": true, "minutes": 60 } },
+        { "tool_id": "tool:take-me-there", "input": { "thing": "{key}", "say": { "title": "{title}" }, "key": "hold:{key}", "by": "Trillion" } }
+      ],
+      "when_free": [{ "tool_id": "tool:release-a-device", "input": { "id": "needs-you-hold" } }]
+    },
+    "after_minutes": 30,
+    "open_an_app": {
+      "_why": "the owner 2026-10-08: when a Mac app road needs an app that is closed, Trillion opens it itself, in the background without taking focus (use-an-app-here.mjs openAppQuietly), so no AI files a hold asking the person to open an app. A row whose title asks to open, launch or start something (`ask`), about an app or the person's computer (`about`, read in its title and why), and which is not about Trillion itself (`except`) nor done in a Trillion screen, is refused with `refused`.",
+      "ask": "^\\s*(please\\s+)?(re-?open|open|launch|start)\\b",
+      "about": "\\b(app|application|program|on (your|the|this) (mac|computer|laptop|pc|screen)|is (not open|closed|not running)|not running|isn't open)\\b",
+      "except": "\\b(trillion|and|then|to|settings|preferences)\\b|[:,;]",
+      "refused": "\"{title}\" was not filed: opening an app on the person's computer is never theirs to do. Trillion opens the app itself, in the background without taking focus, whenever a job on their Mac needs it (use_an_app_on_this_computer or run_an_app_job); run the job and carry on. Do not file a Waiting on you row for it."
+    },
+    "only_you_untried": {
+      "_why": "2026-10-09: a row said only the person could make a Cloudflare Stream token because the sign-in 'refuses automated browsers'; nobody had tried, and the coordinator made the token through the signed-in dashboard in minutes. A row that says only the person can do it (only_you_because) is kept only with `tried` saying what was attempted and what stopped it, so the claim is something an AI did, never something it assumed (src/waiting-filing.mjs invariant 8).",
+      "field": "only_you_because",
+      "tried_field": "tried",
+      "refused": "\"{title}\" was not filed: it says only the person can do it, but tried is empty. Try it first (their saved logins and a browser, a connected account, a tool from find_tool_for_job), then file it again with tried naming the route you took and what stopped it, word for word (the refusal, the page, the error). If a route worked, do the thing and file nothing."
+    },
+    "no_control": {
+      "refused": "\"{title}\" was not filed: it gives the person nothing to press or do, so it could never be done. Give it do_it_in, the Trillion address where it is done, naming its target (such as /connections?show_row=<service>, the connect button for that service; a bare /connections is refused), a finish with a press, a response, or numbered steps they do by hand. If no control exists yet, build it first, or do the thing yourself.",
+      "whole_screen": "\"{title}\" was not filed: its do_it_in {address} opens the whole screen, with every account and form on it, but the person should see only the one thing to do. A do_it_in must name its target: {path}?show_row=<the service or saved login, as titled on that screen> (or ?show_section=<section id>).",
+      "not_a_screen": "\"{title}\" was not filed: its do_it_in {address} is not a Trillion screen, so the person would have nothing to press. Use the address of the screen where it is done, naming its target, such as /connections?show_row=<service>.",
+      "job": "This was put on the person's Waiting on you list with nothing they can press or do, so it never reached them: {title}. {detail} Give it a working control, do_it_in (the Trillion address where it is done, always naming its target, such as /connections?show_row=<service> for a sign-in, which shows that service's Connect button), a finish with a press, or numbered steps, and check the control is there and works; or do it yourself. Then put the row again with put_list_rows.",
+      "said": "Fixing a waiting thing that had nothing to press: {title}"
+    },
+    "every_seconds": 90,
+    "live_seconds": 15,
+    "rank": [
+      { "by": "waited_on", "field": "waits_on", "what": "how many other waiting things wait on it, directly or through others: doing it unblocks them all" },
+      { "by": "has", "field": "unlocks", "what": "it says what it unlocks" }
+    ],
+    "aside": {
+      "min_words": 4,
+      "minutes": 180,
+      "most_per_day": 3,
+      "job": "The person set this aside instead of doing it: \"{title}\". Their reason: \"{reason}\". Weigh it: if Trillion or the person's AIs can do it, do it now and mark it done; if it is too big, cut it down to the one smallest step that takes them under a minute and put that on their Waiting on you list in its place; if it truly cannot be done now, say exactly when it can and what has to change first. Never just accept the reason.",
+      "said": "Weighing why you set aside: {title}"
+    },
+    "hand_back": {
+      "min_words": 3,
+      "keep_days": 3,
+      "ways": [
+        {
+          "id": "done",
+          "label": "I did my part",
+          "icon": "Check",
+          "title": "What did you do?",
+          "placeholder": "Turn on FTP sending in the camera's network menu and point it at the address shown",
+          "submit": "Your AIs have the rest",
+          "job": "The person says they did their part of \"{title}\" ({key}), which held their screen: \"{reason}\". It no longer holds them. Check it the way Trillion checks it (its done-when, the live check, the connected account, the files that should arrive); if it is done, mark the row done. If the rest is work for Trillion or the AIs (a bug, a receiver, a follow-up), do it or hand it to the AI that owns it, and say what is left. Only if the person truly must still act, put ONE new, smaller row on their Waiting on you list with a working control, saying exactly what is left and why only they can do it.",
+          "said": "Finishing the rest of: {title}"
+        },
+        {
+          "id": "broken",
+          "label": "This doesn't work here",
+          "icon": "AlertTriangle",
+          "title": "What happens when you try?",
+          "placeholder": "The Connect button keeps spinning and nothing opens",
+          "submit": "Hand it to my AIs",
+          "job": "The person could not do \"{title}\" ({key}), which held their screen: \"{reason}\". It no longer holds them. Find out why it does not work for them (its screen, its control, the connected account, the device), fix the cause, and check the fix the way they would use it. Then, if they still must act, put the row again on their Waiting on you list with a control that works and say what changed; if Trillion or the AIs can do it instead, do it and mark it done.",
+          "said": "Fixing what didn't work: {title}"
+        }
+      ]
+    },
+    "off": {
+      "default_stake": "wait-a-day",
+      "lasts_minutes": 1440,
+      "escalate": 2,
+      "escalate_days": 7,
+      "stakes": [
+        {
+          "id": "wait-a-day",
+          "label": "It turns off a day after I ask",
+          "delay_minutes": 1440
+        },
+        {
+          "id": "wait-an-hour",
+          "label": "It turns off an hour after I ask",
+          "delay_minutes": 60
+        },
+        {
+          "id": "tell-someone",
+          "label": "Someone I chose is told, and it turns off an hour later",
+          "delay_minutes": 60,
+          "fields": [
+            {
+              "name": "who",
+              "label": "Who is told (they agreed to be)",
+              "placeholder": "Sam",
+              "kind": "record",
+              "from": { "row_types": ["person", "crm", "customer", "contact"] },
+              "new": { "list": "people", "label": "person", "list_label": "People", "title_field": "name" }
+            },
+            {
+              "name": "how",
+              "label": "How to reach them",
+              "placeholder": "Their email or number"
+            }
+          ],
+          "walked_away": "Something has waited on the person for {waited} hours and they have not done it: \"{first}\". They chose in advance that {who} is told when they walk away from what only they can do, and {who} agreed to be. Tell {who} at {how}, in one short plain message, what is waiting and ask them to help the person do it today. Then record it with record_sent.",
+          "job": "The person asked to turn off the hold that keeps them on what only they can do. They chose in advance that {who} is told when they do, and {who} agreed to be. Tell {who} at {how}, in one short plain message, that the person turned it off and it comes back on {until}. Then record it with record_sent.",
+          "said": "Telling {who} you turned off the hold"
+        },
+        {
+          "id": "give-money",
+          "label": "Money I chose is given away, and it turns off an hour later",
+          "delay_minutes": 60,
+          "fields": [
+            {
+              "name": "amount",
+              "label": "How much",
+              "placeholder": "$50"
+            },
+            {
+              "name": "to",
+              "label": "Given to",
+              "placeholder": "A cause you would rather not fund",
+              "kind": "record",
+              "from": { "row_types": ["cause", "charity", "organisation", "organization", "company"] },
+              "new": { "list": "causes", "label": "cause", "list_label": "Causes", "title_field": "name" }
+            }
+          ],
+          "walked_away": "Something has waited on the person for {waited} hours and they have not done it: \"{first}\". They chose in advance that {amount} is given to {to} each day they walk away from what only they can do. Give it now with the person's own card, record the receipt, and tell them it was given and what is still waiting.",
+          "job": "The person asked to turn off the hold that keeps them on what only they can do. They chose in advance that {amount} is given to {to} when they do. Give it now with the person's own card, record the receipt, and tell them it was given.",
+          "said": "Giving {amount} to {to}, as you chose"
+        }
+      ]
+    },
+    "words": {
+      "reason_short": "Say why in at least {words} words.",
+      "no_asides_left": "Nothing more can be set aside today. Do this one, or turn the hold off.",
+      "no_thing": "Say which thing to set aside.",
+      "no_way": "Choose one of the ways to hand it to your AIs.",
+      "hand_back_short": "Say in at least {words} words what happened.",
+      "no_stake": "Choose one of the ways it can cost you.",
+      "stake_needs": "This needs {fields}.",
+      "held": "Every Trillion page is held on one thing until it is done: {title}",
+      "free": "Nothing needs the person right now, so no page is held.",
+      "off": "The hold is off until {back_at}."
+    }
+  }
+}

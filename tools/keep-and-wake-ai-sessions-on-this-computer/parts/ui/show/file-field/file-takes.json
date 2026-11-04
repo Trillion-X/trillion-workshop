@@ -1,0 +1,76 @@
+{
+  "_what": "What kind of file a file field (FileField.tsx) takes, as DATA. A form input names one of `takes` by id (a Workshop tool's screen says `\"file\": { \"takes\": \"video\" }` on the input); `accept` lists the media types it takes (`type/*` is every type under `type/`, an empty list takes any file), used both to filter the person's files in the chooser and to guard what is dropped or uploaded; `noun` is the word the field uses for one such file. A file with no media type is known by the ending of its name through the shared file chip's endings (parts/ui/show/file-chip/file-kinds.json). `words` are every sentence the field says, `{noun}` and `{name}` filled in. A new kind of file is one row in `takes`.",
+  "takes": {
+    "video": {
+      "accept": [
+        "video/*"
+      ],
+      "noun": "video"
+    },
+    "audio": {
+      "accept": [
+        "audio/*"
+      ],
+      "noun": "sound file"
+    },
+    "picture": {
+      "accept": [
+        "image/*"
+      ],
+      "noun": "picture"
+    },
+    "recording": {
+      "accept": [
+        "video/*",
+        "audio/*"
+      ],
+      "noun": "recording"
+    },
+    "data": {
+      "accept": [
+        "application/json"
+      ],
+      "noun": "data file"
+    },
+    "seen-or-heard": {
+      "accept": [
+        "video/*",
+        "audio/*",
+        "image/*"
+      ],
+      "noun": "recording or picture"
+    },
+    "any": {
+      "accept": [],
+      "noun": "file"
+    },
+    "document": {
+      "accept": [
+        "text/plain",
+        "text/markdown",
+        "text/html",
+        "application/json"
+      ],
+      "noun": "document"
+    }
+  },
+  "words": {
+    "drop": "Drop a {noun} here, or click to upload one",
+    "choose": "Choose from your files",
+    "root": "Your files",
+    "loading": "Reading your files",
+    "empty": "Nothing here to choose",
+    "failed": "This folder could not be read",
+    "uploading": "Uploading {name}",
+    "remove": "Remove {name}",
+    "not_taken": "That is not a {noun}. Choose a {noun} instead.",
+    "upload_failed": "{name} could not be uploaded. Try again.",
+    "drop_many": "Drop files here, or click to upload",
+    "choose_many": "Choose files",
+    "more_selected": "{count} more selected",
+    "more": "Show more files"
+  },
+  "multiple": {
+    "shown": 4
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/record-log/do-work/maintenance-pacing.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-log/do-work/maintenance-pacing.json",
+      "source_identity": "1f:ee98583c243681527253b922b7f5245eb942a286e2daa6a3ab7bf6fcc8ed1358",
+      "identity": "1f:ee98583c243681527253b922b7f5245eb942a286e2daa6a3ab7bf6fcc8ed1358",
+      "reused": true
+    },
+    {
+      "from": "parts/record-log/do-work/record-digest.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-log/do-work/record-digest.mjs",
+      "source_identity": "1f:5f96ceb443f1915f547ad1598b1778fee51e5a7b1075aba29b211a6e040c3543",
+      "identity": "1f:5f96ceb443f1915f547ad1598b1778fee51e5a7b1075aba29b211a6e040c3543",
+      "reused": true
+    },
+    {
+      "from": "parts/record-log/do-work/record-model.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-log/do-work/record-model.mjs",
+      "source_identity": "1f:7e83122fea5a0c5edf11e925c81cdd1ede98d1c3af5787e47b71e061c0cb7c9f",
+      "identity": "1f:7e83122fea5a0c5edf11e925c81cdd1ede98d1c3af5787e47b71e061c0cb7c9f",
+      "reused": true
+    },
+    {
+      "from": "parts/record-log/do-work/record-stamps.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-log/do-work/record-stamps.mjs",
+      "source_identity": "1f:630bd6b3c3507b5bcd13aad263922b71f1d21ee608cc0f3fdd1bab6a7b2ca5a8",
+      "identity": "1f:630bd6b3c3507b5bcd13aad263922b71f1d21ee608cc0f3fdd1bab6a7b2ca5a8",
+      "reused": true
+    },
+    {
+      "from": "src/store-size.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/record-log/do-work/store-size.json",
+      "source_identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
+      "identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
+      "reused": true
+    }
+  ]
+}

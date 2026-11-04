@@ -1,0 +1,5501 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-account-tool-records",
+  "what_this_is": "Trillion's own behaviors in a person's account as Workshop tools: each runs inside that person's store (placement:this-account, whose executor looks the row's invoke.action up in the store's own map), so Trillion's defaults (records/starting-rules.json) and the person's own rules, schedules and AIs run them the same way. The placement is included in every plan: these do what Trillion did by itself before they were tools. A row's `retry` ({ max_attempts, first_after_seconds, factor, longest_after_seconds }) says running it again is safe, so a run of it a rule started that fails is started again by itself (src/automations.mjs).",
+  "records": [
+    {
+      "id": "package::trillion::tool::read-service-watch",
+      "address": "package::trillion::tool::read-service-watch",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-service-watch",
+        "label": "Read the service's own watch",
+        "job": "Read what Trillion's own watch saw last: whether every store answered its calls in the last ten minutes, and whether what landed on main went live within the hour",
+        "description": "With {}, read the latest saved service-watch snapshot: { said, read_at, watches: { <watch>: { failing, said, evidence, since, last_worked } } }. With build_commit (exactly 40 hexadecimal characters), read just that retained build record from the same service owner, without enumerating keys or running a build. Returns said, read_at, watches: {}, build_commit, build_status (found, absent or unreadable), build, and build_read coverage with explicit byte limits and omissions. KV is eventually consistent; absence does not prove a build never ran. The record's outcome and diagnostics do not by themselves prove the live deployment. Screenshot bytes are not returned. Existing scheduled checks continue to use {}.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "build_commit": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{40}$",
+              "description": "Read this exact retained build's metadata and bounded diagnostics; omit to read the ordinary service-watch snapshot."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "said",
+            "watches"
+          ],
+          "properties": {
+            "said": {
+              "type": "string"
+            },
+            "read_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "watches": {
+              "type": "object"
+            },
+            "build_commit": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            },
+            "build_status": {
+              "enum": [
+                "found",
+                "absent",
+                "unreadable"
+              ]
+            },
+            "build": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "build_read": {
+              "type": "object",
+              "description": "The one-key read's retention, eventual consistency, byte limits and explicit omissions. This is not independent proof of deployment."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "read-service-watch"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "watch"
+          }
+        ],
+        "listed_on": "2026-10-06T07:00:00Z"
+      }
+    },
+    {
+      "id": "package::trillion::tool::show-as-a-page",
+      "address": "package::trillion::tool::show-as-a-page",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "id": "tool:show-as-a-page",
+        "listed_on": "2026-10-07T06:00:00Z",
+        "label": "Show anything as a page",
+        "job": "Show any words beautifully as a page: turn pasted text, markdown, notes, a report, a table or a chat export into a polished, readable page in Trillion's look, kept in your files with a link anyone can open",
+        "description": "Give text (the words, as markdown or plain text: headings, lists, quotes, tables, pictures, code and links are laid out as a page). Optional: title (else the first heading or first words), folder (where the file is kept, /Pages when left out), share (false keeps the page in your files only) address (the link's own name, /share/<address>; else one is made from the title) and controls (live controls to put beside the page: an interface_id, or what make_controls takes; the page and the controls open side by side). The words are kept as <folder>/<title>.md; running it again with the same title updates the same page at the same address. Returns title, file, identity, open_url (the page in Trillion), share_url (the page anyone can open, when shared), share_id (for change_record_share_link or revoke_record_share_link with record file:<identity>), controls (the interface beside it, when asked) and said. Reach for it whenever words would otherwise be pasted as a wall of text; a rule or schedule runs it as { \"tool_id\": \"tool:show-as-a-page\", \"input\": { \"text\": \"...\" } }.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The words to show, as markdown or plain text"
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "The page's title; left out, the first heading or the first words"
+            },
+            "folder": {
+              "type": "string",
+              "description": "The folder the page's file is kept in, like /Pages"
+            },
+            "share": {
+              "type": "boolean",
+              "description": "false keeps the page in your files without a link; a link anyone can open when left out"
+            },
+            "controls": {
+              "description": "Live controls to show beside the page: an interface_id from make_controls, or what make_controls takes ({ intent, tool_id or job, bind, settings }), made now. The page and its controls open side by side."
+            },
+            "address": {
+              "type": "string",
+              "pattern": "^[a-z0-9](?:[a-z0-9-]{1,62}[a-z0-9])$",
+              "description": "The link's own name, /share/<address>"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "title",
+            "file",
+            "identity",
+            "open_url",
+            "shared",
+            "said"
+          ],
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string"
+            },
+            "identity": {
+              "type": "string"
+            },
+            "open_url": {
+              "type": "string"
+            },
+            "shared": {
+              "type": "boolean"
+            },
+            "share_url": {
+              "type": "string"
+            },
+            "share_id": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "show-as-a-page"
+        },
+        "provenance": {
+          "source": "src/show-as-a-page.mjs; the public files of share links are written by the Workshop tool tool:write-public-share-files"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "text": "## A sample page\n\nWords shown as a page.\n\n| Part | Shown |\n|---|---|\n| Table | Yes |",
+              "title": "A sample page",
+              "folder": "/Pages/Samples",
+              "share": false
+            },
+            "output_selector": "$.said",
+            "contains": "is ready"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::transcribe-file",
+      "address": "package::trillion::tool::transcribe-file",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:transcribe-file",
+        "listed_on": "2026-09-30T03:06:52Z",
+        "label": "Transcribe an audio or video file",
+        "job": "Transcribe an audio or video file in this person's Trillion files into timed words, for captions, search and picking a stretch by what is said",
+        "description": "Hears the file by its identity inside the account with Whisper and keeps its transcript beside the file: the text, and each passage with its start and end and every word with its own start and end in seconds, which captions, search and the editor read. A video is heard through its sound alone (taken out once by tool:extract-sound), so videos up to about 50 minutes fit. Repeating the same identity returns the saved transcript. With language, the file is heard again in that language.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "identity"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "identity": {
+              "type": "string",
+              "pattern": "^1f:[0-9a-f]{64}$"
+            },
+            "language": {
+              "type": "string",
+              "pattern": "^[a-z]{2,3}$",
+              "description": "Hear the recording in this language (ISO code) even when words are kept, unless they were already heard in it."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "identity",
+            "text",
+            "segments"
+          ],
+          "properties": {
+            "identity": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "start",
+                  "end",
+                  "text"
+                ],
+                "properties": {
+                  "start": {
+                    "type": "number"
+                  },
+                  "end": {
+                    "type": "number"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "words": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "word",
+                        "start",
+                        "end"
+                      ],
+                      "properties": {
+                        "word": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "number"
+                        },
+                        "end": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "already_recorded": {
+              "type": "boolean"
+            },
+            "language": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "transcribe-file"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "max_input_bytes": 4000000000,
+          "expected_seconds": 60,
+          "gpu": true,
+          "network_egress": false
+        },
+        "retry": {
+          "max_attempts": 30,
+          "first_after_seconds": 90,
+          "factor": 2,
+          "longest_after_seconds": 3600
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.identity",
+            "input_field": "identity"
+          }
+        ],
+        "screen": {
+          "group": "content-make",
+          "kind": "described",
+          "icon": "AudioLines",
+          "label": "Transcribe",
+          "about": "Turns a recording in your files into timed words.",
+          "inputs": {
+            "identity": {
+              "label": "Recording",
+              "file": {
+                "takes": "recording"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::read-file-words",
+      "address": "package::trillion::tool::read-file-words",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-file-words",
+        "listed_on": "2026-10-03T21:30:00Z",
+        "label": "Read the words inside a file",
+        "job": "Read the words written inside a PDF, Word, Excel, slides, CSV or text file in this person's Trillion files and keep them beside it, so search and every AI find what it says",
+        "description": "Reads the file by its identity inside the account (a PDF or Office file through Workers AI's document conversion, a text file as it is) and keeps its words beside the file as its contents result, which search's word index and read_file_results read. Trillion already reads every new file and every earlier one by itself a few at a time; run this to read one now. Repeating it reads the file again.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "identity"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "identity": {
+              "type": "string",
+              "pattern": "^(1f|12):[0-9a-f]{64}$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "identity",
+            "said"
+          ],
+          "properties": {
+            "identity": {
+              "type": "string"
+            },
+            "way": {
+              "type": "string"
+            },
+            "characters": {
+              "type": "integer"
+            },
+            "cut": {
+              "type": "boolean"
+            },
+            "skipped": {
+              "type": "boolean"
+            },
+            "said": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "read-file-words"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "max_input_bytes": 26214400,
+          "expected_seconds": 20,
+          "gpu": false,
+          "network_egress": false
+        },
+        "retry": {
+          "max_attempts": 5,
+          "first_after_seconds": 90,
+          "factor": 2,
+          "longest_after_seconds": 1200
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.identity",
+            "input_field": "identity"
+          }
+        ],
+        "screen": {
+          "group": "content-make",
+          "kind": "described",
+          "icon": "FileSearch",
+          "label": "Read a file's words",
+          "about": "Reads what a document in your files says, so search finds it.",
+          "inputs": {
+            "identity": {
+              "label": "File",
+              "file": {
+                "takes": "any"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::placement::this-account",
+      "address": "package::trillion::placement::this-account",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:this-account",
+        "label": "your own Trillion account, in the store that keeps it",
+        "executor": "this-account",
+        "reachable_from": [
+          "hosted"
+        ],
+        "vendor": "Cloudflare Durable Objects",
+        "billing": "part of the account it runs in; nothing runs between calls",
+        "idle_cost_usd_per_month": 0,
+        "settings": {
+          "included_in_every_plan": true
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::check-results-that-are-due",
+      "address": "package::trillion::tool::check-results-that-are-due",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "id": "tool:check-results-that-are-due",
+        "listed_on": "2026-09-29T12:17:11Z",
+        "label": "Check whether your decisions worked, for every one due to be looked at",
+        "job": "Check the results of this person's decisions whose re-check date has come: for each one, look the way the decision said it would be checked (a public page, or asking the person) and keep what was seen and whether the result was met",
+        "description": "Takes no input. For every decision of this account whose re-check date is today or earlier and that has not been checked since that date, looks the way its proof step said (reads the named page, or asks the person on their screen), has a judge compare what was seen with the stated outcome, and keeps the result with the decision. Returns checked: one entry per decision looked at, with its case_id and result (met, failed, unknown, or asked when the person was asked), and said: the same in one sentence. A decision with nothing due is left alone.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "checked",
+            "said"
+          ],
+          "properties": {
+            "checked": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "case_id",
+                  "result"
+                ],
+                "properties": {
+                  "case_id": {
+                    "type": "string"
+                  },
+                  "result": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "check-results-that-are-due"
+        },
+        "provenance": {
+          "source": "src/person-store.mjs checkResultsThatAreDue (the re-check that used to run on the store's own alarm)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "due"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::weigh-steps-ais-left-you",
+      "address": "package::trillion::tool::weigh-steps-ais-left-you",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 40,
+          "network_egress": false
+        },
+        "id": "tool:weigh-steps-ais-left-you",
+        "listed_on": "2026-10-07T06:20:00Z",
+        "label": "Weigh what your AIs leave you to do",
+        "job": "Read the messages any AI wrote to the person since the last look, in every app, take the last AI message of each turn, ask the classifier on the person's own computer whether it leaves them something to do, and hand each that does to the person's AIs to run workflow:file-what-needs-the-person",
+        "description": "With a message_id from a completed reply, weighs that reply at once, independent of older transcript work. Without one, reads messages since the last sweep and finds the last AI message of each turn. The classifier on the person's computer decides whether it leaves a step; each yes is handed once by message key to workflow:file-what-needs-the-person. An unavailable classifier schedules a keyed retry. Returns weighed, through, again and said.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "message_id": {
+              "type": "string",
+              "description": "The newly recorded completed AI reply to weigh immediately; omit to sweep older messages."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "weighed",
+            "said"
+          ],
+          "properties": {
+            "weighed": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "message_id",
+                  "verdict"
+                ],
+                "properties": {
+                  "message_id": {
+                    "type": "string"
+                  },
+                  "app": {
+                    "type": "string"
+                  },
+                  "verdict": {
+                    "type": "string"
+                  },
+                  "handoff_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "through": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "said": {
+              "type": "string"
+            },
+            "again": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "read": {
+              "type": "integer",
+              "description": "Messages read past the kept place this run (1 for a completed reply)."
+            },
+            "newest_read": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The newest recorded time among them."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "weigh-steps-ais-left-you"
+        },
+        "provenance": {
+          "source": "src/person-store.mjs weighStepsAisLeft over src/steps-ais-leave.mjs (it replaces a turn-end hook that weighed only Claude Code and Codex on one Mac)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "weigh"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::tell-your-ais-about-a-decision",
+      "address": "package::trillion::tool::tell-your-ais-about-a-decision",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": true
+        },
+        "id": "tool:tell-your-ais-about-a-decision",
+        "listed_on": "2026-09-29T12:17:11Z",
+        "label": "Tell your other AIs about a decision you made",
+        "job": "Tell every other AI this person uses about a decision they just made: each is shown it once on its next reply, and their published agents are woken with it; the AI that made the decision is not told its own decision",
+        "description": "Give case_id (the decision), and from_reader and app when known (which of the person's AIs made it). Keeps one notice of the decision that every other AI of this person is shown once on its next reply to Trillion, and wakes each published agent that can be reached with the same words. The same decision again adds nothing. Returns told (true when a new notice was kept), agents_woken, and said.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "case_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "case_id": {
+              "type": "string",
+              "format": "trillion:decision",
+              "description": "The decision's case_id"
+            },
+            "from_reader": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Which of the person's AIs made the decision, so it is not told its own decision"
+            },
+            "app": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The app that made the decision, named in the notice"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "told",
+            "said"
+          ],
+          "properties": {
+            "told": {
+              "type": "boolean"
+            },
+            "agents_woken": {
+              "type": "integer"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "tell-your-ais-about-a-decision"
+        },
+        "provenance": {
+          "source": "src/person-store.mjs tellDecision (the notice that used to be sent after every decide)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "case_id": "case:no-such-decision"
+            },
+            "output_selector": "$.said",
+            "contains": "decision"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::publish-a-post",
+      "address": "package::trillion::tool::publish-a-post",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "id": "tool:publish-a-post",
+        "listed_on": "2026-09-29T20:00:07Z",
+        "label": "Publish an approved post to each place it is meant to go",
+        "job": "Publish one of this person's approved posts to each of its destinations, straight through their own connected accounts, without posting anything twice",
+        "description": "Give post_id (from draft_post or list_posts), or leave it out to publish the approved post that has waited longest. A post that is not approved is refused. A post whose scheduled time is still ahead is set to go at that time. Each place that has not taken the post yet is sent it once; a place whose outcome is not known is sent again only when its account_id is in resend. Returns status (posted, scheduled, partial or failed; missing or nothing when there was no such post), post (each destination's state and published address) and said, in plain words. Schedules and rules run it as { \"tool_id\": \"tool:publish-a-post\", \"input\": { \"post_id\": \"...\" } }.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "post_id": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The post to publish; left out, the approved post that has waited longest"
+            },
+            "resend": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "account_id values whose outcome was not known, checked and found missing"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "said"
+          ],
+          "properties": {
+            "post_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "post": {
+              "type": "object"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "publish-a-post"
+        },
+        "provenance": {
+          "source": "src/social-posts.mjs publish, the same function publish_post calls"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "post_id": "post:sample-check"
+            },
+            "output_selector": "$.said",
+            "contains": "nothing was published"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::start-team-review",
+      "address": "package::trillion::tool::start-team-review",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": true
+        },
+        "id": "tool:start-team-review",
+        "listed_on": "2026-09-30T04:38:41Z",
+        "label": "Have one of your AIs do a job and another review it",
+        "job": "Have one of this person's AIs do a piece of work and another review it, passing it back and forth until the reviewer approves it or the round limit is reached",
+        "description": "Give work (what should be done, in plain words) and request_key (any unique text; the same key returns the same review). Optional assign { role: agent_id } names which of the person's published AIs takes each role (find_agents lists them); a role nobody is assigned goes to whichever AI takes it first. Optional rounds (a whole number) changes how many rounds it may take. Optional needs lists capabilities required throughout every stage and round (subscription-ai means any connected subscription AI, without choosing a provider or model). Each step is a handoff the AI takes with take_work and finishes with finish_work; the deciding reviewer must differ from the agent who did the preceding work. Approval says { approved: true, reviewed: input.team_review.candidate }; copy the exact candidate object read from that handoff. A rejection says { approved: false, notes }. Returns review_id, state (working, approved, invalidated or round_limit), said, assurance, and every step so far. Read it again with tool:read-team-review.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "work",
+            "request_key"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "work": {
+              "type": "string",
+              "description": "What should be done, in plain words"
+            },
+            "request_key": {
+              "type": "string",
+              "description": "Any unique text; the same key returns the same review"
+            },
+            "assign": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Which published AI takes each role, as { role: agent_id }"
+            },
+            "needs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 64,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "description": "Capabilities required for every stage and round; subscription-ai keeps the work with any connected subscription AI"
+            },
+            "rounds": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "How many rounds it may take"
+            },
+            "from_agent": {
+              "type": "string",
+              "description": "The AI starting the review, as published"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "review_id",
+            "state",
+            "said"
+          ],
+          "properties": {
+            "review_id": {
+              "type": "string"
+            },
+            "state": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "said": {
+              "type": "string"
+            },
+            "assurance": {
+              "type": "object",
+              "properties": {
+                "contract": { "type": "string" },
+                "candidate_bound": { "type": "boolean" },
+                "independent_agent": { "type": "boolean" },
+                "problem": { "type": "string" }
+              }
+            },
+            "work": {
+              "type": "string"
+            },
+            "needs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rounds": {
+              "type": "integer"
+            },
+            "round": {
+              "type": "integer"
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "handoff_id": {
+                    "type": "string"
+                  },
+                  "round": {
+                    "type": "integer"
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "taken_by": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "summary": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "result": {}
+                }
+              }
+            },
+            "result": {}
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "start-team-review"
+        },
+        "provenance": {
+          "source": "media-workspace agent-team.mjs and local-agent-team.mjs (the Mac's local AI team: coordinator then reviewer), rebuilt on this account's handoffs in src/team-review.mjs"
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.work",
+            "input_field": "work"
+          }
+        ],
+        "screen": {
+          "kind": "described",
+          "icon": "UsersRound",
+          "label": "Team review",
+          "about": "One of your AIs does a job and another checks it.",
+          "inputs": {
+            "work": {
+              "label": "What to do",
+              "placeholder": "Say what should be done"
+            },
+            "rounds": {
+              "label": "Rounds",
+              "placeholder": "How many times it may go back and forth"
+            },
+            "request_key": {
+              "hidden": true
+            },
+            "assign": {
+              "hidden": true
+            },
+            "from_agent": {
+              "hidden": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::read-team-review",
+      "address": "package::trillion::tool::read-team-review",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": true
+        },
+        "id": "tool:read-team-review",
+        "listed_on": "2026-09-30T04:38:41Z",
+        "label": "Read how a team review is going",
+        "job": "Read how a team review between this person's AIs is going: which round it is in, who did and reviewed each step, and the latest work",
+        "description": "Give review_id (from tool:start-team-review). Returns state (working, approved, invalidated or round_limit), said, assurance (including whether approval is candidate-bound and from a distinct published agent; older contracts are explicitly legacy), the round it is in, every step first to last with the AI that took it, its summary and result, and result: the latest finished work.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "review_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "review_id": {
+              "type": "string",
+              "description": "The review_id tool:start-team-review returned"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "review_id",
+            "state",
+            "said"
+          ],
+          "properties": {
+            "review_id": {
+              "type": "string"
+            },
+            "state": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "said": {
+              "type": "string"
+            },
+            "assurance": {
+              "type": "object",
+              "properties": {
+                "contract": { "type": "string" },
+                "candidate_bound": { "type": "boolean" },
+                "independent_agent": { "type": "boolean" },
+                "problem": { "type": "string" }
+              }
+            },
+            "work": {
+              "type": "string"
+            },
+            "needs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rounds": {
+              "type": "integer"
+            },
+            "round": {
+              "type": "integer"
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "handoff_id": {
+                    "type": "string"
+                  },
+                  "round": {
+                    "type": "integer"
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "taken_by": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "summary": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "result": {}
+                }
+              }
+            },
+            "result": {}
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "read-team-review"
+        },
+        "provenance": {
+          "source": "media-workspace agent-team.mjs and local-agent-team.mjs (the Mac's local AI team: coordinator then reviewer), rebuilt on this account's handoffs in src/team-review.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "review_id": "h_no-such-review"
+            },
+            "output_selector": "$.said",
+            "contains": "team review"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::send-to-all-ais",
+      "address": "package::trillion::tool::send-to-all-ais",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": true
+        },
+        "id": "tool:send-to-all-ais",
+        "listed_on": "2026-09-30T04:46:11Z",
+        "label": "Send to all my AIs",
+        "job": "Send one message from this person to every AI on their account at once, kept word for word so each AI can read it",
+        "description": "Give text: the person's words, exactly as written, and optionally files: up to 19 of the person's own files, each { identity } as Files names it. Each file is checked to be one of the person's own before anything is kept. The message is kept once in the shared Trillion conversation (conversation_id trillion:shared), linking each file, then every AI on the account is woken to read it with read_messages; each wake-up names the files too. Returns message_id, conversation_id, files, delivery (agent_id, name and state for each AI: waiting, delivered, or next_connection when it sees it the next time it connects) and message. Being woken is not the same as having read it. Refuses when no AI is connected yet, and when there are neither words nor files.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": "The person's words, exactly as written; empty only when files are sent"
+            },
+            "files": {
+              "type": "array",
+              "maxItems": 19,
+              "description": "The person's own files sent with the message",
+              "items": {
+                "type": "object",
+                "required": [
+                  "identity"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "identity": {
+                    "type": "string",
+                    "description": "The file's identity in the person's Files"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "message_id",
+            "conversation_id",
+            "delivery",
+            "message"
+          ],
+          "properties": {
+            "message_id": {
+              "type": "string"
+            },
+            "recorded": {
+              "type": "integer"
+            },
+            "conversation_id": {
+              "type": "string"
+            },
+            "delivery": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "agent_id",
+                  "state"
+                ],
+                "properties": {
+                  "agent_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "state": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "message": {
+              "type": "string"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "send-to-all-ais"
+        },
+        "screen": {
+          "kind": "described",
+          "icon": "Send",
+          "label": "Send to all my AIs",
+          "about": "Sends one message to every AI you use.",
+          "inputs": {
+            "text": {
+              "label": "Message",
+              "placeholder": "What to send"
+            },
+            "files": {
+              "hidden": true
+            }
+          }
+        },
+        "provenance": {
+          "source": "the web Home and Messages send-all route (src/work-messages.mjs) and the iPhone Home composer (ios/Shared/TrillionAppData.swift sendHomeInput), made one owner in src/send-to-all-ais.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "text": "Checking that my AIs get this."
+            },
+            "output_selector": "$.conversation_id",
+            "contains": "trillion:shared"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::recent-files",
+      "address": "package::trillion::tool::recent-files",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:recent-files",
+        "listed_on": "2026-09-30T04:46:11Z",
+        "label": "Recent: the files I used, newest first",
+        "job": "List the files this person used most recently, newest first: each file once, with what happened to it last (opened, watched, edited, published or any other) and when",
+        "description": "Optional limit (up to 500 files, default 100) and before (next_before from the page before, for older files). Returns items: each file once with its identity, name, title, media_type, last_kind and last_words (what happened last, and how the Recent screen says it), last_at, and kinds (the newest time of every kind of use); next_before; and said, the count in words. A file no longer kept drops out. record_file_use (or tool:record-file-use) keeps a use.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            },
+            "before": {
+              "type": "string",
+              "description": "next_before from the page before, for older files"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "items",
+            "next_before",
+            "said"
+          ],
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "identity": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "media_type": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "last_at": {
+                    "type": "string"
+                  },
+                  "last_kind": {
+                    "type": "string"
+                  },
+                  "last_words": {
+                    "type": "string"
+                  },
+                  "kinds": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "next_before": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "recent-files"
+        },
+        "screen": {
+          "group": "content-files",
+          "kind": "app-entry",
+          "entry": "recent",
+          "icon": "History",
+          "label": "Recent files",
+          "about": "The files you used lately, newest first.",
+          "inputs": {
+            "limit": {
+              "label": "How many",
+              "placeholder": "How many to show"
+            },
+            "before": {
+              "hidden": true
+            }
+          }
+        },
+        "provenance": {
+          "source": "media-workspace recent-activity.mjs and activity-history.mjs (the Mac app's Recent screen and its history), rebuilt on this account's files in src/recent-files.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "limit": 1
+            },
+            "output_selector": "$.said",
+            "contains": "file"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::record-file-use",
+      "address": "package::trillion::tool::record-file-use",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:record-file-use",
+        "listed_on": "2026-09-30T04:46:11Z",
+        "label": "Keep that a file was used",
+        "job": "Keep that this person used one of their files (opened, watched, edited, published or any other short word), so it rises to the top of their Recent files",
+        "description": "Give file (its path name starting with / or its content identity) and kind (one short lowercase word, or words joined by dashes). Trillion stamps the time; the same use again only moves the time. Returns recorded and file: the file's row as tool:recent-files lists it. A file that is not in this person's files is refused.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "file",
+            "kind"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string",
+              "description": "The file's path name (starting with /) or its content identity"
+            },
+            "kind": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,39}$",
+              "description": "What happened, such as opened, watched, edited or published"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "recorded",
+            "file"
+          ],
+          "properties": {
+            "recorded": {
+              "type": "boolean"
+            },
+            "file": {
+              "type": "object",
+              "properties": {
+                "identity": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                },
+                "media_type": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "last_at": {
+                  "type": "string"
+                },
+                "last_kind": {
+                  "type": "string"
+                },
+                "last_words": {
+                  "type": "string"
+                },
+                "kinds": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "record-file-use"
+        },
+        "provenance": {
+          "source": "media-workspace activity-history.mjs record (the Mac app's activity:record action), rebuilt in src/recent-files.mjs"
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.file.last_kind",
+            "input_field": "kind"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::read-work-tree",
+      "address": "package::trillion::tool::read-work-tree",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:read-work-tree",
+        "listed_on": "2026-09-30T05:01:45Z",
+        "label": "See all the work: waiting, stuck, being done and done",
+        "job": "Read all of this person's work as a tree: every job still waiting, stuck or being worked on by one of their AIs, and finished jobs newest first, each with the job it is part of and the parts passed on from it",
+        "description": "Optional before (next_before from the previous page) and limit (up to 200 open jobs and 200 finished jobs per page). Returns one page of newest open jobs and one page of finished jobs on the first call. Pass next_before to reach older open jobs first, then finished jobs newest first, without repeats. Each job includes status (open, taken, blocked, finished or withdrawn), parent_handoff_id, handed_on, who asked, who is doing it, what is in the way and what came of it; agents lists every AI on the account with its load; next_before reaches the next page until it is null; said counts the work shown. An AI says what is in the way of a job with say_what_is_in_the_way.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "before": {
+              "type": "string",
+              "description": "next_before from the previous page, for older open work and then finished work"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "work",
+            "agents",
+            "said"
+          ],
+          "properties": {
+            "work": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "handoff_id": {
+                    "type": "string"
+                  },
+                  "job": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "open (waiting for an AI), taken (being worked on), blocked (an AI said something is in the way), finished, or withdrawn (explicitly stopped while waiting; no completed outcome claimed)"
+                  },
+                  "parent_handoff_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The job this is part of"
+                  },
+                  "handed_on": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The parts passed on from this job"
+                  },
+                  "in_the_way": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "summary": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "agents": {
+              "type": "array"
+            },
+            "next_before": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "read-work-tree"
+        },
+        "screen": {
+          "group": "content-files",
+          "kind": "app-entry",
+          "entry": "ai-work",
+          "icon": "Kanban",
+          "label": "All the work",
+          "about": "What is waiting, stuck, being done and done.",
+          "inputs": {
+            "limit": {
+              "label": "How many",
+              "placeholder": "How many to show"
+            },
+            "before": {
+              "hidden": true
+            }
+          }
+        },
+        "provenance": {
+          "source": "media-workspace work-tree-ui.js and work-tree-projection.mjs (the Mac app's Work screen over its work tree), rebuilt on this account's handoffs in src/agents.mjs board"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "limit": 1
+            },
+            "output_selector": "$.said",
+            "contains": "withdrawn work shown"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::read-calendar",
+      "address": "package::trillion::tool::read-calendar",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "id": "tool:read-calendar",
+        "listed_on": "2026-10-06T18:00:00Z",
+        "label": "Calendar",
+        "job": "Read everything on this person's calendar between two times: the meetings in every pursuit they are in, their posts and their own connected Google Calendar, in one list",
+        "description": "Give from and to (dates and times with their zone, at most 62 days apart). Returns items, earliest first: each with id, source (meetings, posts, google-calendar), title, about, starts_at, ends_at, all_day, space_id and space_title (for a meeting), going and may_move; and sources: each source with read, and said when it could not be read or is not connected. A meeting put on a member's own Google Calendar shows once. Put a meeting on with create_community_event, move one with move_community_event, answer one with rsvp_event. Its screen is the Calendar, which the workspace's focus narrows to one space.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "from",
+            "to"
+          ],
+          "properties": {
+            "from": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The start, like 2026-10-06T00:00:00-04:00"
+            },
+            "to": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The end, after from"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "from",
+            "to",
+            "items",
+            "sources"
+          ],
+          "properties": {
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "read-calendar"
+        },
+        "provenance": {
+          "source": "src/calendar.mjs over src/calendar.json sources: the meetings read /community/events, the posts /posts/calendar, and Google Calendar list_events_between through the person's own connection"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "from": "2026-10-01T00:00:00Z",
+              "to": "2026-10-08T00:00:00Z"
+            },
+            "output_selector": "$.from",
+            "contains": "2026-10-01"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::suggest-next-edit",
+      "address": "package::trillion::tool::suggest-next-edit",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "id": "tool:suggest-next-edit",
+        "listed_on": "2026-09-30T06:07:26Z",
+        "label": "What to make next",
+        "job": "Suggest the next video to edit from this person's own recordings: three unused clips, their lengths, and why they fit what the person is working toward",
+        "description": "Reads the same suggestion Media shows. With no input it returns the current one; action \"another\" moves to the next suggestion, \"not-now\" sets suggestions aside for today, and \"destination\" with id picks where the video will be posted. Returns state (ready, not-now or nothing-unused), pick (the clips and why) when ready, the destinations it can suggest for, and said, the same in one sentence.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "another",
+                "not-now",
+                "destination"
+              ],
+              "title": "What to do",
+              "description": "Leave empty to see the current suggestion"
+            },
+            "id": {
+              "type": "string",
+              "title": "Where it will be posted",
+              "description": "Only with the destination action"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "state",
+            "said"
+          ],
+          "properties": {
+            "state": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            },
+            "pick": {
+              "type": "object"
+            },
+            "destinations": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "suggest-next-edit"
+        },
+        "screen": {
+          "group": "content-plan",
+          "kind": "described",
+          "icon": "Clapperboard",
+          "label": "What to make next",
+          "about": "Suggests your next video from recordings you haven't used yet.",
+          "shows": [
+            "said",
+            "pick"
+          ],
+          "inputs": {
+            "action": {
+              "label": "What to do",
+              "choices": [
+                {
+                  "value": "",
+                  "label": "Suggest one"
+                },
+                {
+                  "value": "another",
+                  "label": "Show another"
+                },
+                {
+                  "value": "not-now",
+                  "label": "Not today"
+                },
+                {
+                  "value": "destination",
+                  "label": "Pick where to post"
+                }
+              ]
+            },
+            "id": {
+              "label": "Where it will be posted",
+              "placeholder": "Where you will post it",
+              "shows_when": {
+                "name": "action",
+                "values": [
+                  "destination"
+                ]
+              }
+            }
+          }
+        },
+        "provenance": {
+          "source": "src/media-next-edit.mjs, ported from media-workspace (the Mac's What to make next)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "edit"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::set-file-facts",
+      "address": "package::trillion::tool::set-file-facts",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-file-facts",
+        "listed_on": "2026-09-30T06:27:39Z",
+        "label": "Set facts about a file",
+        "job": "Set or clear facts about one of this person's files: when and where it was captured, its camera, or any field they keep",
+        "description": "Changes only the facts it names in the file's facts, found under any identity of the same file; a fact set to null is taken away. Files and Media show every fact as a field the person can sort, group and filter by, and read_file_results with kind facts reads them.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "identity",
+            "facts"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "identity": {
+              "type": "string",
+              "pattern": "^(1f|12):[0-9a-f]{64}$"
+            },
+            "facts": {
+              "type": "object",
+              "description": "The facts to set, by name; null takes one away. Known: captured_at (ISO date and time), place (a place's name), location ({latitude, longitude}), camera, duration (seconds), resolution"
+            },
+            "produced_by": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "identity",
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "identity": {
+              "type": "string"
+            },
+            "kept_under": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "value": {
+              "type": "object"
+            },
+            "changed": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "set-file-facts"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "max_input_bytes": 1500000,
+          "expected_seconds": 1,
+          "gpu": false,
+          "network_egress": false
+        },
+        "provenance": {
+          "source": "media-workspace library-fact-fields.json, library-file-dates.mjs and the Library's own fields (commitCustomFieldValue), rebuilt as one merge over the file's facts result in src/namespace-results.mjs"
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.identity",
+            "input_field": "identity"
+          }
+        ],
+        "screen": {
+          "group": "content-files",
+          "kind": "described",
+          "icon": "Tags",
+          "label": "File facts",
+          "about": "Add dates, places and your own fields to a file.",
+          "inputs": {
+            "identity": {
+              "label": "File",
+              "file": {
+                "takes": "any"
+              }
+            },
+            "facts": {
+              "hidden": true
+            },
+            "produced_by": {
+              "hidden": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::screen-looks",
+      "address": "package::trillion::tool::screen-looks",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:screen-looks",
+        "listed_on": "2026-09-30T06:52:07Z",
+        "label": "Screen look",
+        "job": "Choose, make, change, download and publish the look this person's Trillion wears: its colours, sizes and fonts",
+        "description": "The same looks the Screen look screen shows. action list (the default) returns every look they can wear, the one worn and each look's main colours; read returns one look's tokens and its record (the .look.json file); wear wears look_id everywhere they are signed in, keeping a look another account published among their own; save makes a new look from `from` (else the worn look) or changes look_id, setting tokens by key; publish puts one of their own looks on the Marketplace and withdraw takes it off; shelf lists every look they could wear, their own and published ones. Returns said, one sentence of what happened.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "list",
+                "read",
+                "wear",
+                "save",
+                "publish",
+                "withdraw",
+                "shelf"
+              ],
+              "title": "What to do",
+              "description": "Leave empty to list the looks"
+            },
+            "look_id": {
+              "type": "string",
+              "title": "Which look",
+              "description": "A look_id from the list"
+            },
+            "from": {
+              "type": "string",
+              "title": "Start from",
+              "description": "With save and no look_id: the look a new one copies"
+            },
+            "name": {
+              "type": "string",
+              "title": "Name"
+            },
+            "description": {
+              "type": "string",
+              "title": "What it is like"
+            },
+            "tokens": {
+              "type": "object",
+              "title": "Token values",
+              "description": "Token key to its new value (read lists the keys)",
+              "additionalProperties": {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              }
+            },
+            "wear": {
+              "type": "boolean",
+              "title": "Wear it once saved",
+              "description": "false keeps the look now worn"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "said": {
+              "type": "string"
+            },
+            "worn": {
+              "type": "string"
+            },
+            "looks": {
+              "type": "array"
+            },
+            "look": {
+              "type": "object"
+            },
+            "record": {
+              "type": "object"
+            },
+            "published": {
+              "type": "string"
+            },
+            "withdrawn": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "screen-looks"
+        },
+        "screen": {
+          "group": "settings",
+          "kind": "app-entry",
+          "entry": "screen-look",
+          "icon": "Palette",
+          "label": "Screen look",
+          "about": "Choose or make how Trillion looks.",
+          "inputs": {
+            "action": {
+              "label": "What to do",
+              "choices": [
+                {
+                  "value": "",
+                  "label": "Show my looks"
+                },
+                {
+                  "value": "read",
+                  "label": "Open a look"
+                },
+                {
+                  "value": "wear",
+                  "label": "Wear a look"
+                },
+                {
+                  "value": "save",
+                  "label": "Save a look"
+                },
+                {
+                  "value": "publish",
+                  "label": "Share a look"
+                },
+                {
+                  "value": "withdraw",
+                  "label": "Stop sharing a look"
+                },
+                {
+                  "value": "shelf",
+                  "label": "Browse shared looks"
+                }
+              ]
+            },
+            "look_id": {
+              "label": "Which look",
+              "placeholder": "The look, from your looks",
+              "shows_when": {
+                "name": "action",
+                "values": [
+                  "read",
+                  "wear",
+                  "save",
+                  "publish",
+                  "withdraw"
+                ]
+              }
+            },
+            "from": {
+              "label": "Start from",
+              "placeholder": "The look to copy",
+              "shows_when": {
+                "name": "action",
+                "values": [
+                  "save"
+                ]
+              }
+            },
+            "name": {
+              "label": "Name",
+              "shows_when": {
+                "name": "action",
+                "values": [
+                  "save"
+                ]
+              }
+            },
+            "description": {
+              "label": "What it is like",
+              "shows_when": {
+                "name": "action",
+                "values": [
+                  "save"
+                ]
+              }
+            },
+            "wear": {
+              "label": "Wear it once saved",
+              "choices": [
+                {
+                  "value": "",
+                  "label": "No"
+                },
+                {
+                  "value": "true",
+                  "label": "Yes"
+                }
+              ],
+              "shows_when": {
+                "name": "action",
+                "values": [
+                  "save"
+                ]
+              }
+            },
+            "tokens": {
+              "hidden": true
+            }
+          }
+        },
+        "provenance": {
+          "source": "src/looks.mjs over parts/screen-look, ported from Trillion Media's Screen look"
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.said",
+            "text": "looks"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::look-over-the-day",
+      "address": "package::trillion::tool::look-over-the-day",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:look-over-the-day",
+        "listed_on": "2026-10-05T12:00:00Z",
+        "label": "Screen look over the day",
+        "job": "Make this person's screen look change by itself over the day, such as moving from the light Trillion look to Trillion Black in the evening, on every device, in that device's time zone",
+        "description": "With nothing given it returns the plan, the starting plans (presets) and the sun moments (anchors). preset starts a starting plan and turns it on (evening-dims-to-black: Trillion until 7pm, Trillion Black by 10pm, back between 6:30 and 7:30am). points replaces the plan's points, each { at: { clock: \"21:00\" } or { anchor: \"sunset\", minutes: -30 }, look: <look_id> }; between two points every screen moves gradually from one look to the next by itself. on turns the plan on or off; place { latitude, longitude } lets sun moments work; time_zone pins one zone (left out, each device follows its own); hold { kind: \"worn\", since } keeps the worn look until the next point and null lets the plan carry on. A schedule or rule can run it too. Returns said, the plan in one sentence.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "preset": {
+              "type": "string",
+              "title": "Starting plan",
+              "description": "A preset id: evening-dims-to-black, follow-the-sun or late-night-only"
+            },
+            "points": {
+              "type": "array",
+              "title": "Points in the day",
+              "items": {
+                "type": "object",
+                "required": [
+                  "at",
+                  "look"
+                ],
+                "properties": {
+                  "at": {
+                    "type": "object"
+                  },
+                  "look": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "on": {
+              "type": "boolean",
+              "title": "On"
+            },
+            "place": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "title": "Where the sun is read for",
+              "properties": {
+                "latitude": {
+                  "type": "number"
+                },
+                "longitude": {
+                  "type": "number"
+                }
+              }
+            },
+            "time_zone": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "title": "Time zone"
+            },
+            "hold": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "title": "Hold"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "said"
+          ],
+          "properties": {
+            "said": {
+              "type": "string"
+            },
+            "plan": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "presets": {
+              "type": "array"
+            },
+            "anchors": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "look-over-time"
+        },
+        "provenance": {
+          "source": "src/looks.mjs over_time over parts/screen-look/read-data/look-over-time.ts"
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.said",
+            "text": "plan"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::send-edit-to-editor",
+      "address": "package::trillion::tool::send-edit-to-editor",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:send-edit-to-editor",
+        "listed_on": "2026-09-30T06:52:07Z",
+        "label": "Send an edit to Filmcraft",
+        "job": "Prepare a saved video edit as a Filmcraft project using mounted Namespace sources on the person’s computer",
+        "description": "Runs Filmcraft through the existing installed-app tool, with Namespace sources admitted in place and one editor session. Returns the job state; only a completed job with a saved project returns file. Advanced compositions that cannot yet be preserved are refused without changing the saved edit. This does not export XML or download source videos.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "edit"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "edit": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The edit: its id, or the name of its saved file such as /edits/<id>.json"
+            },
+            "editor": {
+              "type": "string",
+              "enum": [
+                "filmcraft"
+              ],
+              "default": "filmcraft",
+              "description": "Filmcraft is the video editor used by this handoff."
+            },
+            "frame_rate": {
+              "type": "number",
+              "description": "The timeline's frames a second (23.976, 24, 25, 29.97, 30, 50, 59.94 or 60); 30 when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "edit",
+            "task_id",
+            "state",
+            "open_steps",
+            "left_out"
+          ],
+          "properties": {
+            "edit": {
+              "type": "string"
+            },
+            "editor": {
+              "type": "string"
+            },
+            "file": {
+              "type": "object",
+              "required": [
+                "identity",
+                "name"
+              ],
+              "properties": {
+                "identity": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "bytes": {
+                  "type": "integer"
+                }
+              }
+            },
+            "open_steps": {
+              "type": "string"
+            },
+            "clips": {
+              "type": "integer"
+            },
+            "seconds": {
+              "type": "number"
+            },
+            "left_out": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "said": {
+              "type": "string"
+            },
+            "task_id": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "send-edit-to-editor"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": false
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.editor",
+            "text": "Filmcraft"
+          }
+        ],
+        "screen": {
+          "group": "content-make",
+          "kind": "described",
+          "icon": "Send",
+          "label": "Send to editor",
+          "about": "Prepares an editable Filmcraft project using your Namespace files.",
+          "inputs": {
+            "edit": {
+              "label": "Edit",
+              "placeholder": "The edit from Media"
+            },
+            "editor": {
+              "label": "Editor",
+              "choices": [
+                {
+                  "value": "filmcraft",
+                  "label": "Filmcraft"
+                }
+              ]
+            },
+            "frame_rate": {
+              "label": "Frames a second",
+              "placeholder": "30 when empty"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::attach-finished-video",
+      "address": "package::trillion::tool::attach-finished-video",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:attach-finished-video",
+        "listed_on": "2026-09-30T06:52:07Z",
+        "label": "Attach the finished video to an edit",
+        "job": "Attach a video exported from Premiere Pro, DaVinci Resolve or another editor to the saved edit it was made from, as that edit's finished version",
+        "description": "Marks a video already in the person's Files (by its name or identity) as the finished version of a saved edit, so the edit opens with it and every AI knows which file is the finished one.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "edit",
+            "file"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "edit": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The edit: its id, or the name of its saved file such as /edits/<id>.json"
+            },
+            "file": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The finished video: its name in Files (starting with /) or its identity"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "edit",
+            "finished"
+          ],
+          "properties": {
+            "edit": {
+              "type": "string"
+            },
+            "finished": {
+              "type": "object",
+              "required": [
+                "identity",
+                "attached_at"
+              ],
+              "properties": {
+                "identity": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "media_type": {
+                  "type": "string"
+                },
+                "byte_length": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "attached_at": {
+                  "type": "string"
+                }
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "attach-finished-video"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.finished.media_type",
+            "text": "video/"
+          }
+        ],
+        "screen": {
+          "group": "content-make",
+          "kind": "described",
+          "icon": "Film",
+          "label": "Attach finished video",
+          "about": "Puts the video you exported back with its edit.",
+          "inputs": {
+            "edit": {
+              "label": "Edit",
+              "placeholder": "The edit from Media"
+            },
+            "file": {
+              "label": "Finished video",
+              "file": {
+                "takes": "video"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::tell-the-person",
+      "address": "package::trillion::tool::tell-the-person",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "id": "tool:tell-the-person",
+        "listed_on": "2026-09-30T06:55:57Z",
+        "label": "Tell you something",
+        "job": "Tell this person something, through every way they chose to be told for that kind of news: in Trillion, on their computer, by email, through their AIs, or through a messaging account they connected",
+        "description": "Give title (what to tell them, in a few words), and optionally body (a sentence or two, or a list of names), kind (the kind of news, one of the kinds on their Notification settings screen, like needs-you, video-made or work-finished; any other kind is told as update), about (the thing it is about, { kind, id } like { \"kind\": \"decision\", \"id\": \"<case_id>\" }, so a tap on the notice on any device opens that thing itself), open (an address in Trillion starting with /, when about cannot name it), refs (ids the kind's address uses, like { \"file\": \"1f:...\" }) and key (the same key again tells them nothing twice). It reaches only this person, through each channel that kind goes through that they have on and that can send. Returns told (true when at least one channel took it), channels (what each channel did, in words) and said.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "title"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "What to tell them, in a few words"
+            },
+            "body": {
+              "type": [
+                "string",
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              },
+              "description": "A sentence or two more, or a list of names shown joined"
+            },
+            "kind": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The kind of news, which decides the ways they are told"
+            },
+            "refs": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "description": "Ids the kind's address is made from, like { \"file\": \"1f:...\" }"
+            },
+            "about": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "id"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "description": "The kind of thing, like decision, file, handoff, space, list, pursuit or workflow"
+                },
+                "id": {
+                  "type": "string",
+                  "description": "Its id, like the decision's case_id or the handoff_id"
+                }
+              },
+              "description": "The thing this is about, so a tap on the notice anywhere opens it: { kind, id }"
+            },
+            "open": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Where a tap opens, an address in Trillion starting with /, when about does not say"
+            },
+            "key": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Tells them once per key"
+            },
+            "chips": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "maxItems": 6,
+              "items": {
+                "type": "object",
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "A few words, like 12 of 40 files"
+                  },
+                  "tone": {
+                    "type": "string",
+                    "description": "A look tone, like attention, success or danger"
+                  }
+                }
+              },
+              "description": "Short facts the card is drawn with instead of a sentence, each { text, tone? }, at most 6"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "told",
+            "channels",
+            "said"
+          ],
+          "properties": {
+            "told": {
+              "type": "boolean"
+            },
+            "channels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "channel",
+                  "sent"
+                ],
+                "properties": {
+                  "channel": {
+                    "type": "string"
+                  },
+                  "sent": {
+                    "type": "boolean"
+                  },
+                  "said": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "tell-the-person"
+        },
+        "provenance": {
+          "source": "src/tell-the-person.mjs with the channel and kind rows in records/tell-the-person.json"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "title": "This is a test from Trillion",
+              "key": "sample:tell-the-person"
+            },
+            "output_selector": "$.said",
+            "contains": "."
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::my-notices",
+      "address": "package::trillion::tool::my-notices",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:my-notices",
+        "listed_on": "2026-10-11T07:50:00Z",
+        "label": "What I was told, where it reached me and where I saw it",
+        "job": "List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on",
+        "description": "Optional limit (up to 100, default 20) and kind (only notices of that kind, such as take-me-there). Returns notices, each { id, kind, title, at, open, read, read_on: { channel, device_id, at } when the person saw it, told: { channel: sent | a stage | not-sent }, why: { channel: what its sender said } for each way that did not carry it }, and said, the count and how many were seen, in words. It reads every notice Trillion keeps, whichever ways it went, and kind is applied before the newest are taken, so one kind is found however many of another came after it (src/tell-the-person.mjs told); an AI reads where the person saw something instead of guessing. It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "kind": {
+              "type": "string",
+              "description": "Only notices of this kind, such as take-me-there"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "notices",
+            "said"
+          ],
+          "properties": {
+            "notices": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "kind",
+                  "read",
+                  "told"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "open": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "read": {
+                    "type": "boolean"
+                  },
+                  "read_on": {
+                    "type": "object"
+                  },
+                  "why": {
+                    "type": "object"
+                  },
+                  "told": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "my-notices"
+        },
+        "provenance": {
+          "source": "src/tell-the-person.mjs recent(), the notices the open Trillion page shows, with read_on and told"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "limit": 1
+            },
+            "output_selector": "$.said",
+            "contains": "notice"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::report-progress",
+      "address": "package::trillion::tool::report-progress",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": true
+        },
+        "id": "tool:report-progress",
+        "listed_on": "2026-10-02T08:03:32Z",
+        "label": "Show work still going on",
+        "job": "Show this person how far along some long work is (a copy, an upload, a render, a transcription, an AI's own job) as one live card in Trillion that moves as you report again, and tell them once when it ends",
+        "description": "Give key (the same key each time you report the same work, so one card changes in place), title (what the work is, in a few words), and optionally state (running until you say done or failed), progress ({ done, total, unit? } counts, where unit bytes is shown as sizes, or { label } words only), body (a line under the title), source (where it runs, like a computer's name or a tool's label), kind (the kind of work, which picks its look and how its end is told, like transfer, transcription, export or working), chips (at most 6 short facts { text, tone? } drawn as a row under the title, like 12 of 40 files or 3 heard), refs (ids the kind's address uses) and open (an address in Trillion starting with /, which Open goes to). While it runs it is shown only in Trillion; when state is done or failed the person is told once through every way that kind goes. A card not reported again for some minutes reads as stopped. Returns reported, id, state and said.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "key",
+            "title"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "key": {
+              "type": "string",
+              "description": "Names this work; report again with the same key to move the same card"
+            },
+            "title": {
+              "type": "string",
+              "description": "What the work is, in a few words"
+            },
+            "state": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "running",
+                "done",
+                "failed",
+                null
+              ],
+              "description": "running (the default), done or failed"
+            },
+            "progress": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "done": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "total": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              },
+              "description": "How far along: done of total in unit, or label words"
+            },
+            "body": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "A line under the title"
+            },
+            "source": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Where it runs"
+            },
+            "kind": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The kind of work"
+            },
+            "refs": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "description": "Ids the kind's address is made from"
+            },
+            "about": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "id"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "description": "The kind of thing, like decision, file, handoff, space, list, pursuit or workflow"
+                },
+                "id": {
+                  "type": "string",
+                  "description": "Its id, like the decision's case_id or the handoff_id"
+                }
+              },
+              "description": "The thing this is about, so a tap on the notice anywhere opens it: { kind, id }"
+            },
+            "open": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "An address in Trillion, starting with /"
+            },
+            "chips": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "maxItems": 6,
+              "items": {
+                "type": "object",
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "A few words, like 12 of 40 files"
+                  },
+                  "tone": {
+                    "type": "string",
+                    "description": "A look tone, like attention, success or danger"
+                  }
+                }
+              },
+              "description": "Short facts the card is drawn with instead of a sentence, each { text, tone? }, at most 6"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "reported",
+            "said"
+          ],
+          "properties": {
+            "reported": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "report-progress"
+        },
+        "provenance": {
+          "source": "src/tell-the-person.mjs report, with the kinds in records/tell-the-person.json"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "key": "sample:report-progress",
+              "title": "Checking that progress shows",
+              "state": "done",
+              "progress": {
+                "done": 1,
+                "total": 1
+              }
+            },
+            "output_selector": "$.said",
+            "contains": "."
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::share-into-a-space",
+      "address": "package::trillion::tool::share-into-a-space",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:share-into-a-space",
+        "listed_on": "2026-09-30T12:54:34Z",
+        "label": "Share one record into a pursuit",
+        "job": "Share one of this person's records (a decision, pursuit or message) into a pursuit they are in, or update the copy already there",
+        "description": "Takes space_id (a space this person is in) and record_id (a decision case_id, pursuit id or message id of theirs). Copies only the fields that record kind shares into the space, or brings the copy there up to date, and keeps that the record is shared there. A rule runs it for each decision a program client works on, so the host sees it in their space together.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "space_id",
+            "record_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "space_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "record_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "space_id",
+            "record_id",
+            "item_id"
+          ],
+          "properties": {
+            "space_id": {
+              "type": "string"
+            },
+            "record_id": {
+              "type": "string"
+            },
+            "item_id": {
+              "type": "string"
+            },
+            "updated": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "share-into-a-space"
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.record_id",
+            "input_field": "record_id"
+          }
+        ],
+        "provenance": {
+          "source": "src/client-program.mjs with the program rows in src/client-program.json"
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::read-client-feed",
+      "address": "package::trillion::tool::read-client-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:read-client-feed",
+        "listed_on": "2026-09-30T12:54:34Z",
+        "label": "Read your clients' applications and decisions",
+        "job": "Read the applications to a program this person hosts, and every decision their clients shared with them, newest first",
+        "description": "Optional program (a program id; the first program this person hosts when left out). Returns applications (each with applicant_ref, answers, applied_at and state: applied or accepted), clients (name and space_id), decisions (each with client, space_id and the shared item: title, body with what was asked and what was decided, provenance.added_at) and said, the counts in words. Accept an application with tool:accept-program-application.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "program": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "applications",
+            "clients",
+            "decisions",
+            "said"
+          ],
+          "properties": {
+            "applications": {
+              "type": "array"
+            },
+            "clients": {
+              "type": "array"
+            },
+            "decisions": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "read-client-feed"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "applications"
+          }
+        ],
+        "provenance": {
+          "source": "src/client-program.mjs with the program rows in src/client-program.json"
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::accept-program-application",
+      "address": "package::trillion::tool::accept-program-application",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:accept-program-application",
+        "listed_on": "2026-09-30T12:54:34Z",
+        "label": "Accept an application to your program",
+        "job": "Accept one application to a program this person hosts, so the applicant can pay and start",
+        "description": "Takes program (a program id) and applicant (the applicant_ref from tool:read-client-feed). The applicant is told they are accepted and can start the program from their application page; the notice about the application is settled. Accepting again changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "program",
+            "applicant"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "program": {
+              "type": "string",
+              "minLength": 1
+            },
+            "applicant": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "accepted",
+            "said"
+          ],
+          "properties": {
+            "accepted": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "accept-program-application"
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.accepted",
+            "input_field": "applicant"
+          }
+        ],
+        "provenance": {
+          "source": "src/client-program.mjs with the program rows in src/client-program.json"
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::use-my-own-sign-in-app",
+      "address": "package::trillion::tool::use-my-own-sign-in-app",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:use-my-own-sign-in-app",
+        "listed_on": "2026-10-02T17:23:49Z",
+        "label": "Use my own sign-in app",
+        "job": "Use this person's own OAuth sign-in app (its client id and secret) when they connect a service by signing in, instead of Trillion's shared one, or stop using it",
+        "description": "service is the service as connect_service names it (its id or name). client_id and client_secret come from the sign-in app the person made on that service's developer page; the secret is sealed in this account's locked box and never shown again, and the id is kept readable because every sign-in link carries it. From then on this account's sign-in links and token requests for that service use this app; everyone else keeps Trillion's shared one. remove: true stops using it and goes back to the shared app where the service has one. A connector this account saved itself for a service Trillion does not ship signs in only with an app added here. Connect the service again afterwards so its sign-in uses the app.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "service"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "service": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The service, as connect_service names it"
+            },
+            "client_id": {
+              "type": "string",
+              "description": "Your sign-in app's client id"
+            },
+            "client_secret": {
+              "type": "string",
+              "writeOnly": true,
+              "description": "Your sign-in app's client secret; left out only when the service's sign-in sends none"
+            },
+            "remove": {
+              "type": "boolean",
+              "description": "true stops using your own app"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "service",
+            "own_sign_in_app"
+          ],
+          "properties": {
+            "service": {
+              "type": "string"
+            },
+            "own_sign_in_app": {
+              "type": "boolean"
+            },
+            "client_id": {
+              "type": "string"
+            },
+            "uses": {
+              "type": "string"
+            },
+            "next": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "keep-own-sign-in-app"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.service",
+            "input_field": "service"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::keep-the-services-sign-in-apps",
+      "address": "package::trillion::tool::keep-the-services-sign-in-apps",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-the-services-sign-in-apps",
+        "listed_on": "2026-10-07T06:00:00Z",
+        "label": "Keep the service's sign-in apps",
+        "job": "Keep, replace or remove the service's own shared sign-in apps (each app's client id and secret, and the secret a sender signs its deliveries with) in the operator account's locked box, the same values the operator's Connections screen takes, and say which are held",
+        "description": "Only the service's operator account can run it. values maps each name the service holds (held lists them all, like a sign-in app's client id and client secret) to the value copied from that service's developer page; every value is sealed in the operator's locked box and never shown again, and an app's id is also kept readable because every sign-in link carries it. Everyone who connects that service by signing in then uses this app. remove lists names to take out. With neither, it only says which names are held (true or false, never a value). Never put a value anywhere else: read it from where it is kept straight into this tool's input.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "values": {
+              "type": "object",
+              "writeOnly": true,
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Each held name to its value, like { \"<app>-client-id\": \"...\", \"<app>-client-secret\": \"...\" }"
+            },
+            "remove": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Held names to take out of the box"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "held",
+            "said"
+          ],
+          "properties": {
+            "saved": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "removed": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "held": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "boolean"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "keep-service-values"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.said",
+            "text": "held"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::keep-things-running",
+      "address": "package::trillion::tool::keep-things-running",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-things-running",
+        "label": "Keep things running",
+        "job": "See what this account keeps running by itself (schedules, timed work, workflow runs) and what stopped, and get stopped things going again",
+        "description": "Without sweep it only reads: how many things this account keeps running, when they were last checked, and each one that stopped with how many times it was started again and whether an AI was handed it. sweep: true acts now, as the hourly check does: a stopped thing is started again once; if it stops again it is handed to whichever of the person's AIs takes it first and the person is told, once per stop. Trillion runs this check by itself every hour for every account that keeps anything running.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sweep": {
+              "type": "boolean",
+              "description": "true acts on what stopped now; left out it only reads"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "said"
+          ],
+          "properties": {
+            "said": {
+              "type": "string"
+            },
+            "watching": {
+              "type": "number"
+            },
+            "last_swept_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "stopped": {},
+            "restarted": {
+              "type": "array"
+            },
+            "handed_off": {
+              "type": "array"
+            },
+            "still_stopped": {
+              "type": "array"
+            },
+            "moving_again": {
+              "type": "array"
+            },
+            "problems": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "keep-things-running"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "running"
+          }
+        ],
+        "listed_on": "2026-10-03T06:10:29Z"
+      }
+    },
+    {
+      "id": "package::trillion::tool::check-everything-still-works",
+      "address": "package::trillion::tool::check-everything-still-works",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-everything-still-works",
+        "label": "Check everything still works",
+        "job": "Check that everything that ever worked in this account still works, from what really arrives to what really comes out, and see each capability's state and when it last worked",
+        "description": "Each check is a row of the list Everything still working (/lists/everything-still-working): a probe (one of Trillion's own tools, asked the way an AI asks it), the facts read from its answer, when it applies and what working looks like (formula-engine rule trees). Without input it runs the checks that are due and returns every check's state; check_id runs that one now; all: true runs every one now; add_starters: true keeps the starter checks this account has none of; add keeps the checks given ({ check, label, owner, every_hours, shipped_in, probe: { tool, input }, facts: [{ id, kind, path, read: value | count | hours_since }], in_use, expect }), replacing a check of the same id. A check failing twice in a row is handed to whichever of the person's AIs takes it first with what it saw, and the person is told once. Trillion runs the due checks by itself.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "check_id": {
+              "type": "string",
+              "description": "Run this one check now"
+            },
+            "all": {
+              "type": "boolean",
+              "description": "true runs every check now"
+            },
+            "add_starters": {
+              "type": "boolean",
+              "description": "true keeps the starter checks this account has none of"
+            },
+            "add": {
+              "type": "array",
+              "maxItems": 50,
+              "items": {
+                "type": "object"
+              },
+              "description": "Checks to keep, each { check, label, owner, every_hours, shipped_in, probe: { tool, input }, facts, in_use, expect }"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "said",
+            "checks"
+          ],
+          "properties": {
+            "said": {
+              "type": "string"
+            },
+            "list_id": {
+              "type": "string"
+            },
+            "checks": {
+              "type": "array"
+            },
+            "added": {
+              "type": "array"
+            },
+            "checked": {
+              "type": "array"
+            },
+            "newly_stopped": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "check-everything-still-works"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "checks"
+          }
+        ],
+        "listed_on": "2026-10-06T01:00:00Z"
+      }
+    },
+    {
+      "id": "package::trillion::tool::open-a-layout",
+      "address": "package::trillion::tool::open-a-layout",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:open-a-layout",
+        "listed_on": "2026-10-03T23:40:00Z",
+        "label": "Open a layout on the person's screen",
+        "job": "Change what this person's Trillion page shows to one of their layouts, now, at a time of day, or when something happens",
+        "description": "Give layout_id (from read_layouts). Their open Trillion page switches to that layout, and the arrangement it replaces is kept as Previous layout. A schedule runs it as { \"tool_id\": \"tool:open-a-layout\", \"input\": { \"layout_id\": \"...\" } } to show one layout in the morning and another in the evening; a rule runs it the same way when something happens. A layout this person does not have opens nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "layout_id"
+          ],
+          "properties": {
+            "layout_id": {
+              "type": "string",
+              "description": "The layout to open, from read_layouts"
+            },
+            "by": {
+              "type": "string",
+              "description": "Who asked, as the person knows them"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "said"
+          ],
+          "properties": {
+            "opened": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "open-a-layout"
+        },
+        "provenance": {
+          "source": "src/layouts.mjs open, the same function open_layout calls"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "layout_id": "layout:sample-check"
+            },
+            "output_selector": "$.said",
+            "contains": "opens now"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::show-a-tour",
+      "address": "package::trillion::tool::show-a-tour",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:show-a-tour",
+        "listed_on": "2026-10-06T15:45:00Z",
+        "label": "Show a tour on the person's screen",
+        "job": "Start a guided tour on this person's Trillion page, or the next one waiting (What's new), now, on their own schedule, or when something happens",
+        "description": "Give tour_id (from read_tours) for one tour, or next: true for the next tour waiting to show by itself, the one opening Trillion would start. It starts on their open Trillion page, as show_tour does. A schedule runs it as { \"tool_id\": \"tool:show-a-tour\", \"input\": { \"next\": true } } so What's new shows only at the time they chose (with a show rule holding tours started by themselves); a rule or workflow runs it the same way when something happens. Their show rules still decide: a tour they hold (subject tour, started_by asked) waits.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "tour_id": {
+              "type": "string",
+              "description": "One tour, from read_tours"
+            },
+            "next": {
+              "type": "boolean",
+              "description": "true: the next tour waiting to show by itself"
+            },
+            "by": {
+              "type": "string",
+              "description": "Who asked, as the person knows them"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "said"
+          ],
+          "properties": {
+            "shown": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "show-a-tour"
+        },
+        "provenance": {
+          "source": "src/tours.mjs show, the same function show_tour calls"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "next": true
+            },
+            "output_selector": "$.said",
+            "contains": "starts now"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::take-me-there",
+      "address": "package::trillion::tool::take-me-there",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:take-me-there",
+        "listed_on": "2026-10-04T20:30:00Z",
+        "label": "Take the person to the thing that needs them",
+        "job": "Instead of telling the person what to do, open the exact thing that needs them (a drafted post to approve, stuck work, a decision to answer) as the main pane, start a walkthrough pointing at its own control, and tell them with a link that opens the same on any device",
+        "description": "Give thing: the id of one card from tool:what-is-waiting-on-me (make the thing first, such as draft_post for a post to approve). Their open Trillion page opens on that exact thing as the main pane, with beside (an arrangement as save_layout takes it) next to it when given, and a walkthrough starts pointing at the thing's own control (its Approve, its answer); steps (as save_tour takes them) replace the one step, and a step without target_ref points at that control. say { title, body } tells them, with a link (/?layout=<id>&tour=<id>) that opens both on whichever device they pick it up on. A thing not waiting on them now (not made yet, already done) or one that opens outside Trillion is refused with taken false and nothing opened, so a walkthrough never points at an empty screen. A walkthrough their own show rules hold (a quiet time) waits until the rules let it show. A schedule or rule runs it as { \"tool_id\": \"tool:take-me-there\", \"input\": { ... } }; workflow:lead-me-to-it makes the thing first.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "thing"
+          ],
+          "properties": {
+            "thing": {
+              "type": "string",
+              "description": "One card's id from tool:what-is-waiting-on-me, such as posts:<post_id>"
+            },
+            "beside": {
+              "type": "object",
+              "description": "What goes beside the thing: a pane or split as save_layout's arrangement takes it"
+            },
+            "name": {
+              "type": "string",
+              "description": "What the arrangement is called in their Layouts menu; the thing's title when left out",
+              "x-free-text-because": "What the arrangement this run makes is called in the Layouts menu: the name of the new arrangement itself."
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Walkthrough steps as save_tour takes them; a step without target_ref points at the thing's own control"
+            },
+            "say": {
+              "type": "object",
+              "description": "What to tell them: { title, body? }; the notice carries the link that opens it",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string"
+                }
+              }
+            },
+            "category": {
+              "type": "string",
+              "description": "Where the arrangement and walkthrough are kept in their menus"
+            },
+            "key": {
+              "type": "string",
+              "description": "The same key never tells them twice"
+            },
+            "by": {
+              "type": "string",
+              "description": "Who asked, as the person knows them"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "taken",
+            "said"
+          ],
+          "properties": {
+            "taken": {
+              "type": "boolean"
+            },
+            "layout_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "tour_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "open": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "told": {
+              "type": "boolean"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "take-me-there"
+        },
+        "provenance": {
+          "source": "src/take-me-there.mjs, composing src/waiting-on-you.json (what waits), src/workspace/addresses.mjs (the screen an address opens), src/layouts.mjs, src/tours.mjs and src/tell-the-person.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "thing": "posts:post-sample-check"
+            },
+            "output_selector": "$.said",
+            "contains": "not waiting on them"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::name-a-voice",
+      "address": "package::trillion::tool::name-a-voice",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "id": "tool:name-a-voice",
+        "listed_on": "2026-10-05T16:00:00Z",
+        "label": "Name a voice",
+        "job": "Name someone a computer heard but did not know (a speaker kept as \"Someone (voice-3)\" or \"Unsure (Sam?)\"): everything they said reads under their name, and the person record their requests were kept under is filed under it",
+        "description": "Give app and speaker. To name, give name. To correct or remove a name already assigned, also give expected_name as the exact current name; remove true restores the original speaker label and removes the generated voice link. Corrections/removal target only the exact since/until listening window and refuse stale names. A label like voice-1 is a different voice in each session. Optional same_as links the voice to a row the person already keeps. evidence records why the change was made.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "app",
+            "speaker"
+          ],
+          "properties": {
+            "app": {
+              "type": "string",
+              "description": "Where they were heard, like Listening"
+            },
+            "speaker": {
+              "type": "string",
+              "description": "The label their words are kept under now, like Someone (voice-3)",
+              "x-free-text-because": "The label the words are kept under now (Someone (voice-3)), copied from the waiting card; it is the unnamed speaker, not a person to pick."
+            },
+            "name": {
+              "type": "string",
+              "description": "Who they are",
+              "x-record": {
+                "from": {
+                  "row_types": [
+                    "person",
+                    "crm",
+                    "customer",
+                    "contact"
+                  ]
+                },
+                "new": {
+                  "list": "people",
+                  "label": "person",
+                  "list_label": "People",
+                  "title_field": "name"
+                },
+                "fills": {
+                  "same_as": "id",
+                  "same_as_list": "list_id"
+                }
+              }
+            },
+            "evidence": {
+              "type": "string",
+              "description": "How it is known who they are"
+            },
+            "since": {
+              "type": "string",
+              "description": "Start of the listening session the voice was heard in (the card's); with until"
+            },
+            "until": {
+              "type": "string",
+              "description": "End of that listening session"
+            },
+            "same_as": {
+              "type": "string",
+              "description": "The id of a row from the person's lists this voice is (with same_as_list)"
+            },
+            "same_as_list": {
+              "type": "string",
+              "description": "The list that row is in"
+            },
+            "expected_name": {
+              "type": "string",
+              "description": "When correcting a name already assigned to this exact listening session, the name currently shown. The correction is refused if the voice has changed since it was shown.",
+              "x-free-text-because": "It is the exact name text the person saw on screen, compared as a precondition so a correction is refused if the voice changed since; it picks nothing."
+            },
+            "remove": {
+              "type": "boolean",
+              "description": "Restore the original speaker label and remove its generated reverse link; requires expected_name."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "said"
+          ],
+          "properties": {
+            "named": {
+              "type": "number"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "name-a-voice"
+        },
+        "provenance": {
+          "source": "src/messages.mjs nameSpeakerInSession and src/inbound.mjs nameHeardSpeaker"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "app": "Listening",
+              "speaker": "Someone (voice-sample)",
+              "name": "Sample",
+              "evidence": "sample run"
+            },
+            "output_selector": "$.said",
+            "contains": "Nothing"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::add-to-a-space",
+      "address": "package::trillion::tool::add-to-a-space",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "id": "tool:add-to-a-space",
+        "listed_on": "2026-10-04T06:34:34Z",
+        "label": "Add something to a pursuit",
+        "job": "Add one thing (a message, a note, mail that arrived, anything) to a pursuit this person is in, kept once however often it arrives, as a reply when it answers something already there",
+        "description": "Takes space_id, kind (message when left out), title, text (or a list of texts: the first with words is kept), body (any other fields it carries), source_ref (where it came from, or a list: the first given; the same source_ref again adds nothing), reply_to (the item_id of the item in the pursuit it answers), reply_to_source (where the thing it answers came from: refs separated by spaces, or a list; used when reply_to is left out) and app (what it came through). A rule runs it for each event from outside, such as mail arriving.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "space_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "space_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "maxItems": 10
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "text": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "maxItems": 10
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "body": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "source_ref": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "maxItems": 10
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reply_to": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The item_id of the item in this pursuit that this one answers"
+            },
+            "reply_to_source": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "maxItems": 10
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "app": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "space_id",
+            "item_id",
+            "added"
+          ],
+          "properties": {
+            "space_id": {
+              "type": "string"
+            },
+            "item_id": {
+              "type": "string"
+            },
+            "added": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "add-to-a-space"
+        },
+        "controls": {
+          "about": "Writing a reply in a pursuit's conversation, seen beside what it answers before it is sent.",
+          "subject": [
+            "space_id",
+            "reply_to"
+          ],
+          "preview": {
+            "kind": "thread",
+            "space": "space_id",
+            "reply_to": "reply_to",
+            "words": "text"
+          },
+          "suggested": [
+            "text"
+          ],
+          "settings": [
+            {
+              "input": "text",
+              "label": "Your reply",
+              "widget": "words"
+            }
+          ],
+          "commit": {
+            "label": "Send",
+            "busy_label": "Sending",
+            "done_label": "Sent"
+          }
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.space_id",
+            "input_field": "space_id"
+          }
+        ],
+        "provenance": {
+          "source": "src/pursuit-mail.mjs with its rows in src/pursuit-mail.json"
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::fill-a-list-from-a-feed",
+      "address": "package::trillion::tool::fill-a-list-from-a-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "id": "tool:fill-a-list-from-a-feed",
+        "listed_on": "2026-10-04T16:00:00Z",
+        "label": "Fill a list from a feed",
+        "job": "Keep one of my lists, or one of the shared libraries, filled from a feed: every item at a web address that answers RSS, Atom or JSON becomes a row or an entry, with its pictures and videos kept in my files",
+        "description": "Takes list_id, feed (an https address answering RSS, Atom or JSON), items (where the items are in JSON, $.rows when left out; an RSS or Atom feed is read into rows with id, title, link, published and summary), key (each item's identity, $.id when left out), values ({ field id: selector }, which item field fills which list field) and files_into (the folder pictures are kept in). Items already in the list are left as they are, so an edit is never overwritten, unless update_existing is true: then the fields the feed fills are rewritten on rows where the feed now says something else. stamp (the id of a list field) is given the time of the run on every row written or confirmed. into ({ dataset: a shared library id }) sends the items to that shared library instead of a list, in batches, each entry with an id from its key, so an entry the feed repeats unchanged writes nothing; it returns the entries added, replaced, refused and not valid, with the reason for each. A picture or video an item names is kept in the person's files and its media field names it. A schedule runs it to keep the list current. Returns the rows added and updated and how many new items wait for the next run.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "feed",
+            "values"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "list_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "feed": {
+              "type": "string",
+              "pattern": "^https://"
+            },
+            "items": {
+              "type": "string",
+              "description": "A declared selector, like $.title or $.picture.src"
+            },
+            "key": {
+              "type": "string",
+              "description": "A declared selector, like $.title or $.picture.src"
+            },
+            "values": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string",
+                "description": "A declared selector, like $.title or $.picture.src"
+              },
+              "minProperties": 1
+            },
+            "files_into": {
+              "type": "string",
+              "pattern": "^/"
+            },
+            "most": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "How many new items to add this run (20 when left out); the rest wait for the next run"
+            },
+            "update_existing": {
+              "type": "boolean",
+              "description": "Rewrite the fields the feed fills on rows already there when the feed now says something else (false when left out: rows are left as they are)"
+            },
+            "fixed": {
+              "type": "object",
+              "description": "A value for each field that is the same on every row or entry, like the source the items come from or their licence: { \"licence\": \"MIT\" }. It is checked against the field like any other value"
+            },
+            "stamp_row": {
+              "type": "object",
+              "required": [
+                "list_id",
+                "row_id",
+                "field"
+              ],
+              "properties": {
+                "list_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The list that holds the row"
+                },
+                "row_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The row that gets the time"
+                },
+                "field": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The field of that list that holds the time"
+                }
+              },
+              "description": "After a successful read, writes the time of this run into one field of one row of a list, so the row shows when its feed was last read. One row is written per run"
+            },
+            "key_prefix": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Text put in front of every item's id, so ids from different feeds never meet: the prefix \"parts/ui/\" and the item id \"accordion\" give \"parts/ui/accordion\""
+            },
+            "stamp": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The id of a list field that is given the time of this run on every row written or confirmed"
+            },
+            "into": {
+              "type": "object",
+              "required": [
+                "dataset"
+              ],
+              "additionalProperties": false,
+              "description": "Fill a shared library instead of a list: send this and not list_id",
+              "properties": {
+                "dataset": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "added",
+            "waiting",
+            "read"
+          ],
+          "properties": {
+            "list_id": {
+              "type": "string"
+            },
+            "dataset": {
+              "type": "string"
+            },
+            "added": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "updated": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "replaced": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unchanged": {
+              "type": "integer"
+            },
+            "refused": {
+              "type": "array"
+            },
+            "invalid": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            },
+            "waiting": {
+              "type": "integer"
+            },
+            "read": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "fill-a-list-from-a-feed"
+        },
+        "verify": [
+          {
+            "kind": "output-number-within",
+            "output_selector": "$.read",
+            "at_least": 0
+          }
+        ],
+        "provenance": {
+          "source": "src/list-feed.mjs"
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::watch-sources",
+      "address": "package::trillion::tool::watch-sources",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "id": "tool:watch-sources",
+        "listed_on": "2026-10-07T12:00:00Z",
+        "label": "Watch my sources",
+        "job": "Watch the places I follow (any site's feed, a YouTube channel, a blog, a changelog, a page) and keep each new item as a row, weighed against what I am pursuing; only what moves a pursuit is handed to my AIs",
+        "description": "Reads each source marked Yes in the list sources_list_id (signal-sources when left out; made with its fields name, address, feed, kind, watching and the rest when missing) and keeps every item it has not kept before as a row in items_list_id (signals when left out). The first read of a source keeps what it lists as a baseline and brings nothing in; later reads keep what is new, ask your own AI once for all of them whether each moves a pursuit directly or carries an insight from elsewhere for a pursuit or a content format, and hand only those to your AIs. The rest are set aside. A page is watched by whether its words changed; an X account needs a feed address; a YouTube channel is read from its feed or, when YouTube refuses that, its videos page. A source that answers 'not changed' costs nothing. Reads at most 25 sources and weighs at most 20 items a run; the rest wait for the next. Sends nothing outward. Returns read (sources read), kept (rows added), moves ([{ title, link, pursuit }]), set_aside, waiting (new items not yet weighed), problems ([{ name, problem }]) and sources_waiting.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sources_list_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The list of places to watch (signal-sources when left out)"
+            },
+            "items_list_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The list the items are kept in (signals when left out)"
+            },
+            "most_per_source": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "How many of a source's newest items to look at each read (10 when left out)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "read",
+            "kept",
+            "moves",
+            "set_aside",
+            "waiting",
+            "problems"
+          ],
+          "properties": {
+            "read": {
+              "type": "integer"
+            },
+            "kept": {
+              "type": "integer"
+            },
+            "moves": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "link",
+                  "pursuit"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": "string"
+                  },
+                  "pursuit": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "set_aside": {
+              "type": "integer"
+            },
+            "waiting": {
+              "type": "integer"
+            },
+            "problems": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "problem"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "problem": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "sources_waiting": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "watch-sources"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.problems",
+            "contains": "[]"
+          }
+        ],
+        "provenance": {
+          "source": "trillion-workshop tools/watch-my-sources/read-data/watch-sources.mjs with its rows in tools/watch-my-sources/read-data/watch-sources.json"
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::connect-mail-to-a-space",
+      "address": "package::trillion::tool::connect-mail-to-a-space",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": true
+        },
+        "id": "tool:connect-mail-to-a-space",
+        "listed_on": "2026-10-04T06:34:34Z",
+        "label": "Connect business email to a pursuit",
+        "job": "Bring a business domain's email into a pursuit so the whole team reads, assigns and answers it together: mail to support@, info@ or any address arrives as messages there, and replies written there go out from that address",
+        "description": "Takes space_id, addresses (the addresses on the business's domain to bring in, like support@example.com; every address on every receiving domain when left out), send_as (the address replies go out from, optionally with a name: Support <support@example.com>) and provider (resend when left out). Uses the person's own connected mail service, never Trillion's: it checks the domains that service keeps and that receiving is on, starts reading new mail, and sets one rule that adds each arriving mail to the space and one that sends each message written there with a sending address.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "space_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "space_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "provider": {
+              "type": "string"
+            },
+            "addresses": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 3
+              },
+              "maxItems": 50
+            },
+            "send_as": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "space_id",
+            "addresses",
+            "said"
+          ],
+          "properties": {
+            "space_id": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "addresses": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "send_as": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "connect-mail-to-a-space"
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.space_id",
+            "input_field": "space_id"
+          }
+        ],
+        "provenance": {
+          "source": "src/pursuit-mail.mjs with its rows in src/pursuit-mail.json"
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::what-is-waiting-on-me",
+      "address": "package::trillion::tool::what-is-waiting-on-me",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "id": "tool:what-is-waiting-on-me",
+        "listed_on": "2026-10-04T12:00:00Z",
+        "label": "See what is waiting on you",
+        "job": "Show everything waiting on this person that only they can do: what their AIs asked them for (sign-ins, approvals, payments, clicks somewhere), accounts to sign in to again, AI work stuck until they help, posts to approve and decisions to say how they went, each with where to do it",
+        "description": "Returns sections (each { id, title, cards, action, on_home? }, a card being { id, source, title, detail, by, at, opens, address, action }), list (the person's own Waiting on you list, where an AI keeps what it could not do itself with put_list_rows on list_id waiting-on-you, one row per thing with a short id naming it and values what, why, where (an https address), asked_by, status (Waiting or Done) and added), and said, the whole of it in one sentence. Show it to the person in the chat at the start of a chat and after finishing work, each card as one line with its address. Rows and where each reads are DATA in src/waiting-on-you.json.",
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "sections",
+            "said"
+          ],
+          "properties": {
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "title",
+                  "cards"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "action": {
+                    "type": "string"
+                  },
+                  "cards": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "source"
+                      ]
+                    }
+                  },
+                  "failed": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "list": {
+              "type": "object"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "waiting-on-you"
+        },
+        "provenance": {
+          "source": "src/card-sections.mjs reading src/waiting-on-you.json in the person's store (src/person-store.mjs waitingOnYou)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "waiting on you"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::keep-a-board",
+      "address": "package::trillion::tool::keep-a-board",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-a-board",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "listed_on": "2026-10-04T21:00:00Z",
+        "label": "Keep a board for anything",
+        "job": "Keep one board for a feature, decision, pursuit or any subject: what inspired it, what was built and a picture of each version, in sections, readable as a page",
+        "description": "Give subject (a record id, or any words that stay the same) and items, each { section, title?, and one of text, url (with picture?) or file (a file identity from your files), key? }. The subject's board is its own space (a pursuit with a space keeps its board there); each thing lands once, in its section's row on the board and under its section's heading when the space is read as a list. Or give feed { url, items?, key?, section?, values: { title?, text?, url?, picture?, subject?, subject_title?, section? } }: each new item of any JSON feed goes on the board of the subject it names, its picture kept in your files. A rule or schedule runs it by tool id, so boards keep themselves.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "subject": {
+              "type": "string",
+              "description": "What the board is for: a record id (a decision's case id, a pursuit id) or any words that stay the same"
+            },
+            "title": {
+              "type": "string",
+              "description": "The board's name, the first time it is made"
+            },
+            "items": {
+              "type": "array",
+              "maxItems": 100,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "section": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "picture": {
+                    "type": "string",
+                    "description": "An https picture shown on a link's card"
+                  },
+                  "file": {
+                    "type": "string",
+                    "description": "A file identity (1f: then 64 hex) from your files"
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "What makes this thing the same thing next time"
+                  }
+                }
+              }
+            },
+            "feed": {
+              "type": "object",
+              "description": "A JSON feed whose items go on boards",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "string",
+                  "description": "Selector to the items, like $.rows"
+                },
+                "key": {
+                  "type": "string",
+                  "description": "Selector to each item's identity, like $.id"
+                },
+                "section": {
+                  "type": "string"
+                },
+                "values": {
+                  "type": "object",
+                  "description": "Selectors for title, text, url, picture, subject, subject_title, section"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "said"
+          ],
+          "properties": {
+            "space_id": {
+              "type": "string"
+            },
+            "made": {
+              "type": "boolean"
+            },
+            "added": {
+              "type": "integer"
+            },
+            "already_there": {
+              "type": "integer"
+            },
+            "boards": {
+              "type": "array"
+            },
+            "waiting": {
+              "type": "integer"
+            },
+            "read": {
+              "type": "integer"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "keep-a-board"
+        },
+        "provenance": {
+          "source": "src/subject-boards.mjs; board rows in parts/group/show/board-screen.tsx; default in records/starting-rules.json"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "subject": "sample:board",
+              "title": "A sample board",
+              "items": [
+                {
+                  "section": "Notes",
+                  "text": "A first note."
+                }
+              ]
+            },
+            "output_selector": "$.said",
+            "contains": "board"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::hold-on-what-needs-me",
+      "address": "package::trillion::tool::hold-on-what-needs-me",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "id": "tool:hold-on-what-needs-me",
+        "listed_on": "2026-10-06T21:00:00Z",
+        "label": "Hold every Trillion page on the one thing that needs the person",
+        "job": "See or change the hold: while something truly needs the person, every Trillion page they open (web, Mac app, menu bar, iPhone) shows only that one thing until it is done or set aside with a reason; choose in advance what turning it off costs, ask it off, or turn it on",
+        "description": "op read (the default) answers whether the hold is on, the one thing it holds (held.key, held.card), how many set-asides are left today and the stakes. op aside with key (held.key), title and reason sets the held thing aside for a while; the reason must be words, and it is handed to the AIs to do the thing instead or cut it to one small step. op stake with stake (a stake id) and values (the fields it asks for) chooses what turning the hold off costs; a new stake counts only after the one in force has run its delay. op off asks it off: it turns off only after the stake's delay and comes back by itself a day later, and a stake that tells someone or gives money is handed to the AIs to carry out. op on turns it on at once. The hold is on the person, never on an AI: an AI keeps doing all of its own work while a thing is held, up to the one step only the person can do. Every way out of the hold and its counter is DATA in src/escape-chain.json.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "read",
+                "aside",
+                "stake",
+                "off",
+                "on"
+              ]
+            },
+            "key": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "stake": {
+              "type": "string"
+            },
+            "values": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "on",
+            "said"
+          ],
+          "properties": {
+            "said": {
+              "type": "string",
+              "title": "In words"
+            },
+            "on": {
+              "type": "boolean",
+              "title": "Holding pages"
+            },
+            "held": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "title": "What it holds"
+            },
+            "finishes": {
+              "type": "array",
+              "title": "What finishes it",
+              "items": {
+                "type": "object",
+                "required": [
+                  "choice"
+                ],
+                "properties": {
+                  "choice": {
+                    "type": "string",
+                    "title": "Way it finishes"
+                  },
+                  "press": {
+                    "type": "string",
+                    "title": "Press"
+                  },
+                  "said": {
+                    "type": "string",
+                    "title": "Said after"
+                  }
+                }
+              }
+            },
+            "asides_left": {
+              "type": "number",
+              "title": "Set-asides left today"
+            },
+            "every_seconds": {
+              "type": "number",
+              "title": "Checks again every (seconds)"
+            },
+            "stakes": {
+              "type": "array",
+              "title": "What turning it off costs",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "title": "Cost"
+                  },
+                  "delay_minutes": {
+                    "type": "number",
+                    "title": "Turns off after (minutes)"
+                  },
+                  "chosen": {
+                    "type": "boolean",
+                    "title": "In force"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "title": "Asks for"
+                  },
+                  "from": {
+                    "type": "string",
+                    "title": "In force from"
+                  },
+                  "id": {
+                    "type": "string",
+                    "title": "Name"
+                  }
+                }
+              }
+            },
+            "off_at": {
+              "type": "string",
+              "title": "Turns off at"
+            },
+            "back_at": {
+              "type": "string",
+              "title": "Comes back at"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "needs-you-hold"
+        },
+        "provenance": {
+          "source": "trillion-workshop tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs over src/waiting-on-you.json (hold, sections) and src/escape-chain.json"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "op": "read"
+            },
+            "output_selector": "$.said",
+            "contains": "page"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::speak",
+      "address": "package::trillion::tool::speak",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:speak",
+        "listed_on": "2026-10-07T06:00:00Z",
+        "label": "Say it out loud",
+        "job": "Say words out loud to the person in a natural voice (their own cloned voice or a neutral one), made once by one of their own devices and kept in their files so every device of theirs plays it",
+        "description": "Runs in the person's account and places the speaking on the first of their awake devices that keeps a speech model (src/placement.json job speak, such as tool:say-with-a-voice-model on their Mac), which makes the sound in the voice of the place it is said in (the person's own list rows, tool:voice-for), else their chosen voice, and keeps it in their files under /Voice/Said at its natural pace. Answers { file, name, seconds, voice, engine, produced_by, made_on, speed }: whoever plays it plays it at `speed` with the pitch kept. Trillion never pays for a voice. With no capable device awake, or when generation fails, it answers { file: null, system_voice: false, retryable: true, text, speed, said }; no sound was made. Keep the request and retry on a capable device. Never substitute a system voice.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "description": "The words to say"
+            },
+            "voice": {
+              "type": "string",
+              "description": "A voice id of the person's (a row of their Voices list, tool:voice-for); the place's voice, else their chosen voice, when left out"
+            },
+            "place": {
+              "type": "string",
+              "description": "Where this is said: a row id of the person's list of places Trillion speaks (tool:voice-for lists them, such as said-out-loud, calls, voice-messages, podcasts, posts, car, coaching), whose voice and speed it uses",
+              "x-record": {
+                "from": {
+                  "lists": [
+                    "where-trillion-speaks"
+                  ]
+                },
+                "new": {
+                  "list": "where-trillion-speaks",
+                  "label": "place",
+                  "list_label": "Where Trillion speaks",
+                  "title_field": "label"
+                },
+                "part": "id"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "system_voice"
+          ],
+          "properties": {
+            "file": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "name": {
+              "type": "string"
+            },
+            "seconds": {
+              "type": "number"
+            },
+            "voice": {
+              "type": "object"
+            },
+            "engine": {
+              "type": "string"
+            },
+            "produced_by": {
+              "type": "string"
+            },
+            "made_on": {
+              "type": "string"
+            },
+            "speed": {
+              "type": "number",
+              "description": "How many times faster than natural to play it, with the pitch kept: the place's speed from the person's rows. The sound is kept at its natural pace."
+            },
+            "system_voice": {
+              "type": "boolean"
+            },
+            "text": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "speak"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": false
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::voice-for",
+      "address": "package::trillion::tool::voice-for",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:voice-for",
+        "listed_on": "2026-10-07T18:00:00Z",
+        "label": "Which voice and how fast",
+        "job": "Say which voice Trillion speaks in at one place (things said out loud, calls, voice messages, podcasts, posts, the car, coaching) and how fast, with every voice and place the person has",
+        "description": "Runs in the person's account over their own list rows (src/voices.mjs): the list Voices (their own cloned voices and the voices every person has, each with its speed, one marked Chosen) and the list Where Trillion speaks (each place with its voice and, when set, its own speed). Both lists are made the first time anything asks, with a row for each usual place. Answers { place, voice, speed, voices, places, lists, scale }: the place's own voice, else the chosen one, and the place's own speed, else its voice's, else the scale's default; a speed is how many times faster than natural the voice plays, from scale.min to scale.max. To change a voice or a speed, put rows in those lists (put_list_rows with lists.voices or lists.places); the Ambience screen sets the same rows.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "place": {
+              "type": "string",
+              "description": "A row id of the list of places Trillion speaks; the chosen voice and its speed when left out",
+              "x-record": {
+                "from": {
+                  "lists": [
+                    "where-trillion-speaks"
+                  ]
+                },
+                "new": {
+                  "list": "where-trillion-speaks",
+                  "label": "place",
+                  "list_label": "Where Trillion speaks",
+                  "title_field": "label"
+                },
+                "part": "id"
+              }
+            },
+            "voice": {
+              "type": "string",
+              "description": "A voice row id that wins over the place's voice"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "speed",
+            "voices",
+            "places",
+            "lists",
+            "scale"
+          ],
+          "properties": {
+            "place": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "voice": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "speed": {
+              "type": "number"
+            },
+            "voices": {
+              "type": "array"
+            },
+            "places": {
+              "type": "array"
+            },
+            "lists": {
+              "type": "object"
+            },
+            "scale": {
+              "type": "object"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "voice-for"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "runs_quietly": true,
+        "read_only": true
+      }
+    },
+    {
+      "id": "package::trillion::tool::set-connection-capability-choice",
+      "address": "package::trillion::tool::set-connection-capability-choice",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-connection-capability-choice",
+        "listed_on": "2026-10-13T17:41:57Z",
+        "label": "Choose how Trillion uses a connected account",
+        "job": "Turn a selectable Trillion capability on or off for one connected account, or reset it to the default",
+        "description": "Set a Trillion-use choice for one exact connected account. This does not change the permissions granted to the provider. connection_id and connected_at identify the current account incarnation; capability_id must be a user-selectable capability declared by that service. choice is enabled, disabled, or reset (reset restores the default enabled behavior). The choice applies only to this account.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "connection_id",
+            "connected_at",
+            "capability_id",
+            "choice"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "connection_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "connected_at": {
+              "type": "string",
+              "minLength": 1
+            },
+            "capability_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "choice": {
+              "enum": [
+                "enabled",
+                "disabled",
+                "reset"
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "connection_id",
+            "connected_at",
+            "capabilityChoices"
+          ],
+          "properties": {
+            "connection_id": {
+              "type": "string"
+            },
+            "connected_at": {
+              "type": "string"
+            },
+            "capabilityChoices": {
+              "type": "object",
+              "additionalProperties": {
+                "enum": [
+                  "enabled",
+                  "disabled"
+                ]
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "set-connection-capability-choice"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion"
+      }
+    }
+  ]
+}

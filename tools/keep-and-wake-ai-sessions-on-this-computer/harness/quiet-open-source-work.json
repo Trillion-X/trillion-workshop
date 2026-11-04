@@ -1,0 +1,11 @@
+{
+  "what_this_is": "Settings for quiet-open-source-work.mjs, a one-time pass that puts work already waiting from a noisy source through that source's current default_rule (records/workshop-event-source-records.json): what the rule now leaves out is closed as skipped, and the rest of each kind of event is folded into one summary job. Every word the account is told is here.",
+  "origin": "https://app.gettrillion.ai",
+  "keychain_item": "trillion-agent-work-key",
+  "agent_id": "quiet-open-source-work",
+  "agent_name": "Tidy waiting work",
+  "agent_description": "Closes waiting work that a source's rules now leave out, and folds the rest into one summary.",
+  "skipped": "Left out: {source_label} now leaves out work like this ({rule}).",
+  "folded": "Folded into one summary of {count} {event} on {source_label}: {into}.",
+  "summary_hours": "{hours}"
+}

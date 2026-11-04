@@ -1,0 +1,45 @@
+{
+  "_what": "The reads the workspace page makes before anything shows (src/workspace/main.tsx start). The Worker answers them while the page's head and script are already on their way and writes each answer into the same response the moment it is ready, after the element named here, which lists the addresses being answered (src/workspace-files.mjs); the page's readJson uses each once (src/workspace/api.ts), so these reads cost no request of their own. `screens` names, by the key a pane carries for its screen (data-trillion-screen), the reads that screen waits on before it shows: the Worker answers the asked-for screen's reads in the page too, and the page starts a screen's reads (with its code) when the person points at it in the sidebar, so the screen finds them on their way. A read that names the pane it is in (a guide screen's address) cannot be known ahead and is not listed. `kept` names the element in which the Worker writes, for this sign-in, the name of the account's store of kept answers and its key (src/kept-answers.mjs), and the start every such store's name has, so the page can delete every other account's store and a signed-out page every store. `item_reads` names, by the same pane key, the reads a screen opened on one item waits on, each as the parts of its address: words as they are and an `input` the address carries (a file's tab at /file/<identity> carries `id`), which the Worker fills from the address it was asked for and answers in the page with the rest; the page lists them (the element `element_id`) and keeps each one's answer until its screen reads it, however long the page takes to open, since the item an address names is the one read sure to come. `screen_revision` is the address of the store's screen revision, which the Worker reads before every other answer and writes into the page with them; the page's live socket (store-changes.ts) reloads no screen on its first revision when it is the one the page carries. `tool_screens_per_read` is how many of the person's own tools' screens one read of `tool_screens` answers (the screens the service ships come with the first): the answer names `next`, and the page reads the rest after it is drawn, so opening Trillion costs the same however many tools the person has (test/boot-with-many-tools.test.mjs). `startup_record_inputs` names, by input (inputs.json), the saved records the first paint depends on: where the sidebar sits, the arrangement and the saved layouts, the sidebar's list and the look. They are read together in ONE bounded read of /work/api/records (src/workspace/startup-records.mjs gives its address), carried in the page and kept on this device per account like every other first answer, so the page draws once with the person's own state and never with a default that is then replaced; a copy the store answers differently is taken in place (src/workspace/main.tsx takeReplaced). `tools_found_per_search` is how many tools one search of the whole Marketplace answers when a person looks for a tool to add (GET /work/api/workshop/find, a pursuit's Tools place). No read here is one the engine has no owner for (macos/release.json route_owner_gate.retired), since the engine asks each of them for every page it serves (test/boot-reads-have-owners.test.mjs): a screen whose read has none starts no read ahead and reads when it opens.",
+  "element_id": "page-answers",
+  "tool_screens_per_read": 200,
+  "tools_found_per_search": 12,
+  "workspace_records_path": "/work/api/records",
+  "paths": {
+    "viewer": "/work/api/viewer",
+    "show_rules": "/work/api/show-rules",
+    "tool_screens": "/work/api/screens",
+    "pursuits": "/work/api/door/records:list?input=%7B%22type%22%3A%22pursuit%22%2C%22limit%22%3A999%7D",
+    "initial_setup": "/work/api/screens/get-started",
+    "initial_hold": "/work/api/needs-you-hold"
+  },
+  "startup_record_inputs": ["layout-state", "own-layouts", "layout-presets", "always-mount-companions", "sidebar-placement", "placeable-surface-list", "current-screen-look", "own-screen-look-themes", "show-rules"],
+  "startup_preferences": ["screen-look-over-time", "where-looks-apply"],
+  "screen_revision": "/work/api/screen-revision",
+  "screens": {
+    "files": [],
+    "decisions": [
+      "/work/api/decisions"
+    ],
+    "funnels": [],
+    "get-started": [
+      "/work/api/screens/get-started"
+    ],
+    "home": [
+      "/work/api/decisions"
+    ]
+  },
+  "kept": {
+    "element_id": "kept-answers",
+    "store_prefix": "trillion-kept-",
+    "max_text_chars": 8000000
+  },
+  "item_reads": {
+    "element_id": "page-item-answers",
+    "screens": {}
+  },
+  "edge_copy": {
+    "_what": "A copy of these first answers kept at the edge for each browser sign-in (src/first-answers-copy.mjs), so a page that opens while the person's store is asleep draws at once: written from the store's own answers when the Worker reads them for a page, sealed under that sign-in's token, and sent first in that sign-in's next page, each marked as a copy; every address's own answer follows in the same page, and the page draws it wherever it differs from the copy. The reads of the one item an address names are never copied. `kv_prefix` starts each copy's name in APP_KV; a copy no page rewrote runs out after `keep_days`.",
+    "kv_prefix": "first-answers-copy:",
+    "keep_days": 30
+  }
+}
