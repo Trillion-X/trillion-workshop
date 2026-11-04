@@ -164,6 +164,32 @@ Where each value goes:
 - Each document without its list is kept in `<leftover>/<name>.json`.
 - The report counts the items read and the items written, and the two must agree.
 
+### Cutting into pieces (the atoms rule)
+
+A mapping with `cut: "atoms"` is the second split rule, chosen by DATA per list. It cuts each document into atoms, ported from the earlier Trillion app (`scripts/method-atoms.mjs` there): one atom is one paragraph, list item, table row or fenced block, under the headings above it. Titles, horizontal rules and table headers are not atoms. The port changes two things: the identity hash comes from `tools/content-identity`, and each atom carries `line`, the line it starts at.
+
+```
+node do-work/documents.mjs atoms --root DIR (--mapping FILE | --stdin) [--check]
+```
+
+The report goes to standard error and each row to standard output as one JSON line, ready for `records:write`.
+
+| Key | Holds |
+|---|---|
+| `cut` | `"atoms"`. |
+| `sources` | `[{ name, file }]`: the documents. Or leave it out and give `folders`. |
+| `folders` | Folders under the root, walked; hidden folders are skipped. Default `["/"]`. |
+| `extensions` | The document extensions read. Default `md`, `mdx`, `txt`, `markdown`. |
+| `exclude_folders` | Folders under the root left out. |
+| `record_type`, `id_prefix`, `id_hex` | The row's type (`note`), the id's prefix (`note:`) and how many hex digits of the identity make the id (32). |
+| `min_letters` | A piece with fewer letters or digits than this is not a row (a lone `{` or `},`). It is counted in the report as `too_short_to_keep`. |
+| `most_sources` | A row lists at most this many places in `sources`; `source_count` is always the true number. |
+| `most_text_bytes` | A row's text is at most this many bytes; a longer piece says so (`text_clipped`, `text_bytes` holds its whole length) and is counted in the report as `rows_with_text_clipped`. |
+
+`sources` and `folders` can be given together: the exact documents first, then every document under the folders. With `--stdin` the mapping is the JSON on standard input.
+
+A row's value is `key` (heading path plus the piece's lead), `heading_path`, `b3` (the BLAKE3 of the whitespace-folded text), `text` and `sources` (the `{ path, line }` places the piece was found at) and `source_count`. A piece with an identity already seen, in the same document or another, adds a source to its row and is never a second row. The report counts the atoms read, the rows, the pieces found again and the pieces too short to keep, and the cut is refused if they disagree.
+
 ## Files
 
 | File | Purpose |
@@ -173,7 +199,8 @@ Where each value goes:
 | `read-data/folder-files.mjs` | The `files` of one folder on the person's computer: names only in a listing, bytes with their identity, and the identity-checked write. |
 | `read-data/namespace-files.mjs` | The `files` of the person's Namespace, through the run's records door: names from list_files, bytes from read_file by name; no write. |
 | `read-data/split.mjs` | Splitting documents into one document per item by a mapping. |
-| `read-data/rows.mjs` | The functions the rows run: `readDocumentRows`, `changeDocumentRows`, `splitIntoDocuments`. |
+| `read-data/atoms.mjs` | The atoms rule: a document cut into pieces, and a mapping's pieces as rows, one per identity. |
+| `read-data/rows.mjs` | The functions the rows run: `readDocumentRows`, `changeDocumentRows`, `splitIntoDocuments`, `cutIntoRecords`. |
 | `read-data/json-items.mjs` | The `json-items` row source: one JSON file whose array at one path holds many items, each item a row (`readJsonItemRows`: its keys as they are, its JSON text `copy.text`, that text's identity `copy.identity`, the file's `file.mtime`), and `changeJsonItemRows`, which writes or removes one item only while it is still the one read and keeps the rest of the file. read-a-list-view's list-copy keeps a list and such a file the same both ways. |
 | `do-work/documents.mjs` | The command line above. |
 | `test/documents-as-list-rows.test.mjs` | All of it on made-up chores and house rules. |

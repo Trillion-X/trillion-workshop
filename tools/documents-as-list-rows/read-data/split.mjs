@@ -25,10 +25,13 @@
 //   4. Items are written only into an empty folder, so an earlier split is never mixed with this one.
 //
 //   A mapping with `items_at` splits JSON documents instead: one document per item of a list (splitJsonItems, below).
+//   A mapping with `cut: "atoms"` is the second rule: one row per paragraph, list item, table row or fenced block,
+//   one row per identity (atoms.mjs).
 //
 //   splitDocuments(mapping, read) → { items: Map(id → { fields, parts }), leftover, report }
 //   itemDocument(id, item, fieldOrder) → the item's markdown, frontmatter first
 import { formatBlock, scalar, say } from './document-properties.mjs';
+import { splitAtoms } from './atoms.mjs';
 
 const HEADING = /^(#{1,6})\s/;
 const FENCE = /^\s*(```|~~~)/;
@@ -97,6 +100,7 @@ const normal = text => text.replace(/\s+/g, ' ').trim();
 /** Every item of the mapping's documents; `read(file)` gives a document's text. */
 export async function splitDocuments(mapping, read) {
   if (mapping?.items_at) return splitJsonItems(mapping, read);
+  if (mapping?.cut === 'atoms') return splitAtoms(mapping, read);
   for (const key of ['sources', 'heading', 'row', 'parts']) if (!mapping?.[key]) throw say('bad_input', { what: `The mapping needs \`${key}\`.` });
   const compiled = { heading: new RegExp(mapping.heading), row: new RegExp(mapping.row), group_heading: mapping.group_heading ? new RegExp(mapping.group_heading) : null };
   for (const key of ['heading', 'row']) if (!/\(\?<id>/.test(mapping[key])) throw say('bad_input', { what: `\`${key}\` needs a named group \`id\` ((?<id>...)).` });

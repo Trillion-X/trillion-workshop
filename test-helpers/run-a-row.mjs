@@ -3,7 +3,8 @@
 // workdir and stdin are filled from the request (and a task no page started), a row that reads records gets the
 // stand-in records door (tools/records-door/test/fake-door.mjs) with exactly its rights and the records the sample
 // seeds, a row with internet: true reaches only the stand-in egress (stand-in-egress.mjs) answering from the sample's
-// recorded replies, and each held value a row mounts is a made-up one. Answers the exit code, the output, the parsed
+// recorded replies, and each held value a row mounts is a made-up one (on a descriptor, on a pipe, as the engine hands
+// it). Answers the exit code, the output, the parsed
 // last line of standard output that is JSON (what a row's result_selector picks from), the records the door holds
 // afterwards and its calls, and any request the stand-in egress had no reply for. Read by
 // test/every-process-row-selector.test.mjs and by tool folders' own tests. Nothing here names a tool.
@@ -11,7 +12,7 @@
 // A row the runner cannot run here answers `{ cannot: <why> }` and is not started: one with a fill this runner does
 // not read (a fetch), or one whose program is not on this computer.
 import { spawn, spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, openSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { closeSync, constants, cpSync, existsSync, mkdirSync, mkdtempSync, openSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { root, tools } from './tool-rows.mjs';
@@ -101,6 +102,27 @@ const heldValue = (item, held) => {
   return held[name] ?? egress.canary_value.replace('{name}', name);
 };
 
+// The read end of a pipe holding `value` and then its end, for a held value on a descriptor: the engine hands each one
+// on its own pipe(2) (trillion-rust src/runtime.rs `private_pipe`, and each held descriptor's pipe in `start`), so the
+// program sees a FIFO, as it would in a run. Node makes no anonymous pipe for a child's descriptor (its 'pipe' is a
+// socket), so this is a named one at `path`, in the run's private held folder. A writing end is held open first, so the
+// reading end opens at once and blocking, as a pipe(2) end is; the value is written whole and the writing end closed,
+// so the program reads the value and then the end. The value must fit in the pipe's buffer, which every held value a
+// sample makes up does.
+function heldPipe(path, value) {
+  const bytes = Buffer.from(value);
+  if (bytes.length > 16_384) throw new Error('a made-up held value on a descriptor must be at most 16 KiB');
+  const made = spawnSync('mkfifo', ['-m', '600', path]);
+  if (made.status !== 0) throw new Error(`mkfifo failed: ${String(made.stderr).trim()}`);
+  const writing = openSync(path, constants.O_RDWR);
+  let read;
+  try {
+    read = openSync(path, constants.O_RDONLY);
+    writeSync(writing, bytes);
+  } finally { closeSync(writing); }
+  return read;
+}
+
 // Run `row` on the sample `input`, with the sample's seeded `records`, recorded `replies` and made-up `held` values:
 // { code, stdout, stderr, last, kept, calls, unanswered } or { cannot }. `doorOptions` reach the stand-in records door.
 export async function runRow(row, input, { records = [], replies = [], held = {}, doorOptions = {} } = {}) {
@@ -112,6 +134,7 @@ export async function runRow(row, input, { records = [], replies = [], held = {}
   // it is the started script (argv[1] equal to its own module path) would otherwise do nothing and print nothing.
   const there = mkdtempSync(join(realpathSync(tmpdir()), 'workshop-row-'));
   let fake = null, outside = null, heldFolder = null;
+  const piped = [];
   try {
     lay(specs, there);
     // A task no page started; a capability the row asks for is granted on a folder of its own.
@@ -131,7 +154,6 @@ export async function runRow(row, input, { records = [], replies = [], held = {}
     // Each held value the row mounts, made up: on its own descriptor, in its environment, or as a private file.
     const mounts = invoke.credential_mounts ?? [];
     const environment = { ...process.env, HOME: there, ...(outside?.environment ?? {}) };
-    const piped = [];
     for (const item of mounts) {
       const value = heldValue(item, held);
       if (item.env) environment[item.env] = value;
@@ -141,19 +163,21 @@ export async function runRow(row, input, { records = [], replies = [], held = {}
         writeFileSync(file, value, { mode: 0o600 });
         argv = argv.map(word => (word === item.mount_path ? file : word));
       }
-      if (Number.isInteger(item.fd)) piped.push([item.fd, value]);
+      if (Number.isInteger(item.fd)) {
+        heldFolder ??= mkdtempSync(join(realpathSync(tmpdir()), 'workshop-held-'));
+        piped.push([item.fd, heldPipe(join(heldFolder, `pipe-${mounts.indexOf(item)}`), value)]);
+      }
     }
     const workdir = invoke.workdir ? join(there, invoke.workdir) : there;
     mkdirSync(workdir, { recursive: true });
     for (const output of invoke.outputs ?? []) mkdirSync(dirname(join(there, output.path)), { recursive: true });
     const stdio = ['pipe', 'pipe', 'pipe'];
     if (fake) stdio[invoke.records.fd ?? 3] = openSync(fake.descriptor, 'r');
-    for (const [fd] of piped) stdio[fd] = 'pipe';
+    for (const [fd, read] of piped) stdio[fd] = read;
     // A descriptor no one is given is closed in the program, as the engine leaves it.
     for (let fd = 0; fd < stdio.length; fd++) stdio[fd] ??= 'ignore';
     return await new Promise((done, fail) => {
       const child = spawn(argv[0], argv.slice(1), { cwd: workdir, stdio, env: environment });
-      for (const [fd, value] of piped) { child.stdio[fd].on('error', () => {}); child.stdio[fd].end(value); }
       let stdout = '', stderr = '';
       const timer = setTimeout(() => child.kill('SIGKILL'), invoke.max_run_ms ?? 60_000);
       child.stdout.on('data', chunk => { stdout += chunk; });
@@ -167,6 +191,7 @@ export async function runRow(row, input, { records = [], replies = [], held = {}
       child.stdin.end(stdin === undefined ? '' : typeof stdin === 'string' ? stdin : JSON.stringify(stdin));
     });
   } finally {
+    for (const [, read] of piped) closeSync(read);
     await fake?.close();
     await outside?.close();
     rmSync(there, { recursive: true, force: true });

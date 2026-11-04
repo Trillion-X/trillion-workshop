@@ -1,0 +1,271 @@
+{
+  "_what": "Every place on this Mac the Trillion app looks for, the first time it opens and on every launch after (computer-sources.mjs beside it), and how each is read (read-new-items.mjs). A program row with a `resident` (a hearing row, `know_who`) is kept running with its model loaded (computer/resident.py, started with `resident.run` on `resident.socket` when nothing answers there, ending itself after `idle_seconds` unasked), so a model is loaded once rather than once per piece. One list for every program that reads a computer: the Trillion helper (read-this-computer.mjs, started by wake-sessions.mjs) and the Trillion Mac app, which imports this file. `{program}` in a switch's words is the program macOS lists for it. A row says what the place is, where it lives and how to check it; a row with a `listen` block (the listening row) is the microphone, heard by listen.mjs while its `switch` file says on: `capture` opens the microphone once and keeps it open while listening is on, writing a piece of `piece_seconds` after piece into `{folder}` and printing one `<file>,<start>,<end>` line as each finishes (opening it again for every piece made macOS's sound server build and tear down a recording every half minute), the first `hearing` row hears it, `know_who` names who said each part against the people enrolled in `people` (know-who.py; its `voices` say how alike counts as one voice, and a voice heard for less than `new_voice_shortest_seconds` joins the voice it is most like instead of starting one), a moment ends after `moments.quiet_seconds` quiet, a listener started within `moments.same_session_within_seconds` of the last one goes on with its session (so an unknown voice keeps its number), `rules` over each turn's words, speaker (me, enrolled, unknown), name and text leave turns out, `pause_when_said` turns it off, and every kept turn goes to the one door under `route` as its speaker's message; a place nobody listed yet is one more row. Each recording a drive's keeper sends is also seen at capture by the first `seeing` row whose program answers its `check` (see-a-recording.mjs): its still, strip of frames and waveform are kept as the file's preview, sized by the row's `sizes` (the browser maker's sizes), so nothing else decodes it. `look` names a way of checking (paths, entries, browser_sites) and its places; a `paths` look may read `facts` about what it found (`file` under it, `keys` from that property list, plus `path`) and pick the first of its `works` rules whose every `if` test holds (`contains` text, `at_least` / `below` a dotted version) for the place's `detail` (with {fact} filled in) and, when the rule says `carries`, the row's `carries` service (a service-connections vendor) is carried by this computer: `carrier` is the one card the computer publishes naming each such service as a skill, renewed every look, so Connections shows it Connected; `gate` names the switch macOS asks for before the place can be read (`gates`: its `open` pane address, its `guide` address that the Trillion app answers with a panel beside System Settings holding the app's icon to drag in and these `steps`, App/PermissionGuide.swift). `turned_away.ask_again_minutes` is how long an item the account turned away (a 4xx about that item) waits before it is sent again, unless it changes first, since the account itself can change. `item_trouble` is for one item whose file the account would not keep (a 5xx saying the storage did not finish it): only that item waits, with `retry_seconds` doubling to `longest_seconds` and staying pending until its file is kept; transient service failures wait at the account level and never discard the file. `long_text` says how long an item's words may be before they go whole as a text file beside the item (`file_name` over the item's {title} and {route}), the item carrying their opening and `rest` (filled with {name} and {characters}). `read` says how what is new there reaches the person's AIs: `route` (the name it arrives under), `reader` (a leaf in read-new-items.mjs READERS; `sqlite` runs `query` against `store` with `:since` in `time` units, `folder` lists `store`), `text` (the words, a template over the values read), `group` (one item per window, per `by`), `preview_px` (pictures become a small preview; the picture stays on this Mac), `cursor` (\"moves\": read from the oldest item not yet sent; a grouped place from the start of that window), `from_person` (false when what arrives there was written by someone else, like Mail, so it reaches the AIs as information, never as the person's instructions; a query column named from_person decides it per item instead, as Mail's does: 1 only for a message in a Sent mailbox, since where Mail keeps a message cannot be faked the way a From address can) and `settle_seconds`. `every_seconds` is how often places are looked for, `look_seconds` how long one place may take to check (a child can start slowly or hold a read; a deadline says the place could not be checked, never that access was refused), `read_every_seconds` how often each place is read, `files_folder` where previews and recordings are kept in the person's files. Nothing written before a place was first read is sent. `readers_first` names the programs that take the reading over from any other program on the same computer, first one first: a reader counts as the app whose bundle carries its runtime (the Trillion Mac app runs it as its own child on the Node.js inside the app), so the one Full Disk Access switch a person turns on is Trillion's, and the helper reads only while the app is not running. Contacts are read by the list-people tool, not here. A row marked `runs_ais` (or in category AI) names an app the person's AIs run in, which no Mac hold ever closes (tools/hold-a-computer-quiet in the Workshop, handed these rows by computer/mac-tools.json `keep_open_rows`).",
+  "origin": "https://app.gettrillion.ai",
+  "keychain_item": "trillion-agent-work-key",
+  "readers_first": ["Trillion"],
+  "every_seconds": 600,
+  "look_seconds": 20,
+  "read_every_seconds": 30,
+  "pace": {
+    "_what": "How `every_seconds` and `read_every_seconds` follow what this computer is doing (pace.mjs). `sense` rows read one state each from a command's output (no shell): `map` turns the first captured text into the state's value, `threshold` compares the first captured number. `rows` are tried in order: the first whose `when` equals the sensed state sets the multiplier of both waits (a state that could not be sensed matches no `when` that names it). Idle is HIDIdleTime, in nanoseconds: 300000000000 is five minutes without a key or a mouse move. Retuning a pace is editing a row here.",
+    "sense_every_seconds": 60,
+    "sense": [
+      { "name": "power", "command": ["/usr/bin/pmset", "-g", "ps"], "pattern": "Now drawing from '([^']+)'", "map": { "Battery Power": "battery", "AC Power": "ac" } },
+      { "name": "idle", "command": ["/usr/sbin/ioreg", "-c", "IOHIDSystem", "-d", "4"], "pattern": "\"HIDIdleTime\" = (\\d+)", "threshold": { "above": 300000000000, "is": true, "otherwise": false } }
+    ],
+    "rows": [
+      { "when": { "power": "battery", "idle": true }, "multiply": 4 },
+      { "when": { "power": "battery" }, "multiply": 2 },
+      { "when": { "idle": true }, "multiply": 2 },
+      { "multiply": 1 }
+    ]
+  },
+  "files_folder": "/Written elsewhere",
+  "turned_away": {"ask_again_minutes": 60},
+  "item_trouble": {"retry_seconds": 60, "longest_seconds": 1800},
+  "long_text": {
+    "characters": 20000,
+    "file_name": "{title}",
+    "rest": "\n\n… The whole text ({characters} characters) is in your files as \"{name}\"."
+  },
+  "carrier": {
+    "agent_id_prefix": "apps-",
+    "skill_prefix": "connection:",
+    "harness": "trillion-computer-sources",
+    "name": "{computer}",
+    "description": "The apps on {computer} that your AIs can work in: {carried}. Their work runs as Workshop tools on this computer.",
+    "ttl_minutes": 30
+  },
+  "hearing": [
+    {"id": "bark", "label": "Underdog Bark 3.0 on this Mac", "languages": ["en"], "prompt": false, "needs": {"arch": "arm64", "macos_min": "13.5", "memory_gb": 16, "free_disk_gb": 3}, "search_path": ["/opt/homebrew/bin", "/usr/local/bin", "/opt/homebrew/anaconda3/bin", "~/anaconda3/bin", "~/miniconda3/bin", "~/miniforge3/bin", "/opt/homebrew/Caskroom/miniconda/base/bin"], "check": ["python3", "-c", "import mlx_audio.stt, mlx_whisper, constriction"], "missing": "it needs the Python modules mlx-audio, mlx-whisper and constriction in one Python on this Mac (python3 -m pip install mlx-audio mlx-whisper constriction==0.5.0)", "run": ["python3", "{here}/hear-with-bark.py", "{file}", "{model}", "{language}", "{prompt}", "mlx-community/whisper-large-v3-turbo"], "model": "ConwayResearch/Underdog-Bark-3.0@85db2ad18ab41e534a222ee253c29191d77ed919", "resident": {"socket": "~/.trillion/hearing/bark.sock", "idle_seconds": 900, "start_seconds": 300, "run": ["python3", "{here}/hear-with-bark.py", "serve", "{socket}", "{idle_seconds}"]}, "prepare": {"label": "Preparing Underdog Bark 3.0 to hear on this Mac (once: a 163 MB download, unpacked to 1.25 GB)", "run": ["python3", "{here}/hear-with-bark.py", "prepare", "{model}", "{progress}", "{label}"], "progress": "~/.trillion/hearing/bark-prepare.json", "again_after_seconds": 3600}, "produced_by": "Underdog Bark 3.0 by Conway Research (CC BY 4.0) on this Mac", "most_seconds": 3600, "attribution": "Underdog Bark 3.0 by Conway Research (huggingface.co/ConwayResearch/Underdog-Bark-3.0), from NVIDIA Parakeet TDT 0.6B v3 and Moondream parakeet-ultra, CC BY 4.0 (creativecommons.org/licenses/by/4.0); post-trained and compressed by Conway Research.", "_why": "First because it hears English meetings better and faster than mlx-whisper on the same Mac (measured 2026-10-21 on the same public AMI audio: meeting ES2004a, 17.5 min, 20.5% against 23.0% word error at 41x against 13x real time; 843 AMI test utterances, 8.9% against 15.9% at 21x against 6x; a 163 MB download against 1.6 GB). It needs 16 GB: with the Whisper model that finds the language it took 8.7 GB at its peak against mlx-whisper's 5.9 GB, so a Mac with 8 GB hears with mlx-whisper.. English only and unsteerable: hearWith (keep-drive-files.mjs) passes any other language, and any prompt, on to mlx-whisper; the program finds an unknown language with Whisper first."},
+    {"id": "mlx-whisper", "label": "mlx-whisper on this Mac", "needs": {"arch": "arm64", "macos_min": "13.5", "memory_gb": 8, "free_disk_gb": 3}, "search_path": ["/opt/homebrew/bin", "/usr/local/bin", "/opt/homebrew/anaconda3/bin", "~/anaconda3/bin", "~/miniconda3/bin", "~/miniforge3/bin", "/opt/homebrew/Caskroom/miniconda/base/bin"],
+      "check": ["python3", "-c", "import mlx_whisper"], "missing": "it needs the Python module mlx-whisper (python3 -m pip install mlx-whisper)", "run": ["python3", "{here}/hear-with-mlx-whisper.py", "{file}", "{model}", "{language}", "{prompt}"], "model": "mlx-community/whisper-large-v3-turbo",
+      "resident": {"socket": "~/.trillion/hearing/mlx-whisper.sock", "idle_seconds": 900, "start_seconds": 180, "run": ["python3", "{here}/hear-with-mlx-whisper.py", "serve", "{socket}", "{idle_seconds}"]},
+      "produced_by": "mlx-whisper-large-v3-turbo on this Mac", "most_seconds": 3600}
+  ],
+  "seeing": [
+    {"id": "ffmpeg", "label": "FFmpeg on this Mac", "search_path": ["/opt/homebrew/bin", "/usr/local/bin", "/opt/local/bin"], "check": ["ffmpeg", "-version"], "probe": "ffprobe", "sizes": {"poster_width": 320, "frame_count": 12, "frame_width": 160, "peak_count": 120, "peak_rate": 1000, "picture_quality": 0.72}, "produced_by": "FFmpeg on this Mac", "most_seconds": 600}
+  ],
+  "visual_caption": {"url": "http://127.0.0.1:11434/api/generate", "model": "gemma3:4b", "timeout_seconds": 120, "backfill_per_look": 5, "generic_titles": ["Processing", "Home", "Dashboard", "Untitled", "New project", "Image", "Video", "Screenshot"]},
+  "gates": {
+    "full-disk-access": {
+      "label": "Full Disk Access for {program}",
+      "open": "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_AllFiles",
+      "guide": "trillion://permission/full-disk-access",
+      "steps": [
+        "Open System Settings, then Privacy & Security, then Full Disk Access.",
+        "Turn on {program}. If {program} is not in the list, press + and choose it.",
+        "Quit {program} and open it again, or restart the Trillion helper."
+      ]
+    },
+    "accessibility": {
+      "label": "Accessibility for {program}",
+      "open": "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility",
+      "guide": "trillion://permission/accessibility",
+      "steps": [
+        "Open System Settings, then Privacy & Security, then Accessibility.",
+        "Turn on {program}. If {program} is not in the list, press + and choose it.",
+        "Quit {program} and open it again."
+      ]
+    }
+  },
+  "imports_skip": [
+    { "path": "**/*.musiclibrary/**", "why": "Music application library database" },
+    { "path": "**/*.tvlibrary/**", "why": "TV application library database" },
+    { "path": "**/*.photoslibrary/**", "why": "Photos application library database" },
+    { "path": "**/*.app/**", "why": "installed application package" },
+    { "path": "**/node_modules/**", "why": "installed dependencies" },
+    { "path": "**/_workdir/**", "why": "tool working files" },
+    { "path": "**/*.result.json", "why": "generated media result sidecar" }
+  ],
+  "imports": [
+    { "id": "desktop", "root": "~/Desktop", "keep": { "folder": "/Mac originals/Desktop", "state": "~/.trillion/computer-sources/folder-imports/desktop", "hourly_write_bytes": 2147483648, "hourly_files": 2000, "look_again_seconds": 300, "skip": [
+      { "path": "**/*.part", "why": "unfinished download" }, { "path": "**/*.download", "why": "unfinished download" }, { "path": "**/*.crdownload", "why": "unfinished download" }] } },
+    { "id": "downloads", "root": "~/Downloads", "keep": { "folder": "/Mac originals/Downloads", "state": "~/.trillion/computer-sources/folder-imports/downloads", "hourly_write_bytes": 2147483648, "hourly_files": 2000, "look_again_seconds": 300, "skip": [
+      { "path": "**/*.part", "why": "unfinished download" }, { "path": "**/*.download", "why": "unfinished download" }, { "path": "**/*.crdownload", "why": "unfinished download" }] } },
+    { "id": "documents", "root": "~/Documents", "keep": { "folder": "/Mac originals/Documents", "state": "~/.trillion/computer-sources/folder-imports/documents", "hourly_write_bytes": 2147483648, "hourly_files": 2000, "look_again_seconds": 300, "skip": [
+      { "path": "**/node_modules/**", "why": "installed dependencies" }, { "path": "**/*.app/**", "why": "installed application" }, { "path": "**/_workdir/**", "why": "tool working files" }] } },
+    { "id": "pictures", "root": "~/Pictures", "keep": { "folder": "/Mac originals/Pictures", "state": "~/.trillion/computer-sources/folder-imports/pictures", "hourly_write_bytes": 67108864, "hourly_files": 5, "look_again_seconds": 300, "skip": [
+      { "path": "**/node_modules/**", "why": "installed dependencies" }, { "path": "**/*.photoslibrary/**", "why": "Photos library database, not original media" }] } },
+    { "id": "movies", "root": "~/Movies", "keep": { "folder": "/Mac originals/Movies", "state": "~/.trillion/computer-sources/folder-imports/movies", "hourly_write_bytes": 67108864, "hourly_files": 5, "look_again_seconds": 300, "skip": [
+      { "path": "**/_workdir/**", "why": "tool working files" }] } },
+    { "id": "music", "root": "~/Music", "keep": { "folder": "/Mac originals/Music", "state": "~/.trillion/computer-sources/folder-imports/music", "hourly_write_bytes": 67108864, "hourly_files": 5, "look_again_seconds": 300, "skip": [
+      { "path": "**/*.musiclibrary/**", "why": "Music library database, not original media" }] } }
+  ],
+  "sources": [
+    {"id":"filmcraft","label":"Filmcraft","category":"Editing","carries":"filmcraft","look":{"paths":["~/.local/bin/filmcraft-cli","/usr/local/bin/filmcraft-cli","/opt/homebrew/bin/filmcraft-cli"]}},
+    {"id":"mflux","label":"Local image runtime","category":"Pictures","look":{"paths":["~/.local/bin/uv","/opt/homebrew/bin/uv","/usr/local/bin/uv"]}},
+    {"id": "whatsapp", "label": "WhatsApp", "category": "Messages", "look": {"paths": ["~/.trillion/carry-connections/whatsapp/incoming.sqlite"]},
+      "read": {"route": "WhatsApp", "reader": "incoming", "from_person": false, "store": "~/.trillion/carry-connections/whatsapp/incoming.sqlite", "settle_seconds": 0}},
+    {"id": "apple-notes", "label": "Apple Notes", "category": "Notes", "look": {"paths": ["~/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite"]}, "gate": "full-disk-access",
+      "read": {"route": "Apple Notes", "reader": "sqlite", "store": "~/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite", "settle_seconds": 120, "query": ["SELECT o.ZIDENTIFIER AS source_id, COALESCE(o.ZTITLE1, o.ZTITLE) AS title, o.ZMODIFICATIONDATE1 AS at, f.ZTITLE2 AS folder, d.ZDATA AS body FROM ZICCLOUDSYNCINGOBJECT o JOIN ZICNOTEDATA d ON d.Z_PK = o.ZNOTEDATA LEFT JOIN ZICCLOUDSYNCINGOBJECT f ON f.Z_PK = o.ZFOLDER WHERE o.ZMODIFICATIONDATE1 > :since AND o.ZIDENTIFIER IS NOT NULL AND COALESCE(o.ZISPASSWORDPROTECTED, 0) = 0 AND COALESCE(o.ZMARKEDFORDELETION, 0) = 0 AND COALESCE(f.ZFOLDERTYPE, 0) <> 1", "SELECT o.ZIDENTIFIER AS source_id, o.ZTITLE1 AS title, o.ZMODIFICATIONDATE1 AS at, f.ZTITLE2 AS folder, d.ZDATA AS body FROM ZICCLOUDSYNCINGOBJECT o JOIN ZICNOTEDATA d ON d.Z_PK = o.ZNOTEDATA LEFT JOIN ZICCLOUDSYNCINGOBJECT f ON f.Z_PK = o.ZFOLDER WHERE o.ZMODIFICATIONDATE1 > :since AND o.ZIDENTIFIER IS NOT NULL AND COALESCE(o.ZISPASSWORDPROTECTED, 0) = 0 AND COALESCE(o.ZMARKEDFORDELETION, 0) = 0 AND COALESCE(f.ZFOLDERTYPE, 0) <> 1", "SELECT o.ZIDENTIFIER AS source_id, o.ZTITLE AS title, o.ZMODIFICATIONDATE1 AS at, f.ZTITLE2 AS folder, d.ZDATA AS body FROM ZICCLOUDSYNCINGOBJECT o JOIN ZICNOTEDATA d ON d.Z_PK = o.ZNOTEDATA LEFT JOIN ZICCLOUDSYNCINGOBJECT f ON f.Z_PK = o.ZFOLDER WHERE o.ZMODIFICATIONDATE1 > :since AND o.ZIDENTIFIER IS NOT NULL AND COALESCE(o.ZISPASSWORDPROTECTED, 0) = 0 AND COALESCE(o.ZMARKEDFORDELETION, 0) = 0 AND COALESCE(f.ZFOLDERTYPE, 0) <> 1"], "decode": [{"from": "body", "decoder": "gzip-protobuf-text", "path": [2, 3, 2], "into": "text"}], "skip": {"folder": []}}},
+    {"id": "voice-memos", "label": "Voice Memos", "category": "Recordings", "look": {"paths": ["~/Library/Group Containers/group.com.apple.VoiceMemos.shared/Recordings/CloudRecordings.db"]}, "gate": "full-disk-access",
+      "read": {"route": "Voice Memos", "reader": "sqlite", "store": "~/Library/Group Containers/group.com.apple.VoiceMemos.shared/Recordings/CloudRecordings.db", "settle_seconds": 30, "query": ["SELECT r.ZUNIQUEID AS source_id, COALESCE(r.ZENCRYPTEDTITLE, r.ZCUSTOMLABEL) AS title, r.ZDATE AS at, r.ZPATH AS recording, 'A voice memo' || CASE WHEN COALESCE(r.ZENCRYPTEDTITLE, r.ZCUSTOMLABEL) IS NOT NULL THEN ' called \"' || COALESCE(r.ZENCRYPTEDTITLE, r.ZCUSTOMLABEL) || '\"' ELSE '' END || ', ' || (CAST(ROUND(COALESCE(r.ZDURATION, 0)) AS INTEGER) / 60) || ':' || printf('%02d', CAST(ROUND(COALESCE(r.ZDURATION, 0)) AS INTEGER) % 60) || ' long. Its sound is the attached file.' AS text, COALESCE(COALESCE(r.ZENCRYPTEDTITLE, r.ZCUSTOMLABEL), 'Voice memo') || ' ' || strftime('%Y-%m-%d %H:%M', r.ZDATE + 978307200, 'unixepoch') AS file_name FROM ZCLOUDRECORDING r WHERE r.ZDATE > :since AND r.ZPATH IS NOT NULL AND r.ZUNIQUEID IS NOT NULL", "SELECT r.ZUNIQUEID AS source_id, r.ZCUSTOMLABEL AS title, r.ZDATE AS at, r.ZPATH AS recording, 'A voice memo' || CASE WHEN r.ZCUSTOMLABEL IS NOT NULL THEN ' called \"' || r.ZCUSTOMLABEL || '\"' ELSE '' END || ', ' || (CAST(ROUND(COALESCE(r.ZDURATION, 0)) AS INTEGER) / 60) || ':' || printf('%02d', CAST(ROUND(COALESCE(r.ZDURATION, 0)) AS INTEGER) % 60) || ' long. Its sound is the attached file.' AS text, COALESCE(r.ZCUSTOMLABEL, 'Voice memo') || ' ' || strftime('%Y-%m-%d %H:%M', r.ZDATE + 978307200, 'unixepoch') AS file_name FROM ZCLOUDRECORDING r WHERE r.ZDATE > :since AND r.ZPATH IS NOT NULL AND r.ZUNIQUEID IS NOT NULL"], "file": {"required": true, "try": [], "video": {"when": {}, "try": ["{recording}"], "name": "{file_name}.{ext}", "media_types": {"m4a": "audio/mp4", "mp4": "audio/mp4", "qta": "audio/mp4"}}}, "hear": {"text": "{text}\n\nWhat was said:\n{words}"}}},
+    {"id": "wispr-flow", "label": "Wispr Flow", "category": "Dictation", "look": {"paths": ["~/Library/Application Support/Wispr Flow/flow.sqlite"]},
+      "read": {"route": "Wispr Flow", "reader": "sqlite", "from_person": true, "store": "~/Library/Application Support/Wispr Flow/flow.sqlite", "time": "unix-seconds", "cursor": "moves", "settle_seconds": 60,
+        "query": "SELECT transcriptEntityId AS source_id, CAST(strftime('%s', substr(timestamp, 1, 19)) AS REAL) AS at, COALESCE(NULLIF(editedText, ''), NULLIF(formattedText, ''), NULLIF(asrText, '')) AS text FROM History WHERE CAST(strftime('%s', substr(timestamp, 1, 19)) AS REAL) > :since AND COALESCE(isArchived, 0) = 0 AND COALESCE(status, '') <> 'dismissed' AND COALESCE(NULLIF(editedText, ''), NULLIF(formattedText, ''), NULLIF(asrText, '')) IS NOT NULL",
+        "group": {"window_minutes": 30, "title": "Dictated with Wispr Flow, {time}", "line": "{clock} {text}\n"}}},
+    {"id": "listening", "label": "Listening", "category": "Listening", "look": {"paths": ["~/.trillion/listening/on.json"]},
+      "listen": {"route": "Listening", "switch": "~/.trillion/listening/on.json", "state": "~/.trillion/listening", "people": "~/.trillion/people",
+        "capture": {"device": "default", "piece_seconds": 30, "search_path": ["/opt/homebrew/bin", "/usr/local/bin"], "check": ["ffmpeg", "-version"], "run": ["ffmpeg", "-v", "error", "-nostdin", "-f", "avfoundation", "-i", ":{device}", "-ac", "1", "-ar", "16000", "-f", "segment", "-segment_time", "{seconds}", "-reset_timestamps", "1", "-segment_list", "pipe:1", "-segment_list_type", "csv", "-y", "{folder}/%d.wav"]},
+        "know_who": {"check": ["python3", "-c", "import importlib.util as found, sys; sys.exit(0 if all(found.find_spec(name) for name in ('pyannote.audio', 'onnxruntime', 'cv2')) else 1)"], "search_path": ["/opt/homebrew/anaconda3/bin", "~/anaconda3/bin", "~/miniconda3/bin", "~/miniforge3/bin", "/opt/homebrew/Caskroom/miniconda/base/bin", "/opt/homebrew/bin", "/usr/local/bin"],
+          "run": ["python3", "{here}/know-who.py"], "most_seconds": 600,
+          "resident": {"socket": "~/.trillion/listening/know-who.sock", "idle_seconds": 900, "start_seconds": 180, "run": ["python3", "{here}/know-who.py", "serve", "{socket}", "{idle_seconds}"]},
+          "voices": {"shortest_seconds": 0.8, "person_at_least": 0.5, "sure_by": 0.08, "maybe_at_least": 0.35, "same_unknown_at_least": 0.55, "same_in_piece_at_least": 0.55, "new_voice_shortest_seconds": 2.5},
+          "faces": {"models": "~/.insightface/models/buffalo_l", "every_seconds": 2, "found_at_least": 0.5, "person_at_least": 0.4, "sure_by": 0.08, "maybe_at_least": 0.3}},
+        "moments": {"quiet_seconds": 8, "most_seconds": 900, "same_session_within_seconds": 1800}, "turns": {"join_within_seconds": 2}, "keep_sound": {"on": true, "folder": "/Recordings/Listening", "name": "{time} {device}.m4a", "extension": "m4a", "media_type": "audio/mp4", "app": "tool:listen", "produced_by": "listening", "margin_seconds": 1, "keep_days": null, "encode": {"search_path": ["/opt/homebrew/bin", "/usr/local/bin"], "check": ["ffmpeg", "-version"], "run": ["ffmpeg", "-v", "error", "-nostdin", "-f", "concat", "-safe", "0", "-i", "{list}", "-ss", "{from}", "-t", "{seconds}", "-vn", "-ac", "1", "-c:a", "aac", "-b:a", "32k", "-movflags", "+faststart", "-y", "{file}"]}}, "recording_rules": [],
+          "private_mode": {"on": false},
+          "leaves": [
+          {"id": "words", "leaves": true, "what": "The words of each turn, with who said it", "to": "your Trillion account, kept by your rules", "when": []},
+          {"id": "sound", "leaves": true, "what": "The sound of each moment, compressed", "to": "your Trillion files", "when": [{"setting": "keep_sound.on", "equals": true}]},
+          {"id": "notes", "leaves": true, "what": "Meeting notes a model on this Mac made, each pointing to the lines it came from", "to": "your Trillion files, with the sound", "when": [{"setting": "notes.on", "not": false}, {"setting": "keep_sound.on", "equals": true}]},
+          {"id": "task-proposals", "leaves": true, "what": "Action items found in the notes, kept as proposals you approve or reject, never as tasks", "to": "your Trillion tasks, as proposals", "when": [{"setting": "notes.on", "not": false}, {"setting": "notes.propose_tasks.on", "equals": true}, {"setting": "keep_sound.on", "equals": true}]},
+          {"id": "model-input", "leaves": false, "what": "The lines shown to the model that makes notes", "to": "stay on this Mac", "when": [{"setting": "notes.on", "not": false}]},
+          {"id": "voices", "leaves": false, "what": "Voice and face numbers used to tell people apart", "to": "stay on this Mac", "when": []},
+          {"id": "hearing", "leaves": false, "what": "The recording while it is turned into words", "to": "stays on this Mac", "when": []}
+        ],
+        "pause_when_said": ["stop listening"], "answers": {"file": "~/.trillion/listening/asked.json", "margin_seconds": 1, "own_voice_as": "generated context"},
+        "sending": {"retry_status_at_least": 500, "retry_statuses": [408, 425, 429], "retry_when_error_says": ["durable object", "was reset", "reset because its code was updated", "exceeded its memory limit", "network connection lost", "busy for a moment", "send this again", "try again", "retry shortly", "catching up", "measurement_uncertain", "measurement_or_receipt_uncertain", "command_or_measurement_uncertain", "measurement_stage_closed", "quota_fenced", "quota_uninitialized", "credit_exhausted", "credit_closed", "budget_reached"],
+          "batch_size": 100, "first_wait_seconds": 30, "most_wait_seconds": 900, "jitter": 0.3, "tries_before_next_goes_first": 3, "classify_tries": 5, "classify_wait_ms": 20000, "pass": {"_what": "How the sender drains turns that are waiting, with no new speech needed: a pass every gap_seconds while any are waiting; a pass sends at most turns_per_pass of the turns already waiting (turns heard during the pass always go); a pass still running after deadline_seconds is ended and recorded, and the next one starts. While the file hold_file (beside waiting.json) exists, holding {\"most_turns\": n}, only n of the waiting turns are ever sent in total (counted in pass-sent.json beside it); deleting the file lifts the hold.", "turns_per_pass": 500, "gap_seconds": 30, "deadline_seconds": 300, "hold_file": "pass-hold.json"}, "tries_file": "tries.json", "rejected_file": "rejected.json", "rejected_most": 200,
+          "rejected_notice": {"key_prefix": "listening-rejected:", "title": "Something you said on this Mac was not kept", "body": "Trillion would not take what {from} said (\"{text}\"): {reason}. It will not be sent again.", "words_most": 120},
+          "requests_folder": "requests", "requests_poll_seconds": 5, "request_wait_ms": 8000, "done_kept_seconds": 3600, "list_most": 100,
+          "resent_notice": {"title": "Something you said on this Mac is being sent again", "body": "Trillion is sending what {from} said (\"{text}\") again."},
+          "discarded_notice": {"title": "Something you said on this Mac was let go", "body": "Trillion will not send what {from} said (\"{text}\") again, as you chose."},
+          "words": {"listed": "{count} turns the account would not take, newest last.", "resend_requested": "{count} turns will be sent again by the listener on this Mac.", "discard_requested": "{count} turns will be let go for good.", "nothing": "No turns match.", "listener_off": "Listening is off on this Mac, so this waits until it is on.", "needs_choice": "Name the turns (source_ids) or a filter (reason, status, since, until) to let go, or say all: true."}},
+        "notes": {
+          "on": true,
+          "_what": "Meeting notes made on this Mac from what one moment heard (computer/meeting-notes.mjs): a model served here (local-model job `job`) is shown the moment's kept lines, numbered, and asked for each of `fields` (a summary, decisions, actions; one more row is one more field). Every item names the lines it came from, and an item that names none is not kept. Kept with the moment's sound as a result of kind `result_kind`. Turn off with on:false; the words never leave this Mac to make them.",
+          "propose_tasks": {"on": true, "fields": ["actions", "action-items", "next-steps"], "most": 20, "tool": "propose_tasks", "proposed_by": "Listening notes"},
+          "job": "meeting-notes",
+          "result_kind": "notes",
+          "produced_by": "listening notes",
+          "min_words": 40,
+          "most_lines": 400,
+          "most_items": 20,
+          "most_characters": 400,
+          "most_tokens": 1500,
+          "template": "general",
+          "heading_cap": {"base": 3, "per_words": 600, "most": 12},
+          "templates": [
+            {"id": "general", "title": "General", "description": "The default notes: summary, decisions, actions", "fields_from": "fields"},
+            {"id": "one-on-one", "title": "One to one", "description": "Topics each person raised, feedback given, and what each owes the other", "sections": [
+              {"heading": "topics", "shape": "list", "description": "the subjects the two people talked about"},
+              {"heading": "feedback", "shape": "list", "description": "feedback or concerns either person gave"},
+              {"heading": "actions", "shape": "action", "description": "what either person said they would do, with owner and due only when said"},
+              {"heading": "follow-ups", "shape": "list", "description": "things to bring up next time"}
+            ]},
+            {"id": "customer-call", "title": "Customer call", "description": "Needs, objections, next steps", "sections": [
+              {"heading": "needs", "shape": "list", "description": "what the customer said they need or want"},
+              {"heading": "objections", "shape": "list", "description": "doubts or blockers the customer raised"},
+              {"heading": "next steps", "shape": "action", "description": "what was agreed to happen next, with owner and due only when said"}
+            ]}
+          ],
+          "ended": {
+            "on": true,
+            "job": "meeting-notes",
+            "max_tokens": 24,
+            "last_words": 100,
+            "min_characters": 400,
+            "answers": {"ended": "ended", "continuing": "continuing"},
+            "words": {
+              "system": "You decide whether a conversation has finished. Answer with one JSON object and nothing else.",
+              "ask": "These are the last words of a conversation:\n{words}\n\nDid the people say goodbye or otherwise finish the conversation? Answer {\"answer\": \"ended\"} or {\"answer\": \"continuing\"}.",
+              "unanswered": "Listening: could not tell whether the meeting ended, because {reason}"
+            }
+          },
+          "fields": [
+            { "id": "summary", "shape": "list", "says": "the main points of what was said, a few short items" },
+            { "id": "decisions", "shape": "list", "says": "what the people agreed or decided" },
+            { "id": "actions", "shape": "action", "says": "what someone said they would do or was asked to do; add \"owner\" (the speaker's name as shown, if clear) and \"due\" (only if said)" }
+          ],
+          "words": {
+            "system": "You make notes of a conversation. Use only what the lines say. Answer with one JSON object and nothing else.",
+            "ask": "These are the numbered lines of a conversation, each with who said it:\n{lines}\n\nAnswer with a JSON object that has these keys:\n{fields}\n\nNever write a bare string as an item: every item is an object with \"text\" and \"from\" (the numbers of the lines it comes from). Give no item that the lines do not support. A key with nothing to say is an empty list.",
+            "field": "\"{id}\" ({shape}): {says}",
+            "line": "[{n}] {speaker}: {text}",
+            "shapes": { "list": "a list of {\"text\": ..., \"from\": [line numbers]} objects", "action": "a list of {\"text\": ..., \"from\": [line numbers], \"owner\": ..., \"due\": ...} objects, owner and due only when said" },
+            "unanswered": "Listening: no notes were made, because {reason}",
+            "not_json": "Listening: the model's notes were not JSON; this moment has none.",
+            "unknown_template": "Listening: there is no notes template {template}; no notes were made."
+          }
+        },
+        "rules": [
+          {"id": "too-short", "says": "A turn of fewer than 3 words is left out", "when": [{"fact": "words", "less_than": 3}], "keep": false},
+          {"id": "off-the-record", "says": "A turn that says 'off the record' is left out", "when": [{"fact": "text", "contains_any": ["off the record"]}], "keep": false}],
+        "words": {"title": "Heard at {clock}", "hear_needs_device": "Say which device recorded it (device), like iPhone.", "unknown": "Someone ({voice})", "unsure": "Unsure ({names}?)", "or": "or",
+          "on": "Listening on this Mac. The microphone light shows while it listens; say \"stop listening\" to turn it off.",
+          "off": "Not listening on this Mac.",
+          "no_hearing": "This Mac has no program that hears recordings (mlx-whisper).",
+          "no_capture": "This Mac has no program that records the microphone (ffmpeg).", "no_encoder": "This Mac has no program that keeps the sound of what was heard (ffmpeg).",
+          "no_know_who": "This Mac cannot tell voices apart yet (it needs Python with pyannote.audio, onnxruntime and cv2), so everyone is one voice.",
+          "needs_file": "Name the recording or picture: path, a file on this Mac, or file, one in your Trillion.",
+          "enroll_needs": "Give name, kind (voice or face) and consent: who agreed to be known here, and how.",
+          "no_session": "No listening on this Mac heard that voice.",
+          "named_by_voice": "{voice} was enrolled on this Mac by their voice, with their yes: {consent}"}}},
+    {"id": "messages", "label": "Messages", "category": "Messages", "look": {"paths": ["~/Library/Messages/chat.db"]}, "gate": "full-disk-access",
+      "read": {"route": "Messages", "reader": "sqlite", "store": "~/Library/Messages/chat.db", "time": "seconds-since-2001", "cursor": "moves", "settle_seconds": 300,
+        "query": "SELECT m.guid AS source_id, m.date / 1000000000.0 AS at, COALESCE(c.guid, h.id, 'messages') AS conversation, COALESCE(NULLIF(c.display_name, ''), c.chat_identifier, h.id, 'someone') AS title, CASE WHEN m.is_from_me = 1 THEN 'Me' ELSE COALESCE(h.id, 'Them') END AS who, COALESCE(m.text, CASE WHEN m.cache_has_attachments = 1 THEN '(sent an attachment)' END) AS text, m.attributedBody AS body FROM message m LEFT JOIN handle h ON h.ROWID = m.handle_id LEFT JOIN chat_message_join j ON j.message_id = m.ROWID LEFT JOIN chat c ON c.ROWID = j.chat_id WHERE m.date > :since * 1000000000 AND m.associated_message_type = 0 AND m.item_type = 0",
+        "decode": [{"from": "body", "decoder": "typedstream-string", "into": "text"}],
+        "group": {"by": "conversation", "window_minutes": 60, "title": "Messages with {title}", "line": "{clock} {who}: {text}"}}},
+    {"id": "contacts", "label": "Contacts", "category": "People", "look": {"paths": ["~/Library/Application Support/AddressBook/AddressBook-v22.abcddb"]}, "gate": "full-disk-access"},
+    {"id": "calendar", "label": "Calendar", "category": "Calendar", "look": {"paths": ["~/Library/Group Containers/group.com.apple.calendar/Calendar.sqlitedb", "~/Library/Calendars/Calendar.sqlitedb"]}, "gate": "full-disk-access",
+      "read": {"route": "Calendar", "reader": "sqlite", "store": "~/Library/Group Containers/group.com.apple.calendar/Calendar.sqlitedb", "time": "seconds-since-2001", "cursor": "moves", "settle_seconds": 120,
+        "query": "SELECT i.UUID AS source_id, i.last_modified AS at, i.summary AS title, COALESCE(i.summary, '(no title)') AS event, datetime(i.start_date + 978307200, 'unixepoch', 'localtime') AS starts, datetime(i.end_date + 978307200, 'unixepoch', 'localtime') AS ends, COALESCE(l.title, '') AS place, COALESCE(c.title, '') AS calendar, COALESCE(i.description, '') AS notes FROM CalendarItem i LEFT JOIN Location l ON l.ROWID = i.location_id LEFT JOIN Calendar c ON c.ROWID = i.calendar_id WHERE i.last_modified > :since",
+        "text": "Calendar event: {event}\nWhen: {starts} to {ends}\nWhere: {place}\nCalendar: {calendar}\n{notes}"}},
+    {"id": "reminders", "label": "Reminders", "category": "Tasks", "look": {"paths": ["~/Library/Group Containers/group.com.apple.reminders/Container_v1/Stores"]}, "gate": "full-disk-access",
+      "read": {"route": "Reminders", "reader": "sqlite", "store": "~/Library/Group Containers/group.com.apple.reminders/Container_v1/Stores/Data-*.sqlite", "time": "seconds-since-2001", "cursor": "moves", "settle_seconds": 120,
+        "query": "SELECT r.ZCKIDENTIFIER AS source_id, r.ZLASTMODIFIEDDATE AS at, r.ZTITLE AS title, CASE WHEN r.ZCOMPLETED = 1 THEN 'done' ELSE 'to do' END AS done, COALESCE(datetime(r.ZDUEDATE + 978307200, 'unixepoch', 'localtime'), 'no date') AS due, COALESCE(l.ZNAME, '') AS list, COALESCE(r.ZNOTES, '') AS notes FROM ZREMCDREMINDER r LEFT JOIN ZREMCDBASELIST l ON l.Z_PK = r.ZLIST WHERE r.ZLASTMODIFIEDDATE > :since AND COALESCE(r.ZMARKEDFORDELETION, 0) = 0 AND r.ZTITLE IS NOT NULL",
+        "text": "Reminder ({done}): {title}\nDue: {due}\nList: {list}\n{notes}"}},
+    {"id": "mail", "label": "Mail", "category": "Email", "look": {"paths": ["~/Library/Mail"]}, "gate": "full-disk-access",
+      "read": {"route": "Mail", "from_person": false, "reader": "sqlite", "store": "~/Library/Mail/V*/MailData/Envelope Index", "time": "unix-seconds", "cursor": "moves", "settle_seconds": 120,
+        "query": "SELECT m.ROWID AS source_id, m.date_received AS at, COALESCE(s.subject, '(no subject)') AS title, COALESCE(NULLIF(a.comment, '') || ' <' || a.address || '>', a.address, 'someone') AS sender, COALESCE(su.summary, '') AS summary, CASE WHEN mb.url LIKE '%/Sent%' THEN 1 ELSE 0 END AS from_person FROM messages m LEFT JOIN addresses a ON a.ROWID = m.sender LEFT JOIN subjects s ON s.ROWID = m.subject LEFT JOIN summaries su ON su.ROWID = m.summary LEFT JOIN mailboxes mb ON mb.ROWID = m.mailbox WHERE m.date_received > :since AND m.deleted = 0 AND mb.url NOT LIKE '%Junk%' AND mb.url NOT LIKE '%Spam%' AND mb.url NOT LIKE '%Trash%' AND mb.url NOT LIKE '%Deleted%'",
+        "text": "{clock} from {sender}: {title}\n{summary}",
+        "group": {"window_minutes": 60, "title": "Email, {time}", "line": "{text}\n"}}},
+    {"id": "photos", "label": "Photos", "category": "Pictures", "look": {"paths": ["~/Pictures/Photos Library.photoslibrary"]}, "gate": "full-disk-access",
+      "read": {"route": "Photos", "reader": "sqlite", "store": "~/Pictures/Photos Library.photoslibrary/database/Photos.sqlite", "files_from": "~/Pictures/Photos Library.photoslibrary", "time": "seconds-since-2001", "cursor": "moves", "settle_seconds": 60, "most_per_look": 10,
+        "query": "SELECT a.ZUUID AS source_id, a.ZADDEDDATE AS at, a.ZFILENAME AS title, CASE WHEN a.ZKIND = 1 THEN 'A video' WHEN a.ZKINDSUBTYPE = 10 THEN 'A screenshot' ELSE 'A photo' END AS kind, datetime(a.ZDATECREATED + 978307200, 'unixepoch', 'localtime') AS taken, strftime('%Y-%m', a.ZDATECREATED + 978307200, 'unixepoch', 'localtime') AS month, strftime('%Y-%m-%d %H-%M-%S', a.ZDATECREATED + 978307200, 'unixepoch', 'localtime') AS stamp, substr(a.ZUUID, 1, 8) AS short, CASE WHEN a.ZLATITUDE BETWEEN -90 AND 90 AND a.ZLATITUDE != 0 THEN ' at ' || round(a.ZLATITUDE, 4) || ', ' || round(a.ZLONGITUDE, 4) ELSE '' END AS place, CASE WHEN a.ZKIND = 1 THEN NULL ELSE a.ZDIRECTORY END AS directory, CASE WHEN a.ZKIND = 1 THEN NULL ELSE a.ZFILENAME END AS filename, a.ZUUID AS uuid, a.ZKIND AS kind_code, a.ZDIRECTORY AS original_directory, a.ZFILENAME AS original_filename, substr(a.ZUUID, 1, 1) AS first FROM ZASSET a WHERE a.ZADDEDDATE > :since AND a.ZADDEDDATE < :before AND a.ZTRASHEDSTATE = 0 AND COALESCE(a.ZHIDDEN, 0) = 0 ORDER BY a.ZADDEDDATE DESC LIMIT :limit",
+        "text": "{kind} taken {taken}{place}, in Photos on this Mac ({source_id})",
+        "file": {"try": ["resources/renders/{first}/{uuid}_1_201_a.jpeg", "resources/renders/{first}/{uuid}_1_201_a.heic", "originals/{directory}/{filename}", "resources/derivatives/{first}/{uuid}_1_201_a.jpeg", "resources/derivatives/{first}/{uuid}_1_201_a.heic", "resources/derivatives/{first}/{uuid}_1_105_c.jpeg", "resources/derivatives/{first}/{uuid}_1_102_o.jpeg", "resources/derivatives/masters/{first}/{uuid}_4_5005_c.jpeg"], "whole": 3, "folder": "/Photos/{month}", "name": "{stamp} {short}.jpg", "long_edge": 2048, "video": {"when": {"kind_code": 1}, "try": ["originals/{original_directory}/{original_filename}"], "name": "{stamp} {short}.{ext}", "media_types": {"mov": "video/quicktime", "mp4": "video/mp4", "m4v": "video/mp4"}, "missing": " The video itself is not on this Mac (it is in iCloud), so only a still of it is kept in your files."}, "smaller": " Only a smaller copy of it is on this Mac (the original is in iCloud), so that smaller copy is what is kept in your files.", "missing": " The picture is not on this Mac (it is in iCloud), so no copy of it is kept in your files."},
+        "see": {"ocr": "\nText in it: {words}", "caption": "\nIt shows: {words}", "ocr_characters": 2000, "caption_timeout_seconds": 20, "look_budget_seconds": 45},
+        "backfill": {"per_look": 4, "every_seconds": 120, "most_per_hour": 240, "round": "2026-10-12 read again what went as stills: videos arrive whole"}}},
+    {"id": "screenshots", "label": "Screenshots on the Desktop", "category": "Pictures", "look": {"entries": "~/Desktop", "names_containing": ["Screenshot", "Screen Shot"], "count_as": "screenshots"}, "gate": "full-disk-access",
+      "read": {"route": "Screenshots", "reader": "folder", "store": "~/Desktop", "names_containing": ["Screenshot", "Screen Shot"], "cursor": "moves", "settle_seconds": 60, "preview_px": 480,
+        "text": "A screenshot taken {time}, on this Mac at {path}",
+        "group": {"window_minutes": 60, "title": "Screenshots, {time}", "line": "{text}", "pictures": 6}}},
+    {"id": "downloads", "label": "Downloads", "category": "Files", "look": {"entries": "~/Downloads", "count_as": "files"}, "gate": "full-disk-access",
+      "read": {"route": "Downloads", "reader": "folder", "store": "~/Downloads", "skip_endings": [".crdownload", ".download", ".part"], "cursor": "moves", "settle_seconds": 120, "preview_px": 320,
+        "text": "Downloaded {name} ({size}) {time}, on this Mac at {path}",
+        "group": {"window_minutes": 60, "title": "Downloads, {time}", "line": "{text}", "pictures": 4}}},
+    {"id": "davinci-resolve", "label": "DaVinci Resolve", "category": "Editing", "carries": "davinci-resolve",
+      "look": {"paths": ["/Applications/DaVinci Resolve Studio/DaVinci Resolve Studio.app", "/Applications/DaVinci Resolve/DaVinci Resolve Studio.app", "/Applications/DaVinci Resolve/DaVinci Resolve.app"],
+        "facts": {"file": "Contents/Info.plist", "keys": {"version": "CFBundleShortVersionString", "name": "CFBundleName"}},
+        "works": [
+          {"if": [{"fact": "name", "contains": "Studio"}], "carries": true, "detail": "{name} {version}. Your AIs can work in it once Preferences > System > General > External scripting using is set to Local."},
+          {"if": [{"fact": "path", "contains": "Studio"}], "carries": true, "detail": "{name} {version}. Your AIs can work in it once Preferences > System > General > External scripting using is set to Local."},
+          {"if": [{"fact": "name", "contains": "DaVinci Resolve"}], "carries": true, "detail": "{name} {version}, the free edition. Your AIs work in it through a small helper Resolve runs itself when it opens; the first time they use it, Resolve needs to be opened once more."}
+        ]}},
+    {"id": "drives", "label": "Drive", "category": "Drives", "look": {"entries": "/Volumes", "each": true, "skip": ["Macintosh HD"]},
+      "keep": {"folder": "/Recordings/{drive}", "when": [{"fact": "Internal", "equals": false}, {"fact": "BusProtocol", "not": "Disk Image"}], "state": "~/.trillion/computer-sources/drives/{id}", "id_fact": "VolumeUUID",
+        "hand_on_tool": "tool:keep-a-voice-memo",
+        "skip": [
+          {"path": "**/video-compose-*/**", "why": "a video tool's temporary pieces, not recordings"},
+          {"path": "**/_workdir/**", "why": "a video tool's working folder: the pieces and trial renders it makes on the way to a finished video, not recordings"},
+          {"path": "**/*.part", "why": "a download that never finished, not a recording"},
+          {"path": "**/*.crdownload", "why": "a browser download that never finished"},
+          {"path": "**/*.download", "why": "a browser download that never finished"}],
+        "parallel_files": 2, "parallel_chunks": 12, "bytes_in_flight": 167772160, "look_again_seconds": 300}},
+    {"id": "claude", "label": "Claude", "category": "AI", "look": {"paths": ["/Applications/Claude.app", "~/Applications/Claude.app", "~/.claude"]}},
+    {"id": "chatgpt", "label": "ChatGPT", "category": "AI", "look": {"paths": ["/Applications/ChatGPT.app", "~/Library/Application Support/com.openai.chat"]}},
+    {"id": "codex", "label": "Codex", "category": "AI", "look": {"paths": ["~/.codex", "/Applications/Codex.app"]}},
+    {"id": "cursor", "label": "Cursor", "category": "AI", "look": {"paths": ["/Applications/Cursor.app", "~/.cursor"]}},
+    {"id": "super-engineering", "label": "super.engineering", "category": "AI", "look": {"paths": ["/Applications/super.engineering.app", "~/Applications/super.engineering.app"]}},
+    {"id": "chatgpt-classic", "label": "ChatGPT Classic", "category": "AI", "look": {"paths": ["/Applications/ChatGPT Classic.app"]}},
+    {"id": "arc", "label": "Arc", "category": "Browsers", "runs_ais": true, "look": {"paths": ["/Applications/Arc.app", "~/Applications/Arc.app"]}},
+    {"id": "gemini", "label": "Gemini", "category": "AI", "look": {"paths": ["~/.gemini"]}},
+    {"id": "browser-sites", "label": "Services your browsers use", "category": "Browsers", "look": {"browser_sites": [
+      {"reader": "chromium-cookies", "paths": ["~/Library/Application Support/Google/Chrome/*/Network/Cookies", "~/Library/Application Support/Google/Chrome/*/Cookies", "~/Library/Application Support/Arc/User Data/*/Network/Cookies", "~/Library/Application Support/Arc/User Data/*/Cookies", "~/Library/Application Support/BraveSoftware/Brave-Browser/*/Network/Cookies", "~/Library/Application Support/Microsoft Edge/*/Network/Cookies"]},
+      {"reader": "firefox-cookies", "paths": ["~/Library/Application Support/Firefox/Profiles/*/cookies.sqlite"]},
+      {"reader": "safari-cookies", "paths": ["~/Library/Containers/com.apple.Safari/Data/Library/Cookies/Cookies.binarycookies", "~/Library/Cookies/Cookies.binarycookies"]}
+    ]}, "gate": "full-disk-access"}
+  ]
+}

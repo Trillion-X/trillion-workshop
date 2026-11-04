@@ -55,13 +55,17 @@ class Refused extends Error {}
 // A refusal made here, wherever a publisher wrapped it.
 const ours = error => { for (let at = error, depth = 0; at && depth < 6; at = at.cause, depth += 1) if (at instanceof Refused) return at; return null; };
 
-/** The held values the engine handed this run, by field: descriptor 4 onwards, in the order the place names them. */
-export function heldFromDescriptors(place) {
+/** The held values the engine handed this run, by field: descriptor 4 onwards, in the order the place names them.
+ *  A descriptor is read to its end once, so each value is read the first time a request needs it and kept only in this
+ *  run's memory for its later requests (a place that signs several requests); it is never written anywhere. */
+export function heldFromDescriptors(place, read = descriptor => readFileSync(descriptor, 'utf8')) {
   const fields = heldFields(place.options);
+  const kept = new Map();
   return field => {
     const at = fields.indexOf(field);
     if (at < 0) throw new Refused(`${place.label} does not sign with a ${field.replace(/_/g, ' ')}.`);
-    const value = readFileSync(FIRST_HELD_DESCRIPTOR + at, 'utf8').trim();
+    if (!kept.has(field)) kept.set(field, read(FIRST_HELD_DESCRIPTOR + at).trim());
+    const value = kept.get(field);
     if (!value) throw new Refused(`Your ${place.label} connection holds no ${field.replace(/_/g, ' ')}. Connect ${place.label} again.`);
     return value;
   };

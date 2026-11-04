@@ -32,5 +32,13 @@
   },
   "devDependencies": {
     "playwright": "1.63.0"
+  },
+  "peerDependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc13"
+  },
+  "peerDependenciesMeta": {
+    "@whiskeysockets/baileys": {
+      "optional": true
+    }
   }
 }

@@ -63,11 +63,36 @@ export async function installRelease(machine, engine, run = onMachine) {
   return dir;
 }
 
-/** The place config with the machine's own fields set, plus values read from files in the release. */
+const refused = message => Object.assign(new Error(message), { exit: 2 });
+
+/** Where the place adopts new engine releases from (engine job J1): feed urls, the keys a release must be signed by, and its releases. */
+export function releaseFeed(feed) {
+  if (!feed || typeof feed !== 'object' || Array.isArray(feed)) throw refused('release_feed must be { urls, public_keys, releases }.');
+  const extra = Object.keys(feed).filter(key => !['urls', 'public_keys', 'releases'].includes(key));
+  if (extra.length) throw refused(`release_feed takes urls, public_keys and releases only, not ${extra.join(', ')}.`);
+  if (!Array.isArray(feed.urls) || !feed.urls.length || !feed.urls.every(url => typeof url === 'string' && /^https:\/\/[^/\s]+\/\S*$/.test(url))) throw refused('release_feed.urls must be a list of one or more https addresses of feed.json, like https://releases.example.com/engine-releases/feed.json.');
+  if (!Array.isArray(feed.public_keys) || !feed.public_keys.length || !feed.public_keys.every(key => typeof key === 'string' && /^[0-9a-f]{64}$/.test(key))) throw refused('release_feed.public_keys must be a list of one or more Ed25519 public keys as 64 lowercase hex (what the builder\'s install printed).');
+  if (feed.releases === undefined || feed.releases === null) throw refused('release_feed.releases must be given: it is the engine\'s releases setting for the adopted releases.');
+  return structuredClone(feed);
+}
+
+/** The places a new account's rows name by default, as the request gives them. */
+export function defaultPlaces(places) {
+  if (!places || typeof places !== 'object' || Array.isArray(places)) throw refused('default_places must be { holders: [place ids], answering: [place ids], voters?: [place ids] }.');
+  for (const list of ['holders', 'answering', 'voters']) {
+    if (places[list] !== undefined && !(Array.isArray(places[list]) && places[list].every(id => typeof id === 'string' && id))) throw refused(`default_places.${list} must be a list of place ids.`);
+  }
+  if (!places.holders?.length) throw refused('default_places.holders must name at least one place.');
+  return structuredClone(places);
+}
+
+/** The place config with the machine's own fields set, the request's release feed and default places, plus values read from files in the release. */
 export async function placeConfig(machine, request, price, run = onMachine) {
   const origin = `https://${request.name.host_name}`, config = structuredClone(request.place_config ?? {});
   Object.assign(config, { listen: `127.0.0.1:${request.port}`, accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: origin });
   config.report = { ...config.report, reach: origin, ...(price && { cost_per_month_cents: price.cents }) };
+  if (request.release_feed !== undefined) config.release_feed = releaseFeed(request.release_feed);
+  if (request.default_places !== undefined) config.default_places = defaultPlaces(request.default_places);
   for (const from of request.config_from_release ?? []) {
     const value = JSON.parse(await run(machine, `cat ${q(`/opt/place/current/${from.file}`)}`))[from.key];
     if (value === undefined) throw new Error(`The release's ${from.file} has no ${from.key}.`);
@@ -106,6 +131,8 @@ async function serve(machine, request, price, { run, ...deps }) {
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function startAPlace(request, { machineToken, nameToken, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
+  if (request.release_feed !== undefined) releaseFeed(request.release_feed);
+  if (request.default_places !== undefined) defaultPlaces(request.default_places);
   const machines = machineProvider(request.machine.provider), names = request.name.provider ? nameProvider(request.name.provider) : null;
   const machineRequest = machines.base ? providerClient(machines, machineToken, { fetchImpl }) : null;
   const file = absolute(request.lease_file, 'lease_file'), m = request.machine;

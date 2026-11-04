@@ -15,6 +15,7 @@
 //   changeDocumentRows({ root, folder?, rows: [{ id, values?: { 'note.<key>': value | null }, text?, if_identity? }],
 //     remove?: [{ id, if_identity }] }) → { kept, removed }
 //   splitIntoDocuments({ root, mapping, out?, leftover?, check? }) → the split's report
+//   cutIntoRecords({ root, mapping, check? }) → { report, records }: an atoms mapping's rows for records:write
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { documentRowSources, documentSelection, folderKey, say } from './document-properties.mjs';
@@ -22,6 +23,7 @@ import { folderFiles } from './folder-files.mjs';
 import { namespaceFiles } from './namespace-files.mjs';
 import { itemDocument, orderedIds, splitDocuments } from './split.mjs';
 import { contentRows } from './content-rows.mjs';
+import { atomRecords } from './atoms.mjs';
 import data from './document-properties.json' with { type: 'json' };
 
 const needRoot = root => {
@@ -77,10 +79,50 @@ export async function changeDocumentRows({ root, folder = '/', rows = [], remove
   return read.write({ source: { of: folderKey(folder) }, rows, remove });
 }
 
+// The documents an atoms mapping names: its `sources` (exact documents), then every document under its `folders`
+// (walked, hidden folders skipped) whose extension is in `extensions`, leaving out `exclude_folders`. Names are paths
+// under `root`. A mapping with `sources` and no `folders` reads only those.
+async function atomSources(files, plan) {
+  if (plan.sources && !plan.folders) return plan.sources;
+  const extensions = new Set((plan.extensions ?? ['md', 'mdx', 'txt', 'markdown']).map(one => one.toLowerCase()));
+  const skipped = (plan.exclude_folders ?? []).map(one => `/${String(one).replace(/^\/+|\/+$/g, '')}`);
+  const out = [...(plan.sources ?? [])];
+  for (const folder of plan.folders ?? ['/']) {
+    const base = `/${String(folder).replace(/^\/+|\/+$/g, '')}`.replace(/^\/$/, '/');
+    for (const under of [base, ...(await files.foldersUnder(base))]) {
+      if (skipped.some(one => under === one || under.startsWith(`${one}/`))) continue;
+      for (let after = null; ;) {
+        const page = await files.list(under, after, 2000);
+        for (const { name } of page.names) if (extensions.has(name.split('.').pop().toLowerCase())) out.push({ name, file: name });
+        if (!page.next_after) break;
+        after = page.next_after;
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * The rows of an atoms mapping, ready for records:write: { report, records }. `check` answers the report only.
+ * One row per piece of text; a piece found again adds a source to its row. The mapping names the record type, the id
+ * prefix and the documents (atoms.mjs); the code knows no list.
+ */
+export async function cutIntoRecords({ root, mapping, check = false } = {}) {
+  const base = needRoot(root);
+  const files = await folderFiles(base);
+  const plan = typeof mapping === 'string' ? JSON.parse(await readFile(join(base, mapping), 'utf8')) : mapping;
+  if (plan?.cut !== 'atoms') throw say('bad_input', { what: 'The mapping needs `cut: "atoms"`.' });
+  const sources = await atomSources(files, plan);
+  const readText = async file => { try { return (await files.read(null, Infinity, file)).text; } catch { return ''; } };
+  const result = await splitDocuments({ ...plan, sources }, readText);
+  return { report: { ...result.report, documents: sources.length }, ...(check ? {} : { records: atomRecords(result.items, plan) }) };
+}
+
 export async function splitIntoDocuments({ root, mapping, out, leftover, check = false } = {}) {
   const base = needRoot(root);
   const files = await folderFiles(base);
   const plan = typeof mapping === 'string' ? JSON.parse(await readFile(join(base, mapping), 'utf8')) : mapping;
+  if (plan?.cut === 'atoms' && !check) throw say('bad_input', { what: 'An atoms mapping gives rows, not documents: use `atoms` (cutIntoRecords), or `check`.' });
   const result = await splitDocuments(plan, async file => (await files.read(null, Infinity, `/${file}`)).text);
   if (check) return result.report;
   if (!out || !leftover) throw say('bad_input', { what: 'A split writes into `out` and `leftover`, or only reports with `check`.' });

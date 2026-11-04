@@ -1,5 +1,5 @@
 {
-  "what_this_is": "How read-data/draw-an-email.mjs draws an email in a look. `palette_roles`, `font_roles`, `radius_roles` and `button_roles` name the look variables each part of the email wears (the email's ink, accent, paper, faces, corners and button depth). `shipped_palette` is the look an email is drawn in when the account has published none: the starting look's variables for those roles, resolved by the screen-look resolver (tools/screen-looks/read-data/resolve-screen-look-palette.js). The mark at the email's top and its `made_with` line are the account's own, from its mail row (`brand`, `made_with`); with none, the top carries no mark and there is no made-with line. Moved from the older owner's mail settings (palette_roles, font_roles, radius_roles, button_roles) and its starting look.",
+  "what_this_is": "How read-data/draw-an-email.mjs draws an email in a look. `palette_roles`, `font_roles`, `radius_roles` and `button_roles` name the look variables each part of the email wears (the email's ink, accent, paper, faces, corners and button depth). `shipped_palette` is the look an email is drawn in when the account has published none: the starting look's variables for those roles, resolved by the screen-look resolver (tools/screen-looks/read-data/resolve-screen-look-palette.js). The mark at the email's top and its `made_with` line are the account's own, from its mail row (`brand`, `made_with`); with none, the top carries no mark and there is no made-with line. Moved from the older owner's mail settings (palette_roles, font_roles, radius_roles, button_roles) and its starting look. `looks` are the looks an account can wear (its `start_with` and `themes`), from the older owner's src/workspace/looks.json: the app DATA do-work/read-the-worn-email-look.mjs hands tools/screen-looks/do-work/read-current-worn-look.mjs, so the look the person wears (one of these or their own, from their records) is the look every email is drawn in; `shipped_palette` is `start_with` resolved.",
   "palette_roles": {
     "ink": "--text-primary",
     "accent": "--accent-primary",
@@ -46,5 +46,1844 @@
     "--button-highlight": "inset 0 0 0 1px rgba(0, 0, 0, 0.22), inset 0 2px 0px rgba(255, 255, 255, 0.3)",
     "--button-shadow": "0 1px 1px rgba(25, 25, 25, 0.16), 0 3px 8px rgba(25, 25, 25, 0.14)"
   },
-  "brand_unread": "The look this email is drawn in could not be read, so it was not sent. Try again shortly."
+  "brand_unread": "The look this email is drawn in could not be read, so it was not sent. Try again shortly.",
+  "looks": {
+    "start_with": "trillion",
+    "themes": [
+      {
+        "address": "package::screen-look::published-record::editable-theme::trillion",
+        "payload": {
+          "kind": "screen-look-editable-theme",
+          "id": "trillion",
+          "name": "Trillion",
+          "description": "Warm paper, ink and the logo thread red, with Recoleta titles and SF Pro Text, as on gettrillion.ai.",
+          "author": "trillion",
+          "is_public": true,
+          "is_favorite": false,
+          "order": 0,
+          "tokens": [
+            {
+              "key": "black-pure",
+              "label": "Black Pure",
+              "description": "Black Pure CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#f4f0e8",
+              "css_variable": "--black-pure"
+            },
+            {
+              "key": "black-rich",
+              "label": "Black Rich",
+              "description": "Black Rich CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#fffdf8",
+              "css_variable": "--black-rich"
+            },
+            {
+              "key": "white-pure",
+              "label": "White Pure",
+              "description": "White Pure CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--white-pure"
+            },
+            {
+              "key": "surface-base",
+              "label": "Surface Base",
+              "description": "Surface Base CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#f4f0e8",
+              "css_variable": "--surface-base"
+            },
+            {
+              "key": "glass-bg-primary",
+              "label": "Glass Bg Primary",
+              "description": "Glass Bg Primary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#fffdf8",
+              "css_variable": "--glass-bg-primary"
+            },
+            {
+              "key": "glass-bg-tertiary",
+              "label": "Glass Bg Tertiary",
+              "description": "Glass Bg Tertiary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 253, 248, 0.6)",
+              "css_variable": "--glass-bg-tertiary"
+            },
+            {
+              "key": "glass-bg-input",
+              "label": "Glass Bg Input",
+              "description": "Glass Bg Input CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(25, 25, 25, 0.04)",
+              "css_variable": "--glass-bg-input"
+            },
+            {
+              "key": "text-primary",
+              "label": "Text Primary",
+              "description": "Text Primary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#191919",
+              "css_variable": "--text-primary"
+            },
+            {
+              "key": "color-success",
+              "label": "Color Success",
+              "description": "Color Success CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#16865c",
+              "css_variable": "--color-success"
+            },
+            {
+              "key": "color-warning",
+              "label": "Color Warning",
+              "description": "Color Warning CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#b45309",
+              "css_variable": "--color-warning"
+            },
+            {
+              "key": "color-error",
+              "label": "Color Error",
+              "description": "The destructive colour: deep red words and edge on a neutral face, never the strong action's thread red.",
+              "kind": "color",
+              "value": "#b42318",
+              "css_variable": "--color-error"
+            },
+            {
+              "key": "color-info",
+              "label": "Color Info",
+              "description": "Color Info CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#2563eb",
+              "css_variable": "--color-info"
+            },
+            {
+              "key": "accent-blue",
+              "label": "Accent Blue",
+              "description": "Accent Blue CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#191919",
+              "css_variable": "--accent-blue"
+            },
+            {
+              "key": "accent-purple",
+              "label": "Accent Purple",
+              "description": "Accent Purple CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#ff1d1d",
+              "css_variable": "--accent-purple"
+            },
+            {
+              "key": "accent-emerald",
+              "label": "Accent Emerald",
+              "description": "Accent Emerald CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#191919",
+              "css_variable": "--accent-emerald"
+            },
+            {
+              "key": "accent-indigo",
+              "label": "Accent Indigo",
+              "description": "Accent Indigo CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#191919",
+              "css_variable": "--accent-indigo"
+            },
+            {
+              "key": "accent-cyan",
+              "label": "Accent Cyan",
+              "description": "Accent Cyan CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#191919",
+              "css_variable": "--accent-cyan"
+            },
+            {
+              "key": "scrollbar-thumb",
+              "label": "Scrollbar Thumb",
+              "description": "Scrollbar Thumb CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(25, 25, 25, 0.14)",
+              "css_variable": "--scrollbar-thumb"
+            },
+            {
+              "key": "scrollbar-thumb-hover",
+              "label": "Scrollbar Thumb Hover",
+              "description": "Scrollbar Thumb Hover CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(25, 25, 25, 0.24)",
+              "css_variable": "--scrollbar-thumb-hover"
+            },
+            {
+              "key": "glass-popover-background",
+              "label": "Glass Popover Background",
+              "description": "Glass Popover Background CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 253, 248, 0.98)",
+              "css_variable": "--glass-popover-background"
+            },
+            {
+              "key": "glass-overlay-background",
+              "label": "Glass Overlay Background",
+              "description": "Glass Overlay Background CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(25, 25, 25, 0.3)",
+              "css_variable": "--glass-overlay-background"
+            },
+            {
+              "key": "high-contrast-border-primary",
+              "label": "High Contrast Border Primary",
+              "description": "High Contrast Border Primary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(25, 25, 25, 0.25)",
+              "css_variable": "--high-contrast-border-primary"
+            },
+            {
+              "key": "high-contrast-border-secondary",
+              "label": "High Contrast Border Secondary",
+              "description": "High Contrast Border Secondary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(25, 25, 25, 0.35)",
+              "css_variable": "--high-contrast-border-secondary"
+            },
+            {
+              "key": "high-contrast-text-secondary",
+              "label": "High Contrast Text Secondary",
+              "description": "High Contrast Text Secondary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(25, 25, 25, 0.85)",
+              "css_variable": "--high-contrast-text-secondary"
+            },
+            {
+              "key": "high-contrast-text-tertiary",
+              "label": "High Contrast Text Tertiary",
+              "description": "High Contrast Text Tertiary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(25, 25, 25, 0.75)",
+              "css_variable": "--high-contrast-text-tertiary"
+            },
+            {
+              "key": "high-contrast-text-muted",
+              "label": "High Contrast Text Muted",
+              "description": "High Contrast Text Muted CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(25, 25, 25, 0.66)",
+              "css_variable": "--high-contrast-text-muted"
+            },
+            {
+              "key": "button-primary-bg",
+              "label": "Button Primary Bg",
+              "description": "The strong action: the thread red, exactly the logo thread's colour (accent-primary on the Trillion looks), the same in every look. Destructive actions never fill (deep red words on a neutral face), so the two never look alike.",
+              "kind": "color",
+              "value": "#ff1d1d",
+              "css_variable": "--button-primary-bg"
+            },
+            {
+              "key": "button-primary-text",
+              "label": "Button Primary Text",
+              "description": "White words on the thread red, as before the ink change. 3.9 to 1: below 4.5 for body text, above the 3 to 1 bar for large or bold text, so the strong button's label is always semibold (600).",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--button-primary-text"
+            },
+            {
+              "key": "button-primary-bg-hover",
+              "label": "Button Primary Bg Hover",
+              "description": "The strong action under the pointer: the thread red one shade deeper, as before the ink change.",
+              "kind": "color",
+              "value": "#e01212",
+              "css_variable": "--button-primary-bg-hover"
+            },
+            {
+              "key": "diff-added-bg",
+              "label": "Diff Added Bg",
+              "description": "Diff Added Bg CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(25, 25, 25, 0.06)",
+              "css_variable": "--diff-added-bg"
+            },
+            {
+              "key": "diff-added-text",
+              "label": "Diff Added Text",
+              "description": "Diff Added Text CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#191919",
+              "css_variable": "--diff-added-text"
+            },
+            {
+              "key": "diff-removed-bg",
+              "label": "Diff Removed Bg",
+              "description": "Diff Removed Bg CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 29, 29, 0.1)",
+              "css_variable": "--diff-removed-bg"
+            },
+            {
+              "key": "diff-removed-text",
+              "label": "Diff Removed Text",
+              "description": "Diff Removed Text CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#e01212",
+              "css_variable": "--diff-removed-text"
+            },
+            {
+              "key": "accent-primary",
+              "label": "Accent",
+              "description": "The logo thread red: links, focus, current marks.",
+              "kind": "color",
+              "value": "#ff1d1d",
+              "css_variable": "--accent-primary"
+            },
+            {
+              "key": "glass-bg-popover",
+              "label": "Glass Bg Popover",
+              "description": "Menus, popovers and hover cards: white, lifted off the warm paper page.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--glass-bg-popover"
+            },
+            {
+              "key": "ground-island",
+              "label": "Ground Island",
+              "description": "The dark ground of a small surface that floats over other apps (the recording pill and its Mac window), dark in every look so it reads over whatever is beneath it.",
+              "kind": "color",
+              "value": "#191919",
+              "css_variable": "--ground-island"
+            },
+            {
+              "key": "words-on-island",
+              "label": "Words On Island",
+              "description": "The words, icons and lines drawn on the island ground.",
+              "kind": "color",
+              "value": "#fffdf8",
+              "css_variable": "--words-on-island"
+            },
+            {
+              "key": "defaultPrimaryFontFamily",
+              "label": "Text font",
+              "description": "Body and control text.",
+              "kind": "text",
+              "value": "SF Pro Text"
+            },
+            {
+              "key": "displayFontFamily",
+              "label": "Title font",
+              "description": "Screen titles.",
+              "kind": "text",
+              "value": "Recoleta"
+            },
+            {
+              "key": "defaultBorderRadius",
+              "label": "Corner radius",
+              "description": "The card corner the other radii derive from.",
+              "kind": "number",
+              "value": 14
+            },
+            {
+              "key": "shadow-tint",
+              "label": "Shadow Tint",
+              "description": "The colour shadows are cast in: a deep warm brown, so cards and menus lift without a grey cast.",
+              "kind": "color",
+              "value": "#2a1f14",
+              "css_variable": "--shadow-tint"
+            },
+            {
+              "key": "density",
+              "label": "Density",
+              "description": "How much room every pad, gap, control and icon takes: compact, standard or comfortable.",
+              "kind": "text",
+              "value": "standard"
+            }
+          ],
+          "sections": [
+            {
+              "id": "foundation",
+              "title": "Foundation",
+              "description": "Foundation screen-look variables.",
+              "token_keys": [
+                "black-pure",
+                "black-rich",
+                "white-pure"
+              ]
+            },
+            {
+              "id": "surface",
+              "title": "Surface",
+              "description": "Surface screen-look variables.",
+              "token_keys": [
+                "surface-base"
+              ]
+            },
+            {
+              "id": "glass",
+              "title": "Glass",
+              "description": "Glass screen-look variables.",
+              "token_keys": [
+                "glass-bg-primary",
+                "glass-bg-tertiary",
+                "glass-bg-input"
+              ]
+            },
+            {
+              "id": "text",
+              "title": "Text",
+              "description": "Text screen-look variables.",
+              "token_keys": [
+                "text-primary"
+              ]
+            },
+            {
+              "id": "status",
+              "title": "Status",
+              "description": "Status screen-look variables.",
+              "token_keys": [
+                "color-success",
+                "color-warning",
+                "color-error",
+                "color-info"
+              ]
+            },
+            {
+              "id": "accent",
+              "title": "Accent",
+              "description": "Accent screen-look variables.",
+              "token_keys": [
+                "accent-blue",
+                "accent-purple",
+                "accent-emerald",
+                "accent-indigo",
+                "accent-cyan"
+              ]
+            },
+            {
+              "id": "scrollbar",
+              "title": "Scrollbar",
+              "description": "Scrollbar screen-look variables.",
+              "token_keys": [
+                "scrollbar-thumb",
+                "scrollbar-thumb-hover"
+              ]
+            },
+            {
+              "id": "glass-popover",
+              "title": "Glass Popover",
+              "description": "Glass Popover screen-look variables.",
+              "token_keys": [
+                "glass-popover-background"
+              ]
+            },
+            {
+              "id": "glass-overlay",
+              "title": "Glass Overlay",
+              "description": "Glass Overlay screen-look variables.",
+              "token_keys": [
+                "glass-overlay-background"
+              ]
+            },
+            {
+              "id": "high-contrast",
+              "title": "High Contrast",
+              "description": "High Contrast screen-look variables.",
+              "token_keys": [
+                "high-contrast-border-primary",
+                "high-contrast-border-secondary",
+                "high-contrast-text-secondary",
+                "high-contrast-text-tertiary",
+                "high-contrast-text-muted"
+              ]
+            },
+            {
+              "id": "button",
+              "title": "Button",
+              "description": "Button screen-look variables.",
+              "token_keys": [
+                "button-primary-bg",
+                "button-primary-text",
+                "button-primary-bg-hover"
+              ]
+            },
+            {
+              "id": "diff",
+              "title": "Diff",
+              "description": "Diff screen-look variables.",
+              "token_keys": [
+                "diff-added-bg",
+                "diff-added-text",
+                "diff-removed-bg",
+                "diff-removed-text"
+              ]
+            },
+            {
+              "id": "depth",
+              "title": "Depth",
+              "description": "How things stand off the page: the colour of their shadows.",
+              "token_keys": [
+                "shadow-tint"
+              ]
+            },
+            {
+              "id": "shape",
+              "title": "Shape",
+              "description": "Corner radius and density.",
+              "token_keys": [
+                "defaultBorderRadius",
+                "density"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "address": "package::screen-look::published-record::editable-theme::trillion-black",
+        "payload": {
+          "kind": "screen-look-editable-theme",
+          "id": "trillion-black",
+          "name": "Trillion Black",
+          "description": "Pitch black, white and the logo thread red #ff1d1d, with Recoleta titles and SF Pro Text: the look of the Trillion apps.",
+          "author": "trillion",
+          "is_public": true,
+          "is_favorite": false,
+          "order": 1,
+          "tokens": [
+            {
+              "key": "black-pure",
+              "label": "Black Pure",
+              "description": "Black Pure CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#000000",
+              "css_variable": "--black-pure"
+            },
+            {
+              "key": "black-rich",
+              "label": "Black Rich",
+              "description": "Black Rich CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#0d0d0d",
+              "css_variable": "--black-rich"
+            },
+            {
+              "key": "white-pure",
+              "label": "White Pure",
+              "description": "White Pure CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--white-pure"
+            },
+            {
+              "key": "surface-base",
+              "label": "Surface Base",
+              "description": "Surface Base CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#000000",
+              "css_variable": "--surface-base"
+            },
+            {
+              "key": "glass-bg-primary",
+              "label": "Glass Bg Primary",
+              "description": "Glass Bg Primary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#0d0d0d",
+              "css_variable": "--glass-bg-primary"
+            },
+            {
+              "key": "glass-bg-tertiary",
+              "label": "Glass Bg Tertiary",
+              "description": "Glass Bg Tertiary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(13, 13, 13, 0.6)",
+              "css_variable": "--glass-bg-tertiary"
+            },
+            {
+              "key": "glass-bg-input",
+              "label": "Glass Bg Input",
+              "description": "Glass Bg Input CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.04)",
+              "css_variable": "--glass-bg-input"
+            },
+            {
+              "key": "text-primary",
+              "label": "Text Primary",
+              "description": "Text Primary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--text-primary"
+            },
+            {
+              "key": "color-success",
+              "label": "Color Success",
+              "description": "Color Success CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#4fcf94",
+              "css_variable": "--color-success"
+            },
+            {
+              "key": "color-warning",
+              "label": "Color Warning",
+              "description": "Color Warning CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#f59e0b",
+              "css_variable": "--color-warning"
+            },
+            {
+              "key": "color-error",
+              "label": "Color Error",
+              "description": "The destructive colour: deep red words and edge on a neutral face, never the strong action's thread red.",
+              "kind": "color",
+              "value": "#ff6b6b",
+              "css_variable": "--color-error"
+            },
+            {
+              "key": "color-info",
+              "label": "Color Info",
+              "description": "Color Info CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#6aa8ff",
+              "css_variable": "--color-info"
+            },
+            {
+              "key": "accent-blue",
+              "label": "Accent Blue",
+              "description": "Accent Blue CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--accent-blue"
+            },
+            {
+              "key": "accent-purple",
+              "label": "Accent Purple",
+              "description": "Accent Purple CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#ff1d1d",
+              "css_variable": "--accent-purple"
+            },
+            {
+              "key": "accent-emerald",
+              "label": "Accent Emerald",
+              "description": "Accent Emerald CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--accent-emerald"
+            },
+            {
+              "key": "accent-indigo",
+              "label": "Accent Indigo",
+              "description": "Accent Indigo CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--accent-indigo"
+            },
+            {
+              "key": "accent-cyan",
+              "label": "Accent Cyan",
+              "description": "Accent Cyan CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--accent-cyan"
+            },
+            {
+              "key": "scrollbar-thumb",
+              "label": "Scrollbar Thumb",
+              "description": "Scrollbar Thumb CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.14)",
+              "css_variable": "--scrollbar-thumb"
+            },
+            {
+              "key": "scrollbar-thumb-hover",
+              "label": "Scrollbar Thumb Hover",
+              "description": "Scrollbar Thumb Hover CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.24)",
+              "css_variable": "--scrollbar-thumb-hover"
+            },
+            {
+              "key": "glass-popover-background",
+              "label": "Glass Popover Background",
+              "description": "Glass Popover Background CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(13, 13, 13, 0.98)",
+              "css_variable": "--glass-popover-background"
+            },
+            {
+              "key": "glass-overlay-background",
+              "label": "Glass Overlay Background",
+              "description": "Glass Overlay Background CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.3)",
+              "css_variable": "--glass-overlay-background"
+            },
+            {
+              "key": "high-contrast-border-primary",
+              "label": "High Contrast Border Primary",
+              "description": "High Contrast Border Primary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.25)",
+              "css_variable": "--high-contrast-border-primary"
+            },
+            {
+              "key": "high-contrast-border-secondary",
+              "label": "High Contrast Border Secondary",
+              "description": "High Contrast Border Secondary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.35)",
+              "css_variable": "--high-contrast-border-secondary"
+            },
+            {
+              "key": "high-contrast-text-secondary",
+              "label": "High Contrast Text Secondary",
+              "description": "High Contrast Text Secondary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.85)",
+              "css_variable": "--high-contrast-text-secondary"
+            },
+            {
+              "key": "high-contrast-text-tertiary",
+              "label": "High Contrast Text Tertiary",
+              "description": "High Contrast Text Tertiary CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.75)",
+              "css_variable": "--high-contrast-text-tertiary"
+            },
+            {
+              "key": "high-contrast-text-muted",
+              "label": "High Contrast Text Muted",
+              "description": "High Contrast Text Muted CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.6)",
+              "css_variable": "--high-contrast-text-muted"
+            },
+            {
+              "key": "button-primary-bg",
+              "label": "Button Primary Bg",
+              "description": "The strong action: the thread red, exactly the logo thread's colour (accent-primary on the Trillion looks), the same in every look. Destructive actions never fill (deep red words on a neutral face), so the two never look alike.",
+              "kind": "color",
+              "value": "#ff1d1d",
+              "css_variable": "--button-primary-bg"
+            },
+            {
+              "key": "button-primary-text",
+              "label": "Button Primary Text",
+              "description": "White words on the thread red, as before the ink change. 3.9 to 1: below 4.5 for body text, above the 3 to 1 bar for large or bold text, so the strong button's label is always semibold (600).",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--button-primary-text"
+            },
+            {
+              "key": "button-primary-bg-hover",
+              "label": "Button Primary Bg Hover",
+              "description": "The strong action under the pointer: the thread red one shade deeper, as before the ink change.",
+              "kind": "color",
+              "value": "#e01212",
+              "css_variable": "--button-primary-bg-hover"
+            },
+            {
+              "key": "diff-added-bg",
+              "label": "Diff Added Bg",
+              "description": "Diff Added Bg CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.06)",
+              "css_variable": "--diff-added-bg"
+            },
+            {
+              "key": "diff-added-text",
+              "label": "Diff Added Text",
+              "description": "Diff Added Text CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--diff-added-text"
+            },
+            {
+              "key": "diff-removed-bg",
+              "label": "Diff Removed Bg",
+              "description": "Diff Removed Bg CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "rgba(255, 29, 29, 0.1)",
+              "css_variable": "--diff-removed-bg"
+            },
+            {
+              "key": "diff-removed-text",
+              "label": "Diff Removed Text",
+              "description": "Diff Removed Text CSS variable from the Trillion look.",
+              "kind": "color",
+              "value": "#e01212",
+              "css_variable": "--diff-removed-text"
+            },
+            {
+              "key": "accent-primary",
+              "label": "Accent",
+              "description": "The logo thread red: links, focus, current marks.",
+              "kind": "color",
+              "value": "#ff1d1d",
+              "css_variable": "--accent-primary"
+            },
+            {
+              "key": "glass-bg-popover",
+              "label": "Glass Bg Popover",
+              "description": "Menus, popovers and hover cards: a raised charcoal, lifted off the black page.",
+              "kind": "color",
+              "value": "#1c1c1c",
+              "css_variable": "--glass-bg-popover"
+            },
+            {
+              "key": "ground-island",
+              "label": "Ground Island",
+              "description": "The dark ground of a small surface that floats over other apps (the recording pill and its Mac window), dark in every look so it reads over whatever is beneath it.",
+              "kind": "color",
+              "value": "#1c1c1c",
+              "css_variable": "--ground-island"
+            },
+            {
+              "key": "words-on-island",
+              "label": "Words On Island",
+              "description": "The words, icons and lines drawn on the island ground.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--words-on-island"
+            },
+            {
+              "key": "defaultPrimaryFontFamily",
+              "label": "Text font",
+              "description": "Body and control text.",
+              "kind": "text",
+              "value": "SF Pro Text"
+            },
+            {
+              "key": "displayFontFamily",
+              "label": "Title font",
+              "description": "Screen titles.",
+              "kind": "text",
+              "value": "Recoleta"
+            },
+            {
+              "key": "defaultBorderRadius",
+              "label": "Corner radius",
+              "description": "The card corner the other radii derive from.",
+              "kind": "number",
+              "value": 14
+            },
+            {
+              "key": "density",
+              "label": "Density",
+              "description": "How much room every pad, gap, control and icon takes: compact, standard or comfortable.",
+              "kind": "text",
+              "value": "standard"
+            }
+          ],
+          "sections": [
+            {
+              "id": "foundation",
+              "title": "Foundation",
+              "description": "Foundation screen-look variables.",
+              "token_keys": [
+                "black-pure",
+                "black-rich",
+                "white-pure"
+              ]
+            },
+            {
+              "id": "surface",
+              "title": "Surface",
+              "description": "Surface screen-look variables.",
+              "token_keys": [
+                "surface-base"
+              ]
+            },
+            {
+              "id": "glass",
+              "title": "Glass",
+              "description": "Glass screen-look variables.",
+              "token_keys": [
+                "glass-bg-primary",
+                "glass-bg-tertiary",
+                "glass-bg-input"
+              ]
+            },
+            {
+              "id": "text",
+              "title": "Text",
+              "description": "Text screen-look variables.",
+              "token_keys": [
+                "text-primary"
+              ]
+            },
+            {
+              "id": "status",
+              "title": "Status",
+              "description": "Status screen-look variables.",
+              "token_keys": [
+                "color-success",
+                "color-warning",
+                "color-error",
+                "color-info"
+              ]
+            },
+            {
+              "id": "accent",
+              "title": "Accent",
+              "description": "Accent screen-look variables.",
+              "token_keys": [
+                "accent-blue",
+                "accent-purple",
+                "accent-emerald",
+                "accent-indigo",
+                "accent-cyan"
+              ]
+            },
+            {
+              "id": "scrollbar",
+              "title": "Scrollbar",
+              "description": "Scrollbar screen-look variables.",
+              "token_keys": [
+                "scrollbar-thumb",
+                "scrollbar-thumb-hover"
+              ]
+            },
+            {
+              "id": "glass-popover",
+              "title": "Glass Popover",
+              "description": "Glass Popover screen-look variables.",
+              "token_keys": [
+                "glass-popover-background"
+              ]
+            },
+            {
+              "id": "glass-overlay",
+              "title": "Glass Overlay",
+              "description": "Glass Overlay screen-look variables.",
+              "token_keys": [
+                "glass-overlay-background"
+              ]
+            },
+            {
+              "id": "high-contrast",
+              "title": "High Contrast",
+              "description": "High Contrast screen-look variables.",
+              "token_keys": [
+                "high-contrast-border-primary",
+                "high-contrast-border-secondary",
+                "high-contrast-text-secondary",
+                "high-contrast-text-tertiary",
+                "high-contrast-text-muted"
+              ]
+            },
+            {
+              "id": "button",
+              "title": "Button",
+              "description": "Button screen-look variables.",
+              "token_keys": [
+                "button-primary-bg",
+                "button-primary-text",
+                "button-primary-bg-hover"
+              ]
+            },
+            {
+              "id": "diff",
+              "title": "Diff",
+              "description": "Diff screen-look variables.",
+              "token_keys": [
+                "diff-added-bg",
+                "diff-added-text",
+                "diff-removed-bg",
+                "diff-removed-text"
+              ]
+            },
+            {
+              "id": "shape",
+              "title": "Shape",
+              "description": "Corner radius and density.",
+              "token_keys": [
+                "defaultBorderRadius",
+                "density"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "address": "package::screen-look::published-record::editable-theme::midnight",
+        "payload": {
+          "kind": "screen-look-editable-theme",
+          "id": "midnight",
+          "name": "Midnight",
+          "description": "Monochrome black and white glassmorphism with neutral dark tones",
+          "author": "screen-look",
+          "is_public": true,
+          "is_favorite": false,
+          "order": 2,
+          "tokens": [
+            {
+              "key": "black-pure",
+              "label": "Black Pure",
+              "description": "Black Pure CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "#000000",
+              "css_variable": "--black-pure"
+            },
+            {
+              "key": "black-rich",
+              "label": "Black Rich",
+              "description": "Black Rich CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "#111111",
+              "css_variable": "--black-rich"
+            },
+            {
+              "key": "white-pure",
+              "label": "White Pure",
+              "description": "White Pure CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--white-pure"
+            },
+            {
+              "key": "surface-base",
+              "label": "Surface Base",
+              "description": "Surface Base CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "#0a0a0a",
+              "css_variable": "--surface-base"
+            },
+            {
+              "key": "glass-bg-primary",
+              "label": "Glass Bg Primary",
+              "description": "Glass Bg Primary CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.08)",
+              "css_variable": "--glass-bg-primary"
+            },
+            {
+              "key": "glass-bg-tertiary",
+              "label": "Glass Bg Tertiary",
+              "description": "Glass Bg Tertiary CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.2)",
+              "css_variable": "--glass-bg-tertiary"
+            },
+            {
+              "key": "glass-bg-input",
+              "label": "Glass Bg Input",
+              "description": "Glass Bg Input CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.08)",
+              "css_variable": "--glass-bg-input"
+            },
+            {
+              "key": "text-primary",
+              "label": "Text Primary",
+              "description": "Text Primary CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 1)",
+              "css_variable": "--text-primary"
+            },
+            {
+              "key": "color-success",
+              "label": "Color Success",
+              "description": "Color Success CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "#10b981",
+              "css_variable": "--color-success"
+            },
+            {
+              "key": "color-warning",
+              "label": "Color Warning",
+              "description": "Color Warning CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "#f59e0b",
+              "css_variable": "--color-warning"
+            },
+            {
+              "key": "color-error",
+              "label": "Color Error",
+              "description": "The destructive colour: deep red words and edge on a neutral face, never the strong action's thread red.",
+              "kind": "color",
+              "value": "#ff6b6b",
+              "css_variable": "--color-error"
+            },
+            {
+              "key": "color-info",
+              "label": "Color Info",
+              "description": "Color Info CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "#3b82f6",
+              "css_variable": "--color-info"
+            },
+            {
+              "key": "accent-blue",
+              "label": "Accent Blue",
+              "description": "Accent Blue CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.70)",
+              "css_variable": "--accent-blue"
+            },
+            {
+              "key": "accent-purple",
+              "label": "Accent Purple",
+              "description": "Accent Purple CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.85)",
+              "css_variable": "--accent-purple"
+            },
+            {
+              "key": "accent-emerald",
+              "label": "Accent Emerald",
+              "description": "Accent Emerald CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.70)",
+              "css_variable": "--accent-emerald"
+            },
+            {
+              "key": "accent-indigo",
+              "label": "Accent Indigo",
+              "description": "Accent Indigo CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.65)",
+              "css_variable": "--accent-indigo"
+            },
+            {
+              "key": "accent-cyan",
+              "label": "Accent Cyan",
+              "description": "Accent Cyan CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.75)",
+              "css_variable": "--accent-cyan"
+            },
+            {
+              "key": "scrollbar-thumb",
+              "label": "Scrollbar Thumb",
+              "description": "Scrollbar Thumb CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.1)",
+              "css_variable": "--scrollbar-thumb"
+            },
+            {
+              "key": "scrollbar-thumb-hover",
+              "label": "Scrollbar Thumb Hover",
+              "description": "Scrollbar Thumb Hover CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.2)",
+              "css_variable": "--scrollbar-thumb-hover"
+            },
+            {
+              "key": "glass-popover-background",
+              "label": "Glass Popover Background",
+              "description": "Glass Popover Background CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.08)",
+              "css_variable": "--glass-popover-background"
+            },
+            {
+              "key": "glass-overlay-background",
+              "label": "Glass Overlay Background",
+              "description": "Glass Overlay Background CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.5)",
+              "css_variable": "--glass-overlay-background"
+            },
+            {
+              "key": "high-contrast-border-primary",
+              "label": "High Contrast Border Primary",
+              "description": "High Contrast Border Primary CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.25)",
+              "css_variable": "--high-contrast-border-primary"
+            },
+            {
+              "key": "high-contrast-border-secondary",
+              "label": "High Contrast Border Secondary",
+              "description": "High Contrast Border Secondary CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.35)",
+              "css_variable": "--high-contrast-border-secondary"
+            },
+            {
+              "key": "high-contrast-border-focus",
+              "label": "High Contrast Border Focus",
+              "description": "High Contrast Border Focus CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.5)",
+              "css_variable": "--high-contrast-border-focus"
+            },
+            {
+              "key": "high-contrast-text-secondary",
+              "label": "High Contrast Text Secondary",
+              "description": "High Contrast Text Secondary CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.85)",
+              "css_variable": "--high-contrast-text-secondary"
+            },
+            {
+              "key": "high-contrast-text-tertiary",
+              "label": "High Contrast Text Tertiary",
+              "description": "High Contrast Text Tertiary CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.75)",
+              "css_variable": "--high-contrast-text-tertiary"
+            },
+            {
+              "key": "high-contrast-text-muted",
+              "label": "High Contrast Text Muted",
+              "description": "High Contrast Text Muted CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.6)",
+              "css_variable": "--high-contrast-text-muted"
+            },
+            {
+              "key": "button-primary-bg",
+              "label": "Button Primary Bg",
+              "description": "The strong action: the thread red, exactly the logo thread's colour (accent-primary on the Trillion looks), the same in every look. Destructive actions never fill (deep red words on a neutral face), so the two never look alike.",
+              "kind": "color",
+              "value": "#ff1d1d",
+              "css_variable": "--button-primary-bg"
+            },
+            {
+              "key": "button-primary-text",
+              "label": "Button Primary Text",
+              "description": "White words on the thread red, as before the ink change. 3.9 to 1: below 4.5 for body text, above the 3 to 1 bar for large or bold text, so the strong button's label is always semibold (600).",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--button-primary-text"
+            },
+            {
+              "key": "button-primary-bg-hover",
+              "label": "Button Primary Bg Hover",
+              "description": "The strong action under the pointer: the thread red one shade deeper, as before the ink change.",
+              "kind": "color",
+              "value": "#e01212",
+              "css_variable": "--button-primary-bg-hover"
+            },
+            {
+              "key": "diff-added-bg",
+              "label": "Diff Added Bg",
+              "description": "Diff Added Bg CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(16, 185, 129, 0.1)",
+              "css_variable": "--diff-added-bg"
+            },
+            {
+              "key": "diff-added-text",
+              "label": "Diff Added Text",
+              "description": "Diff Added Text CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "#6ee7b7",
+              "css_variable": "--diff-added-text"
+            },
+            {
+              "key": "diff-removed-bg",
+              "label": "Diff Removed Bg",
+              "description": "Diff Removed Bg CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(239, 68, 68, 0.1)",
+              "css_variable": "--diff-removed-bg"
+            },
+            {
+              "key": "diff-removed-text",
+              "label": "Diff Removed Text",
+              "description": "Diff Removed Text CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "#fca5a5",
+              "css_variable": "--diff-removed-text"
+            },
+            {
+              "key": "glass-bg-popover",
+              "label": "Glass Bg Popover",
+              "description": "Glass Bg Popover CSS variable from the Midnight look record.",
+              "kind": "color",
+              "value": "rgba(17, 17, 17, 0.92)",
+              "css_variable": "--glass-bg-popover"
+            },
+            {
+              "key": "ground-island",
+              "label": "Ground Island",
+              "description": "The dark ground of a small surface that floats over other apps (the recording pill and its Mac window), dark in every look so it reads over whatever is beneath it.",
+              "kind": "color",
+              "value": "#111111",
+              "css_variable": "--ground-island"
+            },
+            {
+              "key": "words-on-island",
+              "label": "Words On Island",
+              "description": "The words, icons and lines drawn on the island ground.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--words-on-island"
+            },
+            {
+              "key": "density",
+              "label": "Density",
+              "description": "How much room every pad, gap, control and icon takes: compact, standard or comfortable.",
+              "kind": "text",
+              "value": "standard"
+            }
+          ],
+          "sections": [
+            {
+              "id": "foundation",
+              "title": "Foundation",
+              "description": "Foundation screen-look variables.",
+              "token_keys": [
+                "black-pure",
+                "black-rich",
+                "white-pure"
+              ]
+            },
+            {
+              "id": "surface",
+              "title": "Surface",
+              "description": "Surface screen-look variables.",
+              "token_keys": [
+                "surface-base"
+              ]
+            },
+            {
+              "id": "glass",
+              "title": "Glass",
+              "description": "Glass screen-look variables.",
+              "token_keys": [
+                "glass-bg-primary",
+                "glass-bg-tertiary",
+                "glass-bg-input"
+              ]
+            },
+            {
+              "id": "text",
+              "title": "Text",
+              "description": "Text screen-look variables.",
+              "token_keys": [
+                "text-primary"
+              ]
+            },
+            {
+              "id": "status",
+              "title": "Status",
+              "description": "Status screen-look variables.",
+              "token_keys": [
+                "color-success",
+                "color-warning",
+                "color-error",
+                "color-info"
+              ]
+            },
+            {
+              "id": "accent",
+              "title": "Accent",
+              "description": "Accent screen-look variables.",
+              "token_keys": [
+                "accent-blue",
+                "accent-purple",
+                "accent-emerald",
+                "accent-indigo",
+                "accent-cyan"
+              ]
+            },
+            {
+              "id": "scrollbar",
+              "title": "Scrollbar",
+              "description": "Scrollbar screen-look variables.",
+              "token_keys": [
+                "scrollbar-thumb",
+                "scrollbar-thumb-hover"
+              ]
+            },
+            {
+              "id": "glass-popover",
+              "title": "Glass Popover",
+              "description": "Glass Popover screen-look variables.",
+              "token_keys": [
+                "glass-popover-background"
+              ]
+            },
+            {
+              "id": "glass-overlay",
+              "title": "Glass Overlay",
+              "description": "Glass Overlay screen-look variables.",
+              "token_keys": [
+                "glass-overlay-background"
+              ]
+            },
+            {
+              "id": "high-contrast",
+              "title": "High Contrast",
+              "description": "High Contrast screen-look variables.",
+              "token_keys": [
+                "high-contrast-border-primary",
+                "high-contrast-border-secondary",
+                "high-contrast-border-focus",
+                "high-contrast-text-secondary",
+                "high-contrast-text-tertiary",
+                "high-contrast-text-muted"
+              ]
+            },
+            {
+              "id": "button",
+              "title": "Button",
+              "description": "Button screen-look variables.",
+              "token_keys": [
+                "button-primary-bg",
+                "button-primary-text",
+                "button-primary-bg-hover"
+              ]
+            },
+            {
+              "id": "diff",
+              "title": "Diff",
+              "description": "Diff screen-look variables.",
+              "token_keys": [
+                "diff-added-bg",
+                "diff-added-text",
+                "diff-removed-bg",
+                "diff-removed-text"
+              ]
+            },
+            {
+              "id": "shape",
+              "title": "Shape",
+              "description": "Corner radius and density.",
+              "token_keys": [
+                "density"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "address": "package::screen-look::published-record::editable-theme::paper",
+        "payload": {
+          "kind": "screen-look-editable-theme",
+          "id": "paper",
+          "name": "Paper",
+          "description": "Light mode glassmorphism — inverse of Midnight",
+          "author": "screen-look",
+          "is_public": true,
+          "is_favorite": false,
+          "order": 3,
+          "tokens": [
+            {
+              "key": "black-pure",
+              "label": "Black Pure",
+              "description": "Black Pure CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "#f5f5f5",
+              "css_variable": "--black-pure"
+            },
+            {
+              "key": "black-rich",
+              "label": "Black Rich",
+              "description": "Black Rich CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "#ebebeb",
+              "css_variable": "--black-rich"
+            },
+            {
+              "key": "white-pure",
+              "label": "White Pure",
+              "description": "White Pure CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--white-pure"
+            },
+            {
+              "key": "surface-base",
+              "label": "Surface Base",
+              "description": "Surface Base CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "#f8f8f8",
+              "css_variable": "--surface-base"
+            },
+            {
+              "key": "glass-bg-primary",
+              "label": "Glass Bg Primary",
+              "description": "Glass Bg Primary CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.05)",
+              "css_variable": "--glass-bg-primary"
+            },
+            {
+              "key": "glass-bg-tertiary",
+              "label": "Glass Bg Tertiary",
+              "description": "Glass Bg Tertiary CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(255, 255, 255, 0.5)",
+              "css_variable": "--glass-bg-tertiary"
+            },
+            {
+              "key": "glass-bg-input",
+              "label": "Glass Bg Input",
+              "description": "Glass Bg Input CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.05)",
+              "css_variable": "--glass-bg-input"
+            },
+            {
+              "key": "text-primary",
+              "label": "Text Primary",
+              "description": "Text Primary CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 1)",
+              "css_variable": "--text-primary"
+            },
+            {
+              "key": "color-success",
+              "label": "Color Success",
+              "description": "Color Success CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "#059669",
+              "css_variable": "--color-success"
+            },
+            {
+              "key": "color-warning",
+              "label": "Color Warning",
+              "description": "Color Warning CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "#d97706",
+              "css_variable": "--color-warning"
+            },
+            {
+              "key": "color-error",
+              "label": "Color Error",
+              "description": "The destructive colour: deep red words and edge on a neutral face, never the strong action's thread red.",
+              "kind": "color",
+              "value": "#b42318",
+              "css_variable": "--color-error"
+            },
+            {
+              "key": "color-info",
+              "label": "Color Info",
+              "description": "Color Info CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "#2563eb",
+              "css_variable": "--color-info"
+            },
+            {
+              "key": "accent-blue",
+              "label": "Accent Blue",
+              "description": "Accent Blue CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.70)",
+              "css_variable": "--accent-blue"
+            },
+            {
+              "key": "accent-purple",
+              "label": "Accent Purple",
+              "description": "Accent Purple CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.85)",
+              "css_variable": "--accent-purple"
+            },
+            {
+              "key": "accent-emerald",
+              "label": "Accent Emerald",
+              "description": "Accent Emerald CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.70)",
+              "css_variable": "--accent-emerald"
+            },
+            {
+              "key": "accent-indigo",
+              "label": "Accent Indigo",
+              "description": "Accent Indigo CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.65)",
+              "css_variable": "--accent-indigo"
+            },
+            {
+              "key": "accent-cyan",
+              "label": "Accent Cyan",
+              "description": "Accent Cyan CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.75)",
+              "css_variable": "--accent-cyan"
+            },
+            {
+              "key": "scrollbar-thumb",
+              "label": "Scrollbar Thumb",
+              "description": "Scrollbar Thumb CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.1)",
+              "css_variable": "--scrollbar-thumb"
+            },
+            {
+              "key": "scrollbar-thumb-hover",
+              "label": "Scrollbar Thumb Hover",
+              "description": "Scrollbar Thumb Hover CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.2)",
+              "css_variable": "--scrollbar-thumb-hover"
+            },
+            {
+              "key": "glass-popover-background",
+              "label": "Glass Popover Background",
+              "description": "Glass Popover Background CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.06)",
+              "css_variable": "--glass-popover-background"
+            },
+            {
+              "key": "glass-overlay-background",
+              "label": "Glass Overlay Background",
+              "description": "Glass Overlay Background CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.3)",
+              "css_variable": "--glass-overlay-background"
+            },
+            {
+              "key": "ground-island",
+              "label": "Ground Island",
+              "description": "The dark ground of a small surface that floats over other apps (the recording pill and its Mac window), dark in every look so it reads over whatever is beneath it.",
+              "kind": "color",
+              "value": "#111111",
+              "css_variable": "--ground-island"
+            },
+            {
+              "key": "words-on-island",
+              "label": "Words On Island",
+              "description": "The words, icons and lines drawn on the island ground.",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--words-on-island"
+            },
+            {
+              "key": "high-contrast-border-primary",
+              "label": "High Contrast Border Primary",
+              "description": "High Contrast Border Primary CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.25)",
+              "css_variable": "--high-contrast-border-primary"
+            },
+            {
+              "key": "high-contrast-border-secondary",
+              "label": "High Contrast Border Secondary",
+              "description": "High Contrast Border Secondary CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.35)",
+              "css_variable": "--high-contrast-border-secondary"
+            },
+            {
+              "key": "high-contrast-border-focus",
+              "label": "High Contrast Border Focus",
+              "description": "High Contrast Border Focus CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.5)",
+              "css_variable": "--high-contrast-border-focus"
+            },
+            {
+              "key": "high-contrast-text-secondary",
+              "label": "High Contrast Text Secondary",
+              "description": "High Contrast Text Secondary CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.85)",
+              "css_variable": "--high-contrast-text-secondary"
+            },
+            {
+              "key": "high-contrast-text-tertiary",
+              "label": "High Contrast Text Tertiary",
+              "description": "High Contrast Text Tertiary CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.75)",
+              "css_variable": "--high-contrast-text-tertiary"
+            },
+            {
+              "key": "high-contrast-text-muted",
+              "label": "High Contrast Text Muted",
+              "description": "High Contrast Text Muted CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(0, 0, 0, 0.66)",
+              "css_variable": "--high-contrast-text-muted"
+            },
+            {
+              "key": "button-primary-bg",
+              "label": "Button Primary Bg",
+              "description": "The strong action: the thread red, exactly the logo thread's colour (accent-primary on the Trillion looks), the same in every look. Destructive actions never fill (deep red words on a neutral face), so the two never look alike.",
+              "kind": "color",
+              "value": "#ff1d1d",
+              "css_variable": "--button-primary-bg"
+            },
+            {
+              "key": "button-primary-text",
+              "label": "Button Primary Text",
+              "description": "White words on the thread red, as before the ink change. 3.9 to 1: below 4.5 for body text, above the 3 to 1 bar for large or bold text, so the strong button's label is always semibold (600).",
+              "kind": "color",
+              "value": "#ffffff",
+              "css_variable": "--button-primary-text"
+            },
+            {
+              "key": "button-primary-bg-hover",
+              "label": "Button Primary Bg Hover",
+              "description": "The strong action under the pointer: the thread red one shade deeper, as before the ink change.",
+              "kind": "color",
+              "value": "#e01212",
+              "css_variable": "--button-primary-bg-hover"
+            },
+            {
+              "key": "diff-added-bg",
+              "label": "Diff Added Bg",
+              "description": "Diff Added Bg CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(16, 185, 129, 0.12)",
+              "css_variable": "--diff-added-bg"
+            },
+            {
+              "key": "diff-added-text",
+              "label": "Diff Added Text",
+              "description": "Diff Added Text CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "#065f46",
+              "css_variable": "--diff-added-text"
+            },
+            {
+              "key": "diff-removed-bg",
+              "label": "Diff Removed Bg",
+              "description": "Diff Removed Bg CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "rgba(239, 68, 68, 0.12)",
+              "css_variable": "--diff-removed-bg"
+            },
+            {
+              "key": "diff-removed-text",
+              "label": "Diff Removed Text",
+              "description": "Diff Removed Text CSS variable from the Paper look record.",
+              "kind": "color",
+              "value": "#991b1b",
+              "css_variable": "--diff-removed-text"
+            },
+            {
+              "key": "density",
+              "label": "Density",
+              "description": "How much room every pad, gap, control and icon takes: compact, standard or comfortable.",
+              "kind": "text",
+              "value": "standard"
+            }
+          ],
+          "sections": [
+            {
+              "id": "foundation",
+              "title": "Foundation",
+              "description": "Foundation screen-look variables.",
+              "token_keys": [
+                "black-pure",
+                "black-rich",
+                "white-pure"
+              ]
+            },
+            {
+              "id": "surface",
+              "title": "Surface",
+              "description": "Surface screen-look variables.",
+              "token_keys": [
+                "surface-base"
+              ]
+            },
+            {
+              "id": "glass",
+              "title": "Glass",
+              "description": "Glass screen-look variables.",
+              "token_keys": [
+                "glass-bg-primary",
+                "glass-bg-tertiary",
+                "glass-bg-input"
+              ]
+            },
+            {
+              "id": "text",
+              "title": "Text",
+              "description": "Text screen-look variables.",
+              "token_keys": [
+                "text-primary"
+              ]
+            },
+            {
+              "id": "status",
+              "title": "Status",
+              "description": "Status screen-look variables.",
+              "token_keys": [
+                "color-success",
+                "color-warning",
+                "color-error",
+                "color-info"
+              ]
+            },
+            {
+              "id": "accent",
+              "title": "Accent",
+              "description": "Accent screen-look variables.",
+              "token_keys": [
+                "accent-blue",
+                "accent-purple",
+                "accent-emerald",
+                "accent-indigo",
+                "accent-cyan"
+              ]
+            },
+            {
+              "id": "scrollbar",
+              "title": "Scrollbar",
+              "description": "Scrollbar screen-look variables.",
+              "token_keys": [
+                "scrollbar-thumb",
+                "scrollbar-thumb-hover"
+              ]
+            },
+            {
+              "id": "glass-popover",
+              "title": "Glass Popover",
+              "description": "Glass Popover screen-look variables.",
+              "token_keys": [
+                "glass-popover-background"
+              ]
+            },
+            {
+              "id": "glass-overlay",
+              "title": "Glass Overlay",
+              "description": "Glass Overlay screen-look variables.",
+              "token_keys": [
+                "glass-overlay-background"
+              ]
+            },
+            {
+              "id": "high-contrast",
+              "title": "High Contrast",
+              "description": "High Contrast screen-look variables.",
+              "token_keys": [
+                "high-contrast-border-primary",
+                "high-contrast-border-secondary",
+                "high-contrast-border-focus",
+                "high-contrast-text-secondary",
+                "high-contrast-text-tertiary",
+                "high-contrast-text-muted"
+              ]
+            },
+            {
+              "id": "button",
+              "title": "Button",
+              "description": "Button screen-look variables.",
+              "token_keys": [
+                "button-primary-bg",
+                "button-primary-text",
+                "button-primary-bg-hover"
+              ]
+            },
+            {
+              "id": "diff",
+              "title": "Diff",
+              "description": "Diff screen-look variables.",
+              "token_keys": [
+                "diff-added-bg",
+                "diff-added-text",
+                "diff-removed-bg",
+                "diff-removed-text"
+              ]
+            },
+            {
+              "id": "shape",
+              "title": "Shape",
+              "description": "Corner radius and density.",
+              "token_keys": [
+                "density"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
 }

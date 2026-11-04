@@ -171,3 +171,38 @@ test('starting a place on an existing machine sets it up, installs the release, 
   assert.match(commands.find(c => c.startsWith('sh -s')), /^sh -s -- 'place\.example\.com' '7199' 'engine' 'ENGINE_DATA' 'data'$/);
   assert.ok(commands.some(c => c.includes('systemctl restart place.service')));
 });
+
+test('the place config carries the request\'s release feed and default places', async () => {
+  const key = 'b'.repeat(64), id = 'e'.repeat(64);
+  const release_feed = { urls: ['https://releases.example.com/engine-releases/feed.json'], public_keys: [key], releases: '/opt/place/releases' };
+  const default_places = { holders: ['this-place', id], answering: ['this-place'] };
+  const config = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' }, release_feed, default_places }, null, async () => '');
+  assert.deepEqual([config.release_feed, config.default_places], [release_feed, default_places]);
+  const without = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' } }, null, async () => '');
+  assert.ok(!('release_feed' in without) && !('default_places' in without));
+  await assert.rejects(placeConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, release_feed: { ...release_feed, public_keys: ['short'] } }, null), /64 lowercase hex/);
+  await assert.rejects(placeConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, release_feed: { ...release_feed, urls: ['http://insecure.example.com/feed.json'] } }, null), /https addresses/);
+  await assert.rejects(placeConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, default_places: { answering: [id] } }, null), /holders must name/);
+});
+
+test('a start writes both fields into the place config it installs, and a bad feed is refused before anything is rented', async () => {
+  const here = folder(), written = [];
+  const run = async (_machine, command, input) => {
+    if (command === 'uname -m') return 'x86_64\n';
+    if (command.startsWith('install -o place')) written.push(JSON.parse(input));
+    return '';
+  };
+  const release_feed = { urls: ['https://releases.example.com/engine-releases/feed.json'], public_keys: ['a'.repeat(64)], releases: '/opt/place/releases' };
+  const default_places = { holders: ['this-place'], answering: ['this-place'] };
+  const request = {
+    lease_file: join(here, 'lease.json'), machine: { provider: 'existing-machine', name: 'a-pi', placement: { address: '192.0.2.41' }, lifetime: 'service' },
+    name: { host_name: 'place.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199,
+    engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', release_name: 'r1', release: { on_machine: '/opt/build/release' } },
+    release_feed, default_places,
+  };
+  await startAPlace(request, { run, fetchImpl: async () => ({ status: 200 }), wait: async () => {} });
+  assert.deepEqual([written[0].release_feed, written[0].default_places], [release_feed, default_places]);
+  const lease = join(here, 'second-lease.json');
+  await assert.rejects(startAPlace({ ...request, lease_file: lease, release_feed: { urls: [] } }, { run }), /release_feed/);
+  assert.throws(() => readFileSync(lease), /ENOENT/);
+});
