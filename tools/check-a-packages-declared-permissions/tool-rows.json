@@ -117,7 +117,37 @@
           }
         },
         "result_selector": "$.result",
-        "verify": [{"kind":"sample-run","input":{"manifest":{"permissions":["network_egress","read_files"]}}}]
+        "verify": [{"kind":"sample-run","input":{"manifest":{"permissions":["network_egress","read_files"]}}}],
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "record:capability-check",
+              "guard_properties": {
+                "check": "text",
+                "label": "text",
+                "owner": "text",
+                "shipped_in": "text",
+                "every_hours": "number",
+                "probe": "object",
+                "facts": "objects",
+                "in_use": "any",
+                "pending_when": "any",
+                "expect": "object",
+                "state": "text",
+                "state_id": "text",
+                "last_checked": "text",
+                "last_worked": "text",
+                "pending": "boolean",
+                "problem": "text",
+                "read": "any",
+                "failures": "number",
+                "failing_since": "any"
+              },
+              "_read_by": "src/capability-checks.mjs: one configured capability probe (a row of the list in src/capability-checks.json) with its latest result"
+            }
+          ]
+        }
       }
     }
   ]

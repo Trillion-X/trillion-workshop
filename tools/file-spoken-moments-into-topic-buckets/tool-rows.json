@@ -47,6 +47,71 @@
         ],
         "provenance": {
           "source": "Written for filing hours of raw spoken recordings by topic so the usable moments can be found. Asks a local model through Ollama (MIT, https://github.com/ollama/ollama)."
+        },
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "moment",
+              "properties": {
+                "members": "objects",
+                "files": "objects"
+              },
+              "parts": [
+                {
+                  "role": "member",
+                  "path": [
+                    "members"
+                  ],
+                  "each": [
+                    "id"
+                  ]
+                },
+                {
+                  "role": "message",
+                  "path": [
+                    "members"
+                  ],
+                  "each": [
+                    "message_id"
+                  ]
+                },
+                {
+                  "role": "file",
+                  "path": [
+                    "files"
+                  ],
+                  "each": [
+                    "id"
+                  ]
+                }
+              ],
+              "_read_by": "src/moments.mjs: a moment holds the arrivals and asks gathered into it and their files",
+              "guard_properties": {
+                "at": "text",
+                "case_id": "text",
+                "chat_first_minutes": "number",
+                "closed_at": "text",
+                "closes_at": "text",
+                "from": "text",
+                "from_person": "boolean",
+                "handoff_id": "text",
+                "last_at": "text",
+                "message_id": "text",
+                "message_ids": "texts",
+                "once_per": "text",
+                "opened_at": "text",
+                "priority": "number",
+                "route": "text",
+                "row": "text",
+                "said": "text",
+                "send": "text",
+                "source_id": "text",
+                "title": "text",
+                "until": "text"
+              }
+            }
+          ]
         }
       }
     }

@@ -47,11 +47,26 @@
       "identity": "1f:725836709c22d782d1b1f2c1d8d4be13210f8474713080413655bad38d702093"
     },
     {
+      "from": "src/owned-upsert.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/picture-a-code-change/src/owned-upsert.mjs",
+      "source_identity": "1f:725836709c22d782d1b1f2c1d8d4be13210f8474713080413655bad38d702093",
+      "identity": "1f:725836709c22d782d1b1f2c1d8d4be13210f8474713080413655bad38d702093",
+      "reused": true
+    },
+    {
       "from": "src/surface-compose.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/picture-a-code-change/src/surface-compose.mjs",
       "source_identity": "1f:45fc76d5de3696637b3846294e16f28a92cf1a11278b9c78f2b2341d31a3cc85",
       "identity": "1f:3a9d9e38000047fdd44669af0793ca1f678fff05113309267a0d77ede984e17e"
+    },
+    {
+      "from": "test/owned-upsert.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/picture-a-code-change/test/owned-upsert.test.mjs",
+      "source_identity": "1f:c1a4bc8b802aab1d4c9433834eafe579d6f26676870c688f66ce71045953c99f",
+      "identity": "1f:c1a4bc8b802aab1d4c9433834eafe579d6f26676870c688f66ce71045953c99f"
     }
   ]
 }

@@ -79,8 +79,113 @@
                 "from": "text",
                 "at": "text"
               }
+            },
+            {
+              "type": "trigger-rule",
+              "guard_properties": {
+                "set_by": "text",
+                "backs": "objects",
+                "default": "boolean",
+                "dispatch": "object",
+                "enabled": "boolean",
+                "id": "text",
+                "is_active": "boolean",
+                "label": "text",
+                "match_condition": "object",
+                "set_at": "text",
+                "then": "object",
+                "when": "object"
+              }
+            },
+            {
+              "type": "trigger-dispatch-outcome",
+              "guard_properties": {
+                "address": "text",
+                "attempt": "number",
+                "attempt_ref": "text",
+                "correlation": "any",
+                "delivery_receipt": "any",
+                "dispatch": "object",
+                "envelope": "object",
+                "failure": "any",
+                "kind": "text",
+                "recorded_at": "text",
+                "rule_address": "text",
+                "rule_id": "text",
+                "started": "object",
+                "status": "text",
+                "target": "text"
+              }
+            },
+            {
+              "type": "workflow-dispatch-failure",
+              "guard_properties": {
+                "address": "text",
+                "change_kind": "text",
+                "envelope": "object",
+                "error": "text",
+                "kind": "text",
+                "phase": "text",
+                "recorded_at": "text",
+                "rule_address": "text",
+                "rule_id": "text",
+                "target": "text"
+              }
             }
-          ]
+          ],
+          "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "native_inspection": {
+            "limits": {
+              "value_bytes": 1500000,
+              "owner_reads": 4,
+              "nodes": 20000,
+              "facts": 2000,
+              "depth": 64,
+              "reference_chars": 500
+            },
+            "readers": [
+              {
+                "reader": "connection",
+                "type": "connection",
+                "pattern": "^(connection:[^/\\s]+)$",
+                "canonical": "$1"
+              },
+              {
+                "reader": "connection",
+                "type": "connection",
+                "pattern": "^(shared-connection:[^/\\s]+)$",
+                "canonical": "$1"
+              },
+              {
+                "reader": "setup-reference",
+                "type": "workflow-run",
+                "pattern": "^(?:workflow-run:)?(run:[A-Za-z0-9_-]+)$",
+                "canonical": "$1"
+              },
+              {
+                "reader": "setup-reference",
+                "type": "workflow-output",
+                "pattern": "^(workflow-output:run:[A-Za-z0-9_-]+:[a-z0-9][a-z0-9_-]*)$",
+                "canonical": "$1"
+              }
+            ]
+          },
+          "rules_and_runs": {
+            "_what": "The record kinds the engine's rules and workflow runs (trillion-rust src/rule_bindings/rules_and_runs.rs) read and write for this account, moved from trillion-rust src/rule_bindings/rules_and_runs/settings.json, there from old trillion src/automations.mjs and src/workflows.mjs: `rule` is the kind of a rule row (its id is the kind, a colon and the rule's id), `outcome` the kind the trigger rules' own writes are kept as when they name none, `run` a workflow run's row, `recipe` the row holding a workflow's definition, `send` the row a rule's send to a tool is kept as for the wake runner, and `own` every kind these rules and runs write, never handed to the rules as a change. With this tool not installed, no rule runs.",
+            "rule": "trigger-rule",
+            "outcome": "trigger-dispatch-outcome",
+            "run": "workflow-run",
+            "recipe": "workflow-recipe",
+            "send": "rule-tool-send",
+            "own": [
+              "trigger-rule",
+              "trigger-dispatch-outcome",
+              "workflow-dispatch-failure",
+              "workflow-run",
+              "workflow-recipe",
+              "rule-tool-send"
+            ]
+          }
         },
         "verify": [{"kind": "sample-run", "input": {"row": "workflow:bring-in-a-framework"}}]
       }

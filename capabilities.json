@@ -734,6 +734,13 @@
       "evidence": "README.md:3 lays out one person's (or any record's) profile from a description of what to show"
     },
     {
+      "capability": "publish a website's files and give it its own address: a readable name, a renamed name that still sends visitors on, or the person's own domain with the DNS records that prove it",
+      "owner": ["tools/publish-a-site-at-its-own-address/"],
+      "entry": "tools/publish-a-site-at-its-own-address/tool-rows.json",
+      "evidence": "README.md:3 publishes a website's files into the person's own files and gives it its own address; ported from old trillion src/public-app-names.mjs:79-146 and src/public-app-domains.mjs:36-52 (tag old-trillion-before-worker-retire)",
+      "distinct_from": [{"job": "copy a live website into the files a public app is published from", "how": "this keeps given files under an installation and edits which addresses show it; copying reads another site"}]
+    },
+    {
       "capability": "print a file on a printer the person's computer already has, and list its printers",
       "owner": ["tools/print-here/"],
       "entry": "tools/print-here/tool-rows.json",

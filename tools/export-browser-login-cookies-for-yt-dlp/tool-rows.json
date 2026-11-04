@@ -57,6 +57,26 @@
         ],
         "provenance": {
           "source": "Chromium's documented macOS cookie encryption (PBKDF2-SHA1 of the Safe Storage password, AES-128-CBC, v10 prefix, sha256(host) value prefix in newer versions) and the Netscape cookies.txt format yt-dlp reads"
+        },
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "record:saved-login",
+              "properties": {},
+              "stays_on_this_device": true
+            },
+            {
+              "type": "record:saved-login-grant",
+              "properties": {},
+              "stays_on_this_device": true
+            },
+            {
+              "type": "record:saved-login-shown",
+              "properties": {},
+              "stays_on_this_device": true
+            }
+          ]
         }
       }
     }

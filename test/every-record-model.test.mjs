@@ -62,3 +62,20 @@ test('the saved logins and the WhatsApp pairing offer still stay on this compute
   assert.equal(kinds.get('whatsapp-pairing-offer')?.stays_on_this_device, true);
   assert.notEqual(kinds.get(`${prefix}saved-logins-list`)?.stays_on_this_device, true);
 });
+
+test('the kinds the engine\'s rules, runs and live heads read are each declared by one tool, and the rules never watch their own writes', () => {
+  // trillion-rust src/rule_bindings/rules_and_runs.rs and src/local_account/live_heads.rs read these sections from the
+  // joined model and name no kind themselves.
+  const declared = section => parts.filter(({ payload }) => payload.record_model[section] !== undefined).map(({ payload }) => payload);
+  const [rules, ...moreRules] = declared('rules_and_runs');
+  assert.ok(rules && moreRules.length === 0, 'one tool declares the rules and runs');
+  const kinds = rules.record_model.rules_and_runs;
+  for (const name of ['rule', 'outcome', 'run', 'recipe', 'send']) {
+    assert.ok(typeof kinds[name] === 'string' && kinds[name], `rules_and_runs.${name} names a kind`);
+    assert.ok(kinds.own.includes(kinds[name]), `rules_and_runs.own holds ${name}: a rule never fires on what the rules and runs wrote`);
+  }
+  const [heads, ...moreHeads] = declared('live_heads');
+  assert.ok(heads && moreHeads.length === 0, 'one tool declares the live heads');
+  const told = heads.record_model.live_heads.told;
+  assert.ok((heads.record_model.kinds ?? []).some(kind => kind.type === told), `${heads.id} declares the kind ${told} its head reads`);
+});

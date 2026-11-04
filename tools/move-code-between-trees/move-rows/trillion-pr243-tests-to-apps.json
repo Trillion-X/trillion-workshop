@@ -1,0 +1,39 @@
+{
+  "id": "move:trillion-pr243-tests-to-apps",
+  "about": "The tests Trillion-X/trillion PR #243 (4ffa1dc4a2) deleted with no home and no port-backlog row, carried byte for byte from 1e886c3f68 (the parent of trillion 7fd8838475; each test there has the same bytes as at the tag old-trillion-before-worker-retire, and its imports still name a file) into Trillion-X/trillion-apps web/ (which keeps the source's own paths under it), beside the code each one tests: every file they import is already home in web/ with the same bytes but for import paths. trillion-workshop docs/pr243-deleted-tests.json lists every such test and where it went.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-apps",
+    "package": "trillion-apps",
+    "shared_folder": "web"
+  },
+  "groups": [
+    {
+      "id": "tests-of-web",
+      "owner": [
+        "test/conversation-navigation-rows.test.mjs",
+        "test/document-page.test.mjs",
+        "test/failure-words-gate.test.mjs",
+        "test/graph-contract.test.mjs",
+        "test/kept-reads-concurrency.test.mjs",
+        "test/layer-diagram.test.mjs",
+        "test/native-app-source.test.mjs",
+        "test/public-app-assembly-model.test.mjs",
+        "test/pursuit-navigation-rows.test.mjs",
+        "test/shared-record-preview.test.mjs",
+        "test/shared-record-references.test.mjs",
+        "test/site-nav-hover.test.mjs",
+        "test/store-changes-two-tabs.test.mjs",
+        "test/waiting-post-evidence-projection.test.mjs",
+        "test/work-mentions-bounded.test.mjs"
+      ],
+      "to": "web"
+    }
+  ]
+}

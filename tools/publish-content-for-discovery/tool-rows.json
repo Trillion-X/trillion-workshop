@@ -120,7 +120,34 @@
             "output_selector": "$.outputs.documents[0].canonicalUrl",
             "contains": "https://cedar.invalid/guides/public-guide"
           }
-        ]
+        ],
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "marketplace-content-section",
+              "guard_properties": {
+                "id": "text",
+                "logical_id": "text",
+                "author": "text",
+                "revision": "number",
+                "status": "text",
+                "value": "any",
+                "value_identity": "text",
+                "source": "object",
+                "title": "text",
+                "publication": "object",
+                "created_at": "text",
+                "updated_at": "text"
+              },
+              "erasable": [
+                "value",
+                "source",
+                "title"
+              ]
+            }
+          ]
+        }
       }
     }
   ]

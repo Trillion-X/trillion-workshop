@@ -345,7 +345,21 @@
             "output_selector": "$.gone[0]",
             "equals": "1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
           }
-        ]
+        ],
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "table-move",
+              "guard_properties": {
+                "after": "number",
+                "first_after": "number",
+                "first_done": "boolean",
+                "moved": "boolean"
+              }
+            }
+          ]
+        }
       }
     }
   ]
