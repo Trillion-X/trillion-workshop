@@ -54,11 +54,27 @@
       "identity": "1f:6cc21774ed1fc9b265ba0e1103cd96502c451811a49382dc3de9d6bd10181927"
     },
     {
+      "from": "src/namespace-set-aside.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/recently-deleted-and-storage/namespace-set-aside.mjs",
+      "source_identity": "1f:a40f7f19b6e388ed173c4168bbddc46c9718566ac83f4e1c383b859180eb7055",
+      "identity": "1f:a40f7f19b6e388ed173c4168bbddc46c9718566ac83f4e1c383b859180eb7055",
+      "reused": true
+    },
+    {
       "from": "src/namespace-store.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/recently-deleted-and-storage/namespace-store.mjs",
       "source_identity": "1f:27482cb3e56a8feb1b16ebabbfcd9e9f1e5516f4dc990bc6c5e3d744de8c2986",
       "identity": "1f:27482cb3e56a8feb1b16ebabbfcd9e9f1e5516f4dc990bc6c5e3d744de8c2986"
+    },
+    {
+      "from": "src/namespace-store.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/recently-deleted-and-storage/namespace-store.mjs",
+      "source_identity": "1f:27482cb3e56a8feb1b16ebabbfcd9e9f1e5516f4dc990bc6c5e3d744de8c2986",
+      "identity": "1f:27482cb3e56a8feb1b16ebabbfcd9e9f1e5516f4dc990bc6c5e3d744de8c2986",
+      "reused": true
     },
     {
       "from": "src/namespace-view.json",
@@ -68,11 +84,69 @@
       "identity": "1f:fa364d6b06c80c8c85b0c4c7e0839fa7df505e33b20112335e147a2cdaaf4a95"
     },
     {
+      "from": "src/namespace-view.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/recently-deleted-and-storage/namespace-view.json",
+      "source_identity": "1f:fa364d6b06c80c8c85b0c4c7e0839fa7df505e33b20112335e147a2cdaaf4a95",
+      "identity": "1f:fa364d6b06c80c8c85b0c4c7e0839fa7df505e33b20112335e147a2cdaaf4a95",
+      "reused": true
+    },
+    {
       "from": "src/namespace-view.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/recently-deleted-and-storage/namespace-view.mjs",
       "source_identity": "1f:13020070c07f9344877e0b90442a2aa97264be30ea89300e1cae841732f485f1",
       "identity": "1f:13020070c07f9344877e0b90442a2aa97264be30ea89300e1cae841732f485f1"
+    },
+    {
+      "from": "src/namespace-view.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/recently-deleted-and-storage/namespace-view.mjs",
+      "source_identity": "1f:13020070c07f9344877e0b90442a2aa97264be30ea89300e1cae841732f485f1",
+      "identity": "1f:13020070c07f9344877e0b90442a2aa97264be30ea89300e1cae841732f485f1",
+      "reused": true
+    },
+    {
+      "from": "test/namespace-child-folders.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/recently-deleted-and-storage/test/namespace-child-folders.test.mjs",
+      "source_identity": "1f:eda3941d6b58e3d45d50f4ffec995a7378a0a149acc3d73b0cce5f2a43d80b28",
+      "identity": "1f:15d2a16ca16f3917b7101491e4e8ebf732632a45e2823e76cfbab4fbe544af19"
+    },
+    {
+      "from": "test/namespace-folder-conditional.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/recently-deleted-and-storage/test/namespace-folder-conditional.test.mjs",
+      "source_identity": "1f:a1e032ae8902246d8809bdadbfecd48e6ae8ea7f7a259a4a046fbab26a80ee20",
+      "identity": "1f:f7529a00802a8e3262db4ef48009fd4c06653faa0832b1af6609cbec25c7156b"
+    },
+    {
+      "from": "test/namespace-list-cursor.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/recently-deleted-and-storage/test/namespace-list-cursor.test.mjs",
+      "source_identity": "1f:d1d8231b237343a8e6cc1499bea06bd82994ca7d94d3719cb7e66f679edd2272",
+      "identity": "1f:9d4a1edbc77cce0400892ad38dadba068bf3cb8123ce5930bd417351ea5f92e5"
+    },
+    {
+      "from": "test/namespace-names-promised.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/recently-deleted-and-storage/test/namespace-names-promised.test.mjs",
+      "source_identity": "1f:5780c2bb8e72d3cc97156061759e7f4450d1d76a46b645febd591802b6f3d773",
+      "identity": "1f:fd5023664d4c7c41238b4668508da6eeb1596a42d7eb461a2086e107edcae640"
+    },
+    {
+      "from": "test/namespace-summary-cost.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/recently-deleted-and-storage/test/namespace-summary-cost.test.mjs",
+      "source_identity": "1f:47f758b9873117e4e43f28c491cb6a6cf44a2abad6f62c139638947f035b7540",
+      "identity": "1f:3dbbfb14522f828212dd581a3a0750d6e1a7f74e741d27e39f82c9a5ed4c66fb"
+    },
+    {
+      "from": "test/namespace-view.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/recently-deleted-and-storage/test/namespace-view.test.mjs",
+      "source_identity": "1f:2c37be7b962667316513697a77bc8c26284350b4c07406cad6b95f0b6ce136fa",
+      "identity": "1f:e1666e905906ee502f6ccf6f2db66a42c1d19be4fd472f97a1dc172d3ae6893b"
     },
     {
       "from": "src/time-cursor.mjs",

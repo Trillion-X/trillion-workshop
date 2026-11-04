@@ -40,6 +40,14 @@
       "identity": "1f:93238e14af5d28c6e99c3ad8009ab46a6d63eb228a6fb5d703843a473a6384fe"
     },
     {
+      "from": "src/commercial-events.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/price-and-sell-by-contract/src/commercial-events.mjs",
+      "source_identity": "1f:a610319ae4446e7adccfa6df70b650eaf4e412ea2c0d73b3e5e0ac95e7f5767f",
+      "identity": "1f:93238e14af5d28c6e99c3ad8009ab46a6d63eb228a6fb5d703843a473a6384fe",
+      "reused": true
+    },
+    {
       "from": "src/contract-checkout.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/price-and-sell-by-contract/src/contract-checkout.mjs",
@@ -101,6 +109,13 @@
       "to": "tools/price-and-sell-by-contract/src/usage-meters.mjs",
       "source_identity": "1f:70db817bc8b564fa8cd188039ec826e30f5b02187d68506c7f1042c57b605289",
       "identity": "1f:b96e2f715e5a7a0ab82c60d149618af88568a701f7012dafb7dcbd42d5d384b3"
+    },
+    {
+      "from": "test/commercial-events.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/price-and-sell-by-contract/test/commercial-events.test.mjs",
+      "source_identity": "1f:5977db646bf63f8ec861048a46e43864c597035ae40cea707bd246d2973dac5c",
+      "identity": "1f:e1557b2573efcd9cef36ac7e7ad5e9722435ad9d5bcfebc7f0c1efbe74fbbc87"
     },
     {
       "from": "test/contract-checkout-trial.test.mjs",
