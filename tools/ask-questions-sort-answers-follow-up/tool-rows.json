@@ -275,7 +275,8 @@
     "provenance": {
      "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
     },
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "verify": [{"kind": "sample-run", "input": {"form_id": "sample-intake", "title": "Sample intake", "questions": [{"questionId": "budget", "questionTypeId": "number", "label": "Budget"}]}}]
    }
   },
   {
@@ -464,7 +465,8 @@
     "provenance": {
      "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
     },
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "verify": [{"kind": "sample-run", "input": {"form_id": "sample-intake", "respondent_id": "respondent-1", "answers": {"budget": "2000"}, "answered_at": "2026-06-26T00:00:00Z"}, "records": [{"id": "question-sequence:sample-intake", "type": "question-sequence", "value": {"kind": "question-sequence", "formId": "sample-intake", "title": "Sample intake", "questions": [{"questionId": "budget", "questionTypeId": "number", "label": "Budget", "required": true}]}}]}]
    }
   },
   {
@@ -715,7 +717,8 @@
     "provenance": {
      "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
     },
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "verify": [{"kind": "sample-run", "input": {"form_id": "sample-intake", "respondent_id": "respondent-1", "field_map": {"budget": "budget"}}, "records": [{"id": "answer-fact:sample-intake:respondent-1:budget", "type": "answer-fact", "value": {"kind": "answer-fact", "formId": "sample-intake", "respondentId": "respondent-1", "questionId": "budget", "value": 5, "answered_at": "2026-06-26T00:00:00Z"}}]}]
    }
   },
   {
@@ -833,7 +836,8 @@
     "provenance": {
      "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
     },
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "verify": [{"kind": "sample-run", "input": {"form_id": "sample-intake", "respondent_id": "respondent-1"}, "records": [{"id": "question-sequence:sample-intake", "type": "question-sequence", "value": {"kind": "question-sequence", "formId": "sample-intake", "title": "Sample intake", "questions": [{"questionId": "budget", "questionTypeId": "number", "label": "Budget"}]}}, {"id": "answer-fact:sample-intake:respondent-1:budget", "type": "answer-fact", "value": {"kind": "answer-fact", "formId": "sample-intake", "respondentId": "respondent-1", "questionId": "budget", "value": 5, "answered_at": "2026-06-26T00:00:00Z"}}]}]
    }
   }
  ]

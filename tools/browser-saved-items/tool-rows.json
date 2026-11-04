@@ -59,7 +59,8 @@
             }
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"file": "StorableSidebar.json", "rules": {"space": "Shop", "root_folder": "Kitchen", "folders": {"Reading": []}, "fallback": ["Reading"], "relevant_words": ["bread"]}, "apply": false}, "files": [{"grant": "change-a-folder", "path": "StorableSidebar.json", "text": "{\"sidebar\":{\"containers\":[{\"global\":true},{\"items\":[\"pinned-root\",{\"id\":\"pinned-root\",\"parentID\":null,\"childrenIds\":[\"kitchen\",\"t-1\"],\"title\":\"Pinned\",\"data\":{\"list\":{}}},\"kitchen\",{\"id\":\"kitchen\",\"parentID\":\"pinned-root\",\"childrenIds\":[\"f-a\"],\"title\":\"Kitchen\",\"data\":{\"list\":{}}},\"f-a\",{\"id\":\"f-a\",\"parentID\":\"kitchen\",\"childrenIds\":[],\"title\":\"Old A\",\"data\":{\"list\":{}}},\"t-1\",{\"id\":\"t-1\",\"parentID\":\"pinned-root\",\"childrenIds\":[],\"title\":null,\"data\":{\"tab\":{\"savedTitle\":\"Sourdough starter guide\",\"savedURL\":\"https://www.bread.example/starter\"}}}],\"spaces\":[\"space-1\",{\"title\":\"Shop\",\"containerIDs\":[\"pinned\",\"pinned-root\",\"unpinned\",\"unpinned-root\"]}]}]}}\n"}]}]
       }
     }
   ]

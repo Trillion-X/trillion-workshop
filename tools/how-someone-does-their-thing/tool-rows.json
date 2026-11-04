@@ -340,9 +340,9 @@
     "verify": [
      {
       "kind": "sample-run",
-      "input": {"fields": {"tone": "warm"}},
-      "output_selector": "$",
-      "contains": "tone is not a field of a voice profile"
+      "input": {"kind": "post", "name": "Posts", "fields": {"how_they_write": "Short, plain, no slogans.", "words_they_avoid": "synergy"}},
+      "output_selector": "$.said",
+      "contains": "Saved the post voice profile"
      }
     ],
     "record_model": {
@@ -434,7 +434,7 @@
     "provenance": {
      "source": "Trillion-X/trillion src/voice.mjs (the person's writing voice, learned from what they change), moved here; reads and writes the person's voice-edit and voice-profile records through the records door"
     },
-    "verify": [{"kind": "sample-run", "input": {}, "output_selector": "$", "contains": "Name what to forget"}]
+    "verify": [{"kind": "sample-run", "input": {"all_edits": true}, "output_selector": "$.forgot", "contains": "1", "records": [{"id": "voice-edit:sample-1", "type": "voice-edit", "value": {"before": "Stronger together", "after": "Short and plain.", "kind": "post"}}]}]
    }
   },
   {

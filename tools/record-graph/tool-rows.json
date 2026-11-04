@@ -419,6 +419,7 @@
         ],
         "maker": "maker:record-graph",
         "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"relations": [{"subject": "record:crm:pat", "role": "dad", "object": "me"}]}}],
         "provenance": {
           "source": "Trillion src/record-model-tools.mjs (relate, orderedRelations, contactHistory, the relate_records and read_model tools) over src/record-model.json, ported to the records door; the graph walks are new"
         },

@@ -237,7 +237,8 @@
     "maker": "maker:hold-to-it",
     "provenance": {
      "source": "the app's hold-to-it action, as records and a pure core; the space, calendar, listening and wake calls it made are the caller's"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"operation": "keep", "group": "bread-club", "what": "Meet every morning", "agreed_by": ["Priya Shah", "Omar Reyes", "Lin"], "cadence": {"every": "day", "at": "09:00", "minutes": 30, "time_zone": "UTC"}, "policy": {"defaults": {"minutes": 30, "time_zone": "UTC", "remind_minutes": 10, "check_after_minutes": 30}, "marks": [{"id": "came", "label": "Came", "points": 1, "when": "present"}, {"id": "missed", "label": "Missed the meeting", "points": -3, "when": "absent", "miss": true}]}}}]
    }
   }
  ]

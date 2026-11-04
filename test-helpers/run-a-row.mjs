@@ -123,9 +123,15 @@ function heldPipe(path, value) {
   return read;
 }
 
-// Run `row` on the sample `input`, with the sample's seeded `records`, recorded `replies` and made-up `held` values:
-// { code, stdout, stderr, last, kept, calls, unanswered } or { cannot }. `doorOptions` reach the stand-in records door.
-export async function runRow(row, input, { records = [], replies = [], held = {}, doorOptions = {} } = {}) {
+// Run `row` on the sample `input`, with the sample's seeded `records` and `door_files` (made-up files { name: text } the
+// stand-in files door answers for a row with a files right), recorded `replies`, made-up `held` values, the
+// made-up `files` it lays in a granted folder ([{ grant, path, text }], `grant` naming one of the row's capabilities)
+// and `stand_in_programs` ({ name: shell script }) found first by name, so a program the row starts to act on this
+// computer (a message, a print) answers from the sample instead: { code, stdout, stderr, last, kept, calls, unanswered }
+// or { cannot }. `doorOptions` reach the stand-in records door. A string anywhere in the input or the sample may name
+// a granted folder as {grant:<capability>}; it is that folder's path for this run. `laid_files` ([{ path, text }])
+// replaces a file the row packs, at its absolute place, for this run only.
+export async function runRow(row, sampleInput, sample = {}) {
   const why = cannotRun(row);
   if (why) return { cannot: why };
   const { invoke } = row;
@@ -139,7 +145,30 @@ export async function runRow(row, input, { records = [], replies = [], held = {}
     lay(specs, there);
     // A task no page started; a capability the row asks for is granted on a folder of its own.
     const grants = Object.fromEntries((invoke.capabilities ?? []).map(name => [name, { folder: mkdtempSync(join(there, 'granted-')) }]));
+    // A sample names a granted folder it cannot know beforehand as {grant:<capability>}, in any string it holds.
+    const placedGrants = value => (typeof value === 'string' ? value.replace(/\{grant:([^}]+)\}/g, (whole, name) => grants[name]?.folder ?? whole)
+      : Array.isArray(value) ? value.map(placedGrants)
+      : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, placedGrants(item)])) : value);
+    const input = placedGrants(sampleInput);
+    const { records = [], door_files: doorFiles = {}, replies = [], held = {}, files = [], laid_files: laidFiles = [], stand_in_programs: standIns = {}, doorOptions = {} } = placedGrants(sample);
+    // A packed file the sample replaces for this run (a settings file naming a program by a path a stand-in cannot
+    // take): only a file the row itself packs, at its place under the folder that stands for `/`.
+    for (const file of laidFiles) {
+      const target = join(there, file.path);
+      if (!existsSync(target) || !target.startsWith(`${there}/`)) return { cannot: `the sample replaces ${file.path}, which the row does not pack` };
+      writeFileSync(target, file.text ?? '');
+    }
     const task = { task_id: 'task-sample', request_key: 'sample', cause: { kind: 'sample-run' }, started_at: new Date().toISOString(), grants };
+    for (const file of files) {
+      const folder = grants[file.grant]?.folder;
+      if (!folder) return { cannot: `the sample lays a file in ${file.grant}, which the row does not ask for` };
+      const target = join(folder, file.path);
+      if (!target.startsWith(`${folder}/`)) return { cannot: `the sample lays a file outside its granted folder: ${file.path}` };
+      mkdirSync(dirname(target), { recursive: true });
+      writeFileSync(target, file.text ?? '');
+    }
+    const standInFolder = Object.keys(standIns).length ? mkdtempSync(join(there, 'stand-in-programs-')) : null;
+    for (const [name, script] of Object.entries(standIns)) writeFileSync(join(standInFolder, name), `#!/bin/sh\n${script}\n`, { mode: 0o755 });
     let argv, stdin, rights;
     try {
       argv = fill(invoke.argv, { input, task }).map(word => placed(word, specs, there));
@@ -149,11 +178,12 @@ export async function runRow(row, input, { records = [], replies = [], held = {}
       if (error instanceof Unfillable) return { cannot: error.message };
       throw error;
     }
-    if (invoke.records) fake = await startFakeDoor({ ...doorOptions, rights, mostWrites: invoke.records.most_writes ?? doorOptions.mostWrites, records });
+    if (invoke.records) fake = await startFakeDoor({ ...doorOptions, rights, mostWrites: invoke.records.most_writes ?? doorOptions.mostWrites, records, files: doorFiles });
     if (invoke.internet === true) outside = await startStandInEgress(replies);
     // Each held value the row mounts, made up: on its own descriptor, in its environment, or as a private file.
     const mounts = invoke.credential_mounts ?? [];
     const environment = { ...process.env, HOME: there, ...(outside?.environment ?? {}) };
+    if (standInFolder) environment.PATH = `${standInFolder}:${environment.PATH}`;
     for (const item of mounts) {
       const value = heldValue(item, held);
       if (item.env) environment[item.env] = value;

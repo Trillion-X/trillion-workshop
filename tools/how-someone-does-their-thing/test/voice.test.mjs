@@ -91,10 +91,10 @@ test('a run reaches only the record kinds its row names', async () => {
   assert.match((await run(null, {}, [], ungranted)).error, /may not reach those records/);
 });
 
-test('each voice row\'s sample gives the text it promises against an empty account', async () => {
+test('each voice row\'s sample gives the text it promises against its sample account', async () => {
   for (const { payload } of rows.records.filter(({ payload }) => payload.invoke.records)) {
     const [sample] = payload.verify;
-    const ran = await runRow(payload, sample.input);
+    const ran = await runRow(payload, sample.input, { records: sample.records ?? [] });
     const value = sample.output_selector === '$' ? ran : sample.output_selector.replace('$.', '').split('.').reduce((at, key) => at?.[key], ran.result);
     assert.ok(JSON.stringify(value).includes(sample.contains), `${payload.id}: ${JSON.stringify(value)}`);
   }

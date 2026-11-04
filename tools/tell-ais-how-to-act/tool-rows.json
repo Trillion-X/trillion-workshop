@@ -32,6 +32,7 @@
           }
         },
         "result_selector": "$",
+        "verify": [{ "kind": "sample-run", "input": {} }],
         "needs": { "expected_seconds": 2, "network_egress": false },
         "maker": "maker:tell-ais-how-to-act",
         "licence_class": "licence:maker-own",
