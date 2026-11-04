@@ -1,5 +1,5 @@
 {
-  "_what": "DATA for tool:see-my-decisions (read-data/work-screen.mjs), the Decisions/Home screen read. `records` names the person's own rows it reads (each one the row's rights name). `limit` is the decisions, pursuits and plans on one page (the old screen's 100); `most_*` bound every whole-history read, past which the read refuses and names native_collection_page. `scope` is the part of the old app's src/record-scope.json and src/record-sharing.json the pursuit tree reads: its one dimension, the refs it names and the links whose `from` is a pursuit (none today, so a pursuit's parents come only from the person's own record-scope choice rows). `pursuits` is the screen's words for a person with no pursuits (src/screen-words.json pursuits). Moved from trillion-rust product/record-scope.json, product/record-sharing.json and product/screen-words.json, which leave the engine with their reader.",
+  "_what": "DATA for tool:see-my-decisions (read-data/work-screen.mjs), the Decisions/Home screen read. `records` names the person's own rows it reads (each one the row's rights name); of their one Checks list (`method_checks`) it reads only the step rows (`step_rows`: the door's `where` and `fields`), whose `check` is a decision step's question text, so a word-check row, a piece or a branch never shows as a question and the 4096-row bound counts step rows alone. `limit` is the decisions, pursuits and plans on one page (the old screen's 100); `most_*` bound every whole-history read, past which the read refuses and names native_collection_page. `scope` is the part of the old app's src/record-scope.json and src/record-sharing.json the pursuit tree reads: its one dimension, the refs it names and the links whose `from` is a pursuit (none today, so a pursuit's parents come only from the person's own record-scope choice rows). `pursuits` is the screen's words for a person with no pursuits (src/screen-words.json pursuits). Moved from trillion-rust product/record-scope.json, product/record-sharing.json and product/screen-words.json, which leave the engine with their reader.",
   "records": {
     "decision": "decision",
     "decision_order": "decision/created_at",
@@ -8,6 +8,7 @@
     "plan_order": "plan/updated_at",
     "stance": "record-stance",
     "method_checks": "record:check",
+    "step_rows": { "where": { "kind": "step" }, "fields": ["id", "step", "check"] },
     "agent_work": { "type": "setting", "prefix": "setting:agent-work:" }
   },
   "limit": 100,
