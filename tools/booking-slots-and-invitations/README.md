@@ -77,3 +77,24 @@ passed, including competing links, exact calendar incarnations, original
 effects, public projection, late revocation, bounded reads, history, rollback
 and physical cold reopening. No real provider event or public booking was
 created by these tests.
+
+## Tests
+
+`test/availability-link-eeaf-store.test.mjs` (moved from old trillion `test/availability-link-eeaf-store.test.mjs`, tag
+`old-trillion-before-worker-retire`) proves this tool's logic over the records a tool reaches through the door: interval
+probes and their half-open edges, co-host incarnations, collisions, link paging, grant counts, request holds, rollback and
+two owners competing for one slot. Its records are `tools/records-door/test-support/records-fake.mjs`, an in-memory
+stand-in, not a store. 13 tests.
+
+The old file's other cases proved the old JS record engine, which the Workshop does not hold. They are the engine's
+(Trillion-X/trillion-rust `src/storage/record_store`):
+- "availability originals, reservations, links and indexed holds survive cold reopen" (record-log and eeaf): a write
+  survives a reopen. The record store proves this in its own tests, for example `holders_tests.rs`
+  `holders_are_answered_in_order_and_follow_every_change`.
+- "availability rows index exact current holds" (record-log and eeaf): strict model admission refuses an undeclared
+  field. That is `src/record_write_model.rs` `check_write`, with its own tests.
+- "record-log erasure cascades through availability reservations, holds and private operation inputs": **a gap**. The
+  Rust engine has no declared erasure cascade yet (old `src/record-model.json` cascade rules).
+- "decomposed EEAF records expose no physical erasure operation": not applicable. The engine has no decomposed backend
+  to choose.
+- The two "multi-record rollback" engine variants are one rollback test here.
