@@ -20,8 +20,10 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
+/** BLAKE3-256 of the bytes as 64 hex digits, from the one content-identity owner (its `1f:` prefix dropped). */
+const blake3Hex = bytes => makeHashCodeHexFromBytes(bytes).slice(3);
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const dedupeSettings = () => JSON.parse(readFileSync(path.join(HERE, 'capture-dedupe.json'), 'utf8'));
@@ -33,7 +35,7 @@ export function normalise(text, settings = dedupeSettings()) {
   if (settings.normalize.collapse_whitespace) out = out.replace(/\s+/g, ' ');
   return out.trim();
 }
-export const exactOf = (text, settings = dedupeSettings()) => bytesToHex(blake3(new TextEncoder().encode(normalise(text, settings)))).slice(0, 32);
+export const exactOf = (text, settings = dedupeSettings()) => blake3Hex(new TextEncoder().encode(normalise(text, settings))).slice(0, 32);
 
 /** The 64-bit SimHash of a text as a BigInt: each word group votes on each bit through its BLAKE3 word. */
 export function simhash(text, settings = dedupeSettings()) {
@@ -41,7 +43,7 @@ export function simhash(text, settings = dedupeSettings()) {
   const size = Math.min(settings.shingle_words, Math.max(1, words.length));
   const votes = new Array(64).fill(0);
   for (let i = 0; i + size <= words.length; i += 1) {
-    const hash = BigInt(`0x${bytesToHex(blake3(new TextEncoder().encode(words.slice(i, i + size).join(' ')))).slice(0, 16)}`);
+    const hash = BigInt(`0x${blake3Hex(new TextEncoder().encode(words.slice(i, i + size).join(' '))).slice(0, 16)}`);
     for (let bit = 0; bit < 64; bit += 1) votes[bit] += (hash >> BigInt(bit)) & 1n ? 1 : -1;
   }
   return votes.reduce((value, vote, bit) => (vote > 0 ? value | (1n << BigInt(bit)) : value), 0n);
