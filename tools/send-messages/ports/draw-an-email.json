@@ -1,0 +1,52 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-DRAW-AN-EMAIL",
+  "status": "BASELINED",
+  "directive": {
+    "message_multihash": "1f:63b0afaf0babbfa0c0f12614247034268ee245a309302b73a8a7714d4b1ca77e",
+    "quote": "Also land draw-an-email in the Workshop, so the pair can take emailed codes when it goes in."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "5f8fe3c11a",
+      "path": "parts/ui/show/document-page/document-page-html.mjs",
+      "lines": [
+        848,
+        945
+      ],
+      "multihash": "1f:f43f7b1cfe87489655c4a38f8f8f968d64c0a23b4290252555ce81b547304041",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the cloud job that deletes the older owner's mail sender and its callers"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/send-messages/read-data/draw-an-email.mjs"
+    }
+  ],
+  "preserve": [
+    "every email carries its plain text and its html drawn from the same words",
+    "a see-through look colour is laid over the paper colour, so every email client shows it solid",
+    "the action wears the look's primary button fill, sheen and depth",
+    "every kind of block the markdown reader makes is drawn, rules and code included"
+  ],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "a message sent as plain text when it should have been drawn"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T02:30:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:f43f7b1cfe87489655c4a38f8f8f968d64c0a23b4290252555ce81b547304041",
+    "target_multihash_at_baseline": "1f:f43f7b1cfe87489655c4a38f8f8f968d64c0a23b4290252555ce81b547304041"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": []
+  }
+}
