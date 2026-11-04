@@ -1,0 +1,8 @@
+{
+  "what_this_is": "Every fast path that has a slower way behind it (computer/local-models.mjs: the first model row that answers, else the next) counts how each ask was served in a sliding window, so a silent fallback is reported with its reason. An outcome is `served` (the first choice answered), `fallback` (a later choice answered) or `unserved` (none did). A path is storming when, with at least min_samples asks in the last window_seconds, the share that were not served is at least storm_ratio. The newest max_samples asks are kept per path.",
+  "window_seconds": 60,
+  "max_samples": 2000,
+  "min_samples": 20,
+  "storm_ratio": 0.5,
+  "max_reasons": 5
+}

@@ -1,0 +1,38 @@
+/* parts/screen-look/show/sales-page.css
+   The look of a sales or landing page written by the page tool (parts/public-sales-page), on top of the shared page
+   writer's own sections (parts/ui/show/server-rendered-page). A section names how it reads with one emphasis word
+   (`hero`, `offer`, `proof`, `steps`, `story`, `cta`, `fine`); a word no rule here knows reads as an ordinary section.
+   The page's colours come from its own palette (--page-bg, --page-ink, --page-accent). Headlines keep their room:
+   longer copy takes more lines, never tighter spacing. */
+.page-section--hero .page-actions .page-action:first-child,
+.page-section--offer .page-card--primary .page-card-link { background: var(--page-accent); color: var(--page-bg); }
+.page-section--hero .page-actions .page-action:first-child { border-color: var(--page-accent); }
+.page-section--story .page-body { font-size: 1.1875rem; color: var(--page-ink); }
+.page-section--steps .page-items { counter-reset: step; grid-template-columns: 1fr; gap: 1.5rem; }
+.page-section--steps .page-item { counter-increment: step; position: relative; padding-left: 3.25rem; }
+.page-section--steps .page-item::before {
+  content: counter(step); position: absolute; left: 0; top: 0; width: 2.25rem; height: 2.25rem; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 620; background: var(--page-ink); color: var(--page-bg);
+}
+.page-section--offer { max-width: 64rem; }
+.page-section--offer .page-cards { columns: 1; display: grid; gap: 1.25rem; }
+@media (min-width: 48rem) { .page-section--offer .page-cards { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); } }
+.page-section--offer .page-card { margin: 0; }
+.page-section--offer .page-card-heading { font-size: 1.25rem; line-height: 1.3; }
+.page-section--offer .page-card-body { font-size: 2rem; line-height: 1.2; font-weight: 650; color: var(--page-ink); }
+.page-section--offer .page-card-detail { border-top: 0; padding-top: 0; margin-top: .55rem; }
+.page-section--offer .page-card-detail::before { content: "✓  "; color: var(--page-accent); font-weight: 700; }
+.page-section--offer .page-card--primary { border-color: var(--page-accent); box-shadow: 0 0 0 1px var(--page-accent); }
+.page-section--offer .page-card--primary .page-card-heading,
+.page-section--offer .page-card--primary .page-card-body,
+.page-section--offer .page-card--primary .page-card-detail { color: inherit; }
+.page-section--proof { max-width: 64rem; }
+.page-section--proof .page-items { gap: 1.25rem; }
+.page-section--proof .page-item { padding: 1.5rem; border: 1px solid var(--page-line); border-radius: 1rem; background: var(--page-card, #fff); }
+.page-section--proof .page-item-body { color: var(--page-ink); font-size: 1.0625rem; }
+.page-section--proof .page-item-heading { order: 2; font-size: .9375rem; color: var(--page-soft); font-weight: 560; }
+.page-section--cta { text-align: center; }
+.page-section--cta .page-body { margin: 0 auto; }
+.page-section--cta .page-actions { justify-content: center; }
+.page-section--cta .page-action:first-child { background: var(--page-accent); color: var(--page-bg); }
+.page-section--offer .page-card--primary .page-card-detail::before { color: inherit; }

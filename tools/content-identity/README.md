@@ -20,6 +20,8 @@ imports it packs `read-data` beside its own files (with the `@noble/hashes` modu
 |------|-----------|------|
 | `makeHashCodeHexFromBytes` | `(bytes: Uint8Array) -> "1f:<hex>"` | The identity of bytes; anything else is a TypeError. |
 | `makeHashCodeHexFromChunks` | `(chunks: Iterable<Uint8Array>) -> "1f:<hex>"` | The same identity, read chunk by chunk in order. |
+| `makeHashCodeHasher` | `() -> { update(chunk: Uint8Array), identity() -> "1f:<hex>" }` | The same identity fed piece by piece as a stream or socket hands the pieces over. |
+| `makeKeyedHashHexFromBytes` | `(key: 32-byte Uint8Array, bytes: Uint8Array) -> "<hex>"` | BLAKE3's keyed mode: a message code only a key holder can make, never a content identity. |
 | `canonicalJson` | `(value) -> text` | A JSON value as text with every object's keys in code-point order and no spaces; NaN, Infinity and non-JSON values are a TypeError. |
 | `makeHashCodeHexFromJson` | `(value) -> "1f:<hex>"` | The identity of the UTF-8 bytes of `canonicalJson(value)`. |
 

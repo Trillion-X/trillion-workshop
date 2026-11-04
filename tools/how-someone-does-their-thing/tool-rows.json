@@ -344,7 +344,24 @@
       "output_selector": "$",
       "contains": "tone is not a field of a voice profile"
      }
-    ]
+    ],
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "voice-profile",
+          "_read_by": "src/voice.mjs: what an AI learned about how the person writes, one per kind of writing",
+          "guard_properties": {
+            "fields": "object",
+            "kind": "text",
+            "name": "text",
+            "profile_id": "text",
+            "set_at": "text",
+            "set_by": "text"
+          }
+        }
+      ]
+    }
    }
   },
   {
@@ -489,7 +506,25 @@
       "output_selector": "$",
       "contains": "\"edit\":null"
      }
-    ]
+    ],
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "voice-edit",
+          "_read_by": "src/voice.mjs: what the person changed in words an AI wrote (before and after), newest kept",
+          "guard_properties": {
+            "after": "text",
+            "at": "text",
+            "before": "text",
+            "before_by": "text",
+            "edit_id": "text",
+            "kind": "text",
+            "subject_id": "text"
+          }
+        }
+      ]
+    }
    }
   },
   {

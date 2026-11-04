@@ -1,0 +1,8 @@
+{
+  "public": [
+    "do-work/invoke-operation-transition.ts",
+    "read-data/operation-action-invocation.ts",
+    "read-data/operation-records.ts",
+    "read-data/operation-work.ts"
+  ]
+}

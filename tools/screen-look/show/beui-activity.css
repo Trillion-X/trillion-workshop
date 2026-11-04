@@ -1,0 +1,9 @@
+.beui-activity { min-width: 0; color: var(--foreground); }
+.beui-activity ul { list-style: none; margin: 0; padding: 0; }
+.beui-activity li + li { border-top: 1px solid var(--border); padding-top: .5rem; margin-top: .5rem; }
+.beui-activity .beui-activity-detail { display: block; color: var(--muted-foreground); font-size: .8rem; overflow-wrap: anywhere; }
+.beui-activity li > div > span:nth-child(2) { overflow-wrap: anywhere; }
+.beui-activity li > div > span:nth-child(2), .beui-activity li > div > span:last-child { color: var(--foreground, #252525); }
+.beui-activity-pulse { animation: beui-activity-pulse 1.5s ease-in-out infinite; }
+@keyframes beui-activity-pulse { 0%,100% { opacity: .35; } 50% { opacity: .8; } }
+@media (prefers-reduced-motion: reduce) { .beui-activity-pulse { animation: none; opacity: .6; } }

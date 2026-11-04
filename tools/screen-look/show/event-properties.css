@@ -1,0 +1,35 @@
+/* Event editor properties: compact, readable choices shared across providers. */
+.event-properties{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr));gap:.5rem;min-width:0}
+.event-properties-field{display:grid;gap:.3rem;min-width:0}
+.event-properties-label{color:var(--text-muted);font-size:.72rem;font-weight:600;line-height:1.25}
+.event-properties-field [data-slot='select-trigger']{min-width:0;min-height:2.25rem}
+.event-properties-choice{display:inline-flex;align-items:center;gap:.5rem;min-width:0}
+.event-properties-choice>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.event-properties-swatch{width:.75rem;height:.75rem;flex:none;border:1px solid color-mix(in srgb,var(--text-primary) 22%,transparent);border-radius:50%;background:var(--calendar-color,var(--accent-purple))}
+.event-properties-compact{display:flex;align-items:center;flex-wrap:wrap;gap:.3rem}
+.event-properties-compact .event-properties-field{flex:1 1 6rem;max-width:100%;position:relative}
+.event-properties-compact .event-properties-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.event-properties-compact [data-slot='select-trigger']{min-height:1.9rem;width:100%;padding:.25rem .45rem;font-size:.75rem;line-height:1.25}
+.event-editor-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;min-width:0}
+.event-editor-toolbar .event-properties-compact,.event-editor-toolbar .event-property-controls{display:contents}
+.event-editor-toolbar .event-properties-field{flex:0 1 auto}
+.event-editor-toolbar [data-event-property='color']{order:0}
+.event-editor-toolbar [data-event-options-repeat]{order:1}
+.event-editor-toolbar [data-event-property='privacy']{order:2}
+.event-editor-toolbar [data-event-options-reminder]{order:3}
+.event-editor-toolbar [data-event-property='availability']{order:4}
+.event-properties-compact [data-trigger-display='swatch'],.event-properties-compact [data-trigger-display='icon']{width:2rem;min-width:2rem;justify-content:center}
+.event-properties-compact [data-trigger-display='swatch'] .event-properties-swatch{width:1rem;height:1rem}
+.event-properties-compact [data-trigger-display='swatch'] [data-event-property-value],.event-properties-compact [data-trigger-display='icon'] [data-event-property-value]{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.event-properties-compact [data-trigger-display='swatch'] [data-slot='select-icon'],.event-properties-compact [data-trigger-display='icon'] [data-slot='select-icon']{display:none}
+.event-editor-toolbar [data-event-options][data-event-options-variant='compact']{display:contents}
+.event-editor-toolbar [data-event-options][data-event-options-variant='compact'] [data-slot='select-trigger'],.event-editor-toolbar [data-event-options][data-event-options-variant='compact'] [data-slot='popover-trigger']{width:2rem;min-height:2rem;padding:.375rem;justify-content:center}
+.event-editor-toolbar [data-event-options][data-event-options-variant='compact'] [data-slot='select-icon']{display:none}
+.event-editor-toolbar [data-event-options-repeat-trigger]{order:1}
+.event-editor-toolbar [data-event-options-reminder-trigger]{order:3}
+/* The quick-create and editor: busy or free as one button, the calendar choice first in the icon row, reminders as a list. */
+.event-properties-compact [data-trigger-display='toggle']{min-height:1.9rem;width:2rem;min-width:2rem;padding:.25rem;justify-content:center}
+.event-properties-compact [data-trigger-display='toggle'] [data-event-property-value]{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.calendar-quick-create{min-width:0}
+[data-event-options-current]{list-style:none;margin:0;padding:0}
+[data-calendar-guests] [data-slot='badge']{max-width:100%;gap:.25rem}

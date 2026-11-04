@@ -1,0 +1,84 @@
+{
+  "_what": "Any-tint looks (parts/screen-look/read-data/tint-look.ts): a person picks one colour, the look keeps only its hue, and every token named here is derived from that hue with a lightness pinned for its role and scheme and a chroma clamped to the role's limit and to what a screen can show. Contrast is therefore a property of the rows, not of the colour picked. `roles` are rows (a token key of the look, a CSS lightness 0-1 and a chroma limit per scheme); a row for a token the look lacks is skipped. A colour with chroma under `neutral_below` has no hue to keep: it is treated as neutral on purpose (chroma 0), never given the browser's accidental hue. The app's own looks name these roles by other token keys (accent-primary, button-primary-bg and its text), so each role has a row for both families; a row for a token the look lacks is skipped. `ground_tokens` are the tokens read, in order, to tell whether a look is light or dark.",
+  "schemes": [
+    "light",
+    "dark"
+  ],
+  "neutral_below": 0.02,
+  "roles": [
+    {
+      "token": "primaryColor",
+      "light": {
+        "lightness": 0.52,
+        "chroma_max": 0.2
+      },
+      "dark": {
+        "lightness": 0.76,
+        "chroma_max": 0.18
+      }
+    },
+    {
+      "token": "surfaceColor",
+      "light": {
+        "lightness": 0.97,
+        "chroma_max": 0.02
+      },
+      "dark": {
+        "lightness": 0.22,
+        "chroma_max": 0.03
+      }
+    },
+    {
+      "token": "backgroundColor",
+      "light": {
+        "lightness": 0.995,
+        "chroma_max": 0.005
+      },
+      "dark": {
+        "lightness": 0.15,
+        "chroma_max": 0.015
+      }
+    },
+    {
+      "token": "accent-primary",
+      "light": {
+        "lightness": 0.52,
+        "chroma_max": 0.2
+      },
+      "dark": {
+        "lightness": 0.76,
+        "chroma_max": 0.18
+      }
+    },
+    {
+      "token": "button-primary-bg",
+      "light": {
+        "lightness": 0.52,
+        "chroma_max": 0.2
+      },
+      "dark": {
+        "lightness": 0.76,
+        "chroma_max": 0.18
+      }
+    },
+    {
+      "token": "button-primary-text",
+      "light": {
+        "lightness": 0.99,
+        "chroma_max": 0.005
+      },
+      "dark": {
+        "lightness": 0.15,
+        "chroma_max": 0.015
+      }
+    }
+  ],
+  "words": {
+    "bad_colour": "Give the colour as #rgb or #rrggbb.",
+    "bad_scheme": "A scheme is one of {schemes}."
+  },
+  "ground_tokens": [
+    "backgroundColor",
+    "surface-base"
+  ]
+}

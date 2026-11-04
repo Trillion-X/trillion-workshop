@@ -1,0 +1,24 @@
+/* AICSS ThinkingState, MIT; pinned source and license in ui/show/aicss.
+   Retain the source gradient/phase animation; use existing app color tokens. */
+.aicss-activity-label {
+  font-size:13px;line-height:18px;font-weight:500;
+  color:var(--color-muted-foreground);
+}
+@supports (background-clip:text) {
+  .aicss-activity-label {
+    color:transparent;-webkit-text-fill-color:transparent;
+    background:linear-gradient(90deg,
+      var(--color-muted-foreground) 0%,var(--color-muted-foreground) 30%,
+      var(--color-foreground) 45%,var(--color-foreground) 55%,
+      var(--color-muted-foreground) 70%,var(--color-muted-foreground) 100%);
+    background-size:300% 100%;-webkit-background-clip:text;background-clip:text;
+    animation:aicss-label-shine 2.25s cubic-bezier(0.25,0.1,0.25,1) infinite;
+  }
+}
+@keyframes aicss-label-shine {
+  0%,18% {background-position:100% 0}
+  82%,100% {background-position:0% 0}
+}
+@media(prefers-reduced-motion:reduce),(forced-colors:active) {
+  .aicss-activity-label {animation:none;background:none;color:var(--color-muted-foreground);-webkit-text-fill-color:currentColor}
+}
