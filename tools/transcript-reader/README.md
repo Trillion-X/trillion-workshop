@@ -9,6 +9,8 @@ The shared reader for what is said in a recording: timed passages with each word
 | `part.json` | The part's public modules. |
 | `read-data/read-transcript-records.ts` | Transcript types and reading: `TranscriptSegment`/`TranscriptWord` shapes, reading published transcript records into entries and segments, and ranking search matches (words found plus meaning-search order). |
 | `read-data/edit-transcript.ts` | Pure edits to a recording's kept passages: `nameSpeaker`, `takeNameBack`, `namedSpeakers`, `splitPassage` (before a chosen word), `transcriptAsText`, `clock`. Tested by `test/transcript-note-tools.test.mjs`. |
+| `do-work/edit-a-transcript.mjs` | `editATranscript({ passages, edits? })`: the edits above run in order over the passages handed in, with the speakers, the named speakers and the plain text (what `tool-rows.json` runs). |
+| `tool-rows.json` | The row `tool:edit-a-transcript`, with a sample run that names a speaker and splits a passage. |
 | `show/transcript-tools.json`, `show/transcript-languages.json` | The words the note tools say, and the languages "Reprocess in" offers (one row each). |
 | `show/TranscriptReaderSurface.tsx` | The reader: a search box, an optional speaker filter, timestamp seek controls, the word being said highlighted during playback, and a choice of passage or word handed back to the caller. With `tools` it adds the note tools: click a speaker to rename them (searchable list headed "Speakers in this recording", add a name, or take the name back), copy a link to a passage's moment, a Split pill (Enter) before the last chosen word, and a menu with Copy transcript, Export PDF and Reprocess in (searchable languages). |
 

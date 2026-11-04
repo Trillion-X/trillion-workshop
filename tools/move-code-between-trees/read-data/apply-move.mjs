@@ -52,7 +52,7 @@ export function applyMove(plan, row, source, destination, { sourceFolder, destin
       writeFileSync(there, after);
       if (source.mode(file.from) === '100755') chmodSync(there, 0o755);
       file.identity = identity(after);
-    } else file.identity = file.source_identity;
+    } else file.identity = file.identity_here ?? file.source_identity;
     const folder = receiptFolder(file.to, plan, row);
     if (!receipts.has(folder)) receipts.set(folder, []);
     receipts.get(folder).push({ from: file.from, commit: source.commit, to: file.to, source_identity: file.source_identity, identity: file.identity, ...(file.reused ? { reused: true } : {}), ...(file.swaps?.length ? { calls: file.swaps.map(hit => hit.id) } : {}), ...(file.reads_rows ? { reads_rows: file.reads_rows } : {}) });

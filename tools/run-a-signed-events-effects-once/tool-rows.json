@@ -1,0 +1,337 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:run-a-signed-events-effects-once",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:turn-signed-events-into-effects-once",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Turn signed events into their effects, once each",
+        "job": "Turn signed events into the effects their installed rules name, each effect once, from a verifier answer given in the input, and list a subject's effects from a reader answer given in the input, showing every call that would be sent",
+        "description": "Runs the signed-event-effects targets with no transport. op admit (admitSignedEventEffects): descriptor_ref names an installed admission descriptor (records.json: signed-event-effects.owner-action-accepted.v1 or signed-event-effects.payment-provider-event-accepted.v1); each of events is sent to the descriptor's verifier target, whose answer must give the event's hash in evaluation.event_hashes; each fact of a verified event that matches an effect rule (relation, objects, required attributes) becomes one effect with an id made from its event, fact, relation, subject and object, so the same fact twice is one effect; each effect is then sent to the write path the dispatch policy declares. op list (listSignedEventEffects): descriptor_ref signed-event-effects.by-subject.v1 and subject; the descriptor's query is sent to its reader target and the rows it answers come back as effects. replies is DATA the caller makes up or brings: { <target>: reply | [reply, ...] }, the answers the verifier, writer and reader give (a list answers one call each, in order); this run does not check a signature itself, does not write or read any store and sends nothing anywhere: every call is answered from replies and written down in sent. Refuses a caller-given descriptor, a descriptor_ref that is not installed, a write path the dispatch policy does not declare, a verifier answer without the event's hash, a call to a target replies gives no answer for, and an op other than admit or list. The live screen sends these calls to the real verifier, workflow writer and current-items reader through its own send; this run does not.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "op",
+            "descriptor_ref",
+            "replies"
+          ],
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "admit",
+                "list"
+              ]
+            },
+            "descriptor_ref": {
+              "type": "string"
+            },
+            "request_id": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "payload"
+                ],
+                "properties": {
+                  "payload": {
+                    "type": "object",
+                    "required": [
+                      "event_id",
+                      "namespace",
+                      "occurred_at",
+                      "idempotency_key"
+                    ],
+                    "properties": {
+                      "event_id": {
+                        "type": "string"
+                      },
+                      "namespace": {
+                        "type": "string"
+                      },
+                      "occurred_at": {
+                        "type": "string"
+                      },
+                      "idempotency_key": {
+                        "type": "string"
+                      },
+                      "supersedes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "facts": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "fact_id",
+                            "subject",
+                            "relation",
+                            "object"
+                          ],
+                          "properties": {
+                            "fact_id": {
+                              "type": "string"
+                            },
+                            "subject": {
+                              "type": "string"
+                            },
+                            "relation": {
+                              "type": "string"
+                            },
+                            "object": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "proof": {
+                    "type": "object",
+                    "properties": {
+                      "signer_id": {
+                        "type": "string"
+                      },
+                      "signature_hex": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "replies": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "effects",
+            "sent"
+          ],
+          "properties": {
+            "admitted_count": {
+              "type": "integer"
+            },
+            "effects": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "effect_id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "object": {
+                    "type": "string"
+                  },
+                  "material": {
+                    "type": "object"
+                  },
+                  "proof": {
+                    "type": "object",
+                    "properties": {
+                      "canonical_hash": {
+                        "type": "string"
+                      },
+                      "signer_id": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "signature_ref": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "source_event_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "request_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "write_replies": {
+              "type": "array"
+            },
+            "account_id": {
+              "type": "string"
+            },
+            "sent": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "target"
+                ],
+                "properties": {
+                  "target": {
+                    "type": "string"
+                  },
+                  "payload": {}
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/run-a-signed-events-effects-once",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/run-a-signed-events-effects-once/do-work/run-with-given-replies.mjs",
+            "runSignedEventEffectsWithGivenReplies"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "run-a-signed-events-effects-once",
+                "paths": [
+                  "do-work",
+                  "records.json"
+                ],
+                "at": "/opt/run-a-signed-events-effects-once"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/signed-event-effects/do-work/signed-event-effects-targets.js and records.json, moved in a9ee258 (#76); old capability row capabilities.json:537 at 4ffa1dc4a2^ (verify a signed event once and run its effects once). do-work/run-with-given-replies.mjs is new: it answers the targets' send from replies given in the input."
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "op": "admit",
+              "descriptor_ref": "signed-event-effects.payment-provider-event-accepted.v1",
+              "request_id": "req-sample-1",
+              "events": [
+                {
+                  "payload": {
+                    "event_id": "event:sample-1",
+                    "namespace": "payments.sample",
+                    "occurred_at": "2026-11-01T10:00:00Z",
+                    "idempotency_key": "idem-sample-1",
+                    "facts": [
+                      {
+                        "fact_id": "fact:sample-1",
+                        "subject": "person:sample-a",
+                        "relation": "payment.confirmed",
+                        "object": "order:sample-7",
+                        "attributes": {
+                          "provider_event_id": "evt_sample_0001",
+                          "amount_minor": 1200,
+                          "currency": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  "proof": {
+                    "signer_id": "signer:sample",
+                    "signature_hex": "00ff"
+                  }
+                }
+              ],
+              "replies": {
+                "payment-provider.verified-webhook-event": {
+                  "evaluation": {
+                    "event_hashes": {
+                      "event:sample-1": "1f:sample-hash"
+                    }
+                  }
+                },
+                "person-effect-store": {
+                  "written": true
+                }
+              }
+            },
+            "output_selector": "$.admitted_count",
+            "at_least": 1
+          }
+        ]
+      }
+    }
+  ]
+}

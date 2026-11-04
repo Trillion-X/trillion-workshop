@@ -1,0 +1,56 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-LIVE-CAMERA-PLAN-A-LISTENER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "work out how a live camera's stream would be received: the listening address, the FFmpeg listener and a public address",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/watch-and-keep-a-live-camera/do-work/plan-a-camera-listener.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/watch-and-keep-a-live-camera/",
+   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "work out how a live camera's stream would be received: the listening address, the FFmpeg listener and a public address",
+    "plan camera listener",
+    "take a stream"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "planCameraListener",
+    "takeAStream"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "9fcfd41235745096f6560577635117307cbf85dd"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/watch-and-keep-a-live-camera/tool-rows.json sample run (tool:plan-the-address-a-live-camera-streams-to)"
+  ]
+ }
+}

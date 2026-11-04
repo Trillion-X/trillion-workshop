@@ -36,6 +36,8 @@ export function requestsIn(text) {
     const specifier = match.groups.spec;
     // No module name starts with a backslash: such a match is the text of a regular expression (/from '\.\.\/x'/).
     if (specifier.startsWith('\\')) return;
+    // Nor with an open bracket: such a match is a regular expression built in text (`from '([^']+)'`).
+    if (/^[(\[]/.test(specifier)) return;
     const start = match.index + match[0].lastIndexOf(specifier, match[0].length - 1);
     found.push({ specifier, start, end: start + specifier.length, how, whole: [match.index, match.index + match[0].length] });
   };

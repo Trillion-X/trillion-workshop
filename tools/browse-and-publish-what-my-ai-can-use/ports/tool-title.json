@@ -1,0 +1,57 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MARKETPLACE-TOOL-TITLE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/work-workshop.mjs",
+   "lines": [
+    74,
+    88
+   ],
+   "multihash": "1f:06c52ff7e2fa4a29f9ff50bad3a7141f921caa605f3c6340c3b0825be5a9717c",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T04:54:26Z",
+    "deleted_with": "already gone from Trillion-X/trillion main (27b458af26 holds no src/work-workshop.mjs)"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/browse-and-publish-what-my-ai-can-use/do-work/tool-title.mjs"
+  }
+ ],
+ "preserve": [
+  "a name is kept as written except a leading lowercase word",
+  "an id names its action, and the words before it the service"
+ ],
+ "allowed_deltas": [
+  "a header naming the new path",
+  "capital, which the source defined at its line 58, is defined here"
+ ],
+ "banned_substitutions": [
+  "a second copy of this file anywhere in trillion or the Workshop"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-04T04:54:26+00:00",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:06c52ff7e2fa4a29f9ff50bad3a7141f921caa605f3c6340c3b0825be5a9717c",
+  "target_multihash_at_baseline": "1f:06c52ff7e2fa4a29f9ff50bad3a7141f921caa605f3c6340c3b0825be5a9717c",
+  "commit": "b3c4d4959303d54118f0881ee24d20df79b9781d"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/browse-and-publish-what-my-ai-can-use/tool-rows.json sample run (tool:read-rows-as-marketplace-shelf-items)"
+  ]
+ }
+}

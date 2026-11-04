@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/calendar-task-messages.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/plan-tasks-and-todo-lists/calendar-task-messages.mjs",
+      "source_identity": "1f:bb9957a513fdfe80b9298bbd4d3d6a3a965e895dd611460e6ab2abca9a047db8",
+      "identity": "1f:bb9957a513fdfe80b9298bbd4d3d6a3a965e895dd611460e6ab2abca9a047db8"
+    },
+    {
+      "from": "src/calendar-tasks.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/plan-tasks-and-todo-lists/calendar-tasks.json",
+      "source_identity": "1f:342fdb114bb10102ae8380f72545949d5de88a7d05daa215a1bfad2e9a85329d",
+      "identity": "1f:342fdb114bb10102ae8380f72545949d5de88a7d05daa215a1bfad2e9a85329d"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "_what": "What the Media section lists, as DATA read by src/media-library.mjs. One row per result of `entry_kind` (a recording the person's library knows), with `entry_fields` read from that result; each `joins` row reads more fields from another result kind kept for the same file (`value` reads the path, `json` reads the whole value at the path (\"$\" is the result itself), `count` counts the list at the path, `words` counts the words of the text at the path); a field several rows name reads the first row that holds a value, so a title the person accepted (kind `title`, src/file-tidy.mjs) wins over the summary's. Every other media file the person keeps is a row too: each file named under one of `file_folders` (\"/\" holds them all) whose content type's family is one of `media_families`, with that folder's `origin`; the first folder holding a file wins. `origin_labels` names each row's origin as people read it. Adding a field is one row here and a field row on the screen; nothing in the code names a kind.",
+  "entry_kind": "library-entry",
+  "page_preview_kind": "preview",
+  "entry_fields": {
+    "name": "$.name",
+    "path": "$.path",
+    "media_kind": "$.media_kind"
+  },
+  "joins": [
+    {
+      "kind": "title",
+      "fields": {
+        "title": {
+          "measure": "value",
+          "path": "$.title"
+        }
+      }
+    },
+    {
+      "kind": "summary",
+      "fields": {
+        "title": {
+          "measure": "value",
+          "path": "$.title"
+        }
+      }
+    },
+    {
+      "kind": "organization",
+      "fields": {
+        "title": {
+          "measure": "value",
+          "path": "$.title"
+        }
+      }
+    },
+    {
+      "kind": "facts",
+      "fields": {
+        "duration": {
+          "measure": "value",
+          "path": "$.duration"
+        },
+        "facts": {
+          "measure": "json",
+          "path": "$"
+        }
+      }
+    },
+    {
+      "kind": "drafts",
+      "fields": {
+        "edits": {
+          "measure": "count",
+          "path": "$.drafts"
+        }
+      }
+    },
+    {
+      "kind": "transcript",
+      "fields": {
+        "words": {
+          "measure": "words",
+          "path": "$.text"
+        }
+      }
+    }
+  ],
+  "file_folders": [
+    {
+      "folder": "/made by tools",
+      "origin": "made"
+    },
+    {
+      "folder": "/",
+      "origin": "file"
+    }
+  ],
+  "media_families": [
+    "video",
+    "audio",
+    "image"
+  ],
+  "candidate_index_backfill_names_per_wake": 500,
+  "recording_index_backfill_per_wake": 5000,
+  "origin_labels": {
+    "recording": "Recording",
+    "made": "Made",
+    "file": "Saved"
+  }
+}

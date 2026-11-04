@@ -1,0 +1,240 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:watch-and-keep-a-live-camera",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:plan-the-address-a-live-camera-streams-to",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Plan the address a live camera streams to",
+        "job": "Work out how a live camera's stream would be received: the address this computer listens on for the camera's own key, the FFmpeg listener it is taken with, and a public RTMPS address through Tailscale Funnel that never takes a port serving something else",
+        "description": "Give key (the camera's stream key), port (1935 when left out), app (live when left out), output (the destination's FFmpeg arguments after the input, [] when left out) and optionally funnel ({ name: this computer's Tailscale name, ports: the public ports its tailnet allows, status: what tailscale funnel status --json printed }). Answers listening_address, camera_server_address, ffmpeg ({ program, arguments }: exactly what the shared listener do-work/take-a-stream.mjs starts FFmpeg with, captured from a stand-in that is never run) and, with funnel, public: the port picked the way the Funnel way in picks it (one already forwarding here, else the first free one of stream-settings.json tailscale.public_ports the tailnet allows), the rtmps:// address, whether it already forwards here and the trust anchor a camera imports for it (RTMPcert.pem, the public ISRG Root YE certificate), or why no port is free. The key is shown as <key> in every answer. Refuses a key, port or app of another shape, an output that is not a list of text and a funnel without a name or ports. It reads only its input and stream-settings.json: it starts no FFmpeg or Tailscale, opens no port, changes no Funnel setting, reads no saved login and sends nothing. The receiver's other work (taking the stream, showing the live picture, cutting it into pieces sent into the person's files, relaying it, following the person's stream rows) needs FFmpeg, a camera and the account and is not done by this run.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "key"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "key": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{8,128}$"
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 65535
+            },
+            "app": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            },
+            "output": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "funnel": {
+              "type": "object",
+              "required": [
+                "name",
+                "ports"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "ports": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "status": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "listening_address",
+            "camera_server_address",
+            "ffmpeg"
+          ],
+          "properties": {
+            "listening_address": {
+              "type": "string"
+            },
+            "camera_server_address": {
+              "type": "string"
+            },
+            "ffmpeg": {
+              "type": "object",
+              "required": [
+                "program",
+                "arguments"
+              ],
+              "properties": {
+                "program": {
+                  "type": "string"
+                },
+                "arguments": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "public": {
+              "type": "object",
+              "required": [
+                "port",
+                "address"
+              ],
+              "properties": {
+                "port": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "address": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "protocol": {
+                  "type": "string"
+                },
+                "already_forwarding": {
+                  "type": "boolean"
+                },
+                "trust": {
+                  "type": "array"
+                },
+                "why": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/watch-and-keep-a-live-camera",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/watch-and-keep-a-live-camera/do-work/plan-a-camera-listener.mjs",
+            "planCameraListener"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "watch-and-keep-a-live-camera",
+                "paths": [
+                  "do-work",
+                  "stream-settings.json"
+                ],
+                "at": "/opt/watch-and-keep-a-live-camera"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/receive-a-camera-stream/do-work/take-a-stream.mjs and do-work/capabilities/public-address-through-tailscale-funnel.mjs with stream-settings.json, moved in a9ee258 (#76); old capability row capabilities.json:396 at 4ffa1dc4a2^ (watch a live camera stream and keep its clips)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "key": "sample-key-abc123xyz",
+              "port": 1935,
+              "output": [
+                "-c",
+                "copy",
+                "-f",
+                "flv",
+                "rtmp://ingest.example.com/live/{service key}"
+              ],
+              "funnel": {
+                "name": "sample-mac.example-tailnet.ts.net.",
+                "ports": [
+                  443,
+                  8443,
+                  10000
+                ],
+                "status": {
+                  "TCP": {
+                    "10000": {
+                      "TCPForward": "127.0.0.1:9000"
+                    }
+                  },
+                  "Web": {
+                    "sample-mac.example-tailnet.ts.net:443": {}
+                  }
+                }
+              }
+            },
+            "output_selector": "$.public.address",
+            "contains": "rtmps://sample-mac.example-tailnet.ts.net:8443/live"
+          }
+        ]
+      }
+    }
+  ]
+}

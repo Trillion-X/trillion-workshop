@@ -1,0 +1,263 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:see-what-is-being-worked-on",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:join-what-is-being-worked-on-into-a-tree",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Join what is being worked on into one tree",
+        "job": "Join the goals, decisions, AIs, jobs, spaces, people, automations and tool runs my records already answered into one tree of what is being worked on and who is doing it, or one goal's branch of it",
+        "description": "Give answers: what each of the work map's reads answered, by name (goals: /work/api/decisions with pursuits and summaries, work: /work/api/ai-work with agents and work, spaces: /work/api/spaces, automations: /work/api/workflows, workshop: /work/api/workshop); a read left out adds no cards. from (optional) is a card id such as goal:g1 to keep only that card and everything under it. The join is the work map's own: read-data/work-map-sources.json says where each kind's rows are, which fields are its id, title, detail, state and time, who does it and what it hangs under; a row whose parent is not shown falls to whoever does it, then to the root. Answers nodes (each card's id <source>:<row id>, source, kind, icon, title, detail, at, status, who; the rows themselves are not given back), lines (parent to child) and counts by kind. It reads nothing from the person's store, keeps nothing and sends nothing. Refuses answers that are not an object, a read name the work map does not have, or answers holding none of its reads. The screen (show/work-map-screen.tsx) also reads those answers itself, draws the cards on the board, by state, as a table and on a timeline and opens a card's screen, and the message task canvas groups message tasks; this run does none of that.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "answers"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "answers": {
+              "type": "object",
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "goals": {
+                  "type": "object"
+                },
+                "work": {
+                  "type": "object"
+                },
+                "spaces": {
+                  "type": "object"
+                },
+                "automations": {
+                  "type": "object"
+                },
+                "workshop": {
+                  "type": "object"
+                }
+              }
+            },
+            "from": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "nodes",
+            "lines",
+            "counts"
+          ],
+          "properties": {
+            "nodes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "source",
+                  "kind",
+                  "title"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "who": {
+                    "type": "string"
+                  },
+                  "root": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "lines": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "from",
+                  "to"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "from": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "counts": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/see-what-is-being-worked-on",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/see-what-is-being-worked-on/do-work/join-work-map.mjs",
+            "joinWorkMap"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "see-what-is-being-worked-on",
+                "paths": [
+                  "do-work",
+                  "read-data/join-records.mjs",
+                  "read-data/work-map-sources.json"
+                ],
+                "at": "/opt/see-what-is-being-worked-on"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/work-map/read-data/join-records.mjs and parts/work-map/read-data/work-map-sources.json at 5cd0dc3103e4f54b30b1784f0d77a67de0147064, moved byte for byte in a9ee258 (#76) to read-data/; old capability row capabilities.json:117 at 4ffa1dc4a2^ (see every job my AIs handed each other and the tree of goals, decisions, jobs and people behind it); do-work/join-work-map.mjs written here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "answers": {
+                "goals": {
+                  "pursuits": [
+                    {
+                      "id": "g1",
+                      "title": "Open the bakery",
+                      "status": "active"
+                    },
+                    {
+                      "id": "g2",
+                      "title": "Find a shop",
+                      "parents": [
+                        "g1"
+                      ]
+                    }
+                  ],
+                  "summaries": [
+                    {
+                      "case_id": "c1",
+                      "goal": "Rent the corner shop",
+                      "decision": "Sign for one year",
+                      "pursuits": [
+                        {
+                          "id": "g2"
+                        }
+                      ],
+                      "status": "decided"
+                    }
+                  ]
+                },
+                "work": {
+                  "agents": [
+                    {
+                      "agent_id": "a1",
+                      "name": "Helper AI"
+                    }
+                  ],
+                  "work": [
+                    {
+                      "handoff_id": "h1",
+                      "job": "Draft the lease questions",
+                      "case_id": "c1",
+                      "taken_by": "a1",
+                      "status": "working"
+                    }
+                  ]
+                }
+              },
+              "from": "goal:g1"
+            },
+            "output_selector": "$.counts.Job",
+            "at_least": 1
+          }
+        ]
+      }
+    }
+  ]
+}

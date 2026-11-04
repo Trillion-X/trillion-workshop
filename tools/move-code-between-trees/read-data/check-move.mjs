@@ -26,7 +26,7 @@ export function receiptsIn(destinationFolder, folders) {
   const found = [];
   const look = folder => { const path = join(destinationFolder, folder, 'moved-from.json'); if (existsSync(path)) found.push({ folder, receipt: JSON.parse(readFileSync(path, 'utf8')) }); };
   if (folders?.length) folders.forEach(look);
-  else for (const name of readdirSync(join(destinationFolder, 'tools'))) {
+  else if (existsSync(join(destinationFolder, 'tools'))) for (const name of readdirSync(join(destinationFolder, 'tools'))) {
     if (statSync(join(destinationFolder, 'tools', name)).isDirectory()) look(`tools/${name}`);
   }
   return found;
@@ -42,7 +42,8 @@ const withoutRequests = text => {
 
 export function checkMove({ sources, destinationFolder, sourceAfterFolder, folders, run = true, timeoutMs = 600000 }) {
   const receipts = receiptsIn(destinationFolder, folders);
-  const allReceipts = folders?.length ? receiptsIn(destinationFolder) : receipts;
+  // A tree that keeps its moved files outside tools/ (an app's web/) has its receipts only in the folders named.
+  const allReceipts = folders?.length ? [...receipts, ...receiptsIn(destinationFolder).filter(item => !folders.includes(item.folder))] : receipts;
   const landing = new Map();
   for (const { receipt } of allReceipts) for (const file of receipt.files) landing.set(`${file.commit}:${file.from}`, file.to);
   const destinationExists = path => existsSync(join(destinationFolder, path)) && statSync(join(destinationFolder, path)).isFile();
@@ -57,7 +58,7 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
       if (identity(now) !== file.identity) problems.push(`${file.to} is not the bytes its receipt names`);
       const before = tree.read(file.from);
       if (identity(before) !== file.source_identity) problems.push(`${file.from} at ${file.commit.slice(0, 10)} is not the bytes the receipt names`);
-      if (file.reused) { if (!now.equals(before)) problems.push(`${file.to} was reused but differs from ${file.from}`); }
+      if (file.reused) { if (isCode(file.from) ? withoutRequests(now.toString('utf8')) !== withoutRequests(before.toString('utf8')) : !now.equals(before)) problems.push(`${file.to} was reused but differs from ${file.from}${isCode(file.from) ? ' beyond its import paths' : ''}`); }
       else if (isCode(file.from)) {
         const used = new Set(file.calls ?? []);
         const swapped = swapCalls(before.toString('utf8'), receipt.calls.filter(row => used.has(row.id))).text;

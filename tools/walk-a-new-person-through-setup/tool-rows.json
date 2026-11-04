@@ -1,0 +1,268 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:walk-a-new-person-through-setup",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:keep-what-my-devices-report-about-themselves",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Keep what my devices report about themselves",
+        "job": "Keep the facts a new person's devices report about themselves (which cameras a computer sees, whether a phone's switches are on), each report replacing that device's facts, so a setup checklist can tick itself from them",
+        "description": "Give reports (each { device, facts: { name: text }, and device_id, source and generation together for a device that reports from several sources }), devices (the devices the last run answered; omit the first time) and optionally now (an ISO time stamped on what changes). Applies each report in order with device-facts.mjs deviceFacts: a report replaces that device's (or that source's) facts whole, a report that changes nothing changes nothing, an older generation is answered stale, and at most 20 devices are kept, the least recently heard dropped first. Answers answers (one per report: device, changed, and for an identified report device_id, source, stale, current_generation) and devices (every device as kept). It refuses a report with no device name, facts that are not short lowercase names with text values within device-facts.json's bounds, and an identified report missing its id, source or generation, naming the report. It keeps nothing after the run, reads no device itself and writes nothing. It does not tick setup steps from the facts (that needs the account's checklist rules and the formula engine) and does not show the Get started, plan, account, security or business pages: those are the app's screens.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "reports"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "devices": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "device",
+                  "facts"
+                ],
+                "properties": {
+                  "device": {
+                    "type": "string"
+                  },
+                  "identity": {
+                    "type": "string"
+                  },
+                  "facts": {
+                    "type": "object"
+                  },
+                  "sources": {
+                    "type": "object"
+                  },
+                  "at": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "reports": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "device",
+                  "facts"
+                ],
+                "properties": {
+                  "device": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  },
+                  "facts": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string",
+                      "maxLength": 400
+                    }
+                  },
+                  "device_id": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "generation": {
+                    "type": [
+                      "integer",
+                      "string"
+                    ]
+                  }
+                }
+              }
+            },
+            "now": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "answers",
+            "devices"
+          ],
+          "properties": {
+            "answers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "device",
+                  "changed"
+                ],
+                "properties": {
+                  "device": {
+                    "type": "string"
+                  },
+                  "changed": {
+                    "type": "boolean"
+                  },
+                  "device_id": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "stale": {
+                    "type": "boolean"
+                  },
+                  "current_generation": {
+                    "type": [
+                      "integer",
+                      "string"
+                    ]
+                  }
+                }
+              }
+            },
+            "devices": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "device",
+                  "facts",
+                  "at"
+                ],
+                "properties": {
+                  "device": {
+                    "type": "string"
+                  },
+                  "identity": {
+                    "type": "string"
+                  },
+                  "facts": {
+                    "type": "object"
+                  },
+                  "sources": {
+                    "type": "object"
+                  },
+                  "at": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "changed": {
+              "type": "integer",
+              "description": "How many reports changed a device's facts."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/walk-a-new-person-through-setup",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/walk-a-new-person-through-setup/report-device-facts.mjs",
+            "reportDeviceFacts"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "walk-a-new-person-through-setup",
+                "paths": [
+                  "report-device-facts.mjs",
+                  "device-facts.mjs",
+                  "device-facts.json"
+                ],
+                "at": "/opt/walk-a-new-person-through-setup"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/device-facts.mjs, moved in a9ee258 (#76); src/device-facts.json brought in byte for byte from 4ffa1dc4a2^ (moved-from.json); old capability row capabilities.json:344 at 4ffa1dc4a2^ (walk a new person through setup with a checklist that ticks itself from facts about their device, and show plan, account, security and business pages)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "now": "2026-11-04T09:00:00Z",
+              "reports": [
+                {
+                  "device": "Test Mac",
+                  "facts": {
+                    "camera.count": "2",
+                    "mic.on": "yes"
+                  }
+                },
+                {
+                  "device": "Test Phone",
+                  "device_id": "phone-1",
+                  "source": "app",
+                  "generation": 1,
+                  "facts": {
+                    "notifications": "on"
+                  }
+                }
+              ]
+            },
+            "output_selector": "$.changed",
+            "at_least": 2
+          }
+        ]
+      }
+    }
+  ]
+}

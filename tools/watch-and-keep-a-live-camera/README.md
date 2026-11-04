@@ -26,6 +26,8 @@ A new kind of way in or destination is a row in Stream kinds plus a module in `d
 | `do-work/capabilities/router-port-forward.mjs` | Way in: the home network's public address, for a router that forwards the port here. |
 | `RTMPcert.pem` | Camera-ready PEM trust anchor for the current Let's Encrypt YE1/Root YE public RTMPS chain; Sony imports this exact filename for Streaming. |
 | `stream-settings.json` | DATA: service, the four lists and their starting rows, listener port and app, key rules, FFmpeg and Tailscale search paths, piece length and names, retry waits, stay-awake command, hand-made receivers to take over, every word a row shows. |
+| `do-work/plan-a-camera-listener.mjs` | `planCameraListener({ key, port, app, output, funnel })`: the listening address, the FFmpeg arguments the listener starts with (captured, never run) and the public RTMPS port and address through Funnel, key shown as `<key>` (what `tool-rows.json` runs) |
+| `tool-rows.json` | The row `tool:plan-the-address-a-live-camera-streams-to`, with a sample run where port 443 serves a web page and 10000 forwards elsewhere, so 8443 is picked |
 | `part.json` | The part's public files. |
 | `README.md` | This file. |
 
