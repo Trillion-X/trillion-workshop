@@ -7,7 +7,7 @@ import {
   machineProvider, nameProvider, providerClient, rentMachine, releaseMachine, readMachine, readPrice, pointName,
   forgetName, fingerprintOf,
 } from '../do-work/rent-a-machine.mjs';
-import { startAPlace, placeConfig, readRequest } from '../do-work/start-a-place.mjs';
+import { rentAMachine, startAPlace, placeConfig, readRequest } from '../do-work/start-a-place.mjs';
 
 const canary = 'provider-credential-canary-0123456789';
 const publicKey = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample0 someone@example.com';
@@ -172,6 +172,18 @@ test('starting a place on an existing machine sets it up, installs the release, 
   assert.deepEqual([answer.arch, answer.place_id, answer.sign_up_status, answer.release, answer.price], ['aarch64', 'f'.repeat(64), 200, '/opt/place/releases/r1', null]);
   assert.match(commands.find(c => c.startsWith('sh -s')), /^sh -s -- 'place\.example\.com' '7199' 'engine' 'ENGINE_DATA' 'data'$/);
   assert.ok(commands.some(c => c.includes('systemctl restart place.service')));
+});
+
+test('renting a machine leases it and waits for SSH, and sets nothing up on it', async () => {
+  const here = folder(), commands = [];
+  const run = async (_machine, command) => { commands.push(command); return command === 'uname -m' ? 'x86_64\n' : ''; };
+  const answer = await rentAMachine({
+    lease_file: join(here, 'lease.json'), machine: { provider: 'existing-machine', name: 'a-builder', placement: { address: '192.0.2.41' }, lifetime: 'service' },
+    name: { host_name: 'releases.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') },
+  }, { run, wait: async () => {} });
+  assert.deepEqual([answer.arch, answer.host_name, answer.lease.address, answer.price], ['x86_64', 'releases.example.com', '192.0.2.41', null]);
+  assert.deepEqual(commands, ['uname -m']);
+  assert.equal(JSON.parse(readFileSync(join(here, 'lease.json'), 'utf8')).address, '192.0.2.41', 'the lease is kept, so remove gives it back');
 });
 
 test('the place config carries the request\'s release feed and default places', async () => {

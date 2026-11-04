@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:31e858661300237124e191a769930d25f63272ba3767c98e52bc582ae61f6eaf"
+  "blake3": "1f:c3001cc0205e4138a2a552c84563e5f3521ac78f24bd22a353cdb85f4fb6b1e3"
  },
  "fields": [
   {
@@ -1331,7 +1331,7 @@
    "values": {
     "title": "Check words or anything made against a person's own rules and verdicts",
     "job": "Check words, a title, a script line or a plan against a person's own rules and the verdicts they already gave, and say pass, fail or uncertain for each, with why",
-    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's method rows (list:methods, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: the rows of their one Checks list (list:checks) whose method is that branch or a branch it extends, each branch read on its own, plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, and a row that states no test (no words, pattern, exact, check, groups, path, evidence, ask or part, or a piece of a source file) is never judged: it is counted in rows_used.skipped.no_test and listed in read_by_a_model for a model to read, and a branch with only such rows answers no-applicable-rule; and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
+    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's method rows (list:methods, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: the rows of their one Checks list (list:checks) whose method is that branch or a branch it extends, each branch read on its own, plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, a row that states no test (no words, pattern, exact, check, groups, path, evidence, ask or part) but says something is a reading row: a question a model answers once for each whole unit, made from the tool's own DATA over the row's words, carrying the calibration and model of the nearest branch's reading_settings, and listed in read_by_a_model; a piece of a source file, or a row that says nothing, is never judged: it is counted in rows_used.skipped.no_test, and a branch with only such rows answers no-applicable-rule; and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
     "status": "active",
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
     "licence_class": "licence:maker-own",
@@ -2045,6 +2045,21 @@
      "placement:small-container"
     ],
     "folder": "write-from-a-recipe"
+   }
+  },
+  {
+   "id": "tool:connect-an-ai-app-on-this-computer-to-trillion",
+   "values": {
+    "title": "Connect an AI app on this computer to Trillion",
+    "job": "Read, preview, add or take out the Trillion MCP entry in AI apps on this computer (Claude Code, Codex, Gemini CLI, Cursor)",
+    "description": "Runs harness/setup.mjs with --action mcp-inspect, mcp-preview, mcp-register or mcp-unregister for the AI apps named in client (a comma-separated list of claude-code, codex, gemini-cli, cursor). mcp-inspect and mcp-preview write nothing: they answer each app's config file path, whether a Trillion entry is there now, and a review_hash for the exact change. mcp-register writes the entry only when given that review_hash as reviewed, so the person sees the change before it is made; mcp-unregister takes it out. Claude Code and Codex use the bridge the Trillion Mac app installs, which keeps the account key in Keychain; an entry here does not by itself sign the app in (each result's sign_in says how). Exit 0 means every app was handled, 2 means one was blocked or has a custom entry, 1 means the request was wrong (standard error says what to change).",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-and-wake-ai-sessions-on-this-computer"
    }
   },
   {
@@ -6840,7 +6855,7 @@
    "values": {
     "title": "Publish an engine release",
     "job": "Build the engine at a commit and publish it as a signed release every computer can adopt",
-    "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it with the repository's product/ folder as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
+    "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it (with the repository's product/ folder when the commit has one) as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
     "status": "active",
     "maker": "maker:publish-an-engine-release",
     "licence_class": "licence:maker-own",
@@ -8753,6 +8768,21 @@
    }
   },
   {
+   "id": "tool:rent-a-machine",
+   "values": {
+    "title": "Rent a machine",
+    "job": "Rent a machine (or take one I already run) with a public name pointed at it, for another tool to set up",
+    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, waits until it answers SSH, and answers the lease, the public name, the machine's architecture and the monthly price. It sets nothing up on the machine: another tool (an engine builder, a place) does that. tool:give-back-a-place gives it back from the same lease file. Running it again resumes from the saved lease.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-place"
+   }
+  },
+  {
    "id": "tool:replace-one-piece-of-text-in-a-file",
    "values": {
     "title": "Change one piece of text in a file",
@@ -10187,6 +10217,21 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer",
+   "values": {
+    "title": "Set up Trillion's hooks in an AI app on this computer",
+    "job": "Read, add or take out the hooks that keep an AI app's sessions on this computer as the person's records (Claude Code or Codex)",
+    "description": "Runs harness/setup.mjs with --action inspect, apply or remove for one AI app on this computer (claude-code or codex). inspect writes nothing and answers a report: status, ready, checks (each with id, status and reason), changes it would make and boundaries (what this installer never does: write an MCP entry, open a browser, grant notification permission). apply writes the hooks named in harness/setup.json into that app's own settings, keeping the person's existing settings and permission choices; remove takes them out again. The full hook suite needs the Trillion Mac app and macOS Keychain: on another platform the platform check answers unsupported and nothing is written. Exit 0 means ready, 2 means not ready (the checks say why), 1 means the request was wrong (standard error says what to change).",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-and-wake-ai-sessions-on-this-computer"
    }
   },
   {
