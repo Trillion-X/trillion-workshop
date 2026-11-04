@@ -1,0 +1,13 @@
+{
+  "_what": "How separately recorded tracks of one recording (screen, camera, microphone, system sound) are checked to be in step (track-alignment.mjs). Each track says when, on the wall clock, its first sample was captured, and the first timestamp its own file starts at; a track whose file starts later or earlier than its wall clock says it should is out of step by that much. `tolerance_ms` is how far out a track may be and still count as in step; `seek_fractions` are the points of the recording (0 to 1) at which a probe also seeks each track and times how long the first sample takes. Words are for the person.",
+  "tolerance_ms": 40,
+  "seek_fractions": [0.1, 0.45, 0.8, 0.5, 0.95],
+  "words": {
+    "in_step": "All {count} tracks are in step (the furthest apart is {skew_ms} ms).",
+    "out_of_step": "{track} is {offset_ms} ms {direction} the others; the furthest apart are {skew_ms} ms and {tolerance_ms} ms is allowed.",
+    "early": "ahead of",
+    "late": "behind",
+    "one_track": "There is only one track, so there is nothing to line up.",
+    "unreadable": "{track} could not be read, so its place against the others is not known."
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "_what": "Long or heavy automation runs in a process of its own, supervised (computer/supervised-run.mjs); short work stays in the host that asked. A `classes` row says how a kind of run is supervised: its wall clock, whether the Mac is kept awake for exactly as long as the process lives, how much output is kept and how it is stopped. `keep_awake` is the program that holds the Mac awake and the arguments that tie it to the process ({pid}). A class not listed here is refused, so a caller names how heavy its work is.",
+  "classes": {
+    "heavy": {
+      "timeout_ms": 3600000,
+      "prevent_sleep": true,
+      "output_bytes": 1000000,
+      "stop_grace_ms": 2000
+    },
+    "light": {
+      "timeout_ms": 60000,
+      "prevent_sleep": false,
+      "output_bytes": 100000,
+      "stop_grace_ms": 500
+    },
+    "build": {
+      "timeout_ms": 900000,
+      "prevent_sleep": true,
+      "output_bytes": 16777216,
+      "stop_grace_ms": 2000
+    }
+  },
+  "keep_awake": {
+    "program": "/usr/bin/caffeinate",
+    "args": [
+      "-i",
+      "-w",
+      "{pid}"
+    ]
+  },
+  "words": {
+    "unknown_class": "There is no supervised class named {class}. Use one of: {known}.",
+    "needs_argv": "A supervised run needs argv, the program first and its arguments after.",
+    "timed_out": "The process was stopped after {ms} ms.",
+    "failed_to_start": "The process could not be started: {error}"
+  }
+}

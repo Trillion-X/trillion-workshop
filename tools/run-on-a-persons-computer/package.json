@@ -1,0 +1,13 @@
+{
+  "name": "trillion-computer",
+  "private": true,
+  "type": "module",
+  "description": "What runs on a person's own computer to reach what only it can (never part of the hosted service); its own dependencies stay here, out of the Worker's.",
+  "dependencies": {
+    "@noble/ciphers": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "@whiskeysockets/baileys": "^7.0.0-rc13",
+    "fflate": "0.8.2",
+    "trillion-workshop": "https://codeload.github.com/Trillion-X/trillion-workshop/tar.gz/d5e5cd1d980428449521858b67c63a5eb85456af"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/attachment-admission.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/admit-attachments-to-a-message/src/attachment-admission.json",
+      "source_identity": "1f:d022a07c98c0efe6bd7045e0c9544c3000bc3e3ca750081bded9f4b23f11d5dd",
+      "identity": "1f:d022a07c98c0efe6bd7045e0c9544c3000bc3e3ca750081bded9f4b23f11d5dd"
+    },
+    {
+      "from": "src/attachment-admission.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/admit-attachments-to-a-message/src/attachment-admission.mjs",
+      "source_identity": "1f:950c0df5172379151e3310d5cbb6f1c6da18d196d02530d0bf470219ad5de602",
+      "identity": "1f:950c0df5172379151e3310d5cbb6f1c6da18d196d02530d0bf470219ad5de602"
+    },
+    {
+      "from": "test/attachment-admission.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/admit-attachments-to-a-message/test/attachment-admission.test.mjs",
+      "source_identity": "1f:541d5d2ad3db34d75b7a65c67a62c933a892476df7d573a3a27c8f7f78a1374b",
+      "identity": "1f:541d5d2ad3db34d75b7a65c67a62c933a892476df7d573a3a27c8f7f78a1374b"
+    }
+  ]
+}

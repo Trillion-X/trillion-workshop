@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/colour-search.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/find-pictures-by-colour-and-likeness/src/colour-search.json",
+      "source_identity": "1f:c90f043f8331b4768df0369e36adb139396a292ada29e5aede889bf8000631f8",
+      "identity": "1f:c90f043f8331b4768df0369e36adb139396a292ada29e5aede889bf8000631f8"
+    },
+    {
+      "from": "src/colour-search.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/find-pictures-by-colour-and-likeness/src/colour-search.mjs",
+      "source_identity": "1f:6019fd9305ad5908c15d705939e9b4c38de7303336202c00d91df55df38be89c",
+      "identity": "1f:6019fd9305ad5908c15d705939e9b4c38de7303336202c00d91df55df38be89c"
+    },
+    {
+      "from": "src/meaning.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/find-pictures-by-colour-and-likeness/src/meaning.mjs",
+      "source_identity": "1f:9bedd0a43991e61167b1c5d00ef8400df4f7a9669cc7a715a8cc2c61805bb8da",
+      "identity": "1f:9bedd0a43991e61167b1c5d00ef8400df4f7a9669cc7a715a8cc2c61805bb8da"
+    },
+    {
+      "from": "src/workspace/file-facts.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/find-pictures-by-colour-and-likeness/src/workspace/file-facts.json",
+      "source_identity": "1f:249f4ce1846ece29113999d23d959405b3e723b53c1ec884345e2cd630b709b3",
+      "identity": "1f:249f4ce1846ece29113999d23d959405b3e723b53c1ec884345e2cd630b709b3"
+    },
+    {
+      "from": "test/colour-search.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/find-pictures-by-colour-and-likeness/test/colour-search.test.mjs",
+      "source_identity": "1f:ae03062a56f582a84e2bb5ac96759c9f5e19d36d523faacade1e91382fd3d7f0",
+      "identity": "1f:ae03062a56f582a84e2bb5ac96759c9f5e19d36d523faacade1e91382fd3d7f0"
+    }
+  ]
+}

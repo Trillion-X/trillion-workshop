@@ -1,0 +1,42 @@
+/* packages/screen-look/show/action-row.css
+ *
+ * The look of the shared action row (ui/show/action-row): one rounded track on
+ * a raised surface, every action the same weight, icon first, and the hovered
+ * or focused row opening every action's name at once. Anatomy from ExpandableTabs
+ * (21st.dev 1428) and beui's Expandable Action Bar (21st.dev 26780); detail
+ * headers checked against Magnific's clip detail and Higgsfield's asset panel
+ * on Mobbin.
+ *
+ * Geometry is concentric: track radius 16px = button radius 12px + 4px of
+ * track padding, so the inner corners sit parallel to the outer ones.
+ *
+ * Colours come from the page's own surface, line and text custom properties,
+ * so the row sits on any theme. Rules outrank the buttons' utility classes
+ * (which live in a cascade layer), so a row never shows a mix of filled and
+ * outlined buttons.
+ */
+
+.ui-action-row button:is([data-action-row-item],[data-slot=button],[data-slot=menu-trigger]){
+  display:inline-flex;align-items:center;justify-content:center;flex:none;gap:0;
+  height:32px;min-width:32px;padding:0 8px;margin:0;
+  border:0;border-radius:12px;background:transparent;box-shadow:none;
+  color:color-mix(in srgb,var(--text,currentColor) 78%,transparent);
+  font-size:13px;font-weight:550;line-height:1;white-space:nowrap;
+  transition:background-color var(--motion-fast) ease,color var(--motion-fast) ease,gap var(--motion-sheet) var(--ease-snap),padding var(--motion-sheet) var(--ease-snap);
+}
+.ui-action-row button:is([data-action-row-item],[data-slot=button],[data-slot=menu-trigger])::before,
+.ui-action-row button:is([data-action-row-item],[data-slot=button],[data-slot=menu-trigger])::after{display:none}
+.ui-action-row button:is([data-action-row-item],[data-slot=button],[data-slot=menu-trigger]):is(:hover,:focus-visible,[aria-expanded=true]):not(:disabled){
+  background:color-mix(in srgb,var(--text,#111) 11%,transparent);color:var(--text,currentColor);
+}
+
+/* Labels open for the whole row at once while the pointer or focus is inside it (the beui Expandable Action Bar
+ * behaviour). Opening one action at a time shifted its neighbours sideways, so a pointer moving slowly from one
+ * action to the next landed on empty track or on the wrong action. Closing waits briefly, so crossing a gap or
+ * brushing the edge does not flicker the row. */
+
+/* Words that are not an action (a selection count) sit quietly at the start. */
+.ui-action-row>:is(span,small,p):not([data-shared-root]):not(:has(button)){padding:0 8px 0 6px;font-size:12px;font-weight:650;color:color-mix(in srgb,var(--text,currentColor) 60%,transparent);white-space:nowrap}
+
+/* An empty message slot (a status line the page fills later) takes no room. */
+

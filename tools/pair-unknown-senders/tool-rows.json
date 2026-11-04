@@ -1,0 +1,547 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:pair-unknown-senders",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:pair-an-unknown-sender",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Give an unknown sender a pairing code",
+        "job": "Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve",
+        "description": "Give source_id (the event source the message came in on) and sender (the sender's own id on that source). Returns { paired: true } when the sender is already paired; otherwise code (8 characters with no 0, O, 1 or I), expires_at (an hour from now) and said. Asking again for the same sender gives the same code; a source with 3 codes waiting gives no more ({ full: true, said }).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "source_id",
+            "sender"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sender": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "paired": {
+              "type": "boolean"
+            },
+            "full": {
+              "type": "boolean"
+            },
+            "code": {
+              "type": "string"
+            },
+            "expires_at": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "pair-unknown-senders",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/pair-unknown-senders"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/pair-unknown-senders",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pair-unknown-senders/read-data/pairing-tools.mjs",
+            "requestPairing"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "sender-pairing",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/sender-pairing.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "source_id": "events:sample",
+              "sender": "sender-one"
+            },
+            "output_selector": "$.said",
+            "contains": "not paired yet"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:pair-unknown-senders",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:approve-a-pairing-code",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Approve a pairing code",
+        "job": "Let a waiting sender's messages through by approving the pairing code they were given",
+        "description": "Give code (case and spaces do not matter) and, optionally, source_id. A code works once, only before it expires, and only for the source it was issued for. Returns source_id, sender and said; an unknown, used or expired code is refused with what to do.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "code"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source_id": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source_id",
+            "sender",
+            "said"
+          ],
+          "properties": {
+            "source_id": {
+              "type": "string"
+            },
+            "sender": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "pair-unknown-senders",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/pair-unknown-senders"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/pair-unknown-senders",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pair-unknown-senders/read-data/pairing-tools.mjs",
+            "approvePairing"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "sender-pairing",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/sender-pairing.mjs"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:pair-unknown-senders",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:unpair-a-sender",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Unpair a sender",
+        "job": "Stop letting a paired sender's messages through, so they are unknown again",
+        "description": "Give source_id and sender. The sender is no longer paired for that source; their next message gets a new code. Returns source_id, sender and said.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "source_id",
+            "sender"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sender": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source_id",
+            "sender",
+            "said"
+          ],
+          "properties": {
+            "source_id": {
+              "type": "string"
+            },
+            "sender": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "pair-unknown-senders",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/pair-unknown-senders"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/pair-unknown-senders",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pair-unknown-senders/read-data/pairing-tools.mjs",
+            "revokePairing"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "sender-pairing",
+                "operations": [
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/sender-pairing.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "source_id": "events:sample",
+              "sender": "sender-one"
+            },
+            "output_selector": "$.said",
+            "contains": "no longer paired"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:pair-unknown-senders",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:list-paired-senders",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Paired senders and waiting codes",
+        "job": "List which senders are paired and which pairing codes are waiting, for one source or all",
+        "description": "Optional source_id narrows to one source. With source_id and sender, also answers is_paired for that sender. Returns waiting [{ source_id, sender, code, expires_at }] (expired codes left out) and paired [{ source_id, sender, paired_at }]. It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source_id": {
+              "type": "string"
+            },
+            "sender": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "waiting",
+            "paired"
+          ],
+          "properties": {
+            "waiting": {
+              "type": "array"
+            },
+            "paired": {
+              "type": "array"
+            },
+            "is_paired": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "pair-unknown-senders",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/pair-unknown-senders"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/pair-unknown-senders",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pair-unknown-senders/read-data/pairing-tools.mjs",
+            "listPairing"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "sender-pairing",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/sender-pairing.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.waiting",
+            "contains": ""
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+/* parts/screen-look/show/chat-thread.css
+ *
+ * The look of one conversation drawn as a chat (parts/ui/show/chat/ChatThread.tsx), as a pursuit's Messages and any
+ * list's Chat view draw it: one centred reading column, newest at the bottom, the box pinned under it in the same
+ * column; days named between days; runs of one speaker (others on the left under their picture, name and time, the
+ * reader's own on the right in the look's primary ink); a quoted reply at a bubble's top; a shared thing as a compact
+ * card; reactions as small chips on a bubble's lower edge; tools (react, reply, copy, menu, the clock time) beside a
+ * bubble only while it is pointed at, focused or tapped; a "New" line over what arrived since the reader looked; and
+ * the round button back to the newest. Anatomy after 21st.dev 28186 "Chat" (joyco), 29393 "Chat Bubble Thread",
+ * 28759 "Chat Bubble Reactions", 34988 "Message Bubble", 28485 "AI Messages", 23819 "AI Message", 31661 "Message
+ * Thread" and 12404 "Agent Chat", and Messenger, WhatsApp and Slack as people use them. Colours come from the look's
+ * tokens only (surface/text roles, falling back to the Coss theme roles every look defines), so every look repaints
+ * it. Each selector repeats its first class once (.chat-x.chat-x) so it outranks the layout utilities the shared
+ * Container and Button put on the same element, whatever order the stylesheets load in. Spacing is on a 4px grid.
+ */
+
+/* A list that draws a chat fills the place that holds it: the bar on top, the conversation taking the rest and
+   scrolling on its own, the box pinned at the foot (never scrolled away with the messages). */
+.record-views:has(> .record-views-caller-view > .record-views-design[data-design="chat"]) { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.record-views-caller-view:has(> .record-views-design[data-design="chat"]) { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.record-views-design[data-design="chat"] { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+/* What holds a list drawing a chat stops scrolling itself; the conversation scrolls. */
+:has(> .record-views > .record-views-caller-view > .record-views-design[data-design="chat"]) { overflow-y: hidden; }
+
+.chat-thread.chat-thread {
+  container: chat-thread / inline-size;
+  position: relative; display: flex; flex-direction: column; flex: 1 1 auto; min-height: 16rem; min-width: 0;
+}
+.chat-thread-frame.chat-thread-frame { position: relative; display: flex; flex: 1 1 auto; min-height: 0; }
+.chat-thread-viewport.chat-thread-viewport { display: block; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; outline: none; scrollbar-gutter: stable; }
+.chat-thread-viewport.chat-thread-viewport:focus-visible { box-shadow: inset 0 0 0 2px var(--border-focus, var(--color-ring)); border-radius: 12px; }
+.chat-thread-column.chat-thread-column {
+  display: flex; flex-direction: column; justify-content: flex-end;
+  width: 100%; max-width: 52rem; min-height: 100%; margin: 0 auto; padding: 16px 16px 12px; box-sizing: border-box;
+}
+.chat-thread-older.chat-thread-older { padding-bottom: 8px; }
+.chat-thread-empty.chat-thread-empty { flex: 1; gap: 12px; padding: 48px 16px; text-align: center; color: var(--text-muted, var(--color-muted-foreground)); }
+
+/* Days: the day's name centred between days, held at the top while its day scrolls under it. */
+.chat-day.chat-day { display: flex; flex-direction: column; }
+.chat-day-divider.chat-day-divider { position: sticky; top: 4px; z-index: 1; display: flex; justify-content: center; padding: 12px 0 4px; pointer-events: none; }
+.chat-day-divider.chat-day-divider > * {
+  padding: 2px 10px; border-radius: 999px; pointer-events: auto; font-weight: 500;
+  background: var(--surface-primary, var(--color-card)); border: 1px solid var(--border-subtle, var(--line, var(--color-border)));
+}
+
+/* What arrived since the reader last looked: a hairline in the alert colour with "New" at its end (Slack). */
+.chat-unread-line.chat-unread-line { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; color: var(--color-destructive, #d93f3f); }
+.chat-unread-line.chat-unread-line::before { content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.55; }
+
+/* A run: one speaker's messages in a row. Others on the left, their picture at the run's foot, their name and the
+   run's time on top; the reader's on the right with the run's time under its last bubble. */
+.chat-run.chat-run { display: flex; align-items: flex-end; gap: 8px; margin-top: 12px; min-width: 0; }
+.chat-run.chat-run[data-side="mine"] { justify-content: flex-end; }
+.chat-run-mark.chat-run-mark { display: grid; place-items: center; flex: none; width: 28px; height: 28px; margin-bottom: 2px; }
+.chat-run-body.chat-run-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto; }
+.chat-run.chat-run[data-side="mine"] .chat-run-body { align-items: flex-end; }
+.chat-run.chat-run[data-side="theirs"] .chat-run-body { align-items: flex-start; }
+.chat-run-head.chat-run-head { display: flex; align-items: baseline; gap: 8px; padding: 0 12px 2px; min-width: 0; }
+.chat-run-name.chat-run-name { color: var(--text-primary, var(--color-foreground)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-run-time.chat-run-time, .chat-run-foot.chat-run-foot { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chat-run-foot.chat-run-foot { padding: 2px 4px 0; }
+
+/* One message: its bubble (and card, and reactions) with its tools beside it, on the far side from its speaker. */
+.chat-message.chat-message { position: relative; display: flex; align-items: center; gap: 4px; min-width: 0; max-width: 100%; }
+.chat-run.chat-run[data-side="mine"] .chat-message { flex-direction: row-reverse; }
+.chat-message-stack.chat-message-stack { display: flex; flex-direction: column; gap: 4px; min-width: 0; max-width: min(34rem, 78cqi); }
+.chat-run.chat-run[data-side="mine"] .chat-message-stack { align-items: flex-end; }
+.chat-run.chat-run[data-side="theirs"] .chat-message-stack { align-items: flex-start; }
+
+.chat-bubble.chat-bubble {
+  display: block; min-width: 0; max-width: 100%; padding: 8px 12px; border-radius: 18px; box-sizing: border-box;
+  background: var(--surface-secondary, var(--color-muted)); color: var(--text-primary, var(--color-foreground));
+}
+.chat-run.chat-run[data-side="mine"] .chat-bubble { background: var(--color-primary, var(--text-primary)); color: var(--color-primary-foreground, var(--surface-primary)); }
+.chat-bubble.chat-bubble[data-quiet="true"] { background: transparent; border: 1px dashed var(--border-subtle, var(--color-border)); color: var(--text-muted, var(--color-muted-foreground)); }
+.chat-bubble-text.chat-bubble-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.45; color: inherit; }
+/* Bubbles in one run sit close; the corner toward the speaker's side tightens between them (29393). */
+.chat-run.chat-run[data-side="theirs"] .chat-message:not(:last-of-type) .chat-bubble { border-bottom-left-radius: 6px; }
+.chat-run.chat-run[data-side="theirs"] .chat-message:not(:first-of-type) .chat-bubble { border-top-left-radius: 6px; }
+.chat-run.chat-run[data-side="mine"] .chat-message:not(:last-of-type) .chat-bubble { border-bottom-right-radius: 6px; }
+.chat-run.chat-run[data-side="mine"] .chat-message:not(:first-of-type) .chat-bubble { border-top-right-radius: 6px; }
+.chat-mention.chat-mention { font-weight: 600; color: inherit; }
+
+/* What a message answers, quoted at its top inside the bubble (iMessage, WhatsApp): who said it, its first words,
+   on a faint wash of the bubble's own ink. */
+.chat-reply-quote.chat-reply-quote {
+  display: flex; flex-direction: column; gap: 0; margin: 0 -4px 6px; padding: 6px 8px; border-radius: 10px;
+  background: color-mix(in oklab, currentColor 9%, transparent);
+}
+.chat-reply-quote-name.chat-reply-quote-name { color: inherit; }
+.chat-reply-quote-text.chat-reply-quote-text {
+  color: inherit; opacity: 0.8; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow-wrap: anywhere;
+}
+
+/* A thing shared into the conversation: a compact card with its picture or its kind's glyph, its kind, title and a
+   line of its words; the whole card opens it (21st.dev 30730, 29545; iMessage and Slack attachments). */
+.chat-attachment.chat-attachment {
+  display: flex; align-items: center; gap: 12px; width: 22rem; max-width: 100%; height: auto; min-height: 0; padding: 8px 12px 8px 8px;
+  box-sizing: border-box; border-radius: 14px; text-align: left; justify-content: flex-start; white-space: normal;
+  border: 1px solid var(--border-subtle, var(--line, var(--color-border))); background: var(--surface-primary, var(--color-card));
+  color: var(--text-primary, var(--color-foreground)); box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+button.chat-attachment.chat-attachment:hover { background: var(--surface-hover, color-mix(in oklab, var(--color-foreground) 3%, var(--color-card))); }
+.chat-attachment-picture.chat-attachment-picture {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 10px; overflow: hidden;
+  background: var(--surface-secondary, var(--color-muted)); color: var(--text-secondary, var(--color-muted-foreground));
+}
+.chat-attachment-picture.chat-attachment-picture[data-picture] { width: 56px; height: 56px; }
+.chat-attachment-picture.chat-attachment-picture[data-picture] img, .chat-attachment-picture.chat-attachment-picture[data-picture] video { width: 100%; height: 100%; object-fit: cover; }
+.chat-attachment-words.chat-attachment-words { display: flex; flex-direction: column; gap: 0; min-width: 0; flex: 1 1 auto; }
+.chat-attachment-kind.chat-attachment-kind { line-height: 1.3; }
+.chat-attachment-title.chat-attachment-title { display: block; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: inherit; }
+.chat-attachment-detail.chat-attachment-detail { line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+
+/* Reactions as small chips on the bubble's lower edge (28759), toward the speaker's side. */
+.chat-message-reactions.chat-message-reactions { display: flex; margin-top: -10px; padding: 0 8px; position: relative; z-index: 1; }
+.chat-message-reactions .reaction-chip { background: var(--surface-primary, var(--color-card)); box-shadow: 0 0 0 2px var(--surface-primary, var(--color-card)); }
+
+/* The tools beside a bubble, only while it is pointed at, focused or tapped, or while one of its menus is open. */
+.chat-message-tools.chat-message-tools {
+  display: flex; align-items: center; gap: 0; flex: none; padding: 2px; border-radius: 999px;
+  background: var(--surface-primary, var(--color-card)); border: 1px solid var(--border-subtle, var(--line, var(--color-border)));
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.08); opacity: 0; pointer-events: none; transition: opacity 120ms ease;
+}
+.chat-message-tools.chat-message-tools button { width: 28px; height: 28px; min-width: 28px; border-radius: 999px; }
+.chat-message-tools.chat-message-tools .reaction-row { display: inline-flex; }
+.chat-message-time.chat-message-time { padding: 0 8px 0 4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chat-message.chat-message:hover .chat-message-tools,
+.chat-message.chat-message:focus-within .chat-message-tools,
+.chat-message.chat-message[data-chosen="true"] .chat-message-tools,
+.chat-message.chat-message:has([aria-expanded="true"]) .chat-message-tools { opacity: 1; pointer-events: auto; }
+
+/* The round button back to the newest message (28485), only while reading further up. */
+.chat-thread-newest.chat-thread-newest {
+  position: absolute; left: 50%; bottom: 12px; z-index: 2; transform: translateX(-50%) scale(1);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+.chat-thread-newest.chat-thread-newest > button { width: 36px; height: 36px; border-radius: 999px; box-shadow: 0 6px 20px rgb(0 0 0 / 0.12); }
+.chat-thread-newest.chat-thread-newest[data-shown="false"] { opacity: 0; transform: translateX(-50%) scale(0.6); pointer-events: none; }
+
+/* Under the conversation: what the next message answers, then the one composer, in a column matching the messages. */
+.chat-compose.chat-compose { display: flex; flex-direction: column; gap: 8px; flex: none; width: 100%; max-width: 52rem; margin: 0 auto; padding: 4px 16px 16px; box-sizing: border-box; }
+.chat-replying.chat-replying {
+  display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 12px;
+  background: var(--surface-secondary, var(--color-muted)); color: var(--text-secondary, var(--color-muted-foreground));
+}
+.chat-replying-words.chat-replying-words { display: flex; flex-direction: column; gap: 0; min-width: 0; flex: 1 1 auto; }
+.chat-replying-words.chat-replying-words > * { color: var(--text-primary, var(--color-foreground)); }
+.chat-replying-text.chat-replying-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary, var(--color-muted-foreground)) !important; }
+
+/* A phone or a narrow pane: bubbles take more of the row, the column's edges tighten, and a message's tools float
+   just above its bubble (shown on a tap) instead of beside it, so they never squeeze the words. */
+@container chat-thread (max-width: 34rem) {
+  .chat-thread-column.chat-thread-column { padding: 12px 8px 8px; }
+  .chat-message-stack.chat-message-stack { max-width: 86cqi; }
+  .chat-run.chat-run[data-side="theirs"] .chat-message-stack { max-width: calc(86cqi - 36px); }
+  .chat-message-tools.chat-message-tools { position: absolute; bottom: calc(100% + 4px); z-index: 3; }
+  .chat-run.chat-run[data-side="theirs"] .chat-message-tools { left: 0; }
+  .chat-run.chat-run[data-side="mine"] .chat-message-tools { right: 0; }
+  .chat-attachment.chat-attachment { width: 100%; }
+  .chat-day-divider.chat-day-divider { position: static; }
+  .chat-compose.chat-compose { padding: 4px 8px 8px; }
+}
+@media (hover: none) {
+  .chat-message.chat-message:hover:not([data-chosen="true"]) .chat-message-tools { opacity: 0; pointer-events: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-message-tools.chat-message-tools, .chat-thread-newest.chat-thread-newest { transition: none; }
+}

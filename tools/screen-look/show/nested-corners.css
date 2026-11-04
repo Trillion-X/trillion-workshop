@@ -1,0 +1,65 @@
+/* parts/screen-look/show/nested-corners.css
+ *
+ * NO PRIOR: searched the show folders of ~/dev/bitfield-packages/packages for "concentric", "corner-inset", "nested radius" and
+ * "inner radius" (only balsa-theme.css's five-surface --balsa-radius-contained and twenty's comment, both already here)
+ * and 21st.dev for "concentric nested border radius" (animated borders only).
+ *
+ * Nested corners, computed. A rounded box that holds other rounded things names its own corner (--corner) and the gap
+ * from its edge to what sits in its corners (--corner-inset); what sits there takes --corner-in, the holder's corner
+ * less the gap (never below zero), so the inner curve runs parallel to the outer one. The reverse, a box whose corner
+ * follows what it holds, takes --corner-out: the held corner (--corner-held) plus the gap. The same rule as numbers is
+ * nestedCorner / holdingCorner in read-data/resolve-screen-look-palette.js, written into every compiled device palette by
+ * scripts/make-device-looks.mjs, and scripts/check-narrow-widths.mjs measures every screen against it
+ * (corners-not-concentric), the window being the outermost box.
+ *
+ * A part marks a holder with data-corner-holder and what follows it with data-corner-follows; a part that carries no
+ * mark is named by its own selector below. Each holder is one line naming its corner and gap; the nearest holder wins.
+ * A holder inside a holder writes its corner out as the outer corner less the outer gap: a property cannot read the
+ * value its parent gave the same name.
+ */
+:where(
+  [data-corner-holder],
+  [data-tab-draggable],
+  [data-surface-container],
+  .composer-field,
+  .glass-surface,
+  .coss-floating-panel,
+  .notification-root
+) {
+  --corner-in: max(0px, calc(var(--corner, 0px) - var(--corner-inset, 0px)));
+  --corner-out: calc(var(--corner-held, 0px) + var(--corner-inset, 0px));
+}
+
+/* Holders: each one's own corner and the gap to what sits in its corners. */
+/* A framed choice row (ui expandable-tabs): one line and its padding in. */
+[data-expandable-tabs-frame="group"][data-expandable-tabs-size="sm"] { --corner: 0.75rem; --corner-inset: calc(1px + 0.125rem); border-radius: var(--corner); }
+[data-expandable-tabs-frame="group"][data-expandable-tabs-size="md"] { --corner: 1rem; --corner-inset: calc(1px + 0.25rem); border-radius: var(--corner); }
+/* The segmented control: the look's control corner, one line and 2px in. */
+[data-segmented-control] { --corner: var(--radius-control, 10px); --corner-inset: 3px; border-radius: var(--corner); }
+[data-tab-draggable] { --corner: var(--radius-control, 10px); --corner-inset: 0.25rem; border-radius: var(--corner); }
+.composer-field { --corner: 1rem; --corner-inset: calc(0.5rem + 1px); border-radius: var(--corner); }
+/* A floating window's frame is a glass surface with a one-pixel line, so a screen filling it sits one pixel in. */
+.glass-surface { --corner: var(--radius-card, 1rem); --corner-inset: 1px; }
+/* A pane's padded body starts inside the pane's one-pixel line and keeps 0.5rem to what it shows. */
+[data-surface-container] { --corner: calc(var(--radius-card, 1rem) - 1px); --corner-inset: 0.5rem; }
+/* A floating panel (a tour card, a picker): its own corner, its top row's controls 3px in. */
+.coss-floating-panel { --corner: var(--radius-lg, 12px); --corner-inset: 4px; }
+
+/* Holders inside holders. */
+/* The message box sits a quarter rem in from its window's line. */
+.message-box { padding: 0.25rem; }
+.message-box .composer-field { --corner: calc(var(--radius-card, 1rem) - 1px - 0.25rem); }
+/* A page drawn as one card filling a pane's body (a list's surface) sits half a rem in from the body's corner. */
+[data-surface-container] .glass-surface[data-visual-database-presentation="surface"] { --corner: calc(var(--radius-card, 1rem) - 1px - 0.5rem); border-radius: var(--corner); }
+/* A choice row in a floating panel's top row sits 4px from the panel's corner. */
+.coss-floating-panel-grab [data-expandable-tabs-frame="group"][data-expandable-tabs-size] { --corner: calc(var(--radius-lg, 12px) - 4px); }
+
+/* Followers. Doubled so the rule outranks the corner a part types on itself. */
+[data-corner-follows][data-corner-follows] { border-radius: var(--corner-in); }
+[data-tab-draggable] .close-control { border-radius: var(--corner-in); }
+.composer-field > .composer-tools > button[type="submit"] { border-radius: var(--corner-in); }
+.glass-surface > .notification-center,
+.glass-surface > * > .notification-center { border-radius: var(--corner-in); }
+/* The chat filling a pane: its two panes clip to the body's inner corner, and the open conversation's card follows it. */
+[data-surface-container] .chat-panes { border-radius: var(--corner-in); overflow: hidden; }
+[data-surface-container] [data-reach-role="message-view"] > .glass-nested { border-radius: var(--corner-in); }

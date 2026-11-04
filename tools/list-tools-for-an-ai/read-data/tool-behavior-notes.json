@@ -1,0 +1,9 @@
+{
+  "_what": "What every tool's description tells an AI about how to behave around it, said once from the tool's own four hints (src/tool-behavior-notes.mjs), so the words an AI reads and the hints an AI app obeys can never disagree. Each row: `when` names hint values that must all match, `say` is the sentence added after the description, `unless` are words that, when the description already says the same thing, stop the sentence being added twice. Rows are tried in order. A hint left out matches nothing (the cautious reading is the app's, not this file's). Adding a rule is one row.",
+  "rows": [
+    { "when": { "readOnlyHint": true }, "say": "Reads only: it changes nothing and is safe to call to look.", "unless": ["changes nothing", "reads only", "read-only", "only reads", "does not change"] },
+    { "when": { "destructiveHint": true }, "say": "Can remove or overwrite something the person kept: confirm with the person before calling it unless they already asked for exactly this.", "unless": ["confirm with the person", "ask the person first", "only if the person"] },
+    { "when": { "readOnlyHint": false, "destructiveHint": false, "idempotentHint": true }, "say": "Adds or sets only: calling it again with the same input changes nothing more.", "unless": ["same input", "same request_key", "idempotent", "changes nothing more"] },
+    { "when": { "readOnlyHint": false, "openWorldHint": true }, "say": "It reaches outside the person's own Trillion, so what it sends cannot be taken back by Trillion.", "unless": ["outside trillion", "leaves trillion", "outside the person"] }
+  ]
+}

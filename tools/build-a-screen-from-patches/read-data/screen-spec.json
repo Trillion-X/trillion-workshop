@@ -1,0 +1,45 @@
+{
+  "_what": "Limits and words for a screen made of shared parts (src/screen-spec.mjs). An AI sends the screen as lines, each one change (or a list of changes) in RFC 6902 form to { root, elements, state, reads }; every complete line is applied and drawn at once (src/workspace/parts-screen.tsx). A line that is not a change, or that changes something a line may not touch, is left out and said; it never stops the lines after it. Limits bound what one screen may hold and how much one line or one stream may be. A tool whose screen is a parts screen and that has no invoke is a screen by itself (src/workshop.mjs): it is saved with `screen_only_licence` when it names none, and needs no placement or sample.",
+  "limits": {
+    "elements": 400,
+    "line_chars": 20000,
+    "lines": 2000,
+    "stream_chars": 400000,
+    "ops_per_line": 64,
+    "depth": 32,
+    "repeat_items": 200,
+    "reads": 16,
+    "template_chars": 4000, "asked_lines": 12, "asked_chars": 200
+  },
+  "words": {
+    "part_failed": "This part could not be shown.",
+    "unknown_part": "{key}: \"{type}\" is not a part screens can use. Parts: {parts}.",
+    "not_element": "{key}: an element is an object with a type and props.",
+    "missing_prop": "{key}: {type} needs {prop}.",
+    "dropped_prop": "{key}: {type} has no prop {prop}; it was left out.",
+    "fixed_prop": "{key}: {prop} was {was} and is now {now}.",
+    "unfixable_prop": "{key}: {prop} {problem}; it was left out.",
+    "moved_field": "{key}: \"{field}\" belongs on the element, not in props; it was moved.",
+    "unknown_event": "{key}: {type} has no event {event}. It has: {events}.",
+    "unknown_action": "{key}: the {event} action \"{action}\" is not a declared request or setState; it was left out.",
+    "no_children": "{key}: {type} holds no other elements; its children were left out.",
+    "dangling_child": "{key}: child \"{child}\" was never sent; it was left out.",
+    "no_root": "The screen names no root element. Send {\"op\":\"add\",\"path\":\"/root\",\"value\":\"<element key>\"} first.",
+    "root_missing": "The root \"{root}\" was never sent.",
+    "bad_line": "Line {line} is not a change: {reason}",
+    "bad_path": "Line {line} changes {path}; a line may change only /root, /elements, /state and /reads.",
+    "bad_op": "Line {line}: {op} is not a change a screen takes; use add, replace or remove.",
+    "too_long_line": "Line {line} is longer than {most} characters and was left out.",
+    "too_many_lines": "The screen is more than {most} lines; the rest were left out.",
+    "too_many_elements": "The screen holds more than {most} elements; the rest were left out.",
+    "bad_read": "reads {path}: names \"{request}\", which is not a declared GET request; it was left out.",
+    "cycle": "{key} holds itself; that part was not drawn again.",
+    "loading": "Making this screen",
+    "failed": "This did not work: {reason}"
+  },
+  "screen_only_licence": "licence:maker-own",
+  "ai": {
+    "guide": "To make a new screen from shared parts instead of naming one, send parts: the screen as lines, one JSON change per line (RFC 6902 add, replace or remove on {root, elements, state, reads}), root first, so the person sees it grow as you write: {\"op\":\"add\",\"path\":\"/root\",\"value\":\"main\"} then {\"op\":\"add\",\"path\":\"/elements/main\",\"value\":{\"type\":\"Card\",\"props\":{},\"children\":[\"title\"]}} then each child. An element is {type, props, children, on, visible, repeat}; children are keys of other elements. A prop may be {\"$state\":\"/path\"}, {\"$bindState\":\"/path\"} (read and written back), {\"$template\":\"Hi ${/name}\"}, {\"$cond\":{\"$state\":\"/x\",\"eq\":1},\"$then\":..,\"$else\":..}; inside repeat ({\"statePath\":\"/rows\",\"key\":\"id\"}) {\"$item\":\"field\"}, {\"$bindItem\":\"field\"} and {\"$index\":true}. on maps an event to {action, params, result}: action is setState (params {path, value}) or the name of one of requests, the screen's named requests with the same declarations as save_tool's screen.requests (fixed /work/api/ paths and methods, or resource_operation); params may use {\"$event\":true}. reads fills state from GET requests: {\"/rows\":{\"request\":\"<GET request>\",\"pick\":\"/rows\"}}. label names the screen; it is kept as one of the person's tools (screen picks one to change; delete_tool removes it). Parts and their props: {parts}.",
+    "needs_label": "A new screen needs a label (its name), or screen naming the tool id of one of your parts screens to change."
+  }
+}

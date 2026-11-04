@@ -1,0 +1,18 @@
+{
+  "_what": "What this Mac's helper watches about the Mac itself and tells the person's AIs when it goes wrong (computer/watch-this-mac.mjs, a handler of harness/wake-sessions.mjs). Each row of `watch` names a `process` (as the Mac's `top` names it) and the most memory it may hold, `most_gb` (what top counts as its memory, compressed memory included); a reading above it is told once as failed work through the account's progress door (POST /mcp/api/tell/progress, src/tell-the-person.mjs report, `kind`, key `key`), worded with `title` and `body` filled with {process}, {gb}, {most_gb} and {computer}, and told again only once it has grown another `again_gb`; a reading back under `most_gb` tells the same work done with `done_title`. The memory is read every `every_seconds`. coreaudiod, the Mac's sound server, grew to 39 GB on 2026-10-11 while the person's speakers crackled (three microphone recorders left by a killed listener held it, computer/listen.mjs invariant 1a); only the person can restart it, so the words say how. A new thing to watch is a row here and nothing else.",
+  "origin": "https://app.gettrillion.ai",
+  "every_seconds": 300,
+  "watch": [
+    {
+      "id": "sound-server",
+      "process": "coreaudiod",
+      "most_gb": 2,
+      "again_gb": 4,
+      "kind": "stopped",
+      "key": "watch-this-mac:{id}:{computer}",
+      "title": "The Mac's sound server is holding {gb} GB",
+      "body": "coreaudiod, the sound server on {computer}, holds {gb} GB of memory (most expected: {most_gb} GB), which makes sound crackle and the Mac swap. Find which program feeds it (the processes taking sound in or out), stop that one, then restart the sound server once: in Terminal run `sudo killall coreaudiod` (sound stops for a second and comes back).",
+      "done_title": "The Mac's sound server is back to {gb} GB"
+    }
+  ]
+}
