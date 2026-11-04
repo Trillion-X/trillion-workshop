@@ -1,0 +1,237 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-goals-and-focus",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:order-my-goals-under-the-goals-they-serve",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Order my goals under the goals they serve",
+        "job": "Keep my goals in the order they are shown, each one under the goal it serves, so a goal with several parents is shown once and none is hidden by a missing parent or a loop",
+        "description": "Give goals ([{ id, title?, parents?, children? }]; parents and children name other goals by id or { id }). The goals are ordered by the reader the app's goal list used (read-data/pursuit-hierarchy-view.mjs): each top goal in the order given, then the goals under it, depth first; a goal with several parents is one row, indented under the first parent reached; a goal whose parent is not among those given, or that is in a cycle, is still shown. Answers rows ([{ id, title, depth, shown_under, parents }]) and count. Refuses goals that is not a list and a goal without an id. Reads no records, keeps nothing and sends nothing. The Home screen did more than this run does: it saved goals, marked the one needle mover, focused the app on one goal or space, and greeted the person with the next step and their AIs' work in the words of home-words.json; none of that is here, and this run does not read home-words.json.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "goals"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "goals": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "parents": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "id"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "children": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "id"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rows",
+            "count"
+          ],
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "title",
+                  "depth",
+                  "shown_under",
+                  "parents"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "depth": {
+                    "type": "integer"
+                  },
+                  "shown_under": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "parents": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "count": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/keep-goals-and-focus",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-goals-and-focus/read-data/order-goals.mjs",
+            "orderGoals"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-goals-and-focus",
+                "paths": [
+                  "read-data/order-goals.mjs",
+                  "read-data/pursuit-hierarchy-view.mjs"
+                ],
+                "at": "/opt/keep-goals-and-focus"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/pursuit-hierarchy-view.mjs at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (4ffa1dc4a2^), brought in byte for byte (moved-from.json; the order src/workspace/pursuit-navigation-rows.mjs gives goals), run through read-data/order-goals.mjs; old capability row capabilities.json:337 at 4ffa1dc4a2^ (keep my goals, the part this run does); home-words.json came in a9ee258 (#76)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "goals": [
+                {
+                  "id": "grow-food",
+                  "title": "Grow our own food",
+                  "parents": [
+                    "life"
+                  ]
+                },
+                {
+                  "id": "life",
+                  "title": "A calm, healthy year"
+                },
+                {
+                  "id": "run",
+                  "title": "Run a 10k",
+                  "parents": [
+                    "life",
+                    "missing"
+                  ]
+                }
+              ]
+            },
+            "output_selector": "$.count",
+            "at_least": 3
+          }
+        ]
+      }
+    }
+  ]
+}

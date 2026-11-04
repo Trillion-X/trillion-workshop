@@ -1,0 +1,176 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:edit-a-document-together",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:open-the-document-a-pursuit-edits-together",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Open the document a pursuit edits together",
+        "job": "Say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal",
+        "description": "Give pages: what each page of Write is opened with ({ space_id?, scene_address?, ... }). A page opened in a pursuit (space_id) opens that pursuit's one shared room (space-room:<pursuit>/package::documents::documents, from show/write-screen.json) unless it names a document of that same room; a page with no pursuit keeps its own address. Answers pages (each { opened: true, input: what the screen opens with, shared } or { opened: false, refused }, in the screen's own words: an empty pursuit name, one that is not text or holds '/', or a document of another room) and shared_rooms (each room once). It runs show/write-screen-input.mjs writeScreenInput, the rule the Write screen opens with. It reads, keeps and sends nothing; the editing itself (blocks, merges, undo, presence) is the Write screen's and is not run here.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "pages"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "pages": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "space_id": {
+                    "description": "The pursuit the page is opened in: text with no '/'."
+                  },
+                  "scene_address": {
+                    "description": "The document the page names, when it names one."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "pages",
+            "shared_rooms"
+          ],
+          "properties": {
+            "pages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "opened"
+                ],
+                "properties": {
+                  "opened": {
+                    "type": "boolean"
+                  },
+                  "input": {
+                    "type": "object"
+                  },
+                  "shared": {
+                    "type": "boolean"
+                  },
+                  "refused": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "shared_rooms": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/edit-a-document-together",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/edit-a-document-together/do-work/open-a-shared-document.mjs",
+            "openASharedDocument"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "edit-a-document-together",
+                "paths": [
+                  "do-work/open-a-shared-document.mjs",
+                  "show/write-screen-input.mjs",
+                  "show/write-screen.json"
+                ],
+                "at": "/opt/edit-a-document-together"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/documents show/write-screen-input.mjs and show/write-screen.json, moved in a9ee258 (#76); old capability row capabilities.json:423 at 4ffa1dc4a2^ (edit a document together)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "pages": [
+                {
+                  "space_id": "garden-club",
+                  "member_id": "sample-a"
+                },
+                {
+                  "space_id": "garden-club",
+                  "member_id": "sample-b"
+                },
+                {
+                  "scene_address": "package::documents::documents::personal"
+                },
+                {
+                  "space_id": "a/b"
+                }
+              ]
+            },
+            "output_selector": "$.shared_rooms",
+            "contains": "space-room:garden-club/package::documents::documents"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. passkey.mjs imports them from this folder now (./password-strength.mjs, ./passwords.json).",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/password-strength.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/sign-in-with-a-passkey/password-strength.mjs",
+      "source_identity": "1f:b32231c44068634bde759a52e988b6d703240d3727bb171cf696e480fe3a8ff9",
+      "identity": "1f:b32231c44068634bde759a52e988b6d703240d3727bb171cf696e480fe3a8ff9"
+    },
+    {
+      "from": "src/passwords.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/sign-in-with-a-passkey/passwords.json",
+      "source_identity": "1f:e3708644deb0eaea91286e6ab2c28e423d53a67b34e62081c8c5ae4e1d89fff5",
+      "identity": "1f:e3708644deb0eaea91286e6ab2c28e423d53a67b34e62081c8c5ae4e1d89fff5"
+    }
+  ]
+}

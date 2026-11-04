@@ -24,3 +24,7 @@ the verifier remains hermetic and receives only its declared mounted inputs.
 ## `read_file_range_bytes`
 
 Same bounds, containment and clamp as `read_file_range`, but the reply payload IS the requested range: no JSON envelope and no base64. A caller that wants file metadata keeps using `read_file_range`; a caller that wants bytes asks for bytes, and the difference is one DATA value in the request rather than a second handler.
+
+## The row
+
+`tool-rows.json` holds `tool:plan-choosing-and-saving-files-on-my-computer`. It runs `run/plan-local-files.mjs` `planLocalFiles`, which calls `chooseLocalFiles` or `saveLocalFileCopy` with the workspace's `#workspace-records` stood in by `run/requests-kept-here.mjs` (mapped by `run/package.json`): each `local.files` request is kept and answered, a choose from the picker reply handed in, a save as a Mac that wrote and read back the copy would. The row lays `do-work/` and `read-data/` under `run/` in the run, so only there does the stand-in replace the workspace's sender. Nothing on any computer is opened, picked, written or read.

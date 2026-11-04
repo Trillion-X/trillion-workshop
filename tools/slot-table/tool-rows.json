@@ -1,0 +1,276 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:slot-table",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:keep-keyed-things-in-a-fixed-memory-budget",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Keep keyed things inside a fixed memory budget",
+        "job": "Keep many keyed things inside a fixed memory budget, each read after the first being one array index, and let the least recently used go first when the budget is full",
+        "description": "Give steps, applied in order to a slot table made from capacity_bytes (the budget, 24 MB when left out) and columns (DATA: [{ kind, field, as: number | text }], the fields kept in typed arrays): set { key, kind, value, bytes? } admits or updates a key (bytes is what it costs the budget, its JSON length when left out), find { key }, read { key }, drop { key }, kind { kind } (every key of that kind still held) and clear. Answers answers (one per step: set gives its slot and version, find its slot or -1, read whether it is held and its kind, value, version and bytes) and held (slots, bytes, capacity_bytes, evictions, kinds, words). Nothing is kept after the run: send the same steps again for the same table.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "steps"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "capacity_bytes": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "field",
+                  "as"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string"
+                  },
+                  "field": {
+                    "type": "string"
+                  },
+                  "as": {
+                    "type": "string",
+                    "enum": [
+                      "number",
+                      "text"
+                    ]
+                  }
+                }
+              }
+            },
+            "steps": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "op"
+                ],
+                "properties": {
+                  "op": {
+                    "type": "string",
+                    "enum": [
+                      "set",
+                      "find",
+                      "read",
+                      "drop",
+                      "kind",
+                      "clear"
+                    ]
+                  },
+                  "key": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "value": {},
+                  "bytes": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "answers",
+            "held"
+          ],
+          "properties": {
+            "answers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "op"
+                ],
+                "properties": {
+                  "op": {
+                    "type": "string"
+                  },
+                  "key": {
+                    "type": "string"
+                  },
+                  "slot": {
+                    "type": "integer"
+                  },
+                  "version": {
+                    "type": "integer"
+                  },
+                  "held": {
+                    "type": "boolean"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "value": {},
+                  "bytes": {
+                    "type": "number"
+                  },
+                  "keys": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "held": {
+              "type": "object",
+              "required": [
+                "slots",
+                "bytes",
+                "capacity_bytes",
+                "evictions"
+              ],
+              "properties": {
+                "slots": {
+                  "type": "integer"
+                },
+                "slot_space": {
+                  "type": "integer"
+                },
+                "bytes": {
+                  "type": "number"
+                },
+                "capacity_bytes": {
+                  "type": "number"
+                },
+                "evictions": {
+                  "type": "integer"
+                },
+                "kinds": {
+                  "type": "integer"
+                },
+                "words": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/slot-table",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/slot-table/do-work/run-steps.mjs",
+            "runSlotTableSteps"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "slot-table",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/slot-table"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/slot-table/do-work/slot-table.mjs, moved in a9ee258 (#76); old capability row capabilities.json:1156 at 4ffa1dc4a2^ (owner of keep each person's records in their own store)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "capacity_bytes": 40,
+              "steps": [
+                {
+                  "op": "set",
+                  "key": "note:1",
+                  "kind": "note",
+                  "value": {
+                    "title": "Plan the week"
+                  }
+                },
+                {
+                  "op": "set",
+                  "key": "note:2",
+                  "kind": "note",
+                  "value": {
+                    "title": "Buy paint"
+                  }
+                },
+                {
+                  "op": "read",
+                  "key": "note:1"
+                },
+                {
+                  "op": "find",
+                  "key": "note:2"
+                }
+              ]
+            },
+            "output_selector": "$.held.evictions",
+            "at_least": 1
+          }
+        ]
+      }
+    }
+  ]
+}

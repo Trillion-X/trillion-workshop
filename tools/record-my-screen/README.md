@@ -17,6 +17,8 @@ This package mirrors the architecture of `record-audio/record-video` but for scr
 | `do-work/recorded-file-store.ts` | IndexedDB chunk storage and file reconstruction (shared pattern with record-audio/record-video) |
 | `do-work/recorded-file-artifact.ts` | Artifact staging to material evidence storage |
 | `do-work/screen-recording-requests.ts` | Workflow action request builders/senders |
+| `do-work/rebuild-a-recording-from-chunks.mjs` | `rebuildARecordingFromChunks({ recording_id, media_type, chunks, observed_at })`: keeps the chunks through `recorded-file-store.ts` in a stand-in IndexedDB held in memory, builds the file reference and reads the recording back (what `tool-rows.json` runs; plain `node` 22 strips the store's types) |
+| `tool-rows.json` | The row `tool:rebuild-a-screen-recording-from-its-chunks`, with a sample run of three made-up chunks rebuilt into 55 bytes |
 
 ## Rules
 

@@ -1,0 +1,205 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:serve-command-line-mcp-servers-on-the-web",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:ask-a-command-line-mcp-server-once",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Ask a command-line MCP server one request",
+        "job": "Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it",
+        "description": "Makes the gateway (do-work/gateway.mjs createGateway) for the one stdio MCP server the input names (cli, args, env) and hands it one POST /<app>/mcp with no session id, in this process: no port is opened. The gateway starts the server as a child process in a fresh empty working folder with only PATH, HOME, TMPDIR and LANG (plus env), sends initialize (protocol_version, 2025-06-18 when left out) and notifications/initialized, writes the request (one JSON-RPC message per line), waits at most timeout_seconds (30 when left out), answers a request the server asks back with method not found, then kills the server and removes its folder. An arg that starts with ./ or ../ names a file in the run's working folder (the tool folder) and is made absolute first. Answers the HTTP status the gateway gave (200, or 502 when the server would not start or initialize) and the JSON-RPC reply. The server runs whatever command cli names inside the run's container, with no internet; this run reads and writes nothing else and keeps nothing. Refuses a missing cli, args that are not text, an app name the gateway's path would not take, a request with no method, and initialize as the request. The hosted gateway (do-work/serve.mjs) also keeps sessions open between requests (Mcp-Session-Id), streams a server's notifications, caps and reaps idle sessions and serves on a port for the web; this run does only the one-off flow.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "cli",
+            "request"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "cli": {
+              "type": "string"
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "env": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "app": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "request": {
+              "type": "object",
+              "required": [
+                "method"
+              ],
+              "properties": {
+                "method": {
+                  "type": "string"
+                },
+                "params": {},
+                "id": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                }
+              }
+            },
+            "protocol_version": {
+              "type": "string"
+            },
+            "timeout_seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 120
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "app",
+            "status",
+            "reply"
+          ],
+          "properties": {
+            "app": {
+              "type": "string"
+            },
+            "status": {
+              "type": "integer"
+            },
+            "reply": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "jsonrpc": {
+                  "type": "string"
+                },
+                "id": {},
+                "result": {},
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/serve-command-line-mcp-servers-on-the-web",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/serve-command-line-mcp-servers-on-the-web/do-work/ask-a-stdio-server-once.mjs",
+            "askAStdioMcpServerOnce"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "serve-command-line-mcp-servers-on-the-web",
+                "paths": [
+                  "do-work",
+                  "test"
+                ],
+                "at": "/opt/serve-command-line-mcp-servers-on-the-web"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/stdio-mcp-gateway/do-work/gateway.mjs and serve.mjs, moved in a9ee258 (#76); old capability row capabilities.json:519 at 4ffa1dc4a2^ (serve command-line MCP servers as web MCP endpoints, with a session each, a working folder per session and idle sessions closed). do-work/ask-a-stdio-server-once.mjs (the one-off run) and test/echo-mcp-server.mjs (a made-up server for the sample) are new."
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "app": "echo",
+              "cli": "node",
+              "args": [
+                "./test/echo-mcp-server.mjs"
+              ],
+              "request": {
+                "method": "tools/call",
+                "params": {
+                  "name": "echo",
+                  "arguments": {
+                    "text": "hello from the sample"
+                  }
+                }
+              }
+            },
+            "output_selector": "$.reply.result.structuredContent.text",
+            "contains": "hello from the sample"
+          }
+        ]
+      }
+    }
+  ]
+}

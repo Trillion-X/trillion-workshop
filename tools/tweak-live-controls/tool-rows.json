@@ -1,0 +1,281 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:tweak-live-controls",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:turn-a-tool-into-live-controls",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Turn a tool into live controls",
+        "job": "Turn a tool's inputs into the live controls a person moves, and check the values they moved into the input the tool would run with",
+        "description": "Give descriptor (a tool's descriptor: input_schema.properties, and its controls DATA if it has any), and optionally bind (the subject inputs: what is changed, such as a file, set once and never drawn as a control) and values ({ control key: value } as moved). Answers controls (made-controls.mjs controlRows: tool_id, label, about, subject, settings as tuning-panel rows with widget, min, max, step, options and default_value, suggested, preview, commit, result, runs) and, when bind or values are given, input: the subject bindings and every control not left at its neutral value, each checked against its row and the tool's schema. It refuses a descriptor with no input_schema.properties, controls DATA naming an input the schema does not hold, and a value outside its range or not one of its choices, saying which control and why. It reads only what it is given and writes nothing. It never runs the tool, saves an interface, keeps a person's place, draws the preview beside the controls or keeps undo and redo: those are the app's controls screen and the account's records.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "descriptor"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "descriptor": {
+              "type": "object",
+              "required": [
+                "input_schema"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "job": {
+                  "type": "string"
+                },
+                "input_schema": {
+                  "type": "object",
+                  "required": [
+                    "properties"
+                  ],
+                  "properties": {
+                    "properties": {
+                      "type": "object"
+                    },
+                    "required": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "controls": {
+                  "type": "object"
+                },
+                "invoke": {
+                  "type": "object"
+                }
+              }
+            },
+            "bind": {
+              "type": "object"
+            },
+            "values": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "controls"
+          ],
+          "properties": {
+            "controls": {
+              "type": "object",
+              "required": [
+                "subject",
+                "settings",
+                "suggested",
+                "preview"
+              ],
+              "properties": {
+                "tool_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "label": {
+                  "type": "string"
+                },
+                "about": {
+                  "type": "string"
+                },
+                "subject": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "settings": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "label",
+                      "widget"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "widget": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "suggested": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "preview": {
+                  "type": "object"
+                },
+                "commit": {
+                  "type": "object"
+                },
+                "result": {
+                  "type": "object"
+                },
+                "input_schema": {
+                  "type": "object"
+                },
+                "declared": {
+                  "type": "boolean"
+                },
+                "runs": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "input": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/tweak-live-controls",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/tweak-live-controls/live-controls.mjs",
+            "liveControlsForATool"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "tweak-live-controls",
+                "paths": [
+                  "live-controls.mjs",
+                  "made-controls.mjs",
+                  "failure.mjs",
+                  "failure-codes.json",
+                  "platform-failures.json",
+                  "effect-outcomes.json"
+                ],
+                "at": "/opt/tweak-live-controls"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/made-controls.mjs, moved in a9ee258 (#76); src/failure.mjs, src/failure-codes.json, src/platform-failures.json, src/effect-outcomes.json brought in byte for byte from 4ffa1dc4a2^ (moved-from.json); old capability row capabilities.json:260 at 4ffa1dc4a2^ (tweak live controls an AI made for me, with a preview beside them that updates at once, and undo or redo each move)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "descriptor": {
+                "id": "tool:warm-a-photo",
+                "label": "Warm a photo",
+                "input_schema": {
+                  "type": "object",
+                  "required": [
+                    "photo"
+                  ],
+                  "properties": {
+                    "photo": {
+                      "type": "string",
+                      "format": "namespace-file"
+                    },
+                    "warmth": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "default": 0
+                    },
+                    "style": {
+                      "type": "string",
+                      "enum": [
+                        "soft",
+                        "bold"
+                      ]
+                    }
+                  }
+                },
+                "invoke": {
+                  "kind": "container"
+                }
+              },
+              "bind": {
+                "photo": "photos/beach.jpg"
+              },
+              "values": {
+                "warmth": 0.4,
+                "style": "soft"
+              }
+            },
+            "output_selector": "$.input.style",
+            "contains": "soft"
+          }
+        ]
+      }
+    }
+  ]
+}

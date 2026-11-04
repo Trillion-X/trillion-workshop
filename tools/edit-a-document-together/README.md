@@ -129,3 +129,10 @@ version notes; the standalone adapter still filters historical notes. These
 hash/time notes never established a customer-visible revision archive. Saved
 current content, conflict branches and encrypted device recovery remain
 distinct guarantees.
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `do-work/open-a-shared-document.mjs` | `openASharedDocument({ pages })`: which document each page of Write opens, by `show/write-screen-input.mjs` (what `tool-rows.json` runs) |
+| `tool-rows.json` | The row `tool:open-the-document-a-pursuit-edits-together`, with a sample where two members of one pursuit open the same room and a personal page keeps its own |

@@ -1,0 +1,271 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:record-cameras-and-microphones-all-day",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:plan-clock-aligned-recording-pieces",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Plan clock-aligned recording pieces",
+        "job": "Plan how recording every camera and microphone without end is cut into clock-aligned pieces that line up across devices: when each input's pieces begin and end, what each is named, which day folder it goes in, and the list that ties them together",
+        "description": "Give started_at and until (ISO times), segment_seconds (piece length, 300 when left out), folder (Recordings when left out), inputs ([{ label, kind: camera | microphone, extension?, with_sound? }], the device's own label with browser bus numbers dropped), device, list_name and time_zone (the device's own IANA zone; the run's own when left out). Pieces are cut every segment_seconds counted from the start of the device's day, never from when an input started, so every input on every device cuts at the same instants; the first piece runs from started_at to the first cut and a new day starts a new window. Answers time_zone, list (where the session list is kept), first_cut_at, piece_count, pieces (each input's { input, folder, name, file, start_ms, end_ms, seconds }) and session_list (the list kept beside the pieces: inputs and moments, each moment the files recorded together). Refuses unreadable times, until not after started_at, no inputs, an input without a label or of another kind, an unknown time zone and a plan of more than 5000 pieces. It reads only its input: it opens no camera or microphone, records nothing, keeps nothing on a device and sends nothing to Files. The screen's other work (opening each input, recording the pieces, keeping them on the device first, sending them while recording, reopening an input that stops and pausing by rule) needs a browser and is not done by this run.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "started_at",
+            "until",
+            "inputs"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "started_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "until": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "segment_seconds": {
+              "type": "number",
+              "minimum": 1
+            },
+            "folder": {
+              "type": "string"
+            },
+            "device": {
+              "type": "string"
+            },
+            "list_name": {
+              "type": "string"
+            },
+            "time_zone": {
+              "type": "string"
+            },
+            "inputs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "kind"
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "camera",
+                      "microphone"
+                    ]
+                  },
+                  "extension": {
+                    "type": "string"
+                  },
+                  "with_sound": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "time_zone",
+            "list",
+            "first_cut_at",
+            "piece_count",
+            "pieces",
+            "session_list"
+          ],
+          "properties": {
+            "time_zone": {
+              "type": "string"
+            },
+            "list": {
+              "type": "string"
+            },
+            "first_cut_at": {
+              "type": "string"
+            },
+            "piece_count": {
+              "type": "integer"
+            },
+            "pieces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "input",
+                  "folder",
+                  "name",
+                  "file",
+                  "start_ms",
+                  "end_ms",
+                  "seconds"
+                ],
+                "properties": {
+                  "input": {
+                    "type": "string"
+                  },
+                  "folder": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string"
+                  },
+                  "start_ms": {
+                    "type": "number"
+                  },
+                  "end_ms": {
+                    "type": "number"
+                  },
+                  "seconds": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "session_list": {
+              "type": "object",
+              "required": [
+                "what",
+                "started",
+                "piece_seconds",
+                "inputs",
+                "moments"
+              ],
+              "properties": {
+                "what": {
+                  "type": "string"
+                },
+                "started": {
+                  "type": "string"
+                },
+                "device": {
+                  "type": "string"
+                },
+                "piece_seconds": {
+                  "type": "number"
+                },
+                "inputs": {
+                  "type": "array"
+                },
+                "moments": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/record-cameras-and-microphones-all-day",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/record-cameras-and-microphones-all-day/plan-recording-pieces.mjs",
+            "planRecordingPieces"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "record-cameras-and-microphones-all-day",
+                "paths": [
+                  "rolling-segments.mjs",
+                  "plan-recording-pieces.mjs"
+                ],
+                "at": "/opt/record-cameras-and-microphones-all-day"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/record-audio/do-work/rolling-segments.mjs (the piece arithmetic always-recording.ts cuts by), moved in a9ee258 (#76); old capability row capabilities.json:54 at 4ffa1dc4a2^ (record every camera and microphone on a device without anyone pressing record)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "started_at": "2026-11-04T16:23:10Z",
+              "until": "2026-11-04T16:35:00Z",
+              "segment_seconds": 300,
+              "folder": "Recordings",
+              "device": "Sample laptop",
+              "time_zone": "Europe/London",
+              "inputs": [
+                {
+                  "label": "Sample Desk Camera (05ac:8514)",
+                  "kind": "camera",
+                  "with_sound": true
+                },
+                {
+                  "label": "Sample Microphone",
+                  "kind": "microphone"
+                }
+              ]
+            },
+            "output_selector": "$.first_cut_at",
+            "contains": "16:25:00"
+          }
+        ]
+      }
+    }
+  ]
+}

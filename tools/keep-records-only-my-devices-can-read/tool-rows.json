@@ -1,0 +1,188 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-records-only-my-devices-can-read",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:share-a-record-by-a-sealed-link",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Share a record by a sealed link",
+        "job": "Share one record by a sealed link whose key rides only in the part after the #, so the store keeps only ciphertext it cannot read, and open it again from that link",
+        "description": "op seal (the default): give id (the record id the copy is sealed under), record ({ type, value }) and address (the web address the link opens). The record is sealed with AES-GCM under a fresh 32-byte key of the link's own, the id bound as associated data; answers link (address with the key and the record id in its fragment, which a browser never sends to a server), sealed_copy ({ content_id, value }: the only thing to give the store, which cannot read it), content_id and opens (the copy opened again from the link in this run). op open: give id, link and copy (a sealed_copy); the copy is checked whole (one bounded sealed value matching its content_id) and opened with the key the link carries; answers record. Refuses, in plain words, another key, a changed or moved copy, a link with no key. It keeps and sends nothing; sealing with a device's own key, syncing ciphertext and sealed files are the device copy's and are not run here.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "seal",
+                "open"
+              ]
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "record": {
+              "type": "object",
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "value": {}
+              }
+            },
+            "address": {
+              "type": "string"
+            },
+            "link": {
+              "type": "string"
+            },
+            "copy": {
+              "type": "object",
+              "required": [
+                "content_id",
+                "value"
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "link": {
+              "type": "string"
+            },
+            "sealed_copy": {
+              "type": "object",
+              "required": [
+                "content_id",
+                "value"
+              ]
+            },
+            "content_id": {
+              "type": "string"
+            },
+            "opens": {
+              "type": "boolean"
+            },
+            "record": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/keep-records-only-my-devices-can-read",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-records-only-my-devices-can-read/do-work/share-a-sealed-record.mjs",
+            "shareASealedRecord"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-records-only-my-devices-can-read",
+                "paths": [
+                  "do-work/share-a-sealed-record.mjs",
+                  "do-work/sealed-records.mjs",
+                  "do-work/sealed-records.json"
+                ],
+                "at": "/opt/keep-records-only-my-devices-can-read"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js",
+                  "argon2.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "@noble/ciphers",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "aes.js",
+                  "utils.js",
+                  "_polyval.js"
+                ],
+                "at": "/opt/node_modules/@noble/ciphers"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/sealed-records/do-work/sealed-records.mjs at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (moved-from.json); do-work/sealed-copy.mjs and sealed-records.json moved in a9ee258 (#76); old capability row capabilities.json:170 at 4ffa1dc4a2^"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "id": "note:garden",
+              "record": {
+                "type": "note",
+                "value": {
+                  "title": "Seeds to buy",
+                  "body": "Beans and peas"
+                }
+              },
+              "address": "https://share.example/s/garden"
+            },
+            "output_selector": "$.link",
+            "contains": "https://share.example/s/garden#k="
+          }
+        ]
+      }
+    }
+  ]
+}

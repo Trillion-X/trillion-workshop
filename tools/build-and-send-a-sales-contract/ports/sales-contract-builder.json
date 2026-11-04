@@ -1,0 +1,59 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SALES-CONTRACT-BUILDER-FROM-SRC",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/sales-contract-builder.mjs",
+   "lines": [
+    1,
+    109
+   ],
+   "multihash": "1f:f8507ab7d6d0b3271a31f6732cf276fd8278d41c9ff9db193730bc3c52d80763",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T04:50:54Z",
+    "deleted_with": "already gone from Trillion-X/trillion main (27b458af26 holds no src/sales-contract-builder.mjs)"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/build-and-send-a-sales-contract/do-work/sales-contract-builder.mjs"
+  }
+ ],
+ "preserve": [
+  "a paid follow-up's rule always carries the deal's own contract_id",
+  "a follow-up's words are filled only from the deal's facts; any other brace stays as written",
+  "one source failing never hides another"
+ ],
+ "allowed_deltas": [
+  "the header names the file's new path",
+  "sales-contract-builder.json is read from the folder (../sales-contract-builder.json)",
+  "readSalesContractBuilder and its import of marketplace-content-document.mjs (the Worker's hosted content documents) are left with the hosted service"
+ ],
+ "banned_substitutions": [
+  "a second copy of this file anywhere in trillion or the Workshop"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-04T04:50:54+00:00",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:f8507ab7d6d0b3271a31f6732cf276fd8278d41c9ff9db193730bc3c52d80763",
+  "target_multihash_at_baseline": "1f:f8507ab7d6d0b3271a31f6732cf276fd8278d41c9ff9db193730bc3c52d80763",
+  "commit": "979993a90d2ab80bd7631159a968df60f5a00fec"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/build-and-send-a-sales-contract/tool-rows.json sample run (tool:plan-what-a-sent-deal-sets-up)"
+  ]
+ }
+}
