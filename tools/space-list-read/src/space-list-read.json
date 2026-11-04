@@ -1,0 +1,6 @@
+{
+  "wait_ms": 1500,
+  "retry_after_ms": 2000,
+  "keep_ms": 30000,
+  "_why": "A person's list of Spaces (pursuits, the account's Space list, the Space counts) reads each Space once and waits at most wait_ms for it: a Space whose read or first mount takes longer (2026-10-21: one mount took 25 to 27 s on every 30 s poll and failed the whole pursuits list 503) is named in `mounting` with retry_after_ms and its read goes on in the background (one read per Space at a time, never one per poll). A finished background read is taken by the next list only if it is not older than keep_ms (a mount of about 26 s must still be there for a 30 s poll) AND the person still has access to that Space when it is taken (the caller's stillAllowed), so access withdrawn since the read is never shown a card; a withdrawn person's read is read afresh and refused as ever."
+}

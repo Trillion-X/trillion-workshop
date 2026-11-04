@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/network-identity.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/tell-which-network-my-trillion-is-on-trillions-cloud/src/network-identity.mjs",
+      "source_identity": "1f:1c56a861b70b051c1ad0e7fe05adc826b1e9f68d99aaef7b0cba6c75c6fc4762",
+      "identity": "1f:151c7547acbf069e6b6fe94f7e7b60eeca69d5a530f4c0cd99bc28a91bb20b42"
+    }
+  ]
+}

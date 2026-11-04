@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/space-operation-placement.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/space-operation-placement/src/space-operation-placement.json",
+      "source_identity": "1f:4b1340dac81bd89b0c7705a0449995be52c5cada3a440b5f2fa04b386cb1810a",
+      "identity": "1f:4b1340dac81bd89b0c7705a0449995be52c5cada3a440b5f2fa04b386cb1810a"
+    }
+  ]
+}

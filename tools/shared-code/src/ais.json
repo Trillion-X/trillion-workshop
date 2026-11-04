@@ -1,0 +1,118 @@
+{
+  "_what": "The person's AIs and devices as one kind (src/ais.mjs): every AI that can do work for them (a chat, a CLI on a computer, a model on a device, a connected account) is one `ai` record, every computer or phone one `device` record, and setup, routing, find_agents and the AI screens read only these. What each kind of AI can do unless it says otherwise, how its liveness is known, and where an AI the person has not placed sits in their order are rows here.",
+  "record_type": "ai",
+  "device_type": "device",
+  "kinds": [
+    "chat",
+    "cli",
+    "device-model",
+    "account"
+  ],
+  "can_by_kind": {
+    "cli": [
+      "any",
+      "code",
+      "files",
+      "mac-tools"
+    ],
+    "account": [
+      "decide",
+      "write",
+      "read"
+    ],
+    "device-model": [
+      "write"
+    ],
+    "chat": [
+      "decide",
+      "write",
+      "read",
+      "code"
+    ]
+  },
+  "live_how": [
+    "stream",
+    "heartbeat",
+    "key-check"
+  ],
+  "order_default": 100,
+  "live_minutes_default": 60,
+  "card_kinds": [
+    {
+      "prefix": "take-open-work-",
+      "kind": "cli",
+      "device_from_suffix": true
+    },
+    {
+      "prefix": "",
+      "chat_of_reader": true
+    }
+  ],
+  "_trillion_programs": "Names Trillion's own programs introduce themselves as when they reach the account (computer/keep-drive-files.mjs). They are Trillion working for the person, not an AI the person connected: never listed, never counted as connected, never named on a screen (2026-10-11: the welcome tour said \"Connected to Trillion drive keeper\").",
+  "trillion_programs": [
+    "Trillion drive keeper"
+  ],
+  "client_kinds": [
+    {
+      "match": "code|cli|codex|cursor|terminal|gemini-cli",
+      "kind": "cli"
+    },
+    {
+      "match": "",
+      "kind": "chat"
+    }
+  ],
+  "live_write_minutes": 10,
+  "_client_kinds": "An MCP client that introduced itself (PersonStore.rememberMcpClient) is one AI keyed by its client name; its kind is the first row whose `match` (a case-blind pattern) its name holds.",
+  "_live_write_minutes": "Liveness that only moved forward by less than this is not written again, so an AI that checks in often costs no row each time.",
+  "screen": {
+    "heading": "Your AIs",
+    "body": "Every AI and computer that works for you, in your order. Trillion reads this one list everywhere it asks which AIs you have.",
+    "live": "Working now",
+    "not_live": "Not seen lately",
+    "trouble": "Needs you: {trouble}",
+    "where": "Runs on {where}",
+    "connected": "{count} connected",
+    "other_apps": "Other AIs",
+    "kind_words": {
+      "chat": "Chat",
+      "cli": "On your computer",
+      "device-model": "Model on your device",
+      "account": "Connected account"
+    }
+  },
+  "_screen": "What the Connect-your-AIs screen (/ai, src/account-screens.mjs yourAisSection) says of each AI on the list; the section is left out while the list is empty.",
+  "_not_the_list": "Every table or key space whose name says it holds AIs, agents, devices, computers or clients, and why it is not a second list of the person's AIs (test/ais.test.mjs refuses one not named here). `folding` names one that still copies the list and the job folding it in.",
+  "not_the_list": {
+    "agent_duplicate_fold_candidates": "bookkeeping of the duplicate-work fold, keyed by handoff",
+    "agent_duplicate_fold_progress": "bookkeeping of the duplicate-work fold",
+    "ai_use": "one overwritten row: when any AI last reached this account, kept outside the records so it is written while the store is at its size limit",
+    "asks_for_your_ais": "questions put to the person's AIs and their answers, not the AIs",
+    "asks_for_your_ais_work": "the one slot of work for those questions",
+    "client_health_issues": "app trouble reports, keyed by issue",
+    "device_copy_state": "what a computer copied, keyed by the copy",
+    "device_handles": "hashes of short-lived bearer handles a computer uses a connection with; credentials never enter records",
+    "device_uses": "a log of what each computer did, keyed by device id",
+    "mcp_event_deliveries": "events delivered to signed-in AIs",
+    "mcp_event_subscriptions": "an AI's live event stream subscription, keyed by sign-in",
+    "mcp_event_verified": "which event streams were seen working",
+    "network_ai_pings": "the network's ledger of paid requests to another person's AI (one charge per request_key), not liveness",
+    "space_agent_deliveries": "work delivered to agents in a pursuit",
+    "space_agent_delivery_secrets": "the secret a pursuit agent's deliveries are signed with",
+    "space_agent_capacity_collections": "bounded pages of a capacity count being collected for one agent's slots, expiring; no AI profile",
+  "space_agent_capacity_live": "the live reservations and held leases of space_agent_claim_slots, kept by its triggers for indexed counting; not AI enrollment",
+  "space_agent_capacity_totals": "occupied and held counts per space and agent, kept by those triggers; a count of slots, not a list of AIs",
+  "space_agent_claim_slots": "bounded shared-agent reservations and held-work leases; capacity read from the canonical shared card, not AI enrollment",
+    "space_agent_publication_outbox": "versioned pending publication coordinates for existing shared cards; no AI profile",
+    "space_agent_card_effect_outbox": "pending delivery effects applied at the canonical shared card owner, keyed by event",
+    "space_agent_card_effect_receipts": "idempotent acknowledgements of shared card effects, keyed by event",
+    "space_agent_take_receipts": "original keyed work-take outcomes for replay, not an enrollment list"
+  },
+  "folding": {
+    "space_agent_cards": "h_eda0124cbbecf1962b525717: becomes the space roster {ai id, owner relay, role, capacity} with name, liveness and can pushed from the owner's ai record",
+    "user-device:": "h_eda0124cbbecf1962b525717: the computers a key was made for (src/local-access.mjs devicesOf), to become device records",
+    "space_agent_card_replicas": "Derived physical projection of space_agent_cards, refreshed from the canonical home; retains existing shared-roster folding commitment h_eda0124cbbecf1962b525717. This is not proof that the fold completed."
+  },
+  "no_card_why": "Connected, but it has not said what work it takes (no agent card): work handed to it waits until it checks in and takes it.",
+  "_card_kinds": "A card that runs on a computer (take-open-work-<computer>) is an AI of its own on that device. Every other card (a chat session, a thread, a probe) is one chat of the AI that published it: the AI whose sign-ins hold the card's reader, the app an app:<name> reader names, else the client its source_id begins with, else its harness or name. It moves that AI's liveness forward and makes no record of its own (2026-10-11: one store held 1,542 ai records, 703 of them chat sessions)."
+}

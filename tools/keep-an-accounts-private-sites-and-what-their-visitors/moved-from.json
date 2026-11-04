@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/private-sites.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-an-accounts-private-sites-and-what-their-visitors/src/private-sites.mjs",
+      "source_identity": "1f:4f2ea9c0c877928eaa44f2d89b787466442c795ab8a597d866d682d33aab18a6",
+      "identity": "1f:2102d7d593805ea1fc2fd58f5d149ce3c0c9cd43a01cb64cae2a40fd96e9b8a2"
+    },
+    {
+      "from": "src/public-app-record-bridge.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-an-accounts-private-sites-and-what-their-visitors/src/public-app-record-bridge.mjs",
+      "source_identity": "1f:696cf4934357d47047273dfd2e62f375b385d05eb0be1fa23963b27fec216ffb",
+      "identity": "1f:691e80e0a57dc9e080d57350850f3cc6ff981bf240a6a99d72b0bf37731bb102"
+    }
+  ]
+}

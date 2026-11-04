@@ -1,0 +1,25 @@
+{
+  "_what": "The media editor's session, versions and track check as routes (src/work-media-session.mjs), with their numbers and words as DATA. `facts` are the keys the person's store keeps them under ({id} is the edit or recording id). `commands` are the ways an edit command changes the edit's state by a path: set a value, take one away, insert into a list, remove from a list; a new way is a new row naming one of `how`. `most_path` and `most_value_bytes` bound a command, `most_log_entries` how many commands are kept after the newest snapshot, `most_tracks` how many tracks one check takes.",
+  "id_pattern": "^[a-zA-Z0-9-]{1,80}$",
+  "facts": { "log": "media_session_log:{id}", "snapshot": "media_session_snapshot:{id}", "edit": "media_edit:{id}", "versions": "media_versions:{id}" },
+  "commands": {
+    "set": { "how": "set", "needs": ["path", "value"] },
+    "unset": { "how": "unset", "needs": ["path"] },
+    "insert": { "how": "insert", "needs": ["path", "index", "value"] },
+    "remove": { "how": "remove", "needs": ["path", "index"] }
+  },
+  "most_path": 8,
+  "most_value_bytes": 200000,
+  "most_log_entries": 500,
+  "most_tracks": 12,
+  "words": {
+    "sign_in": "Sign in to edit.",
+    "not_allowed": "Not allowed.",
+    "choose_edit": "Choose an edit.",
+    "bad_command": "That change could not be understood: {why}",
+    "bad_body": "Send the choices as an object.",
+    "bad_tracks": "Name 1 to {most} tracks, each with an id, wall_clock_ms and first_timestamp_ms.",
+    "unknown_action": "That version action is not one this recording has.",
+    "stored": "The edit's history could not be kept, so the change was not made."
+  }
+}

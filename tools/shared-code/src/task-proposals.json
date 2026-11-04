@@ -1,0 +1,39 @@
+{
+  "_what": "Tasks an AI (or a rule) found in something, kept as proposals the person reviews before they become real Calendar tasks (src/task-proposals.mjs). A proposal is a row of the generic Lists owner (`list`), so it is searchable, shared and exported like any list. `states` are the review states: a new proposal is `proposed`; approving it makes the Calendar task and records it; rejecting it keeps the row so the same finding is not proposed again; restoring un-rejects it; undoing an approval deletes the task it made and returns the proposal to proposed. `id_chars` caps the source id and the title that identify a finding. `words` are every sentence read by the person or their AI.",
+  "list": {
+    "id": "calendar-task-proposals",
+    "label": "Proposed tasks",
+    "fields": [
+      { "id": "title", "label": "Task", "kind": "text" },
+      { "id": "state", "label": "Review", "kind": "choice", "choices": ["proposed", "approved", "rejected"], "starts": "proposed" },
+      { "id": "due", "label": "Due", "kind": "date" },
+      { "id": "duration_minutes", "label": "Minutes", "kind": "number" },
+      { "id": "evidence", "label": "Where it came from", "kind": "long-text" },
+      { "id": "source_id", "label": "Source", "kind": "text" },
+      { "id": "proposed_by", "label": "Proposed by", "kind": "text" },
+      { "id": "task_id", "label": "Task made", "kind": "text" }
+    ]
+  },
+  "default_duration_minutes": 30,
+  "limits": { "proposals_per_call": 50, "title_chars": 200, "evidence_chars": 2000, "source_chars": 500, "proposed_by_chars": 80 },
+  "words": {
+    "proposed": "Proposed: {title}. Approve it to make the task, or reject it.",
+    "again": "{title} was already proposed ({state}); nothing changed.",
+    "already_rejected": "{title} was rejected earlier, so it was not proposed again. Restore it to review it again.",
+    "approved": "Approved. {title} is now a task.",
+    "approved_before": "{title} is already a task.",
+    "rejected": "Rejected: {title}. It will not be proposed again.",
+    "restored": "Restored: {title} is waiting for review again.",
+    "undone": "Taken back: the task for {title} is deleted and the proposal is waiting for review again.",
+    "edited": "Changed the proposal {title}.",
+    "approved_cannot_reject": "{title} is already a task. Undo the approval first.",
+    "not_approved": "{title} was not approved, so there is no task to take back.",
+    "not_rejected": "{title} is not rejected.",
+    "not_editable": "{title} is {state}; only a proposal waiting for review can be changed.",
+    "no_proposal": "There is no proposal {id}.",
+    "bad_items": "Give items: a list of up to {most} tasks, each with a title.",
+    "bad_title": "A task needs a title of {most} characters or fewer.",
+    "bad_action": "Choose propose, approve, reject, restore, undo_approval, edit or read.",
+    "bad_id": "Give the proposal_id."
+  }
+}

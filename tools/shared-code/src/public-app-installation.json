@@ -1,0 +1,8 @@
+{
+  "_what": "One public app installation as its own owner (src/public-app-installation-owner.mjs): the address { kind: 'public-app-installation', key: <installation id> } is owned by one RecordBook per installation (src/record-book-public-app-installation.mjs). Its row (public_app_installations) is kept in that book's own SQLite. install and importRow write it, read and setLive answer it.",
+  "kind": "public-app-installation",
+  "owner": "public-app-installation",
+  "module": "src/public-app-installation-owner.mjs",
+  "operations": ["install", "read", "setLive", "importRow"],
+  "import_service": "service:operator-import"
+}

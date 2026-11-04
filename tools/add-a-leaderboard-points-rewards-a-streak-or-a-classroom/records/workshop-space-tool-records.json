@@ -1,0 +1,910 @@
+{
+ "kind": "package-set-records",
+ "package_set": "trillion",
+ "record_set": "workshop-space-tool-records",
+ "what_this_is": "What any space can turn on, whatever its label, as Workshop tools a space installs (src/space-capabilities.mjs). Each row's `invoke.capability` names the capability and its `space_capability` is the capability itself: `icon` for its switch; `keys`, the configuration keys (each a path) that together are it, so it is on when all of them are there; `requires`, capabilities that must be on with it (turning one on turns these on too, and turning one off turns off what requires it); `starts_with`, what it adds the first time it is turned on. A space's installed tools (src/spaces.mjs space_tool_grants) are kept in step with what is on at the one configuration write (src/community.mjs keepConfiguration): a new space installs what its label starts with (src/network-settings.json membership_labels.configuration), removing the tool turns it off and installing it turns it on. Turning one off moves its keys into the configuration's `set_aside`, and turning it on again brings them back as they were. A label and `description` are its switch's words. Running a row (an account action) turns it on or off in the space named. A new capability is a row here.",
+ "records": [
+  {
+   "id": "package::trillion::tool::space-points",
+   "address": "package::trillion::tool::space-points",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:space-points",
+    "listed_on": "2026-10-02T00:27:55Z",
+    "label": "Points and levels",
+    "job": "Turn points and levels on or off in a pursuit",
+    "description": "Everyone earns points for what they do here and moves up levels.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space_id"
+     ],
+     "properties": {
+      "space_id": {
+       "type": "string",
+       "description": "A space_id from list_pursuits"
+      },
+      "on": {
+       "type": "boolean",
+       "description": "false turns it off; true when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "capabilities"
+     ],
+     "properties": {
+      "community_id": {
+       "type": "string"
+      },
+      "capabilities": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "account-action",
+     "action": "switch-space-capability",
+     "capability": "points"
+    },
+    "placements": [
+     "placement:this-account"
+    ],
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "verify": [
+     {
+      "kind": "output-contains",
+      "output_selector": "$.capabilities",
+      "text": "points"
+     }
+    ],
+    "space_capability": {
+     "icon": "Sparkles",
+     "keys": [
+      [
+       "measures"
+      ],
+      [
+       "levels"
+      ],
+      [
+       "spaces",
+       "levels"
+      ]
+     ],
+     "starts_with": {
+      "measures": [
+       {
+        "id": "points",
+        "op": "weighted_count",
+        "inputs": [
+         {
+          "match": {
+           "kind": "joined"
+          },
+          "says": "joining"
+         },
+         {
+          "match": {
+           "kind": "post"
+          },
+          "says": "a message"
+         },
+         {
+          "match": {
+           "kind": "reply"
+          },
+          "says": "a reply"
+         },
+         {
+          "match": {
+           "kind": "event_rsvp"
+          },
+          "says": "saying you are going to an event"
+         },
+         {
+          "match": {
+           "kind": "event_attended"
+          },
+          "says": "an event you went to"
+         },
+         {
+          "match": {
+           "kind": "lesson_completed"
+          },
+          "says": "a lesson you finished"
+         }
+        ],
+        "params": {
+         "weights": [
+          1,
+          3,
+          1,
+          2,
+          5,
+          2
+         ]
+        }
+       }
+      ],
+      "levels": {
+       "measure": "points",
+       "bands": [
+        {
+         "name": "New",
+         "min": 0,
+         "max": 5
+        },
+        {
+         "name": "Regular",
+         "min": 5,
+         "max": 20
+        },
+        {
+         "name": "Core",
+         "min": 20,
+         "max": 60
+        },
+        {
+         "name": "Leader",
+         "min": 60
+        }
+       ]
+      },
+      "spaces": {
+       "levels": "members"
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::space-leaderboard",
+   "address": "package::trillion::tool::space-leaderboard",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:space-leaderboard",
+    "listed_on": "2026-10-02T00:27:55Z",
+    "label": "Leaderboard",
+    "job": "Turn leaderboard on or off in a pursuit",
+    "description": "Everyone in order of their points, with their level.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space_id"
+     ],
+     "properties": {
+      "space_id": {
+       "type": "string",
+       "description": "A space_id from list_pursuits"
+      },
+      "on": {
+       "type": "boolean",
+       "description": "false turns it off; true when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "capabilities"
+     ],
+     "properties": {
+      "community_id": {
+       "type": "string"
+      },
+      "capabilities": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "account-action",
+     "action": "switch-space-capability",
+     "capability": "leaderboard"
+    },
+    "placements": [
+     "placement:this-account"
+    ],
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "verify": [
+     {
+      "kind": "output-contains",
+      "output_selector": "$.capabilities",
+      "text": "leaderboard"
+     }
+    ],
+    "space_capability": {
+     "icon": "Trophy",
+     "keys": [
+      [
+       "spaces",
+       "leaderboard"
+      ]
+     ],
+     "requires": [
+      "points"
+     ],
+     "starts_with": {
+      "spaces": {
+       "leaderboard": "members"
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::space-rewards",
+   "address": "package::trillion::tool::space-rewards",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:space-rewards",
+    "listed_on": "2026-10-02T00:27:55Z",
+    "label": "Rewards",
+    "job": "Turn rewards on or off in a pursuit",
+    "description": "Something people claim once they have enough points.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space_id"
+     ],
+     "properties": {
+      "space_id": {
+       "type": "string",
+       "description": "A space_id from list_pursuits"
+      },
+      "on": {
+       "type": "boolean",
+       "description": "false turns it off; true when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "capabilities"
+     ],
+     "properties": {
+      "community_id": {
+       "type": "string"
+      },
+      "capabilities": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "account-action",
+     "action": "switch-space-capability",
+     "capability": "rewards"
+    },
+    "placements": [
+     "placement:this-account"
+    ],
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "verify": [
+     {
+      "kind": "output-contains",
+      "output_selector": "$.capabilities",
+      "text": "rewards"
+     }
+    ],
+    "space_capability": {
+     "icon": "Gift",
+     "keys": [
+      [
+       "rewards"
+      ]
+     ],
+     "requires": [
+      "points"
+     ],
+     "starts_with": {
+      "rewards": [
+       {
+        "id": "first-say",
+        "title": "First say on the next plan",
+        "says": "Bring one thing you want decided, and it is talked through first.",
+        "needs": {
+         "measure": "points",
+         "at_least": 20
+        },
+        "per_person": 1
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::space-streak",
+   "address": "package::trillion::tool::space-streak",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:space-streak",
+    "listed_on": "2026-10-02T00:27:55Z",
+    "label": "Streak",
+    "job": "Turn streak on or off in a pursuit",
+    "description": "How many weeks in a row each person wrote something here.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space_id"
+     ],
+     "properties": {
+      "space_id": {
+       "type": "string",
+       "description": "A space_id from list_pursuits"
+      },
+      "on": {
+       "type": "boolean",
+       "description": "false turns it off; true when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "capabilities"
+     ],
+     "properties": {
+      "community_id": {
+       "type": "string"
+      },
+      "capabilities": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "account-action",
+     "action": "switch-space-capability",
+     "capability": "streak"
+    },
+    "placements": [
+     "placement:this-account"
+    ],
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "verify": [
+     {
+      "kind": "output-contains",
+      "output_selector": "$.capabilities",
+      "text": "streak"
+     }
+    ],
+    "space_capability": {
+     "icon": "Flame",
+     "keys": [
+      [
+       "streak"
+      ]
+     ],
+     "starts_with": {
+      "streak": {
+       "label": "weeks in a row writing here",
+       "cadence": {
+        "period": "week",
+        "times": 1
+       },
+       "of": {
+        "match": {
+         "kind": "post"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::space-classroom",
+   "address": "package::trillion::tool::space-classroom",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:space-classroom",
+    "listed_on": "2026-10-02T00:27:55Z",
+    "label": "Classroom",
+    "job": "Turn classroom on or off in a pursuit",
+    "description": "Courses with lessons each person marks done.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space_id"
+     ],
+     "properties": {
+      "space_id": {
+       "type": "string",
+       "description": "A space_id from list_pursuits"
+      },
+      "on": {
+       "type": "boolean",
+       "description": "false turns it off; true when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "capabilities"
+     ],
+     "properties": {
+      "community_id": {
+       "type": "string"
+      },
+      "capabilities": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "account-action",
+     "action": "switch-space-capability",
+     "capability": "classroom"
+    },
+    "placements": [
+     "placement:this-account"
+    ],
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "verify": [
+     {
+      "kind": "output-contains",
+      "output_selector": "$.capabilities",
+      "text": "classroom"
+     }
+    ],
+    "space_capability": {
+     "icon": "GraduationCap",
+     "keys": [
+      [
+       "spaces",
+       "courses"
+      ],
+      [
+       "courses"
+      ]
+     ],
+     "starts_with": {
+      "spaces": {
+       "courses": "members"
+      },
+      "courses": [
+       {
+        "id": "getting-started",
+        "title": "Getting started",
+        "about": "The first things to do here.",
+        "lessons": [
+         {
+          "id": "say-hello",
+          "title": "Say hello",
+          "body": "Write a message saying what you are working on."
+         },
+         {
+          "id": "share-one-thing",
+          "title": "Share one thing",
+          "body": "Share a pursuit, a decision or a file the others should see."
+         }
+        ]
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::space-votes",
+   "address": "package::trillion::tool::space-votes",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:space-votes",
+    "listed_on": "2026-10-02T00:27:55Z",
+    "label": "Votes on messages",
+    "job": "Turn votes on messages on or off in a pursuit",
+    "description": "Everyone votes for the messages that matter most, and those come first.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space_id"
+     ],
+     "properties": {
+      "space_id": {
+       "type": "string",
+       "description": "A space_id from list_pursuits"
+      },
+      "on": {
+       "type": "boolean",
+       "description": "false turns it off; true when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "capabilities"
+     ],
+     "properties": {
+      "community_id": {
+       "type": "string"
+      },
+      "capabilities": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "account-action",
+     "action": "switch-space-capability",
+     "capability": "votes"
+    },
+    "placements": [
+     "placement:this-account"
+    ],
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "verify": [
+     {
+      "kind": "output-contains",
+      "output_selector": "$.capabilities",
+      "text": "votes"
+     }
+    ],
+    "space_capability": {
+     "icon": "ThumbsUp",
+     "keys": [
+      [
+       "feed"
+      ],
+      [
+       "spaces",
+       "feed"
+      ]
+     ],
+     "starts_with": {
+      "spaces": {
+       "feed": "members"
+      },
+      "feed": {
+       "order": "ranked",
+       "votes_per_member": 10,
+       "signals": [
+        {
+         "key": "votes",
+         "label": "Voted up",
+         "weight": 3,
+         "field": "votes",
+         "saturates_at": 5
+        },
+        {
+         "key": "replies",
+         "label": "People are answering",
+         "weight": 2,
+         "field": "replies",
+         "saturates_at": 5
+        },
+        {
+         "key": "fresh",
+         "label": "New",
+         "weight": 2,
+         "field": "age_hours",
+         "saturates_at": 72,
+         "falls": true
+        }
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::space-matching",
+   "address": "package::trillion::tool::space-matching",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:space-matching",
+    "listed_on": "2026-10-02T00:27:55Z",
+    "label": "Matching",
+    "job": "Turn matching on or off in a pursuit",
+    "description": "Everyone's own AI suggests who here should talk each week, and why.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space_id"
+     ],
+     "properties": {
+      "space_id": {
+       "type": "string",
+       "description": "A space_id from list_pursuits"
+      },
+      "on": {
+       "type": "boolean",
+       "description": "false turns it off; true when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "capabilities"
+     ],
+     "properties": {
+      "community_id": {
+       "type": "string"
+      },
+      "capabilities": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "account-action",
+     "action": "switch-space-capability",
+     "capability": "matching"
+    },
+    "placements": [
+     "placement:this-account"
+    ],
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "verify": [
+     {
+      "kind": "output-contains",
+      "output_selector": "$.capabilities",
+      "text": "matching"
+     }
+    ],
+    "space_capability": {
+     "icon": "Handshake",
+     "keys": [
+      [
+       "matching"
+      ]
+     ],
+     "starts_with": {
+      "matching": {
+       "every_days": 7,
+       "cadence_label": "Every week",
+       "answer_hours": 48,
+       "group_size": 2,
+       "shortlist_size": 5,
+       "default_on": true,
+       "evidence": {
+        "questions": [
+         "scope.pursuit_ref",
+         "scope.system_ref",
+         "scope.timescale_ref",
+         "scope.state_ref",
+         "session.selection",
+         "mandate.desired_movement",
+         "judgment.bottleneck",
+         "proof.observable_progress",
+         "capability.offered_with_proof",
+         "capacity.available",
+         "authority.assignment_level"
+        ]
+       },
+       "initiative": {
+        "required_level": "introduce",
+        "pre_authorized_levels": [
+         "introduce"
+        ]
+       },
+       "grouping": {
+        "modes": [
+         {
+          "type": "one-to-one",
+          "min_size": 2,
+          "max_size": 2
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::space-digests",
+   "address": "package::trillion::tool::space-digests",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:space-digests",
+    "listed_on": "2026-10-02T00:27:55Z",
+    "label": "Email digests",
+    "job": "Turn email digests on or off in a pursuit",
+    "description": "An email to whoever asks for one when something new happened, at most once a week.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space_id"
+     ],
+     "properties": {
+      "space_id": {
+       "type": "string",
+       "description": "A space_id from list_pursuits"
+      },
+      "on": {
+       "type": "boolean",
+       "description": "false turns it off; true when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "capabilities"
+     ],
+     "properties": {
+      "community_id": {
+       "type": "string"
+      },
+      "capabilities": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "account-action",
+     "action": "switch-space-capability",
+     "capability": "digests"
+    },
+    "placements": [
+     "placement:this-account"
+    ],
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "verify": [
+     {
+      "kind": "output-contains",
+      "output_selector": "$.capabilities",
+      "text": "digests"
+     }
+    ],
+    "space_capability": {
+     "icon": "Mail",
+     "keys": [
+      [
+       "digest"
+      ]
+     ],
+     "starts_with": {
+      "digest": {
+       "every_days": 7,
+       "cadence": {
+        "period": "week",
+        "times": 1
+       },
+       "nudge_at": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::space-board",
+   "address": "package::trillion::tool::space-board",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:space-board",
+    "listed_on": "2026-10-02T13:14:51Z",
+    "label": "Board",
+    "job": "Turn the shared board on or off in a pursuit",
+    "description": "A canvas everyone here works on at once: pictures, notes and ideas, with each other's cursors.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space_id"
+     ],
+     "properties": {
+      "space_id": {
+       "type": "string",
+       "description": "A space_id from list_pursuits"
+      },
+      "on": {
+       "type": "boolean",
+       "description": "false turns it off; true when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "capabilities"
+     ],
+     "properties": {
+      "community_id": {
+       "type": "string"
+      },
+      "capabilities": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "account-action",
+     "action": "switch-space-capability",
+     "capability": "board"
+    },
+    "placements": [
+     "placement:this-account"
+    ],
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "verify": [
+     {
+      "kind": "output-contains",
+      "output_selector": "$.capabilities",
+      "text": "board"
+     }
+    ],
+    "space_capability": {
+     "icon": "LayoutDashboard",
+     "kept_records": {
+      "store": "BOARD_ROOM"
+     },
+     "keys": [
+      [
+       "spaces",
+       "board"
+      ]
+     ],
+     "starts_with": {
+      "spaces": {
+       "board": "members"
+      }
+     }
+    }
+   }
+  }
+ ]
+}

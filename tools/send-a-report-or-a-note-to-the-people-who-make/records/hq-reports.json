@@ -1,0 +1,148 @@
+{
+  "_what": "How Trillion HQ hears from every customer, as DATA (src/tell-us.mjs, src/journey.mjs, src/customers-hq.mjs). `kinds` are the four things a report can be, the same whether a person sends it from the sidebar's Tell us screen or their AI sends it with the tell_trillions_makers tool: `id` is what the tool takes, `label` is what the Notes from members list keeps (and the sidebar kind choice). `sent_by` says which road a report came by (`ai` or `screen`); `harness` is the AI app that sent it. `journey` is what the per-customer timeline keeps: it is one row per thing a customer did (account, at, surface, kind, label, facts) in a separate `journeys-<n>` instance of the interaction log, `shards` of them, swept after `keep_days`. `recorded` names the kinds of event kept and which of their facts; a fact not named here is never kept, and `words` (free text) are kept only when the account's `content` choice is on (records/hq-sharing.json). `struggling` is when a customer is flagged: `at_least` events from `trouble` in the last `days` (a trouble row is an event kind, and for a report the kinds that count).",
+  "kinds": [
+    {
+      "id": "bug",
+      "label": "a bug report",
+      "choice": "Something went wrong"
+    },
+    {
+      "id": "friction",
+      "label": "friction",
+      "choice": "Something was hard to do"
+    },
+    {
+      "id": "feedback",
+      "label": "feedback",
+      "choice": "Something to change"
+    },
+    {
+      "id": "idea",
+      "label": "an idea",
+      "choice": "An idea"
+    }
+  ],
+  "sent_by": [
+    "ai",
+    "screen"
+  ],
+  "default_sent_by": "screen",
+  "limits": {
+    "where": 200,
+    "note": 8000,
+    "their_words": 2000,
+    "harness": 60
+  },
+  "words": {
+    "said": "Sent to the people who make Trillion. Thank you.",
+    "no_note": "Say what happened in a short note.",
+    "bad_kind": "kind must be one of bug, friction, idea or feedback.",
+    "not_sharing": "This account does not share its activity with Trillion HQ, so nothing was sent. Carry on."
+  },
+  "journey": {
+    "shards": 2,
+    "keep_days": 90,
+    "label_chars": 120,
+    "timeline": 50,
+    "most_customers": 100,
+    "recorded": {
+      "page_view": {
+        "surface": "app",
+        "label": "path",
+        "facts": []
+      },
+      "click": {
+        "surface": "app",
+        "label": "path",
+        "facts": []
+      },
+      "client_error": {
+        "surface": "app",
+        "label": "path",
+        "facts": [
+          "category"
+        ]
+      },
+      "client_load": {
+        "surface": "app",
+        "label": "path",
+        "facts": [
+          "category",
+          "bucket"
+        ]
+      },
+      "live_close": {
+        "surface": "app",
+        "label": "path",
+        "facts": [
+          "category",
+          "bucket"
+        ]
+      },
+      "sign_up_step": {
+        "surface": "app",
+        "label": "step",
+        "facts": [
+          "method"
+        ]
+      },
+      "tool_run": {
+        "surface": "mcp",
+        "label": "tool",
+        "facts": [
+          "client"
+        ]
+      },
+      "notice": {
+        "surface": "notice",
+        "label": "kind",
+        "facts": [
+          "title"
+        ],
+        "words": [
+          "body"
+        ]
+      },
+      "report": {
+        "surface": "report",
+        "label": "kind",
+        "facts": [
+          "sent_by",
+          "harness"
+        ],
+        "words": [
+          "where",
+          "note",
+          "their_words"
+        ]
+      }
+    },
+    "struggling": {
+      "days": 7,
+      "at_least": 2,
+      "trouble": [
+        {
+          "kind": "client_error"
+        },
+        {
+          "kind": "report",
+          "labels": [
+            "bug",
+            "friction"
+          ]
+        }
+      ]
+    }
+  },
+  "screen": {
+    "heading": "Customers",
+    "lead": "Reports from every customer's AI and from the Tell us screen, grouped, then each customer's recent journey. Customers who are struggling come first.",
+    "empty_reports": "No reports yet.",
+    "empty_customers": "No customer activity kept yet.",
+    "reports_heading": "Reports",
+    "customers_heading": "Customers",
+    "reports_limit": 200
+  },
+  "tool_id": "tool:tell-trillions-makers",
+  "list_id": "notes-from-members"
+}

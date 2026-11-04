@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-own-collection-publication.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/native-own-collection-publication/src/native-own-collection-publication.json",
+      "source_identity": "1f:b19334cb5caa0cf1b0da01ba879db0b87936b701e6adc3d6a51a398993acacaa",
+      "identity": "1f:b19334cb5caa0cf1b0da01ba879db0b87936b701e6adc3d6a51a398993acacaa"
+    }
+  ]
+}

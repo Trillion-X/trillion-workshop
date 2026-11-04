@@ -13,6 +13,14 @@
       "reused": true
     },
     {
+      "from": "src/workspace/first-answers.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/first-answers.json",
+      "source_identity": "1f:84d0a68d47310625782a078a7e13f264419d9cd424c3ca831d048fbf1f21cac4",
+      "identity": "1f:84d0a68d47310625782a078a7e13f264419d9cd424c3ca831d048fbf1f21cac4",
+      "reused": true
+    },
+    {
       "from": "src/workspace/surfaces.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/surfaces.json",

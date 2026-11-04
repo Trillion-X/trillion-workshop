@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "records/hq-reports.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-a-report-or-a-note-to-the-people-who-make/records/hq-reports.json",
+      "source_identity": "1f:bdd8a8183577a2323307ae560c92cdf16e1b4ae199416f738a668feb57dbef7e",
+      "identity": "1f:bdd8a8183577a2323307ae560c92cdf16e1b4ae199416f738a668feb57dbef7e"
+    },
+    {
+      "from": "src/tell-us.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-a-report-or-a-note-to-the-people-who-make/src/tell-us.mjs",
+      "source_identity": "1f:8c9b9746ab520456a8d213318b578a77764177122a8e5eacde813b58bec02def",
+      "identity": "1f:8c9b9746ab520456a8d213318b578a77764177122a8e5eacde813b58bec02def"
+    }
+  ]
+}

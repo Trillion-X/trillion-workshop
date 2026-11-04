@@ -1,0 +1,32 @@
+{
+  "comment": "Seats (src/seats.mjs): an offer row whose price option carries `seats` ({ minimum, maximum }) is bought with a seat count at checkout, and the offer row's own `seats` ({ grants_offer, keeps_for_life }) says what each seat gives. `grants_offer` is the plan a seat holds while the purchase is paid; `keeps_for_life` is the offer every seat taker keeps after the seat ends (their own space, never ended). The buyer holds one of the seats. `link_path` is where a seat link opens. `words` are what the buyer and a seat taker are told: `taken` is the seat count on Plan, `single` the seat line on a plan bought for one person and `single_team` the same line while an offer that sells seats is for sale (naming it), `copy` the button that copies the seat link and `copied_text` what it copies, `took` what a seat taker reads once the seat is theirs, `page` the seat link's own page (signed out it asks the person to sign in first), and each `refused` key is one reason a seat is not taken, with what to do next.",
+  "link_path": "/seat/",
+  "words": {
+    "taken": "{taken} of {total} seats taken, including yours",
+    "single": "1 seat, yours.",
+    "single_team": "Your current access stays yours. Use {team} to fund additional spots for yourself or other people.",
+    "copy": "Copy seat link",
+    "copied_text": "Take a seat on my Trillion team: {link}",
+    "took": "You have a seat on the team. You are on {plan}.",
+    "refused": {
+      "full": "All {total} seats are taken. Ask the person who pays for your team to add a seat.",
+      "covered": "You already have {plan}, so you do not need a seat.",
+      "ended": "This team plan has ended. Ask the person who paid for it to start it again.",
+      "not_a_seat_link": "This seat link does not work. Ask the person who pays for your team for a new one.",
+      "unverified": "The payment provider has not confirmed the quantity yet. No spots are assigned until that check succeeds."
+    },
+    "page": {
+      "heading": "Your funded Trillion spot",
+      "sign_in": "Sign in or make your Trillion account, then open this link again to take your seat.",
+      "sign_in_action": "Sign in",
+      "open_action": "Open Trillion",
+      "account_action": "Your account"
+    },
+    "allocated": "{taken} of {total} spots assigned. No spot is reserved for the payer automatically.",
+    "pending": "The payment provider has not confirmed the quantity yet. No spots are assigned until that check succeeds.",
+    "invitation": "I am funding a Trillion spot for you. Review and accept it here: {link}",
+    "assigned": "Your funded Trillion spot is active. Your private work stays yours.",
+    "preview": "Accepting assigns one available spot to your account. The payer funds the subscription and the storage usage disclosed below. Paying never gives them access to your private records.",
+    "accept": "Accept this spot"
+  }
+}

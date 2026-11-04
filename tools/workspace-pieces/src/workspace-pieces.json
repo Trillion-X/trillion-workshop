@@ -1,0 +1,7 @@
+{
+  "_what": "How the serving Worker keeps its own content-named workspace pieces for open tabs (src/workspace-pieces-kept.mjs, run by the shared pool's alarm): `pieces_per_run` pieces at most per alarm, the next alarm `again_seconds` later while pieces remain (a new version lists over a thousand), and `retry_minutes` until a deploy that found the live version's pieces not yet kept tries again (scripts/deploy-worker.mjs). `wait_for_live_pieces` says whether a deploy waits (hands on) while the live version's pieces are not all kept; false while Trillion has no open sessions to protect, so a deploy logs the missing pieces and continues.",
+  "pieces_per_run": 200,
+  "again_seconds": 30,
+  "retry_minutes": 6,
+  "wait_for_live_pieces": false
+}

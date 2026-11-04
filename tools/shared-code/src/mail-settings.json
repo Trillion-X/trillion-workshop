@@ -1,0 +1,130 @@
+{
+  "what_this_is": "Who every Trillion email comes from and how it looks, the one row src/mail-sender.mjs reads for every email the app sends (space invitations, sign-in codes, notices, community digests, the emails that follow a sign-up) and that gettrillion.ai's email list reads too (dev/trillion-site worker/mail.js). `send_binding` is the Worker's Cloudflare Email Sending binding (the deploy binds this name; gettrillion.ai is onboarded for sending). `from` is the sender on every email; a row that sends may give only its own `reply_to` (a community owner's address). `postal_address` is the physical mailing address US law (CAN-SPAM) requires in every marketing email (the support address on Trillion's own Stripe account, acct_1UK4SGFVD6SXIxQu). `brand` is the mark at the top of every email, and `palette_roles` names, for each colour role the shared email part (parts/ui/show/document-page emailMessageHtml) reads, the workspace look's variable it comes from (src/page-look.mjs); a see-through colour is laid over `paper` so every email client shows it solid. `font_roles` names, the same way, the look's faces the email is set in (text, titles and quotes, code), so an email never names a face of its own. `provider` names this way of sending in the record every sent email leaves (src/sent.mjs, the `provider` of a `sent` record). `written_email_copies` says who gets a BCC copy of every written email (tool:send-an-email, src/mail-sender.mjs sendWrittenEmail): `account_owner` is the sending account's own address, so each one lands in the owner's own mail and its Sent record opens in their inbox.",
+  "send_binding": "EMAIL",
+  "provider": "cloudflare-email-sending",
+  "refused_before_dispatch_codes": {
+    "suppression_codes": ["E_RECIPIENT_SUPPRESSED"],
+    "_what": "The codes the sending binding gives for a send it refused before dispatch (the provider's documented codes for a send it refused, https://developers.cloudflare.com/email-service/api/send-emails/workers-api/). A send that throws with any other code, or none, may have gone out, so src/mail-sender.mjs deliver answers it unknown: true and it is not sent again blindly.",
+    "codes": [
+      "E_VALIDATION_ERROR",
+      "E_FIELD_MISSING",
+      "E_SENDER_NOT_VERIFIED",
+      "E_SENDER_DOMAIN_NOT_AVAILABLE",
+      "E_TOO_MANY_ATTACHMENTS",
+      "E_RECIPIENT_NOT_ALLOWED",
+      "E_RECIPIENT_SUPPRESSED",
+      "E_CONTENT_TOO_LARGE",
+      "E_DAILY_LIMIT_EXCEEDED",
+      "E_RATE_LIMIT_EXCEEDED"
+    ]
+  },
+  "from": {
+    "email": "hello@gettrillion.ai",
+    "name": "Trillion"
+  },
+  "senders": {
+    "_what": "Who a written email (tool:send-an-email) comes from when it is sent for one account. A row names the account's own address (`owner`, the address its copy goes to) and the Trillion address and name its mail goes out from (`from`, an address on a domain this account's sending binding is onboarded for). An account with no row sends from `from` above, so mail for anyone defaults to a Trillion address and a non-Trillion sender needs its own row. Read by src/mail-sender.mjs senderFor.",
+    "rows": []
+  },
+  "written_email_copies": "account_owner",
+  "subscription": {
+    "unsubscribe_label": "Unsubscribe"
+  },
+  "per_person": {
+    "_what": "How many emails one address may be sent, counted from the sent log below (src/mail-sender.mjs sendMail). Each limit covers the kinds it names (`kinds`) or every kind but those it names (`all_kinds_except`); a send that would make more than `most` of those within `window_minutes` is not sent, and the sender gets `says`. A sending row names its kind; one that names none is `default_kind`. Set on 2026-09-30, after a paying customer was sent about 30 emails in one day. Notices about who may confirm changes (kind account-authority, src/passkey-authority.json) have their own allowance, as many as that file lets be told, so other mail can never use up the room they are told in.",
+    "default_kind": "message",
+    "limits": [
+      {
+        "kinds": [
+          "sign-in-code"
+        ],
+        "most": 4,
+        "window_minutes": 60,
+        "says": "Four sign-in codes were already sent to this email in the last hour. Use the newest one, or wait a little before asking again."
+      },
+      {
+        "kinds": [
+          "share-code"
+        ],
+        "most": 4,
+        "window_minutes": 60,
+        "says": "Four codes to open shared things were already sent to this email in the last hour. Use the newest one, or wait a little before asking again."
+      },
+      {
+        "kinds": [
+          "account-authority"
+        ],
+        "most": 3,
+        "window_minutes": 1440,
+        "says": "Three notices about who may confirm changes on this account were already sent to this email today."
+      },
+      {
+        "all_kinds_except": [
+          "sign-in-code",
+          "share-code",
+          "account-authority"
+        ],
+        "most": 3,
+        "window_minutes": 1440,
+        "says": "This person was already sent three emails from Trillion today, so this one was not sent."
+      }
+    ]
+  },
+  "sent_log": {
+    "_what": "Every email sent, written under the APP_KV key `key_prefix` + the BLAKE3 identity of the lowercased address, as [{ at, kind, subject }], kept `days`. A kind in `subject_kept_out_for` is written without its subject, since a sign-in code's subject carries the code.",
+    "key_prefix": "mail-sent:",
+    "days": 8,
+    "subject_kept_out_for": [
+      "sign-in-code",
+      "share-code"
+    ]
+  },
+  "held_for_proofs": {
+    "_what": "An email to a proof account's own address (any pattern of src/proof-account-names.json) is never handed to the sending binding, so live proofs never spend the account's daily sending quota (on 2026-10-03, 136 of the day's sends were proof checkouts' purchase emails). One to a `handed_on` proof inbox (src/inbound-mail-settings.json) is handed straight to that inbox's keeper, as the round trip would have handed it; any other is written in the sent log and answered as kept. `kept_in_inbox` and `not_kept` are what the answer's kept_for_proof says.",
+    "kept_in_inbox": "kept in the proof inbox without sending",
+    "not_kept": "a proof address, so not sent"
+  },
+  "daily": {
+    "_what": "How many emails this account's sending binding takes in a day (UTC), counted under APP_KV `key_prefix` + the day. Cloudflare caps the account's sends per day (`most`, read from the dashboard on 2026-10-04: 200); once only `keep_back` remain, only the kinds in `kept_for` still go, so a sign-in code, and a notice about who may confirm changes on an account, always has room. A send the binding refuses with `provider_full_code` fills the day.",
+    "most": 200,
+    "keep_back": 50,
+    "kept_for": [
+      "sign-in-code",
+      "share-code",
+      "account-authority"
+    ],
+    "key_prefix": "mail-day:",
+    "provider_full_code": "E_DAILY_LIMIT_EXCEEDED",
+    "says": "Trillion has nearly reached today's email limit and keeps what is left for sign-in codes, so this email was not sent."
+  },
+  "postal_address": "1904 16th Avenue South, Birmingham, AL 35205",
+  "brand": {
+    "name": "Trillion",
+    "image": "https://app.gettrillion.ai/brand/current/wordmark.png"
+  },
+  "palette_roles": {
+    "ink": "--text-primary",
+    "accent": "--accent-primary",
+    "muted": "--text-tertiary",
+    "paper": "--bg-primary",
+    "card": "--bg-surface",
+    "line": "--border-secondary",
+    "button": "--button-primary-bg", "on_accent": "--button-primary-text"
+  },
+  "font_roles": {
+    "font": "--font-primary",
+    "display_font": "--font-display",
+    "mono_font": "--font-mono"
+  },
+  "radius_roles": {
+    "control": "--radius-control",
+    "card": "--radius-card",
+    "chip": "--radius-chip",
+    "pill": "--radius-pill"
+  },
+  "button_roles": {
+    "sheen": "--button-sheen",
+    "highlight": "--button-highlight",
+    "shadow": "--button-shadow"
+  }
+}
