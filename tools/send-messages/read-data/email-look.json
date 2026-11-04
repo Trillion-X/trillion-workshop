@@ -1,0 +1,50 @@
+{
+  "what_this_is": "How read-data/draw-an-email.mjs draws an email in a look. `palette_roles`, `font_roles`, `radius_roles` and `button_roles` name the look variables each part of the email wears (the email's ink, accent, paper, faces, corners and button depth). `shipped_palette` is the look an email is drawn in when the account has published none: the starting look's variables for those roles, resolved by the screen-look resolver (tools/screen-looks/read-data/resolve-screen-look-palette.js). The mark at the email's top and its `made_with` line are the account's own, from its mail row (`brand`, `made_with`); with none, the top carries no mark and there is no made-with line. Moved from the older owner's mail settings (palette_roles, font_roles, radius_roles, button_roles) and its starting look.",
+  "palette_roles": {
+    "ink": "--text-primary",
+    "accent": "--accent-primary",
+    "muted": "--text-tertiary",
+    "paper": "--bg-primary",
+    "card": "--bg-surface",
+    "line": "--border-secondary",
+    "button": "--button-primary-bg",
+    "on_accent": "--button-primary-text"
+  },
+  "font_roles": {
+    "font": "--font-primary",
+    "display_font": "--font-display",
+    "mono_font": "--font-mono"
+  },
+  "radius_roles": {
+    "control": "--radius-control",
+    "card": "--radius-card",
+    "chip": "--radius-chip",
+    "pill": "--radius-pill"
+  },
+  "button_roles": {
+    "sheen": "--button-sheen",
+    "highlight": "--button-highlight",
+    "shadow": "--button-shadow"
+  },
+  "shipped_palette": {
+    "--text-primary": "#191919",
+    "--accent-primary": "#ff1d1d",
+    "--text-tertiary": "rgba(25, 25, 25, 0.72)",
+    "--bg-primary": "#f4f0e8",
+    "--bg-surface": "#fffdf8",
+    "--border-secondary": "rgba(25, 25, 25, 0.16)",
+    "--button-primary-bg": "#ff1d1d",
+    "--button-primary-text": "#ffffff",
+    "--font-primary": "SF Pro Text, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "--font-display": "Recoleta, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "--font-mono": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    "--radius-control": "11px",
+    "--radius-card": "14px",
+    "--radius-chip": "5px",
+    "--radius-pill": "999px",
+    "--button-sheen": "linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.1))",
+    "--button-highlight": "inset 0 0 0 1px rgba(0, 0, 0, 0.22), inset 0 2px 0px rgba(255, 255, 255, 0.3)",
+    "--button-shadow": "0 1px 1px rgba(25, 25, 25, 0.16), 0 3px 8px rgba(25, 25, 25, 0.14)"
+  },
+  "brand_unread": "The look this email is drawn in could not be read, so it was not sent. Try again shortly."
+}
