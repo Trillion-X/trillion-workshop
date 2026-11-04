@@ -1,0 +1,11 @@
+{
+  "_what": "Where each file here came from: Trillion-X/trillion at tag old-trillion-before-worker-retire (b6ae0ebf815f2f5271eed34e6e023c7e1767ec04), deleted there by 4ffa1dc4a2 with no new home.",
+  "repository": "Trillion-X/trillion",
+  "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+  "files": {
+    "records.json": "records/starting-set-records.json",
+    "groups.json": "records/starting-set-groups.json",
+    "starting-rules.json": "records/starting-rules.json",
+    "shipped-defaults.json": null
+  }
+}
