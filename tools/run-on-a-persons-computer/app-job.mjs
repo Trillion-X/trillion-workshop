@@ -5,13 +5,13 @@ import { basename, dirname, join } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { appsHere, appRow, openAppQuietly, runningPrograms, withAppSession } from '../parts/media-composition/do-work/use-an-app-here.mjs';
-import { bearerControl, namespaceClient } from '../parts/live-namespace/do-work/namespace-client.mjs';
-import { loadChunking } from '../parts/live-namespace/do-work/content-chunks.mjs';
-import { fileSource, sendFile } from '../parts/live-namespace/do-work/send-a-file-to-a-namespace.mjs';
+import { appsHere, appRow, openAppQuietly, runningPrograms, withAppSession } from '../media-composition/do-work/use-an-app-here.mjs';
+import { bearerControl, namespaceClient } from '../browse-and-upload-my-files/do-work/namespace-client.mjs';
+import { loadChunking } from '../browse-and-upload-my-files/do-work/content-chunks.mjs';
+import { fileSource, sendFile } from '../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
 import { LOOKS } from './computer-sources.mjs';
 import { sharedReference } from '../parts/live-namespace/do-work/shared-file-reference.mjs';
-import { hearingHere as programHere } from '../parts/computer-programs/read-data/program-here.mjs';
+import { hearingHere as programHere } from '../computer-programs/read-data/program-here.mjs';
 
 const IDENTITY = /^1f:[a-f0-9]{64}$/;
 const MAX_FILES = 32;

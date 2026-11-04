@@ -39,7 +39,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { confinedEntry } from '../src/manifest-permissions.mjs';
+import { confinedEntry } from '../check-a-packages-declared-permissions/read-data/manifest-permissions.mjs';
 import { makeProgramHost, registerHost, startedByApp } from './program-host.mjs';
 import { makeStartupLeases } from './startup-lease.mjs';
 import { decisionSettings, requireHooks } from './run-decision.mjs';
@@ -49,7 +49,7 @@ import { mayRetry, retriable } from '../src/retry-policy.mjs';
 import { expandFileArguments } from './file-arguments.mjs';
 import { hostLog } from './host-log.mjs';
 import { runIsolated } from './isolated-run.mjs';
-import { makePlaces } from './work-places.mjs';
+import { makePlaces } from '../drive-the-screen/read-data/work-places.mjs';
 import { requireAccountKey } from '../harness/account-key.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));

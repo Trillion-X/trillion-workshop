@@ -23,10 +23,10 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { bearerControl, namespaceClient } from '../parts/live-namespace/do-work/namespace-client.mjs';
-import { loadChunking } from '../parts/live-namespace/do-work/content-chunks.mjs';
-import { fileSource, sendFile } from '../parts/live-namespace/do-work/send-a-file-to-a-namespace.mjs';
-import { mediaTypeOf } from '../parts/live-namespace/do-work/send-a-folder-to-a-namespace.mjs';
+import { bearerControl, namespaceClient } from '../browse-and-upload-my-files/do-work/namespace-client.mjs';
+import { loadChunking } from '../browse-and-upload-my-files/do-work/content-chunks.mjs';
+import { fileSource, sendFile } from '../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
+import { mediaTypeOf } from '../browse-and-upload-my-files/do-work/send-a-folder-to-a-namespace.mjs';
 import { fileType } from '../src/file-type.mjs';
 
 /** The key is the first stdin line; the app's ordered files packet follows as JSON, never in process arguments. */

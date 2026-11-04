@@ -11,8 +11,8 @@ import { readFile } from 'node:fs/promises';
 import sources from './app-distribution.json' with { type: 'json' };
 import settings from '../src/setup-access.json' with { type: 'json' };
 import { distributionSource } from '../src/device-distribution.mjs';
-import { appStoreConnect } from '../scripts/app-store-connect.mjs';
-import { readTestFlightAvailability } from '../scripts/testflight-readiness.mjs';
+import { appStoreConnect } from '../app-release-access/read-data/app-store-connect.mjs';
+import { readTestFlightAvailability } from '../app-release-access/read-data/testflight-readiness.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const id = value => typeof value === 'string' && value.length > 0 && value.length <= 200 && value === value.trim();

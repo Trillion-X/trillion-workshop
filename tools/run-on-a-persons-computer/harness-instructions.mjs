@@ -3,7 +3,7 @@
 // text is the service's current words (harness/standing-instructions.json, published at /workspace/harness/), read each
 // run so HQ can change it, with the copy this app carries when the service cannot be reached. The file work is
 // harness/standing-instructions.mjs: one marked block, every other byte left alone.
-import { keepInstructions, harnessIds, standing } from '../harness/standing-instructions.mjs';
+import { keepInstructions, harnessIds, standing } from '../tell-ais-how-to-act/do-work/standing-instructions.mjs';
 import setup from '../harness/setup.json' with { type: 'json' };
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
