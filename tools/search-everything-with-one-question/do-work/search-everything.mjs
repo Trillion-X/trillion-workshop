@@ -1,43 +1,49 @@
-// tools/search-everything-with-one-question/do-work/search-everything.mjs
-//
-// Purpose: the one search over everything the account keeps (old trillion src/file-tools.mjs:125 `search` -> GET
-// /namespace/search, src/namespace.mjs:2127, finished by src/search.mjs:1750 `finish`): the records door's answer
-// (records:search, every kind) and, when the question names no record type, the account files' file-name answer (the
-// files door's `search`) to the same question, merged by their reciprocal-rank scores into one ranked list, each hit
-// with its address.
-//
-// Moved one to one from trillion-rust src/native_boot/mcp_local.rs `search_everything_at` (deleted there in the same
-// change): the engine keeps only the two storage reads (records:search at @own-records and the files' name search at
-// @namespace); merging them is a feature, so it is this Workshop tool (engine-feature-boundary.json, Avery 2026-10-29).
-//
-// Invariants, as the engine kept them:
-// - The files are asked under the caller's own rights: a caller they refuse (a run granted only records) gets the
-//   records' answer with the files named `unavailable` with the refusal's code, never a guess.
-// - A refusal of the records' search is the answer's refusal: it is thrown, not hidden.
-// - With `type`, only that kind of record is asked, and the files are not.
-// - An answer that came as pages of its own bytes is not merged (the door client joins pages before this sees them).
-import settings from '../read-data/settings.json' with { type: 'json' };
-import { merged } from '../read-data/merged.mjs';
+  async function finish(question, { places = null, sources = null, matches = null, limit = config.limit } = {}, partial = null) {
+    question = String(question ?? '').trim().slice(0, 500);
+    const terms = [...new Set(words(question).filter(word => word.length >= config.min_word_length))];
+    const lanes = planned(places, sources, matches);
+    const given = partial ?? { answered: lanes.map(() => null), unavailable: [], pending: [], still_reading: Object.fromEntries(lanes.filter(lane => INDEX_MATCHES.has(lane.match)).map(lane => [lane.id, 1])) };
+    const unavailable = [...given.unavailable], pending = [...given.pending];
+    const participated = new Map(Object.entries(given.participated ?? {}));
+    const report = {
+      unavailable: (lane, reason) => unavailable.push({ lane: lane.id, place: lane.place, source: lane.source, reason }),
+      pending: lane => pending.push({ lane: lane.id, place: lane.place, source: lane.source }),
+    };
+    const answered = question ? await Promise.all(lanes.map(async (lane, at) => {
+      if (INDEX_MATCHES.has(lane.match)) return given.answered[at] ?? [];
+      try {
+        const found = await mechanisms[lane.match](lane, { question, terms, report });
+        if (!unavailable.some(item => item.lane === lane.id) && !pending.some(item => item.lane === lane.id)) participated.set(lane.id, [lane.id]);
+        return found.map(hit => ({ ...hit, lane }));
+      }
+      catch (error) { report.unavailable(lane, reasonOf(error)); return []; }
+    })) : [];
+    // An index lane still reading is still working, as a picture model starting is: it is named pending, so every screen
+    // and AI that reads this answer asks again rather than taking an empty answer as final (a follower still rebuilding).
+    if (question) for (const lane of lanes) if (given.still_reading?.[lane.id] && !pending.some(item => item.lane === lane.id)) report.pending(lane);
+    // A file the person deleted or archived and left with no name is not found until it is put back.
+    const found = answered.flat();
+    const hidden = hiddenAmong(sql, found.map(hit => hit.identity));
+    const shown = hidden.size ? found.filter(hit => !hidden.has(hit.identity)) : found;
+    const canonical = canonicalFiles([...new Set(shown.filter(hit => hit.identity).map(hit => hit.identity))]);
+    const keyOf = hit => (hit.identity ? `file:${canonical.get(hit.identity)}` : hit.key);
 
-// `{ question, type?, limit? }` in; `{ question, terms, results, unavailable, pending }` out.
-export async function searchEverything(input, { door }) {
-  const fields = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
-  const answers = [];
-  const refused = [];
-  if (fields.type === undefined || fields.type === null) {
-    const asked = {};
-    for (const field of ['question', 'limit']) if (fields[field] !== undefined && fields[field] !== null) asked[field] = fields[field];
-    try {
-      answers.push(await door.files(settings.files.operation, asked));
-    } catch (error) {
-      refused.push({ place: settings.files.place, source: settings.files.source, reason: error?.code ?? 'refused' });
+    // Each lane's own ranking (its hits by score, one place per thing); a word-index lane whose best hit holds few of
+    // the asked words sits this question out (the word gate, measured held-out in the find-by-meaning plan §9).
+    const fusion = config.fusion ?? {};
+    const rankings = new Map();
+    for (const hit of [...shown].sort((a, b) => b.score - a.score)) {
+      const ranking = rankings.get(hit.lane.id) ?? { lane: hit.lane, keys: [] };
+      rankings.set(hit.lane.id, ranking);
+      if (!ranking.keys.includes(keyOf(hit))) ranking.keys.push(keyOf(hit));
     }
-  }
-  const records = await door.search(fields);
-  // An answer too large for one message comes as pages of its own bytes, which are not merged.
-  if (records?.byte_page !== undefined || (!answers.length && !refused.length)) return records;
-  const limit = Number.isInteger(fields.limit) ? fields.limit : settings.records.limit;
-  const question = typeof records?.question === 'string' ? records.question : '';
-  const terms = records?.terms ?? null;
-  return merged(question, terms, [records, ...answers], refused, limit);
-}
+    const satOut = [];
+    for (const [id, { lane, keys }] of rankings) {
+      if (lane.match !== 'words-in-index' || !terms.length || !Number.isFinite(fusion.word_confidence_floor)) continue;
+      const best = shown.find(hit => hit.lane.id === id && keyOf(hit) === keys[0]);
+      const held = words(best?.said ?? '');
+      if (terms.filter(term => held.some(word => word.startsWith(term))).length / terms.length < fusion.word_confidence_floor) { rankings.delete(id); satOut.push({ lane: id, reason: 'its best match holds few of the asked words' }); }
+    }
+    const hits = shown.filter(hit => rankings.has(hit.lane.id));
+    const weights = answers ? answers.weights([...rankings.keys()]) : {};
+    const k = Number.isFinite(fusion.k) ? fusion.k : 60;
