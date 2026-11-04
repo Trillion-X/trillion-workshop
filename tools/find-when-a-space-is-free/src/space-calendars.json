@@ -1,0 +1,96 @@
+{
+  "_what": "Calendars a space's members use together (src/space-calendars.mjs). Each member's own account shares only when they are busy (each stretch's start and end, never a title or anything else) with the spaces they are in, unless they turn it off for a space; find_space_times reads every member's busy stretches and answers the times everyone is free. A meeting put on in a space is placed on each member's own calendar through their own connection, once per meeting, and follows when it moves or they stop going. `calendars` are the kinds of calendar a member may have connected, tried in order: each names the connection a member connects (`service`, what connect_service takes), the calendar used (`calendar_id`), the shared Workshop tools that read busy times, create, move and cancel an event, and which account the connection is (`account`: a tool, its input with {now} filled in, and the path to the account's name in its reply; read only for the member asking about themself, so nobody's address reaches anyone else), where each reply keeps what is read (`reply`, read by src/space-calendars.mjs busyStretches). A new kind of calendar is one row here. `defaults` fill what find_space_times is not told; `limits` bound one search. `words` are everything said. `changed` is the message everyone in a space gets, from whoever did it, when a meeting moves or is cancelled ({title} filled in). `ask` is how Trillion asks a member whose calendar is not connected, never the person who searched: one thing in the space given to that member (its `facts`: `assignee` their shown name, `connects` the service, so Waiting on you closes it by itself once it is connected, src/waiting-on-you.json `done_when_connected`), placed by Trillion (origin trillion), with `link` the exact page that connects it; one per member and service across all their spaces, never a second while one is open.",
+  "calendars": [
+    {
+      "id": "google-calendar",
+      "service": "google-calendar",
+      "calendar_id": "primary",
+      "tools": {
+        "busy": "tool:google-calendar-read_busy_times",
+        "create": "tool:google-calendar-create_an_event",
+        "move": "tool:google-calendar-move_an_event",
+        "cancel": "tool:google-calendar-cancel_an_event"
+      },
+      "reply": {
+        "busy": [
+          "calendars"
+        ],
+        "fields": {
+          "start": "start",
+          "end": "end",
+          "errors": "errors"
+        },
+        "event_id": [
+          "id"
+        ]
+      },
+      "account": {
+        "tool": "tool:google-calendar-list_changed_events",
+        "input": {
+          "since": "{now}"
+        },
+        "path": [
+          "summary"
+        ]
+      },
+      "name": "Google Calendar"
+    }
+  ],
+  "connect": {
+    "screen": "/connections?show_row={service}",
+    "tool": "connect_service",
+    "page": "/work/connect/{service}"
+  },
+  "defaults": {
+    "days": 7,
+    "duration_minutes": 30,
+    "step_minutes": 15,
+    "earliest": "09:00",
+    "latest": "18:00",
+    "time_zone": "UTC",
+    "event_minutes": 60,
+    "event_time_zone": "UTC"
+  },
+  "limits": {
+    "longest_days": 31,
+    "most_times": 20,
+    "most_members": 50,
+    "most_busy_stretches": 200,
+    "shortest_minutes": 5,
+    "longest_minutes": 720
+  },
+  "words": {
+    "everyone_free": "These are times everyone in {space} is free.",
+    "some_unknown": "These are times the {seen} of {total} people in {space} whose calendars Trillion can read are free. Not known for {unknown}.",
+    "nobody_known": "Trillion cannot read anyone's calendar in {space} yet, so it cannot say when people are free.",
+    "no_times": "Nobody whose calendar Trillion can read is free for {minutes} minutes together in that stretch.",
+    "not_connected_you": "Automatic calendar availability is not connected. You can still reply with times and receive ordinary invitations.",
+    "not_connected_other": "Automatic calendar availability is not connected for {name}. Their availability is unknown; they can still reply with times and receive ordinary invitations.",
+    "not_shared_you": "You turned off using your calendar in this pursuit.",
+    "not_shared_other": "{name} turned off using their calendar in this space.",
+    "unreadable": "{name}'s calendar could not be read just now.",
+    "event_from": "Put on in {space} on Trillion.",
+    "choice_on": "Trillion now reads when you are busy for {space} and puts its meetings on your calendar.",
+    "choice_off": "Trillion no longer reads your calendar for {space} or puts new meetings from it on your calendar.",
+    "too_many_members": "This space has more than {most} people, so Trillion does not look through everyone's calendar at once.",
+    "bad_time": "{field} is a time of day like 09:00.",
+    "bad_zone": "time_zone is a place's time zone, like America/New_York.",
+    "bad_stretch": "to comes after from, at most {days} days later.",
+    "bad_minutes": "duration_minutes is a whole number from {shortest} to {longest}.",
+    "not_in_space": "You are not a member of that pursuit.",
+    "bad_time": "Give the time you are writing at, in milliseconds."
+  },
+  "changed": {
+    "moved": "I moved \"{title}\" to a new time. It is on the Calendar.",
+    "cancelled": "I cancelled \"{title}\". It is off everyone's calendar."
+  },
+  "ask": {
+    "kind": "task",
+    "title": "Connect your {service_name}",
+    "text": "{name}, connecting your {service_name} lets Trillion check availability automatically for {space}. To enable it, open the link, sign in and review the requested access. You can also reply with your available times; a connection is not required to receive or answer ordinary invitations. This step closes itself once the calendar is connected.",
+    "facts": {
+      "assignee": "{name}",
+      "connects": "{service}"
+    }
+  }
+}

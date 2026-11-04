@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/account-transcription.mjs",
+      "commit": "9bed45cbd854d06a953109d47b6da06fdc733431",
+      "to": "tools/audio-transcription/src/account-transcription.mjs",
+      "source_identity": "1f:6288cbafdc27975508a260566bdd7867d61a1641d1f1302e1c5ee2cf9f554f04",
+      "identity": "1f:2fb4034d88a723f44cb48b4861823d1d4a136303ff4c4fadd7ab906d0774d5ed"
+    },
+    {
+      "from": "src/transcript-words.mjs",
+      "commit": "9bed45cbd854d06a953109d47b6da06fdc733431",
+      "to": "tools/audio-transcription/src/transcript-words.mjs",
+      "source_identity": "1f:31e9b6bea77aa6e4050d0ef4ef5b4508ac959b4645237fb1e24b4cd57d389666",
+      "identity": "1f:31e9b6bea77aa6e4050d0ef4ef5b4508ac959b4645237fb1e24b4cd57d389666"
+    },
+    {
+      "from": "test/hear-in-pieces.test.mjs",
+      "commit": "9bed45cbd854d06a953109d47b6da06fdc733431",
+      "to": "tools/audio-transcription/test/hear-in-pieces.test.mjs",
+      "source_identity": "1f:729efa25f52cadca69bd215ec60e6f1b03cf5edd027707f78f9119ebaf7d4cef",
+      "identity": "1f:729efa25f52cadca69bd215ec60e6f1b03cf5edd027707f78f9119ebaf7d4cef"
+    }
+  ]
+}
