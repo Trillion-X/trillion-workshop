@@ -17,7 +17,7 @@
 // Shapes
 //   atomsOf(markdown) -> [{ key, heading_path, text, identity, line }]          (re-exported from its home)
 //   pieceRow(atom, { file?, file_identity? }) -> { id, kind: "piece", says, text, identity, key,
-//     sources: [{ file, section, file_identity, at }], groups: [], kinds: [], checked_by: [] }
+//     sources: [{ file, section, file_identity, at }], tags: [], kinds: [], checked_by: [] }
 //     section: the piece's key in that file; at: the line of that file where the piece starts
 //   pieceRows([{ text, file?, file_identity? }]) -> piece rows, one per identity, sources in reading order
 import { atomsOf, lead } from '../../documents-as-list-rows/read-data/atoms.mjs';
@@ -37,7 +37,7 @@ export function pieceRow(atom, source = {}) {
     identity: atom.identity,
     key: atom.key,
     sources: [{ file: source.file ?? null, section: atom.key, file_identity: source.file_identity ?? null, at: atom.line ?? null }],
-    groups: [],
+    tags: [],
     kinds: [],
     checked_by: [],
   };
