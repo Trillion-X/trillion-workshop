@@ -13,7 +13,7 @@ A screen sees changes as JSON patches, not whole answers. Two kinds of patch are
 | `read-data/declared-props.json` | The props, events and children each shared part declares. Copied byte for byte from Trillion-X/trillion `parts/ui/declared-props.json`. |
 | `read-data/screen-patch-tools.mjs` | The three rows' functions over the moved code. |
 | `tool-rows.json` | `tool:make-a-view-patch`, `tool:apply-a-view-patch`, `tool:build-a-screen-spec-from-a-patch-stream`. These are container rows run by `tools/records-door`'s `run-an-export.mjs`, with no records door. `@noble/hashes` is packed for BLAKE3. |
-| `part.json` | Nothing here is imported by other code. |
+| `part.json` | `read-data/screen-spec.mjs`, `read-data/view-patch.mjs` and `read-data/declared-props.json` are public: Trillion-X/trillion imports them from this package, the one copy. |
 | `test/view-patch.test.mjs` | Trillion's `test/view-patch.test.mjs`, with its assertions unchanged. |
 | `test/screen-spec.test.mjs` | Trillion's `test/screen-spec.test.mjs` tests of screen-spec itself, with their assertions unchanged. |
 | `test/screen-patch-rows.test.mjs` | Runs the three rows the way the container runs them. |
