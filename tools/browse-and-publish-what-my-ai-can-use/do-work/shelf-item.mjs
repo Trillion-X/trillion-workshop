@@ -1,6 +1,12 @@
+// tools/browse-and-publish-what-my-ai-can-use/do-work/shelf-item.mjs (moved from Trillion-X/trillion src/work-marketplace.mjs,
+// its shelf reading): one source row of a kind in ../marketplace-kinds.json as the item the Marketplace shelf shows.
+// Nothing here names a kind, a tool or a maker; which kinds exist and how their rows read are the kinds file's DATA.
+import kinds from '../marketplace-kinds.json' with { type: 'json' };
+import { titleOf } from './tool-title.mjs';
+
 // The value at a path of keys in a row, and the first filled one of several paths.
 const at = (row, path) => path.reduce((value, key) => (value && typeof value === 'object' ? value[key] : undefined), row);
-const firstOf = (row, paths = []) => {
+export const firstOf = (row, paths = []) => {
   for (const path of paths) {
     const value = at(row, path);
     if (value !== undefined && value !== null && value !== '') return value;
@@ -82,22 +88,8 @@ export function shelfItem(kind, row, published = new Set()) {
   };
 }
 
-/** Built-in arrangement templates are real DATA from the same list used by LayoutPicker. */
-const starterScreenLabels = Object.fromEntries(workspaceScreens.surfaces.map(surface => [surface.id, { label: surface.label, icon: surface.icon }]));
-function marketplaceLayouts(url) {
-  const q = (url.searchParams.get('q') ?? '').trim().toLocaleLowerCase();
-  const offset = pageOf(url, 'offset', 0);
-  const limit = Math.min(Math.max(pageOf(url, 'limit', kinds.page.default_limit), 1), kinds.page.max_limit);
-  const rows = starterLayouts
-    .filter(layout => !q || layout.name.toLocaleLowerCase().includes(q))
-    .map(layout => ({ ...layout, description: 'A screen arrangement you can add to your Layouts menu.', made_by: 'Trillion', screen_labels: starterScreenLabels }));
-  return json({ rows: rows.slice(offset, offset + limit), total: rows.length, offset, limit });
-}
-
 // Only a web page is linked; any other kind of address (javascript:, data:, a file) is left off the card.
 const webAddress = value => {
   if (typeof value !== 'string') return false;
   try { return ['http:', 'https:'].includes(new URL(value).protocol); } catch { return false; }
 };
-
-// What a self-paging kind can be narrowed by, from its reply: each field that lists choices, once, with every choice
