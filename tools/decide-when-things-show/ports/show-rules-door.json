@@ -1,0 +1,64 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DECIDE-WHEN-THINGS-SHOW-DOOR",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:finish:simple-workspace-by-rules, 2026-11-03: show rules become a Workshop tool a person, an AI and a wake can run",
+  "message_multihash": "1f:506f4df492083e12871b2d1ecb81cef87dc15e8c34357f473359f1b231a596ff",
+  "quote": "it coudl all be confiurable thorugh hte workflwo trigger formuela engiens ... to drastically rduce the comlexityand capcbclties of the s the sdiabr and screen arnamgent"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "see, keep, take away, switch and share a person's show rules and kept presets over their own show-rules record through their records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/decide-when-things-show/do-work/show-rules.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion",
+   "path": "src/show-rules-store.mjs",
+   "why": "190f72754e lines 455-538 (read, set, remove): the routes GET /show-rules, POST /show-rules/set { rule | starting | type | remove_type | use } and POST /show-rules/remove. Their decisions are src/workspace/show-rules.mjs changedRecord, already moved byte for byte as tools/set-up-my-account/read-data/show-rules.mjs (ports in that folder); this file only reads the record through the door, hands it to changedRecord, and answers the record to keep. The store's raw copy is tools/decide-when-things-show/show-rules-store.mjs; its edit-authority layer imports src/work-for-ais.mjs, which no Workshop folder holds yet."
+  },
+  {
+   "repository": "trillion",
+   "path": "src/show-rules-tools.mjs",
+   "why": "origin/main read_show_rules, set_show_rule, remove_show_rule: thin calls to the routes above, replaced by these rows."
+  },
+  {
+   "repository": "trillion",
+   "path": "src/workspace/show-rules-admin-screen.tsx",
+   "why": "a2e1365f33: sharing a kept preset is two ordinary records, show-types-shared:<id> = { label, types } and sharing:<that label> = { record, people, changed_at } (show-rules.json sharing); share and stop sharing answer exactly those."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "see when things show through the records door",
+    "keep a show rule over the person's own record",
+    "share a kept show type"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "seeWhenThingsShow",
+    "keepAShowRule",
+    "switchAKeptShowType",
+    "shareAKeptShowType"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "6f84ed4"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/decide-when-things-show/test/show-rules.test.mjs"
+  ]
+ }
+}

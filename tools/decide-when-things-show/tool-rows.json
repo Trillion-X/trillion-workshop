@@ -1,0 +1,1645 @@
+{
+  "kind": "tool-rows",
+  "record_set": "decide-when-things-show-tool-rows",
+  "what_this_is": "The Workshop rows for tools/decide-when-things-show: the person's show rules and the presets they keep, read, changed, switched and shared over their own show-rules record.",
+  "records": [
+    {
+      "id": "package::decide-when-things-show::tool::see-when-things-show",
+      "address": "package::decide-when-things-show::tool::see-when-things-show",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-when-things-show",
+        "label": "See when things show",
+        "status": "active",
+        "read_only": true,
+        "job": "Show me the rules that decide when things show, hide or stay quiet for me, and the types I keep",
+        "description": "Reads your show-rules record and answers every rule in force (the starting rules, your own, and those of the types you have switched on), the subjects a rule can be about with their facts, the moment facts, the effects, the quick choices and the operators a rule's when can use, the types you keep and which are on (in_use). It reads and changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "space_id": {
+              "type": "string",
+              "description": "A space, when its scoped types should count"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rules",
+            "subjects",
+            "types",
+            "in_use",
+            "said"
+          ],
+          "properties": {
+            "rules": {
+              "type": "array"
+            },
+            "subjects": {
+              "type": "object"
+            },
+            "types": {
+              "type": "array"
+            },
+            "in_use": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "decide-when-things-show",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/decide-when-things-show"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/decide-when-things-show",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/decide-when-things-show/do-work/show-rules.mjs",
+            "seeWhenThingsShow"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": "show-rules",
+                "operations": [
+                  "workspace:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:decide-when-things-show",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$",
+            "contains": "rules",
+            "doorOptions": {
+              "workspaceRecords": {
+                "show-rules": {
+                  "rules": [
+                    {
+                      "id": "sample-rule",
+                      "label": "Sample rule",
+                      "subject": "notification",
+                      "when": null,
+                      "effect": "silence",
+                      "on": true
+                    }
+                  ],
+                  "types": [
+                    {
+                      "id": "sample-preset",
+                      "label": "Sample preset",
+                      "inherits": [],
+                      "rules": []
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::decide-when-things-show::tool::keep-a-show-rule",
+      "address": "package::decide-when-things-show::tool::keep-a-show-rule",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-a-show-rule",
+        "label": "Keep a show rule",
+        "status": "active",
+        "job": "Keep a rule about when something shows, hides or stays quiet for me, or switch a starting rule off or on",
+        "description": "Keeps one rule in your show-rules record (rule; one with the id of a rule you keep changes it), or switches a starting rule off or on (starting: { id, on }). A rule with a problem is refused in its words. Answers the rules after the change and keep: the record to write, with the record as it was read as expected, so a record changed meanwhile is not written over.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "rule": {
+              "type": "object",
+              "description": "A show rule: { id?, label, subject, when, effect, until?, time_zone? } (read the subjects, effects and operators first)"
+            },
+            "starting": {
+              "type": "object",
+              "description": "{ id, on }: a starting rule switched off or back on"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rules",
+            "types",
+            "keep",
+            "said"
+          ],
+          "properties": {
+            "rules": {
+              "type": "array"
+            },
+            "types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "keep": {
+              "type": "array",
+              "description": "The records to keep, each { label, value, expected? }: written by whoever holds the person's write (the page's records write, or a grant the person gives); this run writes nothing",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "said": {
+              "type": "string"
+            },
+            "rule": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "decide-when-things-show",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/decide-when-things-show"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/decide-when-things-show",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/decide-when-things-show/do-work/show-rules.mjs",
+            "keepAShowRule"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": "show-rules",
+                "operations": [
+                  "workspace:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:decide-when-things-show",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "rule": {
+                "label": "Sample: quiet notices",
+                "subject": "notification",
+                "when": null,
+                "effect": "silence"
+              },
+              "now": "2026-01-01T00:00:00.000Z"
+            },
+            "output_selector": "$",
+            "contains": "keep",
+            "doorOptions": {
+              "workspaceRecords": {
+                "show-rules": {
+                  "rules": [
+                    {
+                      "id": "sample-rule",
+                      "label": "Sample rule",
+                      "subject": "notification",
+                      "when": null,
+                      "effect": "silence",
+                      "on": true
+                    }
+                  ],
+                  "types": [
+                    {
+                      "id": "sample-preset",
+                      "label": "Sample preset",
+                      "inherits": [],
+                      "rules": []
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::decide-when-things-show::tool::take-a-show-rule-away",
+      "address": "package::decide-when-things-show::tool::take-a-show-rule-away",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:take-a-show-rule-away",
+        "label": "Take a show rule away",
+        "status": "active",
+        "job": "Take away one of my show rules",
+        "description": "Takes one rule out of your show-rules record by its id (from see-when-things-show); a starting rule is switched off instead. Answers the rules after the change and keep, the record to write.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "A rule id from see-when-things-show"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rules",
+            "types",
+            "keep",
+            "said"
+          ],
+          "properties": {
+            "rules": {
+              "type": "array"
+            },
+            "types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "keep": {
+              "type": "array",
+              "description": "The records to keep, each { label, value, expected? }: written by whoever holds the person's write (the page's records write, or a grant the person gives); this run writes nothing",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "decide-when-things-show",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/decide-when-things-show"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/decide-when-things-show",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/decide-when-things-show/do-work/show-rules.mjs",
+            "takeAShowRuleAway"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": "show-rules",
+                "operations": [
+                  "workspace:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:decide-when-things-show",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "id": "sample-rule"
+            },
+            "output_selector": "$",
+            "contains": "Taken away",
+            "doorOptions": {
+              "workspaceRecords": {
+                "show-rules": {
+                  "rules": [
+                    {
+                      "id": "sample-rule",
+                      "label": "Sample rule",
+                      "subject": "notification",
+                      "when": null,
+                      "effect": "silence",
+                      "on": true
+                    }
+                  ],
+                  "types": [
+                    {
+                      "id": "sample-preset",
+                      "label": "Sample preset",
+                      "inherits": [],
+                      "rules": []
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::decide-when-things-show::tool::keep-a-show-type",
+      "address": "package::decide-when-things-show::tool::keep-a-show-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-a-show-type",
+        "label": "Keep a show type",
+        "status": "active",
+        "job": "Keep a preset of show rules I can switch on, or change one I keep",
+        "description": "Keeps one type (a preset: { id, label, inherits?, rules }) in your show-rules record; one with the id of a type you keep changes it. A type inheriting one it does not find, or itself, is refused in its words. Answers keep, the record to write.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "object",
+              "description": "A kept type (a preset): { id, label, inherits?, rules }, id lowercase words joined by hyphens"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rules",
+            "types",
+            "keep",
+            "said"
+          ],
+          "properties": {
+            "rules": {
+              "type": "array"
+            },
+            "types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "keep": {
+              "type": "array",
+              "description": "The records to keep, each { label, value, expected? }: written by whoever holds the person's write (the page's records write, or a grant the person gives); this run writes nothing",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "decide-when-things-show",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/decide-when-things-show"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/decide-when-things-show",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/decide-when-things-show/do-work/show-rules.mjs",
+            "keepAShowType"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": "show-rules",
+                "operations": [
+                  "workspace:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:decide-when-things-show",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "type": {
+                "id": "sample-preset",
+                "label": "Sample preset",
+                "rules": []
+              }
+            },
+            "output_selector": "$",
+            "contains": "sample-preset",
+            "doorOptions": {
+              "workspaceRecords": {
+                "show-rules": {
+                  "rules": [
+                    {
+                      "id": "sample-rule",
+                      "label": "Sample rule",
+                      "subject": "notification",
+                      "when": null,
+                      "effect": "silence",
+                      "on": true
+                    }
+                  ],
+                  "types": [
+                    {
+                      "id": "sample-preset",
+                      "label": "Sample preset",
+                      "inherits": [],
+                      "rules": []
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::decide-when-things-show::tool::take-a-show-type-away",
+      "address": "package::decide-when-things-show::tool::take-a-show-type-away",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:take-a-show-type-away",
+        "label": "Take a show type away",
+        "status": "active",
+        "job": "Take away a preset of show rules I keep",
+        "description": "Takes one type you keep out of your show-rules record (remove_type), and switches it off. A type another kept type inherits is refused, since its children would lose rules without saying. Answers keep, the record to write.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "remove_type"
+          ],
+          "properties": {
+            "remove_type": {
+              "type": "string",
+              "description": "The id of a type you keep"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rules",
+            "types",
+            "keep",
+            "said"
+          ],
+          "properties": {
+            "rules": {
+              "type": "array"
+            },
+            "types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "keep": {
+              "type": "array",
+              "description": "The records to keep, each { label, value, expected? }: written by whoever holds the person's write (the page's records write, or a grant the person gives); this run writes nothing",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "decide-when-things-show",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/decide-when-things-show"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/decide-when-things-show",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/decide-when-things-show/do-work/show-rules.mjs",
+            "takeAShowTypeAway"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": "show-rules",
+                "operations": [
+                  "workspace:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:decide-when-things-show",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "remove_type": "sample-preset"
+            },
+            "output_selector": "$",
+            "contains": "keep",
+            "doorOptions": {
+              "workspaceRecords": {
+                "show-rules": {
+                  "rules": [
+                    {
+                      "id": "sample-rule",
+                      "label": "Sample rule",
+                      "subject": "notification",
+                      "when": null,
+                      "effect": "silence",
+                      "on": true
+                    }
+                  ],
+                  "types": [
+                    {
+                      "id": "sample-preset",
+                      "label": "Sample preset",
+                      "inherits": [],
+                      "rules": []
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::decide-when-things-show::tool::switch-a-kept-show-type",
+      "address": "package::decide-when-things-show::tool::switch-a-kept-show-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:switch-a-kept-show-type",
+        "label": "Switch a kept show type",
+        "status": "active",
+        "job": "Switch one of my show-rule presets on or off",
+        "description": "Switches a type you keep on or off (use: { type, on }); only types you keep can be on, and a type applies only while it is on. Started by a wake with no use, it makes every switch your show-type-use records ask for ({ type, on }, in id order), so writing one record switches one type. Answers in_use and keep, the record to write.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "use": {
+              "type": "object",
+              "required": [
+                "type",
+                "on"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "on": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rules",
+            "types",
+            "in_use",
+            "keep",
+            "said"
+          ],
+          "properties": {
+            "rules": {
+              "type": "array"
+            },
+            "types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "keep": {
+              "type": "array",
+              "description": "The records to keep, each { label, value, expected? }: written by whoever holds the person's write (the page's records write, or a grant the person gives); this run writes nothing",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "said": {
+              "type": "string"
+            },
+            "in_use": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "decide-when-things-show",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/decide-when-things-show"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/decide-when-things-show",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/decide-when-things-show/do-work/show-rules.mjs",
+            "switchAKeptShowType"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": "show-rules",
+                "operations": [
+                  "workspace:read"
+                ]
+              },
+              {
+                "kind": "show-type-use",
+                "operations": [
+                  "records:list",
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:decide-when-things-show",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "use": {
+                "type": "sample-preset",
+                "on": true
+              }
+            },
+            "output_selector": "$",
+            "contains": "Switched on",
+            "doorOptions": {
+              "workspaceRecords": {
+                "show-rules": {
+                  "rules": [
+                    {
+                      "id": "sample-rule",
+                      "label": "Sample rule",
+                      "subject": "notification",
+                      "when": null,
+                      "effect": "silence",
+                      "on": true
+                    }
+                  ],
+                  "types": [
+                    {
+                      "id": "sample-preset",
+                      "label": "Sample preset",
+                      "inherits": [],
+                      "rules": []
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "wakes": [
+          {
+            "id": "a-switch-is-asked",
+            "on": {
+              "record": {
+                "resource": "own-records",
+                "kind": "show-type-use"
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 120000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::decide-when-things-show::tool::share-a-kept-show-type",
+      "address": "package::decide-when-things-show::tool::share-a-kept-show-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:share-a-kept-show-type",
+        "label": "Share a kept show type",
+        "status": "active",
+        "job": "Share one of my show-rule presets with people so they see Trillion that way",
+        "description": "Shares a type you keep: answers two records to keep, show-types-shared:<id> = { label, types } (the preset copied whole, with the presets it inherits) and sharing:<that label> = { record, people, changed_at }, which keeps who may read it. people is everyone it is shared with, each { principal, key_blake3 }, the BLAKE3 of the share key you hand them; the key itself is never sent.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "people"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "The id of a type you keep"
+            },
+            "people": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "principal",
+                  "key_blake3"
+                ]
+              }
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "shared",
+            "people",
+            "keep",
+            "said"
+          ],
+          "properties": {
+            "shared": {
+              "type": "string"
+            },
+            "people": {
+              "type": "array"
+            },
+            "keep": {
+              "type": "array",
+              "description": "The records to keep, each { label, value, expected? }: written by whoever holds the person's write (the page's records write, or a grant the person gives); this run writes nothing",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "decide-when-things-show",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/decide-when-things-show"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/decide-when-things-show",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/decide-when-things-show/do-work/show-rules.mjs",
+            "shareAKeptShowType"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": "show-rules",
+                "operations": [
+                  "workspace:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:decide-when-things-show",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "type": "sample-preset",
+              "people": [
+                {
+                  "principal": "sample-account",
+                  "key_blake3": "0000000000000000000000000000000000000000000000000000000000000000"
+                }
+              ]
+            },
+            "output_selector": "$",
+            "contains": "show-types-shared:sample-preset",
+            "doorOptions": {
+              "workspaceRecords": {
+                "show-rules": {
+                  "rules": [
+                    {
+                      "id": "sample-rule",
+                      "label": "Sample rule",
+                      "subject": "notification",
+                      "when": null,
+                      "effect": "silence",
+                      "on": true
+                    }
+                  ],
+                  "types": [
+                    {
+                      "id": "sample-preset",
+                      "label": "Sample preset",
+                      "inherits": [],
+                      "rules": []
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::decide-when-things-show::tool::stop-sharing-a-show-type",
+      "address": "package::decide-when-things-show::tool::stop-sharing-a-show-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:stop-sharing-a-show-type",
+        "label": "Stop sharing a show type",
+        "status": "active",
+        "job": "Stop sharing one of my show-rule presets",
+        "description": "Answers the two records of a shared type (sharing:show-types-shared:<id> and show-types-shared:<id>) to remove, so nobody it was shared with reads it any more.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "The id of a type you share"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "keep",
+            "said"
+          ],
+          "properties": {
+            "keep": {
+              "type": "array",
+              "description": "The records to keep, each { label, value, expected? }: written by whoever holds the person's write (the page's records write, or a grant the person gives); this run writes nothing",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "decide-when-things-show",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/decide-when-things-show"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/decide-when-things-show",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/decide-when-things-show/do-work/show-rules.mjs",
+            "stopSharingAShowType"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:decide-when-things-show",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "type": "sample-preset"
+            },
+            "output_selector": "$",
+            "contains": "sample-preset"
+          }
+        ]
+      }
+    }
+  ]
+}
