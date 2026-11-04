@@ -1,0 +1,16 @@
+{
+  "_what": "How the MCP tool list shrinks to fit a budget the asking AI names (src/tool-listing-budget.mjs, read by src/tools.mjs tools/list). params.names (a list of tool names) reads those tools in full whatever the budget and names the ones this server does not hold. Nothing shrinks unless the request names params.budget_chars (a number of characters of the JSON list): an AI with a small window asks for the most detail that fits. `levels` run from the most detail to the least; the first one whose whole list fits the budget is sent, and the last one is sent when none fit. `description` keeps that much of each tool's description (full keeps all; first_sentence keeps up to the first full stop; none drops it); `property_descriptions` keeps or drops the descriptions inside each input schema; `schema` says whether the input schema is kept (true) or reduced to an open object (false: the tool is only named, so the AI reads the whole list again before calling it). The answer says which level it sent and how many characters it came to, in _meta, so the AI knows what it did not get.",
+  "request_field": "budget_chars",
+  "meta_key": "trillion/listing",
+  "names_field": "names",
+  "levels": [
+    { "id": "full", "description": "full", "property_descriptions": true, "schema": true },
+    { "id": "brief", "description": "first_sentence", "property_descriptions": true, "schema": true },
+    { "id": "schema-only", "description": "none", "property_descriptions": false, "schema": true },
+    { "id": "names", "description": "none", "property_descriptions": false, "schema": false }
+  ],
+  "words": {
+    "unknown_names": "No tool by these names: {names}.",
+    "shrunk": "This list was shortened to fit {budget} characters (level {level}). Ask again with a larger budget_chars, or none, for every tool in full."
+  }
+}

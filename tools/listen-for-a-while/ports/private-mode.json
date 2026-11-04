@@ -1,0 +1,69 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PRIVATE-MODE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f2",
+      "path": "src/private-mode.mjs",
+      "multihash": "1f:23f15893575892743a23659859d372c20e77397447800bcd08d093366af0f2ea",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the paired Trillion-X/trillion change that moves computer/listen.mjs and computer/listening-rules.mjs, the old copy's callers; until then the old copy is a duplicate"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f2",
+      "path": "src/private-mode.json",
+      "multihash": "1f:812b70476b731663688b9e6c2e01880098d42120db2527b4322ba1a5c0e2160f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the paired Trillion-X/trillion change that moves computer/listen.mjs and computer/listening-rules.mjs, the old copy's callers; until then the old copy is a duplicate"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/listen-for-a-while/read-data/private-mode.mjs"
+    },
+    {
+      "path": "tools/listen-for-a-while/read-data/private-mode.json"
+    }
+  ],
+  "preserve": [
+    "which features exist and which private mode takes away are DATA (private-mode.json features)",
+    "mode off means every feature is available; mode on keeps only rows marked private: true, and a feature with no row is off",
+    "the security code is BLAKE3 of the sorted key list shown as groups of digits, the same on every device, changed by one key"
+  ],
+  "allowed_deltas": [
+    "the header and the DATA path name this folder"
+  ],
+  "banned_substitutions": [
+    "an unknown feature treated as available in private mode",
+    "a security code that depends on key order"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:23f15893575892743a23659859d372c20e77397447800bcd08d093366af0f2ea",
+    "target_multihash_at_baseline": "1f:23f15893575892743a23659859d372c20e77397447800bcd08d093366af0f2ea",
+    "commit": "3d1f357e81203c662f2262d25de81609252c1845"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/listen-for-a-while/test/private-mode.test.mjs off means everything is available; on keeps only what the table says and anything unlisted is off",
+      "tools/listen-for-a-while/test/private-mode.test.mjs the security code is the same for the same keys in any order and changes with one key"
+    ]
+  }
+}

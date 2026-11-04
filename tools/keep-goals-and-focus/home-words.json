@@ -1,0 +1,95 @@
+{
+  "_what": "Every word the Home screen (src/workspace/home-screen.tsx) shows. `needle_mover` is the large card for the one goal marked as the person's biggest needle mover (with none marked, the goal with the most other goals under it as Trillion's guess, `likely_*`, with Make it the one; with no goal under another, the ask-my-AI button naming the job `pick_job` in src/queued-work.json). `workstreams` is the card of open AI work grouped by the job each started from: `counts` says each overview section of parts/screen-look/show/work-state-looks.json in words and the tone a workstream's mark takes when that section is its most urgent. `add_pursuit.fields` are the boxes of the add-a-goal form; each `name` is the field record_pursuits keeps. {name} placeholders are filled from the person's own numbers. `summary` is the row of tiles under the greeting, one per part: each names the count it shows (`count`), its words under the number for exactly one (`one`) and for any other number (`many`), the screen a press opens (`opens`, src/workspace/surfaces.json) and, from `tone_from` up, the colour its number takes (`tone`). A suggestion shows only while its `show_when` holds: `fact` names one of the counts the screen knows (decisions, waiting, pursuits, messages) and `at_most` / `at_least` bound it; `opens` is the screen it opens (src/workspace/surfaces.json).",
+  "greetings": [
+    { "until_hour": 5, "text": "Working late" },
+    { "until_hour": 12, "text": "Good morning" },
+    { "until_hour": 18, "text": "Good afternoon" },
+    { "until_hour": 24, "text": "Good evening" }
+  ],
+  "summary": [
+    { "count": "waiting", "one": "Waiting on you", "many": "Waiting on you", "tone_from": 1, "tone": "attention", "opens": "trillion.home.waiting" },
+    { "count": "deciding", "one": "Being decided", "many": "Being decided", "opens": "trillion.decisions" },
+    { "count": "pursuits", "one": "Goal", "many": "Goals", "opens": "trillion.progress" }
+  ],
+  "summary_free": "Your AI decides with Trillion on the free plan; your decisions and goals are kept on a paid plan.",
+  "ask_bar": { "label": "Message your AIs", "placeholder": "Write to all your AIs, or paste, drop, record or draw", "send": "Send to your AIs" },
+  "next_answer": { "title": "Your answer is needed: {question}", "action": "Answer" },
+  "next_first": { "title": "Make your first decision with Trillion", "detail": "Ask your AI to use Trillion on the next choice you face.", "action": "Show me how", "opens": "trillion.ai" },
+  "stat_waiting": "Waiting for you",
+  "stat_waiting_detail": "Hover one below to answer",
+  "stat_waiting_none": "Nothing waiting on you",
+  "stat_free_left": "Free decisions left",
+  "stat_free_detail": "This {per}",
+  "chart": { "title": "Time to decide", "description": "Each point is one of your decisions, oldest on the left.", "empty": "Your line appears after your second decision." },
+  "waiting": { "title": "Waiting for you", "description": "Decisions waiting for your answer. Hover one to answer it.", "empty": "Nothing is waiting on you.", "action": "Answer" },
+  "recent": { "title": "Recent decisions", "description": "What your AI decided with Trillion.", "empty": "No decisions yet.", "action": "Open", "more": "See all", "opens": "trillion.decisions", "count": 6 },
+  "status": {
+    "needs_decision": { "label": "Deciding", "tone": "info" },
+    "needs_outcome": { "label": "Decided", "tone": "good" },
+    "closed": { "label": "Done", "tone": "quiet" }
+  },
+  "needle_mover": {
+    "title": "Your biggest needle mover",
+    "now": "Now",
+    "after": "After",
+    "choose_headline": "Which one moves everything else?",
+    "choose_detail": "Make one of your goals below the one, or let your AI weigh them.",
+    "pick_job": "pick-needle-mover",
+    "empty_headline": "What are you working toward?",
+    "empty_detail": "Add the first thing you are pursuing. Every decision your AI makes with Trillion is weighed against it.",
+    "likely_title": "Likely your biggest needle mover",
+    "likely_detail": { "one": "{n} of your other goals sits under it, so Trillion guessed it. Make it the one, or pick another below.", "many": "{n} of your other goals sit under it, so Trillion guessed it. Make it the one, or pick another below." },
+    "make_it": "Make it the one"
+  },
+  "workstreams": {
+    "title": "What your AIs are working on",
+    "description": "Open AI work, grouped by the job it started from. What is stuck comes first.",
+    "empty": "No AI work is open.",
+    "icon": "Workflow",
+    "stuck": "Stuck: {why}",
+    "counts": [
+      { "section": "needs-you", "tone": "attention", "one": "{n} stuck", "many": "{n} stuck" },
+      { "section": "moving", "tone": "info", "one": "{n} being worked on", "many": "{n} being worked on" },
+      { "section": "later", "tone": "quiet", "one": "{n} not started", "many": "{n} not started" }
+    ],
+    "count": 5,
+    "more": "All AI work",
+    "opens": "trillion.ai-work"
+  },
+  "pursuits": { "title": "What you are working toward", "description": "Every decision is weighed against these.", "empty": "No goals yet. Add one, or tell your AI what you are working toward.", "icon": "Target", "now_tone": "attention", "after_tone": "good", "badge": "Active", "needle_badge": "Needle mover", "make_needle_mover": "Make this my needle mover", "made_needle_mover": "That goal is now your biggest needle mover.", "gone": "That goal is no longer kept. Read Home again to see your goals.", "more": "Progress", "opens": "trillion.progress", "queue_job": "look-into-goal" },
+  "add_pursuit": {
+    "label": "Add a goal",
+    "title": "Add a goal",
+    "submit": "Add",
+    "saved": "Added to what you are working toward.",
+    "fields": [
+      { "name": "title", "label": "What you are pursuing", "placeholder": "Grow my newsletter to 10,000 readers" },
+      { "name": "now", "label": "Where it is now", "placeholder": "1,200 readers, one issue a month" },
+      { "name": "after", "label": "Where you want it to get", "placeholder": "10,000 readers reading every week" },
+      { "name": "why_it_matters", "label": "Why it matters (optional)", "placeholder": "It pays for the studio and I can stop client work", "optional": true }
+    ]
+  },
+  "messages": { "title": "Your recent messages", "description": "What you said across your AI apps.", "empty": "No messages have been saved here yet.", "empty_free": "Messages are kept on a paid plan.", "with_files": "Message with files", "more": "See all", "opens": "trillion.message-task-canvas", "count": 8 },
+  "suggestions": {
+    "title": "Suggested next",
+    "description": "Ways to get more from Trillion now.",
+    "empty": "You are all set.",
+    "items": [
+      { "id": "connect", "title": "Connect your AI", "detail": "Claude, ChatGPT, Codex or any AI that takes an MCP server.", "action": "Connect", "opens": "trillion.ai", "show_when": { "fact": "messages", "at_most": 0 } },
+      { "id": "goals", "title": "Add what you are working toward", "detail": "Your AI finds it from your notes and conversations.", "action": "Show me how", "opens": "trillion.ai", "show_when": { "fact": "pursuits", "at_most": 0 } },
+      { "id": "share", "title": "Share your progress", "detail": "A card of your numbers, with a link that brings friends to Trillion.", "action": "Share", "opens": "trillion.progress", "show_when": { "fact": "decisions", "at_least": 2 } },
+      { "id": "community", "title": "Meet people working on the same things", "detail": "Groups, events and courses in the pursuits open to you.", "action": "Open", "opens": "trillion.pursuits", "show_when": { "fact": "decisions", "at_least": 0 } },
+      { "id": "files", "title": "Bring in your files", "detail": "Your AI can read and use everything you keep here.", "action": "Open Files", "opens": "trillion.files", "show_when": { "fact": "decisions", "at_least": 0 } }
+    ]
+  },
+  "still_working": {
+    "_what": "What every long wait on the page says as it runs (parts/ui/show/still-working, chosen in src/workspace/main.tsx): a pressed button's pending words and a screen's loading rows. The last step whose after_seconds has passed is said, with {label} the wait's own words, {seconds} how long it has run; once a busy answer was asked again by itself, `again` is said with {tries}.",
+    "steps": [
+      { "after_seconds": 4, "words": "{label}" },
+      { "after_seconds": 12, "words": "Still working…" },
+      { "after_seconds": 30, "words": "Taking longer than usual…" },
+      { "after_seconds": 60, "words": "Waiting for a response…" }
+    ],
+    "again": "Trying again…"
+  }
+}

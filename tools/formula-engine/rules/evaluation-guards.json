@@ -1,0 +1,33 @@
+{
+  "_what": "The limits every formula evaluation is held to before and while the compiled evaluator runs it (evaluation-guards.mjs, applied in evaluate-over-rows.mjs, the one door every caller passes: tool:evaluate-binding, tool:filter-rows-by-rules, the page's computed columns and record filters). A formula past one is refused with its own words, never left to freeze a list.",
+  "max_depth": 64,
+  "_max_depth": "How deeply a binding's parts may nest (objects and lists inside each other).",
+  "max_nodes": 4000,
+  "_max_nodes": "How many parts (objects, lists and values) one binding may hold.",
+  "max_work": 50000000,
+  "_max_work": "Rows times the binding's weight (its parts, a regex op weighing regex_weight): the evaluator's work for one call, known before it starts (the Expansion Library's 23,663 records under a 200-part rule is about 4.7 million). It is the time budget on hosts whose clock does not move while code runs (a Cloudflare Worker), so it holds everywhere.",
+  "regex_weight": 50,
+  "regex_ops": [
+    { "op": "op:core.text_regex_match", "pattern": "pattern" },
+    { "op": "op:core.text_regex_replace", "pattern": "pattern" },
+    { "op": "op:core.text_regex_extract", "pattern": "pattern" }
+  ],
+  "_regex_ops": "The ops that compile a pattern, and the argument holding it. The evaluator's regex engine (Rust regex) runs in linear time, so the risk is a pattern whose compiled form is huge (long, or repeating a group a great many times), compiled again for each row.",
+  "regex_chars": 300,
+  "regex_repeat_most": 100,
+  "_regex_repeat_most": "The largest count a pattern may repeat something ({n}, {n,m}); a(b{1000}){1000} compiles to millions of states.",
+  "regex_per_binding": 8,
+  "budget_ms": 250,
+  "_budget_ms": "Wall time one call may take where the clock moves while code runs (a browser page, Node): rows are given to the evaluator rows_per_slice at a time and the call stops between slices once past it. A single evaluation past it marks that formula slow for slow_ms, and it is refused until then.",
+  "rows_per_slice": 2000,
+  "slow_ms": 60000,
+  "slow_kept": 64,
+  "words": {
+    "too_deep": "This formula nests more than {limit} levels deep.",
+    "too_large": "This formula has more than {limit} parts.",
+    "cycle": "This formula contains itself, so working it out would never end.",
+    "unsafe_regex": "A pattern in this formula is too large to run safely ({why}).",
+    "too_much_work": "This formula over these rows is more work than one evaluation may do ({work} of {limit}); narrow the rows or simplify it.",
+    "over_time": "This formula took longer than {limit} ms to work out and is paused; simplify it or try again later."
+  }
+}

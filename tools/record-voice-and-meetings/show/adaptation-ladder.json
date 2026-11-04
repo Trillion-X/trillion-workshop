@@ -1,0 +1,16 @@
+{
+  "_what": "How the live-words stream steps its quality down on a bad connection and up again, and which endpoint it opens (parts/record-audio/show/adaptation-ladder.ts). The rungs themselves are the `ladder` of live-audio-stream.json. A reading is bad when more than bad.backlog_bytes wait unsent or the connection was lost; step_down_after_bad bad readings in a row step down one rung, recover_after_good good readings in a row step back up one. `events` are the plain names each change is told with. `failover.endpoints` are tried in order (path is relative to the page); an endpoint that failed is left alone for cooldown_ms, persisted under store_key, and the first one is used again when every endpoint is cooling.",
+  "bad": { "backlog_bytes": 262144 },
+  "step_down_after_bad": 2,
+  "recover_after_good": 40,
+  "events": {
+    "downgrade_once": "Quality stepped down one rung.",
+    "recovered": "Quality stepped up one rung.",
+    "too_low_to_downgrade": "Already on the lowest rung."
+  },
+  "failover": {
+    "store_key": "trillion.live-words.cooling",
+    "cooldown_ms": 60000,
+    "endpoints": [{ "id": "primary", "path": "/work/api/media/live-words" }]
+  }
+}

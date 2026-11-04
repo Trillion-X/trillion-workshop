@@ -1,0 +1,190 @@
+{
+ "package": "service-connections",
+ "things": [
+  {
+   "type": "record",
+   "address_mode": "identity_text",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "address": "package::service-connections::owner-record-work::contract",
+   "payload": {
+    "kind": "owner-record-work-contract",
+    "id": "service-connections.owner-record-work",
+    "record": {
+     "id_field": "id",
+     "view_address": "package::service-connections::input::service-connections",
+     "columns": [
+      {
+       "key": "id",
+       "column": 0,
+       "required": true
+      },
+      {
+       "key": "serviceName",
+       "column": 1
+      },
+      {
+       "key": "serviceVendor",
+       "column": 2
+      },
+      {
+       "key": "credentialHandle",
+       "column": 3
+      },
+      {
+       "key": "statusRef",
+       "column": 4
+      },
+      {
+       "key": "scopes",
+       "column": 5,
+       "value": "json_string_array"
+      },
+      {
+       "key": "connectedAt",
+       "column": 6
+      },
+      {
+       "key": "credentialHandleRefs",
+       "column": 7,
+       "value": "json_string_array"
+      },
+      {
+       "key": "proofRefs",
+       "column": 8,
+       "value": "json_string_array"
+      },
+      {
+       "key": "blockerRefs",
+       "column": 9,
+       "value": "json_string_array"
+      },
+      {
+       "key": "eventRefs",
+       "column": 10,
+       "value": "json_string_array"
+      },
+      {
+       "key": "canConnect",
+       "column": 11,
+       "value": "boolean_text"
+      },
+      {
+       "key": "canSend",
+       "column": 12,
+       "value": "boolean_text"
+      },
+      {
+       "key": "canRetry",
+       "column": 13,
+       "value": "boolean_text"
+      },
+      {
+       "key": "isPending",
+       "column": 14,
+       "value": "boolean_text"
+      },
+      {
+       "key": "status",
+       "column": 15
+      },
+      {
+       "key": "accountLabel",
+       "column": 16
+      },
+      {
+       "key": "resourceRefs",
+       "column": 17,
+       "value": "json_string_array"
+      },
+      {
+       "key": "grantScopes",
+       "column": 18,
+       "value": "json_string_array"
+      },
+      {
+       "key": "grantScopesKnown",
+       "column": 19,
+       "value": "boolean_text"
+      },
+      {
+       "key": "capabilityChoices",
+       "column": 20,
+       "value": "json"
+      }
+     ]
+    },
+    "writer": {
+     "entity_path": [
+      "current-item",
+      "entity"
+     ],
+     "entity_type_path": [
+      "current-item",
+      "entity_types"
+     ],
+     "fact_path": [
+      "current-item",
+      "attribute_fact"
+     ],
+     "value_type_id": "type:json",
+     "entity_type_id": "type:connection",
+     "fact_properties": {
+      "serviceName": "prop:connection:service_name",
+      "serviceVendor": "prop:connection:service_vendor",
+      "legacyStatus": "prop:connection:status",
+      "legacyCredentialHandle": "prop:connection:credential_handle",
+      "statusRef": "prop:connection_state:status_ref",
+      "scopes": "prop:connection_state:scope_refs",
+      "connectedAt": "prop:connection_state:connected_at",
+      "credentialHandleRefs": "prop:connection_state:credential_handle_refs",
+      "proofRefs": "prop:connection_state:proof_refs",
+      "blockerRefs": "prop:connection_state:blocker_refs",
+      "eventRefs": "prop:connection_state:event_refs",
+      "canConnect": "prop:connection_state:can_connect",
+      "canSend": "prop:connection_state:can_send",
+      "canRetry": "prop:connection_state:can_retry",
+      "isPending": "prop:connection_state:is_pending",
+      "environmentRef": "prop:connection_state:environment_ref",
+      "environmentAddresses": "prop:connection_state:environment_addresses",
+      "credentialFieldSecretRefs": "prop:connection:credential_field_secret_refs",
+      "accountLabel": "prop:connection:account_label",
+      "resourceRefs": "prop:connection:resource_refs",
+      "grantScopes": "prop:connection_state:grant_scope_refs",
+      "grantScopesKnown": "prop:connection_state:grant_scopes_known",
+      "capabilityChoices": "prop:connection_state:capability_choices"
+     },
+     "state_facts": {
+      "write-ready": {
+       "legacyStatus": "connected",
+       "legacyCredentialHandle": "",
+       "statusRef": "connection-status:connected",
+       "proofRefs": [],
+       "blockerRefs": [],
+       "eventRefs": [],
+       "canConnect": true,
+       "canSend": true,
+       "canRetry": false,
+       "isPending": false
+      },
+      "write-stopped": {
+       "legacyStatus": "disconnected",
+       "statusRef": "connection-status:not-connected",
+       "canConnect": true,
+       "canSend": false,
+       "canRetry": false,
+       "isPending": false
+      }
+     }
+    },
+    "secret": {
+     "name_prefix": "service-connection",
+     "submission_handle_ttl_seconds": 3600,
+     "verification_handle_ttl_seconds": 300
+    }
+   }
+  }
+ ]
+}

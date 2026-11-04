@@ -1,0 +1,11 @@
+{
+  "_what": "read-data/loop-guards.mjs. The same tool call with the same arguments `repeat_nudge_after` times in a row earns one nudge; `repeat_give_back_after` times gives the job back. `error_budget` tool failures in a row give it back. A malformed call (arguments that were not JSON, a tool it may not call) is never counted.",
+  "repeat_nudge_after": 3,
+  "repeat_give_back_after": 6,
+  "error_budget": 6,
+  "words": {
+    "repeat_nudge": "You have made the same {name} call {count} times and it has not moved the job. Read what it answered, then do something different, or end the job with finish_work or say_what_is_in_the_way.",
+    "repeat_spent": "It made the same {name} call {count} times in a row without moving the job.",
+    "errors_spent": "{failures} tool calls in a row failed, the last one {name}."
+  }
+}

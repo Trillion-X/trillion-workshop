@@ -1,0 +1,141 @@
+{
+  "kind": "tool-rows",
+  "record_set": "read-my-other-ais-files-tool-rows",
+  "what_this_is": "The Workshop row for tools/read-my-other-ais-files: the instruction, command, skill and MCP-server files the person keeps for their other AI apps, read in place under the folder they granted.",
+  "records": [
+    {
+      "id": "package::read-my-other-ais-files::tool::other-ai-files",
+      "address": "package::read-my-other-ais-files::tool::other-ai-files",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:other-ai-files",
+        "status": "active",
+        "label": "Read the files I keep for my other AI apps",
+        "job": "Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them",
+        "description": "Lists every entry the rows of read-data/other-ai-files.json name that exists under the folder the person granted (their home folder), as source/kind/name with its app label and size and no contents; `source` and `kind` narrow the list. `read` names entries to return whole, up to most_chars, each labelled with its app and kind. Read only: nothing is written into those folders or imported, a link inside a folder is never followed, and an MCP server another app lists comes back as its command or address with the NAMES of its environment variables and headers, never their values; nothing switches a server on.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "Only this app (for example claude-code, cursor)"
+            },
+            "kind": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "Only this kind (instructions, commands, skills, rules, mcp_servers)"
+            },
+            "read": {
+              "type": "array",
+              "maxItems": 50,
+              "items": {
+                "type": "string",
+                "maxLength": 400
+              },
+              "description": "Entry names from the list to return whole"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "entries": {
+              "type": "array"
+            },
+            "files": {
+              "type": "array"
+            },
+            "error": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/read-my-other-ais-files",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-my-other-ais-files/read-data/other-ai-files.mjs",
+            "otherAiFilesInGrantedFolder",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-my-other-ais-files",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-my-other-ais-files"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:read-my-other-ais-files",
+        "provenance": {
+          "source": "read-my-other-ais-files/read-data/other-ai-files.mjs"
+        }
+      }
+    }
+  ]
+}

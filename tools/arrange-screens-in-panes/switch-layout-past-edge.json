@@ -1,0 +1,6 @@
+{
+  "what_this_is": "How scrolling past the edge of the arrangement switches to the next or previous layout (the Layouts picker's order). A wheel or trackpad move smaller than least_motion_px is ignored, and after one switch no other happens for pause_between_switches_ms, so one swipe's momentum never skips several layouts. edge_tolerance_px is how close to the edge counts as at the edge.",
+  "least_motion_px": 18,
+  "pause_between_switches_ms": 700,
+  "edge_tolerance_px": 2
+}

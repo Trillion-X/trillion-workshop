@@ -28,8 +28,11 @@ Not carried: the formula engine's human formula language (the text-to-binding le
 | `do-work/classify-by-rules.mjs` | The classifier: project facts out of a record, run the rules in order, answer the first that holds; refuses an unfinished request |
 | `do-work/requests.mjs` | One function per row: checks the request, refuses with a sentence, calls the above |
 | `do-work/run-request.mjs` | `node do-work/run-request.mjs <function>`: the request on standard input, `{ result }` or `{ error }` out |
-| `part.json` | The one public module |
-| `tool-rows.json` | The four Workshop rows |
+| `read-data/list-value-history.mjs` | A field's values over time: `keepValueHistory` adds the step a write took, `historyValues` works out value_at, previous_value, value_set_at, time_spent_in and has_been_in from the kept steps as intervals, `fieldHistoryOf` says them as lines; moved unchanged from old trillion `src/list-value-history.mjs` |
+| `read-data/write-via.mjs`, `read-data/write-via.json` | The road a write came by (`viaOf`) and the plain words for it (`viaWords`); moved unchanged from old trillion `src/write-via.mjs` |
+| `read-data/lists.json`, `read-data/list-refusals.mjs` | The slices of old trillion `src/lists.json` the history code reads (the history field kind, `value_history`, its refusal words), and `listSay` without the old app's configuration-error branch |
+| `part.json` | The public modules |
+| `tool-rows.json` | The six Workshop rows |
 | `test/*.test.mjs` | Rule trees, the evaluator's three-state logic, errors and path safety, the classifier, and each row's sample run in the container |
 
 ## The rows
@@ -40,6 +43,8 @@ Not carried: the formula engine's human formula language (the text-to-binding le
 | `tool:evaluate-a-formula` | A binding and rows in; one value per row and the rows that errored out |
 | `tool:list-comparisons` | The comparisons and combinators on offer, for one field kind or all |
 | `tool:classify-a-record` | A record, facts and rules in order in; the first rule that holds (key, label, tone, severity) out, or none |
+| `tool:work-out-history-values` | A row's kept history and history fields in; the value at a moment, the one before, since when, time spent in a value and whether it ever held one out (null when the history needed was not kept) |
+| `tool:read-a-fields-history` | One field's kept history in; each value it held, from when until when, and who changed it by which road, in plain words |
 
 ## Key Types / Functions
 
