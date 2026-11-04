@@ -1,0 +1,209 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:open-a-meeting-link",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:read-meeting-link",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "label": "Read a meeting link",
+        "job": "Read a meeting link through the declared meeting-app routes: which app it is for, what it asks (join, start, schedule, launch) and its parameters, with the host checked first and secret parameters hidden",
+        "description": "Give link. Returns route, action, params (secret ones left out), secret_params (their names) and redacted (the link for logs). A link whose host is not on the route's list, whose action is unknown, or whose parameter is not in its form is refused with the reason.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "link": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A meeting link: a deep link (such as zoommtg://...) or a web address"
+            }
+          },
+          "required": [
+            "link"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "route",
+            "action",
+            "params",
+            "secret_params",
+            "redacted"
+          ]
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/open-a-meeting-link",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/open-a-meeting-link/read-data/meeting-links.mjs",
+            "read"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "open-a-meeting-link",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/open-a-meeting-link"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:open-a-meeting-link",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:open-meeting-link",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "label": "Open a meeting link",
+        "job": "Open a meeting link in the meeting app that owns it on the person's computer, after reading it through the declared routes; a refused link is never opened",
+        "description": "Give link. The link is read first (as tool:read-meeting-link); only an allowed link is handed to the system to open. Returns opened, route, action and redacted; never a secret parameter's value.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "link": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A meeting link: a deep link (such as zoommtg://...) or a web address"
+            }
+          },
+          "required": [
+            "link"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "opened",
+            "redacted"
+          ]
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "open-links-in-their-apps"
+          ],
+          "workdir": "/opt/open-a-meeting-link",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/open-a-meeting-link/read-data/meeting-links.mjs",
+            "open"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "open-a-meeting-link",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/open-a-meeting-link"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}

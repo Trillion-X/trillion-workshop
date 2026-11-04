@@ -1,0 +1,38 @@
+{
+  "description": "How each state of a work item reads to the person doing the work, and which part of the overview it belongs to. Keys are the state ids a work tree declares; label and tone are what the person sees; `working: true` marks a state in which someone is doing the work now, drawn with the one loading mark beside its label. A new state is one row here, never a code change. `settled: true` marks a state that counts as done when a map works out how much of a branch is done. The same looks also name the states of whatever the work hangs from (a decision deciding or decided) and of whoever does it (an AI busy or free), so every view of the work reads one set of states. Tones name the shared record-kind palette.",
+  "states": {
+    "blocked": {"label": "Stuck", "tone": "orange", "section": "needs-you"},
+    "started": {"label": "In progress", "tone": "blue", "section": "moving", "working": true},
+    "taken": {"label": "Working on it now", "tone": "blue", "section": "moving", "working": true},
+    "implemented": {"label": "Ready to try", "tone": "turquoise", "section": "moving"},
+    "needs-check": {"label": "Ready to try", "tone": "turquoise", "section": "moving"},
+    "done": {"label": "Done", "tone": "green", "section": "finished", "settled": true},
+    "verified": {"label": "Done", "tone": "green", "section": "finished", "settled": true},
+    "finished": {"label": "Done", "tone": "green", "section": "finished", "settled": true},
+    "withdrawn": {"label": "Withdrawn", "tone": "grey", "section": "finished"},
+    "open": {"label": "Not started", "tone": "grey", "section": "later"},
+    "waiting": {"label": "Waiting for an AI", "tone": "grey", "section": "later"},
+    "needs_decision": {"label": "Deciding", "tone": "purple", "section": "moving", "working": true},
+    "needs_outcome": {"label": "Decided", "tone": "turquoise", "section": "moving"},
+    "closed": {"label": "Done", "tone": "green", "section": "finished", "settled": true},
+    "ended": {"label": "Ended", "tone": "grey", "section": "finished", "settled": true},
+    "full": {"label": "Busy", "tone": "blue", "section": "moving", "working": true},
+    "available": {"label": "Free to take work", "tone": "green", "section": "later"},
+    "stale": {"label": "Not heard from lately", "tone": "grey", "section": "later"},
+    "paused": {"label": "Not taking work", "tone": "grey", "section": "later"},
+    "on": {"label": "On", "tone": "green", "section": "moving", "working": true},
+    "off": {"label": "Off", "tone": "grey", "section": "later"},
+    "ready": {"label": "Ready", "tone": "turquoise", "section": "later"},
+    "Finished": {"label": "Finished", "tone": "green", "section": "finished", "settled": true},
+    "Did not finish": {"label": "Did not finish", "tone": "orange", "section": "needs-you"},
+    "Working": {"label": "Working", "tone": "blue", "section": "moving", "working": true},
+    "Scheduled": {"label": "Scheduled", "tone": "grey", "section": "later"},
+    "Waiting for your computer": {"label": "Waiting for your computer", "tone": "grey", "section": "later"}
+  },
+  "sections": [
+    {"id": "needs-you", "label": "Needs you", "empty": "Nothing is stuck.", "list": true, "limit": 5, "order": "oldest-first"},
+    {"id": "moving", "label": "Moving", "list": true, "limit": 5, "order": "newest-first"},
+    {"id": "finished", "label": "Finished lately", "stat_label": "Finished", "list": true, "limit": 5, "order": "newest-first"},
+    {"id": "later", "label": "Not started", "list": false}
+  ]
+}

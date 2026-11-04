@@ -1,0 +1,134 @@
+{
+  "about": "The colours and tools every drawing starts with. A colour or tool the person saves joins these; one with the same id replaces it.",
+  "styles": [
+    {
+      "id": "style:primary-line",
+      "label": "Ink",
+      "stroke_token": "--color-info",
+      "stroke_width": 3,
+      "fill": "none",
+      "order": 0
+    },
+    {
+      "id": "style:ink-accent",
+      "label": "Accent",
+      "stroke_token": "--accent-primary",
+      "stroke_width": 3,
+      "fill": "none",
+      "order": 1
+    },
+    {
+      "id": "style:ink-success",
+      "label": "Green",
+      "stroke_token": "--color-success",
+      "stroke_width": 3,
+      "fill": "none",
+      "order": 2
+    },
+    {
+      "id": "style:ink-warning",
+      "label": "Amber",
+      "stroke_token": "--color-warning",
+      "stroke_width": 3,
+      "fill": "none",
+      "order": 3
+    },
+    {
+      "id": "style:ink-danger",
+      "label": "Red",
+      "stroke_token": "--color-error",
+      "stroke_width": 3,
+      "fill": "none",
+      "order": 4
+    },
+    {
+      "id": "style:ink-contrast",
+      "label": "Contrast",
+      "stroke_token": "--text-primary",
+      "stroke_width": 3,
+      "fill": "none",
+      "order": 5
+    },
+    {
+      "id": "style:highlighter",
+      "label": "Highlight",
+      "stroke_token": "--color-warning",
+      "stroke_width": 14,
+      "stroke_opacity": 0.35,
+      "fill": "none",
+      "order": 6
+    }
+  ],
+  "tools": [
+    {
+      "id": "tool:draw",
+      "label": "Pen",
+      "icon": "Pencil",
+      "order": 0,
+      "body": {
+        "coordinate_set": {
+          "closed": false
+        },
+        "mapper": {
+          "kind": "passthrough"
+        }
+      }
+    },
+    {
+      "id": "tool:line",
+      "label": "Line",
+      "icon": "Minus",
+      "order": 1,
+      "body": {
+        "coordinate_set": {
+          "closed": false
+        },
+        "mapper": {
+          "kind": "segment"
+        }
+      }
+    },
+    {
+      "id": "tool:rectangle",
+      "label": "Rectangle",
+      "icon": "Square",
+      "order": 2,
+      "body": {
+        "coordinate_set": {
+          "closed": true
+        },
+        "mapper": {
+          "kind": "polygon",
+          "corners": true,
+          "closed": true
+        }
+      }
+    },
+    {
+      "id": "tool:ellipse",
+      "label": "Ellipse",
+      "icon": "Circle",
+      "order": 3,
+      "body": {
+        "coordinate_set": {
+          "closed": true
+        },
+        "mapper": {
+          "kind": "polygon",
+          "sides": 48,
+          "closed": true,
+          "inscribed": true
+        }
+      }
+    },
+    {
+      "id": "tool:erase",
+      "label": "Erase",
+      "icon": "Eraser",
+      "order": 4,
+      "body": {
+        "mode": "erase"
+      }
+    }
+  ]
+}

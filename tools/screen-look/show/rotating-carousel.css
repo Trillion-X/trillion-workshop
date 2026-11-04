@@ -1,0 +1,15 @@
+.source-rotating-carousel{width:100%;min-width:0;margin-inline:auto;max-width:760px}
+.mw-grid:has(>.source-rotating-carousel){display:block}
+.source-rotating-stage{height:390px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;perspective:1000px;touch-action:pan-y;outline-offset:-3px}
+.source-rotating-cylinder{position:relative;display:flex;height:100%;justify-content:center;align-items:center;transform-style:preserve-3d;cursor:grab}
+.source-rotating-cylinder:active{cursor:grabbing}
+.source-rotating-face{position:absolute;transform-style:preserve-3d;backface-visibility:hidden;opacity:.12;pointer-events:none;transition:opacity .25s}
+.source-rotating-face[data-active=true]{opacity:1;pointer-events:auto}
+.source-rotating-face[data-active=false] strong,.source-rotating-face[data-active=false] small,.source-rotating-face[data-active=false] .coss-media-actions{visibility:hidden}
+.source-rotating-face .coss-media-card{width:100%;margin:0}
+.source-rotating-face .coss-media-open{white-space:normal}
+.source-rotating-controls{display:flex;align-items:center;justify-content:center;gap:16px;margin:4px 0 16px}
+.source-rotating-controls [role=status]{font-size:12px;color:var(--muted-foreground);font-variant-numeric:tabular-nums}
+@media(max-width:640px){.source-rotating-stage{height:300px}}
+@media(prefers-reduced-motion:reduce){.source-rotating-face{transition:none}}
+.source-carousel-action { width: 100%; margin-top: 1rem; }

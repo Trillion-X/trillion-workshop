@@ -1,0 +1,13 @@
+/* parts/screen-look/show/fonts.css
+ * The faces a look may name as its fonts (a theme's defaultPrimaryFontFamily and displayFontFamily tokens): the same
+ * Recoleta (the trillion looks' display face), SF Pro Text and Trillion (a Fraunces-based title face under the SIL OFL, kept but not worn by default). A page serves this folder beside its
+ * stylesheet as fonts/ (scripts/build-workspace.mjs). */
+@font-face { font-family: 'SF Pro Text'; src: url('fonts/SF-Pro-Text-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'SF Pro Text'; src: url('fonts/SF-Pro-Text-Medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'SF Pro Text'; src: url('fonts/SF-Pro-Text-Semibold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Recoleta'; src: url('fonts/Recoleta-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Recoleta'; src: url('fonts/Recoleta-Medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Recoleta'; src: url('fonts/Recoleta-SemiBold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trillion'; src: url('fonts/Trillion-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trillion'; src: url('fonts/Trillion-Medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Trillion'; src: url('fonts/Trillion-SemiBold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }

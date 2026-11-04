@@ -1,0 +1,34 @@
+{
+  "_what": "How read-data/hear-here.mjs (tool:hear-a-link) turns a link to a video or a recording into its words on the person's computer. `fetchers` are the link readers, tried in order: the first whose program is the one the person gave (`link_reader`) or is found in its `search_path`, then PATH, is used. Each has `info` (prints the page's facts as JSON), `captions` (writes the captions the page offers, in `languages`, into {folder}) and `sound` (writes the sound alone into {folder}); every value in braces is filled when it runs ({url}, {folder}, {languages}, {node}: the node program running this, which some pages need to be read). `languages` are the caption languages asked for when the AI names none. Captions win when the page has them; otherwise the sound is heard with whisper-cli through do-work/audio_transcription.py. `keep_sound` keeps that sound in the person's files (`folder`, named by the page's title) with its words beside it as <name>.words.json, so it is found by search and never fetched again. `most_minutes` is the longest the fetch may take. Every word the AI reads is under `words`; a link with no words is always answered with why. Moved from the product repo's computer/hear-a-link.json and records/hear-fetcher-records.json (the yt-dlp row, without its channel `list`, which computer/list-a-channel.mjs still reads there).",
+  "languages": "en.*,en",
+  "keep_sound": {
+    "on": true,
+    "folder": "/Heard links"
+  },
+  "most_minutes": 30,
+  "fetchers": [
+    {
+      "id": "yt-dlp",
+      "label": "yt-dlp on this computer",
+      "search_path": ["/opt/homebrew/bin", "/usr/local/bin", "/opt/homebrew/anaconda3/bin", "~/anaconda3/bin", "~/miniconda3/bin", "~/miniforge3/bin", "~/.local/bin"],
+      "check": ["yt-dlp", "--version"],
+      "info": ["yt-dlp", "--no-update", "--no-warnings", "--js-runtimes", "node:{node}", "--skip-download", "--dump-single-json", "--no-playlist", "{url}"],
+      "captions": ["yt-dlp", "--no-update", "--no-warnings", "--js-runtimes", "node:{node}", "--skip-download", "--no-playlist", "--write-subs", "--write-auto-subs", "--sub-format", "vtt/best", "--convert-subs", "vtt", "--sub-langs", "{languages}", "-o", "{folder}/captions.%(ext)s", "{url}"],
+      "sound": ["yt-dlp", "--no-update", "--no-warnings", "--js-runtimes", "node:{node}", "--no-playlist", "-f", "bestaudio/best", "-x", "-o", "{folder}/sound.%(ext)s", "{url}"],
+      "update_hint": "python3 -m pip install -U yt-dlp"
+    }
+  ],
+  "words": {
+    "needs_url": "Send the link to a video or a recording as url.",
+    "no_fetcher": "This computer has no program that reads video links (such as yt-dlp), so the words could not be read from {url}.",
+    "no_hearing": "{url} has no captions, and no Whisper model was given (model_path), so its sound could not be turned into words.",
+    "fetch_failed": "Could not read {url} on this computer: {error}",
+    "stale_fetcher": "Could not read {url} on this computer: {error}. The page refused this computer's copy of {fetcher}; updating it often fixes this ({hint}).",
+    "no_words": "{url} was read and heard whole on this computer, but nobody speaks in it, so it has no words.",
+    "captions_by": "captions on the page, read on this computer",
+    "needs_file": "Give `file`: the recording's name or identity in the person's files.",
+    "needs_model": "Give model_path: the ggml Whisper model file on this computer.",
+    "too_large": "{file} is {size} bytes, more than one run reads.",
+    "heard_by": "whisper-cli on this computer"
+  }
+}

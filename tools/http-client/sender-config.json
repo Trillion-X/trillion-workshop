@@ -1,0 +1,167 @@
+{
+ "things": [
+  {
+   "type": "slot",
+   "name": "http-client",
+   "build": {
+    "sequence": {
+     "inputs": [],
+     "input_trees": [],
+     "steps": [
+      {
+       "name": "build",
+       "process": {
+        "argv": [
+         "sh",
+         "../do-work/build-http-client-slot.sh"
+        ],
+        "cwd": "source",
+        "timeout_ms": 300000,
+        "termination_grace_ms": 1000,
+        "expected_termination": {
+         "kind": "exited",
+         "code": 0
+        },
+        "env": {
+         "CARGO_TARGET_DIR": "target"
+        },
+        "network_access": "allowed",
+        "inputs": [],
+        "input_trees": [],
+        "outputs": [
+         {
+          "mount_path": "source/target/wasm32-wasip2/release/http_client.wasm"
+         }
+        ],
+        "containment": {
+         "kind": "descendant_effect_contained",
+         "pipe_eof_timeout_ms": 1000,
+         "publications": []
+        },
+        "capture_fds": [
+         1,
+         2
+        ],
+        "collected_files": []
+       },
+       "workspace_bindings": {
+        "environment": [],
+        "arguments": []
+       },
+       "predecessor_outputs": []
+      }
+     ]
+    },
+    "output": {
+     "step": "build",
+     "mount_path": "source/target/wasm32-wasip2/release/http_client.wasm"
+    }
+   },
+   "boundary": {
+    "call_shape": "envelope-bytes-in-envelope-bytes-out",
+    "methods": [
+     {
+      "name": "query"
+     }
+    ]
+   },
+   "config": {
+    "transport_target": "compute.process",
+    "transport_process": {
+     "argv": [
+      "node",
+      "-e",
+      "const fs = await import('node:fs');\nconst requestRef = process.env.TRILLION_HTTP_CLIENT_REQUEST_B64;\nconst raw = requestRef.startsWith('@file:') ? fs.readFileSync(requestRef.slice(6)) : Buffer.from(requestRef, 'base64');\nconst request = JSON.parse(raw.toString('utf8'));\nconst controller = new AbortController();\nconst timeout = setTimeout(() => controller.abort(), request.timeout_ms || 30000);\ntry {\n  const body = request.body_file == null\n    ? (request.body_b64 == null ? undefined : Buffer.from(request.body_b64, 'base64'))\n    : fs.readFileSync(request.body_file);\n  const response = await fetch(request.url, {\n    method: request.method || 'GET',\n    headers: request.headers || {},\n    body,\n    redirect: 'manual',\n    signal: controller.signal,\n  });\n  const headers = Object.fromEntries(response.headers.entries());\n  // DELIVER THE ANSWER WHILE IT IS STILL ARRIVING.\n  //\n  // The bytes of a long reply arrive continuously and were being collected into\n  // a buffer that nobody could see until the last one landed. For the minute\n  // before that, a reply on its way and a reply that is never coming look\n  // exactly alike.\n  //\n  // The whole response is still returned, byte for byte, so every caller that\n  // asked for nothing gets what it always got. The parts are an extra, sent to\n  // wherever the caller said, and a delivery that fails NEVER fails the\n  // request: the answer is the answer whether or not anyone watched it arrive.\n  const deliverTo = request.deliver_parts_to;\n  const collected = [];\n  // What happened to the parts, reported beside the answer instead of vanishing.\n  const parts = { sent: 0, failed: 0, last_error: null };\n  if (deliverTo && response.body && response.status >= 200 && response.status < 300) {\n    // THE WORDS OF A CONVERSATION GO NOWHERE BUT THIS MACHINE. The address is\n    // DATA a participant row supplies, so without this a single row could post\n    // every answer to any host on the internet.\n    let target = null;\n    try { target = new URL(deliverTo.url); } catch { target = null; }\n    const loopback = target && target.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(target.hostname);\n    if (!loopback) {\n      parts.failed += 1;\n      parts.last_error = 'parts address is not on this machine: ' + String(deliverTo.url);\n    }\n    // The receiver asks every caller to name which set of commands it is\n    // talking to, and answers 428 with the right value when you do not. So the\n    // first part asks, learns it from the refusal, and every part after that\n    // already knows. Nothing secret is involved.\n    let basis = null;\n    const BASIS_HEADER = 'x-trillion-running-command-list-basis';\n    const post = (payload) => fetch(deliverTo.url, {\n      method: 'POST',\n      headers: {\n        'content-type': 'application/json',\n        ...(basis ? { [BASIS_HEADER]: basis } : {}),\n        ...(deliverTo.headers || {}),\n      },\n      body: JSON.stringify({ ...(deliverTo.with || {}), ...payload }),\n      // A receiver that cannot answer quickly is not watching; the answer\n      // itself must never wait on it.\n      signal: AbortSignal.timeout(5000),\n    });\n    const sendOnce = async (payload) => {\n      try {\n        let reply = await post(payload);\n        if (reply.status === 428) {\n          basis = reply.headers.get(BASIS_HEADER)\n            ?? (await reply.clone().json().catch(() => ({})))?.running_command_list_basis\n            ?? null;\n          if (basis) reply = await post(payload);\n        }\n        if (reply.ok) parts.sent += 1;\n        else {\n          parts.failed += 1;\n          parts.last_error = 'status ' + reply.status + ': ' + (await reply.text().catch(() => '')).slice(0, 300);\n        }\n      } catch (error) {\n        parts.failed += 1;\n        parts.last_error = error instanceof Error ? error.message : String(error);\n      }\n    };\n    // AT MOST ONE DELIVERY IN FLIGHT. Every delivery carries the whole answer so\n    // far, so while one is in flight the newest bytes simply wait, and when it\n    // returns the latest state goes out. Older states are never queued: they\n    // are already contained in the newer one.\n    let inFlight = null;\n    let sentLength = 0;\n    let sequence = 0;\n    const flush = () => {\n      if (!loopback || inFlight) return;\n      const total = collected.reduce((sum, chunk) => sum + chunk.length, 0);\n      if (total === sentLength) return;\n      sentLength = total;\n      sequence += 1;\n      inFlight = sendOnce({ answer_so_far_base64: Buffer.concat(collected).toString('base64'), sequence })\n        .finally(() => { inFlight = null; flush(); });\n    };\n    for await (const chunk of response.body) {\n      collected.push(Buffer.from(chunk));\n      flush();\n    }\n    // Let the last state go out, but never hold the finished answer for long.\n    const settle = async () => {\n      while (inFlight) await inFlight;\n      flush();\n      while (inFlight) await inFlight;\n    };\n    await Promise.race([settle(), new Promise((resolve) => setTimeout(resolve, 3000))]);\n  }\n  const responseBody = collected.length > 0\n    ? Buffer.concat(collected)\n    : Buffer.from(await response.arrayBuffer());\n  process.stdout.write(JSON.stringify({\n    status_code: response.status,\n    headers,\n    body_b64: responseBody.toString('base64'),\n    ...(deliverTo ? { parts_delivery: parts } : {}),\n  }));\n} catch (error) {\n  process.stderr.write(error instanceof Error ? error.message : String(error));\n  process.exitCode = 1;\n} finally {\n  clearTimeout(timeout);\n}\n"
+     ],
+     "request_json_env_key": "TRILLION_HTTP_CLIENT_REQUEST_B64",
+     "request_json_mount_path": "trillion-http-client-request.json",
+     "body_mount_path": "trillion-http-client-body.bin",
+     "termination_grace_ms": 1000,
+     "network_access": "allowed",
+     "containment": {
+      "kind": "leaf"
+     },
+     "capture_fds": [
+      1,
+      2
+     ],
+     "timeout_padding_ms": 5000
+    },
+    "credential_resolver_target": "slot::credentials-vault",
+    "credential_resolver_actor_id": "slot::http-client",
+    "url_grants": [
+     {
+      "id": "external-model-response",
+      "context": {
+       "kind": "http-client-url-grant-context",
+       "grant": "external-model-response"
+      },
+      "allowed_hosts": [
+       "api.anthropic.com",
+       "generativelanguage.googleapis.com"
+      ],
+      "allowed_schemes": [
+       "https"
+      ],
+      "allow_loopback": false,
+      "allow_private_networks": false
+     },
+     {
+      "id": "resend-agent-inbox",
+      "context": {
+       "kind": "http-client-url-grant-context",
+       "grant": "resend-agent-inbox"
+      },
+      "allowed_hosts": [
+       "api.resend.com",
+       "cdn.resend.app"
+      ],
+      "allowed_schemes": [
+       "https"
+      ],
+      "allow_loopback": false,
+      "allow_private_networks": false
+     },
+     {
+      "id": "public-web-search-duckduckgo-html",
+      "context": {
+       "kind": "http-client-url-grant-context",
+       "grant": "public-web-search-duckduckgo-html"
+      },
+      "allowed_hosts": [
+       "html.duckduckgo.com"
+      ],
+      "allowed_schemes": [
+       "https"
+      ],
+      "allow_loopback": false,
+      "allow_private_networks": false
+     },
+     {
+      "id": "ai-records-producer-local-model-hub",
+      "context": {
+       "kind": "http-client-url-grant-context",
+       "grant": "ai-records-producer-local-model-hub"
+      },
+      "allowed_hosts": [
+       "127.0.0.1"
+      ],
+      "allowed_schemes": [
+       "http"
+      ],
+      "allow_loopback": true,
+      "allow_private_networks": false
+     }
+    ]
+   },
+   "runner": {
+    "private_config": {}
+   },
+   "methods": [
+    {
+     "name": "query"
+    }
+   ]
+  }
+ ]
+}

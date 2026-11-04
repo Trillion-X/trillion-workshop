@@ -1,0 +1,60 @@
+{
+  "_what": "Which of a service's accounts is the one used first, and what each account's sign-in allowed, in plain groups. `primary` is the account fact the choice is kept in and when the tag shows: a service with fewer than `min_accounts` accounts has nothing to choose between, and one with no choice made uses its earliest connected account. `scope_groups` names a group of access in words and the pieces of a provider's reported permission text that mean it; an account's sign-in shows a group as allowed when any of its permissions contains one of the pieces, and shows groups only for a sign-in that reported its permissions and allowed at least one of them. A new group is a row here; nothing that reads them changes.",
+  "primary": {
+    "fact": "primary-connections",
+    "min_accounts": 2,
+    "tag": "Primary",
+    "make_label": "Make primary",
+    "said": "{account} is now the {service} account Trillion uses first.",
+    "not_found": "That account is not one you can make primary.",
+    "confirm": null
+  },
+  "scope_groups": {
+    "title": "What this sign-in allowed",
+    "allowed": "Allowed",
+    "not_allowed": "Not allowed",
+    "groups": [
+      {
+        "id": "calendar",
+        "label": "Calendar",
+        "pieces": [
+          "auth/calendar"
+        ]
+      },
+      {
+        "id": "contacts",
+        "label": "Contacts",
+        "pieces": [
+          "auth/contacts",
+          "contacts.readonly"
+        ]
+      },
+      {
+        "id": "resources",
+        "label": "Resources",
+        "pieces": [
+          "admin.directory.resource.calendar"
+        ]
+      },
+      {
+        "id": "email",
+        "label": "Email",
+        "pieces": [
+          "auth/gmail.readonly",
+          "auth/gmail.modify",
+          "auth/gmail.compose",
+          "auth/gmail.send",
+          "mail.google.com"
+        ]
+      },
+      {
+        "id": "email_settings",
+        "label": "Email settings",
+        "pieces": [
+          "auth/gmail.settings"
+        ]
+      }
+    ],
+    "hint": "Sign in again to allow what is not allowed."
+  }
+}

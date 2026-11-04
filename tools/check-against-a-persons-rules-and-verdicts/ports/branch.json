@@ -1,0 +1,63 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-AGAINST-BRANCH-LINEAGE-FROM-DECIDE-WITH-A-METHOD",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: one judge for every check, reading one check list by branch",
+  "message_multihash": "1f:2b260cf27649ba578ebdd23b332371a2ec98a7f3b4b3d10de6d3696152706406",
+  "quote": "Turn all his checks into ONE generic check system; everything in lists, one generic process, the decision engine under it too, for any kind of thing: book, script, article, post."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "the lineage of a branch, nearest first, and the checks of a branch: one base with branches for every check",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/branch.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/decide-with-a-method/read-data/method.mjs",
+   "why": "Its methodLineage (and the filter of a step's check rows by lineage) moved here as lineageOf and checksOfBranch; method.mjs now imports them and keeps no copy. Its loadMethods resolves extends to build whole method snapshots (steps, backbone, preset), a different job."
+  },
+  {
+   "repository": "trillion",
+   "path": "src/private-method.mjs",
+   "why": "Old trillion src/private-method.mjs:25 resolves extends while loading whole methods (the job tools/decide-with-a-method/read-data/method.mjs loadMethods carries); it has no lineage function of its own to move."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "the lineage of a branch, nearest first, and the checks of a branch: one base with branches for every check",
+    "lineage of a branch",
+    "checks of a branch",
+    "one base with branches"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "lineageOf",
+    "checksOfBranch"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "f5c02c07688ba2c15ec6fbe24252979b57e72dc9"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/check-against-a-persons-rules-and-verdicts/test/branch.test.mjs",
+   "tools/decide-with-a-method/test/method.test.mjs"
+  ]
+ }
+}

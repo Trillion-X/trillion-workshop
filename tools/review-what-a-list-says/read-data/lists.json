@@ -1,0 +1,148 @@
+{
+  "_what": "The slices of old trillion src/lists.json that read-data/list-review.mjs and read-data/list-refusals.mjs read: review, use_heat, the limits they use and the words they refuse with. Kept with the same names so the moved code reads them unchanged.",
+  "review": {
+    "_what": "Keeping what a list says true (src/list-review.mjs): a list set up for review has an owner, a review state and a date by which it must be checked again on each row (`fields`, by role), and saved views that decide, with the formula engine's rules, which rows need review and why (`views`; a field names a role, `title` is the list's title field). `actions` are what review_list_rows may do to rows: set a state, set the date a review lasts for (expires_days, the list's own or this default), clear it, name who checked or who owns. read_rows_needing_review reads the views and answers each owner the rows they must look at, with the reasons.",
+    "expires_days": 90,
+    "fields": {
+      "owner": {
+        "id": "owner",
+        "label": "Owner",
+        "kind": "text"
+      },
+      "state": {
+        "id": "review_state",
+        "label": "Review",
+        "kind": "choice",
+        "choices": [
+          "Verified",
+          "Outdated",
+          "Verification requested"
+        ]
+      },
+      "due": {
+        "id": "review_due",
+        "label": "Check again by",
+        "kind": "date"
+      },
+      "by": {
+        "id": "verified_by",
+        "label": "Checked by",
+        "kind": "text"
+      }
+    },
+    "verified": "Verified",
+    "actions": {
+      "verify": {
+        "state": "Verified",
+        "due": "set",
+        "by": "set"
+      },
+      "flag_outdated": {
+        "state": "Outdated",
+        "due": "clear"
+      },
+      "request_verification": {
+        "state": "Verification requested",
+        "due": "clear"
+      },
+      "assign": {
+        "owner": "set"
+      }
+    },
+    "views": [
+      {
+        "id": "review-needed",
+        "label": "Needs review",
+        "reason": "not_verified",
+        "rules": {
+          "kind": "group",
+          "combinator": "or",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": {
+                "role": "state"
+              },
+              "operator": "is_empty",
+              "params": {}
+            },
+            {
+              "kind": "rule",
+              "field": {
+                "role": "state"
+              },
+              "operator": "is_none_of",
+              "params": {
+                "values": [
+                  "Verified"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "review-expired",
+        "label": "Review expired",
+        "reason": "expired",
+        "time": {
+          "field": {
+            "role": "due"
+          },
+          "before": {
+            "binding": {
+              "$kind": "binding",
+              "select": {
+                "from": "self",
+                "path": [
+                  "now"
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "review-empty",
+        "label": "Empty",
+        "reason": "empty",
+        "rules": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": {
+                "role": "title"
+              },
+              "operator": "is_empty",
+              "params": {}
+            }
+          ]
+        }
+      }
+    ],
+    "rows_listed": 200,
+    "scan_rows": 5000
+  },
+  "use_heat": {
+    "_what": "How much a row is used, decaying with time (src/list-review.mjs): use_list_rows adds `add` to a row's heat, which halves every half_life_days; one use keeps a row warm for one half-life (cold_below is half of add); a row is touched at most once every min_gap_minutes (a second use in that time is not written), so heat costs at most one small record per row per gap. read_cold_list_rows lists rows whose heat is below cold_below, a page at a time within scan_rows, leaving out rows whose review is current (a person said they are true).",
+    "type": "list-heat",
+    "add": 1,
+    "half_life_days": 30,
+    "min_gap_minutes": 360,
+    "cold_below": 0.5,
+    "scan_rows": 5000,
+    "rows_listed": 200
+  },
+  "limits": {
+    "rows_per_write": 200,
+    "read_page_rows": 50
+  },
+  "words": {
+    "no_list": "There is no list {list_id}. list_lists shows the lists this person keeps.",
+    "bad_review": "A review action is one of {actions}: set_up takes expires_days (a number above 0), assign takes owner, the others take row_ids.",
+    "no_review": "{list_id} is not set up for review; set it up first with review_list_rows action set_up.",
+    "bad_row": "Each row is { id?, values: { field_id: value } }; row {index} is not."
+  }
+}

@@ -7,6 +7,15 @@
     "read-data/look-over-time.mjs",
     "read-data/look-over-time.d.mts",
     "read-data/look-scheme.mjs",
-    "read-data/look-scheme.d.mts"
+    "read-data/look-scheme.d.mts",
+    "read-data/colour-ladder.ts",
+    "read-data/read-editable-screen-look-themes.ts",
+    "read-data/screen-look-record.ts",
+    "read-data/tint-look.ts",
+    "read-data/type-register.ts",
+    "read-data/theme-from-inputs.ts",
+    "read-data/tint-rules.json",
+    "read-data/type-registers.json",
+    "read-data/theme-inputs.json"
   ]
 }

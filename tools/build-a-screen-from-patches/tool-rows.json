@@ -1,0 +1,399 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:build-a-screen-from-patches",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:make-a-view-patch",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Send only what changed in an answer",
+        "job": "Turn the next JSON answer a screen will read into just the changes from the answer it already holds, when that is smaller",
+        "description": "Give previous and next, each the JSON text of one answer. Returns the next answer as { status, content_type, identity, patch: { from, to, ops } } (ops are RFC 6902 add, remove and replace; from and to are the BLAKE3 identities of the canonical JSON before and after) when the patch is under 0.6 of the whole; otherwise the whole answer with its text (and its identity). An answer under 2000 or over 400000 characters, or one that is not JSON, is answered whole without an identity. Text that is not a string is refused.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "previous",
+            "next"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "previous": {
+              "type": "string"
+            },
+            "next": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "content_type": {
+              "type": "string"
+            },
+            "identity": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "patch": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "string"
+                },
+                "to": {
+                  "type": "string"
+                },
+                "ops": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "build-a-screen-from-patches",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/build-a-screen-from-patches"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/build-a-screen-from-patches",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/build-a-screen-from-patches/read-data/screen-patch-tools.mjs",
+            "viewPatchBetween"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/view-patch.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "previous": "{\"a\":1}",
+              "next": "{\"a\":2}"
+            },
+            "output_selector": "$.text",
+            "contains": "\"a\":2"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:build-a-screen-from-patches",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:apply-a-view-patch",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Rebuild an answer from its changes",
+        "job": "Rebuild the answer a screen should show from the answer it holds and the changes it was sent",
+        "description": "Give answer (what tool:make-a-view-patch returned: whole with text, or with patch) and previous, the JSON text the screen holds. Returns { text, held } where held is { identity, text } to keep for the next ask, or { stale: true } when the patch was made against a different answer, cannot be applied, or does not rebuild its stated identity, so the screen should read the whole answer again.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "answer": {
+              "type": "object"
+            },
+            "previous": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "held": {
+              "type": "object"
+            },
+            "stale": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "build-a-screen-from-patches",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/build-a-screen-from-patches"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/build-a-screen-from-patches",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/build-a-screen-from-patches/read-data/screen-patch-tools.mjs",
+            "textAfterViewPatch"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/view-patch.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "previous": "{\"a\":1}",
+              "answer": {
+                "status": 200,
+                "text": "{\"a\":2}"
+              }
+            },
+            "output_selector": "$.text",
+            "contains": "\"a\":2"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:build-a-screen-from-patches",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:build-a-screen-spec-from-a-patch-stream",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Build a screen from lines of changes",
+        "job": "Build a screen made of shared parts from the lines of JSON changes an AI wrote for it, and say which lines or parts did not fit",
+        "description": "Give text: lines, each one RFC 6902 change (add, replace or remove), a list of changes, or a whole spec, to { root, elements, state, reads }; optionally requests, the screen's declared requests by name. Every complete line is applied in order; a line that is not JSON, uses another op, changes another path or is too long is left out and said without stopping the rest. Returns spec (each element checked against its part's declared props and fixed where it can be), said (the lines left out), fixes and problems (an unknown part, a missing required prop, no root or a root never sent).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "requests": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "spec",
+            "said",
+            "fixes",
+            "problems"
+          ],
+          "properties": {
+            "spec": {
+              "type": "object"
+            },
+            "said": {
+              "type": "array"
+            },
+            "fixes": {
+              "type": "array"
+            },
+            "problems": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "build-a-screen-from-patches",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/build-a-screen-from-patches"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/build-a-screen-from-patches",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/build-a-screen-from-patches/read-data/screen-patch-tools.mjs",
+            "screenSpecFromLines"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/screen-spec.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "text": "{\"op\":\"add\",\"path\":\"/root\",\"value\":\"main\"}\n{\"op\":\"add\",\"path\":\"/elements/main\",\"value\":{\"type\":\"Text\",\"props\":{\"text\":\"Hello\"}}}\n"
+            },
+            "output_selector": "$.spec.root",
+            "contains": "main"
+          }
+        ]
+      }
+    }
+  ]
+}

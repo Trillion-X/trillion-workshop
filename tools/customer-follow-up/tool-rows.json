@@ -529,7 +529,24 @@
       "output_selector": "$.contact_record.displayName",
       "input_field": "name"
      }
-    ]
+    ],
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "record:customer",
+          "guard_properties": {
+            "crm": "texts",
+            "displayName": "text",
+            "email": "text",
+            "kind": "text",
+            "paid_on": "text",
+            "plan": "text",
+            "contactId": "text"
+          }
+        }
+      ]
+    }
    }
   },
   {

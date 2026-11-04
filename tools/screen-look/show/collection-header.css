@@ -1,0 +1,47 @@
+/* parts/screen-look/show/collection-header.css
+ *
+ * The look of the shared collection header (parts/ui/show/collection-header/CollectionHeader.tsx): the kind and title
+ * with one line about the place on the left, the people, the main buttons and the `…` menu on the right, all on one
+ * row when they fit, set apart from what follows by space alone (no rule under it). After Basecamp's project home and
+ * HoneyBook's project header. The identity keeps a readable minimum measure and the controls move below it whenever
+ * their intrinsic widths no longer fit, including narrow panes in a wide window. On a narrow header the part moves
+ * the buttons into the menu itself; its people and menu remain available below the title when necessary.
+ * Colours and type sizes come from the surface tokens only. The picture, the title and the controls share one centre
+ * line (Linear's and Notion's page headers): a title is never pinned to the top of a taller picture, and the people
+ * sit apart from the buttons by the same space the buttons keep between themselves.
+ */
+.collection-header {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.25rem 0 1rem; min-width: 0;
+}
+.collection-header-identity {
+  display: flex; align-items: center; gap: 0.75rem;
+  flex: 1 1 18rem; min-width: min(100%, 18rem); max-width: 100%;
+}
+.collection-header-mark {
+  flex-shrink: 0; width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; overflow: hidden; display: grid; place-items: center;
+  background: var(--surface-secondary); border: 1px solid var(--border-primary); color: var(--text-secondary);
+}
+.collection-header-mark img { width: 100%; height: 100%; object-fit: cover; }
+/* A place a person gave a colour (`data-colour`, a palette id; its hue is --record-kind from coss-workspace.css): the
+ * letters' tile wears a soft wash of it, the same as its card on the list. */
+.collection-header-mark[data-colour] {
+  background: color-mix(in oklab, var(--record-kind) 22%, transparent);
+  border-color: color-mix(in oklab, var(--record-kind) 40%, transparent);
+  color: color-mix(in oklab, var(--record-kind) 72%, var(--text-primary, var(--color-foreground)));
+}
+.collection-header-letters { font-weight: 600; font-size: 0.95rem; letter-spacing: 0.02em; }
+.collection-header-text { display: grid; flex: 1; gap: 0.15rem; min-width: 0; justify-items: start; }
+.collection-header-heading { display: inline-flex; align-items: center; gap: 0.35rem; min-width: 0; max-width: 100%; }
+.collection-header-title { margin: 0; overflow-wrap: anywhere; }
+.collection-header-lead { max-width: 40rem; }
+.collection-header-side { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; flex-shrink: 0; max-width: 100%; }
+.collection-header-people { display: inline-flex; align-items: center; margin-right: 0.25rem; }
+.collection-header-actions { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; max-width: 100%; }
+.collection-header[data-narrow] { gap: 0.6rem; }
+.collection-header[data-narrow] .collection-header-identity { gap: 0.6rem; }
+.collection-header[data-narrow] .collection-header-side { gap: 0.35rem; }
+/* A header straight on a pane above a list (`inset="list"`): the same inset as the list's title under it, the list
+ * place's padding (12px) plus the view bar's own inset (8px, record-table.css --record-views-inset), so the picture,
+ * the list's title and its first record share one left edge. */
+.collection-header[data-inset="list"] { padding: 0.75rem 20px 0.25rem; }

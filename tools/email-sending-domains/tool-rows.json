@@ -42,7 +42,43 @@
         "needs": { "expected_seconds": 5, "network_egress": true },
         "maker": "maker:email-sending-domains",
         "licence_class": "licence:maker-own",
-        "placements": ["placement:your-computer"]
+        "placements": ["placement:your-computer"],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.resend.com/domains"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "name": "example.com",
+                      "status": "verified",
+                      "created_at": "2026-10-01 12:00:00.000000+00",
+                      "region": "us-east-1"
+                    },
+                    {
+                      "id": "00000000-0000-4000-8000-000000000002",
+                      "name": "mail.example.test",
+                      "status": "pending",
+                      "created_at": "2026-11-01 12:00:00.000000+00",
+                      "region": "us-east-1"
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03"
+          }
+        ]
       }
     },
     {

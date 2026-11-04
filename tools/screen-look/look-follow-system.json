@@ -1,0 +1,16 @@
+{
+  "_what": "Theme mode for the screen look, as DATA (read-data/look-follow-system.ts). The person's record lives under `record_key` in their workspace preferences, so every device reads the same choice: { mode, light, dark }. `light` and `dark` are the looks worn when the screen is light or dark, chosen by pressing a look (a look is light or dark by its own ground colour, look-over-time.json keep_readable.ground); a slot left empty is the first look of that kind. `modes` are the choices the Theme control offers, in order: light and dark wear their own look; automatic wears the dark one while the computer's own appearance setting is dark and the light one otherwise. A new mode is one more row, handled by `follows`: `light`, `dark` or `system`. `words` are every word the control shows; {light} and {dark} are look names.",
+  "record_key": "screen-look.follow-system",
+  "modes": [
+    { "id": "light", "label": "Light", "follows": "light" },
+    { "id": "dark", "label": "Dark", "follows": "dark" },
+    { "id": "automatic", "label": "Automatic", "follows": "system" }
+  ],
+  "words": {
+    "theme": "Theme",
+    "automatic_note": "Sync the theme with your system preference. Light: {light}. Dark: {dark}. Press a look to choose it for its kind of screen.",
+    "light_note": "Wearing your light look: {light}.",
+    "dark_note": "Wearing your dark look: {dark}.",
+    "failed": "This could not be saved. Try again."
+  }
+}
