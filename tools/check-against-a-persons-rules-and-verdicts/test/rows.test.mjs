@@ -37,15 +37,15 @@ test('a request with no rules, or an incomplete rule document, is refused with w
 test('in the branch mode, run as the container runs it, a made-up reading row is asked once a unit and is answered by id on the second run', async () => {
   const row = rows.find(each => each.id === 'tool:check-against-a-persons-rules-and-verdicts');
   const records = [
-    { id: 'record:method:made-up-base', type: 'record:method', value: { id: 'made-up-base', reading_settings: { calibration: { status: 'usable', t_pass: 0.2, t_fail: 0.8 } } } },
-    { id: 'record:check:made-up-word', type: 'record:check', value: { id: 'made-up-word', method: 'made-up-base', words: ['glitter'], says: 'No glitter.' } },
-    { id: 'record:check:made-up-note', type: 'record:check', value: { id: 'made-up-note', method: 'made-up-base', kind: 'check', says: 'A made-up note.', tags: ['made-up'] } },
+    { id: 'record:check:made-up-base', type: 'record:check', value: { id: 'made-up-base', kind: 'branch', reading_settings: { calibration: { status: 'usable', t_pass: 0.2, t_fail: 0.8 } } } },
+    { id: 'record:check:made-up-word', type: 'record:check', value: { id: 'made-up-word', part_of: 'made-up-base', words: ['glitter'], says: 'No glitter.' } },
+    { id: 'record:check:made-up-note', type: 'record:check', value: { id: 'made-up-note', part_of: 'made-up-base', kind: 'check', says: 'A made-up note.', tags: ['made-up'] } },
   ];
   const units = [{ text: 'One made-up sentence. Two made-up sentences. Three made-up sentences.', kind: 'line' }];
   const answerOf = ran => JSON.parse(ran.stdout.trim().split('\n').at(-1)).result;
   const first = answerOf(await runRow(row, { branch: 'made-up-base', units }, { records }));
   assert.equal(first.status, 'uncertain');
-  assert.deepEqual(first.rows_used.skipped, { step: 0, off: 0, no_test: 0 });
+  assert.deepEqual(first.rows_used.skipped, { branch: 0, step: 0, off: 0, no_test: 0 });
   assert.deepEqual(first.questions.map(question => [question.id, question.text]), [['0:made-up-note:0', units[0].text]]);
   const pass = answerOf(await runRow(row, { branch: 'made-up-base', units, answers: { '0:made-up-note:0': { yes: 0.05 } } }, { records }));
   assert.equal(pass.status, 'passed');

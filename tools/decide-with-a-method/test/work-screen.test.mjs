@@ -156,7 +156,10 @@ test('one page covers what it read and says where the next starts; the whole vie
   door.put('pursuit:ended', 'pursuit', { title: 'Old', status: 'ended' });
   door.put('plan:one', 'plan', { title: 'Plan', goal: 'Go', status: 'active', updated_at: '2026-01-01T00:00:00Z' });
   door.put('record-stance:decision-101', 'record-stance', { stance: { said: 'agree' } });
-  door.put('check-row-1', 'record:check', { id: 'check-a', check: 'Is it a?' });
+  door.put('check-row-1', 'record:check', { id: 'check-a', kind: 'step', step: 'outcome', check: 'Is it a?', good_answer: 'Names a.' });
+  // A word-check row and a piece of the same list carry no question: the screen never reads them as one.
+  door.put('check-row-2', 'record:check', { id: 'no-glitter', kind: 'check', check: 'words', words: ['glitter'] });
+  door.put('check-row-3', 'record:check', { id: 'piece-made-up', kind: 'piece', check: 'Made-up piece words' });
   door.put('setting:agent-work:one', 'setting', { value: { harness: 'made-up', checks: [] } });
   const page = await seeMyDecisions({ native_collection_page: true }, { door });
   assert.equal(page.summaries.length, 100);
@@ -165,7 +168,8 @@ test('one page covers what it read and says where the next starts; the whole vie
   assert.deepEqual(page.summaries[0].stance, { said: 'agree' });
   assert.deepEqual(page.pursuits.map(item => [item.id, item.parents, item.children]), [['pursuit:one', [], []]]);
   assert.deepEqual(page.plans.map(plan => plan.id), ['plan:one']);
-  assert.deepEqual(page.helped_check_text, { 'check-a': 'Is it a?' });
+  assert.deepEqual(page.helped_check_text, { 'check-a': 'Is it a?' }, 'only step rows give question text');
+  assert.ok(door.lists.some(call => call.type === 'record:check' && call.where?.kind === 'step'), 'the step rows are read with where, never the whole list');
   assert.deepEqual(page.agent_work, [{ harness: 'made-up', checks: [], id: 'setting:agent-work:one' }]);
   assert.equal(page.pursuits_words, null);
   const whole = await seeMyDecisions({}, { door });

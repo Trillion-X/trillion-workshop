@@ -445,7 +445,8 @@ export async function seeMyDecisions(input = {}, { door }) {
       }
     }
   }
-  const checkRows = input.metadata_only ? [] : await everyRow(door, { type: R.method_checks }, screen.most_checks, R.method_checks);
+  // Only the step rows of the one Checks list carry question text; word checks, pieces and branches are left to the door.
+  const checkRows = input.metadata_only ? [] : await everyRow(door, { type: R.method_checks, ...R.step_rows }, screen.most_checks, R.method_checks);
   const checkText = Object.fromEntries(checkRows.map(row => [row.value?.id ?? row.id, row.value?.check ?? null]).filter(([, question]) => typeof question === 'string'));
   const agentWork = input.metadata_only ? [] : (await everyRow(door, { type: R.agent_work.type, prefix: R.agent_work.prefix }, screen.most_agent_work, R.agent_work.prefix))
     .filter(row => object(row.value?.value)).map(row => ({ ...row.value.value, id: row.id }));
