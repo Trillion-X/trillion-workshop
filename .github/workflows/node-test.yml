@@ -1,4 +1,7 @@
-# Runs the Workshop's tests (CONTRIBUTING.md, Checks) on every pull request and on main.
+# Runs the Workshop's tests (CONTRIBUTING.md, Checks) on every pull request and on main, on Node 24. The suite is cut
+# into four shards (node --test --test-shard) that run side by side, so no one job comes near its time limit; a newer
+# push to the same branch cancels the run it replaces. A file whose tests have ended exits (--test-force-exit): one test
+# that left a server open (a browser that could not start) held every earlier run until its 45 minutes ran out.
 name: node --test
 on:
   pull_request:
@@ -6,20 +9,34 @@ on:
     branches: [main]
 permissions:
   contents: read
+concurrency:
+  group: node-test-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    name: test (shard ${{ matrix.shard }} of 4)
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      # The Python tools' request keys and file identities are BLAKE3 (their READMEs' Depends on); without the module
+      # their tests fail rather than skip.
+      - run: python -m pip install blake3
       - run: npm ci
-      - run: npm test
+      # The browser tools' tests drive Playwright's Chromium (a devDependency); without it they cannot run at all.
+      - run: npx playwright install --with-deps chromium
+      # --test-force-exit: a test file whose tests have all ended exits, even if one left a timer or a server open.
+      - run: node --test --test-force-exit --test-shard=${{ matrix.shard }}/4 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'

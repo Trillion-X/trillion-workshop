@@ -7,7 +7,9 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const mountedRecordsDoor = '/opt/records-door/read-data/records-door.mjs';
+// The records door the row packs at /opt/records-door, found from this file's own place (/opt/tools/<this>/do-work),
+// so it is the packed copy wherever the run's `/` is laid; in this repository the door sits beside this tool instead.
+const packedRecordsDoor = resolve(here, '../../../records-door/read-data/records-door.mjs');
 const localRecordsDoor = resolve(here, '../../records-door/read-data/records-door.mjs');
 
 function runPython(args) {
@@ -39,7 +41,7 @@ export async function buildRecordWrite(input) {
   const outFolder = mkdtempSync(join(tmpdir(), 'records-write-build-'));
   const out = join(outFolder, 'payload.json');
   try {
-    const recordsDoor = existsSync(mountedRecordsDoor) ? mountedRecordsDoor : localRecordsDoor;
+    const recordsDoor = existsSync(packedRecordsDoor) ? packedRecordsDoor : localRecordsDoor;
     const args = [
       '-I', join(here, 'build_record_write.py'),
       '--mapping', input.mapping,

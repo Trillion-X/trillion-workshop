@@ -21,6 +21,22 @@
         "\\bread-connection-graph\\b",
         "(?i)who is connected to whom"
       ]
+    },
+    {
+      "path": "tools/records-door/test/run-row.mjs",
+      "replaced_by": "test-helpers/run-a-row.mjs (runRow, answerOf, rowOf): a row run as the engine's container runner runs it, its package_files laid at their own places and its stdin filled from the row; a sample's `task` gives the made-up task's fields and `stdin` a verbatim standard input for a refusal test",
+      "retired_at": "2026-11-04",
+      "tag": "retired/records-door-run-row-2026-11-04",
+      "reason": "Owner decision, 2026-11-04: the tests still on run-row.mjs are reworked onto test-helpers/run-a-row.mjs and the helper deleted. It laid /opt/<folder> on tools/<folder> and handed stdin verbatim, so a row that packed too little (tool:build-records-to-write without /opt/tools/records-door, the conversations rows without harness/setup.json) or filled its stdin wrong (tool:approve-a-post) passed its tests and failed in the engine.",
+      "decision": {
+        "by": "Brian (owner)",
+        "words": "The Workshop suite runs whole and true: ... run-row.mjs users reworked and the helper deleted",
+        "source": "the lane brief ai-job:finish:workshop-test-suite-repairs in Brian's Trillion account, 2026-11-04 (from lead-66, 2026-11-03 21:00 MST)"
+      },
+      "allowed_exceptions": [],
+      "reference_patterns": [
+        "records-door/test/run-row\\.mjs"
+      ]
     }
   ],
   "awaiting_switch": []
