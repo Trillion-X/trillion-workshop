@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:e6cfd942678b41807522763b75ae42d26516fbfd866eabd99dab934e7d94df76"
+  "blake3": "1f:370328265ced054fa66c1cfb914a640bbebf0af7a9af8b54aaa0f38ffa94fce4"
  },
  "fields": [
   {
@@ -478,6 +478,22 @@
    }
   },
   {
+   "id": "tool:ask-a-command-line-mcp-server-once",
+   "values": {
+    "title": "Ask a command-line MCP server one request",
+    "job": "Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it",
+    "description": "Makes the gateway (do-work/gateway.mjs createGateway) for the one stdio MCP server the input names (cli, args, env) and hands it one POST /<app>/mcp with no session id, in this process: no port is opened. The gateway starts the server as a child process in a fresh empty working folder with only PATH, HOME, TMPDIR and LANG (plus env), sends initialize (protocol_version, 2025-06-18 when left out) and notifications/initialized, writes the request (one JSON-RPC message per line), waits at most timeout_seconds (30 when left out), answers a request the server asks back with method not found, then kills the server and removes its folder. An arg that starts with ./ or ../ names a file in the run's working folder (the tool folder) and is made absolute first. Answers the HTTP status the gateway gave (200, or 502 when the server would not start or initialize) and the JSON-RPC reply. The server runs whatever command cli names inside the run's container, with no internet; this run reads and writes nothing else and keeps nothing. Refuses a missing cli, args that are not text, an app name the gateway's path would not take, a request with no method, and initialize as the request. The hosted gateway (do-work/serve.mjs) also keeps sessions open between requests (Mcp-Session-Id), streams a server's notifications, caps and reaps idle sessions and serves on a port for the web; this run does only the one-off flow.",
+    "status": "active",
+    "maker": "maker:serve-command-line-mcp-servers-on-the-web",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "serve-command-line-mcp-servers-on-the-web"
+   }
+  },
+  {
    "id": "tool:ask-a-model",
    "values": {
     "title": "Ask a model",
@@ -691,6 +707,25 @@
     ],
     "listed_on": "2026-11-03T12:00:00Z",
     "folder": "build-a-screen-from-patches",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:build-a-sellers-payment-setup-request",
+   "values": {
+    "title": "Build the request that starts a seller's payment setup",
+    "job": "Build, without sending it, the payment provider (Stripe) request that starts a seller's payment setup and gets their hosted onboarding link, or any other request the folder's operation map names",
+    "description": "Calls buildStripeHttpRequest (process/build-stripe-http-request.mjs) with the input: operation_id names one row of data/stripe-operation-map.json (operation:create-connected-account and operation:create-account-link start a seller's setup and its hosted onboarding link; the map has every other operation too), input_facts holds what the request says (operation_subject becomes the form-encoded body of a write or the query of a search, provider_object_ref fills the address, acting_account the Stripe-Account header where the row declares it; a subject id becomes client_reference_id), idempotency_key becomes the Idempotency-Key header of a write, api_version_policy the Stripe-Version (the map's current version when left out) and required_credential_ref the name of the key a sender would use (credential-class:stripe-restricted-key when left out). Answers the finished request: method, url, headers, body, auth { scheme, credential_ref } and api_version. It holds and reads no key, puts no Authorization header on the request, sends nothing and moves no money: the request is for a sender (or a person) to look at first. Refuses an operation the map does not name and a missing provider_object_ref where the address needs one. The old screen also sent the request with the seller's own key and took the seller to the onboarding page the answer names; this run does neither.",
+    "status": "active",
+    "maker": "maker:seller-payment-setup",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "seller-payment-setup",
     "flags": [
      "read-only"
     ]
@@ -1426,6 +1461,25 @@
      "placement:deployed-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
+   }
+  },
+  {
+   "id": "tool:check-given-pages-at-every-width",
+   "values": {
+    "title": "Check pages at every width and device setting",
+    "job": "Open each page I give at every width and device setting and read every piece of text a person can see, refusing text that cannot be read, is drawn in a font the page did not ask for, is cut off or makes a phone scroll sideways",
+    "description": "Opens each of screens (each { id, html, route?, fonts?, ready?, steps?, widths?, modes? }) in a headless Chromium through Playwright (headless-browser/launch.mjs, with its quiet switches and one-browser-at-a-time admission), at every width of views.json (phone 390x844 with no sideways scroll, tablet, desktop) and in every mode (light, dark, forced colours, Dark Reader), or the widths and modes asked for, through runMatrix (check-screens.mjs). The page's HTML is answered by the browser itself at its route on a made-up origin; any other request the page makes is aborted, never sent. Each view is scrolled window by window and every visible text node is judged: contrast under WCAG AA against the colour really behind it, a glyph drawn by a platform font the screen does not declare in fonts (system names such as system-ui never count), text cut off or outside the window, a phone page wider than its window, and a control with no accessible name; a screen that does not open is a failure. allowlist (allowlist.json's shape, none when left out) drops a proven false positive or keeps a decided look as reported. Answers passed, failures ({ screen, width, mode, probe, selector, text, detail }), reported, counts (failures per probe) and report (views read, texts read, seconds per phase). Writes no file and keeps nothing; needs a Chromium Playwright can find. Refuses a screen without an id or html, two screens at one route, and a width or mode views.json does not name. The deploy check also opens a live origin or a Worker, takes pictures of failures, runs the real Dark Reader extension and refuses a deploy; this run checks only the pages given.",
+    "status": "active",
+    "maker": "maker:check-every-screen-at-every-width",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "check-every-screen-at-every-width",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -7287,6 +7341,25 @@
    }
   },
   {
+   "id": "tool:read-named-fields-of-many-records",
+   "values": {
+    "title": "Read a few fields of many records of one kind",
+    "job": "Read named top-level fields of many records of one kind from their attribute facts without assembling any record: the fields of given ids, the records after a value, the newest record per group, and the ids whose field holds a value",
+    "description": "Lays out the records given in records ([{ id, type, value }]) in an in-memory SQLite database (node:sqlite) with the EEAF store's own entity, entity_types, type_properties and attribute_fact tables (their CREATE statements read from do-work/eeaf-sqlite-store.mjs as text), each record's top-level scalars and lists of scalars as attribute facts under the store's ids (type:<type>, prop:<type>:<field>, the value as JSON). A field holding an object or a list of objects is not laid out (in the store it lives on child subjects, which a field read never answers) and is named in left_out. Then answers each of reads (each under its name, its place in the list when left out, with count: how many records or ids it found) through eeafFieldReads (do-work/eeaf-field-reads.mjs): fieldsOf { type, ids, fields } (an id not held as that type is left out), after { type, field, after, fields?, limit?, after_id? } (oldest first, compared as kept JSON text, so ISO times sort), newestPerGroup { type, group, order, fields? } and idsWhere { type, field, value, limit? }. Reads nothing but the input, writes no file, sends nothing; the database is gone when the run ends. Refuses a record without an id or type, an id with a slash, a value that is not an object, the same id twice, an unknown op, a read missing what its op needs and two reads with the same name. The old store keeps a person's records on their own device, logs every change and assembles whole records (eeafStore); this run does none of that: eeaf-sqlite-store.mjs imports parts/record-log/do-work/record-log-store.mjs, which the Workshop does not have, so it is packed only as the text its tables are read from.",
+    "status": "active",
+    "maker": "maker:eeaf",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "eeaf",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:read-namespace-documents-as-list-rows",
    "values": {
     "title": "Show a folder of my account's documents as the rows of a list",
@@ -10252,6 +10325,25 @@
      "placement:your-computer"
     ],
     "folder": "turn-frames-into-slides"
+   }
+  },
+  {
+   "id": "tool:turn-signed-events-into-effects-once",
+   "values": {
+    "title": "Turn signed events into their effects, once each",
+    "job": "Turn signed events into the effects their installed rules name, each effect once, from a verifier answer given in the input, and list a subject's effects from a reader answer given in the input, showing every call that would be sent",
+    "description": "Runs the signed-event-effects targets with no transport. op admit (admitSignedEventEffects): descriptor_ref names an installed admission descriptor (records.json: signed-event-effects.owner-action-accepted.v1 or signed-event-effects.payment-provider-event-accepted.v1); each of events is sent to the descriptor's verifier target, whose answer must give the event's hash in evaluation.event_hashes; each fact of a verified event that matches an effect rule (relation, objects, required attributes) becomes one effect with an id made from its event, fact, relation, subject and object, so the same fact twice is one effect; each effect is then sent to the write path the dispatch policy declares. op list (listSignedEventEffects): descriptor_ref signed-event-effects.by-subject.v1 and subject; the descriptor's query is sent to its reader target and the rows it answers come back as effects. replies is DATA the caller makes up or brings: { <target>: reply | [reply, ...] }, the answers the verifier, writer and reader give (a list answers one call each, in order); this run does not check a signature itself, does not write or read any store and sends nothing anywhere: every call is answered from replies and written down in sent. Refuses a caller-given descriptor, a descriptor_ref that is not installed, a write path the dispatch policy does not declare, a verifier answer without the event's hash, a call to a target replies gives no answer for, and an op other than admit or list. The live screen sends these calls to the real verifier, workflow writer and current-items reader through its own send; this run does not.",
+    "status": "active",
+    "maker": "maker:run-a-signed-events-effects-once",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "run-a-signed-events-effects-once",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
