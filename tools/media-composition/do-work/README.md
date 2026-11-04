@@ -71,14 +71,17 @@ timeline words, speaker profiles, WAV header and native readback.
 
 This caller is not a registered or deployed container tool. It does not add a
 speech engine, concatenate audio itself, publish content or qualify source meaning,
-listening or author acceptance. The existing seven focused producer tests cover
-copy refusal, exact output binding, recoverable epochs and mutations during queueing.
+listening or author acceptance. The focused producer tests cover copy refusal,
+exact output binding, recoverable epochs and mutations during queueing, on synthetic
+fixtures in a temporary folder.
 
-Run from the Trillion checkout with `node scripts/run-heavy-work.mjs node
-parts/media-composition/do-work/author-voice-script.mjs --input <checked-copy.json>
---outdir <new-voice-directory>`. The caller executes the adopted `narration/produce.py`
-source through an installed dependency runtime resolved by the shared computer-programs
-owner. An installed Showtime launcher argument is refused. `narration/LICENSE` and
+Run from the Workshop with `node tools/media-composition/do-work/author-voice-script.mjs
+--input <copy.json> --outdir <new-voice-directory> --rules <rules.json>`. The input may be
+any path; the person's copy rules (a list, or `{ "rules": [...] }`) come from the caller.
+The spoken narration words go through `tool:check-copy` (`checkCopy`); a refusal, failing
+or held verdict stops before anything is synthesized. The caller executes the adopted
+`narration/produce.py` through an installed dependency runtime that `program-here.mjs`
+finds in the folders `narration/runtime.json` names. An installed Showtime launcher argument is refused. `narration/LICENSE` and
 `source-adoption.json` preserve the licensed origin; no old renderer, launcher,
 installer or MCP service is adopted. Native synthesis uses the existing source
 speaker with exact-voice failure rather than substituting another voice.

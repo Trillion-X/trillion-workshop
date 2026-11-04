@@ -1,14 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { authorVoiceScript as produceVoiceScript, translateSourceComposition } from '../author-voice-script.mjs';
 
-// Model/output tests do not execute or probe an installed dependency runtime.
-const authorVoiceScript = input => produceVoiceScript({ findProgram: () => ({ program: 'fixture-python', env: {} }), ...input });
-
-const root = resolve(fileURLToPath(new URL('../../../../', import.meta.url)));
+// Model/output tests do not execute or probe an installed dependency runtime. The copy rule is invented for the test.
+const RULES = [{ id: 'no-delve', words: ['delve'], says: 'No delve.' }];
+const authorVoiceScript = input => produceVoiceScript({ findProgram: () => ({ program: 'fixture-python', env: {} }), rules: RULES, ...input });
 const narration = [
   { id: 'first', text: 'A person records an answer.', speaker: 'narrator', role: 'hook', source_refs: [{ id: 'source-a', relation: 'faithful-paraphrase' }] },
   { id: 'second', text: 'Keep the whole answer together.', speaker: 'guest', role: 'answer', source_refs: [{ id: 'source-b', relation: 'original-quotation', text: 'Delve into this unspoken source quote.' }] },
@@ -18,7 +17,7 @@ const base = () => ({ title: 'A complete recording', description: 'An assembled 
   source: { text: 'Unspoken source metadata stays outside narration.' } });
 
 async function fixture(data = base()) {
-  const temp = await mkdtemp(join(root, 'content-drafts/source-compositions-producer-'));
+  const temp = await mkdtemp(join(tmpdir(), 'source-compositions-producer-'));
   const folder = join(temp, 'fixture'); await mkdir(folder);
   const input = join(folder, 'copy-input.json');
   await writeFile(input, JSON.stringify(data));
@@ -58,11 +57,11 @@ test('an explicit speaker place remains bound and reaches the source producer', 
   assert.equal(JSON.parse(await readFile(join(f.outdir, 'source-binding.json'), 'utf8')).place, data.place);
 });
 
-test('copy guard refuses missing owner, empty coverage, and selected bad words before producer', async t => {
+test('copy check refuses missing rules, empty coverage, and selected bad words before producer', async t => {
   const badHook = base(); badHook.narration[0].text = 'Delve deeper.';
   for (const [data, pattern] of [
     [badHook, /finding/],
-    [{ source: { text: 'Private source.' } }, /no-input/],
+    [{ source: { text: 'Private source.' } }, /Nothing to check/],
   ]) {
     const f = await fixture(data); t.after(() => rm(f.temp, { recursive: true, force: true }));
     let calls = 0;
@@ -71,8 +70,7 @@ test('copy guard refuses missing owner, empty coverage, and selected bad words b
   }
   const f = await fixture(); t.after(() => rm(f.temp, { recursive: true, force: true }));
   let calls = 0;
-  const unowned = join(f.folder, 'unowned.json'); await writeFile(unowned, JSON.stringify(base()));
-  await assert.rejects(authorVoiceScript({ input: unowned, outdir: f.outdir, run: async () => calls++ }), /No copy owner/);
+  await assert.rejects(authorVoiceScript({ input: f.input, outdir: f.outdir, rules: undefined, run: async () => calls++ }), /No copy rules/);
   assert.equal(calls, 0);
 });
 
@@ -151,7 +149,7 @@ test('installed launcher paths are refused; producer source is owned', async t =
   const f = await fixture(); t.after(() => rm(f.temp, { recursive: true, force: true }));
   await assert.rejects(authorVoiceScript({ input: f.input, outdir: f.outdir, showtime: '/unowned/showtime' }), /not a source owner/);
   await authorVoiceScript({ input: f.input, outdir: f.outdir, run: async (cmd, argv, opts) => {
-    assert.match(argv[0], /parts\/media-composition\/do-work\/narration\/produce[.]py$/);
+    assert.match(argv[0], /tools\/media-composition\/do-work\/narration\/produce[.]py$/);
     assert.equal(argv.includes('/unowned/showtime'), false);
     assert.equal(opts.env.TRILLION_NARRATION_NODE, process.execPath);
     await opts.onStart(); await nativeOutput(argv);

@@ -1,15 +1,13 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { resolve, relative, isAbsolute } from 'node:path';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hearingHere } from '../../computer-programs/read-data/program-here.mjs';
 import runtime from './narration/runtime.json' with { type: 'json' };
-import helperSettings from '../../../harness/take-open-work.json' with { type: 'json' };
-import { findingsFor } from '../../../scripts/check-copy.mjs';
+import { checkCopy } from '../../check-against-a-persons-rules-and-verdicts/do-work/check-copy.mjs';
 import { runHeavyProcess } from '../../process-session/do-work/heavy-work.mjs';
 
-const ROOT = resolve(fileURLToPath(new URL('../../../', import.meta.url)));
 const SOURCE_KIND = 'source-composition.voice-script-binding/v1';
-const PRODUCER = resolve(ROOT, 'parts/media-composition/do-work/narration/produce.py');
+const PRODUCER = fileURLToPath(new URL('./narration/produce.py', import.meta.url));
 
 function profile(value, label) {
   if (!value || typeof value !== 'object' || Array.isArray(value)
@@ -50,15 +48,18 @@ export function translateSourceComposition(data) {
   return { lines, timing, context, binding: { schema: SOURCE_KIND, ...context, narration: data.narration.map(({ id, text, speaker, role, source_refs }) => ({ id, text, speaker, role, source_refs })) } };
 }
 
-export async function authorVoiceScript({ input, outdir, showtime, cwd = ROOT, run = runHeavyProcess, findProgram = hearingHere }) {
+// The person's copy rules arrive from the caller; the words checked are the spoken narration only.
+export async function authorVoiceScript({ input, outdir, rules, showtime, cwd = process.cwd(), run = runHeavyProcess, findProgram = hearingHere }) {
   if (showtime !== undefined) throw new Error('An installed Showtime executable is not a source owner; use the adopted narration producer.');
-  if (!input || !outdir) throw new Error('Usage: --input PATH --outdir PATH');
-  const sourcePath = resolve(cwd, input), sourceRelative = relative(ROOT, sourcePath);
-  if (isAbsolute(sourceRelative) || sourceRelative.startsWith('..')) throw new Error('Input must be inside the Trillion repository.');
+  if (!input || !outdir) throw new Error('Usage: --input PATH --outdir PATH --rules FILE');
+  if (!Array.isArray(rules) || !rules.length) throw new Error('No copy rules: pass the person\'s copy rules (--rules FILE). Nothing was synthesized.');
+  const sourcePath = resolve(cwd, input);
   const checkedBytes = await readFile(sourcePath);
   const data = JSON.parse(checkedBytes.toString('utf8'));
-  const findings = findingsFor(sourceRelative, data, null, { requireOwner: true });
-  if (findings.length) throw Object.assign(new Error(`Copy guard refused ${findings.length} finding(s).`), { findings });
+  const spoken = (Array.isArray(data?.narration) ? data.narration : []).filter(row => typeof row?.text === 'string')
+    .map((row, index) => ({ kind: 'narration', text: row.text, where: `narration.${index}.text` }));
+  const copy = checkCopy({ rules, units: spoken });
+  if (!copy.passed) throw Object.assign(new Error(`Copy check ${copy.status} with ${copy.failing} failing finding(s): ${copy.lines.join('; ')}`), { copy });
   const translated = translateSourceComposition(data);
   const output = resolve(cwd, outdir);
   const nativePath = resolve(output, 'voice-script.json');
@@ -70,11 +71,11 @@ export async function authorVoiceScript({ input, outdir, showtime, cwd = ROOT, r
   await mkdir(output, { recursive: true });
   const nativeBytes = Buffer.from(`${JSON.stringify({ ...translated.timing, ...translated.context, lines: translated.lines }, null, 2)}\n`);
   await writeFile(nativePath, nativeBytes, { flag: 'w' });
-  await writeFile(bindingPath, `${JSON.stringify({ ...translated.binding, source_path: sourceRelative, source_bytes: checkedBytes.toString('base64'), native_path: nativePath, state: 'prepared' }, null, 2)}\n`, { flag: 'w' });
+  await writeFile(bindingPath, `${JSON.stringify({ ...translated.binding, source_path: sourcePath, source_bytes: checkedBytes.toString('base64'), native_path: nativePath, state: 'prepared' }, null, 2)}\n`, { flag: 'w' });
   const assertCurrent = async phase => {
     const current = await readFile(sourcePath);
     if (!current.equals(checkedBytes)) {
-      await writeFile(bindingPath, `${JSON.stringify({ ...translated.binding, source_path: sourceRelative,
+      await writeFile(bindingPath, `${JSON.stringify({ ...translated.binding, source_path: sourcePath,
         source_bytes: checkedBytes.toString('base64'), native_path: nativePath, state: 'stale_epoch', stale_at: phase }, null, 2)}\n`);
       throw Object.assign(new Error(`Stale source composition ${phase}; outputs remain recoverable in ${output}.`), { code: 'STALE_SOURCE' });
     }
@@ -84,18 +85,18 @@ export async function authorVoiceScript({ input, outdir, showtime, cwd = ROOT, r
   const checkAtStart = async () => {
     await assertCurrent('at admitted producer start');
     if (!(await readFile(nativePath)).equals(nativeBytes)) {
-      await writeFile(bindingPath, `${JSON.stringify({ ...translated.binding, source_path: sourceRelative,
+      await writeFile(bindingPath, `${JSON.stringify({ ...translated.binding, source_path: sourcePath,
         source_bytes: checkedBytes.toString('base64'), native_path: nativePath, state: 'stale_epoch', stale_at: 'native script at admitted producer start' }, null, 2)}\n`);
       throw Object.assign(new Error('Derived voice script changed before admitted producer start.'), { code: 'STALE_NATIVE' });
     }
     checkedAtStart = true;
   };
   try {
-    const program = findProgram(runtime.programs.map(row => ({ ...row, search_path: [...row.search_path, ...helperSettings.program_paths] })));
+    const program = findProgram(runtime.programs);
     if (!program) throw new Error('No installed local Python runtime satisfies narration dependencies. Nothing was synthesized.');
     await run(program.program, [PRODUCER, 'voice', 'script', nativePath, '-o', output], { cwd, env: { ...program.env, TRILLION_NARRATION_NODE: process.execPath }, timeoutMs: 14400000, onStart: checkAtStart, onStdout: chunk => process.stdout.write(chunk), onStderr: chunk => process.stderr.write(chunk) });
   } catch (error) {
-    if (!['STALE_SOURCE', 'STALE_NATIVE'].includes(error.code)) await writeFile(bindingPath, `${JSON.stringify({ ...translated.binding, source_path: sourceRelative,
+    if (!['STALE_SOURCE', 'STALE_NATIVE'].includes(error.code)) await writeFile(bindingPath, `${JSON.stringify({ ...translated.binding, source_path: sourcePath,
       source_bytes: checkedBytes.toString('base64'), native_path: nativePath, state: 'producer_failed' }, null, 2)}\n`);
     throw error;
   }
@@ -114,7 +115,7 @@ export async function authorVoiceScript({ input, outdir, showtime, cwd = ROOT, r
     throw new Error('Native producer did not return a WAV file.');
   const readback = JSON.parse(await readFile(resolve(output, 'readback.json'), 'utf8'));
   await assertCurrent('after output readback');
-  await writeFile(bindingPath, `${JSON.stringify({ ...translated.binding, source_path: sourceRelative, source_bytes: checkedBytes.toString('base64'), native_path: nativePath, state: 'produced_bound', checked_at_admitted_start: checkedAtStart, semantics: 'unknown', listening: 'not performed' }, null, 2)}\n`);
+  await writeFile(bindingPath, `${JSON.stringify({ ...translated.binding, source_path: sourcePath, source_bytes: checkedBytes.toString('base64'), native_path: nativePath, state: 'produced_bound', checked_at_admitted_start: checkedAtStart, semantics: 'unknown', listening: 'not performed' }, null, 2)}\n`);
   return { nativePath, bindingPath, output, lineCount: translated.lines.length, duration: timeline.duration,
     copyFindings: 0, checkedAtAdmittedStart: checkedAtStart, nativeWordVoiceBinding: 'matched', readbackSuspects: readback.suspects ?? null,
     semantics: 'not established by lexical or byte checks', listening: 'not performed', authorAcceptance: false };
@@ -123,7 +124,8 @@ export async function authorVoiceScript({ input, outdir, showtime, cwd = ROOT, r
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2), value = name => { const i = args.indexOf(name); return i < 0 || !args[i + 1] || args[i + 1].startsWith('--') ? undefined : args[i + 1]; };
   try {
-    const result = await authorVoiceScript({ input: value('--input'), outdir: value('--outdir'), showtime: value('--showtime') });
+    const rulesFile = value('--rules'), read = rulesFile && JSON.parse(await readFile(rulesFile, 'utf8'));
+    const result = await authorVoiceScript({ input: value('--input'), outdir: value('--outdir'), rules: read?.rules ?? read, showtime: value('--showtime') });
     process.stdout.write(`${JSON.stringify(result)}\n`);
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
