@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:057955dececaff1318f2a4f567f24c272518caa1687279300a682a6cce210465"
+  "blake3": "1f:16fb62e5df90204bd570b7869a85af6555efe8c3f03fb553dfd1f31b19fdd1af"
  },
  "fields": [
   {
@@ -1861,6 +1861,25 @@
    }
   },
   {
+   "id": "tool:choose-which-ai-answers-me",
+   "values": {
+    "title": "Choose which AI answers me",
+    "job": "Make the request that sets which AI answers a person, or sends them back to automatic routing, as the selected-agent part sends it to the workflow slot, without sending it",
+    "description": "Give agent_id: the AI that should answer the person, or \"\" to go back to automatic routing (and, rarely, definition_id: the workflow definition that keeps the choice, action:update-selected-agent when left out). Runs do-work/set-selected-agent.ts's own setSelectedAgent with the workspace's sender stood in (run/requests-kept-here.mjs), and answers the one request it would send: { target: slot::workflow, payload: { operation: execute_definition, include_output: false, definition_id, input: { value: agent_id } } }, and automatic (whether it restores automatic routing). It sends nothing and changes no one's choice: the request is for a sender, or a person, to look at first. Refuses an agent_id that is not text and a definition_id that is not an action id. The chat screen sends the request and keeps the choice as the person's owner fact; this run does neither.",
+    "status": "active",
+    "maker": "maker:selected-agent",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "selected-agent",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:cite-principles-from-captions",
    "values": {
     "title": "Keep principles from captioned videos, each backed by a quote checked word for word (runs on your computer)",
@@ -2313,6 +2332,25 @@
      "placement:your-computer"
     ],
     "folder": "office-files"
+   }
+  },
+  {
+   "id": "tool:edit-a-transcript",
+   "values": {
+    "title": "Edit a transcript",
+    "job": "Edit a recording's transcript the way the transcript reader does: name a speaker or take the name back, split a passage before a chosen word, and write the passages as plain words to copy or export",
+    "description": "Give passages ([{ start, end, text, speaker?, speaker_was?, words? }], times in seconds, each word { word, start, end }) and, in order, edits: { op: name_speaker, from, name } says every passage of one label under a name and keeps the label it had in speaker_was; { op: take_name_back, name } restores it exactly; { op: split, passage, word } splits one passage just before a word, the first half ending where the second begins. Answers passages (the edited list; words, times and order never change), speakers (in the order they first speak), named_speakers (the ones named by the person) and text (each passage as 'Speaker  0:05' over its words, the Copy transcript and Export PDF text). Each edit is read-data/edit-transcript.ts's own. Refuses no passages, a passage without start, end and text, an unknown op, an empty name, and a split at the first word or past the last. It reads, saves, plays and sends nothing; the reader screen also follows playback, searches the words and reprocesses in another language, which this run does not.",
+    "status": "active",
+    "maker": "maker:transcript-reader",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "transcript-reader",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -4804,6 +4842,25 @@
    }
   },
   {
+   "id": "tool:list-what-my-ais-did",
+   "values": {
+    "title": "List what my AIs did",
+    "job": "Turn the tool calls an AI made on a person's account into the activity rows the AI activity screen lists: what it did, the item it made or touched, whether it worked and why not, newest first",
+    "description": "Give calls ([{ tool, at, input?, result?, error?, app?, description? }]), one tool call each in the order they happened. Each becomes the row activity.mjs's activityRow makes from activity-marks.json (a call whose tool has no mark leaves a row only with an execution receipt or work it was done for), is read through recordableActivityRow and keptActivityRow (access, the person's access names, decides which linked ids are kept), and is kept with keepActivity in an in-memory SQLite database laid out by activityTable. Then readActivity reads them back newest first (read: { limit?, app?, failed? }). Answers kept, left (each call that left no row, and why), items (seq, at, app, tool, label, item, title, uses, for, ok, reason), next_before and coverage. Nothing is kept after the run, no file is written and nothing is sent. Refuses no calls, more than 50 calls, and a call without a tool or an at. The screen also traces one item through the calls that made and used it and draws each app by its sign-in picture; this run does neither.",
+    "status": "active",
+    "maker": "maker:see-what-my-ais-did",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "see-what-my-ais-did",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:list-writing-recipes",
    "values": {
     "title": "Writing recipes and instruction blocks",
@@ -6119,6 +6176,25 @@
      "placement:small-container"
     ],
     "folder": "coordination-sessions"
+   }
+  },
+  {
+   "id": "tool:plan-choosing-and-saving-files-on-my-computer",
+   "values": {
+    "title": "Plan choosing and saving files on my computer",
+    "job": "Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer",
+    "description": "Give operation choose with picker_reply (what the picker answered: { cancelled?, files: [{ path, name, byte_length, content_type, bytes_base64? }] }) and, if wanted, prompt, multiple, include_bytes, allowed_extensions and allowed_content_prefixes: chooseLocalFiles (do-work/choose-local-files.ts) makes the choose_files request and reads the reply into files, each with its content type worked out from its name when the picker said only application/octet-stream, and refuses a file not of an accepted type. Or give operation save with file_name, content_base64, copy_id and directory (a full folder path; or home, for its Downloads folder): saveLocalFileCopy (do-work/save-local-file-copy.ts) names the copy <name>-<copy_id><ext> so it never replaces a file and makes the write_new_file request and the read_file request that checks the bytes came back the same. Answers operation, requests (every request, in order, a save's bytes named by their length) and files (choose) or path (save). The workspace's sender is stood in (run/requests-kept-here.mjs): nothing is sent, no picker opens, no file is written or read, and a save's replies are the ones a Mac that saved it would give. Refuses an unknown operation and what the part refuses (a name with a slash, a folder that is not a full path, more than 16 MB).",
+    "status": "active",
+    "maker": "maker:choose-and-save-local-files",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "choose-and-save-local-files",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
