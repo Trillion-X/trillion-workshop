@@ -16,7 +16,7 @@
     "label": "Check words or anything made against a person's own rules and verdicts",
     "status": "active",
     "job": "Check words, a title, a script line or a plan against a person's own rules and the verdicts they already gave, and say pass, fail or uncertain for each, with why",
-    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's method rows (list:methods, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: the rows of their one Checks list (list:checks) whose method is that branch or a branch it extends, each branch read on its own, plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, and a row that states no test (no words, pattern, exact, check, groups, path, evidence, ask or part, or a piece of a source file) is never judged: it is counted in rows_used.skipped.no_test and listed in read_by_a_model for a model to read, and a branch with only such rows answers no-applicable-rule; and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
+    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's method rows (list:methods, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: the rows of their one Checks list (list:checks) whose method is that branch or a branch it extends, each branch read on its own, plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, a row that states no test (no words, pattern, exact, check, groups, path, evidence, ask or part) but says something is a reading row: a question a model answers once for each whole unit, made from the tool's own DATA over the row's words, carrying the calibration and model of the nearest branch's reading_settings, and listed in read_by_a_model; a piece of a source file, or a row that says nothing, is never judged: it is counted in rows_used.skipped.no_test, and a branch with only such rows answers no-applicable-rule; and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -295,7 +295,7 @@
         "lists",
         "skipped"
        ],
-       "description": "With branch: the check rows read for each branch of the lineage, the rows of each check list read, and how many were left out as step rows, Off, or rows that state no test (no_test)"
+       "description": "With branch: the check rows read for each branch of the lineage, the rows of each check list read, and how many were left out as step rows, Off, or rows that neither state a test nor say anything (no_test)"
       },
       "read_by_a_model": {
        "type": "object",
@@ -303,7 +303,7 @@
         "rows",
         "more"
        ],
-       "description": "With branch: the rows that state no test (no judge-words selector, no ask, no part, or a piece of a source file), never judged here, for a model to read: at most a bounded number of rows, and how many more there are",
+       "description": "With branch: the reading rows asked (rows that state no test but say something, each asked once a unit in questions): at most a bounded number of rows, how many more there are, and the branch whose reading_settings gave their calibration (null when none did)",
        "properties": {
         "rows": {
          "type": "array",
@@ -332,6 +332,12 @@
         "more": {
          "type": "integer",
          "minimum": 0
+        },
+        "settings_from": {
+         "type": [
+          "string",
+          "null"
+         ]
         }
        }
       }
@@ -589,6 +595,52 @@
       ],
       "output_selector": "$.lineage[1]",
       "contains": "made-up-base"
+     },
+     {
+      "kind": "sample-run",
+      "input": {
+       "branch": "made-up-base",
+       "units": [
+        {
+         "text": "A made-up line. With a second made-up sentence.",
+         "kind": "line"
+        }
+       ],
+       "answers": {
+        "0:made-up-note:0": {
+         "yes": 0.93
+        }
+       }
+      },
+      "records": [
+       {
+        "id": "record:method:made-up-base",
+        "type": "record:method",
+        "value": {
+         "id": "made-up-base",
+         "name": "Any made-up thing",
+         "reading_settings": {
+          "calibration": {
+           "status": "usable",
+           "t_pass": 0.2,
+           "t_fail": 0.8
+          }
+         }
+        }
+       },
+       {
+        "id": "record:check:made-up-note",
+        "type": "record:check",
+        "value": {
+         "id": "made-up-note",
+         "method": "made-up-base",
+         "kind": "check",
+         "says": "A made-up note with no test, read by a model."
+        }
+       }
+      ],
+      "output_selector": "$.results[0].breaks[0].rule",
+      "contains": "made-up-note"
      }
     ]
    }

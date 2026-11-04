@@ -1,0 +1,113 @@
+{
+  "purpose": "Actual synthetic writer-produced sparse codec rows from qualified cold first fixture; reader compatibility fixture only, never activation authority.",
+  "prefix": "cold_sparse",
+  "options": {
+    "page_bytes": 128,
+    "big_bytes": 512,
+    "cache_bytes": 0,
+    "filter_bytes": 0,
+    "fan_in": 2,
+    "max_runs": 2,
+    "compaction_debt_min_bytes": 1,
+    "compaction_debt_ratio": 0.01
+  },
+  "tables": [
+    {
+      "name": "cold_sparse_big",
+      "sql": "CREATE TABLE cold_sparse_big (ref TEXT NOT NULL, part INTEGER NOT NULL, body TEXT NOT NULL, PRIMARY KEY (ref, part)) WITHOUT ROWID",
+      "columns": [
+        "ref",
+        "part",
+        "body"
+      ],
+      "rows": [
+        [
+          "b1",
+          0,
+          "{\"n\":4,\"text\":\"BIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIGBIG\"}"
+        ]
+      ]
+    },
+    {
+      "name": "cold_sparse_big_drops",
+      "sql": "CREATE TABLE cold_sparse_big_drops (ref TEXT PRIMARY KEY) WITHOUT ROWID",
+      "columns": [
+        "ref"
+      ],
+      "rows": []
+    },
+    {
+      "name": "cold_sparse_meta",
+      "sql": "CREATE TABLE cold_sparse_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL) WITHOUT ROWID",
+      "columns": [
+        "key",
+        "value"
+      ],
+      "rows": [
+        [
+          "big_next",
+          "1"
+        ]
+      ]
+    },
+    {
+      "name": "cold_sparse_run_1",
+      "sql": "CREATE TABLE cold_sparse_run_1 (page INTEGER PRIMARY KEY, first TEXT, body TEXT NOT NULL)",
+      "columns": [
+        "page",
+        "first",
+        "body"
+      ],
+      "rows": [
+        [
+          0,
+          "!{\"sparse\":1,\"first\":\"b-public\"}",
+          "!kept-sparse-first-v1\n"
+        ],
+        [
+          1,
+          "\"b-public\"",
+          "{\"p\":[0],\"s\":[\"b-public\"],\"v\":\"{\\\"n\\\":2,\\\"text\\\":\\\"vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\\\"}\"}\n"
+        ],
+        [
+          3,
+          "\"d-big-public\"",
+          "{\"p\":[0],\"s\":[\"d-big-public\"],\"d\":[0],\"b\":{\"0\":[\"b1\",1]}}\n"
+        ],
+        [
+          4,
+          "\"e-public\"",
+          "{\"p\":[0],\"s\":[\"e-public\"],\"v\":\"{\\\"n\\\":5,\\\"text\\\":\\\"vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\\\"}\"}\n"
+        ]
+      ]
+    },
+    {
+      "name": "cold_sparse_runs",
+      "sql": "CREATE TABLE cold_sparse_runs (run INTEGER PRIMARY KEY, age INTEGER NOT NULL, pages INTEGER NOT NULL, keys INTEGER NOT NULL, bytes INTEGER NOT NULL, last TEXT NOT NULL, filter_bits INTEGER NOT NULL, first_key TEXT, page_format INTEGER NOT NULL DEFAULT 0)",
+      "columns": [
+        "run",
+        "age",
+        "pages",
+        "keys",
+        "bytes",
+        "last",
+        "filter_bits",
+        "first_key",
+        "page_format"
+      ],
+      "rows": [
+        [
+          1,
+          1,
+          5,
+          3,
+          284,
+          "\"e-public\"",
+          0,
+          "\"b-public\"",
+          1
+        ]
+      ]
+    }
+  ]
+}
