@@ -565,9 +565,11 @@ export async function sendLiveActivityUpdate(input, { door, credentials = '', se
 
 export const heldNotificationSigningKeys = (fd = 4, read) => readSigningKeys(fd, read);
 
-export const myBrowserPushApplicationServerKeyFromHeldCredential = (input, context) => {
+// The public key needs nothing but the held key: its row mounts no records door, so the run's context is not spread
+// (spreading it reads its `door`, which opens descriptor 3, and a run with none fails ENXIO).
+export const myBrowserPushApplicationServerKeyFromHeldCredential = (input) => {
   const keys = readSigningKeys();
-  return myBrowserPushApplicationServerKey(input, { ...context, webCredentials: keys.web_push });
+  return myBrowserPushApplicationServerKey(input, { webCredentials: keys.web_push });
 };
 export const sendNotificationWithHeldApnsKey = (input, context) => {
   const keys = readSigningKeys();
