@@ -1,10 +1,10 @@
 {
-  "what_this_is": "Installed dependency programs for local narration. Selection uses the existing computer-programs readiness owner and the current helper's declared program paths; this file installs nothing and names no source outside this owner.",
+  "what_this_is": "Installed dependency programs for local narration. Selection uses the existing computer-programs readiness owner over the program folders named here; this file installs nothing and names no source outside this owner.",
   "programs": [
     {
       "id": "local-narration-python",
       "label": "Local narration Python dependencies",
-      "search_path": ["~/.showtime/venv/bin"],
+      "search_path": ["~/.showtime/venv/bin", "~/.local/bin", "~/.npm-global/bin", "~/.bun/bin", "~/.claude/local", "~/.superconductor/bin", "/opt/homebrew/bin", "/usr/local/bin"],
       "check": ["python3", "-c", "import numpy, scipy, soundfile, onnxruntime"],
       "missing": "No installed Python program has the local narration dependencies"
     }
