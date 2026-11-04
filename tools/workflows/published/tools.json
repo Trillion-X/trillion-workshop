@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:16fb62e5df90204bd570b7869a85af6555efe8c3f03fb553dfd1f31b19fdd1af"
+  "blake3": "1f:539c5cf8eda9bfd99363b281b3b8ebdcb203322d09c73fa282f94bac9efb8505"
  },
  "fields": [
   {
@@ -2179,6 +2179,25 @@
      "placement:small-container"
     ],
     "folder": "what-a-paste-becomes"
+   }
+  },
+  {
+   "id": "tool:delete-archive-and-put-back-my-files",
+   "values": {
+    "title": "Delete, archive and put back my files",
+    "job": "Delete or archive a person's files and folders into Recently Deleted and Archived, put them back exactly as they were, change how long each keeps things, and say what is due when, with the time left on each",
+    "description": "Give files ([{ name, identity?, byte_length?, modified_at_ms? }], names starting with /), now (the ISO time the run starts at) and steps, run in order: { op: delete | archive, items: [{ name } | { identity }] } takes a file or a whole folder out of the person's Files into Recently Deleted or Archived; { op: put_back, items: [label or id] } gives every name back exactly as it was (never over a name another file took since); { op: keep_for, after_days: { deleted?, archived? } } sets how many days each keeps things (null: until put back); { op: sweep, at } moves on what is due by then: an archived thing moves to Recently Deleted, a deleted one's names are gone for good. Answers steps (what each answered, refusals included), set_aside (each item as the screen lists it: label, state, names, bytes, where, due_at, days_left, due_words), names (what Files still shows), gone (the identities whose names went for good) and keep_for. Every step is namespace-set-aside.mjs's own setAsideStore over namespace-store.mjs's tables, in an in-memory SQLite database: no byte is deleted, nothing is kept after the run, no file is written and nothing is sent. Refuses no files, an unknown step and what the store refuses (a name not starting with /, the whole Files, a day count out of range). The screen also releases storage by the person's rules; this run does not.",
+    "status": "active",
+    "maker": "maker:recently-deleted-and-storage",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "recently-deleted-and-storage",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -4663,6 +4682,25 @@
     ],
     "listed_on": "2026-11-04T00:00:00Z",
     "folder": "messages-screen",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:list-my-recordings-and-media",
+   "values": {
+    "title": "List my recordings and media",
+    "job": "List a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, each with what is known about it, as the Media screen shows a page",
+    "description": "Give files ([{ name, identity, byte_length?, modified_at_ms? }], names starting with /), results kept about them ([{ identity, kind, value }]: kind library-entry makes a recording row from its value { name?, path?, media_kind? }; title, summary, organization, facts, transcript and the other kinds media-library.json joins add to a row), optionally set_aside (files or folders to delete first, as Recently Deleted does) and page ({ limit? (1 to 60), origin? (recording, made or file), unused? }). The files are named in the namespace (namespace-store.mjs, from tools/recently-deleted-and-storage) and the results laid in a namespace_results table as old trillion's namespace-results.mjs made it, in an in-memory SQLite database; then media-library.mjs's own mediaLibraryPage reads the page. Answers rows (identity, origin, name, path, media_kind, media_type, stored, captured_ms, title, duration, facts, edits, words), next_after, origin_labels and revision. A file that is not video, sound or a picture is no row, and a file set aside with no name left is none either. No bytes are held, so every row says stored: false; nothing is kept after the run, no file is written and nothing is sent. Refuses no files, a result without identity, kind and value, and what the page refuses. The screen also plays a row, suggests the next edit and searches for a spoken or seen moment; this run does none of that.",
+    "status": "active",
+    "maker": "maker:browse-my-recordings-and-media",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "browse-my-recordings-and-media",
     "flags": [
      "read-only"
     ]
