@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { questionIdentity, watchMySources } from '../do-work/watch-my-sources.mjs';
 import data from '../read-data/watch-sources.json' with { type: 'json' };
-import { rowOf, runRow } from '../../records-door/test/run-row.mjs';
+import { rowOf, answerOf } from '../../../test-helpers/run-a-row.mjs';
 import { memoryDoor } from './memory-door.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
@@ -113,13 +113,13 @@ test('a weighed reply that is not { identity, reply } and formats that are not a
 
 test('the row runs through the records door with exactly its rights, and a list outside them is refused', async () => {
   const row = rowOf(rows, 'tool:watch-my-sources');
-  const made = await runRow(row, {}, { records: [pursuit] });
+  const made = await answerOf(row, {}, { records: [pursuit] });
   assert.equal(made.status, 0, JSON.stringify(made.error));
   assert.deepEqual({ read: made.result.read, problems: made.result.problems, arrivals: made.result.arrivals }, { read: 0, problems: [], arrivals: [] });
   assert.ok(made.kept.some(record => record.id === 'list:signal-sources'));
   assert.ok(made.kept.some(record => record.id === 'record:signal-sources:show-hn'));
 
-  const refused = await runRow(row, { sources_list_id: 'someone-elses' }, { records: [pursuit] });
+  const refused = await answerOf(row, { sources_list_id: 'someone-elses' }, { records: [pursuit] });
   assert.equal(refused.status, 1);
   assert.match(refused.error, /may not reach those records/);
   assert.equal(refused.kept.some(record => record.id === 'list:someone-elses'), false, 'nothing outside the rights is written');

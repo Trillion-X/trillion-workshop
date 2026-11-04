@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { runRow, rowOf } from '../../records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import causes from '../../workflows/recipe-wake-causes.json' with { type: 'json' };
 import { profileRules, ruleProblem } from '../../set-up-my-account/read-data/show-rules.mjs';
@@ -26,7 +26,7 @@ const RECORD = {
   types: [type('base', [rule('quiet')]), type('child', [rule('loud', { on: false })], ['base'])],
 };
 const run = (slug, input, record = RECORD, records = []) =>
-  runRow(row(slug), { now: NOW, ...input }, { records, doorOptions: { workspaceRecords: record === null ? {} : { [data.record]: record } } });
+  answerOf(row(slug), { now: NOW, ...input }, { records, doorOptions: { workspaceRecords: record === null ? {} : { [data.record]: record } } });
 const kept = result => {
   assert.equal(result.keep.length, 1);
   assert.equal(result.keep[0].label, data.record);
@@ -149,7 +149,7 @@ test('a wake: a record of the declared kind written switches the type it names',
 });
 
 const GRANT = id => `sharing:${data.sharing.record_prefix}${id}`;
-const share = (input, records = {}) => runRow(row('share-a-kept-show-type'), { now: NOW, grant: GRANT(input.type), ...input },
+const share = (input, records = {}) => answerOf(row('share-a-kept-show-type'), { now: NOW, grant: GRANT(input.type), ...input },
   { doorOptions: { workspaceRecords: { [data.record]: RECORD, ...records } } });
 
 test('share a kept type: the copy first, with what it inherits, then the grant, holding only the key\'s BLAKE3 (a2e1365f33)', async () => {
@@ -180,11 +180,11 @@ test('a share with someone already named is refused in the screen\'s words, with
 test('stop sharing takes the person out of the grant and leaves the others', async () => {
   const people = [{ principal: 'sample-account', key_blake3: 'a'.repeat(64) }, { principal: 'sample-other', key_blake3: 'b'.repeat(64) }];
   const grant = { record: `${data.sharing.record_prefix}child`, people, changed_at: NOW };
-  const { status, result } = await runRow(row('stop-sharing-a-show-type'), { type: 'child', principal: 'sample-account', grant: GRANT('child'), now: NOW },
+  const { status, result } = await answerOf(row('stop-sharing-a-show-type'), { type: 'child', principal: 'sample-account', grant: GRANT('child'), now: NOW },
     { doorOptions: { workspaceRecords: { [GRANT('child')]: grant } } });
   assert.equal(status, 0);
   assert.deepEqual(result.keep, [{ label: GRANT('child'), value: { ...grant, people: [people[1]] }, expected: grant }]);
-  const none = await runRow(row('stop-sharing-a-show-type'), { type: 'child', principal: 'sample-account', grant: GRANT('child') });
+  const none = await answerOf(row('stop-sharing-a-show-type'), { type: 'child', principal: 'sample-account', grant: GRANT('child') });
   assert.match(none.error, /not shared with sample-account/);
 });
 

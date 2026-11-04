@@ -2,7 +2,7 @@
 // save a form, check and record a respondent's answers with their decision, and read the results back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const save = rowOf(rows, 'tool:save-a-form');
@@ -29,7 +29,7 @@ const rules = [
 ];
 
 async function saved() {
-  const ran = await runRow(save, form);
+  const ran = await answerOf(save, form);
   assert.equal(ran.status, 0, ran.error);
   return ran;
 }
@@ -38,14 +38,14 @@ test('saving a form keeps one question-sequence record the fill side reads', asy
   const ran = await saved();
   assert.deepEqual(ran.result, { saved: true, form_id: 'intake', record_id: 'question-sequence:intake', question_count: 3 });
   assert.deepEqual(ran.kept.map(record => [record.id, record.type, record.value.kind, record.value.questions.length]), [['question-sequence:intake', 'question-sequence', 'question-sequence', 3]]);
-  const refused = await runRow(save, { form_id: 'intake', questions: [{ label: 'no id' }] });
+  const refused = await answerOf(save, { form_id: 'intake', questions: [{ label: 'no id' }] });
   assert.equal(refused.status, 1);
   assert.match(refused.error, /questions\[0\] needs a questionId and a questionTypeId/);
 });
 
 test('answers that fail the form are refused with the first to fix, and nothing is written', async () => {
   const { kept } = await saved();
-  const ran = await runRow(submit, { form_id: 'intake', respondent_id: 'r1', answers: { budget: 'a lot' } }, { records: kept });
+  const ran = await answerOf(submit, { form_id: 'intake', respondent_id: 'r1', answers: { budget: 'a lot' } }, { records: kept });
   assert.equal(ran.status, 0, ran.error);
   assert.equal(ran.result.accepted, false);
   assert.equal(ran.result.first_invalid, 'budget');
@@ -56,7 +56,7 @@ test('answers that fail the form are refused with the first to fix, and nothing 
 test('a valid submission writes its answer facts and its decision together, and reads the rules as records', async () => {
   const { kept } = await saved();
   const answers = { budget: '2000', email: 'user-ebb18a03@example.com', focus: 8, stray: 'not in the form' };
-  const ran = await runRow(submit, { form_id: 'intake', respondent_id: 'r1', answers, answered_at: '2026-06-26T00:00:00Z' }, { records: [...kept, ...rules] });
+  const ran = await answerOf(submit, { form_id: 'intake', respondent_id: 'r1', answers, answered_at: '2026-06-26T00:00:00Z' }, { records: [...kept, ...rules] });
   assert.equal(ran.status, 0, ran.error);
   assert.equal(ran.result.accepted, true);
   assert.equal(ran.result.decision.segmentId, 'hot');
@@ -73,8 +73,8 @@ test('a valid submission writes its answer facts and its decision together, and 
 
 test('a question\'s after-saved hand-off becomes a request record for its owner', async () => {
   const handoff = { ...form, form_id: 'with-handoff', questions: [{ questionId: 'goal', questionTypeId: 'text', label: 'Goal', afterSaved: { owner: 'tasks', actionRef: 'action:create-task', input: { title: '$answer.goal', for: '$run.scope_ref' } } }] };
-  const { kept } = await runRow(save, handoff);
-  const ran = await runRow(submit, { form_id: 'with-handoff', respondent_id: 'r2', submission_id: 's1', answers: { goal: 'Plan the week' }, answered_at: '2026-06-26T00:00:00Z' }, { records: kept });
+  const { kept } = await answerOf(save, handoff);
+  const ran = await answerOf(submit, { form_id: 'with-handoff', respondent_id: 'r2', submission_id: 's1', answers: { goal: 'Plan the week' }, answered_at: '2026-06-26T00:00:00Z' }, { records: kept });
   assert.equal(ran.status, 0, ran.error);
   const request = ran.kept.find(record => record.type === 'owner-action-request');
   assert.equal(request.value.owner, 'tasks');
@@ -85,25 +85,25 @@ test('a question\'s after-saved hand-off becomes a request record for its owner'
 
 test('results list each respondent\'s segment, newest first, with a count per segment', async () => {
   const { kept } = await saved();
-  const answer = (respondent, budget, at) => runRow(submit, { form_id: 'intake', respondent_id: respondent, answers: { budget, email: 'user-ebb18a03@example.com' }, answered_at: at }, { records: [...kept, ...rules] });
+  const answer = (respondent, budget, at) => answerOf(submit, { form_id: 'intake', respondent_id: respondent, answers: { budget, email: 'user-ebb18a03@example.com' }, answered_at: at }, { records: [...kept, ...rules] });
   const one = await answer('r1', 2000, '2026-06-26T00:00:00Z');
   const two = await answer('r2', 10, '2026-06-27T00:00:00Z');
-  const ran = await runRow(results, { form_id: 'intake' }, { records: [...one.kept, ...two.kept] });
+  const ran = await answerOf(results, { form_id: 'intake' }, { records: [...one.kept, ...two.kept] });
   assert.equal(ran.status, 0, ran.error);
   assert.deepEqual(ran.result.rows.map(row => [row.respondentId, row.segmentId]), [['r2', 'cold'], ['r1', 'hot']]);
   assert.deepEqual(ran.result.summary, { total: 2, bySegment: { cold: 1, hot: 1 } });
-  assert.deepEqual((await runRow(results, {})).result, { rows: [], summary: { total: 0, bySegment: {} } }, 'nothing is shown until someone answers');
+  assert.deepEqual((await answerOf(results, {})).result, { rows: [], summary: { total: 0, bySegment: {} } }, 'nothing is shown until someone answers');
 });
 
 test('progress folds one respondent\'s sessions into ordered rows and a trend', async () => {
   const { kept } = await saved();
   const sessions = [];
   for (const [id, at, focus] of [['s1', '2026-06-20T18:00:00Z', 4], ['s2', '2026-06-27T18:00:00Z', 8]]) {
-    const ran = await runRow(submit, { form_id: 'intake', respondent_id: 'r1', submission_id: id, answers: { budget: 1, email: 'user-ebb18a03@example.com', focus }, answered_at: at }, { records: [...kept, ...sessions] });
+    const ran = await answerOf(submit, { form_id: 'intake', respondent_id: 'r1', submission_id: id, answers: { budget: 1, email: 'user-ebb18a03@example.com', focus }, answered_at: at }, { records: [...kept, ...sessions] });
     assert.equal(ran.status, 0, ran.error);
     sessions.push(...ran.kept.filter(record => record.type === 'answer-fact'));
   }
-  const ran = await runRow(progress, { form_id: 'intake', respondent_id: 'r1', field_map: { focus: 'focus' } }, { records: sessions });
+  const ran = await answerOf(progress, { form_id: 'intake', respondent_id: 'r1', field_map: { focus: 'focus' } }, { records: sessions });
   assert.equal(ran.status, 0, ran.error);
   assert.deepEqual(ran.result.rows.map(row => row.fields.focus), [4, 8]);
   assert.deepEqual(ran.result.trend, { field: 'focus', points: [4, 8] });
@@ -112,8 +112,8 @@ test('progress folds one respondent\'s sessions into ordered rows and a trend', 
 
 test('the latest answers read back as lines, each labelled with its question', async () => {
   const { kept } = await saved();
-  const sent = await runRow(submit, { form_id: 'intake', respondent_id: 'r1', answers: { budget: 5, email: 'user-ebb18a03@example.com' }, answered_at: '2026-06-26T00:00:00Z' }, { records: kept });
-  const ran = await runRow(lines, { form_id: 'intake', respondent_id: 'r1' }, { records: sent.kept });
+  const sent = await answerOf(submit, { form_id: 'intake', respondent_id: 'r1', answers: { budget: 5, email: 'user-ebb18a03@example.com' }, answered_at: '2026-06-26T00:00:00Z' }, { records: kept });
+  const ran = await answerOf(lines, { form_id: 'intake', respondent_id: 'r1' }, { records: sent.kept });
   assert.equal(ran.status, 0, ran.error);
   assert.deepEqual([...ran.result.lines].sort(), ['Budget: 5', 'Email: user-ebb18a03@example.com']);
 });

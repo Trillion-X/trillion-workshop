@@ -121,7 +121,8 @@
         "needs": { "expected_seconds": 60, "network_egress": false, "memory_mb": 2048 },
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
-        "maker": "maker:meaning-search"
+        "maker": "maker:meaning-search",
+        "verify": [{"kind": "sample-run", "input": {"index_id": "synthetic-words", "query_text": "a made-up question"}, "model_server": {"vector": [1, 0, 0, 0]}, "door_files": {"/Sets/lines.jsonl": "{\"clip\": \"/Clips/made-up.m4a\", \"t\": 0, \"text\": \"made-up words\"}\n"}, "records": [{"id": "semantic-index-descriptor:synthetic-words", "type": "semantic-index-descriptor", "value": {"kind": "semantic-index-descriptor", "index_id": "synthetic-words", "model_id": "synthetic-words-model", "model_version": "1", "model_endpoint": "{model_endpoint}", "descriptor_revision": "1f:0000000000000000000000000000000000000000000000000000000000000000", "model_provenance_ref": "model:synthetic-words-model@1", "min_score": 0, "result_limit": 3, "ann_params": {"hyperplane_count": 2, "table_count": 4, "seed": 7, "candidate_limit": 100}, "vector_set": {"items": {"file": "/Sets/lines.jsonl"}, "points_to": {"file": "clip", "start": "t", "text": "text"}}}}]}]
       }
     },
     {

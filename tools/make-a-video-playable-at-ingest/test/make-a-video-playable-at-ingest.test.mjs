@@ -2,8 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { rowOf, runRow } from '../../records-door/test/run-row.mjs';
-import { select } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, select } from '../../../test-helpers/run-a-row.mjs';
 import { decideAVideoAtIngest } from '../do-work/make-a-video-playable-at-ingest.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
@@ -18,7 +17,7 @@ test('a MOV is converted to MP4 with the runner\'s arguments, an MP4 is kept, an
 
 test('tool:decide-a-video-at-ingest runs as the container runner runs it, on its own sample', async () => {
   const row = rowOf(rows, 'tool:decide-a-video-at-ingest');
-  const ran = await runRow(row, row.verify[0].input);
+  const ran = await answerOf(row, row.verify[0].input);
   assert.equal(ran.status, 0, JSON.stringify(ran.error));
   assert.match(JSON.stringify(select(ran, row.result_selector + row.verify[0].output_selector.slice(1))), new RegExp(row.verify[0].contains));
 });
