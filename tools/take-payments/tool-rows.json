@@ -353,7 +353,94 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "checkoutAttemptId": "attempt-000000000001",
+              "checkoutStartedAt": "2026-11-03T03:04:05Z",
+              "offerId": "offer:bread-box",
+              "priceOptionId": "price:box:monthly",
+              "consent": {
+                "billing": true,
+                "legal": true
+              },
+              "customer": {
+                "email": "buyer@example.test",
+                "firstName": "Sample",
+                "lastName": "Buyer"
+              },
+              "success_url": "https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}",
+              "cancel_url": "https://shop.example.test/no"
+            },
+            "records": [
+              {
+                "id": "offer:bread-box",
+                "type": "record:commercial-offer",
+                "value": {
+                  "kind": "commercial-offer",
+                  "id": "offer:bread-box",
+                  "label": "Bread box",
+                  "access_refs": [
+                    "access:bread-box"
+                  ],
+                  "sort_order": 1,
+                  "price_options": [
+                    {
+                      "id": "price:box:monthly",
+                      "label": "Monthly",
+                      "amount_cents": 1200,
+                      "currency": "usd",
+                      "payment_timing": "subscription",
+                      "interval": "month"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "offer:sample-cake",
+                "type": "record:commercial-offer",
+                "value": {
+                  "kind": "commercial-offer",
+                  "id": "offer:sample-cake",
+                  "label": "Sample cake",
+                  "access_refs": [],
+                  "sort_order": 2,
+                  "price_options": [
+                    {
+                      "id": "price:cake",
+                      "label": "One cake",
+                      "amount_cents": 2500,
+                      "currency": "usd",
+                      "payment_timing": "one_time"
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/checkout/sessions"
+                },
+                "status": 200,
+                "body": {
+                  "id": "cs_test_sample0001",
+                  "object": "checkout.session",
+                  "mode": "subscription",
+                  "status": "open",
+                  "payment_status": "unpaid",
+                  "amount_total": 1200,
+                  "currency": "usd",
+                  "url": "https://checkout.stripe.com/c/pay/cs_test_sample0001"
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -499,7 +586,89 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "offer_id": "offer:sample-cake",
+              "price_option_id": "price:cake",
+              "payee_account": "acct_sample0002",
+              "fee": {
+                "percent": 10
+              },
+              "payer_ref": "buyer-sample-1",
+              "success_url": "https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}",
+              "cancel_url": "https://shop.example.test/no",
+              "idempotency_key": "sample-payee-checkout-1"
+            },
+            "records": [
+              {
+                "id": "offer:bread-box",
+                "type": "record:commercial-offer",
+                "value": {
+                  "kind": "commercial-offer",
+                  "id": "offer:bread-box",
+                  "label": "Bread box",
+                  "access_refs": [
+                    "access:bread-box"
+                  ],
+                  "sort_order": 1,
+                  "price_options": [
+                    {
+                      "id": "price:box:monthly",
+                      "label": "Monthly",
+                      "amount_cents": 1200,
+                      "currency": "usd",
+                      "payment_timing": "subscription",
+                      "interval": "month"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "offer:sample-cake",
+                "type": "record:commercial-offer",
+                "value": {
+                  "kind": "commercial-offer",
+                  "id": "offer:sample-cake",
+                  "label": "Sample cake",
+                  "access_refs": [],
+                  "sort_order": 2,
+                  "price_options": [
+                    {
+                      "id": "price:cake",
+                      "label": "One cake",
+                      "amount_cents": 2500,
+                      "currency": "usd",
+                      "payment_timing": "one_time"
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/checkout/sessions"
+                },
+                "status": 200,
+                "body": {
+                  "id": "cs_test_sample0002",
+                  "object": "checkout.session",
+                  "mode": "payment",
+                  "status": "open",
+                  "payment_status": "unpaid",
+                  "amount_total": 2500,
+                  "currency": "usd",
+                  "url": "https://checkout.stripe.com/c/pay/cs_test_sample0002"
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -1273,7 +1442,54 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "payment_schedule": {
+                "charges": [
+                  {
+                    "amount_cents": "800",
+                    "days_after_signup": 0
+                  },
+                  {
+                    "amount_cents": "3200",
+                    "days_after_signup": 7
+                  }
+                ],
+                "repeat": {
+                  "amount_cents": "4000",
+                  "interval": "month",
+                  "first_days_after_signup": 37
+                }
+              },
+              "customer_ref": "cus_sample0001",
+              "currency": "usd",
+              "product_name": "Sample course",
+              "signed_up_at_unix_seconds": 1793750400,
+              "idempotency_key": "sample-schedule-1"
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/subscription_schedules"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sched_sample0001",
+                  "object": "subscription_schedule",
+                  "status": "not_started",
+                  "customer": "cus_sample0001",
+                  "end_behavior": "release",
+                  "phases": []
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -1961,7 +2177,169 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "owner": "sample-shop",
+              "after_payment_url": "https://shop.example.test/"
+            },
+            "records": [
+              {
+                "id": "offer:bread-box",
+                "type": "record:commercial-offer",
+                "value": {
+                  "kind": "commercial-offer",
+                  "id": "offer:bread-box",
+                  "label": "Bread box",
+                  "access_refs": [
+                    "access:bread-box"
+                  ],
+                  "sort_order": 1,
+                  "price_options": [
+                    {
+                      "id": "price:box:monthly",
+                      "label": "Monthly",
+                      "amount_cents": 1200,
+                      "currency": "usd",
+                      "payment_timing": "subscription",
+                      "interval": "month"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "offer:sample-cake",
+                "type": "record:commercial-offer",
+                "value": {
+                  "kind": "commercial-offer",
+                  "id": "offer:sample-cake",
+                  "label": "Sample cake",
+                  "access_refs": [],
+                  "sort_order": 2,
+                  "price_options": [
+                    {
+                      "id": "price:cake",
+                      "label": "One cake",
+                      "amount_cents": 2500,
+                      "currency": "usd",
+                      "payment_timing": "one_time"
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/payment_links"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "url": "/v1/payment_links",
+                  "has_more": false,
+                  "data": []
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/prices"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "url": "/v1/prices",
+                  "has_more": false,
+                  "data": []
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/promotion_codes"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "url": "/v1/promotion_codes",
+                  "has_more": false,
+                  "data": []
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/products"
+                },
+                "status": 200,
+                "body": {
+                  "id": "prod_sample0002",
+                  "object": "product",
+                  "name": "Bread box",
+                  "active": true
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/prices"
+                },
+                "status": 200,
+                "body": {
+                  "id": "price_sample0003",
+                  "object": "price",
+                  "currency": "usd",
+                  "unit_amount": 1200,
+                  "active": true
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/payment_links"
+                },
+                "status": 200,
+                "body": {
+                  "id": "plink_sample0001",
+                  "object": "payment_link",
+                  "active": true,
+                  "url": "https://buy.stripe.com/test_sample0001"
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/billing_portal/configurations"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "url": "/v1/billing_portal/configurations",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "bpc_sample0001",
+                      "object": "billing_portal.configuration",
+                      "active": true,
+                      "metadata": {
+                        "owner": "sample-shop"
+                      },
+                      "login_page": {
+                        "enabled": true,
+                        "url": "https://billing.stripe.com/p/login/test_sample0001"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -2084,6 +2462,19 @@
             "output_selector": "$.payment_event",
             "type_field": "kind",
             "id_field": "id"
+          }
+        ],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "payload": "{\"id\":\"evt_sample0001\",\"object\":\"event\",\"type\":\"checkout.session.completed\",\"created\":1793750400,\"data\":{\"object\":{\"id\":\"cs_test_sample0002\",\"object\":\"checkout.session\",\"amount_total\":2500,\"currency\":\"usd\",\"payment_status\":\"paid\",\"metadata\":{\"offer_id\":\"offer:sample-cake\"}}}}",
+              "signature_header": "t=1793750400,v1=980b71987d5d696fabe6dd2822075b78f8378d389ffbac33535f55d1e73ce957",
+              "now_seconds": 1793750405
+            },
+            "held": {
+              "stripe-webhook-secret": "made-up-signing-secret-for-a-sample"
+            }
           }
         ]
       }
@@ -2509,7 +2900,72 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settings": {
+                "country": "US",
+                "controller": {
+                  "fees": {
+                    "payer": "application"
+                  }
+                },
+                "capabilities": [
+                  "transfers"
+                ]
+              },
+              "email": "payee@example.test",
+              "owner": "sample-shop",
+              "payee_ref": "payee:sample-1",
+              "refresh_url": "https://shop.example.test/refresh",
+              "return_url": "https://shop.example.test/done",
+              "idempotency_key": "sample-payee-1"
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/accounts"
+                },
+                "status": 200,
+                "body": {
+                  "id": "acct_sample0002",
+                  "object": "account",
+                  "country": "US",
+                  "email": "payee@example.test",
+                  "charges_enabled": false,
+                  "payouts_enabled": false,
+                  "details_submitted": false,
+                  "capabilities": {
+                    "transfers": "inactive"
+                  },
+                  "requirements": {
+                    "currently_due": [
+                      "tos_acceptance.date"
+                    ],
+                    "disabled_reason": "requirements.past_due"
+                  }
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/account_links"
+                },
+                "status": 200,
+                "body": {
+                  "object": "account_link",
+                  "created": 1793750400,
+                  "expires_at": 1793750700,
+                  "url": "https://connect.stripe.com/setup/s/sample0001"
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -2634,7 +3090,38 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "amount_cents": 500,
+              "currency": "USD",
+              "destination": "acct_sample0002",
+              "idempotency_key": "sample-share-1",
+              "confirm_moves_money": true
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/transfers"
+                },
+                "status": 200,
+                "body": {
+                  "id": "tr_sample0001",
+                  "object": "transfer",
+                  "amount": 500,
+                  "currency": "usd",
+                  "destination": "acct_sample0002",
+                  "livemode": false,
+                  "reversed": false
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -2743,7 +3230,97 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "payment_schedule": {
+                "charges": [
+                  {
+                    "amount_cents": "800",
+                    "days_after_signup": 0
+                  },
+                  {
+                    "amount_cents": "3200",
+                    "days_after_signup": 7
+                  }
+                ],
+                "repeat": {
+                  "amount_cents": "4000",
+                  "interval": "month",
+                  "first_days_after_signup": 37
+                }
+              },
+              "product_name": "Sample course"
+            },
+            "held": {
+              "stripe-test-api-key": "sk_test_made_up_sample_key"
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/customers"
+                },
+                "status": 200,
+                "body": {
+                  "id": "cus_sample0003",
+                  "object": "customer",
+                  "livemode": false
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/products"
+                },
+                "status": 200,
+                "body": {
+                  "id": "prod_sample0001",
+                  "object": "product",
+                  "name": "Sample course",
+                  "livemode": false
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/prices"
+                },
+                "status": 200,
+                "body": {
+                  "id": "price_sample0002",
+                  "object": "price",
+                  "currency": "usd",
+                  "livemode": false
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/subscription_schedules"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sched_sample0002",
+                  "object": "subscription_schedule",
+                  "status": "active",
+                  "livemode": false,
+                  "phases": [
+                    {
+                      "start_date": 1793750400
+                    },
+                    {
+                      "start_date": 1796342400
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -3047,7 +3624,22 @@
             }
           ]
         },
-        "verify": [],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "save",
+              "rule_id": "rule:sample",
+              "request_key": "sample-save-rule",
+              "expected_version": 0,
+              "rule": {
+                "scope": {},
+                "effective_at": "2026-01-01T00:00:00Z",
+                "markup_bps": "3000"
+              }
+            }
+          }
+        ],
         "kind": "ai-tool-descriptor"
       }
     },
@@ -3529,7 +4121,32 @@
             "observation"
           ]
         },
-        "verify": [],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "request_key": "sample-observation",
+              "observation": {
+                "event_id": "attempt:sample-1",
+                "payer_id": "payer:sample-a",
+                "settlement_key": {
+                  "supplier_pool": "pool:sample",
+                  "tariff_version": "tariff:sample-1",
+                  "cost_class": "source-transfer",
+                  "invoice_period": "2026-10",
+                  "currency": "usd",
+                  "resource_id": "resource:source-bytes"
+                },
+                "observed_at": "2026-10-31T12:00:00Z",
+                "state": "observed",
+                "source_units": "10",
+                "delivered_units": "20",
+                "excess_units": "2",
+                "evidence_ref": "engine:attempt:sample-1"
+              }
+            }
+          }
+        ],
         "kind": "ai-tool-descriptor"
       }
     },
@@ -4100,7 +4717,42 @@
             "settlement"
           ]
         },
-        "verify": [],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settlement_id": "pool-sample-2026-10",
+              "request_key": "sample-settle",
+              "settlement_key": {
+                "supplier_pool": "pool:sample",
+                "tariff_version": "tariff:sample-1",
+                "cost_class": "source-transfer",
+                "invoice_period": "2026-10",
+                "currency": "usd",
+                "resource_id": "resource:source-bytes"
+              },
+              "invoice": {
+                "status": "confirmed",
+                "amount": "1",
+                "evidence_ref": "supplier:invoice:sample"
+              },
+              "payers": [
+                {
+                  "payer_id": "payer:sample-a",
+                  "kind": "customer",
+                  "excess_units": "1",
+                  "max_unit_cost": "1",
+                  "authorized_total": "1000",
+                  "terms": {
+                    "resource_id": "resource:source-bytes",
+                    "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                    "markup_bps": "3000"
+                  }
+                }
+              ]
+            }
+          }
+        ],
         "kind": "ai-tool-descriptor"
       }
     },
@@ -4585,7 +5237,278 @@
             "settlement"
           ]
         },
-        "verify": [],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settlement_id": "pool-sample-2026-10",
+              "request_key": "sample-correction",
+              "settlement_key": {
+                "supplier_pool": "pool:sample",
+                "tariff_version": "tariff:sample-1",
+                "cost_class": "source-transfer",
+                "invoice_period": "2026-10",
+                "currency": "usd",
+                "resource_id": "resource:source-bytes"
+              },
+              "invoice": {
+                "status": "confirmed",
+                "amount": "0.5",
+                "evidence_ref": "supplier:invoice:sample"
+              },
+              "payers": [
+                {
+                  "payer_id": "payer:sample-a",
+                  "kind": "customer",
+                  "excess_units": "1",
+                  "max_unit_cost": "1",
+                  "authorized_total": "1000",
+                  "terms": {
+                    "resource_id": "resource:source-bytes",
+                    "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                    "markup_bps": "3000"
+                  }
+                }
+              ],
+              "expected_version": 1,
+              "reason": "supplier credit"
+            },
+            "records": [
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:00000",
+                "type": "resource-usage-allocation",
+                "value": {
+                  "payer_id": "payer:sample-a",
+                  "kind": "customer",
+                  "excess_units": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "provisional_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "supplier_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "markup_amount": {
+                    "n": "3",
+                    "d": "10"
+                  },
+                  "charged": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "terms": {
+                    "resource_id": "resource:source-bytes",
+                    "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                    "markup_bps": "3000"
+                  },
+                  "limits": {
+                    "max_unit_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "authorized_total": {
+                      "n": "1000",
+                      "d": "1"
+                    }
+                  },
+                  "display": {
+                    "base_cost": "1",
+                    "markup": "0.3",
+                    "total": "1.3",
+                    "markup_percent": "30"
+                  }
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10",
+                "type": "resource-usage-settlement",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1",
+                "type": "resource-usage-settlement-version",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "resource-usage-receipt:1f:fa7cb3a7ca7de73c82479be5e39797f333a988806bbe42227f6a343766e14b13",
+                "type": "resource-usage-receipt",
+                "value": {
+                  "input_identity": "1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec",
+                  "result": {
+                    "record_id": "resource-usage-settlement:pool-sample-2026-10",
+                    "settlement": {
+                      "id": "pool-sample-2026-10",
+                      "version": 1,
+                      "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                      "result": {
+                        "settlement_key": {
+                          "supplier_pool": "pool:sample",
+                          "tariff_version": "tariff:sample-1",
+                          "cost_class": "source-transfer",
+                          "invoice_period": "2026-10",
+                          "currency": "usd",
+                          "resource_id": "resource:source-bytes"
+                        },
+                        "state": "reconciled",
+                        "invoice": {
+                          "status": "confirmed",
+                          "amount": {
+                            "n": "1",
+                            "d": "1"
+                          },
+                          "evidence_ref": "supplier:invoice:sample"
+                        },
+                        "customer_supplier_cost": {
+                          "n": "1",
+                          "d": "1"
+                        },
+                        "platform_supplier_cost": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_residual": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_cost": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_funding": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "customer_charged": {
+                          "n": "13",
+                          "d": "10"
+                        },
+                        "cash_state": "exact_accrual_not_cash_collection"
+                      },
+                      "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                      "allocation_count": 1,
+                      "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                      "observation_count": 0,
+                      "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                      "collection_state": "not_sent_to_payment_provider"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ],
         "kind": "ai-tool-descriptor"
       }
     },
@@ -4792,7 +5715,248 @@
             "next"
           ]
         },
-        "verify": [],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settlement_id": "pool-sample-2026-10"
+            },
+            "records": [
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:00000",
+                "type": "resource-usage-allocation",
+                "value": {
+                  "payer_id": "payer:sample-a",
+                  "kind": "customer",
+                  "excess_units": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "provisional_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "supplier_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "markup_amount": {
+                    "n": "3",
+                    "d": "10"
+                  },
+                  "charged": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "terms": {
+                    "resource_id": "resource:source-bytes",
+                    "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                    "markup_bps": "3000"
+                  },
+                  "limits": {
+                    "max_unit_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "authorized_total": {
+                      "n": "1000",
+                      "d": "1"
+                    }
+                  },
+                  "display": {
+                    "base_cost": "1",
+                    "markup": "0.3",
+                    "total": "1.3",
+                    "markup_percent": "30"
+                  }
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10",
+                "type": "resource-usage-settlement",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1",
+                "type": "resource-usage-settlement-version",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "resource-usage-receipt:1f:fa7cb3a7ca7de73c82479be5e39797f333a988806bbe42227f6a343766e14b13",
+                "type": "resource-usage-receipt",
+                "value": {
+                  "input_identity": "1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec",
+                  "result": {
+                    "record_id": "resource-usage-settlement:pool-sample-2026-10",
+                    "settlement": {
+                      "id": "pool-sample-2026-10",
+                      "version": 1,
+                      "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                      "result": {
+                        "settlement_key": {
+                          "supplier_pool": "pool:sample",
+                          "tariff_version": "tariff:sample-1",
+                          "cost_class": "source-transfer",
+                          "invoice_period": "2026-10",
+                          "currency": "usd",
+                          "resource_id": "resource:source-bytes"
+                        },
+                        "state": "reconciled",
+                        "invoice": {
+                          "status": "confirmed",
+                          "amount": {
+                            "n": "1",
+                            "d": "1"
+                          },
+                          "evidence_ref": "supplier:invoice:sample"
+                        },
+                        "customer_supplier_cost": {
+                          "n": "1",
+                          "d": "1"
+                        },
+                        "platform_supplier_cost": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_residual": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_cost": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_funding": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "customer_charged": {
+                          "n": "13",
+                          "d": "10"
+                        },
+                        "cash_state": "exact_accrual_not_cash_collection"
+                      },
+                      "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                      "allocation_count": 1,
+                      "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                      "observation_count": 0,
+                      "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                      "collection_state": "not_sent_to_payment_provider"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ],
         "kind": "ai-tool-descriptor"
       }
     },
@@ -5013,7 +6177,329 @@
             }
           }
         },
-        "verify": [],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "agreement_ref": "usage-billing-agreement:sample",
+              "payer_id": "payer:sample-a",
+              "settlement_id": "pool-sample-2026-10",
+              "settlement_version": 1
+            },
+            "records": [
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:00000",
+                "type": "resource-usage-allocation",
+                "value": {
+                  "payer_id": "payer:sample-a",
+                  "kind": "customer",
+                  "excess_units": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "provisional_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "supplier_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "markup_amount": {
+                    "n": "3",
+                    "d": "10"
+                  },
+                  "charged": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "terms": {
+                    "resource_id": "resource:source-bytes",
+                    "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                    "markup_bps": "3000"
+                  },
+                  "limits": {
+                    "max_unit_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "authorized_total": {
+                      "n": "1000",
+                      "d": "1"
+                    }
+                  },
+                  "display": {
+                    "base_cost": "1",
+                    "markup": "0.3",
+                    "total": "1.3",
+                    "markup_percent": "30"
+                  }
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10",
+                "type": "resource-usage-settlement",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1",
+                "type": "resource-usage-settlement-version",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "resource-usage-receipt:1f:fa7cb3a7ca7de73c82479be5e39797f333a988806bbe42227f6a343766e14b13",
+                "type": "resource-usage-receipt",
+                "value": {
+                  "input_identity": "1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec",
+                  "result": {
+                    "record_id": "resource-usage-settlement:pool-sample-2026-10",
+                    "settlement": {
+                      "id": "pool-sample-2026-10",
+                      "version": 1,
+                      "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                      "result": {
+                        "settlement_key": {
+                          "supplier_pool": "pool:sample",
+                          "tariff_version": "tariff:sample-1",
+                          "cost_class": "source-transfer",
+                          "invoice_period": "2026-10",
+                          "currency": "usd",
+                          "resource_id": "resource:source-bytes"
+                        },
+                        "state": "reconciled",
+                        "invoice": {
+                          "status": "confirmed",
+                          "amount": {
+                            "n": "1",
+                            "d": "1"
+                          },
+                          "evidence_ref": "supplier:invoice:sample"
+                        },
+                        "customer_supplier_cost": {
+                          "n": "1",
+                          "d": "1"
+                        },
+                        "platform_supplier_cost": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_residual": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_cost": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_funding": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "customer_charged": {
+                          "n": "13",
+                          "d": "10"
+                        },
+                        "cash_state": "exact_accrual_not_cash_collection"
+                      },
+                      "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                      "allocation_count": 1,
+                      "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                      "observation_count": 0,
+                      "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                      "collection_state": "not_sent_to_payment_provider"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "usage-billing-agreement:sample",
+                "type": "usage-billing-agreement",
+                "value": {
+                  "state": "confirmed",
+                  "agreement_id": "agreement:sample",
+                  "payer_id": "payer:sample-a",
+                  "provider_account_id": "acct_sample0001",
+                  "provider_customer_id": "cus_sample0001",
+                  "provider_subscription_id": "sub_sample0001",
+                  "currency": "usd",
+                  "currency_exponent": 2,
+                  "usage_terms": [
+                    {
+                      "resource_id": "resource:source-bytes",
+                      "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                      "markup_bps": "3000"
+                    }
+                  ],
+                  "source_ref": "purchase:sample-receipt",
+                  "authority_ref": "budget:sample-receipt",
+                  "bill_usage": true,
+                  "collection": "settled_invoice_item",
+                  "collection_authorized_total": "100"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/account"
+                },
+                "status": 200,
+                "body": {
+                  "id": "acct_sample0001",
+                  "object": "account",
+                  "country": "US",
+                  "default_currency": "usd"
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0001"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sample0001",
+                  "object": "subscription",
+                  "status": "active",
+                  "customer": "cus_sample0001",
+                  "currency": "usd",
+                  "metadata": {}
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/invoiceitems"
+                },
+                "status": 200,
+                "body": {
+                  "id": "ii_sample0001",
+                  "object": "invoiceitem",
+                  "customer": "cus_sample0001",
+                  "amount": 130,
+                  "currency": "usd",
+                  "description": "Measured usage",
+                  "discountable": false,
+                  "subscription": "sub_sample0001",
+                  "metadata": {
+                    "usage_report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                    "settlement_ref_hash": "1f:cc06e24aa290635897d0bc8f180e4ab5f44be3cde6662e8c4bbd778adf9f9cf2"
+                  }
+                }
+              }
+            ]
+          }
+        ],
         "kind": "ai-tool-descriptor"
       }
     },
@@ -5225,7 +6711,330 @@
             }
           }
         },
-        "verify": [],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713"
+            },
+            "records": [
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:00000",
+                "type": "resource-usage-allocation",
+                "value": {
+                  "payer_id": "payer:sample-a",
+                  "kind": "customer",
+                  "excess_units": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "provisional_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "supplier_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "markup_amount": {
+                    "n": "3",
+                    "d": "10"
+                  },
+                  "charged": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "terms": {
+                    "resource_id": "resource:source-bytes",
+                    "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                    "markup_bps": "3000"
+                  },
+                  "limits": {
+                    "max_unit_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "authorized_total": {
+                      "n": "1000",
+                      "d": "1"
+                    }
+                  },
+                  "display": {
+                    "base_cost": "1",
+                    "markup": "0.3",
+                    "total": "1.3",
+                    "markup_percent": "30"
+                  }
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10",
+                "type": "resource-usage-settlement",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1",
+                "type": "resource-usage-settlement-version",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "usage-billing-agreement:sample",
+                "type": "usage-billing-agreement",
+                "value": {
+                  "state": "confirmed",
+                  "agreement_id": "agreement:sample",
+                  "payer_id": "payer:sample-a",
+                  "provider_account_id": "acct_sample0001",
+                  "provider_customer_id": "cus_sample0001",
+                  "provider_subscription_id": "sub_sample0001",
+                  "currency": "usd",
+                  "currency_exponent": 2,
+                  "usage_terms": [
+                    {
+                      "resource_id": "resource:source-bytes",
+                      "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                      "markup_bps": "3000"
+                    }
+                  ],
+                  "source_ref": "purchase:sample-receipt",
+                  "authority_ref": "budget:sample-receipt",
+                  "bill_usage": true,
+                  "collection": "settled_invoice_item",
+                  "collection_authorized_total": "100"
+                }
+              },
+              {
+                "id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                "type": "resource-usage-provider-report",
+                "value": {
+                  "id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                  "input_identity": "1f:62d1a670bf60264987262fcfa9bd07d8aa32e628bcc7e322e6b321a15e177cc4",
+                  "state": "provider_accepted",
+                  "settlement_id": "pool-sample-2026-10",
+                  "settlement_version": 1,
+                  "settlement_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "source_charged": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "payer_id": "payer:sample-a",
+                  "agreement": {
+                    "state": "confirmed",
+                    "agreement_id": "agreement:sample",
+                    "payer_id": "payer:sample-a",
+                    "provider_account_id": "acct_sample0001",
+                    "provider_customer_id": "cus_sample0001",
+                    "provider_subscription_id": "sub_sample0001",
+                    "currency": "usd",
+                    "currency_exponent": 2,
+                    "usage_terms": [
+                      {
+                        "resource_id": "resource:source-bytes",
+                        "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                        "markup_bps": "3000"
+                      }
+                    ],
+                    "source_ref": "purchase:sample-receipt",
+                    "authority_ref": "budget:sample-receipt",
+                    "bill_usage": true,
+                    "collection": "settled_invoice_item",
+                    "collection_authorized_total": "100"
+                  },
+                  "exact_delta": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "cash": {
+                    "amount": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "carry": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "accrued_total": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "minor_units": "130"
+                  },
+                  "cash_id": "resource-usage-cash:1f:1c0c7bf86432a89edde6a8923cdd9ab17742f09bc6181f29ee5fa0b4d19de51b",
+                  "applied_id": "resource-usage-applied-source:1f:74887a07dc2c73fdd4accaacb3accf70cfd22d141a79c525c04aa489642e021e",
+                  "applied_before": null,
+                  "prepared_at": "2026-11-04T01:56:51.017Z",
+                  "provider_idempotency_key": "usage-line:1f:20e39f604a4fff750195d0405f5f15d5df8f845c04c7b10376488c53c3190ba1",
+                  "provider_subject": {
+                    "customer": "cus_sample0001",
+                    "subscription": "sub_sample0001",
+                    "currency": "usd",
+                    "amount": "130",
+                    "description": "Measured usage",
+                    "discountable": false,
+                    "metadata": {
+                      "usage_report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                      "settlement_ref_hash": "1f:cc06e24aa290635897d0bc8f180e4ab5f44be3cde6662e8c4bbd778adf9f9cf2"
+                    }
+                  },
+                  "dispatch_started_at": "2026-11-04T01:56:51.017Z",
+                  "provider_receipt": {
+                    "id": "ii_sample0001",
+                    "object": "invoiceitem",
+                    "customer": "cus_sample0001",
+                    "currency": "usd",
+                    "amount_minor": "130",
+                    "subscription": "sub_sample0001",
+                    "usage_report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                    "status": "provider_accepted_invoice_item_not_paid"
+                  }
+                }
+              },
+              {
+                "id": "resource-usage-cash:1f:1c0c7bf86432a89edde6a8923cdd9ab17742f09bc6181f29ee5fa0b4d19de51b",
+                "type": "resource-usage-cash",
+                "value": {
+                  "version": 2,
+                  "agreement_id": "agreement:sample",
+                  "payer_id": "payer:sample-a",
+                  "currency": "usd",
+                  "currency_exponent": 2,
+                  "carry": {
+                    "n": "0",
+                    "d": "1"
+                  },
+                  "net_reported": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "pending_report": null,
+                  "last_report": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713"
+                }
+              },
+              {
+                "id": "resource-usage-applied-source:1f:74887a07dc2c73fdd4accaacb3accf70cfd22d141a79c525c04aa489642e021e",
+                "type": "resource-usage-applied-source",
+                "value": {
+                  "settlement_id": "pool-sample-2026-10",
+                  "settlement_version": 1,
+                  "payer_id": "payer:sample-a",
+                  "charged": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713"
+                }
+              }
+            ]
+          }
+        ],
         "kind": "ai-tool-descriptor"
       }
     },
@@ -5436,7 +7245,408 @@
             }
           }
         },
-        "verify": [],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+              "provider_invoice_item_id": "ii_sample0001"
+            },
+            "records": [
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:00000",
+                "type": "resource-usage-allocation",
+                "value": {
+                  "payer_id": "payer:sample-a",
+                  "kind": "customer",
+                  "excess_units": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "provisional_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "supplier_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "markup_amount": {
+                    "n": "3",
+                    "d": "10"
+                  },
+                  "charged": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "terms": {
+                    "resource_id": "resource:source-bytes",
+                    "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                    "markup_bps": "3000"
+                  },
+                  "limits": {
+                    "max_unit_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "authorized_total": {
+                      "n": "1000",
+                      "d": "1"
+                    }
+                  },
+                  "display": {
+                    "base_cost": "1",
+                    "markup": "0.3",
+                    "total": "1.3",
+                    "markup_percent": "30"
+                  }
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10",
+                "type": "resource-usage-settlement",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1",
+                "type": "resource-usage-settlement-version",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "resource-usage-receipt:1f:fa7cb3a7ca7de73c82479be5e39797f333a988806bbe42227f6a343766e14b13",
+                "type": "resource-usage-receipt",
+                "value": {
+                  "input_identity": "1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec",
+                  "result": {
+                    "record_id": "resource-usage-settlement:pool-sample-2026-10",
+                    "settlement": {
+                      "id": "pool-sample-2026-10",
+                      "version": 1,
+                      "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                      "result": {
+                        "settlement_key": {
+                          "supplier_pool": "pool:sample",
+                          "tariff_version": "tariff:sample-1",
+                          "cost_class": "source-transfer",
+                          "invoice_period": "2026-10",
+                          "currency": "usd",
+                          "resource_id": "resource:source-bytes"
+                        },
+                        "state": "reconciled",
+                        "invoice": {
+                          "status": "confirmed",
+                          "amount": {
+                            "n": "1",
+                            "d": "1"
+                          },
+                          "evidence_ref": "supplier:invoice:sample"
+                        },
+                        "customer_supplier_cost": {
+                          "n": "1",
+                          "d": "1"
+                        },
+                        "platform_supplier_cost": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_residual": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_cost": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_funding": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "customer_charged": {
+                          "n": "13",
+                          "d": "10"
+                        },
+                        "cash_state": "exact_accrual_not_cash_collection"
+                      },
+                      "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                      "allocation_count": 1,
+                      "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                      "observation_count": 0,
+                      "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                      "collection_state": "not_sent_to_payment_provider"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "usage-billing-agreement:sample",
+                "type": "usage-billing-agreement",
+                "value": {
+                  "state": "confirmed",
+                  "agreement_id": "agreement:sample",
+                  "payer_id": "payer:sample-a",
+                  "provider_account_id": "acct_sample0001",
+                  "provider_customer_id": "cus_sample0001",
+                  "provider_subscription_id": "sub_sample0001",
+                  "currency": "usd",
+                  "currency_exponent": 2,
+                  "usage_terms": [
+                    {
+                      "resource_id": "resource:source-bytes",
+                      "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                      "markup_bps": "3000"
+                    }
+                  ],
+                  "source_ref": "purchase:sample-receipt",
+                  "authority_ref": "budget:sample-receipt",
+                  "bill_usage": true,
+                  "collection": "settled_invoice_item",
+                  "collection_authorized_total": "100"
+                }
+              },
+              {
+                "id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                "type": "resource-usage-provider-report",
+                "value": {
+                  "id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                  "input_identity": "1f:62d1a670bf60264987262fcfa9bd07d8aa32e628bcc7e322e6b321a15e177cc4",
+                  "state": "outcome_unknown",
+                  "settlement_id": "pool-sample-2026-10",
+                  "settlement_version": 1,
+                  "settlement_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "source_charged": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "payer_id": "payer:sample-a",
+                  "agreement": {
+                    "state": "confirmed",
+                    "agreement_id": "agreement:sample",
+                    "payer_id": "payer:sample-a",
+                    "provider_account_id": "acct_sample0001",
+                    "provider_customer_id": "cus_sample0001",
+                    "provider_subscription_id": "sub_sample0001",
+                    "currency": "usd",
+                    "currency_exponent": 2,
+                    "usage_terms": [
+                      {
+                        "resource_id": "resource:source-bytes",
+                        "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                        "markup_bps": "3000"
+                      }
+                    ],
+                    "source_ref": "purchase:sample-receipt",
+                    "authority_ref": "budget:sample-receipt",
+                    "bill_usage": true,
+                    "collection": "settled_invoice_item",
+                    "collection_authorized_total": "100"
+                  },
+                  "exact_delta": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "cash": {
+                    "amount": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "carry": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "accrued_total": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "minor_units": "130"
+                  },
+                  "cash_id": "resource-usage-cash:1f:1c0c7bf86432a89edde6a8923cdd9ab17742f09bc6181f29ee5fa0b4d19de51b",
+                  "applied_id": "resource-usage-applied-source:1f:74887a07dc2c73fdd4accaacb3accf70cfd22d141a79c525c04aa489642e021e",
+                  "applied_before": null,
+                  "prepared_at": "2026-11-04T01:56:50.460Z",
+                  "provider_idempotency_key": "usage-line:1f:20e39f604a4fff750195d0405f5f15d5df8f845c04c7b10376488c53c3190ba1",
+                  "provider_subject": {
+                    "customer": "cus_sample0001",
+                    "subscription": "sub_sample0001",
+                    "currency": "usd",
+                    "amount": "130",
+                    "description": "Measured usage",
+                    "discountable": false,
+                    "metadata": {
+                      "usage_report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                      "settlement_ref_hash": "1f:cc06e24aa290635897d0bc8f180e4ab5f44be3cde6662e8c4bbd778adf9f9cf2"
+                    }
+                  },
+                  "dispatch_started_at": "2026-11-04T01:56:50.460Z"
+                }
+              },
+              {
+                "id": "resource-usage-cash:1f:1c0c7bf86432a89edde6a8923cdd9ab17742f09bc6181f29ee5fa0b4d19de51b",
+                "type": "resource-usage-cash",
+                "value": {
+                  "version": 1,
+                  "agreement_id": "agreement:sample",
+                  "payer_id": "payer:sample-a",
+                  "currency": "usd",
+                  "currency_exponent": 2,
+                  "carry": {
+                    "n": "0",
+                    "d": "1"
+                  },
+                  "net_reported": {
+                    "n": "0",
+                    "d": "1"
+                  },
+                  "pending_report": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/account"
+                },
+                "status": 200,
+                "body": {
+                  "id": "acct_sample0001",
+                  "object": "account",
+                  "country": "US",
+                  "default_currency": "usd"
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/invoiceitems/ii_sample0001"
+                },
+                "status": 200,
+                "body": {
+                  "id": "ii_sample0001",
+                  "object": "invoiceitem",
+                  "customer": "cus_sample0001",
+                  "amount": 130,
+                  "currency": "usd",
+                  "description": "Measured usage",
+                  "discountable": false,
+                  "subscription": "sub_sample0001",
+                  "metadata": {
+                    "usage_report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                    "settlement_ref_hash": "1f:cc06e24aa290635897d0bc8f180e4ab5f44be3cde6662e8c4bbd778adf9f9cf2"
+                  }
+                }
+              }
+            ]
+          }
+        ],
         "kind": "ai-tool-descriptor"
       }
     },
@@ -5636,7 +7846,369 @@
             }
           }
         },
-        "verify": [],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713"
+            },
+            "records": [
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:00000",
+                "type": "resource-usage-allocation",
+                "value": {
+                  "payer_id": "payer:sample-a",
+                  "kind": "customer",
+                  "excess_units": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "provisional_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "supplier_cost": {
+                    "n": "1",
+                    "d": "1"
+                  },
+                  "markup_amount": {
+                    "n": "3",
+                    "d": "10"
+                  },
+                  "charged": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "terms": {
+                    "resource_id": "resource:source-bytes",
+                    "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                    "markup_bps": "3000"
+                  },
+                  "limits": {
+                    "max_unit_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "authorized_total": {
+                      "n": "1000",
+                      "d": "1"
+                    }
+                  },
+                  "display": {
+                    "base_cost": "1",
+                    "markup": "0.3",
+                    "total": "1.3",
+                    "markup_percent": "30"
+                  }
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10",
+                "type": "resource-usage-settlement",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "resource-usage-settlement:pool-sample-2026-10:v1",
+                "type": "resource-usage-settlement-version",
+                "value": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                  "allocation_count": 1,
+                  "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                  "observation_count": 0,
+                  "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                  "collection_state": "not_sent_to_payment_provider"
+                }
+              },
+              {
+                "id": "resource-usage-receipt:1f:fa7cb3a7ca7de73c82479be5e39797f333a988806bbe42227f6a343766e14b13",
+                "type": "resource-usage-receipt",
+                "value": {
+                  "input_identity": "1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec",
+                  "result": {
+                    "record_id": "resource-usage-settlement:pool-sample-2026-10",
+                    "settlement": {
+                      "id": "pool-sample-2026-10",
+                      "version": 1,
+                      "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                      "result": {
+                        "settlement_key": {
+                          "supplier_pool": "pool:sample",
+                          "tariff_version": "tariff:sample-1",
+                          "cost_class": "source-transfer",
+                          "invoice_period": "2026-10",
+                          "currency": "usd",
+                          "resource_id": "resource:source-bytes"
+                        },
+                        "state": "reconciled",
+                        "invoice": {
+                          "status": "confirmed",
+                          "amount": {
+                            "n": "1",
+                            "d": "1"
+                          },
+                          "evidence_ref": "supplier:invoice:sample"
+                        },
+                        "customer_supplier_cost": {
+                          "n": "1",
+                          "d": "1"
+                        },
+                        "platform_supplier_cost": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_residual": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_cost": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "company_funding": {
+                          "n": "0",
+                          "d": "1"
+                        },
+                        "customer_charged": {
+                          "n": "13",
+                          "d": "10"
+                        },
+                        "cash_state": "exact_accrual_not_cash_collection"
+                      },
+                      "allocation_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:",
+                      "allocation_count": 1,
+                      "evidence_prefix": "resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:evidence:",
+                      "observation_count": 0,
+                      "input_identity": "1f:f492713404b8a390c4016c76b8092fd67e3d6371fbebf0977f0c149345ef9a95",
+                      "collection_state": "not_sent_to_payment_provider"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "usage-billing-agreement:sample",
+                "type": "usage-billing-agreement",
+                "value": {
+                  "state": "confirmed",
+                  "agreement_id": "agreement:sample",
+                  "payer_id": "payer:sample-a",
+                  "provider_account_id": "acct_sample0001",
+                  "provider_customer_id": "cus_sample0001",
+                  "provider_subscription_id": "sub_sample0001",
+                  "currency": "usd",
+                  "currency_exponent": 2,
+                  "usage_terms": [
+                    {
+                      "resource_id": "resource:source-bytes",
+                      "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                      "markup_bps": "3000"
+                    }
+                  ],
+                  "source_ref": "purchase:sample-receipt",
+                  "authority_ref": "budget:sample-receipt",
+                  "bill_usage": true,
+                  "collection": "settled_invoice_item",
+                  "collection_authorized_total": "100"
+                }
+              },
+              {
+                "id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                "type": "resource-usage-provider-report",
+                "value": {
+                  "id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                  "input_identity": "1f:62d1a670bf60264987262fcfa9bd07d8aa32e628bcc7e322e6b321a15e177cc4",
+                  "state": "prepared",
+                  "settlement_id": "pool-sample-2026-10",
+                  "settlement_version": 1,
+                  "settlement_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "source_charged": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "payer_id": "payer:sample-a",
+                  "agreement": {
+                    "state": "confirmed",
+                    "agreement_id": "agreement:sample",
+                    "payer_id": "payer:sample-a",
+                    "provider_account_id": "acct_sample0001",
+                    "provider_customer_id": "cus_sample0001",
+                    "provider_subscription_id": "sub_sample0001",
+                    "currency": "usd",
+                    "currency_exponent": 2,
+                    "usage_terms": [
+                      {
+                        "resource_id": "resource:source-bytes",
+                        "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                        "markup_bps": "3000"
+                      }
+                    ],
+                    "source_ref": "purchase:sample-receipt",
+                    "authority_ref": "budget:sample-receipt",
+                    "bill_usage": true,
+                    "collection": "settled_invoice_item",
+                    "collection_authorized_total": "100"
+                  },
+                  "exact_delta": {
+                    "n": "13",
+                    "d": "10"
+                  },
+                  "cash": {
+                    "amount": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "carry": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "accrued_total": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "minor_units": "130"
+                  },
+                  "cash_id": "resource-usage-cash:1f:1c0c7bf86432a89edde6a8923cdd9ab17742f09bc6181f29ee5fa0b4d19de51b",
+                  "applied_id": "resource-usage-applied-source:1f:74887a07dc2c73fdd4accaacb3accf70cfd22d141a79c525c04aa489642e021e",
+                  "applied_before": null,
+                  "prepared_at": "2026-11-04T01:56:51.364Z",
+                  "provider_idempotency_key": "usage-line:1f:20e39f604a4fff750195d0405f5f15d5df8f845c04c7b10376488c53c3190ba1",
+                  "provider_subject": {
+                    "customer": "cus_sample0001",
+                    "subscription": "sub_sample0001",
+                    "currency": "usd",
+                    "amount": "130",
+                    "description": "Measured usage",
+                    "discountable": false,
+                    "metadata": {
+                      "usage_report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+                      "settlement_ref_hash": "1f:cc06e24aa290635897d0bc8f180e4ab5f44be3cde6662e8c4bbd778adf9f9cf2"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "resource-usage-cash:1f:1c0c7bf86432a89edde6a8923cdd9ab17742f09bc6181f29ee5fa0b4d19de51b",
+                "type": "resource-usage-cash",
+                "value": {
+                  "version": 1,
+                  "agreement_id": "agreement:sample",
+                  "payer_id": "payer:sample-a",
+                  "currency": "usd",
+                  "currency_exponent": 2,
+                  "carry": {
+                    "n": "0",
+                    "d": "1"
+                  },
+                  "net_reported": {
+                    "n": "0",
+                    "d": "1"
+                  },
+                  "pending_report": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713"
+                }
+              }
+            ]
+          }
+        ],
         "kind": "ai-tool-descriptor"
       }
     }
