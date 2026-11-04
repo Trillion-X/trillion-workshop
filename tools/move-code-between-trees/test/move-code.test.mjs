@@ -325,10 +325,10 @@ test('a test whose code an earlier move carried elsewhere lands beside it and im
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
 
-test('a module the runtime provides (node:, cloudflare:) is no package to declare and holds nothing', () => {
+test('a module the runtime provides (node:, cloudflare:), or a request a template fills at run time, is no package to declare and holds nothing', () => {
   const source = repository({
     'package.json': json({ name: 'old-app', type: 'module' }),
-    'src/probe.mjs': "export const probeSource = `import { DurableObject } from 'cloudflare:workers';\\nexport class Probe extends DurableObject {}`;\n",
+    'src/probe.mjs': "export const probeSource = `import { DurableObject } from 'cloudflare:workers';\\nexport class Probe extends DurableObject {}`;\nexport const pageSource = root => `import look from '${root}parts/look.mjs';`;\n",
     'test/probe.test.mjs': "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { probeSource } from '../src/probe.mjs';\ntest('probe', () => { assert.ok(probeSource.includes('Probe')); });\n",
   });
   const destination = repository({ 'package.json': json({ name: 'tool-box', type: 'module' }), 'tools/probe/tool-rows.json': json({ rows: [] }) });
