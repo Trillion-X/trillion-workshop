@@ -48,7 +48,7 @@ Updated 2026-11-04 by trillion-rust #83 and trillion-apps #15.
    prefix `/files/`) and the files door's own `page_call`. `GET /work/api/files/<operation>?input=<JSON>` serves the
    door's `page.reads`, and `POST /work/api/files/<operation>` with the input as its body serves the rest. The page's
    session admits the call, and it runs through `AccountFilesDoor::call_while`, the same call an AI's key makes.
-   The door's byte admission is now DATA (`door_bytes`). Before this, every byte read and write at the door was
+   The door's byte admission is now DATA (`call_bytes`). Before this, every byte read and write at the door was
    refused for AIs too.
    trillion-apps #15 moves the page's `uploadFiles`, `keepText`, `removeNames` and `readListing` to it
    (`web/src/workspace/files-door.mjs`). These page calls still name retired hosted routes:
@@ -57,8 +57,8 @@ Updated 2026-11-04 by trillion-rust #83 and trillion-apps #15.
    - results, set-aside and storage
    This tool's `do-work/namespace-client.mjs` is still the hosted service's client.
 2. **Recent files and kept file facts are account rows.** trillion-rust #83 ports old `src/recent-files.mjs` one to
-   one, plus the `facts` merge of `src/namespace-results.mjs:424`. The rows are `@namespace/recent/files`,
-   `@namespace/recent/order` and `@namespace/facts`, in the account's files store. The door answers four
+   one, plus the `facts` merge of `src/namespace-results.mjs:424`. The rows are `@account-files/recent/files`,
+   `@account-files/recent/order` and `@account-files/facts`, in the account's files store. The door answers four
    operations: `recent_files`, `record_file_use`, `set_file_facts` and `read_file_facts`. `write_file`,
    `write_file_finish`, `show_file` and `read_file` (from offset 0) keep a use when they answer (DATA
    `recent.uses`). `read_file_results` for other kinds (transcripts, summaries) still has no owner.
