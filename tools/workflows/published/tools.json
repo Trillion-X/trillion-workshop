@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:0f0ab5d5bbedd05dac343ce66521d3e35d158ba1dafd16b0fcbd6024a84f82b2"
+  "blake3": "1f:57a4b40fa4144736c0d6035e8526ee9a4d4f8667e793d6b74adffe0a4850ce6f"
  },
  "fields": [
   {
@@ -1727,6 +1727,25 @@
    }
   },
   {
+   "id": "tool:choose-how-each-file-is-shown",
+   "values": {
+    "title": "Choose how each file is shown",
+    "job": "Classify each file by its name and media type to choose how it is shown: as code, markdown, a diff, a picture, JSON or plain text, with the language, icon and label it is shown under",
+    "description": "Give files ([{ path, mime_type? }]): each file's name or path and, when known, its media type, which wins over the extension. Answers classified, one per file in the order given: renderer (code, markdown, diff, image, json or raw), language, icon, label and the mime_type it was taken as. It reads only the names and types it is given: no file is opened, nothing is drawn, nothing is sent, and the signed-in classification owner the screen asks first is not called, so the answer is the file-content renderer's deterministic fallback. Refuses an empty list or a file without a path. The screen (show/FileContentRenderer.tsx and the media player) also draws the file, plays sound and video, pages PDFs and edits the facts kept about a file; this run does none of that.",
+    "status": "active",
+    "maker": "maker:show-any-file-as-itself",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "show-any-file-as-itself",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:choose-my-notification-choice",
    "values": {
     "title": "Choose how I am notified",
@@ -2393,6 +2412,25 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:fade-live-ink-marks",
+   "values": {
+    "title": "Fade live ink marks",
+    "job": "Work out how visible each ink mark drawn live on a canvas or screen is at a given instant, so live marks fade instead of piling up, and when each is gone",
+    "description": "Give now (the instant to look at, an ISO time or milliseconds since the epoch), fade ({ hold_ms, fade_ms }: how long a mark is fully seen, then how long it takes to go) and marks ([{ ref, created_at? }]). Answers marks, one per mark in the order given, each with opacity (1 until hold_ms has passed since created_at, falling in a straight line to 0 over fade_ms, 0 after), shown and gone_at (the ISO instant it goes, or null for a mark with no usable time, which never fades), and the counts shown and gone. It reads only what it is given: no clock is read, nothing is drawn, no mark is changed or deleted. Refuses an empty list, a mark without a ref, a now that is not a time and a hold_ms or fade_ms that is not a number of zero or more. The screen (show/GraphCanvas.tsx, show/AddressedMarkLayer.tsx and the mark toolbar) also lays a list out as linked cards, takes the pen and keeps each stroke; this run does none of that. Folding, shaping, erasing and exporting marks are the tool:see-the-ink-marks-on-a-space, tool:turn-a-drawn-stroke-into-a-mark-shape, tool:find-the-ink-mark-to-erase and tool:export-ink-marks-as-svg rows in tools/draw-ink-marks.",
+    "status": "active",
+    "maker": "maker:draw-lists-on-a-canvas",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "draw-lists-on-a-canvas",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -3993,6 +4031,25 @@
      "placement:small-container"
     ],
     "folder": "reservations"
+   }
+  },
+  {
+   "id": "tool:join-what-is-being-worked-on-into-a-tree",
+   "values": {
+    "title": "Join what is being worked on into one tree",
+    "job": "Join the goals, decisions, AIs, jobs, spaces, people, automations and tool runs my records already answered into one tree of what is being worked on and who is doing it, or one goal's branch of it",
+    "description": "Give answers: what each of the work map's reads answered, by name (goals: /work/api/decisions with pursuits and summaries, work: /work/api/ai-work with agents and work, spaces: /work/api/spaces, automations: /work/api/workflows, workshop: /work/api/workshop); a read left out adds no cards. from (optional) is a card id such as goal:g1 to keep only that card and everything under it. The join is the work map's own: read-data/work-map-sources.json says where each kind's rows are, which fields are its id, title, detail, state and time, who does it and what it hangs under; a row whose parent is not shown falls to whoever does it, then to the root. Answers nodes (each card's id <source>:<row id>, source, kind, icon, title, detail, at, status, who; the rows themselves are not given back), lines (parent to child) and counts by kind. It reads nothing from the person's store, keeps nothing and sends nothing. Refuses answers that are not an object, a read name the work map does not have, or answers holding none of its reads. The screen (show/work-map-screen.tsx) also reads those answers itself, draws the cards on the board, by state, as a table and on a timeline and opens a card's screen, and the message task canvas groups message tasks; this run does none of that.",
+    "status": "active",
+    "maker": "maker:see-what-is-being-worked-on",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "see-what-is-being-worked-on",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -5609,6 +5666,25 @@
     ],
     "listed_on": "2026-11-03T16:00:00Z",
     "folder": "pick-a-screen-as-you-type"
+   }
+  },
+  {
+   "id": "tool:pick-a-small-good-moment",
+   "values": {
+    "title": "Pick the small good moment to play",
+    "job": "Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time",
+    "description": "Give moments (the moment rows, tried in order: each { id, on: { event_kind, match?, starts_with? } or { typed }, words (one line or a list that rotates), motion?, mark?, once?, count_at? }) and exactly one of event (what happened, { event_kind, ...fields }) or typed (the text typed so far, matched by the phrase it ends with, any case); memory is the remember of the last pick (leave it out the first time). A row answers an event when its event_kind is the event's, every match field equals the event's and every starts_with field starts it; a once row is due only if it never played, a count_at row only at those running counts; {count} in words is the running count. Answers moment ({ id, motion, mark, words } or null when no row is due) and remember ({ counts, played }), the whole next memory. Nothing is played, shown, stored or sent and no clock is read. Refuses moments that are not rows with ids, neither or both of event and typed, an event without event_kind and memory that is not an object. The screens (show/mount-delight-moments.tsx, show/mount-feel.ts, show/FeelSettings.tsx, show/ambience-screen.tsx) also play the moment's motion, give it a feel in touch, sound and motion on each device under the person's show rules and move lights with music; this run does none of that.",
+    "status": "active",
+    "maker": "maker:make-things-feel-good",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "make-things-feel-good",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
