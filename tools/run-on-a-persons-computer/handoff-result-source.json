@@ -1,0 +1,10 @@
+{
+  "schema": "trillion.handoff-result-source/v1",
+  "format": "application/json",
+  "max_bytes": 4194304,
+  "inline_request_characters": 1000000,
+  "_why": "Complete original results up to 4 MiB qualify against the existing 48 MiB sampled Workerd heap-growth, 16 MiB database, and physical SQL ceilings. Accepted immutable-source retries use a compact owner receipt instead of re-decoding or returning the complete answer. The inline request limit remains unchanged; larger originals stay retained with an explicit refusal.",
+  "capability_retry_ms": 60000,
+  "prior_max_bytes": 2097152,
+  "_prior_max_bytes_why": "The previously shipped complete-result decoder bound; legacy unknown local size refusals need live fenced admission of bytes above this bound before one versioned retry."
+}

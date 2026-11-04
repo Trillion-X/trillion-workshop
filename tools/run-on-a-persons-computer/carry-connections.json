@@ -1,7 +1,6 @@
 {
   "what_this_is": "Settings for carry-connections.mjs, the program on a person's own computer that connects or carries sources only that computer can reach. Each row in `connections` is one service: its vendor (the service-connections descriptor it answers for, which says `carriedBy`), the module and export that carry or connect it, and that module's own settings and words. Adding a service is a row here plus its module; the program itself never names one.",
   "origin": "https://app.gettrillion.ai",
-  "keychain_item": "trillion-agent-work-key",
   "state_folder": "~/.trillion/carry-connections",
   "agent_id_prefix": "computer-",
   "skill_prefix": "connection:",

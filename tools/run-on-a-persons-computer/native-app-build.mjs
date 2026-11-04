@@ -5,9 +5,9 @@ import { basename, dirname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { runSupervised } from './supervised-run.mjs';
-import { fileSource, sendFile } from '../parts/live-namespace/do-work/send-a-file-to-a-namespace.mjs';
-import { loadChunking } from '../parts/live-namespace/do-work/content-chunks.mjs';
-import { namespaceClient, bearerControl } from '../parts/live-namespace/do-work/namespace-client.mjs';
+import { fileSource, sendFile } from '../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
+import { loadChunking } from '../browse-and-upload-my-files/do-work/content-chunks.mjs';
+import { namespaceClient, bearerControl } from '../browse-and-upload-my-files/do-work/namespace-client.mjs';
 
 const repositoryRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const safeLabel = value => basename(String(value ?? 'App')).replace(/[^A-Za-z0-9._ -]/g, '_').replace(/^\.+/, '').slice(0, 80) || 'App';

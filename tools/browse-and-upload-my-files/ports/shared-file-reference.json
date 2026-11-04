@@ -1,0 +1,56 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SHARED-FILE-REFERENCE-FROM-TRILLION",
+  "status": "BASELINED",
+  "directive": {
+    "thread_id": "cloud job 2026-11-03: make tools/run-on-a-persons-computer load",
+    "message_multihash": "1f:800cb390b399211efa6417e5867eb74ef160efa1cc25dbfdda7ef1d7021ad180",
+    "quote": "A target whose only copy is in old trillion moves into the Workshop tool that owns its job"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "parts/live-namespace/do-work/shared-file-reference.mjs",
+      "multihash": "1f:85a38373a91e16c6db6b8f52bdfba35256346e80e7b9b521e240dc17be0c8d9c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/browse-and-upload-my-files/do-work/shared-file-reference.mjs"
+    }
+  ],
+  "preserve": [
+    "a shared file names its exact space_id and item_id",
+    "stable short tags of 12 hex digits keep a renamed or duplicate label from binding a cached path to another grant"
+  ],
+  "allowed_deltas": [
+    "the tag is BLAKE3 through tools/content-identity, the one owner, instead of @noble/hashes directly (the same 12 hex digits)"
+  ],
+  "banned_substitutions": [
+    "a second copy of this file under tools/run-on-a-persons-computer",
+    "a rewritten namespace client"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "commit": "5397986ec94ac64864006026350d066d01257c71",
+    "source_multihash": "1f:85a38373a91e16c6db6b8f52bdfba35256346e80e7b9b521e240dc17be0c8d9c",
+    "target_multihash_at_baseline": "1f:85a38373a91e16c6db6b8f52bdfba35256346e80e7b9b521e240dc17be0c8d9c",
+    "recorded_at": "2026-11-04T05:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export function sharedReference",
+      "export async function sharedNamespaceFile"
+    ],
+    "test_refs": [
+      "tools/run-on-a-persons-computer/test/app-job.test.mjs"
+    ]
+  }
+}

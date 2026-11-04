@@ -1,6 +1,0 @@
-{
-  "_what": "Configured release sources read on the existing Mac tool host. Listing paths and app identity come from trusted repository DATA, never customer input. Provider reads return a short-lived public observation to the operator's existing workspace records; no credentials or tester identities leave the host.",
-  "sources": [
-    { "id": "native-ios", "listing": "../ios/app-store/listing.json" }
-  ]
-}
