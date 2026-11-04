@@ -1,0 +1,5 @@
+{
+  "_what": "How much of a person's names the in-memory name view (src/namespace-view.mjs) holds and how it is cut. `most_bytes` bounds the memory the view's text and row ids take in one store (a Durable Object has 128 MB in all); a store whose names need more is searched by its table as before. `block_names` is how many names share one searched string: a name added joins only the last block's string again, so adding names costs the size of one block, never all of them.",
+  "most_bytes": 33554432,
+  "block_names": 4096
+}
