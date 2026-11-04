@@ -1,0 +1,103 @@
+// A space's own member types read through to show-rules from its space_member_types rows (src/space-member-types.mjs
+// showRuleTypesOf): the same types the space offers, scoped to that space, every row including legacy rows past one page,
+// nothing written. Inheritance carries through show-rules' held-type walk (src/workspace/show-rules.mjs heldTypes).
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { DatabaseSync } from 'node:sqlite';
+import memberTypes from '../src/space-member-types.json' with { type: 'json' };
+import { documentMemberTypesOf, readOwnMemberTypeRows, showRuleTypesOf, spaceMemberTypeMethods } from '../../decide-who-may-do-what-in-a-space/from-old-trillion/src/space-member-types.mjs';
+import { heldTypes } from '../../set-up-my-account/read-data/show-rules.mjs';
+
+const PAGE = memberTypes.own_types.max;
+const TOTAL = PAGE + 3;
+
+function rowsIn(db) {
+  return { exec(query, ...binds) {
+    const statement = db.prepare(query);
+    const rows = /^\s*select/i.test(query) ? statement.all(...binds) : (statement.run(...binds), []);
+    return { toArray: () => rows };
+  } };
+}
+
+function seeded() {
+  const db = new DatabaseSync(':memory:');
+  db.exec(`CREATE TABLE space_member_types (space_id TEXT NOT NULL, type_id TEXT NOT NULL, label TEXT NOT NULL,
+    added_by TEXT NOT NULL, added_at TEXT NOT NULL, inherits TEXT NOT NULL DEFAULT '[]', PRIMARY KEY (space_id, type_id))`);
+  db.exec(`CREATE TABLE space_show_rule_types (space_id TEXT PRIMARY KEY, types TEXT NOT NULL DEFAULT '[]')`);
+  db.exec(`CREATE TABLE space_member_type_copy (id TEXT PRIMARY KEY, after_space_id TEXT NOT NULL DEFAULT '', after_type_id TEXT NOT NULL DEFAULT '', done_at TEXT, next_at TEXT)`);
+  db.exec(`INSERT INTO space_member_type_copy (id) VALUES ('rows')`);
+  const insert = db.prepare('INSERT INTO space_member_types (space_id, type_id, label, added_by, added_at, inherits) VALUES (?, ?, ?, ?, ?, ?)');
+  for (let at = 0; at < TOTAL; at++) {
+    insert.run('space-a', `type-${String(at).padStart(3, '0')}`, `Type ${at}`, 'maker', `2026-10-13T00:00:${String(at).padStart(2, '0')}Z`,
+      at === 1 ? JSON.stringify(['type-000']) : '[]');
+  }
+  insert.run('space-b', 'other', 'Other', 'maker', '2026-10-13T01:00:00Z', '[]');
+  return db;
+}
+
+test('the show-rules view of a space lists the same own types the space offers, all of them past one page', () => {
+  const sql = rowsIn(seeded());
+  const offered = readOwnMemberTypeRows(sql, 'space-a', true).map(row => row.type_id);
+  const shown = showRuleTypesOf(sql, 'space-a');
+  assert.equal(offered.length, TOTAL);
+  assert.deepEqual(shown.map(type => type.id), offered);
+  assert.equal(shown[1].label, 'Type 1');
+  assert.deepEqual(shown[1].inherits, ['type-000']);
+});
+
+test('every read-through type is scoped to its own space and no other space\'s types come with it', () => {
+  const shown = showRuleTypesOf(rowsIn(seeded()), 'space-a');
+  assert.ok(shown.every(type => type.scope?.space_id === 'space-a' && Array.isArray(type.rules) && type.rules.length === 0));
+  assert.ok(!shown.some(type => type.id === 'other'));
+  assert.deepEqual(showRuleTypesOf(rowsIn(seeded()), 'space-c'), []);
+});
+
+test('reading through writes nothing: the rows are the same after the read', () => {
+  const db = seeded();
+  const before = db.prepare('SELECT * FROM space_member_types ORDER BY space_id, type_id').all();
+  showRuleTypesOf(rowsIn(db), 'space-a');
+  assert.deepEqual(db.prepare('SELECT * FROM space_member_types ORDER BY space_id, type_id').all(), before);
+});
+
+test('a type a space holds carries its inherited type into show-rules', () => {
+  const shown = showRuleTypesOf(rowsIn(seeded()), 'space-a');
+  assert.deepEqual(heldTypes(shown, ['type-001']), ['type-001', 'type-000']);
+});
+
+test('a type written to the show-rules document is read after the legacy rows, and only for its space', () => {
+  const db = seeded();
+  db.prepare('INSERT INTO space_show_rule_types (space_id, types) VALUES (?, ?)').run('space-a', JSON.stringify([
+    { id: 'written-later', label: 'Written later', inherits: ['type-000'], added_by: 'maker', added_at: '2026-10-13T02:00:00Z' }]));
+  const shown = showRuleTypesOf(rowsIn(db), 'space-a');
+  assert.equal(shown.at(-1).id, 'written-later');
+  assert.deepEqual(shown.at(-1), { id: 'written-later', label: 'Written later', inherits: ['type-000'], rules: [], scope: { space_id: 'space-a' } });
+  assert.deepEqual(documentMemberTypesOf(rowsIn(db), 'space-b'), []);
+  assert.ok(!showRuleTypesOf(rowsIn(db), 'space-b').some(type => type.id === 'written-later'));
+});
+
+test('the copy step moves every legacy row into its space document in bounded pages, then stops', () => {
+  const db = seeded();
+  const copier = { sql: rowsIn(db), ...spaceMemberTypeMethods };
+  const before = showRuleTypesOf(rowsIn(db), 'space-a');
+  for (let run = 0; run < 10 && !db.prepare("SELECT done_at FROM space_member_type_copy WHERE id = 'rows'").get().done_at; run += 1) copier.copySpaceMemberTypesPage();
+  assert.ok(db.prepare("SELECT done_at FROM space_member_type_copy WHERE id = 'rows'").get().done_at, 'the copy finishes');
+  assert.deepEqual(documentMemberTypesOf(rowsIn(db), 'space-a').map(type => type.id), before.map(type => type.id));
+  assert.deepEqual(documentMemberTypesOf(rowsIn(db), 'space-b').map(type => type.id), ['other']);
+  assert.deepEqual(showRuleTypesOf(rowsIn(db), 'space-a'), before, 'what a space shows does not change when its rows are copied');
+  const copied = JSON.stringify(documentMemberTypesOf(rowsIn(db), 'space-a'));
+  copier.copySpaceMemberTypesPage();
+  assert.equal(JSON.stringify(documentMemberTypesOf(rowsIn(db), 'space-a')), copied, 'a run after the copy is done changes nothing');
+});
+
+test('a copied type is not copied twice when its page is run again, and the copy keeps a type already in the document', () => {
+  const db = seeded();
+  db.prepare('INSERT INTO space_show_rule_types (space_id, types) VALUES (?, ?)').run('space-a', JSON.stringify([
+    { id: 'type-000', label: 'Type 0', inherits: [], added_by: 'maker', added_at: '2026-10-13T00:00:00Z' }]));
+  db.prepare("UPDATE space_member_type_copy SET after_space_id = '', after_type_id = '' WHERE id = 'rows'").run();
+  const copier = { sql: rowsIn(db), ...spaceMemberTypeMethods };
+  copier.copySpaceMemberTypesPage();
+  copier.copySpaceMemberTypesPage();
+  const ids = documentMemberTypesOf(rowsIn(db), 'space-a').map(type => type.id);
+  assert.equal(new Set(ids).size, ids.length, 'no type appears twice in the document');
+  assert.equal(ids.length, TOTAL);
+});
