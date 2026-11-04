@@ -11,6 +11,8 @@ The tables go; the model does not. The EEAF model (entity types, their propertie
 | `part.json` | Which files other code may import (`do-work/eeaf-sqlite-store.mjs`, `do-work/eeaf-field-reads.mjs`) |
 | `do-work/eeaf-sqlite-store.mjs` | The store over one SQLite database: creates the tables, decomposes a record into rows, writes only the rows that changed, logs every row change, and assembles a record back |
 | `do-work/eeaf-field-reads.mjs` | Named top-level fields of many records of one type, read straight from the attribute facts without assembling any record, so a question over a whole kind costs the fields it asks about |
+| `do-work/read-fields-of-records.mjs` | `readFieldsOfRecords({ records, reads })`: the field reads as one run over an in-memory SQLite (node:sqlite) laid out from the input records with the store's own tables, read from `eeaf-sqlite-store.mjs` as text (what `tool-rows.json` runs) |
+| `tool-rows.json` | The row `tool:read-named-fields-of-many-records`, with a sample that reads the newest made-up garden visit per place |
 | `README.md` | This file |
 
 ## Key Types / Functions
@@ -41,3 +43,7 @@ The tables go; the model does not. The EEAF model (entity types, their propertie
 **Depends on:** `parts/record-log` (`RecordTooLarge`); the host passes `sql`, `transaction` and the `hash` identity function.
 
 **Depended on by:** `src/record-engine.mjs` (answers a store still on these tables, its field and index reads, and its sealed log generations after the switch), `src/record-move.mjs` (reads the records it moves, seals the last generation, drops the tables), and through those `src/decision-store.mjs`, `src/record-history.mjs` and `src/person-store.mjs`.
+
+## The row
+
+`tool:read-named-fields-of-many-records` runs `do-work/read-fields-of-records.mjs` in a small container with no internet. `eeaf-sqlite-store.mjs` cannot be loaded in the Workshop: it imports `../../record-log/do-work/record-log-store.mjs`, which `tools/record-log` does not hold (the old file is 4456 lines with its own imports, too large to bring in). The row therefore reads only the store's table statements from it as text and answers field reads; it does not write, log or assemble records.

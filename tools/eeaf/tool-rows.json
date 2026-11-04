@@ -1,0 +1,357 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:eeaf",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:read-named-fields-of-many-records",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Read a few fields of many records of one kind",
+        "job": "Read named top-level fields of many records of one kind from their attribute facts without assembling any record: the fields of given ids, the records after a value, the newest record per group, and the ids whose field holds a value",
+        "description": "Lays out the records given in records ([{ id, type, value }]) in an in-memory SQLite database (node:sqlite) with the EEAF store's own entity, entity_types, type_properties and attribute_fact tables (their CREATE statements read from do-work/eeaf-sqlite-store.mjs as text), each record's top-level scalars and lists of scalars as attribute facts under the store's ids (type:<type>, prop:<type>:<field>, the value as JSON). A field holding an object or a list of objects is not laid out (in the store it lives on child subjects, which a field read never answers) and is named in left_out. Then answers each of reads (each under its name, its place in the list when left out, with count: how many records or ids it found) through eeafFieldReads (do-work/eeaf-field-reads.mjs): fieldsOf { type, ids, fields } (an id not held as that type is left out), after { type, field, after, fields?, limit?, after_id? } (oldest first, compared as kept JSON text, so ISO times sort), newestPerGroup { type, group, order, fields? } and idsWhere { type, field, value, limit? }. Reads nothing but the input, writes no file, sends nothing; the database is gone when the run ends. Refuses a record without an id or type, an id with a slash, a value that is not an object, the same id twice, an unknown op, a read missing what its op needs and two reads with the same name. The old store keeps a person's records on their own device, logs every change and assembles whole records (eeafStore); this run does none of that: eeaf-sqlite-store.mjs imports parts/record-log/do-work/record-log-store.mjs, which the Workshop does not have, so it is packed only as the text its tables are read from.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "records",
+            "reads"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "reads": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "op",
+                  "type"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "op": {
+                    "type": "string",
+                    "enum": [
+                      "fieldsOf",
+                      "after",
+                      "newestPerGroup",
+                      "idsWhere"
+                    ]
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "field": {
+                    "type": "string"
+                  },
+                  "after": {},
+                  "after_id": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "group": {
+                    "type": "string"
+                  },
+                  "order": {
+                    "type": "string"
+                  },
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "answers",
+            "held",
+            "left_out"
+          ],
+          "properties": {
+            "answers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "op",
+                  "type",
+                  "count"
+                ],
+                "properties": {
+                  "op": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "count": {
+                    "type": "integer"
+                  },
+                  "records": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "held": {
+              "type": "object",
+              "required": [
+                "records",
+                "facts"
+              ],
+              "properties": {
+                "records": {
+                  "type": "integer"
+                },
+                "facts": {
+                  "type": "integer"
+                }
+              }
+            },
+            "left_out": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "field"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "field": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/eeaf",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/eeaf/do-work/read-fields-of-records.mjs",
+            "readFieldsOfRecords"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "eeaf",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/eeaf"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/eeaf/do-work/eeaf-field-reads.mjs and eeaf-sqlite-store.mjs, moved in a9ee258 (#76); old capability row capabilities.json:1156 at 4ffa1dc4a2^ (parts/eeaf/** an owner of keep each person's records in their own store and on their own device). do-work/read-fields-of-records.mjs is new: it lays out the input records with the store's tables and runs the field reads."
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "records": [
+                {
+                  "id": "visit-1",
+                  "type": "visit",
+                  "value": {
+                    "place": "garden",
+                    "at": "2026-10-01T09:00:00Z",
+                    "note": "Watered the beans",
+                    "tags": [
+                      "water"
+                    ],
+                    "weather": {
+                      "sky": "clear"
+                    }
+                  }
+                },
+                {
+                  "id": "visit-2",
+                  "type": "visit",
+                  "value": {
+                    "place": "garden",
+                    "at": "2026-10-03T09:00:00Z",
+                    "note": "Picked tomatoes"
+                  }
+                },
+                {
+                  "id": "visit-3",
+                  "type": "visit",
+                  "value": {
+                    "place": "shed",
+                    "at": "2026-10-02T17:00:00Z",
+                    "note": "Sorted tools"
+                  }
+                },
+                {
+                  "id": "note-1",
+                  "type": "note",
+                  "value": {
+                    "place": "garden",
+                    "title": "Seed list"
+                  }
+                }
+              ],
+              "reads": [
+                {
+                  "op": "newestPerGroup",
+                  "type": "visit",
+                  "group": "place",
+                  "order": "at",
+                  "fields": [
+                    "note"
+                  ],
+                  "name": "newest-per-place"
+                },
+                {
+                  "op": "fieldsOf",
+                  "type": "visit",
+                  "ids": [
+                    "visit-1",
+                    "note-1"
+                  ],
+                  "fields": [
+                    "note",
+                    "tags"
+                  ],
+                  "name": "notes-of-two"
+                },
+                {
+                  "op": "after",
+                  "type": "visit",
+                  "field": "at",
+                  "after": "2026-10-01T12:00:00Z",
+                  "fields": [
+                    "place"
+                  ],
+                  "limit": 5,
+                  "name": "after-noon"
+                },
+                {
+                  "op": "idsWhere",
+                  "type": "visit",
+                  "field": "place",
+                  "value": "garden",
+                  "name": "in-the-garden"
+                }
+              ]
+            },
+            "output_selector": "$.answers.newest-per-place.count",
+            "at_least": 2
+          }
+        ]
+      }
+    }
+  ]
+}
