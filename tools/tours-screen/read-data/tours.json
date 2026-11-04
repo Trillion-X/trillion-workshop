@@ -1,0 +1,79 @@
+{
+  "what_this_is": "Settings for the tours a person's AIs write (src/tours.mjs): where they are kept, how they are grouped, their limits, the look every AI tour starts from, and the card kinds an AI may put in a step.",
+  "tours_label": "guided-overlay::own-walkthroughs",
+  "show_label": "guided-overlay::show-asked",
+  "progress_label": "guided-overlay::walkthrough-progress",
+  "id_prefix": "own-",
+  "default_category": "From your AIs",
+  "tours_max": 200,
+  "steps_max": 20,
+  "tour_chars_max": 60000,
+  "look": {
+    "spotlight": {
+      "blur_px": 6,
+      "scrim_color": "rgba(0, 0, 0, 0.45)",
+      "click_behavior": "all"
+    },
+    "targeting": {
+      "retry_timeout_ms": 6000
+    }
+  },
+  "progress_style": {
+    "style": "segmented"
+  },
+  "card_kinds": [
+    {
+      "content_kind": "glance",
+      "use": "Most steps. payload is one glance card, never a paragraph: { icon, tone (good|attention|bad|info|quiet), title, when, text (at most two short lines), value + unit (the one number that matters), facts [{label, value, icon}], chips [{label, picture?}], badge {label, tone}, signal {label, tone}, chart { kind: 'bars' | 'split', points: [{ label, value, tone? }] } }."
+    },
+    {
+      "content_kind": "text",
+      "use": "A heading and one short sentence, only when nothing else fits: { title, body }."
+    },
+    {
+      "content_kind": "single-choice",
+      "use": "Ask one question; the answer picks the next step through the step's branch_map: { title, options: [{ value, label }] }."
+    },
+    {
+      "content_kind": "placeable-surface",
+      "use": "Put a screen or a placed thing (a chart, a video) in the card, live: { surface_id, surface_input? } where surface_input opens it on one thing (the list or file you made)."
+    },
+    {
+      "content_kind": "picture",
+      "use": "One picture with a title and words under it, such as a screenshot with what to look at ringed: { title, body, picture: { src, alt } }, where src is a Trillion file address or an https picture."
+    }
+  ],
+  "step_fields": "Each step: { id, content: { content_kind, payload }, target_ref?: { from: 'selector', query: CSS selector of the element to point at, such as [data-sidebar-surface-id=\"trillion.files\"] }, target_preparation?: { surface: { id: screen id to open first, or to open one thing (the list you just made) a screen from read_layouts opens_one_thing with surface_input: { <its input>: the thing's id } and title } }, placement?: { prefer: 'above' | 'below' | 'left' | 'right' }, centered_when_target_missing?: true, look?: { spotlight?: { click_behavior?: 'all' | 'target' | 'none' } }, act?: { do: 'press' | 'type' | 'choose' | 'slide', text?, every_ms? } (the step's button does this on the control; slide moves a slider to the value in text, every_ms apart), nav?: { buttons: [{ role: 'back' | 'advance', label }] } }. Click behavior defaults to all (the tour never traps the page); target keeps only the highlighted control usable, and none makes the page read-only. Every step points at the real control it talks about (target_ref) or holds it live in the card (placeable-surface, picture); a target inside a screen opens that screen first (target_preparation). Words say what is happening on that control now, in the present (\"We're opening your launch list now\", \"Press Post to send it\"), never a summary of what you did. The card's one way out is drawn for you; never add Skip or End tour buttons.",
+  "step_look": {
+    "backdrop": {
+      "opacity": 0.45,
+      "blur_px": 6
+    }
+  },
+  "pointing": {
+    "what_this_is": "Every step points at the real thing it talks about (Avery 2026-10-04: a card that points at nothing is lazy). A step shows its thing either by pointing at a control on the page (target_ref) or by holding it live in the card (a content kind in shows_itself). A target inside a screen opens that screen first (target_preparation); a target in the page's own frame (page_wide) is on every screen. A selector that names no particular control (too_vague) is refused.",
+    "shows_itself": [
+      "placeable-surface",
+      "picture"
+    ],
+    "page_wide": [
+      "[data-sidebar-",
+      "[data-sidebar-open-toggle]",
+      "button[aria-label=\"More for this pane\"]"
+    ],
+    "too_vague": [
+      "*",
+      "html",
+      "body",
+      "main",
+      "div",
+      "section",
+      "header",
+      "footer",
+      "nav",
+      ":root",
+      "#root",
+      "#app"
+    ]
+  }
+}

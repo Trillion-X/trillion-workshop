@@ -9172,9 +9172,9 @@
   },
   {
    "path": "src/show-rules-tools.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/decide-when-things-show/read-data/show-rules-tools.mjs",
+   "why": "the same bytes are already on main"
   },
   {
    "path": "src/showcase-spare-facts.mjs",
@@ -10086,8 +10086,9 @@
   {
    "path": "src/tours.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/tours-screen/read-data/tours.json",
+   "why": "a feature a person or AI uses",
+   "batch": "3 (tours-screen rows, trillion-workshop PR #127)"
   },
   {
    "path": "src/tours.mjs",

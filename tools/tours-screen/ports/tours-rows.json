@@ -1,0 +1,76 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-TOURS-SCREEN-ROWS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "lead-66 bulk-move-old-trillion-to-workshop, 2026-11-03 continuation: tours-screen tool rows",
+  "message_multihash": "1f:f7498989d17a905b94e157a72e3a07731553bc77406abacfcd7e0feddc3ff32f",
+  "quote": "give trillion-workshop tools/tours-screen/ tool rows, including a dismiss-waiting-tours action that writes through the person-granted workspace write from Workshop PR #101"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "list a person's workspace tours, the tours waiting to start by themselves as their show rules leave them, and dismiss waiting tours, over their own tour and progress records through their records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/tours-screen/do-work/tours.mjs"
+  },
+  {
+   "path": "tools/tours-screen/read-data/rows-write-through-keep.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/tours-screen/show/walkthroughs.ts",
+   "why": "The page's own listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs, moved from old trillion parts/guided-overlay. They read the page's show-rules answerer (ui/show/show-rules/show-of, not in this repository) and write through #workspace-records, so they cannot run in a row. do-work/tours.mjs runs their bodies over the same moved folds (read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts, do-work/walkthrough-progress.ts applyProgressTransition) with reads through the records door and the person's show rules decided by tools/set-up-my-account showDecision, and answers keep in place of the page write."
+  },
+  {
+   "repository": "trillion",
+   "path": "src/tours.mjs",
+   "why": "The old Worker's /tours routes (tag old-trillion-before-worker-retire): read, save, remove and show of the tours a person's AIs write. It reads the same labels (src/tours.json, moved here byte for byte as read-data/tours.json) but has no waiting list and no dismiss; its env-bound configuration is still in the port backlog."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/guided-tours/do-work/tour.mjs",
+   "why": "Steps a person through one tour and finds the tour an event starts, with a smaller trigger fold (no requires, consumed_before or show rules); it keeps no progress record and lists nothing."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/decide-when-things-show/do-work/show-rules.mjs",
+   "why": "The rows of the show rules themselves (PR #101); their keep answer is the person-granted write these rows answer the same way."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "list a person's workspace tours, the tours waiting to start by themselves as their show rules leave them, and dismiss waiting tours, over their own tour and progress records through their records door",
+    "list the waiting tours as the person's show rules leave them",
+    "dismiss waiting tours without showing them",
+    "list the workspace tours and which are finished"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "waitingTours",
+    "dismissWaitingTours",
+    "listTours"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "a4cad8f"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/tours-screen/test/tours-rows.test.mjs"
+  ]
+ }
+}
