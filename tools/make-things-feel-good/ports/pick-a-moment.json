@@ -1,0 +1,62 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MAKE-THINGS-FEEL-GOOD-PICK-A-MOMENT",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "pick the small good moment to play when something good happens or a phrase is typed",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/make-things-feel-good/do-work/pick-a-moment.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/make-things-feel-good/",
+   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  },
+  {
+   "repository": "trillion",
+   "path": "parts/delight-moments/read-data/choose-moment.mjs",
+   "why": "the older copy of read-data/choose-moment.mjs, which this folder holds byte for byte (moved in a9ee258); that move's old copy is still on trillion main and is the move's to remove. This file only hands chooseMoment a row's input"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "pick the small good moment to play when something good happens or a phrase is typed",
+    "pick a moment",
+    "choose moment and typed moment"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "pickAMoment",
+    "chooseMoment",
+    "typedMoment"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "9fcfd41235745096f6560577635117307cbf85dd"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/make-things-feel-good/tool-rows.json sample run (tool:pick-a-small-good-moment)"
+  ]
+ }
+}

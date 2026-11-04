@@ -1,0 +1,56 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-KEEP-GOALS-ORDER-GOALS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "keep my goals in the order they are shown, each one under the goal it serves",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/keep-goals-and-focus/read-data/order-goals.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-goals-and-focus/",
+   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "keep my goals in the order they are shown, each one under the goal it serves",
+    "order goals",
+    "pursuit hierarchy rows"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "orderGoals",
+    "pursuitHierarchyRows"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "9fcfd41235745096f6560577635117307cbf85dd"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/keep-goals-and-focus/tool-rows.json sample run (tool:order-my-goals-under-the-goals-they-serve)"
+  ]
+ }
+}

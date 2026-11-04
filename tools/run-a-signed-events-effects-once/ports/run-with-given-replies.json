@@ -1,0 +1,56 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SIGNED-EVENT-EFFECTS-GIVEN-REPLIES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "turn signed events into the effects their installed rules name, each effect once, from answers given in the input",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/run-a-signed-events-effects-once/do-work/run-with-given-replies.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/run-a-signed-events-effects-once/",
+   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "turn signed events into the effects their installed rules name, each effect once, from answers given in the input",
+    "run signed event effects with given replies",
+    "admit signed event effects"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "runSignedEventEffectsWithGivenReplies",
+    "admitSignedEventEffects"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "9fcfd41235745096f6560577635117307cbf85dd"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/run-a-signed-events-effects-once/tool-rows.json sample run (tool:turn-signed-events-into-effects-once)"
+  ]
+ }
+}

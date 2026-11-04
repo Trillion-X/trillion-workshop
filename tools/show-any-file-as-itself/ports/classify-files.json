@@ -1,0 +1,71 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SHOW-ANY-FILE-CLASSIFY-FILES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "classify each file by its name and media type to choose how it is shown",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/show-any-file-as-itself/do-work/classify-files.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/show-any-file-as-itself/",
+   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  },
+  {
+   "repository": "trillion",
+   "path": "test/file-content-classification-fallback.test.mjs",
+   "why": "a test of the moved code this file runs, not a second owner of the job"
+  },
+  {
+   "repository": "trillion",
+   "path": "test/file-content-preview-browser.test.mjs",
+   "why": "a test of the moved code this file runs, not a second owner of the job"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-lists-of-rows/show/field-editors.tsx",
+   "why": "a screen that imports the classifier by its old path (../../file-content-renderer/), which is not a folder here; it uses the classification to edit a field, this file answers it for a row"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "classify each file by its name and media type to choose how it is shown",
+    "classify files",
+    "fallback file content classification"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "classifyFiles",
+    "fallbackFileContentClassification"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "9fcfd41235745096f6560577635117307cbf85dd"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/show-any-file-as-itself/tool-rows.json sample run (tool:choose-how-each-file-is-shown)"
+  ]
+ }
+}

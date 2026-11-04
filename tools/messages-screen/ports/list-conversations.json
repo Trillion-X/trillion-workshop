@@ -1,0 +1,61 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MESSAGES-LIST-CONVERSATIONS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "list every conversation newest first, found by words, participant or project, and grouped by day as the messages screen shows them",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/messages-screen/show/list-conversations.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/messages-screen/",
+   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pull-from-connected-accounts/README.md",
+   "why": "a README naming that tool's own listConversations, which lists a connected account's conversations from the service; this orders conversation rows the caller hands in"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "list every conversation newest first, found by words, participant or project, and grouped by day as the messages screen shows them",
+    "list conversations",
+    "build chat conversation list"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "listConversations",
+    "build-chat-conversation-list"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "9fcfd41235745096f6560577635117307cbf85dd"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/messages-screen/tool-rows.json sample run (tool:list-my-conversations-newest-first)"
+  ]
+ }
+}
