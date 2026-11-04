@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/consent-fingerprint.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/check-consent-to-an-introduction/src/consent-fingerprint.mjs",
+      "source_identity": "1f:45e0e9821f87cd27d806e933022c3cb5a21069a92eabc2bbb0656a3c28e51b81",
+      "identity": "1f:1784cd1b526b9808c096bce830fc30f9463cfaa5ec83b0a9832cb827c57b2d1e"
+    },
+    {
+      "from": "test/consent-binding.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/check-consent-to-an-introduction/test/consent-binding.test.mjs",
+      "source_identity": "1f:bce0fc7a374d005304097aa462c5e7cc634ba84738077b4de96754d1a4997146",
+      "identity": "1f:bce0fc7a374d005304097aa462c5e7cc634ba84738077b4de96754d1a4997146"
+    },
+    {
+      "from": "test/consent-fingerprint.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/check-consent-to-an-introduction/test/consent-fingerprint.test.mjs",
+      "source_identity": "1f:a5fb51d1e7e919cdc919820e852e4142a21ac2db8ec78d5c46f18c1b75bd5298",
+      "identity": "1f:a5fb51d1e7e919cdc919820e852e4142a21ac2db8ec78d5c46f18c1b75bd5298"
+    }
+  ]
+}
