@@ -1,0 +1,140 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:sign-in-with-a-passkey",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:judge-a-new-sign-in-password",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Say how strong a new password is",
+        "job": "Say how strong a new password is, in the words the sign-in pages show under the new password box, before I sign up with an email and a password",
+        "description": "Give password (text). It is scored as the sign-in pages score it as it is typed (password-strength.mjs, passwords.json): 0 when shorter than min_length (8), then 1, plus one for 12 characters or more and one for three kinds of character (lower case, upper case, digits, others). Answers score, said (the words for that score), min_length, max_length and too_long (whether the service would refuse it as longer than max_length). The password is judged in memory only: it is never printed back, kept or sent, and nothing is signed in, made or changed. The sign-in pages themselves (passkey.mjs, kept in this folder but not run here) do the rest of the old job: they run the passkey step through the browser's WebAuthn, send and check emailed codes and post the email-and-password form; those need a browser and the sign-in service, which this run does not have.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "password"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "password": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "score",
+            "said",
+            "min_length",
+            "max_length",
+            "too_long"
+          ],
+          "properties": {
+            "score": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "said": {
+              "type": "string"
+            },
+            "min_length": {
+              "type": "integer"
+            },
+            "max_length": {
+              "type": "integer"
+            },
+            "too_long": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/sign-in-with-a-passkey",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/sign-in-with-a-passkey/judge-a-new-password.mjs",
+            "judgeNewPassword"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "sign-in-with-a-passkey",
+                "paths": [
+                  "judge-a-new-password.mjs",
+                  "password-strength.mjs",
+                  "passwords.json"
+                ],
+                "at": "/opt/sign-in-with-a-passkey"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/client/passkey.mjs, moved in a9ee258 (#76); src/password-strength.mjs and src/passwords.json brought in byte for byte from b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (moved-from.json); old capability row capabilities.json:433 at 4ffa1dc4a2^ (sign in with a passkey, an emailed code or a password on the sign-in pages)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "password": "Paint-the-fence-42"
+            },
+            "output_selector": "$.said",
+            "contains": "Strong"
+          }
+        ]
+      }
+    }
+  ]
+}
