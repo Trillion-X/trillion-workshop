@@ -10,7 +10,7 @@
         "label": "Search everything I keep with one question (runs on your computer)",
         "status": "active",
         "job": "Search everything I keep with one question: every list and record, and my files by name, best match first",
-        "description": "Searches everything this person keeps with one question: every list and record they keep (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first. Ask it the person's own question (\"what is my EIN\") or the words to find. Each result is one thing with found_in (the places it matched: written for a record's text, name for a file's name), said (the words around the match, which hold the answer), score, and address: the door call that opens it (records:read for a record, find_file for a file). type (optional) keeps only records of that kind and leaves the files out. unavailable names a place or source that could not answer and why (a file search the caller may not make is named here, never guessed); pending names one still working: ask again in a few seconds. It runs through the person's own MCP client, so it reaches every kind; a Workshop run can be granted one kind only (tool:search-one-of-my-lists).",
+        "description": "Searches everything this person keeps with one question: every list and record they keep (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first. Ask it the person's own question (\"what is my EIN\") or the words to find. Each result is one thing with found_in (the places it matched: written for a record's text, name for a file's name), said (the words around the match, which hold the answer), score, and address: the door call that opens it (records:read for a record, find_file for a file). type (optional) keeps only records of that kind and leaves the files out. unavailable names a place or source that could not answer and why (a file search the caller may not make is named here, never guessed); pending names one still working: ask again in a few seconds. It runs through the person's own MCP client, so it reaches every kind; the same search as a Workshop run, with no client, is tool:search-everything-in-a-small-container.",
         "input_schema": {
           "type": "object",
           "required": ["client", "input"],
@@ -35,6 +35,211 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
         "provenance": { "source": "Trillion-X/trillion src/file-tools.mjs:125 `search` and src/search.mjs:1750 `finish`, as ported to trillion-rust src/native_boot/mcp_local.rs search_everything_at and src/record_value/search.rs merged, moved here one to one" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:search-everything-in-a-small-container",
+        "label": "Search everything I keep with one question (runs in a small container)",
+        "status": "active",
+        "job": "Search every list, record and file name I keep with one question, in one ranked list, without my own computer",
+        "description": "Searches everything this person keeps with one question, as a Workshop run: every kind of record (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first. Each result has found_in (written for a record's text, name for a file's name), said (the words around the match), score and address (records:read for a record, find_file for a file). The run holds two read-only rights and nothing else: records:search over every kind ({kind: \"*\"}, which covers only a search that names no kind and never a write) and the files' name search over every name. unavailable names a lane that could not answer and why; pending names one still working.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "question"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "question": {
+              "type": "string",
+              "maxLength": 500,
+              "description": "The person's question or the words to find"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "The most results (60 when left out)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "question",
+            "results",
+            "unavailable",
+            "pending"
+          ],
+          "properties": {
+            "question": {
+              "type": "string"
+            },
+            "terms": {},
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "address"
+                ],
+                "properties": {
+                  "address": {
+                    "type": "object"
+                  },
+                  "score": {
+                    "type": "number"
+                  },
+                  "said": {}
+                }
+              }
+            },
+            "unavailable": {
+              "type": "array"
+            },
+            "pending": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "search-everything-with-one-question",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/search-everything-with-one-question"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/search-everything-with-one-question",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/search-everything-with-one-question/do-work/search-everything.mjs",
+            "searchEverything"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "*",
+                "operations": [
+                  "records:search"
+                ]
+              },
+              {
+                "files": "/",
+                "operations": [
+                  "search"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:trillion",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/file-tools.mjs:125 `search` and src/search.mjs:1750 `finish`, through trillion-rust records:search (a run's read-only right over every kind: account_rights/run_capability.rs, records-door.json run_operations every_kind) and the files' name search"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "question": "merlinfalcon"
+            },
+            "records": [
+              {
+                "id": "c1",
+                "type": "sample-contacts",
+                "value": {
+                  "title": "Sample contact",
+                  "notes": "met the merlinfalcon keeper"
+                }
+              },
+              {
+                "id": "i1",
+                "type": "sample-invoices",
+                "value": {
+                  "title": "Sample invoice",
+                  "notes": "merlinfalcon feed, 3 bags"
+                }
+              },
+              {
+                "id": "p1",
+                "type": "sample-places",
+                "value": {
+                  "title": "Sample place",
+                  "notes": "merlinfalcon aviary"
+                }
+              },
+              {
+                "id": "p2",
+                "type": "sample-places",
+                "value": {
+                  "title": "Other place",
+                  "notes": "nothing here"
+                }
+              }
+            ],
+            "door_files": {
+              "/Notes/merlinfalcon care.txt": "made-up care notes",
+              "/Notes/other.txt": "made up"
+            },
+            "output_selector": "$.results[0].found_in[0]",
+            "contains": "written"
+          }
+        ]
       }
     },
     {
