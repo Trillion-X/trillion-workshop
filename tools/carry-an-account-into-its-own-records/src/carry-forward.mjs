@@ -5,7 +5,7 @@
 // was first made, so the EEAF log reads as if the person's data had always been stored there. Settings (plan,
 // sharing, sign-in cut-off) had no history and are carried as they stand. The carry-forward then checks that
 // every record reads back exactly as the earlier store held it; only then are the earlier tables removed.
-import { canonical } from '../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { canonical } from '../../shared-code/src/record-identity.mjs';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
