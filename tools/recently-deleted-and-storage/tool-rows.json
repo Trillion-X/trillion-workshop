@@ -1,0 +1,352 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:recently-deleted-and-storage",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:delete-archive-and-put-back-my-files",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Delete, archive and put back my files",
+        "job": "Delete or archive a person's files and folders into Recently Deleted and Archived, put them back exactly as they were, change how long each keeps things, and say what is due when, with the time left on each",
+        "description": "Give files ([{ name, identity?, byte_length?, modified_at_ms? }], names starting with /), now (the ISO time the run starts at) and steps, run in order: { op: delete | archive, items: [{ name } | { identity }] } takes a file or a whole folder out of the person's Files into Recently Deleted or Archived; { op: put_back, items: [label or id] } gives every name back exactly as it was (never over a name another file took since); { op: keep_for, after_days: { deleted?, archived? } } sets how many days each keeps things (null: until put back); { op: sweep, at } moves on what is due by then: an archived thing moves to Recently Deleted, a deleted one's names are gone for good. Answers steps (what each answered, refusals included), set_aside (each item as the screen lists it: label, state, names, bytes, where, due_at, days_left, due_words), names (what Files still shows), gone (the identities whose names went for good) and keep_for. Every step is namespace-set-aside.mjs's own setAsideStore over namespace-store.mjs's tables, in an in-memory SQLite database: no byte is deleted, nothing is kept after the run, no file is written and nothing is sent. Refuses no files, an unknown step and what the store refuses (a name not starting with /, the whole Files, a day count out of range). The screen also releases storage by the person's rules; this run does not.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "files",
+            "now"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "files": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^/"
+                  },
+                  "identity": {
+                    "type": "string",
+                    "pattern": "^(1f|12):[0-9a-f]{64}$"
+                  },
+                  "byte_length": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "modified_at_ms": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "now": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "op"
+                ],
+                "properties": {
+                  "op": {
+                    "type": "string",
+                    "enum": [
+                      "delete",
+                      "archive",
+                      "put_back",
+                      "keep_for",
+                      "sweep"
+                    ]
+                  },
+                  "items": {
+                    "type": "array"
+                  },
+                  "by": {
+                    "type": "string"
+                  },
+                  "after_days": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 0,
+                      "maximum": 36500
+                    }
+                  },
+                  "at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "steps",
+            "set_aside",
+            "names",
+            "gone",
+            "keep_for"
+          ],
+          "properties": {
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "op"
+                ]
+              }
+            },
+            "set_aside": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "label",
+                  "state",
+                  "names"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "state_label": {
+                    "type": "string"
+                  },
+                  "folder": {
+                    "type": "boolean"
+                  },
+                  "set_aside_at": {
+                    "type": "string"
+                  },
+                  "names": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "name_count": {
+                    "type": "integer"
+                  },
+                  "byte_length": {
+                    "type": "integer"
+                  },
+                  "where": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "due_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "days_left": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "due_words": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "names": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "gone": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "keep_for": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/files",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/files/do-work/delete-archive-and-put-back.mjs",
+            "deleteArchiveAndPutBack"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "recently-deleted-and-storage",
+                "paths": [
+                  "namespace-set-aside.mjs",
+                  "namespace-set-aside.json",
+                  "carry-tables-into-records.mjs",
+                  "namespace-view.mjs",
+                  "namespace-view.json",
+                  "namespace-store.mjs",
+                  "time-cursor.mjs",
+                  "file-versions.mjs",
+                  "file-versions.json",
+                  "box-name.mjs",
+                  "file-type.mjs",
+                  "namespace-name-counts.mjs",
+                  "workspace",
+                  "do-work"
+                ],
+                "at": "/opt/files"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/namespace-set-aside.mjs at 7fd88384^, moved byte for byte in a9ee258 (#76); its imports src/namespace-set-aside.json, carry-tables-into-records.mjs, namespace-view.mjs and namespace-store.mjs, with theirs, brought in byte for byte from b6ae0ebf815f (4ffa1dc4a2^) (moved-from.json; carry-tables-into-records.mjs takes canonical from decide-with-a-method/read-data/decision-records.mjs, the same line as src/decision-store.mjs had); old capability row capabilities.json:204 at 4ffa1dc4a2^ (restore what I deleted or archived, see how long it stays and what happens then); do-work/delete-archive-and-put-back.mjs written here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "now": "2026-11-01T09:00:00Z",
+              "files": [
+                {
+                  "name": "/Notes/plan.md",
+                  "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "byte_length": 120
+                },
+                {
+                  "name": "/Notes/old.md",
+                  "identity": "1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                  "byte_length": 80
+                },
+                {
+                  "name": "/Photos/beach.jpg",
+                  "identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                  "byte_length": 4000
+                }
+              ],
+              "steps": [
+                {
+                  "op": "delete",
+                  "items": [
+                    {
+                      "name": "/Notes/old.md"
+                    }
+                  ]
+                },
+                {
+                  "op": "archive",
+                  "items": [
+                    {
+                      "name": "/Photos"
+                    }
+                  ]
+                },
+                {
+                  "op": "put_back",
+                  "items": [
+                    "Photos"
+                  ]
+                },
+                {
+                  "op": "sweep",
+                  "at": "2026-12-05T09:00:00Z"
+                }
+              ]
+            },
+            "output_selector": "$.gone[0]",
+            "equals": "1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    }
+  ]
+}
