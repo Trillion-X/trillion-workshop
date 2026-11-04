@@ -41,7 +41,10 @@
     "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
     "licence_class": "licence:maker-own",
     "placements": ["placement:small-container"],
-    "maker": "maker:learn-from-everyones-results"
+    "maker": "maker:learn-from-everyones-results",
+    "verify": [
+     {"kind":"sample-run","input":{"worked":true,"rules":{"epsilon":1}}}
+    ]
    }
   },
   {
@@ -90,7 +93,10 @@
     "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
     "licence_class": "licence:maker-own",
     "placements": ["placement:small-container"],
-    "maker": "maker:learn-from-everyones-results"
+    "maker": "maker:learn-from-everyones-results",
+    "verify": [
+     {"kind":"sample-run","input":{"contributor":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","situation":"sample-situation-1","worked":true},"records":[{"id":"record:pooled-situation:sample-situation-1","type":"record:pooled-situation","value":{"entry":{"what":"A made-up shared situation"},"embedding":[1,0,0],"day":"2026-11-01"}}]}
+    ]
    }
   },
   {
@@ -134,7 +140,10 @@
     "needs": { "expected_seconds": 30, "network_egress": false, "memory_mb": 256 },
     "licence_class": "licence:maker-own",
     "placements": ["placement:small-container"],
-    "maker": "maker:learn-from-everyones-results"
+    "maker": "maker:learn-from-everyones-results",
+    "verify": [
+     {"kind":"sample-run","input":{"contributor":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},"records":[{"id":"record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:00000000-0000-4000-8000-000000000001","type":"record:pooled-result","value":{"contributor":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","situation":"sample-situation-1","worked":1,"embedding":[1,0,0],"day":"2026-11-01"}},{"id":"record:pooled-result:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:00000000-0000-4000-8000-000000000002","type":"record:pooled-result","value":{"contributor":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","situation":"sample-situation-1","worked":0,"embedding":[1,0,0],"day":"2026-11-01"}}]}
+    ]
    }
   },
   {
@@ -193,7 +202,10 @@
     "needs": { "expected_seconds": 30, "network_egress": false, "memory_mb": 512 },
     "licence_class": "licence:maker-own",
     "placements": ["placement:small-container"],
-    "maker": "maker:learn-from-everyones-results"
+    "maker": "maker:learn-from-everyones-results",
+    "verify": [
+     {"kind":"sample-run","input":{"embedding":[1,0,0],"rules":{"epsilon":1,"min_people":1,"shards":2,"query_epsilon":1,"people_bucket":1,"share_step":0.1,"min_similarity":0.5}},"records":[{"id":"record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:00000000-0000-4000-8000-000000000001","type":"record:pooled-result","value":{"contributor":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","situation":"sample-situation-1","worked":1,"embedding":[1,0,0],"day":"2026-11-01"}},{"id":"record:pooled-result:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:00000000-0000-4000-8000-000000000002","type":"record:pooled-result","value":{"contributor":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","situation":"sample-situation-1","worked":0,"embedding":[1,0,0],"day":"2026-11-01"}}]}
+    ]
    }
   },
   {
@@ -315,7 +327,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:learn-from-everyones-results"
+    "maker": "maker:learn-from-everyones-results",
+    "verify": [
+     {"kind":"sample-run","input":{"entry":{"what":"Asked a made-up question before a sample launch"},"embedding":[1,0,0]}}
+    ]
    }
   }
  ]

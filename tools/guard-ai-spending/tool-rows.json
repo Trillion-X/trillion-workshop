@@ -70,7 +70,9 @@
         "maker": "maker:guard-ai-spending",
         "result_selector": "$.result",
         "provenance": { "source": "bitfield-packages packages/agent-wallet (do-work/decide-budget.mjs and action:budget-gate), ported to the records door" },
-        "verify": [{ "kind": "output-number-within", "output_selector": "$.spend_snapshot.total_spent_today", "at_least": 0 }]
+        "verify": [{ "kind": "output-number-within", "output_selector": "$.spend_snapshot.total_spent_today", "at_least": 0 },
+     {"kind":"sample-run","input":{"spend_authority_ref":"spend-authority:sample-research","operation_ref":"operation:sample-report","estimated_cost":250,"idempotency_key":"idem:sample-one"},"records":[{"id":"spend-authority:sample-research","type":"spend-authority","value":{"status":"active","enabled":true,"daily_limit":1000,"per_transaction_limit":300,"total_spent_today":0,"total_spent_all_time":0}}]}
+    ]
       }
     },
     {
@@ -133,7 +135,9 @@
         "maker": "maker:guard-ai-spending",
         "result_selector": "$.result",
         "provenance": { "source": "bitfield-packages packages/agent-wallet read-data/read-agent-budget-authority.ts, ported to the records door" },
-        "verify": [{ "kind": "output-number-within", "output_selector": "$.amount", "at_least": 0 }]
+        "verify": [{ "kind": "output-number-within", "output_selector": "$.amount", "at_least": 0 },
+     {"kind":"sample-run","input":{"spend_authority_ref":"spend-authority:sample-research","operation_ref":"operation:sample-report","idempotency_key":"idem:sample-one"},"records":[{"id":"spend-budget-check:operation:sample-report","type":"spend-budget-check","value":{"kind":"spend_budget_check","check_ref":"spend-budget-check:operation:sample-report","operation_ref":"operation:sample-report","spend_authority_ref":"spend-authority:sample-research","wallet_ref":"spend-authority:sample-research","rail_ref":"payment-rail:unspecified","spender_id":"","agent_id":"","idempotency_key":"idem:sample-one","spend_snapshot_ref":"spend-authority-snapshot:operation:sample-report","result":"approved","denied_reason":"","estimated_cost":250,"currency":"USD","checked_at":"2026-11-03T00:00:00.000Z","expires_at":"2099-01-01T00:00:00.000Z","evidence_refs":["spend-authority:sample-research","payment-rail:unspecified"]}},{"id":"spend-budget-reservation:operation:sample-report","type":"spend-budget-reservation","value":{"kind":"spend_budget_reservation","reservation_ref":"spend-budget-reservation:operation:sample-report","operation_ref":"operation:sample-report","spend_authority_ref":"spend-authority:sample-research","wallet_ref":"spend-authority:sample-research","rail_ref":"payment-rail:unspecified","spender_id":"","agent_id":"","idempotency_key":"idem:sample-one","spend_snapshot_ref":"spend-authority-snapshot:operation:sample-report","fencing_token":"spend-authority-budget-fence:idem:sample-one","status":"current","denied_reason":"","amount":250,"currency":"USD","reserved_at":"2026-11-03T00:00:00.000Z","expires_at":"2099-01-01T00:00:00.000Z","evidence_refs":["spend-budget-check:operation:sample-report"]}}]}
+    ]
       }
     },
     {
@@ -201,7 +205,9 @@
         "maker": "maker:guard-ai-spending",
         "result_selector": "$.result",
         "provenance": { "source": "bitfield-packages packages/agent-wallet (do-work/record-spend.mjs and action:record-spend), ported to the records door" },
-        "verify": [{ "kind": "output-number-within", "output_selector": "$.total_spent_today", "at_least": 0 }]
+        "verify": [{ "kind": "output-number-within", "output_selector": "$.total_spent_today", "at_least": 0 },
+     {"kind":"sample-run","input":{"spend_authority_ref":"spend-authority:sample-research","operation_ref":"operation:sample-report","amount":250,"payment_ref":"payment:sample-1"},"records":[{"id":"spend-authority:sample-research","type":"spend-authority","value":{"status":"active","enabled":true,"daily_limit":1000,"per_transaction_limit":300,"total_spent_today":100,"total_spent_all_time":4000}}]}
+    ]
       }
     },
     {
@@ -256,7 +262,9 @@
         "maker": "maker:guard-ai-spending",
         "result_selector": "$.result",
         "provenance": { "source": "bitfield-packages packages/agent-wallet (do-work/decide-daily-reset.mjs and action:reset-daily-spend), ported to the records door" },
-        "verify": [{ "kind": "output-number-within", "output_selector": "$.total_spent_today", "at_least": 0 }]
+        "verify": [{ "kind": "output-number-within", "output_selector": "$.total_spent_today", "at_least": 0 },
+     {"kind":"sample-run","input":{"spend_authority_ref":"spend-authority:sample-research"},"records":[{"id":"spend-authority:sample-research","type":"spend-authority","value":{"status":"active","enabled":true,"daily_limit":1000,"per_transaction_limit":300,"total_spent_today":700,"total_spent_all_time":0,"last_reset_day":"2026-11-01"}}]}
+    ]
       }
     },
     {
