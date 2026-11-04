@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b68d55f25d2aa8fb10d68d850107a0fd5e37414d0cbd148c19627f6c13b226a4"
+  "blake3": "1f:54d554e9f4dc44d37dd7f435e4bb7bd757ad53a3bdc2217ac188d9e2f4f98178"
  },
  "fields": [
   {
@@ -11321,7 +11321,7 @@
    "values": {
     "title": "Update a computer",
     "job": "Bring a running computer to what a new one gets: the product settings file, the signed release feed and a release that knows both",
-    "description": "Copies the request's engine release onto a running computer, writes the product settings file the engine reads (read-data/product-settings.json, named by PRODUCT_SETTINGS in the service), adds the product's signed release feed to its place config so it adopts new releases itself, makes the adopt folder writable for the service, points it at the release and restarts it. Every file it replaces is kept in a backup folder first; when the service is not active afterwards, or the sign-up page does not answer 200, everything is put back from it. `rollback` puts an update back on request.",
+    "description": "Reads a running computer's own layout from its service unit (its place config, current link, state folder, releases folder and unit name; a request's layout row wins), copies the request's engine release into its releases folder (or keeps the one current names), writes the product settings file the engine reads into its state folder (named by PRODUCT_SETTINGS in the unit), adds the product's signed release feed to its place config so it adopts new releases into its own releases folder, made writable for the service, sets a copies policy its computers can meet, points it at the release and restarts it. Every file it replaces is kept in a backup folder first; when the service is not active afterwards, or the sign-up page does not answer 200, everything is put back from it. `rollback` puts an update back on request.",
     "status": "active",
     "maker": "maker:start-a-place",
     "licence_class": "licence:maker-own",

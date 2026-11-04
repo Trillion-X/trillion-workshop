@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, symlinkSync, readlinkSync, chmodSync, existsSync, readdirSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, symlinkSync, readlinkSync, chmodSync, existsSync, readdirSync, rmSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { userInfo } from 'node:os';
 import { tmpdir } from 'node:os';
@@ -11,6 +11,7 @@ import {
 } from '../do-work/rent-a-machine.mjs';
 import {
   rentAMachine, startAPlace, placeConfig, readRequest, updateAComputer, rollBackAComputer, PRODUCT_SETTINGS, productSettings,
+  parseUnit, readLayout, copiesFor, copiesPolicy,
 } from '../do-work/start-a-place.mjs';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
@@ -146,7 +147,7 @@ test('the place config takes the machine\'s own fields and values read from the 
   assert.deepEqual(config, {
     report: { takes_new_accounts: true, reach: 'https://place.example.com', cost_per_month_cents: 699 }, router: 'router.example.com:443',
     listen: '127.0.0.1:7199', accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: 'https://place.example.com',
-    new_accounts: { sign_in_ways: [{ way: 'passkey' }] }, release_feed: SETTINGS.release_feed,
+    new_accounts: { sign_in_ways: [{ way: 'passkey' }], copies: { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 } }, release_feed: SETTINGS.release_feed,
   });
   const behind = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' }, public_origin: 'https://front.example.com' }, null, run);
   assert.deepEqual([behind.public_origin, behind.report.reach], ['https://front.example.com', 'https://place.example.com']);
@@ -199,6 +200,8 @@ test('the place config carries the request\'s release feed and default places', 
   const default_places = { holders: ['this-place', id], answering: ['this-place'] };
   const config = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' }, release_feed, default_places }, null, async () => '');
   assert.deepEqual([config.release_feed, config.default_places], [release_feed, default_places]);
+  const fixture = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' }, place_config: { new_accounts: { copies: { least_copy_keepers: 3, least_voters: 3, least_may_answer: 2, least_always_on: 0 } } }, default_places: { holders: ['this-place'], answering: ['this-place'] } }, null, async () => '');
+  assert.deepEqual(fixture.new_accounts.copies, { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 }, 'a computer alone is never given copies it cannot meet');
   const product = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' } }, null, async () => '');
   assert.deepEqual(product.release_feed, SETTINGS.release_feed, 'a request that names no feed follows the product\'s');
   assert.ok(!('default_places' in product));
@@ -304,31 +307,41 @@ test('the product settings are the identity the engines compiled in, with only t
   assert.deepEqual(SETTINGS.release_feed.urls, ['https://engine-releases.gettrillion.ai/engine-releases/feed.json']);
 });
 
-// A made-up computer folder: what set-up-the-machine.sh made on a running computer before this update, under `root`.
-const UNIT = `[Unit]
+// Made-up computer folders under `root`, laid out two ways: the way set-up-the-machine.sh lays a machine out, and the
+// way the running computers were laid out by hand (another release folder, state folder and unit name). The update
+// is told neither: it reads each from the unit.
+const ME = userInfo().username;
+const LAYOUTS = {
+  'start-a-place': { base: '/opt/place', state: '/var/lib/place', unit: 'place.service', release: '/opt/place/releases/old' },
+  'by hand': { base: '/opt/trillion', state: '/srv/trillion/state', unit: 'trillion-place.service', release: '/opt/trillion/releases/old-engine' },
+};
+const unitOf = l => `[Unit]
 Description=A place that keeps accounts (place.example.com)
 
 [Service]
 Type=simple
-User=place
-ExecStart=/bin/sh -c 'R=$(readlink -f /opt/place/current) && exec env PRODUCT_DATA_ROOT="$R/product" "$R/trillion-local" serve /var/lib/place/place.json'
+User=${ME}
+WorkingDirectory=${l.state}
+ExecStart=/bin/sh -c 'R=$(readlink -f ${l.base}/current) && exec env PRODUCT_DATA_ROOT="$R/product" "$R/trillion-local" serve ${l.state}/place.json'
 ProtectSystem=strict
-ReadWritePaths=/var/lib/place
+ReadWritePaths=${l.state}
 
 [Install]
 WantedBy=multi-user.target
 `;
-const OLD_CONFIG = `${JSON.stringify({ listen: '127.0.0.1:7199', accounts: '/var/lib/place/accounts', public_origin: 'https://place.example.com' }, null, 1)}\n`;
+const THREE = { least_copy_keepers: 3, least_voters: 3, least_may_answer: 2, least_always_on: 0 };
+const OLD_CONFIG = `${JSON.stringify({ listen: '127.0.0.1:7199', accounts: '/x/accounts', public_origin: 'https://place.example.com', new_accounts: { copies: THREE, copies_rules: { rule: 'kept as it is' } } }, null, 1)}\n`;
 
-function madeUpComputer() {
+function madeUpComputer(l, { units = [] } = {}) {
   const root = folder(), bin = join(root, 'fake-bin'), engine = '#!/bin/sh\nexit 0\n';
-  for (const dir of ['var/lib/place', 'etc/systemd/system', 'opt/place/releases/old', 'opt/build/new', 'fake-bin']) mkdirSync(join(root, dir), { recursive: true });
-  writeFileSync(join(root, 'var/lib/place/place.json'), OLD_CONFIG);
-  writeFileSync(join(root, 'etc/systemd/system/place.service'), UNIT);
-  for (const dir of ['opt/place/releases/old', 'opt/build/new']) { writeFileSync(join(root, dir, 'trillion-local'), engine); chmodSync(join(root, dir, 'trillion-local'), 0o755); }
-  symlinkSync('/opt/place/releases/old', join(root, 'opt/place/current'));
-  // systemctl: each call is written down; the service is not active when /opt/place/current names FAKE_REFUSED_RELEASE.
-  writeFileSync(join(bin, 'systemctl'), `#!/bin/sh\necho "$*" >> "$ROOT/systemctl.calls"\nif [ "$1" = is-active ] && [ "$(readlink "$ROOT/opt/place/current")" = "\${FAKE_REFUSED_RELEASE:-none}" ]; then exit 3; fi\nexit 0\n`);
+  for (const dir of [l.state, 'etc/systemd/system', l.release, 'opt/build/new', 'fake-bin']) mkdirSync(join(root, dir), { recursive: true });
+  writeFileSync(join(root, l.state, 'place.json'), OLD_CONFIG);
+  writeFileSync(join(root, 'etc/systemd/system', l.unit), unitOf(l));
+  for (const [name, text] of units) writeFileSync(join(root, 'etc/systemd/system', name), text);
+  for (const dir of [l.release, 'opt/build/new']) { writeFileSync(join(root, dir, 'trillion-local'), engine); chmodSync(join(root, dir, 'trillion-local'), 0o755); }
+  symlinkSync(l.release, join(root, l.base, 'current'));
+  // systemctl: each call is written down; the service is not active when its current link names FAKE_REFUSED_RELEASE.
+  writeFileSync(join(bin, 'systemctl'), `#!/bin/sh\necho "$*" >> "$ROOT/systemctl.calls"\nif [ "$1" = is-active ] && [ "$(readlink "$ROOT${l.base}/current")" = "\${FAKE_REFUSED_RELEASE:-none}" ]; then exit 3; fi\nexit 0\n`);
   chmodSync(join(bin, 'systemctl'), 0o755);
   const lease = join(root, 'lease.json');
   writeFileSync(lease, JSON.stringify({ schema: 'place-lease/1', provider: 'existing-machine', name: 'a-computer', address: '192.0.2.50', adopted: true, hostName: 'place.example.com' }));
@@ -341,58 +354,82 @@ const runHere = (root, env = {}) => async (_machine, command, input) => {
   let bytes = input ?? '';
   if (input?.pipe) { const parts = []; for await (const part of input) parts.push(part); bytes = Buffer.concat(parts); }
   const stdin = join(root, 'stdin'); writeFileSync(stdin, bytes);
-  return runFrom(root, env, command, stdin);
+  return new Promise((resolve, reject) => {
+    const child = spawn('sh', ['-c', `${command} < '${stdin}'`], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, ...env, ROOT: root, PATH: `${join(root, 'fake-bin')}:${process.env.PATH}` } });
+    let out = '', err = '';
+    child.stdout.on('data', part => { out += part; });
+    child.stderr.on('data', part => { err += part; });
+    child.on('close', code => (code === 0 ? resolve(out) : reject(new Error(`exited ${code}: ${err.trim()}`))));
+  });
 };
-const runFrom = (root, env, command, stdin) => new Promise((resolve, reject) => {
-  const child = spawn('sh', ['-c', `${command} < '${stdin}'`], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, ...env, ROOT: root, PATH: `${join(root, 'fake-bin')}:${process.env.PATH}` } });
-  let out = '', err = '';
-  child.stdout.on('data', bytes => { out += bytes; });
-  child.stderr.on('data', bytes => { err += bytes; });
-  child.on('close', code => (code === 0 ? resolve(out) : reject(new Error(`exited ${code}: ${err.trim()}`))));
-});
 
 const updateRequest = { ssh: { known_hosts: '/dev/null' }, name: { host_name: 'place.example.com' }, engine: { file: 'trillion-local', release_name: 'new', release: { on_machine: '/opt/build/new' } } };
-const asHere = (root, extra = {}) => ({ root, placeUser: userInfo().username, settle: 0, wait: async () => {}, tries: 1, fetchImpl: async () => ({ status: 200 }), ...extra });
+const asHere = (root, extra = {}) => ({ root, settle: 0, wait: async () => {}, tries: 1, fetchImpl: async () => ({ status: 200 }), ...extra });
+const read = (file, path) => readFileSync(file(path), 'utf8');
 
-test('an update gives a running computer the product settings, the feed and the release, keeping a backup', async () => {
-  const { root, lease, file } = madeUpComputer();
-  const answer = await updateAComputer(lease, updateRequest, { ...asHere(root), run: runHere(root), now: new Date('2026-11-04T17:15:00Z') });
-  assert.deepEqual(answer, {
-    release: '/opt/place/releases/new', backup: '/var/lib/place/backups/update-2026-11-04T17-15-00-000Z', product_settings: '/var/lib/place/product-settings.json',
-    release_feed: SETTINGS.release_feed.urls, sign_up_status: 200,
+for (const [kind, l] of Object.entries(LAYOUTS)) {
+  test(`an update reads a ${kind} computer's own layout and gives it the product settings, the feed, a copies policy it can meet and the release, keeping a backup`, async () => {
+    const { root, lease, file } = madeUpComputer(l);
+    const answer = await updateAComputer(lease, updateRequest, { ...asHere(root), run: runHere(root), now: new Date('2026-11-04T17:15:00Z') });
+    const backup = `${l.state}/backups/update-2026-11-04T17-15-00-000Z`, releases = `${l.base}/releases`;
+    assert.deepEqual(answer, {
+      layout: { unit: l.unit, config: `${l.state}/place.json`, current: `${l.base}/current`, state: l.state, releases },
+      release: `${releases}/new`, backup, product_settings: `${l.state}/product-settings.json`,
+      release_feed: { urls: SETTINGS.release_feed.urls, releases }, copies: { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 }, sign_up_status: 200,
+    });
+    assert.deepEqual(readFileSync(file(`${l.state}/product-settings.json`)), PRODUCT_SETTINGS, 'byte for byte, in the computer\'s own state folder');
+    const config = JSON.parse(read(file, `${l.state}/place.json`)), old = JSON.parse(OLD_CONFIG);
+    assert.deepEqual(config, { ...old, new_accounts: { ...old.new_accounts, copies: answer.copies }, release_feed: { ...SETTINGS.release_feed, releases } }, 'the feed adopts into this computer\'s own releases folder; only copies changes in new_accounts');
+    const unit = read(file, `etc/systemd/system/${l.unit}`);
+    assert.match(unit, new RegExp(`^\\[Service\\]\\nEnvironment=PRODUCT_SETTINGS=${l.state}/product-settings\\.json\\nType=simple$`, 'm'));
+    assert.match(unit, new RegExp(`^ReadWritePaths=${l.state} ${releases}$`, 'm'));
+    assert.equal(readlinkSync(file(`${l.base}/current`)), `${releases}/new`);
+    const kept = file(`${backup}/old`);
+    assert.deepEqual([readFileSync(join(kept, 'place.json'), 'utf8'), readFileSync(join(kept, 'unit'), 'utf8'), readFileSync(join(kept, 'current.link'), 'utf8')], [OLD_CONFIG, unitOf(l), `${l.release}\n`]);
+    assert.deepEqual(read(file, 'systemctl.calls').trim().split('\n'), ['daemon-reload', `restart ${l.unit}`, `is-active --quiet ${l.unit}`]);
+
+    // A second update with no release keeps the one current names, and changes nothing more in the unit; a rollback
+    // of the first puts back what was there, from the layout the backup kept.
+    const second = await updateAComputer(lease, { ...updateRequest, engine: { file: 'trillion-local' } }, { ...asHere(root), run: runHere(root), now: new Date('2026-11-04T17:20:00Z') });
+    assert.equal(second.release, `${releases}/new`);
+    assert.equal(read(file, `etc/systemd/system/${l.unit}`), unit);
+    const back = await rollBackAComputer(lease, updateRequest, answer.backup, { ...asHere(root), run: runHere(root) });
+    assert.match(back.rolled_back, /^rolled-back /);
+    assert.deepEqual([read(file, `${l.state}/place.json`), read(file, `etc/systemd/system/${l.unit}`), readlinkSync(file(`${l.base}/current`))], [OLD_CONFIG, unitOf(l), l.release]);
+    assert.ok(!existsSync(file(`${l.state}/product-settings.json`)));
   });
-  assert.deepEqual(readFileSync(file('var/lib/place/product-settings.json')), PRODUCT_SETTINGS, 'byte for byte');
-  const config = JSON.parse(readFileSync(file('var/lib/place/place.json'), 'utf8'));
-  assert.deepEqual(config, { ...JSON.parse(OLD_CONFIG), release_feed: SETTINGS.release_feed }, 'only release_feed is added');
-  const unit = readFileSync(file('etc/systemd/system/place.service'), 'utf8');
-  assert.match(unit, /^\[Service\]\nEnvironment=PRODUCT_SETTINGS=\/var\/lib\/place\/product-settings\.json\nType=simple$/m);
-  assert.match(unit, /^ReadWritePaths=\/var\/lib\/place \/opt\/place\/releases$/m);
-  assert.equal(readlinkSync(file('opt/place/current')), '/opt/place/releases/new');
-  assert.ok(existsSync(file('opt/place/releases')));
-  const kept = file('var/lib/place/backups/update-2026-11-04T17-15-00-000Z/old');
-  assert.deepEqual([readFileSync(join(kept, 'place.json'), 'utf8'), readFileSync(join(kept, 'place.service'), 'utf8'), readFileSync(join(kept, 'current.link'), 'utf8')], [OLD_CONFIG, UNIT, '/opt/place/releases/old\n']);
-  assert.ok(!existsSync(join(kept, 'product-settings.json')), 'there was none before');
-  assert.deepEqual(readFileSync(file('systemctl.calls'), 'utf8').trim().split('\n'), ['daemon-reload', 'restart place.service', 'is-active --quiet place.service']);
 
-  // A second update changes nothing more in the unit, and a rollback of the first puts back what was there.
-  await updateAComputer(lease, updateRequest, { ...asHere(root), run: runHere(root), now: new Date('2026-11-04T17:20:00Z') });
-  const again = readFileSync(file('etc/systemd/system/place.service'), 'utf8');
-  assert.equal(again, unit);
-  const back = await rollBackAComputer(lease, updateRequest, answer.backup, { ...asHere(root), run: runHere(root) });
-  assert.match(back.rolled_back, /^rolled-back /);
-  assert.deepEqual([readFileSync(file('var/lib/place/place.json'), 'utf8'), readFileSync(file('etc/systemd/system/place.service'), 'utf8'), readlinkSync(file('opt/place/current'))], [OLD_CONFIG, UNIT, '/opt/place/releases/old']);
-  assert.ok(!existsSync(file('var/lib/place/product-settings.json')));
-  await assert.rejects(rollBackAComputer(lease, updateRequest, '/etc', { ...asHere(root), run: runHere(root) }), /BACKUP is a folder an update answered/);
+  test(`a ${kind} computer's update whose service does not stay active, or whose sign-up page does not answer, is put back`, async () => {
+    for (const [env, extra, why] of [[{ FAKE_REFUSED_RELEASE: `${l.base}/releases/new` }, {}, /put back from .*not active/s], [{}, { fetchImpl: async () => ({ status: 502 }) }, /answered 502 after the update, so it was put back/]]) {
+      const { root, lease, file } = madeUpComputer(l);
+      await assert.rejects(updateAComputer(lease, updateRequest, { ...asHere(root, extra), run: runHere(root, env) }), why);
+      assert.deepEqual([read(file, `${l.state}/place.json`), read(file, `etc/systemd/system/${l.unit}`), readlinkSync(file(`${l.base}/current`))], [OLD_CONFIG, unitOf(l), l.release]);
+      assert.ok(!existsSync(file(`${l.state}/product-settings.json`)));
+      assert.equal(readdirSync(file(`${l.state}/backups`)).length, 1);
+    }
+  });
+}
+
+test('the layout is read from the unit, a request\'s layout row wins, and an unclear computer is refused rather than guessed', async () => {
+  assert.deepEqual(parseUnit(unitOf(LAYOUTS['by hand'])), { config: '/srv/trillion/state/place.json', current: '/opt/trillion/current', state: '/srv/trillion/state', owner: ME });
+  assert.deepEqual(parseUnit("[Service]\nExecStart=/opt/x/current/engine serve '/etc/x/place.json'\n"), { config: '/etc/x/place.json', current: '/opt/x/current', state: '/etc/x', owner: 'root' });
+  const l = LAYOUTS['by hand'];
+  const two = madeUpComputer(l, { units: [['other-place.service', unitOf(LAYOUTS['start-a-place'])]] });
+  await assert.rejects(readLayout({}, {}, runHere(two.root), two.root), /Found trillion-place\.service, other-place\.service|Found other-place\.service, trillion-place\.service/);
+  const named = await readLayout({}, { layout: { unit: l.unit } }, runHere(two.root), two.root);
+  assert.deepEqual([named.unit, named.state, named.releases, named.release_dir], [l.unit, l.state, '/opt/trillion/releases', l.release]);
+  const row = await readLayout({}, { layout: { unit: l.unit, state: '/srv/elsewhere', releases: '/srv/releases' } }, runHere(two.root), two.root);
+  assert.deepEqual([row.state, row.releases], ['/srv/elsewhere', '/srv/releases']);
+  const none = madeUpComputer(l);
+  rmSync(none.file(`etc/systemd/system/${l.unit}`));
+  await assert.rejects(readLayout({}, {}, runHere(none.root), none.root), /Found no unit/);
+  await assert.rejects(readLayout({}, { layout: { units: 'x' } }, runHere(none.root), none.root), /layout takes/);
 });
 
-test('an update whose service does not stay active, or whose sign-up page does not answer, is put back', async () => {
-  for (const [env, extra, why] of [[{ FAKE_REFUSED_RELEASE: '/opt/place/releases/new' }, {}, /put back from .*not active/s], [{}, { fetchImpl: async () => ({ status: 502 }) }, /answered 502 after the update, so it was put back/]]) {
-    const { root, lease, file } = madeUpComputer();
-    await assert.rejects(updateAComputer(lease, updateRequest, { ...asHere(root, extra), run: runHere(root, env) }), why);
-    assert.deepEqual([readFileSync(file('var/lib/place/place.json'), 'utf8'), readFileSync(file('etc/systemd/system/place.service'), 'utf8'), readlinkSync(file('opt/place/current'))], [OLD_CONFIG, UNIT, '/opt/place/releases/old']);
-    assert.ok(!existsSync(file('var/lib/place/product-settings.json')));
-    assert.equal(readdirSync(file('var/lib/place/backups')).length, 1);
-  }
-  const { root, lease } = madeUpComputer();
-  await assert.rejects(updateAComputer(lease, { ...updateRequest, release_feed: null }, { ...asHere(root), run: runHere(root) }), /An update needs a release_feed/);
+test('a new account\'s copies are what its computers can meet', () => {
+  assert.deepEqual(copiesFor({}), { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 });
+  assert.deepEqual(copiesFor({ default_places: { holders: ['this-place', 'e'.repeat(64)] } }), { least_copy_keepers: 2, least_voters: 2, least_may_answer: 2, least_always_on: 0 });
+  assert.deepEqual(copiesFor({ default_places: { holders: ['a', 'b', 'c', 'd', 'e'] } }), THREE);
+  assert.throws(() => copiesPolicy({ ...THREE, least_copy_keepers: 0 }), /at least 1/);
+  assert.throws(() => copiesPolicy({ ...THREE, least_may_answer: 4 }), /no more than/);
 });
