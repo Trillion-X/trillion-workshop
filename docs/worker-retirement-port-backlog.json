@@ -2600,9 +2600,10 @@
   },
   {
    "path": "scripts/screen-modules.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/scripts/",
-   "why": "a tool a person or AI runs"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/scripts/screen-modules.mjs",
+   "why": "the same bytes on trillion-apps main but for one import line: payloadsIn is read in place instead of from parts/ai-tool-catalog",
+   "batch": "slice src s-z, scripts round 2 (trillion-workshop)"
   },
   {
    "path": "scripts/screens-to-walk.mjs",
@@ -8874,9 +8875,10 @@
   },
   {
    "path": "src/seats.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/paid-access/read-data/seats.mjs",
+   "why": "an adapted port already on main: its header names src/seats.mjs as its source; every function keeps its old signature",
+   "batch": "slice src s-z, scripts round 2 (trillion-workshop)"
   },
   {
    "path": "src/seen-marks.mjs",
