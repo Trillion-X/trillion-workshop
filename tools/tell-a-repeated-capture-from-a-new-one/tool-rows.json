@@ -164,7 +164,17 @@
         "result_selector": "$.result",
         "provenance": {
           "source": "Moved from Trillion-X/trillion capture-dedupe (computer/, deleted in dc79bb0a87)"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "seen",
+              "text": "Quarterly plan for Example Co: review the notes from Ada Example before Friday.",
+              "at": "2026-11-03T10:00:00Z"
+            }
+          }
+        ]
       }
     }
   ]

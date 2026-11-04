@@ -153,7 +153,8 @@
             }
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind":"sample-run","input":{"rules":{"words":[{"why":"a status, not what the thing does","words":["legacy"]}],"passes":["mjs"]}},"stand_in_programs":{"git":"case \"$*\" in\n  *rev-parse*) exit 1 ;;\n  *\"diff --cached\"*) printf 'src/legacy-parser.mjs\\0src/read-notes.mjs\\0' ;;\n  *) exit 1 ;;\nesac"}}]
       }
     }
   ]

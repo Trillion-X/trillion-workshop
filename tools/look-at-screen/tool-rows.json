@@ -63,6 +63,7 @@
           }
         },
         "result_selector": "$.result",
+        "verify": [{"kind": "needs-a-machine", "requires": "macOS with a screen, Screen Recording permission granted, and /usr/bin/osascript, /usr/sbin/screencapture and /usr/bin/sips (the tool runs them by absolute path, so no stand-in program can replace them)", "proved_on": null}],
         "needs": {"expected_seconds": 5, "network_egress": false},
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
