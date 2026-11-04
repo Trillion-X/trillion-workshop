@@ -14,7 +14,7 @@
 //   1. The Worker has already established the person's page session; every read and run uses that person's store.
 //   2. A write is accepted only from the service's own origin, and runs as the person's page (PERSON_APP).
 //   3. The run's answer is passed on whole, with its status, so the panel shows the tool's own words.
-import { PERSON_APP } from './activity.mjs';
+import { PERSON_APP } from '../../see-what-my-ais-did/activity.mjs';
 import { editIdOf } from './editor-handoff.mjs';
 
 const json = (value, status = 200) => Response.json(value, { status });

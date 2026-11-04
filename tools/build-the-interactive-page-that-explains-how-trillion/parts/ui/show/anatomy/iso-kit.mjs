@@ -1,4 +1,4 @@
-import { ISO_CSS } from '../../../screen-look/show/anatomy/iso-style.mjs';
+import { ISO_CSS } from '../../../../../screen-look/show/anatomy/iso-style.mjs';
 export const AZIMUTH = 45;
 export const ELEVATION = 30;
 export const SHADES = 4;

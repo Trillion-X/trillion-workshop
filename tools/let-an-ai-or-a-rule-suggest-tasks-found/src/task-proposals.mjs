@@ -16,7 +16,7 @@
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import data from '../../shared-code/src/task-proposals.json' with { type: 'json' };
-import { CalendarTasksError, changeCalendarTask } from './calendar-tasks.mjs';
+import { CalendarTasksError, changeCalendarTask } from '../../plan-tasks-and-todo-lists/calendar-tasks.mjs';
 
 export class TaskProposalError extends CalendarTasksError {}
 

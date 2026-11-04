@@ -1,7 +1,7 @@
 // Shared HTML/control owner for a standalone explanatory figure, rendered from caller copy.
 import { plateHtml, iso } from './iso-kit.mjs';
-import { ISO_CSS } from '../../../screen-look/show/anatomy/iso-style.mjs';
-import { EXPLAINER_CSS } from '../../../screen-look/show/anatomy/explainer-style.mjs';
+import { ISO_CSS } from '../../../../../screen-look/show/anatomy/iso-style.mjs';
+import { EXPLAINER_CSS } from '../../../../../screen-look/show/anatomy/explainer-style.mjs';
 import { escapeHtml as esc } from '../../../../../write-a-post-for-each-place/read-data/escape-html.mjs';
 export function explainerScript(data, machine) {
  const P=machine.projection,origin=iso([0,0,0],P),px=iso([1,0,0],P),pz=iso([0,0,1],P);

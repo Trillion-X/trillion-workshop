@@ -2,7 +2,7 @@
 // page writer and words the pages use, photographed by a headless browser into assets/stories-share.png.
 //   node scripts/make-stories-share-image.mjs
 import { writeFileSync } from 'node:fs';
-import { launchChromium } from '../parts/headless-browser/launch.mjs';
+import { launchChromium } from '../../headless-browser/launch.mjs';
 import { pageShellHtml } from '../../organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs';
 import { PAGE_LOOK } from '../src/page-look.mjs';
 import settings from '../src/story-settings.json' with { type: 'json' };

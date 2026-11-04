@@ -16,21 +16,21 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/send-a-saved-edit-from-the-media-editor/src/editor-handoff.mjs",
       "source_identity": "1f:5846885c3e74db5da2310574aa57ea5a9133cb9f4cb45ae9fd1521782b5a49e2",
-      "identity": "1f:b6680f5c5b6edb1c99dc9d537da09c7c7bdb2d1cfd1178b0a9a57c01c5df6ddf"
+      "identity": "1f:1f:62a669238eb7ca940724c5694970cfec462f9ad45afe2c048df38444cad3ca97"
     },
     {
       "from": "src/work-media-editor.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/send-a-saved-edit-from-the-media-editor/src/work-media-editor.mjs",
       "source_identity": "1f:692e240f3e2b268eceef27ff68b8443ae4203ba266feed575d0fea98767203fe",
-      "identity": "1f:692e240f3e2b268eceef27ff68b8443ae4203ba266feed575d0fea98767203fe"
+      "identity": "1f:1f:69dbeaa78bd35b22f3942f7b7b17890a154f49733ddcaf0d00ee37a90f2c9d5c"
     },
     {
       "from": "test/editor-handoff.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/send-a-saved-edit-from-the-media-editor/test/editor-handoff.test.mjs",
       "source_identity": "1f:872811b3440e40647a79c7fd10b20501d028fc4887bcbbc77c2f90458d751c31",
-      "identity": "1f:b95bd2b1a6c217d1465179c40b37928e7e1c65b8300cd9395382a2f8710b8a2a"
+      "identity": "1f:1f:82a04d22bb838e26b577885a8a840af0bc337a2f8150ae05eabff03dfbf75965"
     }
   ]
 }

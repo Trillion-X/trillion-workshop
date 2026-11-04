@@ -31,7 +31,7 @@
 //      and the newest link becomes the next `since`.
 //
 import settings from '../../shared-code/src/saved-links.json' with { type: 'json' };
-import connections from '../parts/service-connections/records.json' with { type: 'json' };
+import connections from '../../connect-a-service-and-seal-its-key/records.json' with { type: 'json' };
 import { makeSavedPages } from './saved-pages.mjs';
 
 export class SavedLinksError extends Error {}

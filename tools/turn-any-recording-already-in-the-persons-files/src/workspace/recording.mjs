@@ -25,7 +25,7 @@
 //      job handed on read it the same way, and only `take` tells the job which row it came from.
 
 import settings from './recording.json' with { type: 'json' };
-import { isMostlyRepeated } from '../../parts/record-audio/read-data/heard-words.mjs';
+import { isMostlyRepeated } from '../../../record-voice-and-meetings/read-data/heard-words.mjs';
 
 const clean = value => (typeof value === 'string' ? value.trim() : '');
 

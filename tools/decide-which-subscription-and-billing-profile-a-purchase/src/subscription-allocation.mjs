@@ -2,7 +2,7 @@
 // Customer/profile identity is independent from the person paying. Payment Link
 // purchases get a billing profile; never combine a meter across two subscriptions
 // of the same profile, which could bill the same event twice.
-import { buildStripeHttpRequest } from '../parts/stripe-payment-provider/process/build-stripe-http-request.mjs';
+import { buildStripeHttpRequest } from '../../seller-payment-setup/process/build-stripe-http-request.mjs';
 import { allocationOf, quantityOf } from './offer-allocation.mjs';
 const ref = value => typeof value === 'string' ? value : value?.id;
 const request = (send, operation_id, operation_subject, provider_object_ref) => send(buildStripeHttpRequest({ operation_id,

@@ -11,7 +11,7 @@
 // `search_from` characters were typed; a row whose read fails is listed in `unread` and the rest still answer.
 
 import sources from './mention-sources.json' with { type: 'json' };
-import appearance from '../parts/screen-look/show/record-kind-appearance.json' with { type: 'json' };
+import appearance from '../../screen-look/show/record-kind-appearance.json' with { type: 'json' };
 
 const json = (value, status = 200) => Response.json(value, { status });
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');

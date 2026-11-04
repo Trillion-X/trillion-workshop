@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { prepareSetupAccess, manageSetupAccess, signupAccessMandate, setupAccessRecordLabel, setupAccessSettings } from '../src/setup-access.mjs';
 import { workspaceValueIdentity } from '../../set-up-my-account/read-data/conflicts.mjs';
 import { distributionSource } from '../../set-up-my-devices-and-cameras/src/device-distribution.mjs';
-import { fulfillAppleSetupAccess, makeSetupAccessTools } from '../computer/setup-access.mjs';
+import { fulfillAppleSetupAccess, makeSetupAccessTools } from '../../app-release-access/read-data/setup-access.mjs';
 
 const NOW = Date.parse('2026-10-08T05:00:00Z');
 const ACCOUNT = 'account-one', OPERATOR = 'release-owner', SOURCE = 'native-ios', MAIL = 'fixture@example.test';

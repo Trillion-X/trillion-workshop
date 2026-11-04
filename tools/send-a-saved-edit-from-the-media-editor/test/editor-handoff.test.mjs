@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { editorHandoff, editIdOf, editorHandoffSettings } from '../src/editor-handoff.mjs';
-import { filmcraftEditJob } from '../parts/media-composition/do-work/filmcraft-edit-job.mjs';
+import { filmcraftEditJob } from '../../media-composition/do-work/filmcraft-edit-job.mjs';
 import { handleMediaEditor } from '../src/work-media-editor.mjs';
 import accountTools from '../../keep-and-wake-ai-sessions-on-this-computer/records/workshop-account-tool-records.json' with { type: 'json' };
 const identity = n => `1f:${String(n).repeat(64)}`;
