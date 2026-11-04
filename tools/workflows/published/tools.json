@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:9b62a4891528a7034f31f8a1b493474f3c904800678ac0a9e023dd8da91cfd66"
+  "blake3": "1f:e6b33d4a7994ec7a6317ccc19d6508acc5452a45da377ab8832407963463e069"
  },
  "fields": [
   {
@@ -8495,6 +8495,21 @@
    }
   },
   {
+   "id": "tool:search-everything-with-one-question",
+   "values": {
+    "title": "Search everything I keep with one question (runs on your computer)",
+    "job": "Search everything I keep with one question: every list and record, and my files by name, best match first",
+    "description": "Searches everything this person keeps with one question: every list and record they keep (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first. Ask it the person's own question (\"what is my EIN\") or the words to find. Each result is one thing with found_in (the places it matched: written for a record's text, name for a file's name), said (the words around the match, which hold the answer), score, and address: the door call that opens it (records:read for a record, find_file for a file). type (optional) keeps only records of that kind and leaves the files out. unavailable names a place or source that could not answer and why (a file search the caller may not make is named here, never guessed); pending names one still working: ask again in a few seconds. It runs through the person's own MCP client, so it reaches every kind; a Workshop run can be granted one kind only (tool:search-one-of-my-lists).",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "search-everything-with-one-question"
+   }
+  },
+  {
    "id": "tool:search-internet-archive",
    "values": {
     "title": "Search Internet Archive",
@@ -8510,6 +8525,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:search-one-of-my-lists",
+   "values": {
+    "title": "Search one of my lists with one question",
+    "job": "Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are",
+    "description": "Searches the records of one kind (one list) with one question through the records door's word index, which every write feeds: the rows holding every asked word, best first, each with said (the words around the match), score and address (the records:read that opens it). The whole list is searched in one call, never one page at a time. This run is granted that one kind only; to search every list and the files together, use tool:search-everything-with-one-question.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "search-everything-with-one-question"
    }
   },
   {
