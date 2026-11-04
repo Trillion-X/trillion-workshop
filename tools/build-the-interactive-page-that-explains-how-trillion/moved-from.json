@@ -9,14 +9,14 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/build-the-interactive-page-that-explains-how-trillion/parts/ui/show/anatomy/explainer-page.mjs",
       "source_identity": "1f:b2aa75508cd6f95bddca46e094e30e801a6bc32906f2a53278621c5a0124c2fc",
-      "identity": "1f:1f:f736801a66b2dde0a166e90daa02a4067f7b6845c762f8ecad407a448ad68c4f"
+      "identity": "1f:f736801a66b2dde0a166e90daa02a4067f7b6845c762f8ecad407a448ad68c4f"
     },
     {
       "from": "parts/ui/show/anatomy/iso-kit.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/build-the-interactive-page-that-explains-how-trillion/parts/ui/show/anatomy/iso-kit.mjs",
       "source_identity": "1f:efe21634b38ea63c6ab38534118b621812d2c477208011de4123ac3c4a0bac2f",
-      "identity": "1f:1f:69af63a0ee4eb23a0e8459cefc1eabe472a272e5c744621e08b57bde8334bc50"
+      "identity": "1f:69af63a0ee4eb23a0e8459cefc1eabe472a272e5c744621e08b57bde8334bc50"
     },
     {
       "from": "parts/ui/show/anatomy/selector-machine.mjs",
