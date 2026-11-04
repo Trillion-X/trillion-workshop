@@ -1,8 +1,9 @@
 // tools/records-door/test-support/records-fake.mjs
 //
 // A small in-memory stand-in for the records a tool reaches through the door, for tests only: read, readMany, write,
-// ids, scan over declared field indexes, a transaction that rolls back, forgetCached and indexReady. It keeps current
-// values in a Map and nothing else: no log, no history, no erasure, no pages, no files. It is not a store. The engine
+// ids, scan over declared field indexes, a transaction that rolls back, forgetCached, indexReady, typeOf, and readAt
+// over the versions each write kept. It keeps current values in a Map and, per id, the versions written (with the
+// moment from `now`, default Date.now): no log rows, no erasure, no pages, no files. It is not a store. The engine
 // (Trillion-X/trillion-rust src/storage/record_store) is the one store; what a tool proves on this fake is its own logic
 // over the answers the door gives (paging, interval probes, counts), never the store's durability, history or erasure.
 //
@@ -12,6 +13,10 @@
 // - `scan(type, name, { equal, from, after, after_id, idFrom, limit })`: entries `{ id, values }` of a declared index in
 //   (values, id) order; `equal` fixes the leading fields, `from` starts the next field at a value, `after` (with
 //   `after_id`) continues past one entry, `idFrom` starts the id when every field is fixed.
+// - `readAt(id, at)`: the record as saved at `at` (an ISO time or ms), `{ type, value, complete, kept_from }`, the shape
+//   of the engine's record_at (trillion-rust src/storage/record_store/history.rs, #149) and of old record-time.mjs
+//   readAt; value and type are null when it did not exist then. Every version is kept, so complete is always true.
+//   Until the door answers records:read { id, at }, this is how a tool's history reads are proven.
 // - An index declares `{ type, name, paths, where: [{ path, not: [...] }] }`, as old src/record-indexes.json did.
 
 const at = (value, path) => path.reduce((here, field) => (here !== null && typeof here === 'object' ? here[field] : undefined), value);
@@ -24,8 +29,10 @@ const order = (a, b) => {
   return 0;
 };
 
-export function recordsFake({ indexes = [], records = [] } = {}) {
+export function recordsFake({ indexes = [], records = [], now = () => Date.now() } = {}) {
   let held = new Map(records.map(record => [record.id, { type: record.type, value: structuredClone(record.value) }]));
+  // Per id, every version written, oldest first: { at (ms), type, value } (value null for a removal).
+  let versions = new Map(records.map(record => [record.id, [{ at: -Infinity, type: record.type, value: structuredClone(record.value) }]]));
   let changes = 0;
   const writes = [];
   const indexOf = (type, name) => {
@@ -46,8 +53,17 @@ export function recordsFake({ indexes = [], records = [] } = {}) {
       if (!Array.isArray(rows) || !rows.length) throw new TypeError('A write names its records.');
       for (const row of rows) {
         if (typeof row.id !== 'string' || !row.id) throw new TypeError('A record needs an id.');
-        if (row.value === null || row.value === undefined) held.delete(row.id);
-        else held.set(row.id, { type: row.type ?? held.get(row.id)?.type, value: structuredClone(row.value) });
+        const at = now();
+        const kept = versions.get(row.id) ?? [];
+        if (row.value === null || row.value === undefined) {
+          kept.push({ at, type: null, value: null });
+          held.delete(row.id);
+        } else {
+          const type = row.type ?? held.get(row.id)?.type;
+          kept.push({ at, type, value: structuredClone(row.value) });
+          held.set(row.id, { type, value: structuredClone(row.value) });
+        }
+        versions.set(row.id, kept);
       }
       changes += 1;
       writes.push({ ids: rows.map(row => row.id), actor: options.actor ?? null });
@@ -70,14 +86,23 @@ export function recordsFake({ indexes = [], records = [] } = {}) {
         return true;
       }).slice(0, limit);
     },
+    typeOf: id => held.get(id)?.type ?? null,
+    /** The record as saved at `at` (an ISO time or ms): the newest version written at or before it. */
+    readAt(id, at) {
+      const ms = typeof at === 'number' ? at : Date.parse(at);
+      if (!Number.isFinite(ms)) throw new Error(`${at} is neither a time nor a log row id.`);
+      const then = (versions.get(id) ?? []).filter(version => version.at <= ms).at(-1);
+      return { type: then?.type ?? null, value: then?.value == null ? null : structuredClone(then.value), complete: true, kept_from: null };
+    },
     indexReady: () => true,
     forgetCached() {},
     /** Run `change`; when it throws, every write it made is taken back. */
     transaction(change) {
       const before = new Map([...held].map(([id, record]) => [id, structuredClone(record)]));
+      const keptBefore = new Map([...versions].map(([id, kept]) => [id, kept.slice()]));
       const counted = changes;
       try { return change(); }
-      catch (error) { held = before; changes = counted; throw error; }
+      catch (error) { held = before; versions = keptBefore; changes = counted; throw error; }
     },
     /** How many writes have been made (a stand-in for "the log moved", never a log). */
     changes: () => changes,
