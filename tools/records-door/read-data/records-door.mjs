@@ -12,6 +12,7 @@
 //   for await (const record of door.list({ type: 'post' })) ...   every record of a kind, page after page
 //                                                          (`fields: [..]` narrows each value to those top-level fields;
 //                                                          `where: { field: value }` keeps the rows whose fields equal it)
+//   await door.search({ question, type?, limit? })        -> records:search's ranked answer over the records
 //   await door.write([{ id, type, value, expected? }], { key }) -> receipt; value null removes, expected checks prior
 //   await door.files('list_files', { folder: '/notes/' })   -> the files door's answer, at `files_resource`, which the
 //                                                          descriptor holds when the row declares a `files` right
@@ -164,6 +165,11 @@ export function recordsDoorFromCall(call, { filesResource, resource } = {}) {
         if (page.next === null || page.next === undefined) return;
         after = page.next;
       }
+    },
+    // One question over the records (records:search { question, type?, limit? }): { question, terms, results, unavailable,
+    // pending }, each result with its score and the address that reads it. A run reaches only the kind its right names.
+    async search(input) {
+      return call('records:search', input, undefined, resource, true);
     },
     // `key` makes the write safe to send again: the same key answers the receipt it already saved.
     async write(records, { key } = {}) {

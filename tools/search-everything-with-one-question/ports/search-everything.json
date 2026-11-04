@@ -1,0 +1,96 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SEARCH-EVERYTHING-WITH-ONE-QUESTION-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: one search over everything a person keeps comes back (relaunch, lead-66 bulk move of trillion features into the Workshop)",
+  "message_multihash": "1f:93f95ba78ec1feb10443e87ec56ceba51918b91fcbe8b9e06b01625c2444e5fb",
+  "quote": "Move search_everything_at's merging (records + files, reciprocal rank) into a Workshop tool, trillion-workshop tools/search-everything-with-one-question/, ported one to one from old trillion src/search.mjs:1750 finish and src/file-tools.mjs:125. Delete search_everything_at from trillion-rust src/native_boot/mcp_local.rs in the same change. Move code, never rewrite it."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/search.mjs",
+   "lines": [
+    1750,
+    1798
+   ],
+   "multihash": "1f:6c4587c90ea7dd82e0b1a0632cf2d20095045a30659b5de6f2a342d310b591a8",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T00:00:00Z",
+    "deleted_with": "Trillion-X/trillion 4ffa1dc4a, which retired old trillion's Worker and deleted src/search.mjs; the engine's port of the same job (trillion-rust search_everything_at and record_value::search::merged) is deleted in this move's trillion-rust change"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/search.mjs",
+   "lines": [
+    1893,
+    1917
+   ],
+   "multihash": "1f:921da380aa03a85b47e3fed98c6fda6c99c5dcf97bc0cc92a6371efbbcca69b2",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T00:00:00Z",
+    "deleted_with": "Trillion-X/trillion 4ffa1dc4a, which deleted src/search.mjs"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/search-everything-with-one-question/do-work/search-everything.mjs"
+  }
+ ],
+ "preserve": [
+  "every lane is asked with the same question, cut to 500 characters, its terms the distinct words of at least min_word_length",
+  "a lane that cannot answer is named unavailable with its lane, place, source and reason, never guessed; its owners' pending are kept",
+  "each lane ranks its own hits by score, one place per thing",
+  "reciprocal rank fusion: a thing is worth each lane's rank times its weight over (k + its rank in that lane), summed over the lanes it was found in, so lanes add by rank, never by raw score",
+  "one thing per file or record, with its places, its moments and its fused score, best first, cut to limit",
+  "the word gate: a words-in-index lane whose best hit holds under word_confidence_floor of the asked words sits the question out"
+ ],
+ "allowed_deltas": [
+  "finish is a function inside searchEverything(input, { door }), and its lanes are the engine's two storage reads (read-data/settings.json lanes): records:search, whose every record kind is its own lane, and the files' name search, asked only when no type narrows the question",
+  "a hit keeps the lane its owner gave it ({ lane, ...hit }), so record kinds are ranked apart as the engine ranked them",
+  "hiddenAmong (a SQL read of set-aside files) is dropped: the files' search answers only named files; a file is its own canonical identity",
+  "a refusal of the records' search is the answer's refusal (thrown), as the engine kept it",
+  "the candidate fusion sessions (src/search.mjs 1799-1892), the learned weights and the answer log read the old Worker's SQL and are not carried; every weight is 1",
+  "a result is its owner's hit (title, said, address) with found_in, places, moments, said and the fused score, instead of the old file description rows"
+ ],
+ "banned_substitutions": [
+  "a rewritten fusion or merge",
+  "a second copy of the merge left in trillion-rust (search_everything_at and record_value::search::merged are deleted in the same move)",
+  "a /namespace/search route in the engine"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:6c4587c90ea7dd82e0b1a0632cf2d20095045a30659b5de6f2a342d310b591a8",
+  "target_multihash_at_baseline": "1f:6c4587c90ea7dd82e0b1a0632cf2d20095045a30659b5de6f2a342d310b591a8",
+  "recorded_at": "2026-11-04T06:00:00Z",
+  "rows": [
+   {
+    "path": "tools/search-everything-with-one-question/do-work/search-everything.mjs",
+    "source_multihash": "1f:6c4587c90ea7dd82e0b1a0632cf2d20095045a30659b5de6f2a342d310b591a8",
+    "target_multihash_at_baseline": "1f:6c4587c90ea7dd82e0b1a0632cf2d20095045a30659b5de6f2a342d310b591a8"
+   }
+  ],
+  "commit": "37d340882fe4f1894c7f263bf288511159a66b77"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export async function searchEverything",
+   "async function finish",
+   "const fused = (laneId, key) =>"
+  ],
+  "test_refs": [
+   "tools/search-everything-with-one-question/test/search-everything.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

@@ -58,6 +58,18 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       const shown = record => (fields ? { id: record.id, type: record.type, ...(fields.length ? { value: Object.fromEntries(fields.filter(name => name in (record.value ?? {})).map(name => [name, record.value[name]])) } : {}) } : record);
       return { structuredContent: { records: page.map(id => kept.get(id)).filter(matches).map(shown), next } };
     },
+    // The records of the one kind a run may search that hold every asked word (an asked word starts a word of the text),
+    // ranked 1 / (60 + rank), each with the records:read that opens it, the way the engine's records:search answers.
+    'records:search': ({ question, type, limit = 60, ...rest }) => {
+      if (Object.keys(rest).length || typeof question !== 'string' || !question.trim()) return refuse('original_input_refused');
+      if (!type || !may(type, 'records:search')) return refuse(OUTSIDE);
+      const terms = [...new Set(question.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [])].filter(word => word.length >= 2);
+      const held = record => { const words = JSON.stringify(record.value ?? {}).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []; return terms.every(term => words.some(word => word.startsWith(term))); };
+      const found = terms.length ? [...kept.values()].filter(record => record.type === type && held(record)).sort((a, b) => (a.id < b.id ? -1 : 1)).slice(0, limit) : [];
+      const results = found.map((record, at) => ({ id: `record:${record.id}`, source: 'trillion', type, record: record.id, found_in: ['written'],
+        address: { resource: '@own-records', operation: 'records:read', input: { id: record.id, type } }, score: 1 / (60 + at + 1) }));
+      return { structuredContent: { question, terms, results, unavailable: [], pending: [] } };
+    },
     'records:write': ({ records: items }, key) => {
       if (receipts.has(key)) return { structuredContent: receipts.get(key) };
       if (!Array.isArray(items) || items.length < 1 || items.length > Math.min(mostWrites, WRITE_CAP)) return refuse('original_input_refused');
