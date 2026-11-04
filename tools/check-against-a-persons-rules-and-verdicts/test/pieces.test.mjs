@@ -53,7 +53,7 @@ test('two files holding the same text are one row with two sources, each with it
 });
 
 test('tool:split-a-document-into-pieces answers { pieces } on its last line and refuses a request with no text', () => {
-  const run = input => spawnSync(process.execPath, ['do-work/split-a-document-into-pieces.mjs'], { cwd: folder, input: JSON.stringify(input), encoding: 'utf8' });
+  const run = input => spawnSync(process.execPath, ['do-work/check-against-their-rules-and-verdicts.mjs', 'split-a-document-into-pieces'], { cwd: folder, input: JSON.stringify(input), encoding: 'utf8' });
   const ran = run({ text: '## Made-up\n\n- one\n- two\n', file: 'made-up.md' });
   assert.equal(ran.status, 0, ran.stdout);
   const { pieces } = JSON.parse(ran.stdout.trim().split('\n').at(-1)).result;
