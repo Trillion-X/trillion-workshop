@@ -2,7 +2,7 @@
 // The supplied EEAF and domain owners are already bound to one addressed
 // resource; this adapter never looks up or forwards to PersonStore.
 import { aggregateRows } from '../../query-and-change-list-rows/src/list-aggregates.mjs';
-import { documentsFolderOf, readDocumentTypes, saveDocumentTypes } from '../../documents-as-list-rows/read-data/document-properties.mjs';
+import { documentsFolderOf, readDocumentTypes, saveDocumentTypes } from '../../documents-as-list-rows/document-properties.mjs';
 import { exportListFiles, importListFiles } from '../../query-and-change-list-rows/src/list-plain-files.mjs';
 import { backlinks, duplicateRows, fileReferences, joinAnswers, mergeRows, planRowRequest, resolveRows, rewriteFileNames, withDangling } from '../../query-and-change-list-rows/src/list-row-operations.mjs';
 import { readSnapshot, snapshotPages, takeSnapshot } from '../../query-and-change-list-rows/src/list-snapshots.mjs';
