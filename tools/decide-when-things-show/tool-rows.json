@@ -80,6 +80,13 @@
                 "at": "/opt/set-up-my-account"
               },
               {
+                "package": "starting-set",
+                "paths": [
+                  "shipped-defaults.json"
+                ],
+                "at": "/opt/starting-set"
+              },
+              {
                 "package": "wall-time",
                 "paths": [
                   "read-data"
@@ -373,6 +380,13 @@
                 "at": "/opt/set-up-my-account"
               },
               {
+                "package": "starting-set",
+                "paths": [
+                  "shipped-defaults.json"
+                ],
+                "at": "/opt/starting-set"
+              },
+              {
                 "package": "wall-time",
                 "paths": [
                   "read-data"
@@ -620,6 +634,13 @@
                 "at": "/opt/set-up-my-account"
               },
               {
+                "package": "starting-set",
+                "paths": [
+                  "shipped-defaults.json"
+                ],
+                "at": "/opt/starting-set"
+              },
+              {
                 "package": "wall-time",
                 "paths": [
                   "read-data"
@@ -859,6 +880,13 @@
                   "read-data"
                 ],
                 "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "starting-set",
+                "paths": [
+                  "shipped-defaults.json"
+                ],
+                "at": "/opt/starting-set"
               },
               {
                 "package": "wall-time",
@@ -1104,6 +1132,13 @@
                   "read-data"
                 ],
                 "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "starting-set",
+                "paths": [
+                  "shipped-defaults.json"
+                ],
+                "at": "/opt/starting-set"
               },
               {
                 "package": "wall-time",
@@ -1358,6 +1393,13 @@
                   "read-data"
                 ],
                 "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "starting-set",
+                "paths": [
+                  "shipped-defaults.json"
+                ],
+                "at": "/opt/starting-set"
               },
               {
                 "package": "wall-time",
@@ -1640,6 +1682,13 @@
                 "at": "/opt/set-up-my-account"
               },
               {
+                "package": "starting-set",
+                "paths": [
+                  "shipped-defaults.json"
+                ],
+                "at": "/opt/starting-set"
+              },
+              {
                 "package": "wall-time",
                 "paths": [
                   "read-data"
@@ -1899,6 +1948,13 @@
                   "read-data"
                 ],
                 "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "starting-set",
+                "paths": [
+                  "shipped-defaults.json"
+                ],
+                "at": "/opt/starting-set"
               },
               {
                 "package": "wall-time",
