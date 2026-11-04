@@ -1,0 +1,94 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-WORKFLOWS-RECIPE-CHECK-RESULTS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-04: ai-job:finish:workshop-intake-leftovers",
+  "quote": "Unconfirmed whether the recipe-check engine runs PR #2's new differs-from check. Evidence: Unchecked: the engine that runs recipe checks isn't in this repo",
+  "message_multihash": "1f:0f24a5f622d3d4db082ec5c04e5f0fb1fc6d2201042daddbd49a99921b9f6eff"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "judge a recipe step's checks against what the step handed back",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/workflows/read-data/recipe-check-results.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/read-data/recipe-problems.mjs",
+   "why": "the validator says whether a check is well formed; it never judges a step's output"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/shared-code/src/agents.mjs",
+   "why": "handles agent requests and checks access to a result source; it judges no recipe step"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/agents-authenticated-legacy-recovery.test.mjs",
+   "why": "tests the agent request handling in tools/shared-code/src/agents.mjs; it judges no recipe step"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/handoff-result-completion-receipt.test.mjs",
+   "why": "tests the agent request handling in tools/shared-code/src/agents.mjs; it judges no recipe step"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/handoff-result-legacy-integration.test.mjs",
+   "why": "tests the agent request handling in tools/shared-code/src/agents.mjs; it judges no recipe step"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-and-wake-ai-sessions-on-this-computer/records/workshop-account-tool-records.json",
+   "why": "names checkResultsThatAreDue, a person store re-check on an alarm, not a recipe check"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/set-up-my-account/read-data/setup-checks.mjs",
+   "why": "judges setup sub-checks against live owner facts (of/where/pick rows of setup-policy.json), not a recipe step's checks against its output"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/set-up-my-account/read-data/setup-steps.mjs",
+   "why": "calls the setup sub-checks above"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/set-up-my-account/test/setup-checks.test.mjs",
+   "why": "tests the setup sub-checks above"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "judge a recipe step's checks against what the step handed back",
+    "evaluate recipe checks",
+    "check results"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "checkResults",
+    "CHECK_EVALUATORS",
+    "evaluateChecks?\\b"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a"
+    }
+   ],
+   "not_searched": "The trillion repository (crates/workflow-engine, which tools/workflows/README.md names as the engine) was outside this session's reach. A gate that searches it re-runs this claim; if the engine already judges step checks, this file is to become a port of it."
+  },
+  "test_refs": [
+   "tools/workflows/test/recipe-check-results.test.mjs"
+  ]
+ }
+}
