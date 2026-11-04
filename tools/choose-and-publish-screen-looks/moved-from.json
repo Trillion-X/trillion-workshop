@@ -26,11 +26,33 @@
       "identity": "1f:695728bc3942d65541aaf93bede165bf22d1b183dd426c406f65251b12302128"
     },
     {
+      "from": "src/workspace/looks.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/choose-and-publish-screen-looks/src/workspace/looks.json",
+      "source_identity": "1f:695728bc3942d65541aaf93bede165bf22d1b183dd426c406f65251b12302128",
+      "identity": "1f:695728bc3942d65541aaf93bede165bf22d1b183dd426c406f65251b12302128",
+      "reused": true
+    },
+    {
       "from": "test/look-readability.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/choose-and-publish-screen-looks/test/look-readability.test.mjs",
       "source_identity": "1f:2103a5ea9c24843cdb41fb320f16ad83ce84b00559872c541675cabbcaff4b30",
       "identity": "1f:fc40899eafb92113c47d02a5acacdf2ed0b87def99be0c0a5dcb0cb2de6efcf8"
+    },
+    {
+      "from": "test/screen-look-design-tokens.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/choose-and-publish-screen-looks/test/screen-look-design-tokens.test.mjs",
+      "source_identity": "1f:1f000c739d854b1baf91e5b867c1971b7e7dc9ea2893de6f653af2174a585ac7",
+      "identity": "1f:05fbf3e1dc1da764bfa519c06a9fa872c1ed13a7915d42d202d6628856fa5587"
+    },
+    {
+      "from": "test/screen-look-token-kinds.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/choose-and-publish-screen-looks/test/screen-look-token-kinds.test.mjs",
+      "source_identity": "1f:c0e72338730c1e5f564511c717d712d0c0e96d188cdd117b27ea56331f1c302b",
+      "identity": "1f:f34d9c31bf7b4cb3bcc1d050a7b72178c6b3f6cc97a923a8c6d31bed2e0df058"
     },
     {
       "from": "test/theme-from-inputs.test.ts",
