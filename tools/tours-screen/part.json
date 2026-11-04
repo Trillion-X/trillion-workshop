@@ -1,0 +1,13 @@
+{
+  "public": [
+    "guided-overlay-defaults.json",
+    "read-data/walkthrough-eeaf.ts",
+    "read-data/tour-library.ts",
+    "show/mount-walkthrough-host.tsx",
+    "show/walkthroughs.ts",
+    "show/package-onboarding.ts",
+    "show/walkthrough-events.ts",
+    "do-work/walkthrough-progress.ts",
+    "show/step-card.ts"
+  ]
+}

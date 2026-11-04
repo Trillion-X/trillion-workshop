@@ -1,0 +1,25 @@
+/* parts/screen-look/show/steps-checklist.css
+   The look of the shared steps checklist (ui/show/steps-checklist/StepsChecklist.tsx): a small done / total count over a
+   two pixel bar (21st.dev Onboarding Checklist 30552), then one bordered list with a hairline between rows (Xero's set-up
+   steps, DoorDash Merchant's numbered instructions, Mobbin cb2e2006 and 42576734), each row a round mark, the words, and a
+   value to copy on the right (Supabase's and Klaviyo's copyable values, Mobbin 2c39a77f and 38834bba). A ticked row
+   settles to muted words struck through. Colours and faces are the page's own tokens. */
+
+.steps-checklist { display: flex; flex-direction: column; gap: .5rem; container-type: inline-size; }
+.steps-checklist-count { color: var(--color-muted-foreground); font-size: .8125rem; font-variant-numeric: tabular-nums; }
+.steps-checklist-bar { height: 2px; border-radius: 2px; background: color-mix(in oklab, var(--color-foreground) 8%, transparent); overflow: hidden; }
+.steps-checklist-bar > span { display: block; height: 100%; background: var(--color-success, #16a34a); transition: inline-size var(--motion-slow) var(--ease-enter); }
+.steps-checklist-rows { margin: .25rem 0 0; padding: 0; list-style: none; border: 1px solid var(--color-border); border-radius: .875rem; overflow: hidden; }
+.steps-checklist-row { --first-line-size: .9375rem; --first-line-leading: 1.45; font-size: var(--first-line-size); line-height: var(--first-line-leading); display: flex; align-items: flex-start; gap: .75rem; padding: .75rem .875rem; }
+.steps-checklist-row + .steps-checklist-row { border-top: 1px solid var(--color-border); }
+.steps-checklist-mark { border-radius: var(--radius-pill) !important; }
+.steps-checklist-mark [data-slot="checkbox-indicator"] { background: var(--color-success, #16a34a) !important; }
+.steps-checklist-body { display: flex; flex-direction: column; gap: .5rem; flex: 1; min-width: 0; }
+.steps-checklist-line { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.steps-checklist-words { flex: 1; min-width: 0; font-size: var(--first-line-size); line-height: var(--first-line-leading); overflow-wrap: anywhere; transition: color .3s; }
+.steps-checklist-beside { flex: none; display: inline-flex; align-items: center; gap: .25rem; }
+.steps-checklist-row[data-done] .steps-checklist-words { color: var(--color-muted-foreground); text-decoration: line-through; text-decoration-color: color-mix(in oklab, var(--color-foreground) 25%, transparent); }
+@container (max-width: 30rem) {
+  .steps-checklist-line { flex-direction: column; align-items: flex-start; gap: .375rem; }
+}
+@media (prefers-reduced-motion: reduce) { .steps-checklist-bar > span, .steps-checklist-words { transition: none; } }

@@ -1,0 +1,30 @@
+{
+  "_what": "The contrast floors a look is checked against when it is saved or published (parts/screen-look/read-data/look-readability.ts, run by src/looks.mjs). Each pair names a text colour token and the ground it is read on (token keys of a look as the app's looks name them, src/workspace/looks.json) and the least WCAG contrast between them. A look that misses a floor is still saved and published; the answer names each miss in words. Set refuse_publish to true and a publish that misses a floor is refused instead. Imported or Marketplace looks are checked the same way, so a value from outside is never trusted to be readable.",
+  "refuse_publish": false,
+  "pairs": [
+    {
+      "text": "text-primary",
+      "ground": "surface-base",
+      "least_contrast": 4.5,
+      "says": "Body text on the page"
+    },
+    {
+      "text": "button-primary-text",
+      "ground": "button-primary-bg",
+      "least_contrast": 3,
+      "says": "The words on the strong action"
+    },
+    {
+      "text": "accent-primary",
+      "ground": "surface-base",
+      "least_contrast": 1.5,
+      "says": "The accent on the page"
+    },
+    {
+      "text": "words-on-island",
+      "ground": "ground-island",
+      "least_contrast": 4.5,
+      "says": "The words on the recording pill that floats over other apps"
+    }
+  ]
+}

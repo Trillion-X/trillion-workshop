@@ -1,0 +1,11 @@
+/* packages/screen-look/show/ask-and-list.css
+ *
+ * PURPOSE
+ *   Two page shapes used wherever a person adds things by typing and then
+ *   works through what they added:
+ *   - .ask-and-list: an ask bar above a list that takes the rest of the height.
+ *   - .reading-pair: a pane that reads one text under a quiet heading, used in
+ *     pairs side by side (what someone said beside the template made from it).
+ *   Colours, type and spacing come only from the shared tokens.
+ */
+

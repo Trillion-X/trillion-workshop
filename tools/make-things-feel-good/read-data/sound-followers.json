@@ -1,0 +1,35 @@
+{
+  "_what": "What outside the screen can follow the sound, and what can say what is playing: each row is one service, read through the person's own connection with a Workshop web row marked runs_quietly (records/workshop-ambience-tool-records.json), so nothing is kept for each send. `lights`: where a service's lights come from (`list`: a quiet row to ask, `items` the path to the list in its answer, `id` and `label` paths in each item, `keep` the item facts a send needs; or `fixed`: targets that need no listing), how often each may be sent to (`every_ms`, kept under the service's own limit), and the quiet row that sets one (`set`, its input built from `{ \"paint\": <fact> }` (colour as #rrggbb, rgb, lit_rgb: the colour dimmed by the brightness, brightness 0..1, percent 1..100, seconds), `{ \"item\": <fact kept from the list> }` and `{ \"join\": [ ... ] }`). `playing`: a quiet row that says what is playing, and the paths to its title, who made it and its picture. `music`: the places music plays, offered as pictures on the Ambience screen; a press listens to the computer's sound so the look moves with whatever plays there (`page`: where it plays on the web, `picture`: its mark). Each `lights` row also carries the plain words for what it is (`plain`, `about`), shown wherever the person picks lights. A new light or music service is one row here and its tool rows; nothing in code names a service.",
+  "lights": [
+    {
+      "id": "lifx",
+      "label": "LIFX",
+      "plain": "LIFX smart bulbs",
+      "about": "Wi-Fi bulbs that change colour.",
+      "fixed": [{ "id": "all", "label": "Your LIFX smart bulbs", "about": "Every LIFX light on your account." }],
+      "every_ms": 600,
+      "set": { "tool_id": "tool:lifx-set-lights", "input": { "selector": { "item": "id" }, "color": { "paint": "colour" }, "brightness": { "paint": "brightness" }, "duration": { "paint": "seconds" } } }
+    },
+    {
+      "id": "govee",
+      "label": "Govee",
+      "plain": "Govee light strips",
+      "about": "LED strips and lamps that change colour.",
+      "list": { "tool_id": "tool:govee-list-devices", "input": {}, "items": ["data"], "id": ["device"], "label": ["deviceName"], "keep": { "sku": ["sku"], "device": ["device"] } },
+      "every_ms": 6500,
+      "set": { "tool_id": "tool:govee-set-colour", "input": { "sku": { "item": "sku" }, "device": { "item": "device" }, "rgb": { "paint": "lit_rgb" } } }
+    }
+  ],
+  "playing": [
+    { "id": "spotify", "label": "Spotify", "tool_id": "tool:spotify-now-playing", "input": {}, "title": ["item", "name"], "by": ["item", "artists", 0, "name"], "picture": ["item", "album", "images", 0, "url"], "playing": ["is_playing"] }
+  ],
+  "music": [
+    {"id": "apple-music", "label": "Apple Music", "page": "https://music.apple.com", "picture": "https://www.google.com/s2/favicons?domain=music.apple.com&sz=128"},
+    {"id": "spotify", "label": "Spotify", "page": "https://open.spotify.com", "picture": "https://www.google.com/s2/favicons?domain=spotify.com&sz=128"},
+    {"id": "youtube-music", "label": "YouTube Music", "page": "https://music.youtube.com", "picture": "https://www.google.com/s2/favicons?domain=music.youtube.com&sz=128"},
+    {"id": "soundcloud", "label": "SoundCloud", "page": "https://soundcloud.com", "picture": "https://www.google.com/s2/favicons?domain=soundcloud.com&sz=128"},
+    {"id": "pandora", "label": "Pandora", "page": "https://www.pandora.com", "picture": "https://www.google.com/s2/favicons?domain=pandora.com&sz=128"},
+    {"id": "tidal", "label": "TIDAL", "page": "https://listen.tidal.com", "picture": "https://www.google.com/s2/favicons?domain=tidal.com&sz=128"},
+    {"id": "deezer", "label": "Deezer", "page": "https://www.deezer.com", "picture": "https://www.google.com/s2/favicons?domain=deezer.com&sz=128"}
+  ]
+}

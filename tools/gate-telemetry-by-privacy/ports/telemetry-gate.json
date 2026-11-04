@@ -1,0 +1,92 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-GATE-TELEMETRY-BY-PRIVACY-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "move the product modules of old trillion src/ (part 5 of 5) into Trillion-X/trillion-workshop tools. Move code, never rewrite it. Port the correct parts one to one with their original tests and assertions."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/telemetry-gate.mjs",
+   "multihash": "1f:a4704d18bce117ba8963310b36d1c4a1e722c22a47973ad5035c822a1af818d4",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/interaction-routes.mjs and src/interactions.mjs (the sinks) and then deletes src/telemetry-gate.mjs, src/telemetry-privacy.json and test/telemetry-privacy-gate.test.mjs"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/telemetry-privacy.json",
+   "multihash": "1f:5660c53e434262fa4385fd9a5bed162f18d4836075b88a67e70243d58ff6db0b",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/interaction-routes.mjs and src/interactions.mjs (the sinks) and then deletes src/telemetry-gate.mjs, src/telemetry-privacy.json and test/telemetry-privacy-gate.test.mjs"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/gate-telemetry-by-privacy/read-data/telemetry-gate.mjs"
+  },
+  {
+   "path": "tools/gate-telemetry-by-privacy/read-data/telemetry-privacy.json"
+  }
+ ],
+ "preserve": [
+  "the decision comes from the privacy class of what was served, never from the sink",
+  "fails closed: a surface and path no route names, and a declared class that is not a row, are unknown_class, which feeds no sink",
+  "the longest route prefix that matches whole path parts names the class",
+  "when the route and a declared class both name one, the more private (higher rank) wins: a declared class can only make a page more private",
+  "no class, sink or route is named in code: each is a row of telemetry-privacy.json"
+ ],
+ "allowed_deltas": [
+  "the gate is offered as a pure container row, tool:gate-telemetry-by-privacy, by read-data/gate-tools.mjs, which also refuses a sink that is not a row"
+ ],
+ "banned_substitutions": [
+  "a rewritten copy of this job",
+  "a second live copy kept in Trillion-X/trillion after its deleted_by"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:a4704d18bce117ba8963310b36d1c4a1e722c22a47973ad5035c822a1af818d4",
+  "target_multihash_at_baseline": "1f:a4704d18bce117ba8963310b36d1c4a1e722c22a47973ad5035c822a1af818d4",
+  "recorded_at": "2026-11-03T21:00:00Z",
+  "rows": [
+   {
+    "path": "tools/gate-telemetry-by-privacy/read-data/telemetry-gate.mjs",
+    "source_multihash": "1f:a4704d18bce117ba8963310b36d1c4a1e722c22a47973ad5035c822a1af818d4",
+    "target_multihash_at_baseline": "1f:a4704d18bce117ba8963310b36d1c4a1e722c22a47973ad5035c822a1af818d4"
+   },
+   {
+    "path": "tools/gate-telemetry-by-privacy/read-data/telemetry-privacy.json",
+    "source_multihash": "1f:5660c53e434262fa4385fd9a5bed162f18d4836075b88a67e70243d58ff6db0b",
+    "target_multihash_at_baseline": "1f:5660c53e434262fa4385fd9a5bed162f18d4836075b88a67e70243d58ff6db0b"
+   }
+  ],
+  "commit": "c5ed66b0e3d5fffe4ed6f8416617783be59892bc"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.8,
+  "required_mechanisms": [
+   "export const TELEMETRY_PRIVACY",
+   "export function classOf",
+   "export const sends",
+   "export const pageSends",
+   "privacy.unknown_class",
+   "fromHeader.rank > fromRoute.rank"
+  ],
+  "test_refs": [
+   "tools/gate-telemetry-by-privacy/test/telemetry-privacy-gate.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

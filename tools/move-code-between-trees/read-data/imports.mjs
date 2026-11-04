@@ -34,13 +34,16 @@ export function requestsIn(text) {
   const found = [];
   const add = (match, how) => {
     const specifier = match.groups.spec;
+    // No module name starts with a backslash: such a match is the text of a regular expression (/from '\.\.\/x'/).
+    if (specifier.startsWith('\\')) return;
     const start = match.index + match[0].lastIndexOf(specifier, match[0].length - 1);
     found.push({ specifier, start, end: start + specifier.length, how, whole: [match.index, match.index + match[0].length] });
   };
-  for (const m of code.matchAll(/(?<![.\w$])(?:import|export)\s+(?:type\s+)?[^'"`;()]*?\bfrom\s*(['"])(?<spec>[^'"\n]+)\1/g)) add(m, 'static');
-  for (const m of code.matchAll(/(?<![.\w$])import\s*(['"])(?<spec>[^'"\n]+)\1/g)) add(m, 'effect');
-  for (const m of code.matchAll(/(?<![.\w$])import\(\s*(['"`])(?<spec>[^'"`$\n]+)\1\s*[,)]/g)) add(m, 'dynamic');
-  for (const m of code.matchAll(/(?<![.\w$])require\(\s*(['"])(?<spec>[^'"\n]+)\1\s*\)/g)) add(m, 'require');
+  for (const m of code.matchAll(/(?<![.\w$@])(?:import|export)\s+(?:type\s+)?[^'"`;()]*?\bfrom\s*(['"])(?<spec>[^'"\n]+)\1/g)) add(m, 'static');
+  // An import for its effect starts a statement: the word import at the end of a string ('import' || x) is not one.
+  for (const m of code.matchAll(/(?<=^|[;{}\n])[ \t]*import\s*(['"])(?<spec>[^'"\n]+)\1/g)) add(m, 'effect');
+  for (const m of code.matchAll(/(?<![.\w$@])import\(\s*(['"`])(?<spec>[^'"`$\n]+)\1\s*[,)]/g)) add(m, 'dynamic');
+  for (const m of code.matchAll(/(?<![.\w$@])require\(\s*(['"])(?<spec>[^'"\n]+)\1\s*\)/g)) add(m, 'require');
   for (const m of code.matchAll(/new\s+URL\(\s*(['"])(?<spec>\.{1,2}\/[^'"\n]+)\1\s*,\s*import\.meta\.url\s*\)/g)) add(m, 'url');
   const seen = new Set();
   return found.filter(item => { const key = `${item.start}`; if (seen.has(key)) return false; seen.add(key); return true; })

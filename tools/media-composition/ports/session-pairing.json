@@ -1,0 +1,73 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MEDIA-COMPOSITION-SESSION-PAIRING-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "move the product modules of old trillion src/ (part 5 of 5) into Trillion-X/trillion-workshop tools. Move code, never rewrite it. Port the correct parts one to one with their original tests and assertions."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/session-pairing.mjs",
+   "multihash": "1f:e58ca1a37530a389b7503e7a8791e16d7f07179d39f13f168c7e6d269bef7011",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves parts/media-composition/do-work/cut-the-action.mjs (the caller) and then deletes src/session-pairing.mjs and the session test in test/local-document-and-catalogue.test.mjs"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/media-composition/read-data/session-pairing.mjs"
+  }
+ ],
+ "preserve": [
+  "pure state machine: apply(session, message) returns { session, ignored? } and never mutates its input",
+  "a message carries session, device and type; a state message names a state from the session's own states data",
+  "a message for another session, with no device, or from an unknown device is ignored with a reason",
+  "exactly one primary: the first device to join as primary holds it; a second primary join is ignored and a handover is explicit",
+  "the primary leaving leaves no primary"
+ ],
+ "allowed_deltas": [
+  "read-data/session-pairing-tools.mjs takes the session and one message from a row's input and fills a new session from only its id and states; nothing is kept"
+ ],
+ "banned_substitutions": [
+  "a rewritten copy of this job",
+  "a second live copy kept in Trillion-X/trillion after its deleted_by"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:e58ca1a37530a389b7503e7a8791e16d7f07179d39f13f168c7e6d269bef7011",
+  "target_multihash_at_baseline": "1f:e58ca1a37530a389b7503e7a8791e16d7f07179d39f13f168c7e6d269bef7011",
+  "recorded_at": "2026-11-03T21:00:00Z",
+  "rows": [
+   {
+    "path": "tools/media-composition/read-data/session-pairing.mjs",
+    "source_multihash": "1f:e58ca1a37530a389b7503e7a8791e16d7f07179d39f13f168c7e6d269bef7011",
+    "target_multihash_at_baseline": "1f:e58ca1a37530a389b7503e7a8791e16d7f07179d39f13f168c7e6d269bef7011"
+   }
+  ],
+  "commit": "c5ed66b0e3d5fffe4ed6f8416617783be59892bc"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.8,
+  "required_mechanisms": [
+   "export const newSession",
+   "export function apply",
+   "'primary_taken'",
+   "'not_primary'",
+   "'unknown_state'",
+   "'other_session'"
+  ],
+  "test_refs": [
+   "tools/media-composition/test/session-pairing.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

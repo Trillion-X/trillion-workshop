@@ -1,0 +1,38 @@
+{
+  "kind": "package-set-records",
+  "record_set": "register-trillion-in-my-ai-apps-tool-rows",
+  "what_this_is": "The Workshop row for the register-trillion-in-my-ai-apps folder: puts Trillion's MCP entry into the AI apps the person names (Claude Code, Codex, Gemini CLI, Cursor), or takes it out, only on the person's own explicit action, on their own computer.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:register-trillion-in-my-ai-apps",
+        "label": "Put Trillion in my AI apps' MCP settings, or take it out (runs on your computer)",
+        "job": "Add Trillion's MCP server entry to the config file of each AI app I name, preview exactly what changes first, or take the entry out again",
+        "description": "mcp-inspect answers what each named app has now (absent, registered, outdated, custom, blocked or not_installed). mcp-preview writes nothing and answers each file's exact before/after lines and a review_hash of the whole plan; mcp-register with --reviewed <hash> refuses every write when the plan changed meanwhile. An entry under the same name that matches none of Trillion's signatures is the person's own and is never changed or removed; every other key in the file is kept. An app not on this computer is answered not_installed and nothing is created for it. Writes are locked, backed up beside the file, refused for a symbolic link or a file changed meanwhile, and read back. The address is https, or http at the literal loopback host only. An entry is not a signed-in connection: each result names the sign-in still to do in that app. Each app's file, format and entry is a row of read-data/mcp-registration.json.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["action", "clients"],
+          "properties": {
+            "action": { "type": "string", "enum": ["mcp-inspect", "mcp-preview", "mcp-register", "mcp-unregister"] },
+            "clients": { "type": "string", "description": "The AI app ids separated by commas (claude-code, codex, gemini-cli, cursor), put where {clients} is." },
+            "reviewed": { "type": "string", "description": "With mcp-register: the review_hash of the preview the person approved." }
+          }
+        },
+        "output_schema": { "type": "object", "required": ["schema", "action", "review_hash", "results"], "properties": { "schema": { "type": "string" }, "action": { "type": "string" }, "review_hash": { "type": "string" }, "results": { "type": "array" }, "refused": { "type": "string" } } },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "npm install at its root (for @noble/hashes)"],
+          "run": "node tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs --action {action} --client {clients}",
+          "needs": ["node 22 or later"],
+          "say": "This runs on the person's own computer from the root of the Workshop checkout and changes other apps' config files. Run mcp-preview for the apps the person named, show them the diff, and run mcp-register (add --reviewed <review_hash>) only when they approve it. Never register an app they did not name. After registering, tell them the sign-in each result names."
+        },
+        "maker": "maker:register-trillion-in-my-ai-apps",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Moved from Trillion-X/trillion harness/mcp-registration.mjs, harness/config-file.mjs, harness/local-door.mjs and the MCP branch of harness/setup.mjs (record:library:rea:F-0578)" }
+      }
+    }
+  ]
+}

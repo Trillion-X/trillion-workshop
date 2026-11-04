@@ -1,0 +1,442 @@
+{
+ "package": "public-sales-page",
+ "things": [
+  {
+   "type": "record",
+   "id": "package::public-sales-page::tool::write-a-sales-page",
+   "address": "package::public-sales-page::tool::write-a-sales-page",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:write-a-sales-page",
+    "label": "Write a sales or landing page",
+    "status": "active",
+    "job": "Write a sales page or landing page for an offer, a program or a business, and keep it as a web page in my files",
+    "description": "Writes one whole web page from a description of its sections, top to bottom: a headline with buttons, the story, the steps of the method, the offers with their prices and checkout links, proof from real people, a closing call to act and the fine print. Each section names how it reads with one word (hero, story, steps, offer, proof, cta, fine). The page is one HTML file, kept in your files, that opens in any browser and needs nothing else to show; use the person's real offers, prices, links and words from real customers, never invented ones. Returns its title, size, identity and every word on it, so you can check what it says.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "title",
+      "sections"
+     ],
+     "properties": {
+      "title": {
+       "type": "string",
+       "description": "The page's title, shown in the browser tab and when shared"
+      },
+      "description": {
+       "type": "string",
+       "description": "One sentence search engines and shared links show"
+      },
+      "brand": {
+       "type": "string",
+       "x-record": {"from": {"row_types": ["brand", "company"]}, "new": {"list": "brands", "label": "brand", "list_label": "Brands", "title_field": "name"}}
+      },
+      "language": {
+       "type": "string"
+      },
+      "palette": {
+       "type": "object",
+       "properties": {
+        "ground": {
+         "type": "string"
+        },
+        "text": {
+         "type": "string"
+        },
+        "accent": {
+         "type": "string"
+        }
+       },
+       "description": "The page's colours, like {\"ground\": \"#ffffff\", \"text\": \"#111111\", \"accent\": \"#e0301e\"}"
+      },
+      "share": {
+       "type": "object",
+       "description": "How the page looks when shared: {title, description, url, image, image_alt, site_name}"
+      },
+      "sections": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "properties": {
+         "emphasis": {
+          "type": "string",
+          "description": "One word for how the section reads: hero, story, steps, offer, proof, cta, fine (any other word reads as an ordinary section)"
+         },
+         "heading": {
+          "type": "string"
+         },
+         "body": {
+          "type": "string"
+         },
+         "image": {
+          "type": "object",
+          "required": [
+           "src"
+          ],
+          "properties": {
+           "src": {
+            "type": "string",
+            "description": "A web address of the picture"
+           },
+           "alt": {
+            "type": "string"
+           }
+          }
+         },
+         "items": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "properties": {
+            "heading": {
+             "type": "string"
+            },
+            "body": {
+             "type": "string"
+            },
+            "meta": {
+             "type": "string"
+            },
+            "details": {
+             "type": "array",
+             "items": {
+              "type": "string"
+             }
+            }
+           }
+          },
+          "description": "A list: steps of the method, testimonials (body = the quote, heading = who said it), questions and answers"
+         },
+         "cards": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "heading"
+           ],
+           "properties": {
+            "heading": {
+             "type": "string"
+            },
+            "body": {
+             "type": "string"
+            },
+            "details": {
+             "type": "array",
+             "items": {
+              "type": "string"
+             }
+            },
+            "href": {
+             "type": "string",
+             "description": "Where pressing the card goes, such as a checkout link"
+            },
+            "tone": {
+             "type": "string",
+             "description": "primary marks the offer to recommend"
+            },
+            "image": {
+             "type": "object"
+            }
+           }
+          },
+          "description": "Offers: heading = plan name, body = price, details = what is included, href = its checkout link"
+         },
+         "actions": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "label"
+           ],
+           "properties": {
+            "label": {
+             "type": "string"
+            },
+            "href": {
+             "type": "string"
+            },
+            "tone": {
+             "type": "string",
+             "description": "quiet for a secondary button"
+            }
+           }
+          }
+         }
+        },
+        "additionalProperties": false
+       },
+       "description": "Top to bottom. The first section is the page's headline (emphasis hero)."
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "title",
+        "sections",
+        "bytes",
+        "identity",
+        "words"
+       ],
+       "properties": {
+        "title": {
+         "type": "string"
+        },
+        "sections": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "identity": {
+         "type": "string"
+        },
+        "words": {
+         "type": "string"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "page"
+       ],
+       "properties": {
+        "page": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string"
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "public-sales-page",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/parts/public-sales-page"
+       },
+       {
+        "package": "ui",
+        "paths": [
+         "show/server-rendered-page",
+         "show/share-row",
+         "show/loading-mark/loading-mark-html.mjs",
+         "show/loading-mark/stitch.ts",
+        "show/thread-cover",
+        "show/scroll-thread/thread-geometry.mjs"
+        ],
+        "at": "/opt/parts/ui"
+       },
+       {
+        "package": "screen-look",
+        "paths": [
+         "show/sales-page.css"
+        ],
+        "at": "/opt/parts/screen-look"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/parts/public-sales-page",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/write-a-sales-page.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      },
+      "/opt/sales-page/sales-page.html"
+     ],
+     "outputs": [
+      {
+       "name": "page",
+       "path": "/opt/sales-page/sales-page.html",
+       "keep_in": "files",
+       "keep_as": {
+        "name_from": [
+         "title"
+        ]
+       },
+       "media_type": "text/html; charset=utf-8",
+       "max_bytes": 5000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 15,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:public-sales-page",
+    "provenance": {
+     "source": "bitfield-packages packages/public-sales-page and packages/adaptive-program-landing"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "title": "Harbor Coaching",
+       "description": "One-to-one swim coaching for adults who never learned.",
+       "brand": "Harbor Coaching",
+       "palette": {
+        "ground": "#f7f5f0",
+        "text": "#14213d",
+        "accent": "#e76f51"
+       },
+       "sections": [
+        {
+         "emphasis": "hero",
+         "heading": "Swim your first length in six weeks",
+         "body": "Adult swim coaching: private lessons in a quiet pool, at your pace, with a coach who has taught four hundred adults to swim.",
+         "actions": [
+          {
+           "label": "Book a first lesson",
+           "href": "https://harbor.example/book"
+          },
+          {
+           "label": "See prices",
+           "href": "#prices",
+           "tone": "quiet"
+          }
+         ]
+        },
+        {
+         "emphasis": "steps",
+         "heading": "How it works",
+         "items": [
+          {
+           "heading": "Get comfortable in the water",
+           "body": "Breathing and floating before anything else."
+          },
+          {
+           "heading": "Learn one stroke well",
+           "body": "Freestyle, broken into small pieces you can practise."
+          },
+          {
+           "heading": "Swim your length",
+           "body": "Week six ends with a full length, timed if you like."
+          }
+         ]
+        },
+        {
+         "emphasis": "offer",
+         "heading": "Prices",
+         "cards": [
+          {
+           "heading": "Single lesson",
+           "body": "$60",
+           "details": [
+            "45 minutes",
+            "Any week"
+           ],
+           "href": "https://harbor.example/book/single"
+          },
+          {
+           "heading": "Six-week course",
+           "body": "$320",
+           "details": [
+            "Six lessons",
+            "A length by week six"
+           ],
+           "href": "https://harbor.example/book/course",
+           "tone": "primary"
+          }
+         ]
+        },
+        {
+         "emphasis": "proof",
+         "heading": "From swimmers",
+         "items": [
+          {
+           "heading": "Dana, 52",
+           "body": "I was scared of the deep end for forty years. I swam a length in week five."
+          }
+         ]
+        },
+        {
+         "emphasis": "cta",
+         "heading": "Your first lesson is this week",
+         "actions": [
+          {
+           "label": "Book a first lesson",
+           "href": "https://harbor.example/book"
+          }
+         ]
+        }
+       ]
+      },
+      "output_selector": "$.result.words",
+      "contains": "Swim your first length in six weeks"
+     },
+     {
+      "kind": "output-contains",
+      "output_selector": "$.result.identity",
+      "text": "1f:"
+     }
+    ]
+   }
+  }
+ ]
+}

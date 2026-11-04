@@ -1,0 +1,15 @@
+{
+  "_what": "The person's redaction of what the AI reads off this Mac's screen (computer/ask-payload.mjs redactor, used by computer/drive-the-screen.mjs). If the person turned `redact` on (their own file `prefs_file`; off until they choose), every screen read is redacted here on the Mac by `patterns` before it can leave: a pattern is a regular expression and what replaces a match.",
+  "prefs_file": "~/.trillion/capture/ask-prefs.json",
+  "defaults": { "redact": false },
+  "patterns": [
+    { "id": "card-number", "regex": "\\b(?:\\d[ -]?){13,19}\\b", "replace": "[card number]" },
+    { "id": "email", "regex": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}", "replace": "[email]" },
+    { "id": "secret-key", "regex": "\\b(?:sk|pk|rk|ghp|gho|xox[abp])[-_][A-Za-z0-9_-]{16,}\\b", "replace": "[secret]" },
+    { "id": "jwt", "regex": "\\beyJ[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}\\b", "replace": "[token]" },
+    { "id": "us-ssn", "regex": "\\b\\d{3}-\\d{2}-\\d{4}\\b", "replace": "[id number]" }
+  ],
+  "words": {
+    "bad_pattern": "The pattern {id} is not a valid expression."
+  }
+}
