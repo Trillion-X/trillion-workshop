@@ -205,7 +205,7 @@ export function planMove(row, source, destination) {
     if (reused.has(path) || !destination.exists(to)) continue;
     const here = destination.read(to);
     const before = source.read(path);
-    if (here.equals(before) || (isCode(path) && withoutRequests(here.toString('utf8')) === withoutRequests(before.toString('utf8')))) {
+    if (here.equals(before) || (isCode(path) && withoutRequests(here.toString('utf8')) === withoutRequests(before.toString('utf8'))) || adaptedHomes.get(path)?.home === to) {
       reused.set(path, to);
       homeAlready.set(path, makeHashCodeHexFromBytes(new Uint8Array(here)));
     }

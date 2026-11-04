@@ -371,6 +371,14 @@ test('a file its row names as an adapted copy is home there: the test lands besi
     const checked = moveCode({ step: 'check', row: adapted, source_folder: source, destination_folder: destination, folders: ['tools/add-numbers'] });
     assert.deepEqual(checked.folders[0].problems, []);
     assert.equal(checked.folders[0].tests.pass, 1);
+    // An adapted copy at the very place the file would land is its home too, not a path taken.
+    const atPlace = repository({ 'package.json': json({ name: 'tool-box', type: 'module' }), 'tools/add-numbers/tool-rows.json': json({ rows: [] }),
+      'tools/add-numbers/src/sum.mjs': "export function sum(a, b) { return [a, b].reduce((x, y) => x + y, 0); }\n" });
+    try {
+      const there = moveCode({ step: 'plan', row: { ...row, adapted_homes: [{ from: 'src/sum.mjs', home: 'tools/add-numbers/src/sum.mjs', why: 'adapted in place' }] }, source_folder: source, destination_folder: atPlace });
+      assert.deepEqual(there.groups[0].held, []);
+      assert.equal(there.files.find(file => file.from === 'src/sum.mjs').adapted, 'adapted in place');
+    } finally { rmSync(atPlace, { recursive: true, force: true }); }
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
 
