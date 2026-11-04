@@ -16,7 +16,9 @@ import { fileURLToPath } from 'node:url';
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const here = join(folder, 'test');
 const doWork = join(folder, 'do-work');
-const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const allRows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+// The scripts the person's AI runs by hand; tool:enhance-speech is the one `computer` row (test/speech-enhance.test.mjs).
+const rows = allRows.filter(row => row.invoke.kind === 'on-your-computer');
 const settingsFile = join(here, 'settings-for-synthetic-speech.json');
 const python = (...argv) => spawnSync('python3', argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const environment = JSON.parse(python(join(here, 'check_environment.py')).stdout.trim().split('\n').pop());
@@ -47,6 +49,7 @@ test('the rows run on the person\'s computer and name scripts that exist', () =>
     assert.ok(script && existsSync(join(doWork, script)), `${row.id} runs ${script}, which is in do-work/`);
     assert.ok(row.invoke.needs.includes('python') && row.invoke.needs.includes('ffmpeg'));
   }
+  assert.deepEqual(allRows.filter(row => !rows.includes(row)).map(row => [row.id, row.invoke.kind, row.invoke.argv.at(-1)]), [['tool:enhance-speech', 'computer', 'enhanceSpeech']]);
 });
 
 test('every model the rows need is named in needs, so nothing is fetched unseen', () => {
