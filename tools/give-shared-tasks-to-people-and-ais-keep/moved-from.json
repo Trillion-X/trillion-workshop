@@ -33,6 +33,13 @@
       "to": "tools/give-shared-tasks-to-people-and-ais-keep/from-old-trillion/test/space-task-shard-query.test.mjs",
       "source_identity": "1f:aff15b31bdccdde9c90d94b9ef1159e70d78ad36aa2ab0c33f35194ed8ebea24",
       "identity": "1f:aff15b31bdccdde9c90d94b9ef1159e70d78ad36aa2ab0c33f35194ed8ebea24"
+    },
+    {
+      "from": "src/space-assignment-delivery.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/give-shared-tasks-to-people-and-ais-keep/from-old-trillion/src/space-assignment-delivery.json",
+      "source_identity": "1f:a8b0022d3bc6ec40850f4b87fd12f8cb5ae200a39e370a3f2e7f180b27d3cb35",
+      "identity": "1f:a8b0022d3bc6ec40850f4b87fd12f8cb5ae200a39e370a3f2e7f180b27d3cb35"
     }
   ]
 }

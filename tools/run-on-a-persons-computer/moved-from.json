@@ -413,6 +413,13 @@
       "to": "tools/run-on-a-persons-computer/from-old-trillion/records/workshop-mac-program-tool-records.json",
       "source_identity": "1f:49b24f80e8fbd0d32f4140d12012b1903c7b867a02b13d7f62834196fd01ec55",
       "identity": "1f:49b24f80e8fbd0d32f4140d12012b1903c7b867a02b13d7f62834196fd01ec55"
+    },
+    {
+      "from": "test/local-document-and-catalogue.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/from-old-trillion/test/local-document-and-catalogue.test.mjs",
+      "source_identity": "1f:cc63c5c5b6d60d26981d816fb1dc2f264faff663570c6e0e2324ad7324bb8632",
+      "identity": "1f:b835d1de5941e76e24861ee232aadddd4fe20e511fd70500b54c8068d4392037"
     }
   ]
 }

@@ -5,3 +5,11 @@ Files of old trillion whose job is this tool's, moved here unchanged under their
 | Old path | Here |
 |---|---|
 | `records/speech-engine-records.json` | `records/speech-engine-records.json` |
+
+## Feature files
+
+These are old trillion's src/ and test/ files at main 5dc302be. Only import paths differ, where a file they import is already in this repository. A file that cannot load or pass here is held: its name ends in `.held` (the same bytes).
+
+| Old path | Here | Status |
+|---|---|---|
+| `src/account-speech.mjs` | `src/account-speech.mjs` | loads here (from 5dc302be) |

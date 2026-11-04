@@ -1,0 +1,212 @@
+{
+  "send_type": "audience-send",
+  "delivery_type": "audience-delivery",
+  "share_index_type": "audience-share",
+  "do_not_send_type": "audience-do-not-send",
+  "page_size": 25,
+  "most_source_pages": 100,
+  "most_source_rows_per_page": 100,
+  "stale_claim_minutes": 15,
+  "next_page_after_seconds": 60,
+  "most_channel_attempts": 3,
+  "retry_after_seconds": 3600,
+  "_what": "Tunables read by src/audience-sends.mjs. most_channel_attempts is how many times one channel may be tried for one person: a channel that answered no is tried again by a later run until it has been tried this many times, and a channel whose road threw is never tried again, since it may have gone out. retry_after_seconds is when the run that retries those channels is scheduled, when no further page is left to run.",
+  "most_prices": 6,
+  "tool_id": "tool:send-to-an-audience",
+  "addresses": {
+    "email": {
+      "field_kinds": [
+        "email"
+      ],
+      "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+    },
+    "phone": {
+      "field_kinds": [
+        "phone"
+      ],
+      "pattern": "^\\+[1-9]\\d{7,14}$"
+    },
+    "postal": {
+      "field_kinds": [
+        "postal-address"
+      ],
+      "pattern": "\\S"
+    }
+  },
+  "channels": [
+    {
+      "id": "text",
+      "label": "Text",
+      "address": "phone",
+      "road": "carried",
+      "connects_any": [
+        "imessage",
+        "whatsapp",
+        "telegram",
+        "signal"
+      ]
+    },
+    {
+      "id": "link",
+      "label": "Link only",
+      "address": null,
+      "road": "link"
+    },
+    {
+      "id": "phone-call",
+      "label": "Phone call",
+      "address": "phone",
+      "road": "tool",
+      "needs": "a calling service connected to Trillion"
+    },
+    {
+      "id": "letter",
+      "label": "Letter",
+      "address": "postal",
+      "road": "tool",
+      "needs": "a print-and-mail service connected to Trillion"
+    }
+  ],
+  "timings": [
+    "manual",
+    "now",
+    "at",
+    "each_new"
+  ],
+  "audience_states": {
+    "sent": {
+      "label": "Everyone it reached"
+    },
+    "opened": {
+      "label": "Opened it"
+    },
+    "not_opened": {
+      "label": "Did not open it"
+    },
+    "signed": {
+      "label": "Signed it"
+    },
+    "paid": {
+      "label": "Paid"
+    },
+    "not_paid": {
+      "label": "Did not pay"
+    }
+  },
+  "words": {
+    "no_send": "There is no send {send_id}.",
+    "needs_record": "Choose what to send: a sales contract or any record you can share (record).",
+    "needs_audience": "Choose who gets it: a list, people by name and address, or the people an earlier send reached.",
+    "needs_channel": "Choose how it reaches them: {channels}.",
+    "bad_channel": "{channel} is not a way to send. Choose from {channels}, or name a Workshop tool as { road: \"tool\", tool_id }.",
+    "bad_timing": "when is manual (kept until run), now, at (with a time) or each_new (each new person who joins the list).",
+    "each_new_needs_list": "Each new person who joins needs a list to watch.",
+    "bad_until": "until is the time each person's link stops opening, in the future, like 2026-10-05T09:00:00Z.",
+    "bad_can": "can is a list of what each link lets its person do, like [\"view\", \"run\"].",
+    "bad_time": "at must be a time in the future, like 2026-10-05T09:00:00Z.",
+    "bad_prices": "prices are 2 to {most} amounts in cents, like [4000, 6000]; one price needs no list.",
+    "prices_need_contract": "Two prices need a priced sales contract to send.",
+    "bad_source": "Audience item {index} is { list_id, view_id?, rules? }, { people: [{ name?, email?, phone? }] } or { send_id, state }.",
+    "stopped": "This send was stopped, so nothing more goes out.",
+    "no_address": "No {address} on this row.",
+    "asked_not_to": "They asked not to get these.",
+    "yourself": "That is you.",
+    "not_connected": "{label} needs {needs}.",
+    "text_not_carried": "Text needs your Mac or phone awake with Messages or WhatsApp connected.",
+    "saved": "Saved. {count} people match now.",
+    "sending": "{sent} sent, {remaining} still to go.",
+    "done": "Sent to {sent}. {skipped} skipped.",
+    "operation": "Choose an operation: save, run, results, stop, list, read or do_not_send."
+  },
+  "screen": {
+    "who": [
+      {
+        "id": "one",
+        "label": "One person",
+        "icon": "UserRound"
+      },
+      {
+        "id": "list",
+        "label": "A list",
+        "icon": "Users"
+      }
+    ],
+    "when": [
+      {
+        "id": "now",
+        "label": "Now",
+        "icon": "Send"
+      },
+      {
+        "id": "at",
+        "label": "At a time",
+        "icon": "CalendarClock"
+      },
+      {
+        "id": "each_new",
+        "label": "Each new person",
+        "icon": "UserPlus"
+      }
+    ],
+    "prices": [
+      {
+        "id": "one",
+        "label": "One price",
+        "icon": "Tag"
+      },
+      {
+        "id": "two",
+        "label": "Test two prices",
+        "icon": "Split"
+      }
+    ],
+    "channel_icons": {
+      "email": "Mail",
+      "text": "MessageSquare",
+      "link": "Link",
+      "phone-call": "Phone",
+      "letter": "Mailbox"
+    },
+    "words": {
+      "list_title": "Who gets it",
+      "list_line": "Everyone in the list or view you pick, each with their own link",
+      "pick_list": "List",
+      "pick_view": "Everyone in it",
+      "no_lists": "Make a list of the people first, then send to it.",
+      "make_list": "Your lists",
+      "how_title": "How it reaches them",
+      "how_line": "Pick one or more",
+      "when_title": "When",
+      "at_label": "Send at",
+      "each_new_line": "Everyone in it now, then each person who joins, by your own rule",
+      "price_title": "Price",
+      "price_line": "Each person sees one price and keeps it",
+      "price_a": "First price",
+      "price_b": "Second price",
+      "note_label": "A note to them",
+      "note_placeholder": "Our spring clinic opens next week. Here is your place.",
+      "send": "Send to the list",
+      "sending": "Sending",
+      "sent": "Sent",
+      "failed": "Not sent",
+      "results_title": "How it went",
+      "refresh": "Refresh",
+      "stop": "Stop sending",
+      "no_list_chosen": "Pick a list first.",
+      "no_channel": "Pick how it reaches them.",
+      "no_time": "Pick a time to send it.",
+      "no_prices": "Give both prices.",
+      "fact_sent": "Sent",
+      "fact_opened": "Opened",
+      "fact_signed": "Signed",
+      "fact_paid": "Paid",
+      "one_price": "One price",
+      "skipped": "skipped",
+      "failed_people": "not reached",
+      "scheduled": "Scheduled",
+      "saved": "Saved",
+      "partly_sent": "Partly sent",
+      "none_sent": "None of it was sent"
+    }
+  }
+}

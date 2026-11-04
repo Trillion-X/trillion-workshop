@@ -1,0 +1,35 @@
+{
+  "what_this_is": "How a team review runs (src/team-review.mjs): the steps each round takes in order, each done by one of the person's AIs as a handoff (src/agents.mjs). A step with `decides` ends the review when its result says yes in that field; otherwise the next round starts from the first step with that step's result. `role` is the name a caller assigns an AI to (assign: { role: agent_id }); a role nobody is assigned goes to whichever AI takes it first. `job` is the words each AI is handed, with {round}, {rounds} and {work} filled in. A review stops after `rounds.default` rounds unless the caller asks for a number up to `rounds.most`. More roles, other words or another round limit are edits here, never code. New runs snapshot integrity in each handoff: a deciding stage is taken by a different published agent, and approval echoes input.team_review.candidate in the configured candidate_field. The candidate contains the prior finished handoff id, generation, agent id and BLAKE3 result identity. This is agent separation, not proof of distinct humans or model families. Older runs retain their original contract and read back legacy assurance.",
+  "steps": [
+    {
+      "role": "doer",
+      "label": "Does the work",
+      "job": "Round {round} of {rounds}. Do this work and return the whole result. When the input carries review notes from the round before (input.previous), change the work to meet them and return the whole new version.\n\nThe work: {work}"
+    },
+    {
+      "role": "reviewer",
+      "label": "Reviews it",
+      "job": "Round {round} of {rounds}. Review the work in input.previous.result against what was asked. Return as the result { \"approved\": true, \"reviewed\": input.team_review.candidate } when it is ready (copy the candidate object exactly), or { \"approved\": false, \"notes\": \"what to change\" } when it is not.\n\nWhat was asked: {work}",
+      "decides": {
+        "field": "approved"
+      }
+    }
+  ],
+  "rounds": {
+    "default": 3,
+    "most": 10
+  },
+  "hold_minutes": 60,
+  "states": {
+    "working": "Working on it",
+    "withdrawn": "Stopped because requested work was withdrawn",
+    "approved": "Approved",
+    "round_limit": "Stopped at the round limit",
+    "invalidated": "Approval no longer matches the current work"
+  },
+  "integrity": {
+    "version": "candidate-bound-independent-agent/v1",
+    "independent_actor": true,
+    "candidate_field": "reviewed"
+  }
+}

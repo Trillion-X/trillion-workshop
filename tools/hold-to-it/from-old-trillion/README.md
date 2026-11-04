@@ -5,3 +5,11 @@ Files of old trillion whose job is this tool's, moved here unchanged under their
 | Old path | Here |
 |---|---|
 | `records/workshop-hold-to-it-tool-records.json` | `records/workshop-hold-to-it-tool-records.json` |
+
+## Feature files
+
+These are old trillion's src/ and test/ files at main 5dc302be. Only import paths differ, where a file they import is already in this repository. A file that cannot load or pass here is held: its name ends in `.held` (the same bytes).
+
+| Old path | Here | Status |
+|---|---|---|
+| `src/hold-to-it.json` | `src/hold-to-it.json` | data, read by its module (from 5dc302be) |

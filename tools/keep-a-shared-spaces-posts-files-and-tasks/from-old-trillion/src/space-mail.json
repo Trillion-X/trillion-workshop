@@ -1,0 +1,76 @@
+{
+  "kind": "space-mail-settings",
+  "about": "Business email in a space: mail to addresses on a domain the business keeps with its own mail service arrives as a message in a space, carrying what a reply to it needs (reply_with); a reply written there carries that as `send`, and goes out from the address the mail came to. Each mail service is one row of providers; adding a service is a row here plus its service-connections recipe and event source, never code.",
+  "providers": [
+    {
+      "id": "resend",
+      "label": "Resend",
+      "vendor": "resend",
+      "connect_tool_id": "tool:connect-service-resend",
+      "keys_at": "https://resend.com/api-keys",
+      "domains_tool_id": "tool:resend-list_domains",
+      "domains_selector": "$.data",
+      "domain_name_field": "name",
+      "receiving_field": [
+        "capabilities",
+        "receiving"
+      ],
+      "receiving_on": "enabled",
+      "receiving_help": "https://resend.com/docs/dashboard/receiving/introduction",
+      "event_source_id": "events:resend",
+      "event": "mail",
+      "send_tool_id": "tool:resend-send_mail",
+      "app": "Resend"
+    }
+  ],
+  "arrived": {
+    "kind": "message",
+    "title": "subject",
+    "text": [
+      "text",
+      "html_text"
+    ],
+    "source_ref": [
+      "message_id",
+      "mail_id"
+    ],
+    "reply_to_source": [
+      "references",
+      "in_reply_to"
+    ],
+    "body": {
+      "from": "from",
+      "to": "to",
+      "cc": "cc",
+      "subject": "subject",
+      "sent_at": "created_at",
+      "message_id": "message_id"
+    },
+    "reply_with": {
+      "send_to": "from",
+      "reply_to_subject": "subject",
+      "in_reply_to": "message_id",
+      "references": "message_id"
+    },
+    "send_as_field": "mailbox"
+  },
+  "send": {
+    "where_field": "body.send.send_as",
+    "input": {
+      "from": "body.send.send_as",
+      "to": "body.send.send_to",
+      "subject": "body.send.subject",
+      "reply_to_subject": "body.send.reply_to_subject",
+      "text": "body.text",
+      "in_reply_to": "body.send.in_reply_to",
+      "references": "body.send.references"
+    }
+  },
+  "words": {
+    "not_connected": "Connect {provider} first: open {keys_at}, create a key with Full access, and paste it on Connections under {provider}.",
+    "no_domain": "{provider} has no domain on this account yet. Add the business's domain there first.",
+    "receiving_off": "{domain} sends through {provider} but does not receive there yet. Turn on receiving for it: {receiving_help}",
+    "not_on_domain": "{address} is not on {domains}, the domains this {provider} account keeps.",
+    "connected": "Mail to {addresses} now arrives in this space, and replies written here go out from {send_as}."
+  }
+}

@@ -52,6 +52,27 @@
       "to": "tools/run-rules-and-schedules-by-themselves/from-old-trillion/records/workshop-engine-tool-records.json",
       "source_identity": "1f:b5d9cbe51ba3310940b56a6aa9b3b53bea9246462bd60b06fd921204768ad43e",
       "identity": "1f:b5d9cbe51ba3310940b56a6aa9b3b53bea9246462bd60b06fd921204768ad43e"
+    },
+    {
+      "from": "src/keep-running.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-rules-and-schedules-by-themselves/src/keep-running.json",
+      "source_identity": "1f:bfd998325b958d6904ce998c3c5a91a4fce8ff48842beab86e7d4010190cfc1d",
+      "identity": "1f:bfd998325b958d6904ce998c3c5a91a4fce8ff48842beab86e7d4010190cfc1d"
+    },
+    {
+      "from": "src/keep-running.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-rules-and-schedules-by-themselves/src/keep-running.mjs",
+      "source_identity": "1f:9325e13de4ec0f23c0ff4a52b85aa4b26d49a3a70d1fa9482059e9e03787eafa",
+      "identity": "1f:9325e13de4ec0f23c0ff4a52b85aa4b26d49a3a70d1fa9482059e9e03787eafa"
+    },
+    {
+      "from": "test/keep-running.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-rules-and-schedules-by-themselves/test/keep-running.test.mjs",
+      "source_identity": "1f:427e46c96c3e81947cef04a46fcf9a5d965f5af5154735819f49ce98f2edd429",
+      "identity": "1f:427e46c96c3e81947cef04a46fcf9a5d965f5af5154735819f49ce98f2edd429"
     }
   ]
 }

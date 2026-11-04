@@ -27,3 +27,13 @@ The job's other moved files are kept once in a shared place, because more than o
 **Depends on:** the files its moved files import, at the paths those imports name.
 
 **Depended on by:** nothing in this repository yet.
+
+## Moved from old trillion main (5dc302be)
+
+Byte for byte under their old paths, only import paths changed; `moved-from.json` names each.
+
+| Old path | Here | Status |
+|---|---|---|
+| `src/keep-running.json` | `src/keep-running.json` | data, read by its module |
+| `src/keep-running.mjs` | `src/keep-running.mjs` | loads here |
+| `test/keep-running.test.mjs` | `test/keep-running.test.mjs` | runs here: 31/31 pass |

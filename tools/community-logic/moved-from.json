@@ -38,6 +38,34 @@
    "to": "tools/community-logic/test/community-logic/project-progress-to-path.test.ts",
    "source_identity": "1f:c33dcb1b1caeae3279d2b3f54f614c63765b27f26de4c57c5639c9fb9a7377e3",
    "identity": "1f:93ebf07d0b81b8495b1efffdd82be4088f8b1eebbd59b23d62d8d560aefcaac7"
+  },
+  {
+   "from": "src/community-logic/README.md",
+   "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+   "to": "tools/community-logic/src/community-logic/README.md",
+   "source_identity": "1f:a8c1bd05740715c8ed5cb786da0f6c335fadffd002791c4b366ec3a8d28704a1",
+   "identity": "1f:a8c1bd05740715c8ed5cb786da0f6c335fadffd002791c4b366ec3a8d28704a1"
+  },
+  {
+   "from": "src/community-logic/safety-gate.ts",
+   "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+   "to": "tools/community-logic/src/community-logic/safety-gate.ts",
+   "source_identity": "1f:c166ea606cf54fdc2f7094212262bb76920e02ec012c107770733ef59d384b3e",
+   "identity": "1f:c166ea606cf54fdc2f7094212262bb76920e02ec012c107770733ef59d384b3e"
+  },
+  {
+   "from": "test/community-logic/corroboration-gate.test.ts",
+   "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+   "to": "tools/community-logic/test/community-logic/corroboration-gate.test.ts",
+   "source_identity": "1f:551697354627fe7064a4ea36d04200d99edb85f19aee46a510920fa918f1b3d0",
+   "identity": "1f:7917488a3d724f0e4fa54729aae56e97b18e8f24093ea5c5bb914c8f9102464c"
+  },
+  {
+   "from": "test/community-logic/safety-gate.test.ts",
+   "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+   "to": "tools/community-logic/test/community-logic/safety-gate.test.ts",
+   "source_identity": "1f:a01d4ff79cb27fabb3b4230d836242191ec3956e28f144ad3624e85d619b6810",
+   "identity": "1f:e73c70e8d4b178866bc6145e7a5380b1cac560413cdfdff23122e9d9aea31c50"
   }
  ]
 }

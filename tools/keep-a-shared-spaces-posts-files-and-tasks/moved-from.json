@@ -77,6 +77,27 @@
       "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/test/space-content-policy.test.mjs",
       "source_identity": "1f:aba0d4b615693a80aca4adeb580fdb0b65cf9a2fea1dba635fbdc8bafd16bfba",
       "identity": "1f:aba0d4b615693a80aca4adeb580fdb0b65cf9a2fea1dba635fbdc8bafd16bfba"
+    },
+    {
+      "from": "src/space-item-rules.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-item-rules.mjs",
+      "source_identity": "1f:a9dbd95f27d8fc329ab03a1b93993c99b56455a97eb2bfa8635a32e11949a833",
+      "identity": "1f:a9dbd95f27d8fc329ab03a1b93993c99b56455a97eb2bfa8635a32e11949a833"
+    },
+    {
+      "from": "src/space-mail.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-mail.json",
+      "source_identity": "1f:acbef57543a77fa88798aa5cb16da7e5790302d7cdd8ab7604822ff408e8218f",
+      "identity": "1f:acbef57543a77fa88798aa5cb16da7e5790302d7cdd8ab7604822ff408e8218f"
+    },
+    {
+      "from": "src/space-mail.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-mail.mjs",
+      "source_identity": "1f:8cae7fa4ee76b1f80fe4e8749f75dd035e3c59ef65003f7253bc37d367ba7051",
+      "identity": "1f:37d252df5cbf9f83a2315661e0de4c8cd2f9b01f9b4ed316af9167910dae17aa"
     }
   ]
 }

@@ -1,0 +1,51 @@
+{
+  "_what": "The rules Trillion holds a group to its own agreements by (src/hold-to-it.mjs, tool:hold-to-it, the workflow for purpose \"hold-us-to-it\"). An agreement is a space item of kind `item_kinds.agreement`: what was agreed, who agreed, how often and when, and the words that show it. For an agreement with a time, Trillion keeps its next meeting on the space's calendar, reminds and starts listening `remind_minutes` before, checks after it who was there (`evidence` names where presence is read), marks each person's scorecard by `marks` (a mark with `miss` counts toward a run of misses), and says plainly in the space who did not keep it. Every member of the space reads the same rules, agreements and marks, so the whole team is held to account, never one person alone. Change any rule, point or word here and every space follows.",
+  "item_kinds": { "agreement": "agreement", "mark": "scorecard-mark", "rules": "scorecard-rules", "message": "message" },
+  "defaults": { "minutes": 30, "time_zone": "UTC", "check_after_minutes": 30, "remind_minutes": 10 },
+  "evidence": {
+    "_what": "Where presence at a meeting is read, each a message source in the person's Trillion read for the meeting's window (from `before_minutes` before its start to `after_minutes` after its end): a speaker named there counts as present. `space_messages` counts a member who wrote in the space during the window. A speaker whose label starts with `unnamed_prefix` is a voice not named yet: it is reported, never guessed to be anyone.",
+    "message_apps": ["Listening", "Meeting", "Zoom", "Google Meet", "FaceTime"],
+    "before_minutes": 10,
+    "after_minutes": 15,
+    "pages": 5,
+    "space_messages": true,
+    "unnamed_prefix": "Someone ("
+  },
+  "marks": [
+    { "id": "came", "label": "Came", "points": 1, "when": "present" },
+    { "id": "missed", "label": "Missed the meeting", "points": -3, "when": "absent", "miss": true },
+    { "id": "not-arranged", "label": "Agreed, and nobody set it up", "points": -2, "when": "not_arranged", "miss": true },
+    { "id": "not-done", "label": "Agreed, and did not do it", "points": -5, "when": "not_done", "miss": true },
+    { "id": "not-counted", "label": "Not counted: the voices heard had no names", "points": 0, "when": "unclear" }
+  ],
+  "words": {
+    "kept": "Kept: {what}. {who} agreed. Trillion puts it on the calendar {cadence}, reminds everyone {remind} minutes before, checks who came and keeps score here.",
+    "kept_no_time": "Kept: {what}. {who} agreed to it {cadence}, but nobody said when, so nothing is on the calendar yet. Once a time is chosen Trillion books it, reminds everyone and checks who came.",
+    "cadence_day": "every day {at}",
+    "cadence_week": "every week on {on} {at}",
+    "cadence_once": "once{date} {at}",
+    "at_time": "at {at}",
+    "choose_time_title": "Choose a time for {what}",
+    "choose_time": "{who} agreed to {what} {how}, but nobody said when. Choose a time and your AI books it for everyone.",
+    "choose_time_suggested": "{who} agreed to {what} {how}, but nobody said when. Suggested: {suggested}. Say yes or choose another time and your AI books it for everyone.",
+    "moved": "{title} moves to {when}.{because} The reminder and the check move with it.",
+    "timed": "{title} now has its time: {when}.{because} Trillion reminds everyone before it and checks who came.",
+    "no_time": "This agreement has no time yet, so there is nothing to remind or check.",
+    "booked": "On the calendar: {title}, {starts}.",
+    "remind": "{title} starts in {minutes} minutes. {who}: be there. Listening is on so it is kept.",
+    "nobody_missed": "{title} happened and everyone who agreed was there: {who}.",
+    "missed": "{title}: {absent} agreed to this and did not show up. {present} did. Agreeing and not doing it is exactly what this team said it would stop. Next one: {next}.",
+    "nobody_came": "{title}: nobody who agreed showed up ({absent}). You all said yes to this. Next one: {next}, and it is checked again.",
+    "not_arranged": "{title} was agreed by {who} and nobody set it up, so it did not happen. It is on the calendar now: {next}.",
+    "streak": "{name} has missed {count} in a row.",
+    "unclear": "{title}: voices with no name yet were heard during it ({count}), so {who} could not be counted as there or not, and nothing is scored for them today. Name the voices in Voices and every check after counts them. Next one: {next}.",
+    "scorecard": "Scorecard for {space}: {lines}.",
+    "scorecard_line": "{name} {points}",
+    "no_agreement": "No agreement {agreement_id} in this space.",
+    "needs_space": "space_id names the space the agreement belongs to.",
+    "needs_what": "Say what was agreed, in a few words.",
+    "needs_who": "agreed_by names who agreed, by the names they show in the pursuit.",
+    "needs_at": "at is the time, like 15:00.", "bad_zone": "{zone} is not a time zone. Say one like America/New_York or Europe/London.",
+    "operation": "Choose an operation: keep, ask_time, retime, book, remind, check, mark, scorecard, agreements or free_times."
+  }
+}

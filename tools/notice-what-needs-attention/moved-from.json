@@ -17,6 +17,20 @@
       "to": "tools/notice-what-needs-attention/from-old-trillion/records/workshop-notice-records.json",
       "source_identity": "1f:663faed9374c6597805c5259d4ced6e7cd87bfbc1401934c8033dcef218843a4",
       "identity": "1f:663faed9374c6597805c5259d4ced6e7cd87bfbc1401934c8033dcef218843a4"
+    },
+    {
+      "from": "src/attention-calibration.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/notice-what-needs-attention/src/attention-calibration.json",
+      "source_identity": "1f:867b09dbc6adc5963a50a37df0d4217272448957d9f28c7706dbdbc7bc267411",
+      "identity": "1f:867b09dbc6adc5963a50a37df0d4217272448957d9f28c7706dbdbc7bc267411"
+    },
+    {
+      "from": "src/attention.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/notice-what-needs-attention/src/attention.json",
+      "source_identity": "1f:1986f3efb73f431adcd8c1534d796600198fed43f14aeb6eeb0855f8d64061f3",
+      "identity": "1f:1986f3efb73f431adcd8c1534d796600198fed43f14aeb6eeb0855f8d64061f3"
     }
   ]
 }

@@ -26,6 +26,13 @@
       "source_identity": "1f:25d3f630dc0202951c557d1ad0eefaccecbaa08881c8424ffb4c789a750ea05f",
       "identity": "1f:25d3f630dc0202951c557d1ad0eefaccecbaa08881c8424ffb4c789a750ea05f",
       "found_by": "same bytes"
+    },
+    {
+      "from": "test/inspiration.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/browse-inspiration-clips/from-old-trillion/test/inspiration.test.mjs",
+      "source_identity": "1f:efe3dd8bb7ad9cdbfd0b5d2f38720186c792938caf3625fd4e3984d8a2a2064e",
+      "identity": "1f:587cf1dda4b350b7efef14c3a98c2a3deeec6305580c35caa7454a571040bd42"
     }
   ]
 }

@@ -1,0 +1,309 @@
+{
+ "_what": "Lines with a known answer to the attention classifier's question (src/attention.json classify): does this line heard in a room ask for something to be done? `asks` is the true answer; `lost` names a real request that was kept as context under an earlier question and never became work, so a new question must catch it. scripts/measure-attention.mjs asks each line of the Mac's first classify row (computer/local-models.json) with the current question and writes `last_measure`: the question it asked and each line's probability. test/attention.test.mjs fails when the question changed without being measured again, or when a `lost` line was not caught: a question is never changed by reading it, only by measuring it.",
+ "lines": [
+  {
+   "text": "Okay, so I want a few things. So one is that I want to be able to, with a great voice, to hear you be able to talk out loud like I'm already doing, but you guys are kind of, you guys are doing things, you know, because you're hearing me talk, and it's always listening, which is great, but like...",
+   "asks": true,
+   "lost": "kept request 1 (id withheld)"
+  },
+  {
+   "text": "Right now I'm having to visually see every update, you know, and that's a little bit like what if I want to have an audio update or yes, this thing is popping up on the screen. That's nice, but like that's a visual update. What if I get a chime? What if I get your voice talking back to me? Can we use a local voice model that talks back and we have different voices?",
+   "asks": true,
+   "lost": "kept request 2 (id withheld)"
+  },
+  {
+   "text": "In a way, like that deep primitive or also the primitive of just like you talking back to me as I'm saying these things out loud, kind of like a real life, you know, instantaneous speed. But like a zero dollar cost, how could we do that? And it sounds great. And that's important.",
+   "asks": true,
+   "lost": "kept request 3 (id withheld)"
+  },
+  {
+   "text": "I'm just using Trillion inside of chat right now. It's amazing to me. There needs to be a back button. I already talked about this.",
+   "asks": true,
+   "lost": "kept request 4 (id withheld)"
+  },
+  {
+   "text": "For the loading screen of the application, when you first come into Trillion, I want the string that tangles up and then goes straight like on the landing page.",
+   "asks": true
+  },
+  {
+   "text": "The sidebar spacing between lists is way too big now, fix that.",
+   "asks": true
+  },
+  {
+   "text": "Text Morgan that I'm running late",
+   "asks": true
+  },
+  {
+   "text": "Remind me to call the dentist tomorrow at nine",
+   "asks": true
+  },
+  {
+   "text": "Put the market visit with Dana on my calendar for Friday",
+   "asks": true
+  },
+  {
+   "text": "Order more paper bags from the supplier",
+   "asks": true
+  },
+  {
+   "text": "Email Riley the invoice",
+   "asks": true
+  },
+  {
+   "text": "Can you find the video of me doing situps and cut it into a short",
+   "asks": true
+  },
+  {
+   "text": "Ask Dana to send me the UGC payment details",
+   "asks": true
+  },
+  {
+   "text": "Pay the Cloudflare bill",
+   "asks": true
+  },
+  {
+   "text": "Book a court for Saturday morning",
+   "asks": true
+  },
+  {
+   "text": "Note that the shelf test needs a camera",
+   "asks": true
+  },
+  {
+   "text": "I think that them, I don't think their business is, and I don't think they give enough fucks about this being a part of their business, truly. They just add it in there because it's like one of those things that people add.",
+   "asks": false
+  },
+  {
+   "text": "Thanks for coming. Nice haircut man. Thanks. You going? Well we already decided on getting one remember?",
+   "asks": false
+  },
+  {
+   "text": "With your marketing on your social media you guys don't even talk about oh yeah Jordan talked to Casey and Casey said this to Jordan.",
+   "asks": false
+  },
+  {
+   "text": "You go back there, you get water, you go straight from there, and then Taylor started talking to the fucking bees.",
+   "asks": false
+  },
+  {
+   "text": "You said you speak Spanish?",
+   "asks": false
+  },
+  {
+   "text": "Because the coffee that I was drinking, you know, you go to a coffee shop, it's like three or four bucks or whatever.",
+   "asks": false
+  },
+  {
+   "text": "Yeah, it sounds like a speaker right now. Yeah. Tell me...",
+   "asks": false
+  },
+  {
+   "text": "They should really do focus groups every two weeks, that's what I'd do if I ran their place.",
+   "asks": false
+  },
+  {
+   "text": "So, the MVP, what does that look like? The first version of Northwind Labs was literally in the founder's backyard.",
+   "asks": false
+  },
+  {
+   "text": "Bro, this shit is fucking amazing. I got the omnipresent AI listening to me all the time, so I didn't even have to do the voice memo.",
+   "asks": false
+  },
+  {
+   "text": "Oh, that is it.",
+   "asks": false
+  },
+  {
+   "text": "Where'd you put the coconut oil spray",
+   "asks": false
+  },
+  {
+   "text": "Amazing shot! Did you see that?",
+   "asks": false
+  },
+  {
+   "text": "Okay everyone, take out your notebooks and turn to page forty.",
+   "asks": false
+  },
+  {
+   "text": "Maybe it shouldn't. Maybe that's a bad idea. I don't know. Just like saying things out loud.",
+   "asks": false
+  },
+  {
+   "text": "It's higher level than you because you're learning from him. So why should they talk to you like you don't want to talk to the guy below you?",
+   "asks": false
+  },
+  {
+   "text": "And the beautiful part is, every time I talk about Avery, I always talk about Lumora.",
+   "asks": false
+  },
+  {
+   "text": "I'm sure you are right now. Okay. Can I read it out loud?",
+   "asks": false
+  },
+  {
+   "text": "People are always full of contradictions.",
+   "asks": false
+  },
+  {
+   "text": "That was a great dinner, thank you so much.",
+   "asks": false
+  }
+ ],
+ "last_measure": {
+  "at": "2026-10-07T01:11:08.438Z",
+  "model": "ollama-qwen2.5-14b-yes-no",
+  "question": "Is the speaker asking for something to be done? Yes for a task for their assistant (send or text a message, tell someone something, call, email, book, remind, buy, order, pay, schedule, find, ask someone for something, note or remember something), and yes for anything they want the assistant app itself to do, have, change, fix or be able to do (a wish like 'I want to be able to', 'can we', 'what if you', 'how could we do that', 'there needs to be'). No for chatter, cheering, fragments, instructions to an audience from a video, commentary, or advice about what someone else's business should do.",
+  "act_at": 0.45,
+  "caught": 15,
+  "asks": 16,
+  "acted": 0,
+  "room": 20,
+  "lines": [
+   {
+    "text": "Okay, so I want a few things. So one is that I want to be able to, with a great voice, to hear you be able to talk out loud like I'm already doing, but you guys are kind of, you guys are doing things, you know, because you're hearing me talk, and it's always listening, which is great, but like...",
+    "p": 0.976
+   },
+   {
+    "text": "Right now I'm having to visually see every update, you know, and that's a little bit like what if I want to have an audio update or yes, this thing is popping up on the screen. That's nice, but like that's a visual update. What if I get a chime? What if I get your voice talking back to me? Can we use a local voice model that talks back and we have different voices?",
+    "p": 1
+   },
+   {
+    "text": "In a way, like that deep primitive or also the primitive of just like you talking back to me as I'm saying these things out loud, kind of like a real life, you know, instantaneous speed. But like a zero dollar cost, how could we do that? And it sounds great. And that's important.",
+    "p": 1
+   },
+   {
+    "text": "I'm just using Trillion inside of chat right now. It's amazing to me. There needs to be a back button. I already talked about this.",
+    "p": 0.9852
+   },
+   {
+    "text": "For the loading screen of the application, when you first come into Trillion, I want the string that tangles up and then goes straight like on the landing page.",
+    "p": 0.9012
+   },
+   {
+    "text": "The sidebar spacing between lists is way too big now, fix that.",
+    "p": 1
+   },
+   {
+    "text": "Text Morgan that I'm running late",
+    "p": 1
+   },
+   {
+    "text": "Remind me to call the dentist tomorrow at nine",
+    "p": 1
+   },
+   {
+    "text": "Put the market visit with Dana on my calendar for Friday",
+    "p": 1
+   },
+   {
+    "text": "Order more paper bags from the supplier",
+    "p": 1
+   },
+   {
+    "text": "Email Riley the invoice",
+    "p": 1
+   },
+   {
+    "text": "Can you find the video of me doing situps and cut it into a short",
+    "p": 1
+   },
+   {
+    "text": "Ask Dana to send me the UGC payment details",
+    "p": 1
+   },
+   {
+    "text": "Pay the Cloudflare bill",
+    "p": 1
+   },
+   {
+    "text": "Book a court for Saturday morning",
+    "p": 1
+   },
+   {
+    "text": "Note that the shelf test needs a camera",
+    "p": 0.2705
+   },
+   {
+    "text": "I think that them, I don't think their business is, and I don't think they give enough fucks about this being a part of their business, truly. They just add it in there because it's like one of those things that people add.",
+    "p": 0
+   },
+   {
+    "text": "Thanks for coming. Nice haircut man. Thanks. You going? Well we already decided on getting one remember?",
+    "p": 0
+   },
+   {
+    "text": "With your marketing on your social media you guys don't even talk about oh yeah Jordan talked to Casey and Casey said this to Jordan.",
+    "p": 0
+   },
+   {
+    "text": "You go back there, you get water, you go straight from there, and then Taylor started talking to the fucking bees.",
+    "p": 0
+   },
+   {
+    "text": "You said you speak Spanish?",
+    "p": 0
+   },
+   {
+    "text": "Because the coffee that I was drinking, you know, you go to a coffee shop, it's like three or four bucks or whatever.",
+    "p": 0
+   },
+   {
+    "text": "Yeah, it sounds like a speaker right now. Yeah. Tell me...",
+    "p": 0
+   },
+   {
+    "text": "They should really do focus groups every two weeks, that's what I'd do if I ran their place.",
+    "p": 0
+   },
+   {
+    "text": "So, the MVP, what does that look like? The first version of Northwind Labs was literally in the founder's backyard.",
+    "p": 0
+   },
+   {
+    "text": "Bro, this shit is fucking amazing. I got the omnipresent AI listening to me all the time, so I didn't even have to do the voice memo.",
+    "p": 0
+   },
+   {
+    "text": "Oh, that is it.",
+    "p": 0
+   },
+   {
+    "text": "Where'd you put the coconut oil spray",
+    "p": 0
+   },
+   {
+    "text": "Amazing shot! Did you see that?",
+    "p": 0
+   },
+   {
+    "text": "Okay everyone, take out your notebooks and turn to page forty.",
+    "p": 0
+   },
+   {
+    "text": "Maybe it shouldn't. Maybe that's a bad idea. I don't know. Just like saying things out loud.",
+    "p": 0
+   },
+   {
+    "text": "It's higher level than you because you're learning from him. So why should they talk to you like you don't want to talk to the guy below you?",
+    "p": 0
+   },
+   {
+    "text": "And the beautiful part is, every time I talk about Avery, I always talk about Lumora.",
+    "p": 0
+   },
+   {
+    "text": "I'm sure you are right now. Okay. Can I read it out loud?",
+    "p": 0.0053
+   },
+   {
+    "text": "People are always full of contradictions.",
+    "p": 0
+   },
+   {
+    "text": "That was a great dinner, thank you so much.",
+    "p": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,119 @@
+{
+  "_what": "How the words inside a person's files are read and kept, so search finds what is written inside a PDF, a Word or Excel file, a deck or a text file (src/file-words.mjs). `rows` say which files are read and how, first match wins, matched the way the file viewer matches (parts/ui/show/file-preview/file-viewers.json): a row with `type_prefix` matches a file whose media type starts with it; a row with `extensions` matches a file whose media type names nothing (`unnamed_types`) and whose name ends in one of them. `way` is how its words are read: `as-text` decodes its first `text_bytes` as UTF-8; `converted` hands the file to Workers AI's document conversion (env.AI.toMarkdown), which reads PDF, Office, OpenDocument, Numbers, CSV, HTML and XML into text, for a file of at most `converted_bytes`. A file matching no row is not read. The words are kept as the file's `contents` result ({ text, way, cut }), cut to `kept_characters`, which search indexes and finds (src/search.json lane `contents-words`). New and existing files are read by the store's alarm `per_wake` at a time, `seconds_between_wakes` apart; a file whose reading failed is tried at most `tries` times in all. A new kind of file is a row here, never code. `background_reading` (true by default) is the off switch for the alarm's automatic reading: set false, no new file is read in the background and nothing is sent to the document reader; a person or AI asking for one file's words still gets them.",
+  "background_reading": true,
+  "unnamed_types": [
+    "",
+    "application/octet-stream",
+    "binary/octet-stream"
+  ],
+  "rows": [
+    {
+      "type_prefix": "application/pdf",
+      "way": "converted"
+    },
+    {
+      "type_prefix": "application/vnd.openxmlformats-officedocument.",
+      "way": "converted"
+    },
+    {
+      "type_prefix": "application/vnd.ms-excel",
+      "way": "converted"
+    },
+    {
+      "type_prefix": "application/vnd.oasis.opendocument.",
+      "way": "converted"
+    },
+    {
+      "type_prefix": "application/vnd.apple.numbers",
+      "way": "converted"
+    },
+    {
+      "type_prefix": "text/html",
+      "way": "converted"
+    },
+    {
+      "type_prefix": "text/",
+      "way": "as-text"
+    },
+    {
+      "type_prefix": "application/json",
+      "way": "as-text"
+    },
+    {
+      "type_prefix": "application/xml",
+      "way": "as-text"
+    },
+    {
+      "type_prefix": "application/x-yaml",
+      "way": "as-text"
+    },
+    {
+      "type_prefix": "application/yaml",
+      "way": "as-text"
+    },
+    {
+      "type_prefix": "application/x-ndjson",
+      "way": "as-text"
+    },
+    {
+      "type_prefix": "application/x-subrip",
+      "way": "as-text"
+    },
+    {
+      "type_prefix": "application/rtf",
+      "way": "as-text"
+    },
+    {
+      "extensions": [
+        "pdf",
+        "docx",
+        "docm",
+        "xlsx",
+        "xlsm",
+        "xlsb",
+        "xls",
+        "et",
+        "ods",
+        "odt",
+        "numbers",
+        "html",
+        "htm"
+      ],
+      "way": "converted"
+    },
+    {
+      "extensions": [
+        "txt",
+        "text",
+        "md",
+        "markdown",
+        "mdx",
+        "csv",
+        "tsv",
+        "json",
+        "jsonl",
+        "ndjson",
+        "yaml",
+        "yml",
+        "toml",
+        "xml",
+        "rtf",
+        "log",
+        "srt",
+        "vtt",
+        "ics",
+        "vcf",
+        "tex"
+      ],
+      "way": "as-text"
+    }
+  ],
+  "text_bytes": 2097152,
+  "converted_bytes": 26214400,
+  "kept_characters": 100000,
+  "catch_up": {
+    "per_wake": 1,
+    "seconds_between_wakes": 30,
+    "tries": 3
+  }
+}

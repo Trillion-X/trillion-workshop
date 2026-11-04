@@ -77,6 +77,20 @@
       "to": "tools/booking-slots-and-invitations/show/slot-ranges.d.mts",
       "source_identity": "1f:3a64fec49062d5e82cfccd52b85df271ea21c12760b539986db972a13fca14c3",
       "identity": "1f:3a64fec49062d5e82cfccd52b85df271ea21c12760b539986db972a13fca14c3"
+    },
+    {
+      "from": "src/native-availability-calendar.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/booking-slots-and-invitations/from-old-trillion/src/native-availability-calendar.mjs",
+      "source_identity": "1f:f31f5d42314c7c5c94c79b795e020bd1c4d938f30c611c093ef4acd5f9146da1",
+      "identity": "1f:214b11d84dbca9bc7529527b83210d087d039ed957ee9c2afa4a3621f152e0f5"
+    },
+    {
+      "from": "test/native-availability-calendar.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/booking-slots-and-invitations/from-old-trillion/test/native-availability-calendar.test.mjs",
+      "source_identity": "1f:24b1b889de9f419c2a1d4567a6cc7af8c161a62b14bc4a0a9f57b3c4e70f97a8",
+      "identity": "1f:5072354f66f704d41b7d4831444db6756594ecffdd234d0919b3fc96c17cc7f3"
     }
   ],
   "not_matched": [

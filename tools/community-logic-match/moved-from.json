@@ -52,6 +52,20 @@
       "to": "tools/community-logic-match/test/community-logic/match/solve-capacity-constrained-assignment.test.mjs",
       "source_identity": "1f:2089bcbeb617f28e1e5a2579adc1d8855c07d0c5dd0a6ed46ac64efab220c953",
       "identity": "1f:2089bcbeb617f28e1e5a2579adc1d8855c07d0c5dd0a6ed46ac64efab220c953"
+    },
+    {
+      "from": "src/community-logic/match/select-configurations.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/community-logic-match/src/community-logic/match/select-configurations.mjs",
+      "source_identity": "1f:2397a5a4778b551d21917c2737102218719575f1c3c83800ec50c3b8ffef74d6",
+      "identity": "1f:2397a5a4778b551d21917c2737102218719575f1c3c83800ec50c3b8ffef74d6"
+    },
+    {
+      "from": "test/community-logic/match/stewardship-configuration-gauntlet.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/community-logic-match/test/community-logic/match/stewardship-configuration-gauntlet.test.mjs",
+      "source_identity": "1f:bd7a9e60420ae1f24ff27a2da30467202aeb70e5c6bcbbd551275c14b54edbfd",
+      "identity": "1f:bd7a9e60420ae1f24ff27a2da30467202aeb70e5c6bcbbd551275c14b54edbfd"
     }
   ]
 }

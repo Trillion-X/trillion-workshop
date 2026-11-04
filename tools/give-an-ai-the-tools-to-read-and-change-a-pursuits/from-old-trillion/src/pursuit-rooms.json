@@ -1,0 +1,15 @@
+{
+  "what_this_is": "How one thing a person works toward is kept (src/pursuit-rooms.mjs): it is a pursuit, a record in the person's own store, and the people it is shared with and what they put there live in its room on the network, named by the pursuit's `space_id`. Every room a person is in belongs to exactly one of their pursuits; a room with none is taken in as a pursuit titled with the room. `room_label` is the kind of room a pursuit gets when it is first shared or written in (a label of src/network-settings.json membership_labels). Every word the person or an AI sees is here.",
+  "room_label": "project",
+  "said": {
+    "not_yours": "is not one of your pursuits.",
+    "no_room_in_reach": "This sign-in reaches only the pursuits it was given, so it cannot open a place for another.",
+    "archived_must_be_boolean": "archived is true to archive the pursuit, or false to put it back.",
+    "left": "You left {title}; it is no longer one of your pursuits, and what you put there stays with the others in it.",
+    "ended": "{title} is no longer one of your pursuits. Its history is kept.",
+    "merged": "{from} was joined into {into}. Its records, relationships and shared place now belong to {into}.",
+    "into_itself": "A pursuit cannot be joined into itself.",
+    "both_have_rooms": "Both pursuits already have their own shared place, so they cannot be joined without choosing which place and people to keep.",
+    "into_put_away": "{title} is put away. Put it back before joining another pursuit into it."
+  }
+}

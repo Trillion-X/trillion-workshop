@@ -1,0 +1,15 @@
+{
+  "about": "Files of old trillion (commit 5dc302be, Trillion-X/trillion main) whose job is this tool's, moved here byte for byte by the old-trillion sweep, under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes). Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/voice-guesses.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/name-voices-from-the-call/from-old-trillion/src/voice-guesses.mjs",
+      "source_identity": "1f:c6360134bec437cb571c5cfbb2bde4352568e1e63e1ce68613e60b116008495f",
+      "identity": "1f:c6360134bec437cb571c5cfbb2bde4352568e1e63e1ce68613e60b116008495f"
+    }
+  ]
+}

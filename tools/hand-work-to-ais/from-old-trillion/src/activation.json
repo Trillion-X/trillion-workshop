@@ -1,0 +1,12 @@
+{
+  "_what": "How an AI that work is handed to gets started on it (src/activation.mjs). `paths` are the ways a host can be started from outside, tried in this order: `chat-events` is a chat subscribed to work events (MCP Events, src/mcp-events.mjs), `desktop-connection` is a consumer on the AI's own computer holding an outbound connection and starting the session through that host's own documented interface (harness/work-consumer.mjs), `delivery-address` is an agent that published an https address (src/agent-delivery.mjs). `contact_minutes` is how recently a desktop connection must have said it is there. `states` are the words each answer carries: starts_now (a path is live and the AI has room), busy (a path is live but its stated capacity is full), offline (a path exists but has not been in contact lately), unsupported (the host has no way to be started from outside, so the work waits until the AI next opens Trillion). A new path or state is a row here.",
+  "contact_minutes": 3,
+  "chat_event": "work.waiting",
+  "paths": ["chat-events", "desktop-connection", "delivery-address"],
+  "states": {
+    "starts_now": "This AI is started on the work as soon as it is handed over.",
+    "busy": "This AI can be started, but it says it has no room; the work waits until it has.",
+    "offline": "This AI can be started, but its connection has not been in touch lately; the work waits until it is back.",
+    "unsupported": "This AI cannot be started from outside; the work waits until it next opens Trillion."
+  }
+}

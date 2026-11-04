@@ -1,0 +1,15 @@
+{
+  "about": "Files of old trillion (commit 5dc302be, Trillion-X/trillion main) whose job is this tool's, moved here byte for byte by the old-trillion sweep, under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes). Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/outside-readings.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-the-last-good-answer/from-old-trillion/src/outside-readings.mjs",
+      "source_identity": "1f:cf44d7980240bdeb33070efb55f02242b6403db84766d08243751c9bd5e4a2b3",
+      "identity": "1f:cf44d7980240bdeb33070efb55f02242b6403db84766d08243751c9bd5e4a2b3"
+    }
+  ]
+}
