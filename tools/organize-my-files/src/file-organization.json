@@ -1,0 +1,20 @@
+{
+  "_what": "Conservative organization for every completed namespace file. A root-level arrival gets a category folder and a searchable '<category or company> - <what it is>' name. A specific sender folder is preserved. Later file results may improve a provisional label. The organization result is a list row with its evidence, tags and pursuit (null until a real pursuit is established).",
+  "result_kind": "organization",
+  "produced_by": "trillion:file-organization",
+  "max_label_chars": 120,
+  "max_tags": 12,
+  "staging_folders": ["/Inbox", "/Incoming", "/Uploads", "/Written elsewhere"],
+  "staging_prefixes": ["/Mac originals/"],
+  "generic_name_words": ["screenshot", "screen shot", "screen recording", "image", "img", "photo", "picture", "video", "audio", "recording", "document", "file", "scan", "untitled", "export"],
+  "categories": [
+    { "type_prefix": "image/", "folder": "/Images", "label": "Image" },
+    { "type_prefix": "video/", "folder": "/Videos", "label": "Video" },
+    { "type_prefix": "audio/", "folder": "/Audio", "label": "Audio" },
+    { "type_prefix": "text/", "folder": "/Documents", "label": "Document" },
+    { "type_prefix": "application/", "folder": "/Documents", "label": "Document" }
+  ],
+  "screenshot": { "words": ["screenshot", "screen shot"], "folder": "/Screenshots", "label": "Screenshot" },
+  "fallback": { "folder": "/Files", "label": "File" },
+  "evidence_kinds": ["summary", "visual-observation", "contents", "transcript", "facts"]
+}

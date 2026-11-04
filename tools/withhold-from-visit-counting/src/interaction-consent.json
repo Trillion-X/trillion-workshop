@@ -1,0 +1,36 @@
+{
+  "_what": "What a person may withhold from Trillion's visit counting (src/interactions.mjs, src/interaction-routes.mjs), one purpose at a time, so error reports and usage counting are two separate choices. Each row of `purposes` names the event kinds (records/interactions.json kinds) it covers; a kind no purpose names is never sent from a page anyway (`from_page: false`). Every purpose is allowed until the person withholds it, and a browser asking not to be tracked still sends nothing at all. A purpose whose `anonymous` is true is always kept without the signed-in account and without the visitor's day-only mark, whatever else is chosen. When a purpose that carries identity is withheld, the page forgets every `page_storage_keys` entry (its visit timer) and drops what it had queued for that purpose. The choice is kept in the browser twice: in the page's own storage under `page_key` (so the page never sends a withheld kind) and in a cookie of the collecting address named `cookie` (so the Worker drops what a page sends anyway); either one withholding is enough. `consent_path` reads (GET) and changes (POST { purpose, allowed }) the cookie; `words` are what the privacy page and the answers say.",
+  "consent_path": "/i/consent",
+  "cookie": "trillion_counting",
+  "cookie_days": 365,
+  "page_key": "trillion-counting-withheld",
+  "page_storage_keys": ["trillion-visit"],
+  "purposes": [
+    {
+      "id": "usage",
+      "label": "Visits and clicks",
+      "said": "Which pages were opened and what was clicked, counted by hour.",
+      "kinds": ["page_view", "session_start", "click", "scroll", "ai_screen"],
+      "anonymous": false
+    },
+    {
+      "id": "error_reports",
+      "label": "Error reports",
+      "said": "That a page failed, loaded slowly or lost its live connection: a closed category, a cut route and a timing bucket, never a message, a stack or an address's query.",
+      "kinds": ["client_error", "client_load", "live_close"],
+      "anonymous": true
+    }
+  ],
+  "words": {
+    "privacy_page": "Error reports and visit counting are two separate choices: you can turn either off for this browser and keep the other. Error reports never carry who you are or the day-only code. Turning visit counting off also forgets this browser's visit timer.",
+    "unknown_purpose": "There is no counting choice called {purpose}. The choices are: {purposes}.",
+    "allowed_not_boolean": "allowed is true or false.",
+    "screen_heading": "Counting visits on this browser",
+    "screen_lead": "Trillion counts how pages are used so it can fix what is slow or confusing. You decide, for this browser, which of these it may count. Each is its own choice.",
+    "screen_on": "Counted on this browser.",
+    "screen_off": "Not counted on this browser.",
+    "screen_turn_off": "Stop counting",
+    "screen_turn_on": "Count again",
+    "too_large": "Send one choice: { purpose, allowed }."
+  }
+}

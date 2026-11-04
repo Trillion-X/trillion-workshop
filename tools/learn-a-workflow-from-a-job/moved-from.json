@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/learned-workflows.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/learn-a-workflow-from-a-job/src/learned-workflows.json",
+      "source_identity": "1f:e22e775c4574a64c3884eb4eb28ad08b90d370452ef031f67a171dd83fd1700d",
+      "identity": "1f:e22e775c4574a64c3884eb4eb28ad08b90d370452ef031f67a171dd83fd1700d"
+    },
+    {
+      "from": "src/learned-workflows.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/learn-a-workflow-from-a-job/src/learned-workflows.mjs",
+      "source_identity": "1f:566fd92f2a4c8000860a8ce831051910d68d35c4e9db629f2c4ec66980038f58",
+      "identity": "1f:566fd92f2a4c8000860a8ce831051910d68d35c4e9db629f2c4ec66980038f58"
+    },
+    {
+      "from": "src/scheduler.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/learn-a-workflow-from-a-job/src/scheduler.mjs",
+      "source_identity": "1f:976ce6ee48681a97096cfb7a850a26372716586bfd3bcfb0470afc442780748a",
+      "identity": "1f:7ef0d27a45076421f6d2abd36372d76d889c1580959acc330752945e2d9ca8ca"
+    }
+  ]
+}

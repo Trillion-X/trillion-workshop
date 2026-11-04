@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "harness/ag-ui-wire.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/offer-my-work-as-ag-ui-events/harness/ag-ui-wire.mjs",
+      "source_identity": "1f:6d6017a32605fad5aa6582adbcca3d052bd535fbddad316e3f2ba2178a075dac",
+      "identity": "1f:6d6017a32605fad5aa6582adbcca3d052bd535fbddad316e3f2ba2178a075dac"
+    },
+    {
+      "from": "src/ag-ui.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/offer-my-work-as-ag-ui-events/src/ag-ui.json",
+      "source_identity": "1f:a6dea12482e4210f6b85882b3357a49a72fb821299b622ba98fea32b4535d188",
+      "identity": "1f:a6dea12482e4210f6b85882b3357a49a72fb821299b622ba98fea32b4535d188"
+    },
+    {
+      "from": "src/ag-ui.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/offer-my-work-as-ag-ui-events/src/ag-ui.mjs",
+      "source_identity": "1f:bb50fc6df79d52dd26301e3bb4ba8e0c47c4b061098ed2c44629890a29936cae",
+      "identity": "1f:11c379b4b0a19190ff8190926e3029b7d7809e7e934b52bc57aedb2f33c91668"
+    }
+  ]
+}

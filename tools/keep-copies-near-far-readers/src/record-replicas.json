@@ -1,0 +1,66 @@
+{
+  "about": "Copies of a person's records kept near readers far from their store (src/record-replica.mjs): a teammate's AI on a server in another region, the person on a trip. served: the store's read paths a copy answers exactly as the store would (method and an exact path or a prefix with the parts after it). requires_marks: what the reader's sign-in check must say the plan holds for a copy to answer (on a plan that keeps nothing, there is nothing to copy). places: which region a reader's copy is kept in, by the continent Cloudflare names for the reader (and, where one continent has two regions, the longitude dividing them), as a location hint for the copy. near_ms: a reader whose sign-in check with the store comes back faster than this is beside the store, and the Worker where they are sends their reads to the store for near_seconds. idle_after_ms: a copy nobody read through for this long asks the store to stop telling it of changes. notice_every_ms: the person's store tells each copy its records changed at once, then at most once per this many ms while changes keep coming. trust_notices_for_ms: a copy told of every change answers at once while it settled within this long; past it, it settles before answering, so a notice that never arrived can never leave it behind for long.",
+  "served": [
+    {
+      "method": "POST",
+      "path": "/records/find"
+    },
+    {
+      "method": "GET",
+      "path": "/decisions"
+    },
+    {
+      "method": "GET",
+      "under": "/cases/",
+      "routes": [
+        "",
+        "/export",
+        "/report"
+      ]
+    }
+  ],
+  "requires_marks": [
+    "access:decision-kept"
+  ],
+  "places": [
+    {
+      "continent": "NA",
+      "west_of": -100,
+      "hint": "wnam"
+    },
+    {
+      "continent": "NA",
+      "hint": "enam"
+    },
+    {
+      "continent": "SA",
+      "hint": "sam"
+    },
+    {
+      "continent": "EU",
+      "east_of": 20,
+      "hint": "eeur"
+    },
+    {
+      "continent": "EU",
+      "hint": "weur"
+    },
+    {
+      "continent": "AS",
+      "hint": "apac"
+    },
+    {
+      "continent": "OC",
+      "hint": "oc"
+    },
+    {
+      "continent": "AF",
+      "hint": "afr"
+    }
+  ],
+  "near_ms": 25,
+  "notice_every_ms": 100,
+  "trust_notices_for_ms": 30000,
+  "near_seconds": 3600,
+  "idle_after_ms": 86400000
+}

@@ -1,0 +1,17 @@
+{
+  "_what": "Who provides Trillion, as every directory listing (the Claude connectors directory, the ChatGPT apps directory, the MCP Registry) and the terms page name it. The listing's name, description, website, icon and MCP address are in server.json at the repository root; the MCP initialize reply and the registry read that file too. This file holds only what server.json has no field for. Read by src/pages.mjs (terms) and test/directory-listing.test.mjs. `chatgpt_plugin` holds the words the ChatGPT plugin package needs that no other record has (scripts/build-chatgpt-plugin.mjs): its subtitle (at most 30 characters, OpenAI's limit), category, longer description and starting prompts.",
+  "company": "Ethos Athletics Holding, Corp.",
+  "doing_business_as": "Trillion",
+  "support_email": "hello@gettrillion.ai",
+  "chatgpt_plugin": {
+    "short_description": "Your AIs, working as one",
+    "category": "Productivity",
+    "long_description": "Trillion is where one person keeps what all of their AIs know and can do: what they are pursuing, the decisions they have made, their files, tools and the people they can reach. Add it and your AI weighs each move against your own pursuits, remembers across apps, and opens your Trillion home, decisions, pursuits and awareness right in the conversation. It works only with your own Trillion account, and nothing is posted or sent in your name until you approve the exact words.",
+    "default_prompts": [
+      "Open my Trillion home.",
+      "What decisions are waiting on me?",
+      "What am I working toward right now?"
+    ],
+    "reviewer_notes": "Sign in with the demo account whose sign-in and free-plan code are given in the submission form (never in this file). Or make a new account: it is free and starts empty. Nobody sets Trillion up by hand. Your own AI does it: when you add Trillion to your AI app, the AI starts setup and carries it through, and the screen on Home called \"Connect your AI to start\" shows where it stands. Account deletion: open Account & security, then Delete your account, then Delete my account."
+  }
+}

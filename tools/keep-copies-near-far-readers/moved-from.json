@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/copy-followers.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-copies-near-far-readers/src/copy-followers.mjs",
+      "source_identity": "1f:2f0d31ae227eb2b629ac3922c548533c61f152008b512a29e64d8c5025749fdb",
+      "identity": "1f:2f0d31ae227eb2b629ac3922c548533c61f152008b512a29e64d8c5025749fdb"
+    },
+    {
+      "from": "src/record-replicas.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-copies-near-far-readers/src/record-replicas.json",
+      "source_identity": "1f:b30c44c3acb43a11a58c2f67b508fc30a367d70535c60ef5f6afc27d7c9eeaec",
+      "identity": "1f:b30c44c3acb43a11a58c2f67b508fc30a367d70535c60ef5f6afc27d7c9eeaec"
+    }
+  ]
+}

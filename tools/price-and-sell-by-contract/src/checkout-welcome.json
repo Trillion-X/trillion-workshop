@@ -1,0 +1,44 @@
+{
+  "about": "The page a person sees after paying (src/checkout-return.mjs): /welcome, headed and worded from the offer they bought (its row's after_purchase: what they got, what they pay, their next step, and the tour `tours_address` opens for it). Buying starts at /buy/<offer id>; when that address carries ?from=<a row's `from`>&return=<the http(s) address of the page they were on>, both are kept on their account for `keep_seconds`, and coming back from checkout opens /welcome with that row's steps under the welcome. A row per place a purchase can start (the Chrome extension today; an iPhone or any other place is one more row). A step's `action.href` is an address, or { \"from\": \"return\" } for the page they were on. Pictures live in assets/illustrations/ and are served under /workspace/illustrations/.",
+  "keep_seconds": 86400,
+  "address": "/welcome",
+  "tours_address": "/tours",
+  "title": "Welcome to Trillion",
+  "welcome": {
+    "heading": "Welcome to Trillion",
+    "body": "Your plan is on. Everything Trillion does is open to you now.",
+    "actions": [
+      { "label": "Take the tour", "href": "/tours", "tone": "quiet" },
+      { "label": "Go to your Trillion", "href": "/" }
+    ]
+  },
+  "origins": [
+    {
+      "from": "extension",
+      "body": "Your plan is on. Four steps take you back to what you were doing in Chrome.",
+      "steps": [
+        {
+          "heading": "Go back to the page you were on",
+          "body": "Press the button below to open the page you were on.",
+          "image": { "src": "/workspace/illustrations/extension-step-go-back.webp", "alt": "A Chrome tab showing the page you were on", "width": 1280, "height": 720 },
+          "action": { "label": "Open the page I was on", "href": { "from": "return" } }
+        },
+        {
+          "heading": "Refresh that page",
+          "body": "Press the round arrow at the top left of Chrome, next to the address. On a Mac you can press Command and R together; on Windows, Ctrl and R.",
+          "image": { "src": "/workspace/illustrations/extension-step-refresh.webp", "alt": "The refresh arrow at the top left of Chrome, circled", "width": 1280, "height": 720 }
+        },
+        {
+          "heading": "Click the Trillion button in your toolbar",
+          "body": "It is the needle at the top right of Chrome, beside the address. Not there? Click the puzzle piece, then Send to Trillion.",
+          "image": { "src": "/workspace/illustrations/extension-step-toolbar-button.webp", "alt": "The Trillion needle button at the top right of Chrome, circled, with the puzzle piece beside it", "width": 1280, "height": 720 }
+        },
+        {
+          "heading": "Press Save or Send",
+          "body": "Trillion saves the page or sends it to your AI, just as you were about to.",
+          "image": { "src": "/workspace/illustrations/extension-step-save-send.webp", "alt": "The Send to Trillion window open under the toolbar, with its Send button circled", "width": 1280, "height": 720 }
+        }
+      ]
+    }
+  ]
+}
