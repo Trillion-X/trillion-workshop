@@ -117,6 +117,14 @@
                 "at": "/opt/records-door"
               },
               {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
                 "package": "content-identity",
                 "paths": [
                   "read-data"
@@ -312,6 +320,14 @@
                 "at": "/opt/records-door"
               },
               {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
                 "package": "content-identity",
                 "paths": [
                   "read-data"
@@ -372,6 +388,273 @@
                   "at": "2026-11-01T00:00:00.000Z"
                 }
               }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:review-what-a-list-says",
+        "listed_on": "2026-11-04T18:00:00Z",
+        "id": "tool:find-rows-needing-review",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Find the rows of a list that need review, by owner",
+        "job": "List the rows of a list set up for review that need someone to look at them, for each owner, with why: never checked, flagged outdated or asked about, past the date it must be checked again by, or empty",
+        "description": "Give list ({ id, title_field, fields, views }: the list as review set_up left it, with its review views), rows ([{ id, title, values }]) and, if you like, owner (one owner's rows only) and now (an ISO time; the current time by default). Each review view is read over the rows: a view's rules by the rule filter of the formulas tool, the expired view by its check-again date against now. Answers owners [{ owner, rows: [{ id, title, reasons }] }], reasons being not_verified, expired or empty, and complete (false when more rows needed review than one answer lists).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "list",
+            "rows"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "list": {
+              "type": "object"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "owner": {
+              "type": "string"
+            },
+            "now": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "owners",
+            "complete"
+          ],
+          "properties": {
+            "list_id": {
+              "type": "string"
+            },
+            "owners": {
+              "type": "array"
+            },
+            "complete": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/review-what-a-list-says",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/review-what-a-list-says/do-work/review-a-list.mjs",
+            "findRowsNeedingReview"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "review-what-a-list-says",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/review-what-a-list-says"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "list": {
+                "id": "docs",
+                "title_field": "title",
+                "fields": [
+                  {
+                    "id": "title",
+                    "label": "Title",
+                    "kind": "text"
+                  },
+                  {
+                    "id": "owner",
+                    "label": "Owner",
+                    "kind": "text"
+                  },
+                  {
+                    "id": "review_state",
+                    "label": "Review",
+                    "kind": "choice",
+                    "choices": [
+                      "Verified",
+                      "Outdated",
+                      "Verification requested"
+                    ]
+                  },
+                  {
+                    "id": "review_due",
+                    "label": "Check again by",
+                    "kind": "date"
+                  },
+                  {
+                    "id": "verified_by",
+                    "label": "Checked by",
+                    "kind": "text"
+                  }
+                ],
+                "views": [
+                  {
+                    "id": "review-needed",
+                    "label": "Needs review",
+                    "rules": {
+                      "kind": "group",
+                      "combinator": "or",
+                      "rules": [
+                        {
+                          "kind": "rule",
+                          "field": "review_state",
+                          "operator": "is_empty",
+                          "params": {}
+                        },
+                        {
+                          "kind": "rule",
+                          "field": "review_state",
+                          "operator": "is_none_of",
+                          "params": {
+                            "values": [
+                              "Verified"
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "review-expired",
+                    "label": "Review expired",
+                    "time": {
+                      "field": "review_due",
+                      "before": {
+                        "binding": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "self",
+                            "path": [
+                              "now"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "id": "review-empty",
+                    "label": "Empty",
+                    "rules": {
+                      "kind": "group",
+                      "combinator": "and",
+                      "rules": [
+                        {
+                          "kind": "rule",
+                          "field": "title",
+                          "operator": "is_empty",
+                          "params": {}
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "rows": [
+                {
+                  "id": "a",
+                  "title": "Onboarding",
+                  "values": {
+                    "title": "Onboarding",
+                    "owner": "sam",
+                    "review_state": "Verified",
+                    "review_due": "2027-01-01T00:00:00.000Z"
+                  }
+                },
+                {
+                  "id": "b",
+                  "title": "Pricing",
+                  "values": {
+                    "title": "Pricing",
+                    "owner": "sam",
+                    "review_state": "Verified",
+                    "review_due": "2026-10-01T00:00:00.000Z"
+                  }
+                },
+                {
+                  "id": "c",
+                  "title": "Refunds",
+                  "values": {
+                    "title": "Refunds",
+                    "owner": "kim",
+                    "review_state": "Outdated"
+                  }
+                }
+              ],
+              "now": "2026-11-04T00:00:00.000Z"
             }
           }
         ]
@@ -463,6 +746,14 @@
                   "read-data"
                 ],
                 "at": "/opt/records-door"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
               },
               {
                 "package": "content-identity",
