@@ -4,7 +4,9 @@
 // the run's files door: the descriptor names `files_resource`, and list_files and read_file answer from those made-up
 // files under the right's folder, a file's identity being the BLAKE3 identity of its bytes. Given `usageDays` (the engine's
 // usage day rows, { day, stored_bytes, source_bytes_read, work_ms }, made up) and a files right to usage_days, it
-// answers usage_days the way the engine's files door pages them: { days, next_after, stored_bytes_now }.
+// answers usage_days the way the engine's files door pages them: { days, next_after, stored_bytes_now }. find_file
+// finds a made-up file by name or identity, and write_file_start / _piece / _finish keep a file sent in pieces under
+// one upload id among the made-up files, so a run that keeps what it made reads it back.
 import { createServer } from 'node:http';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -113,12 +115,14 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
   // The files door: a files right names the folder it reaches and the operations it may call there.
   const fileRights = rights.filter(item => typeof item.files === 'string');
   const mayFile = (operation, name) => fileRights.some(item => item.operations.includes(operation) && name.startsWith(item.files));
-  const bytesOf = name => Buffer.from(files[name] ?? '', 'utf8');
+  const stored = new Map(Object.entries(files).map(([name, text]) => [name, Buffer.from(text, 'utf8')]));
+  const bytesOf = name => stored.get(name) ?? Buffer.alloc(0);
+  const uploads = new Map();
   const fileOperations = {
     list_files: ({ folder = '/', after, limit = 50 }) => {
       const base = folder.endsWith('/') ? folder : `${folder}/`;
       if (!mayFile('list_files', base)) return refuse(OUTSIDE);
-      const under = Object.keys(files).filter(name => name.startsWith(base)).sort();
+      const under = [...stored.keys()].filter(name => name.startsWith(base)).sort();
       const names = under.filter(name => !name.slice(base.length).includes('/') && (!after || name > after));
       const shown = names.slice(0, limit);
       const folders = after ? [] : [...new Set(under.map(name => name.slice(base.length)).filter(rest => rest.includes('/')).map(rest => `${base}${rest.split('/')[0]}`))];
@@ -126,11 +130,37 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
         next_after: shown.length < names.length ? shown.at(-1) : null, folders } };
     },
     read_file: ({ name_or_identity: wanted, offset = 0, length = FILE_SPAN }) => {
-      const name = Object.keys(files).find(each => each === wanted || makeHashCodeHexFromBytes(bytesOf(each)) === wanted);
+      const name = [...stored.keys()].find(each => each === wanted || makeHashCodeHexFromBytes(bytesOf(each)) === wanted);
       if (!name || !mayFile('read_file', name)) return refuse(OUTSIDE);
       const bytes = bytesOf(name);
       const part = bytes.subarray(offset, offset + Math.min(length || FILE_SPAN, FILE_SPAN));
       return { structuredContent: { identity: makeHashCodeHexFromBytes(bytes), byte_length: bytes.length, offset, bytes_returned: part.length, encoding: 'base64', content: part.toString('base64') } };
+    },
+    find_file: ({ name_or_identity: wanted }) => {
+      const name = [...stored.keys()].find(each => each === wanted || makeHashCodeHexFromBytes(bytesOf(each)) === wanted);
+      if (!name || !mayFile('find_file', name)) return refuse(OUTSIDE);
+      return { structuredContent: { identity: makeHashCodeHexFromBytes(bytesOf(name)), byte_length: bytesOf(name).length, names: [name] } };
+    },
+    write_file_start: ({ upload_id: id, name, byte_length: length }) => {
+      if (typeof name !== 'string' || !mayFile('write_file_start', name)) return refuse(OUTSIDE);
+      const upload = uploads.get(id) ?? { name, length, pieces: new Map() };
+      uploads.set(id, upload);
+      const next = [...upload.pieces.values()].reduce((sum, piece) => sum + piece.length, 0);
+      return { structuredContent: { upload_id: id, next_offset: next } };
+    },
+    write_file_piece: ({ upload_id: id, name, offset, content_base64: content }) => {
+      const upload = uploads.get(id);
+      if (!upload || upload.name !== name || !mayFile('write_file_piece', name)) return refuse(OUTSIDE);
+      upload.pieces.set(offset, Buffer.from(content ?? '', 'base64'));
+      return { structuredContent: { upload_id: id, next_offset: offset + upload.pieces.get(offset).length } };
+    },
+    write_file_finish: ({ upload_id: id, name }) => {
+      const upload = uploads.get(id);
+      if (!upload || upload.name !== name || !mayFile('write_file_finish', name)) return refuse(OUTSIDE);
+      const bytes = Buffer.concat([...upload.pieces].sort(([a], [b]) => a - b).map(([, piece]) => piece));
+      if (Number.isInteger(upload.length) && bytes.length !== upload.length) return refuse('incomplete_upload');
+      stored.set(name, bytes);
+      return { structuredContent: { identity: makeHashCodeHexFromBytes(bytes), name, byte_length: bytes.length } };
     },
     usage_days: ({ after, limit = 50 }) => {
       if (!mayFile('usage_days', '/')) return refuse(OUTSIDE);
