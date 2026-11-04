@@ -145,7 +145,7 @@ import { keyFieldsOf, matchable, normalizerNames, withKeyValues } from '../query
 import { checkPairs, pairWrites } from '../query-and-change-list-rows/src/list-pairs.mjs';
 import { addsForms, fillPage, formsOf, keyRecordId, keysMarkId, keysSignature, keyWrites, uniqueFields } from '../query-and-change-list-rows/src/list-keys.mjs';
 import { machineWritten, stampedValue } from '../query-and-change-list-rows/src/list-stamps.mjs';
-import { readAt } from '../record-log/do-work/record-time.mjs';
+import { recordAt, keepsHistory } from './record-at.mjs';
 import { ListTransferError, transferRows } from '../query-and-change-list-rows/src/list-row-transfer.mjs';
 
 const NAME = /^[a-z0-9][a-z0-9-]{0,63}$/;
@@ -1879,8 +1879,8 @@ export function makeLists({ eeaf, newId = () => crypto.randomUUID(), progressOfR
       }); } catch (error) { eeaf.forgetCached?.(error, mark); throw error; }
     },
 
-    // One field of many rows as it was at a moment (`at`: an ISO time or a log row id), from the log the store keeps
-    // (parts/record-log record-time readAt): { values: [{ row_id, value, existed, complete, kept_from }] }. A row whose
+    // One field of many rows as it was at a moment (`at`: an ISO time or a log row id), through recordAt (record-at.mjs:
+    // the records' own readAt, as the door's records:read { id, at } will answer, or the log a local store keeps): { values: [{ row_id, value, existed, complete, kept_from }] }. A row whose
     // changes since `at` are no longer all kept says complete: false and how far back it can be read.
     // With no `row_ids` it reads the column: the list's rows a page at a time (`limit` at most limits.field_at_rows, `cursor`
     // from the last answer's next_cursor), so one field of every row at a moment is a loop of these calls, not a list of ids.
@@ -1898,12 +1898,12 @@ export function makeLists({ eeaf, newId = () => crypto.randomUUID(), progressOfR
       if (!list.fields.some(field => field.id === field_id) || typeof at !== 'string' || !at || !Array.isArray(row_ids) || !row_ids.length
         || row_ids.length > limits.field_at_rows || row_ids.some(rowId => typeof rowId !== 'string' || !rowId || rowId.includes('/')))
         throw say('bad_field_at', { list_id: slug, limit: limits.field_at_rows });
-      if (typeof eeaf.log !== 'function' || typeof eeaf.storedRecord !== 'function') throw say('history_unavailable', { list_id: slug });
+      if (!keepsHistory(eeaf)) throw say('history_unavailable', { list_id: slug });
       const prefix = rowPrefix(list.row_type);
       let values;
       try {
         values = [...new Set(row_ids)].map(rowId => {
-          const then = readAt(eeaf, `${prefix}${rowId}`, at);
+          const then = recordAt(eeaf, `${prefix}${rowId}`, at);
           return { row_id: rowId, value: then.value?.[field_id] ?? null, existed: then.value !== null, complete: then.complete, ...(then.complete ? {} : { kept_from: then.kept_from }) };
         });
       } catch (error) {
