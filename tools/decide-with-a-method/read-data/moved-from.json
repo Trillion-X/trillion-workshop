@@ -1,0 +1,24 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/decision-progress.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/read-data/decision-progress.json",
+      "source_identity": "1f:25b41d88b22ddabca39c6ecae521d3015958014c59845b88cc721fd0529c3e85",
+      "identity": "1f:25b41d88b22ddabca39c6ecae521d3015958014c59845b88cc721fd0529c3e85",
+      "reused": true
+    },
+    {
+      "from": "src/what-helped-words.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/read-data/what-helped-words.json",
+      "source_identity": "1f:e6ce8fe00a9d1c0fef13cd54113ee11119295addbb22c03a36aec164ee0fbde1",
+      "identity": "1f:e6ce8fe00a9d1c0fef13cd54113ee11119295addbb22c03a36aec164ee0fbde1",
+      "reused": true
+    }
+  ]
+}
