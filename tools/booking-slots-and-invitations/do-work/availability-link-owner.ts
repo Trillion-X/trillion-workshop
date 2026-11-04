@@ -2,7 +2,7 @@
 // current EEAF owner. This module owns no database, queue, clock or provider
 // connection; the native resource supplies those current owners.
 import { deriveOpenSlots, type AvailabilityWindow, type Interval, type OpenSlot } from './derive-open-slots.ts';
-import { timeZoneName } from '../../timed-action/do-work/wall-time.ts';
+import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
 
 export type AvailabilityLinkState = 'active' | 'revoked' | 'deleted';
 export type ReservationState = 'requested' | 'pending' | 'booked' | 'cancelled' | 'failed';

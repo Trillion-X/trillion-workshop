@@ -46,7 +46,7 @@ import { mergeSurfaceCollections } from '../parts/sidebar/read-data/merge-surfac
 import { addRowOps, createListOps, deleteListOps, patchListOps, patchRowOps, removeRowOps, reorderRowOps, rowMemberId } from '../parts/sidebar/do-work/surface-collection-ops.ts';
 import { applyGroupOp } from '../parts/group/do-work/group-op-transitions.ts';
 import { buildGroupWriteBatch } from '../parts/group/do-work/group-mutation-writes.ts';
-import { foldGroupRecords } from '../parts/group/read-data/group-eeaf.ts';
+import { foldGroupRecords } from './read-data/group-eeaf.ts';
 import { failureOf } from './failure.mjs';
 
 const NOTES = inputs['sidebar-notes'].address;

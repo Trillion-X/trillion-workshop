@@ -1595,9 +1595,9 @@
     {
       "from": "test/availability-link-eeaf-store.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/availability-link-eeaf-store.test.mjs",
+      "to": "tools/booking-slots-and-invitations/test/availability-link-eeaf-store.test.mjs",
       "source_identity": "1f:9bd5dd8d24efd0e393c0601617747bd2d7472da25861657e55b40603a888b530",
-      "identity": "1f:9833050bccac05172d21487d72e6059d78cb0ab77049dc856099b42a7c5e4839"
+      "identity": "1f:766b37696d2176fb45b5ac9b4f36630df9aef5d0f82823b01894dd324cc69446"
     },
     {
       "from": "test/board-bytes-bounded.test.mjs",
