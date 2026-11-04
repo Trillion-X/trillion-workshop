@@ -346,3 +346,15 @@ test('a test rides with the group it reaches when what else it imports is home a
     assert.equal(to['test/twice.test.mjs'], 'tools/double-numbers/test/twice.test.mjs');
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
+
+test('a test the row leaves (leave_tests, with why) moves with no group; a leave_tests row without why is refused', () => {
+  const source = repository(sourceFiles());
+  const destination = repository(destinationFiles());
+  try {
+    const left = { ...row, leave_tests: [{ path: 'test/beans.test.mjs', why: 'it reads the source tree\'s own import text' }] };
+    const plan = moveCode({ step: 'plan', row: left, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups.find(item => item.id === 'count-beans').tests, []);
+    assert.equal(plan.files.some(file => file.from === 'test/beans.test.mjs'), false);
+    assert.throws(() => moveCode({ step: 'plan', row: { ...row, leave_tests: [{ path: 'test/beans.test.mjs' }] }, source_folder: source, destination_folder: destination }), /leave_tests row names path/);
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
