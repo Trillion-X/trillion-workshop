@@ -9,8 +9,8 @@
 #
 # Setup, from Connections > Mac Contacts (every value is in sync-contacts.json beside this file):
 #   curl -fsS --create-dirs --output-dir "$HOME/Library/Application Support/Trillion" \
-#     -O https://app.gettrillion.ai/computer/sync-contacts.zsh -O https://app.gettrillion.ai/computer/sync-contacts.js \
-#     -O https://app.gettrillion.ai/computer/sync-contacts.json \
+#     -O https://raw.githubusercontent.com/Trillion-X/trillion-workshop/main/tools/bring-in-new-items-from-this-computer/computer/sync-contacts.zsh -O https://raw.githubusercontent.com/Trillion-X/trillion-workshop/main/tools/bring-in-new-items-from-this-computer/computer/sync-contacts.js \
+#     -O https://raw.githubusercontent.com/Trillion-X/trillion-workshop/main/tools/bring-in-new-items-from-this-computer/computer/sync-contacts.json \
 #     && zsh "$HOME/Library/Application Support/Trillion/sync-contacts.zsh" install [<list id> <list name>]
 #
 # Non-Negotiable Invariants:

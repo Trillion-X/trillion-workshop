@@ -37,7 +37,7 @@
     {
       "vendor": "imessage",
       "label": "iMessage",
-      "module": "./connections/imessage.mjs",
+      "workshop": "tools/bring-in-new-items-from-this-computer/computer/connections/imessage.mjs",
       "export": "imessage",
       "database": "Library/Messages/chat.db",
       "read_limit": 20,
@@ -53,7 +53,7 @@
     {
       "vendor": "whatsapp",
       "label": "WhatsApp",
-      "module": "./connections/whatsapp.mjs",
+      "workshop": "tools/bring-in-new-items-from-this-computer/computer/connections/whatsapp.mjs",
       "export": "whatsapp",
       "session_folder": "~/.trillion/carry-connections/whatsapp",
       "incoming": {"file": "incoming.sqlite"},

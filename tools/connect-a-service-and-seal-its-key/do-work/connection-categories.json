@@ -1,0 +1,9 @@
+{
+  "what_this_is": "One set of category words for the Connections list (list-every-connection.mjs): a service descriptor's category (records.json) and a computer place's (computer-sources.json) come from two owners' rows, and `same` says which service category is the list's word for the same kind of thing, so a person's messages, pictures or calendar are one group whether they come from a service or from their computer. A category not named here is used as it is; one with none is `none`.",
+  "same": {
+    "Messaging": "Messages",
+    "Photos": "Pictures",
+    "Scheduling": "Calendar"
+  },
+  "none": "Other"
+}
