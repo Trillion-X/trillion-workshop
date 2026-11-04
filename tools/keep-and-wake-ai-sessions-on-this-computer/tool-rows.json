@@ -1,0 +1,92 @@
+{
+  "kind": "package-set-records",
+  "record_set": "keep-and-wake-ai-sessions-on-this-computer-tool-rows",
+  "what_this_is": "The Workshop rows for tools/keep-and-wake-ai-sessions-on-this-computer: the commands the person's AI runs on the person's own computer to read, add or take out Trillion's hooks in an AI app there, and to read, preview, add or take out that app's Trillion MCP entry. The hooks and helpers themselves are started by harness/setup.mjs and are not rows.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer",
+        "label": "Set up Trillion's hooks in an AI app on this computer",
+        "status": "active",
+        "job": "Read, add or take out the hooks that keep an AI app's sessions on this computer as the person's records (Claude Code or Codex)",
+        "description": "Runs harness/setup.mjs with --action inspect, apply or remove for one AI app on this computer (claude-code or codex). inspect writes nothing and answers a report: status, ready, checks (each with id, status and reason), changes it would make and boundaries (what this installer never does: write an MCP entry, open a browser, grant notification permission). apply writes the hooks named in harness/setup.json into that app's own settings, keeping the person's existing settings and permission choices; remove takes them out again. The full hook suite needs the Trillion Mac app and macOS Keychain: on another platform the platform check answers unsupported and nothing is written. Exit 0 means ready, 2 means not ready (the checks say why), 1 means the request was wrong (standard error says what to change).",
+        "input_schema": {
+          "type": "object",
+          "required": ["action", "harness"],
+          "additionalProperties": false,
+          "properties": {
+            "action": {"type": "string", "enum": ["inspect", "apply", "remove"], "description": "inspect reads only; apply and remove change the app's settings and are run only when the person asks."},
+            "harness": {"type": "string", "enum": ["claude-code", "codex"], "description": "The AI app on this computer."}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["schema", "action", "harness", "status", "ready", "checks", "changes", "boundaries"],
+          "properties": {
+            "schema": {"type": "string", "const": "trillion.harness-setup-report/v1"},
+            "action": {"type": "string"},
+            "harness": {"type": "string"},
+            "status": {"type": "string"},
+            "ready": {"type": "boolean"},
+            "checks": {"type": "array", "items": {"type": "object"}},
+            "changes": {"type": "array", "items": {"type": "object"}},
+            "boundaries": {"type": "array", "items": {"type": "object"}}
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "npm ci, from the root of the checkout"],
+          "run": "node tools/keep-and-wake-ai-sessions-on-this-computer/harness/setup.mjs --action {action} --harness {harness}",
+          "needs": ["node"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run inspect first and tell the person what is ready and what each failed check says. Run apply or remove only when the person asks for that change, and tell them what changed. If you cannot run commands, give them these steps."
+        },
+        "placements": ["placement:your-computer"],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "provenance": {"source": "The AI session harness moved here from Trillion-X/trillion (moved-from.json): harness/setup.mjs and harness/setup.json"}
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:connect-an-ai-app-on-this-computer-to-trillion",
+        "label": "Connect an AI app on this computer to Trillion",
+        "status": "active",
+        "job": "Read, preview, add or take out the Trillion MCP entry in AI apps on this computer (Claude Code, Codex, Gemini CLI, Cursor)",
+        "description": "Runs harness/setup.mjs with --action mcp-inspect, mcp-preview, mcp-register or mcp-unregister for the AI apps named in client (a comma-separated list of claude-code, codex, gemini-cli, cursor). mcp-inspect and mcp-preview write nothing: they answer each app's config file path, whether a Trillion entry is there now, and a review_hash for the exact change. mcp-register writes the entry only when given that review_hash as reviewed, so the person sees the change before it is made; mcp-unregister takes it out. Claude Code and Codex use the bridge the Trillion Mac app installs, which keeps the account key in Keychain; an entry here does not by itself sign the app in (each result's sign_in says how). Exit 0 means every app was handled, 2 means one was blocked or has a custom entry, 1 means the request was wrong (standard error says what to change).",
+        "input_schema": {
+          "type": "object",
+          "required": ["action", "client"],
+          "additionalProperties": false,
+          "properties": {
+            "action": {"type": "string", "enum": ["mcp-inspect", "mcp-preview", "mcp-register", "mcp-unregister"], "description": "mcp-inspect and mcp-preview read only; mcp-register and mcp-unregister change the apps' config and are run only when the person asks."},
+            "client": {"type": "string", "pattern": "^(claude-code|codex|gemini-cli|cursor)(,(claude-code|codex|gemini-cli|cursor))*$", "description": "The AI apps, comma-separated."},
+            "reviewed": {"type": "string", "description": "For mcp-register: the review_hash mcp-preview answered, after the person has seen the change."}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["schema", "action", "results"],
+          "properties": {
+            "schema": {"type": "string", "const": "trillion.mcp-registration-report/v1"},
+            "action": {"type": "string"},
+            "review_hash": {"type": "string"},
+            "results": {"type": "array", "items": {"type": "object"}}
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "npm ci, from the root of the checkout"],
+          "run": "node tools/keep-and-wake-ai-sessions-on-this-computer/harness/setup.mjs --action {action} --client {client}",
+          "needs": ["node"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run mcp-preview, show the person each app's change, and only when they say yes run mcp-register with `--reviewed` and that review_hash added at the end of `run`. Then tell them each result's sign_in step. If you cannot run commands, give them these steps."
+        },
+        "placements": ["placement:your-computer"],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "provenance": {"source": "The AI session harness moved here from Trillion-X/trillion (moved-from.json): harness/setup.mjs and harness/mcp-registration.mjs"}
+      }
+    }
+  ]
+}
