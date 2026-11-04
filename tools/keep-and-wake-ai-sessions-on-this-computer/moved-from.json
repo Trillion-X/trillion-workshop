@@ -362,6 +362,13 @@
       "identity": "1f:4ce41615d35236cb574181051edd007dedb392527caf6595cefeaf8d3138828c"
     },
     {
+      "from": "parts/eeaf/do-work/eeaf-field-reads.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-field-reads.mjs",
+      "source_identity": "1f:446045ad05461a3658056088e19e0557bf17f408f668698cee2ec3b5348b9cf3",
+      "identity": "1f:446045ad05461a3658056088e19e0557bf17f408f668698cee2ec3b5348b9cf3"
+    },
+    {
       "from": "parts/eeaf/do-work/eeaf-sqlite-store.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs",
