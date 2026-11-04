@@ -6,7 +6,9 @@ Scripts a person's AI runs by hand on the person's own computer. For each stretc
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | Five Workshop rows, all `on-your-computer`: `tool:grade-and-repair-speech-audio`, `tool:measure-speech-in-my-recordings`, `tool:clone-speech-that-repair-could-not-fix`, `tool:read-back-repaired-speech`, `tool:pick-the-cleanest-speech-to-clone-from`. |
+| `tool-rows.json` | Five Workshop rows `on-your-computer`: `tool:grade-and-repair-speech-audio`, `tool:measure-speech-in-my-recordings`, `tool:clone-speech-that-repair-could-not-fix`, `tool:read-back-repaired-speech`, `tool:pick-the-cleanest-speech-to-clone-from`; and one `computer` row, `tool:enhance-speech` (`start-a-program`, the files right to find, read and write a file). |
+| `read-data/speech-enhance.mjs`, `read-data/speech-enhance.json` | `tool:enhance-speech` (F-0478): the CPU-budget tier choice (`light`, `near-voice`, `neural` with arnndn; the most expensive tier within the budget whose ffmpeg filters, and model file in the granted models folder, exist here) and the silencedetect speech places. The recording is read through the run's door, the cleaned sound is written beside it as `<name>.clean.wav`, and the person's recording is never changed. Wired from `from-old-trillion/computer/speech-enhance.mjs`; the program, models folder and budget now come from the request. |
+| `test/speech-enhance.test.mjs` | The tier choice, the speech places, no tier leaving the recording as it is, and a real ffmpeg run on a recording read through a fake door (skipped where no ffmpeg is found). |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/grade_and_repair_speech.py` | `grade` measures every span; `all` also remasters the failing ones and grades them again. Writes `grades.json`, `audio/` and `work/`. |
 | `do-work/probe_speech.py` | Measures every unique span, cut exactly from `from` to `to`, with no settings and no grade. Writes `probe.json` and the cuts. |

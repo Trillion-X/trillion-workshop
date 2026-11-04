@@ -1,0 +1,66 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SPEECH-ENHANCE-TIERS-AND-SPEECH-PLACES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:finish:listening-and-dictation-feature-leftovers",
+  "message_multihash": "1f:86a164a9b58f18d25194c588927f5672b8841b141a3de9b122360a5a2f9ea1d2",
+  "quote": "F-0478 speech-enhance CPU-budget tier choice and silence-detect pass not in tools/grade-and-repair-speech-audio"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+   "path": "computer/speech-enhance.mjs",
+   "multihash": "1f:dba2dfbff2f240e6407b9f8a0ddab0939dfb6338106675618e8f2d3035f3d405",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/grade-and-repair-speech-audio/read-data/speech-enhance.mjs",
+   "baseline_commit_message": "grade-and-repair-speech-audio: speech-enhance.mjs and .json move byte for byte from from-old-trillion/computer to read-data (F-0478)"
+  }
+ ],
+ "preserve": [
+  "the tier is the most expensive within the CPU budget whose ffmpeg filters exist here (the filter list is read, not assumed) and whose model file is present",
+  "nothing fits: the recording is left untouched (tier null) and why says what is missing",
+  "speech places are the stretches between silencedetect's silences, in seconds of the sound that was given",
+  "tiers, filters, models, thresholds and words are the JSON next to the module"
+ ],
+ "allowed_deltas": [
+  "enhanceSpeech reads the recording through the run's door and writes the cleaned sound beside it (tool:enhance-speech)",
+  "the program, the models folder and the budget come from the request (the person's grants) instead of ~/.trillion and Homebrew paths",
+  "a request with no models folder passes over tiers that name a model file"
+ ],
+ "banned_substitutions": [
+  "a fixed tier instead of the budget choice",
+  "a second silence detector beside speechPlaces"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:dba2dfbff2f240e6407b9f8a0ddab0939dfb6338106675618e8f2d3035f3d405",
+  "target_multihash_at_baseline": "1f:dba2dfbff2f240e6407b9f8a0ddab0939dfb6338106675618e8f2d3035f3d405",
+  "commit": "744750e68b1cc17aeaf2fa38f456198cd3584717",
+  "recorded_at": "2026-11-04T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export function selectTier",
+   "export function speechPlaces",
+   "export async function enhance",
+   "export async function enhanceSpeech"
+  ],
+  "test_refs": [
+   "tools/grade-and-repair-speech-audio/test/speech-enhance.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_old_copy": "Old trillion deleted computer/speech-enhance.mjs in dc79bb0a87; its Workshop landing in from-old-trillion/ is moved on (not copied) by the baseline commit."
+}
