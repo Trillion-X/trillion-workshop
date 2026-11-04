@@ -325,6 +325,22 @@ test('a test whose code an earlier move carried elsewhere lands beside it and im
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
 
+test('a module the runtime provides (node:, cloudflare:) is no package to declare and holds nothing', () => {
+  const source = repository({
+    'package.json': json({ name: 'old-app', type: 'module' }),
+    'src/probe.mjs': "export const probeSource = `import { DurableObject } from 'cloudflare:workers';\\nexport class Probe extends DurableObject {}`;\n",
+    'test/probe.test.mjs': "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { probeSource } from '../src/probe.mjs';\ntest('probe', () => { assert.ok(probeSource.includes('Probe')); });\n",
+  });
+  const destination = repository({ 'package.json': json({ name: 'tool-box', type: 'module' }), 'tools/probe/tool-rows.json': json({ rows: [] }) });
+  const row = { id: 'move:old-app-probe', source: { name: 'old-app', test_folders: ['test'] }, destination: { name: 'tool-box', package: 'tool-box', shared_folder: 'tools/shared-code' },
+    groups: [{ id: 'probe', owner: ['src/probe.mjs'], to: 'tools/probe', joins_tool: 'the probe it holds' }] };
+  try {
+    const plan = moveCode({ step: 'plan', row, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups[0].held, []);
+    assert.deepEqual(plan.packages_to_add, {});
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
+
 test('a test rides with the group it reaches when what else it imports is home already in the destination', () => {
   const source = repository({
     'package.json': json({ name: 'old-app', type: 'module' }),
