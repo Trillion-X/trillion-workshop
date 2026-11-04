@@ -1,0 +1,9 @@
+{
+  "public": [
+    "show/MediaPlaybackSurface.tsx",
+    "show/lazy-playback-surface.ts",
+    "read-data/measure-media-length.ts",
+    "read-data/kept-timed-text.ts",
+    "show/PlaybackControls.tsx"
+  ]
+}

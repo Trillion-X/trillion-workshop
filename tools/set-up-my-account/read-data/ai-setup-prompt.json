@@ -1,0 +1,5 @@
+{
+  "text": "Set up Trillion in the AI app where we are having this conversation. Use {mcp}. Identify this app and configure its MCP connection yourself with OAuth where supported; otherwise guide only the necessary settings actions. Keep sign-in running while I authorize. If it times out, start a fresh login and use its new Trillion sign-in link. Never ask for my password, API key or callback URL. Once connected, call start_setup immediately and follow its saved workflow. Do every authorized setup action, including applicable hooks, ongoing work, devices, accounts and initial data. Reuse what you know about me; ask only for an unknown fact or device action you cannot perform. Verify the useful result with read_setup. Do not stop at listing tools or giving me a manual.",
+  "copied_label": "Copied",
+  "open_label": "Open {app}"
+}

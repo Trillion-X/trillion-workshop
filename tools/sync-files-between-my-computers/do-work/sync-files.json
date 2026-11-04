@@ -1,0 +1,154 @@
+{
+  "_what": "The DATA the three modules here read: `sync_status` (do-work/drive-sync-status.mjs), `peers` (do-work/lan-peers.mjs) and `folder_bindings` (do-work/folder-bindings.mjs), moved from old trillion computer/trillion-drive.json. The old Drive's own listen addresses are left out: whoever hosts these modules names where it listens.",
+  "sync_status": {
+    "_what": "The drive's one sync status record (do-work/drive-sync-status.mjs). `states` is checked in order and the first row whose every `when` condition holds is the state; a condition is { fact, equals } or { fact, at_least } over the facts checked (the change feed was ever answered), reached (Trillion answered the last ask), moving (saves not yet in Trillion), conflicts and failed (saves kept aside). `said` is filled with {moving} {conflicts} {failed} {cause}. `causes` files a failed ask: the first row whose `statuses` holds the answer's status, whose `status_at_least` it reaches, or `without_status` when no answer came at all; otherwise `cause_otherwise`. `cause_words` names each cause for a person.",
+    "states": [
+      {
+        "state": "starting",
+        "when": [
+          {
+            "fact": "checked",
+            "equals": false
+          }
+        ],
+        "said": "Reading your files from Trillion for the first time."
+      },
+      {
+        "state": "offline",
+        "when": [
+          {
+            "fact": "reached",
+            "equals": false
+          },
+          {
+            "fact": "moving",
+            "at_least": 1
+          }
+        ],
+        "said": "{cause} {moving} saves wait on this computer and go up when Trillion answers."
+      },
+      {
+        "state": "offline",
+        "when": [
+          {
+            "fact": "reached",
+            "equals": false
+          }
+        ],
+        "said": "{cause} Folders show what this computer kept."
+      },
+      {
+        "state": "conflict",
+        "when": [
+          {
+            "fact": "conflicts",
+            "at_least": 1
+          }
+        ],
+        "said": "{conflicts} saves changed in Trillion first; your bytes were kept beside them."
+      },
+      {
+        "state": "error",
+        "when": [
+          {
+            "fact": "failed",
+            "at_least": 1
+          }
+        ],
+        "said": "{failed} saves could not reach Trillion and are kept on this computer."
+      },
+      {
+        "state": "syncing",
+        "when": [
+          {
+            "fact": "moving",
+            "at_least": 1
+          }
+        ],
+        "said": "Sending {moving} saves to Trillion."
+      },
+      {
+        "state": "synced",
+        "when": [],
+        "said": "Up to date with Trillion."
+      }
+    ],
+    "causes": [
+      {
+        "cause": "no_network",
+        "without_status": true
+      },
+      {
+        "cause": "signed_out",
+        "statuses": [
+          401,
+          403
+        ]
+      },
+      {
+        "cause": "storage_full",
+        "statuses": [
+          402,
+          507
+        ]
+      },
+      {
+        "cause": "busy",
+        "statuses": [
+          429
+        ]
+      },
+      {
+        "cause": "trillion_unavailable",
+        "status_at_least": 500
+      }
+    ],
+    "cause_otherwise": "refused",
+    "cause_words": {
+      "no_network": "This computer cannot reach Trillion.",
+      "signed_out": "This computer is no longer signed in to Trillion.",
+      "storage_full": "Your Trillion storage is full.",
+      "busy": "Trillion asked this computer to wait.",
+      "trillion_unavailable": "Trillion is not answering right now.",
+      "refused": "Trillion refused this computer's ask."
+    }
+  },
+  "peers": {
+    "enabled": false,
+    "known": [],
+    "max_file_bytes": 67108864,
+    "window_seconds": 60,
+    "bad_peer_seconds": 300,
+    "timeout_ms": 20000,
+    "announce": {
+      "enabled": false,
+      "port": 17500,
+      "to": [
+        "255.255.255.255"
+      ],
+      "every_seconds": 30,
+      "ttl_seconds": 120
+    }
+  },
+  "folder_bindings": {
+    "file": "bindings.json",
+    "constraints": [
+      "local_whole",
+      "local_readable",
+      "local_outside_state",
+      "unique_local",
+      "unique_target",
+      "no_nesting",
+      "target_writable"
+    ],
+    "throttle_seconds": 300,
+    "most_files_per_run": 5000,
+    "most_seen_entries": 50000,
+    "redirect": {
+      "enabled": false,
+      "archive_dir": ".trillion/redirected",
+      "link_root": "",
+      "most_listed": 20
+    }
+  }
+}

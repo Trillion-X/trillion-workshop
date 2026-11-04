@@ -21,7 +21,7 @@
 // Shapes
 //   listsOverDoor(door) -> { has(id), find(id), ensure(definition), save({ id, ...definition }), read(id, { only?, row_ids? }),
 //                            putRows(id, { rows: [{ id, values }] }) }   every one answers a promise
-//     find -> { id, ...list } | null; read -> { list, rows: [{ id, values }] }; putRows -> { written }
+//     find -> { id, ...list } | null; read -> { list, rows: [{ id, values }] }; putRows -> { written, kept: [{ id }] }
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const LIST_TYPE = 'list';
@@ -103,7 +103,7 @@ export function listsOverDoor(door) {
         records.push({ id: recordId, type, value, expected: object(held) ? { type, value: held } : null });
       }
       if (records.length) await door.write(records, { key: keyOf('rows', records) });
-      return { written: records.length };
+      return { written: records.length, kept: rows.map(row => ({ id: row.id })) };
     },
   };
 }

@@ -1,0 +1,168 @@
+{
+  "kind": "tool-rows",
+  "record_set": "open-a-prompt-in-a-local-ai-app-tool-rows",
+  "what_this_is": "The Workshop row for tools/open-a-prompt-in-a-local-ai-app: one prompt opened in a local AI app the person already has, through a launcher the DATA allowlists.",
+  "records": [
+    {
+      "id": "package::open-a-prompt-in-a-local-ai-app::tool::open-in-ai",
+      "address": "package::open-a-prompt-in-a-local-ai-app::tool::open-in-ai",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:open-in-ai",
+        "status": "active",
+        "label": "Open a prompt in a local AI app",
+        "job": "Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex",
+        "description": "Opens the prompt in the app named by `app`, one of the rows of read-data/open-in-ai.json (the rows are the allowlist; an app not in them is refused). A url row opens its URL with the prompt percent-encoded, an argv row runs its list as it is with the prompt as one argument; nothing goes through a shell. `folder` must be a folder that exists; the app's own config is never read or written. The outcome is launched, app_missing or refused; the prompt is never echoed, only its length. `dry_run` shows the launch without running it.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "app",
+            "prompt"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "app": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "The app's id from read-data/open-in-ai.json (for example claude-code or codex)"
+            },
+            "prompt": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000,
+              "description": "The prompt to open",
+              "x-free-text-because": "The person's own prompt for the app."
+            },
+            "folder": {
+              "type": "string",
+              "maxLength": 400,
+              "description": "A folder on this computer to open the app in",
+              "x-free-text-because": "A folder path on this computer."
+            },
+            "dry_run": {
+              "type": "boolean",
+              "description": "Show the launch without running it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "outcome"
+          ],
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "launched",
+                "app_missing",
+                "refused"
+              ]
+            },
+            "app": {
+              "type": "string"
+            },
+            "via": {
+              "type": "string"
+            },
+            "command": {
+              "type": "string"
+            },
+            "prompt_chars": {
+              "type": "integer"
+            },
+            "folder": {
+              "type": "string"
+            },
+            "dry_run": {
+              "type": "boolean"
+            },
+            "argv": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "open-a-local-app"
+          ],
+          "workdir": "/opt/open-a-prompt-in-a-local-ai-app",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/open-a-prompt-in-a-local-ai-app/read-data/open-in-ai.mjs",
+            "openInAi"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "open-a-prompt-in-a-local-ai-app",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/open-a-prompt-in-a-local-ai-app"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:open-a-prompt-in-a-local-ai-app",
+        "provenance": {
+          "source": "open-a-prompt-in-a-local-ai-app/read-data/open-in-ai.mjs"
+        }
+      }
+    }
+  ]
+}

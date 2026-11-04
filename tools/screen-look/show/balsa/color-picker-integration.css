@@ -1,0 +1,7 @@
+/* The upstream contained panel participates in the form's existing scroll area.
+   This prevents narrow dialogs clipping its controls or obscuring Save. */
+.balsa-color-field{min-width:0;color-scheme:light dark}
+.balsa-color-field [data-balsa="color-picker"]{display:flex;min-width:0;width:100%}
+.balsa-color-field [data-balsa="color-picker-popover"]{position:relative;left:auto;top:auto;width:100%;max-width:100%;margin-top:12px;box-sizing:border-box}
+.balsa-color-field [data-balsa="color-picker-popover"][data-state="closed"]{display:none}
+.balsa-color-field input[type="range"]{padding:0;min-height:12px}

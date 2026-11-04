@@ -1,0 +1,226 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:write-a-post-for-each-place",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:write-a-post-for-a-place",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "Write a post for one place",
+        "job": "Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show",
+        "description": "Give blocks (heading, paragraph, code, list, checklist, image with an optional dark_url, collapsible holding more blocks) and exactly one of surface (github_comment, gitlab_note, bitbucket_comment or plain_message), capability (a record with html, collapsibles, checkboxes, dialect 'markdown' or 'plain', max_chars or null, theme { strategy 'picture', 'suffix' or 'single' } and unproven) or place (a post place whose format may carry caption_max_characters and source). Optional marker is put first and kept through any cut. Returns body, degraded (the capabilities the place lacked, so the body did without them), unproven_used (capabilities relied on that nobody has confirmed for that place), truncated (a body over max_chars is cut at a block boundary and says so) and the capability record used. An unknown surface, more or fewer than one of surface, capability or place, or an unknown block type is refused. It posts nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "blocks"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "blocks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "type"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "heading",
+                      "paragraph",
+                      "code",
+                      "list",
+                      "checklist",
+                      "image",
+                      "collapsible"
+                    ]
+                  }
+                }
+              }
+            },
+            "surface": {
+              "type": "string",
+              "minLength": 1
+            },
+            "capability": {
+              "type": "object",
+              "required": [
+                "dialect"
+              ],
+              "properties": {
+                "html": {
+                  "type": "boolean"
+                },
+                "collapsibles": {
+                  "type": "boolean"
+                },
+                "checkboxes": {
+                  "type": "boolean"
+                },
+                "dialect": {
+                  "type": "string",
+                  "enum": [
+                    "markdown",
+                    "plain"
+                  ]
+                },
+                "max_chars": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "theme": {
+                  "type": "object"
+                },
+                "unproven": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "place": {
+              "type": "object"
+            },
+            "marker": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "body",
+            "degraded",
+            "unproven_used",
+            "truncated",
+            "capability"
+          ],
+          "properties": {
+            "body": {
+              "type": "string"
+            },
+            "degraded": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unproven_used": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "truncated": {
+              "type": "boolean"
+            },
+            "capability": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/write-a-post-for-each-place",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/write-a-post-for-each-place/read-data/post-tools.mjs",
+            "writeBodyForPlace"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/surface-compose.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "surface": "bitbucket_comment",
+              "marker": "sample-marker:1",
+              "blocks": [
+                {
+                  "type": "heading",
+                  "text": "What changed"
+                },
+                {
+                  "type": "checklist",
+                  "items": [
+                    {
+                      "text": "Tests",
+                      "done": true
+                    }
+                  ]
+                }
+              ]
+            },
+            "output_selector": "$.body",
+            "contains": "done: Tests"
+          }
+        ]
+      }
+    }
+  ]
+}

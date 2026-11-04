@@ -1,0 +1,6 @@
+{
+  "public": [
+    "read-data/list-review.mjs",
+    "do-work/review-a-list.mjs"
+  ]
+}

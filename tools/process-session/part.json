@@ -1,0 +1,14 @@
+{
+  "public": [
+    "envelope-client/start-process-session.ts",
+    "read-data/accumulate-process-session-output.ts",
+    "read-data/render-launch-from-chat-launch.ts",
+    "show/use-process-session-live-output.ts",
+    "read-data/read-process-session-events.ts",
+    "do-work/run-owned-process.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/place-cache-folder.mjs",
+    "do-work/place-data-folder.mjs"
+  ]
+}

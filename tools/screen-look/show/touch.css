@@ -1,0 +1,45 @@
+/* parts/screen-look/show/touch.css
+ * How the page answers a finger, page-wide, from the marks ui touch-equivalence.ts leaves (data-touch-hover on the chain
+ * the last tap landed in, data-touch-press for a moment on what was pressed), plus the page-wide scroll look.
+ *
+ * - No scrollbar is drawn anywhere: every area still scrolls by wheel, trackpad, finger and keys, it just never paints
+ *   a bar over the work.
+ * - A press shows at once: what a finger pressed tints for a moment over its own colours, whatever they are.
+ * - No ring is drawn on a tapped pane: the selected pane's own frame (screen-arrangement) is the one mark of which
+ *   pane is current, so a tap never leaves a second, square outline on a pane that is not selected.
+ * - A resize edge belongs to the finger dragging it: the page does not scroll under it.
+ * - The browser's own grey tap flash and the long-press callout on controls are replaced by the above.
+ * - A control answers a tap at once: it never waits to see whether a second tap makes a zoom (touch-action:
+ *   manipulation), and holding a finger on one never selects its words. Words that are content stay selectable.
+ * - A field a finger types into is never smaller than 16px, so the phone never zooms the page into it and leaves it
+ *   zoomed; with a mouse the field keeps its own size.
+ * - Words keep the size the look gives them when a phone turns sideways: the browser's own text inflation in landscape
+ *   (text-size-adjust) is off, so a turned phone does not suddenly draw every paragraph larger than its layout.
+ * Every rule here is :where(), so any part's own rule (a drag handle's touch-action: none) wins over it.
+ */
+body.screen-look-page, body.screen-look-page * { scrollbar-width: none; }
+body.screen-look-page ::-webkit-scrollbar { display: none; }
+
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+:is(button, a[href], [role="button"], [role="tab"], [role="menuitem"], [role="option"], [data-tab-draggable]) { -webkit-touch-callout: none; }
+
+[data-touch-press] { box-shadow: inset 0 0 0 100vmax color-mix(in srgb, currentColor 12%, transparent); }
+
+[role="separator"][tabindex] { touch-action: none; }
+
+/* The page itself never zooms under a finger: a thumb sliding over the tab bar, the sidebar or the header and a second
+   finger landing (or a quick double tap) zoomed the whole app and left it zoomed, cut off at the right (reported
+   2026-10-03). A finger may scroll and pan; a surface that takes pinch itself (the board's arrangement, a canvas, a
+   picture) says touch-action: none or its own rule, and the allowed gestures of a surface are the intersection of
+   its own and its ancestors', so this never takes a gesture such a surface handles itself. */
+:where(body.screen-look-page) { touch-action: pan-x pan-y; }
+
+:where(button, a[href], summary, label, [role="button"], [role="tab"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="option"], [role="switch"], [role="checkbox"], [role="radio"]) { touch-action: manipulation; }
+:where(button, summary, [role="button"], [role="tab"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="option"], [role="switch"]) { -webkit-user-select: none; user-select: none; }
+
+@media (pointer: coarse) {
+  :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="button"], [type="submit"], [type="reset"], [type="image"]), textarea, select, [contenteditable]:not([contenteditable="false"])) {
+    --specified-font-size: initial;
+    font-size: max(16px, var(--specified-font-size, 1em)) !important;
+  }
+}
