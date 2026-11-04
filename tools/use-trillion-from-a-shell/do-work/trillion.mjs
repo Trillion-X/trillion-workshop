@@ -20,6 +20,9 @@
 //     trillion events ID                  one job's versions, newest first
 //     trillion tools | call TOOL JSON     the Workshop tools, and run one
 //     trillion op ADDRESS METHOD JSON     any engine operation
+//     records replay-from-transcripts --since TIME | --write --inventory FOLDER
+//                                         the rows this computer's AIs wrote, from their transcripts
+//                                         (replay-recorded-writes.mjs)
 //
 // Non-negotiable invariants
 //   1. One road: run_resource_operation over MCP JSON-RPC at the door. The only other addresses are the public origin's
@@ -122,7 +125,7 @@ export const aiIdOf = (id, rules = settings) => (String(id).startsWith(`${rules.
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['as', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui']);
+const VALUE_FLAGS = new Set(['as', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory']);
 
 /** argv -> { words, flags, rest }: `--name value` for VALUE_FLAGS, `--name` alone is true, everything after `--` is rest. */
 export function parseArgs(argv) {
@@ -770,6 +773,8 @@ const HELP = `trillion: see your AIs and their work, and run your Trillion's too
   trillion tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
   trillion op ADDRESS METHOD JSON|-                      any engine operation (run_resource_operation)
   trillion update                                        who updates this command (it never updates itself)
+  ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote (writes nothing)
+  ${basename(settings.install.link)} records replay-from-transcripts --write --inventory DIR write that list's rows back, then read some back
 
   AI jobs (each runs the Workshop work tool trillion.json names for it):
   trillion work [ID] [--status S --to AI --from AI --taker AI --limit N]   the newest jobs, or one with its result
@@ -919,6 +924,24 @@ export function updateWords({ rules = settings, home = homedir() } = {}) {
   } catch { return fill(rules.update.owner_unreadable, { file }); }
 }
 
+/** `records replay-from-transcripts`: the rows this computer's AIs wrote, read from their transcripts
+ *  (replay-recorded-writes.mjs, which reads shell lines with this program's own parser and names). A dry run writes
+ *  only the inventory folder and needs no credential; --write --inventory FOLDER writes that folder's rows through the
+ *  records door. */
+async function records(context, words) {
+  const { flags } = context;
+  if (words[0] !== 'replay-from-transcripts') throw new TrillionError('Name what to do: records replay-from-transcripts --since TIME | --write --inventory FOLDER.', { status: 2 });
+  const replay = await import('./replay-recorded-writes.mjs');
+  const host = { parseArgs, expand, settings, programs: new Set([basename(expand(settings.install.link)), basename(fileURLToPath(import.meta.url))]) };
+  if (flags.write !== true) {
+    if (!Number.isFinite(Date.parse(flags.since ?? ''))) throw new TrillionError('Name the earliest call to read: --since TIME, for example 2026-01-31T00:00:00Z.', { status: 2 });
+    return JSON.stringify(await replay.dryRun({ host, since: flags.since, env: context.env }), null, 2);
+  }
+  const folder = need(flags.inventory, 'Name the inventory a dry run wrote: --write --inventory FOLDER.');
+  if (!existsSync(join(folder, 'records.jsonl'))) throw new TrillionError(`${folder} holds no records.jsonl from a dry run.`, { status: 2 });
+  return JSON.stringify(await replay.writeInventory(await signedInClient(context), folder), null, 2);
+}
+
 const readJson = async (raw, example) => {
   let text = raw ?? '{}';
   if (text === '-') { const chunks = []; for await (const chunk of process.stdin) chunks.push(chunk); text = Buffer.concat(chunks).toString('utf8'); }
@@ -959,6 +982,7 @@ export async function main(argv, seams = {}) {
     if (!skills.length) lines.push('No AI app folders were found here; name one with --harness claude-code,codex,cursor.');
     return lines.join('\n');
   }
+  if (command === 'records') return records(context, words);
   if (command === 'update') return updateWords();
   if (command === 'serve') return serve(context);
   if (!WORK_COMMANDS.has(command) && !['whoami', 'tools', 'call', 'op', 'who', 'events', 'publish'].includes(command)) throw new TrillionError(`Unknown command ${command}. Run trillion help.`, { status: 2 });
