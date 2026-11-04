@@ -9,7 +9,8 @@ Rules over records: the operators a filter offers and the compiled evaluator tha
 | `part.json` | The files other code may import. |
 | `rules/rule-operators.json` | The operators each field kind offers (DATA). |
 | `rules/filter-records.mjs` | `createRecordFilter(wasmBytes)`: filters rows by rules with the compiled evaluator. |
-| `built-stored-bytes/evaluate-over-rows/` | The compiled evaluator (`evaluate-over-rows_bg.wasm`) and its glue, built from `../trillion-rust/crates/evaluate-over-rows` by `scripts/build-formula-evaluator.mjs`. |
+| `built-stored-bytes/evaluate-over-rows/` | The compiled evaluator (`evaluate-over-rows_bg.wasm`) and its glue, built from `../trillion-rust/crates/evaluate-over-rows` by trillion-apps `web/scripts/build-formula-evaluator.mjs`. |
+| `test/shipped-evaluator.test.mjs` | The shipped evaluator loads from its bytes, answers a compiled rule for one row (a computed column) and filters a table. |
 | `rules/compile-rules.mjs` | Compiles a rule tree into one composition-ast binding and the fields it reads. |
 | `rules/filter-rows-by-rules.mjs` | `makeRowFilter({operators, wasm})` → `filterRowsByRules({tree, fields, rows})`: the Workshop tool `tool:filter-rows-by-rules`. A rule (tree and fields, by value) is compiled once and each row's answer under it is kept, since a compiled rule reads only the row and its own literals. |
 | `rules/evaluate-over-rows.mjs` | `loadRowEvaluator(wasm bytes)`: the evaluator's JSON interface; public, so the page evaluates a list's computed columns with it (`src/workspace/list-targets.ts`). Every call passes the evaluation guards first. |
