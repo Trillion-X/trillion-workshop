@@ -1,0 +1,66 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [],
+  "files": [
+    {
+      "from": "parts/http-client/do-work/node-public-fetch.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/http-client/do-work/node-public-fetch.mjs",
+      "source_identity": "1f:5448d9aa92738a7a3cf650f7299f1341cf01f9b97ee23b43654c801c4cf9b6d4",
+      "identity": "1f:5448d9aa92738a7a3cf650f7299f1341cf01f9b97ee23b43654c801c4cf9b6d4"
+    },
+    {
+      "from": "parts/http-client/do-work/request-scopes.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/http-client/do-work/request-scopes.json",
+      "source_identity": "1f:b5897336a779f2a3003c7d707b173c797b4486774e055a5b6fca339ca09c093b",
+      "identity": "1f:b5897336a779f2a3003c7d707b173c797b4486774e055a5b6fca339ca09c093b"
+    },
+    {
+      "from": "parts/http-client/do-work/request-scopes.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/http-client/do-work/request-scopes.mjs",
+      "source_identity": "1f:9ebab8a60233d5d3a4d80ae7ed763b866510f5cc69fb96db2bdd0e9a8f434443",
+      "identity": "1f:9ebab8a60233d5d3a4d80ae7ed763b866510f5cc69fb96db2bdd0e9a8f434443"
+    },
+    {
+      "from": "parts/http-client/do-work/resolved-address.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/http-client/do-work/resolved-address.json",
+      "source_identity": "1f:c815f56fe4b51f0a709a6f19c13cd5ff6000a4861a2a33846acba5c5197fdbf6",
+      "identity": "1f:c815f56fe4b51f0a709a6f19c13cd5ff6000a4861a2a33846acba5c5197fdbf6"
+    },
+    {
+      "from": "parts/http-client/do-work/resolved-address.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/http-client/do-work/resolved-address.mjs",
+      "source_identity": "1f:ede5521df5c1cb618f690ffc2db0833b8436c4ab681153791bc4b738b684f63a",
+      "identity": "1f:ede5521df5c1cb618f690ffc2db0833b8436c4ab681153791bc4b738b684f63a"
+    },
+    {
+      "from": "parts/http-client/do-work/same-origin.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/http-client/do-work/same-origin.mjs",
+      "source_identity": "1f:ee4d15760488b8d5aabf8273b1b8bfae01fbdf08a292fbc43ede4a7b43092669",
+      "identity": "1f:ee4d15760488b8d5aabf8273b1b8bfae01fbdf08a292fbc43ede4a7b43092669"
+    },
+    {
+      "from": "parts/http-client/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/http-client/part.json",
+      "source_identity": "1f:5af97023577065c1265a147906c0baccc1adf608a4426d879f5f35f48e88b2e0",
+      "identity": "1f:c65f78fbd96fd5a9e3744bc8fe43b749b9bcfc1c039cdbd49ac7dd280d8fff20"
+    },
+    {
+      "from": "parts/http-client/sender-config.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/http-client/sender-config.json",
+      "source_identity": "1f:aa43ceb2d56c1f2ea1e1b1e5465c3df08a5f304381bff770fb058989858c1546",
+      "identity": "1f:aa43ceb2d56c1f2ea1e1b1e5465c3df08a5f304381bff770fb058989858c1546"
+    }
+  ],
+  "not_matched": []
+}

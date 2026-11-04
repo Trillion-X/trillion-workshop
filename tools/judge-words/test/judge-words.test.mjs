@@ -157,3 +157,19 @@ test('owner paths select authored words without source quotations sharing the sa
   assert.deepEqual(stringsIn(raw).map(item => item.text), ['', 'row-id', ' ', 'Try again']);
   assert.deepEqual(wordsIn(raw).map(item => item.text), ['row-id', 'Try again']);
 });
+
+test('allow_exact passes over a selected piece equal to one of its values, and never one that only contains it', () => {
+  const rule = { id: 'fixture-bounded', path: 'literals.*', where_pattern: '^(?![a-z]+:[a-z]+$)', allow_exact: ['public-thing', 'tok_*'], says: 'Name the literal by its definition.' };
+  const judgeItems = makeJudge([rule]);
+  const found = value => judgeItems([{ value: { literals: [value] } }]).map(finding => finding.found);
+  assert.deepEqual(found('public-thing'), []);
+  assert.deepEqual(found('tok_*'), []);
+  assert.deepEqual(found('ns:name'), []);
+  assert.deepEqual(found('thing'), ['thing']);
+  assert.deepEqual(found('public-thing-extra'), ['public-thing-extra']);
+  assert.deepEqual(found('PUBLIC-THING'), ['PUBLIC-THING']);
+  // On words it is the same: a match equal to an allowed value is passed over; `allow` would keep the whole text out.
+  const words = makeJudge([{ id: 'fixture-words', pattern: '\\b\\w+-thing\\b', allow_exact: ['public-thing'], says: 'x' }]);
+  assert.deepEqual(words(['a public-thing and a private-thing']).map(finding => finding.found), ['private-thing']);
+  assert.throws(() => makeJudge([{ ...rule, allow_exact: 'public-thing' }]), /allow_exact/);
+});

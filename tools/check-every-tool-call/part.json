@@ -4,6 +4,7 @@
   ],
   "public": [
     "do-work/check_switches.py",
-    "do-work/guard_rows.py"
+    "do-work/guard_rows.py",
+    "do-work/judge-check-rows.mjs"
   ]
 }

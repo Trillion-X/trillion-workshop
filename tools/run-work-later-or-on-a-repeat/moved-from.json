@@ -1,0 +1,82 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [
+    "parts/timed-action/"
+  ],
+  "files": [
+    {
+      "from": "parts/timed-action/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/README.md",
+      "source_identity": "1f:a0064cc845f91bba51b07c4ff9c9ae35cc98e2333d10c153609b2ee7a99a11e4",
+      "identity": "1f:a0064cc845f91bba51b07c4ff9c9ae35cc98e2333d10c153609b2ee7a99a11e4"
+    },
+    {
+      "from": "parts/timed-action/do-work/evaluate-due-scheduled-actions.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/do-work/evaluate-due-scheduled-actions.ts",
+      "source_identity": "1f:c932c8f62b8931d5780a488549e7dd97d4d5a9a23af0f96661c2825096b4cb4d",
+      "identity": "1f:c932c8f62b8931d5780a488549e7dd97d4d5a9a23af0f96661c2825096b4cb4d"
+    },
+    {
+      "from": "parts/timed-action/do-work/materialize-recurring-windows.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/do-work/materialize-recurring-windows.ts",
+      "source_identity": "1f:9fda6926ce67ee050c2fc280e97d7f0415e5b82b32c7ba51b6a073e1ea416b39",
+      "identity": "1f:9fda6926ce67ee050c2fc280e97d7f0415e5b82b32c7ba51b6a073e1ea416b39"
+    },
+    {
+      "from": "parts/timed-action/do-work/quiet-hours.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/do-work/quiet-hours.json",
+      "source_identity": "1f:e29a96cf4b7a1689510a2da7796e20749b0e76eb95465147e8086b95d12227cc",
+      "identity": "1f:e29a96cf4b7a1689510a2da7796e20749b0e76eb95465147e8086b95d12227cc"
+    },
+    {
+      "from": "parts/timed-action/do-work/quiet-hours.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/do-work/quiet-hours.ts",
+      "source_identity": "1f:d3540f4f09479e50d5c19df938e3ecd3a1946c8dde29e06e08164b1e8922745a",
+      "identity": "1f:d3540f4f09479e50d5c19df938e3ecd3a1946c8dde29e06e08164b1e8922745a"
+    },
+    {
+      "from": "parts/timed-action/do-work/wall-time.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/do-work/wall-time.ts",
+      "source_identity": "1f:78cc5a8cbfadae9c66578d40bf548758779f0a5fddc921bd1c92140f35aae920",
+      "identity": "1f:78cc5a8cbfadae9c66578d40bf548758779f0a5fddc921bd1c92140f35aae920"
+    },
+    {
+      "from": "parts/timed-action/do-work/when-to-wake.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/do-work/when-to-wake.ts",
+      "source_identity": "1f:cc2c7a9863145aca4443cc71e1414663411237fa81e07be51ad77221ec0b835b",
+      "identity": "1f:cc2c7a9863145aca4443cc71e1414663411237fa81e07be51ad77221ec0b835b"
+    },
+    {
+      "from": "parts/timed-action/do-work/write-scheduled-action-record.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/do-work/write-scheduled-action-record.ts",
+      "source_identity": "1f:0f40ae5b2e2b53bfbf83a07f26bbe0d5bf43e3ee6608de9a16d6ead9dd8c7f1b",
+      "identity": "1f:0f40ae5b2e2b53bfbf83a07f26bbe0d5bf43e3ee6608de9a16d6ead9dd8c7f1b"
+    },
+    {
+      "from": "parts/timed-action/do-work/zone-drift.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/do-work/zone-drift.ts",
+      "source_identity": "1f:dba3391a2899e64d060b2d78d1ae3209335ab9d1bd339fc2f109a0480160733c",
+      "identity": "1f:dba3391a2899e64d060b2d78d1ae3209335ab9d1bd339fc2f109a0480160733c"
+    },
+    {
+      "from": "parts/timed-action/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/part.json",
+      "source_identity": "1f:669b3510587758e78c10c2701f6037496b34cb597a97387d800df14ba46967ab",
+      "identity": "1f:eb2fcd258b9b958d794df997836071d5e9f094be713217d0d097bb7be364efd2"
+    }
+  ],
+  "not_matched": []
+}

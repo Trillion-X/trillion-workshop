@@ -77,7 +77,7 @@ import { childEnv, computerName, programMissingWords, programReady, readSettings
 import { hasPendingSourceReturns } from './source-return-pending.mjs';
 import { clearWorkspaceTools, setWorkspaceTools, workspaceTools } from './session-runs.mjs';
 import { SIGN_IN_ENDED } from '../src/live-screen.mjs';
-import { endWithTheApp } from '../computer/end-with-the-app.mjs';
+import { endWithTheApp } from '../../run-on-a-persons-computer/end-with-the-app.mjs';
 import { requireAccountKey } from './account-key.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));

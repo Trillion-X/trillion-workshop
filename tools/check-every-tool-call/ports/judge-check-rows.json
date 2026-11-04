@@ -1,0 +1,63 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-EVERY-TOOL-CALL-JUDGE-CHECK-ROWS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: check rows judge commits and pushes through the one judge",
+  "message_multihash": "1f:f3edea6c74647b2e6bc0e32b80b11573942196fdad88dbabcc58396c7d5374d2",
+  "quote": "Avery, 11:05 PM MST Nov 3: a check written as a row in his check list that enforces nothing is a regression."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "judge a commit, a push or any other tool call against the person's check rows (record:check, kind check) whose kinds name it, with the one judge, and prove each row by its fixtures",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/check-every-tool-call/do-work/judge-check-rows.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/rules-and-verdicts.mjs",
+   "why": "The one judge (check, rules mode), imported unchanged in what it decides; this file only makes the units a commit, a push or a tool call publishes and hands them to it with the person's rows."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-branch.mjs",
+   "why": "Reads a branch's rows by where { method } for a thing a person makes; this file judges the rows of a unit kind (kinds) on what one tool call publishes."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-new-names/do-work/check-new-names.mjs",
+   "why": "Judges the names a change brings in by word lists its caller gives; this file judges the added lines and JSON values of a change by the person's check rows."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "judge a commit, a push or any other tool call against the person's check rows (record:check, kind check) whose kinds name it, with the one judge, and prove each row by its fixtures",
+    "check rows judge commits",
+    "fixtures of a check row",
+    "commit judge over rows"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "judgeACall",
+    "fixturesHold"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "c00689c2b82d5187e83c8dbc88213dfe5a686399"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/check-every-tool-call/test/check-rows-judge-commits-and-pushes.test.mjs"
+  ]
+ }
+}

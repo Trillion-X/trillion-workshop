@@ -5,7 +5,9 @@ import { instructionRows, readRows } from '../do-work/read-how-ais-are-told.mjs'
 
 const file = new URL('../rows.json', import.meta.url);
 const records = JSON.parse(readFileSync(file, 'utf8')).records;
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+// The folder's rows also hold the row declaring the instruction list (kind ai-instruction-source); this is the reader's.
+const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records
+  .map(record => record.payload).find(payload => payload.id === 'tool:read-how-ais-are-told');
 
 test('the row reads only, offline, on the person\'s computer', () => {
   assert.equal(row.id, 'tool:read-how-ais-are-told');

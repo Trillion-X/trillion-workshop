@@ -38,7 +38,7 @@
 // - The secret leaves this store only in the publish answer to the agent that asked for it.
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js';
-import { publicAddressOrNull } from '../parts/http-client/do-work/public-address.mjs';
+import { publicAddressOrNull } from '../../refuse-requests-to-private-addresses/public-address.mjs';
 
 export const RETRY_SECONDS = [5, 30, 120, 600, 3600];
 export const DELIVERY_TIMEOUT_MS = 10_000;

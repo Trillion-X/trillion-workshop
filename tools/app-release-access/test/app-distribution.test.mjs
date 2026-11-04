@@ -6,8 +6,11 @@ import { test } from 'node:test';
 import { generateKeyPairSync, createPublicKey, verify } from 'node:crypto';
 import settings from '../read-data/distribution.json' with { type: 'json' };
 import { distributionObservation, distributionSource } from '../read-data/distribution.mjs';
-import { makeAppDistributionTools, read } from '../read-data/app-distribution.mjs';
-import { appStoreConnect, heldKey } from '../read-data/app-store-connect.mjs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { makeAppDistributionTools } from '../read-data/app-distribution.mjs';
+import { appStoreConnect, heldKey, readHeldKey } from '../read-data/app-store-connect.mjs';
 
 const now = Date.parse('2026-10-08T06:00:00Z');
 const source = distributionSource('native-ios');
@@ -65,7 +68,11 @@ test('the read refuses an unconfigured source, tester input, a missing app and p
   await assert.rejects(tools.read({ source_id: 'native-ios', bundle_identifier: BUNDLE, publish: 'yes' }), /true or false/);
   await assert.rejects(tools.read({ source_id: 'native-ios', bundle_identifier: BUNDLE, publish: true }), /workspace:write/);
   assert.equal(connected, 0);
-  await assert.rejects(read({ source_id: 'native-ios', bundle_identifier: BUNDLE }), /No App Store Connect team key/);
+  // A run handed no key reads an empty pipe. A test process's own descriptor 4 belongs to the test runner and never
+  // ends, so an empty file stands in for the pipe.
+  const empty = join(mkdtempSync(join(tmpdir(), 'no-key-')), 'held');
+  writeFileSync(empty, '');
+  assert.throws(() => readHeldKey(empty), /No App Store Connect team key/);
 });
 
 test('an ambiguous or paged Apple app answer is refused', async () => {

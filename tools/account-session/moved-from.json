@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Only part.json differs: it names the tree that imports this part.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/account-session/README.md",
+      "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
+      "to": "tools/account-session/README.md",
+      "source_identity": "1f:11b2263b22233491efa22a48c79f768bd21323a0c3b421e8eca94043ef7344ea",
+      "identity": "1f:11b2263b22233491efa22a48c79f768bd21323a0c3b421e8eca94043ef7344ea"
+    },
+    {
+      "from": "parts/account-session/do-work/README.md",
+      "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
+      "to": "tools/account-session/do-work/README.md",
+      "source_identity": "1f:ed5d400e96449eac5d836c61831e2ed0df12e1917bc333c030865669107800dc",
+      "identity": "1f:ed5d400e96449eac5d836c61831e2ed0df12e1917bc333c030865669107800dc"
+    },
+    {
+      "from": "parts/account-session/do-work/browser-session-browser-id.ts",
+      "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
+      "to": "tools/account-session/do-work/browser-session-browser-id.ts",
+      "source_identity": "1f:6dbb586002bae7b197b6a9a86c68d7dc5c962757f292166b80f063c597b2fc66",
+      "identity": "1f:6dbb586002bae7b197b6a9a86c68d7dc5c962757f292166b80f063c597b2fc66"
+    },
+    {
+      "from": "parts/account-session/do-work/read-current-browser-session.ts",
+      "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
+      "to": "tools/account-session/do-work/read-current-browser-session.ts",
+      "source_identity": "1f:b7bfacc5f120b32d1bbbc211fff98006ea5215633c09a8a425abf6d47f120f28",
+      "identity": "1f:b7bfacc5f120b32d1bbbc211fff98006ea5215633c09a8a425abf6d47f120f28"
+    },
+    {
+      "from": "parts/account-session/part.json",
+      "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
+      "to": "tools/account-session/part.json",
+      "source_identity": "1f:a34f2288bad2d1417f5b9e73a3a77481097e249c3b182d29b877a2de2ab8ea1e",
+      "identity": "1f:7af471198ffe65ade00c3e2f4af0d3446b6a95b5382bc87dd91d8f881f07a4b6"
+    },
+    {
+      "from": "parts/account-session/read-data/README.md",
+      "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
+      "to": "tools/account-session/read-data/README.md",
+      "source_identity": "1f:91e99ef89f00c4926fdf1360e229215a7c1a26d28e4a30523f32cc063681d359",
+      "identity": "1f:91e99ef89f00c4926fdf1360e229215a7c1a26d28e4a30523f32cc063681d359"
+    },
+    {
+      "from": "parts/account-session/read-data/read-browser-session.ts",
+      "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
+      "to": "tools/account-session/read-data/read-browser-session.ts",
+      "source_identity": "1f:ec7e6efa3d86ce78d7729e5d8a55299ccc5baad2b8fb1f369d3ed9b1f2df32dc",
+      "identity": "1f:ec7e6efa3d86ce78d7729e5d8a55299ccc5baad2b8fb1f369d3ed9b1f2df32dc"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-a-door-tunnel-open-tool-rows",
+  "what_this_is": "The Workshop row for tools/keep-a-door-tunnel-open: setting up a rented server so one service user may hold a reverse tunnel to one loopback port and nothing else. The row runs one process on the person's computer that reaches the server as its administrator over SSH with the host key the request pins, through the engine's proxy; the administration key is a file the engine mounts for the run. Keeping the tunnel itself open is not a row yet: the engine cannot keep a run that reaches this computer's door (ai-job:engine-kept-run-for-door-tunnel-2026-11-03), so a launch agent runs `serve`.",
+  "records": [
+    {
+      "id": "package::keep-a-door-tunnel-open::tool::prepare-a-server-for-a-door-tunnel",
+      "address": "package::keep-a-door-tunnel-open::tool::prepare-a-server-for-a-door-tunnel",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:prepare-a-server-for-a-door-tunnel",
+        "label": "Set up a server to hold a door tunnel",
+        "job": "Set up my rented server so one user can hold a tunnel back to a door on my computer and do nothing else",
+        "description": "Signs in to the server as `admin_user` over SSH (port `ssh_port`, host key `host_key` pinned for this run only) and makes `user` a system account with no shell whose one key (`publicKey`, the public half of the tunnel's held key) may only open a reverse forward that listens on the server's 127.0.0.1:`remotePort`: no session, no command, no other forwarding, no password. sshd's configuration is checked before it is reloaded. Answers whether it was prepared and the server's last line. The administration key is the file the engine mounts; nothing here names a server or a user.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["address", "ssh_port", "admin_user", "host_key", "user", "remotePort", "localPort", "publicKey"],
+          "additionalProperties": false,
+          "properties": {
+            "address": { "type": "string", "maxLength": 15, "description": "The server's IPv4 address" },
+            "ssh_port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The server's SSH port" },
+            "admin_user": { "type": "string", "maxLength": 32, "description": "The administrator the setup signs in as (it runs useradd and reloads sshd)" },
+            "host_key": { "type": "string", "maxLength": 800, "description": "The server's SSH host key: \"<type> <base64>\"" },
+            "user": { "type": "string", "maxLength": 31, "description": "The service user that will hold the tunnel" },
+            "remotePort": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The server's loopback port the tunnel listens on" },
+            "localPort": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The door's port on this computer the tunnel reaches" },
+            "publicKey": { "type": "string", "maxLength": 1000, "description": "The public half of the tunnel's held key: \"ssh-rsa <base64> <comment>\"" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["prepared"],
+          "properties": { "prepared": { "type": "boolean" }, "said": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "max_run_ms": 300000,
+          "workdir": "/opt/keep-a-door-tunnel-open",
+          "stdout": "json",
+          "argv": ["node", "/opt/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs", "prepare", "/held/server-administration-key"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [{ "package": "keep-a-door-tunnel-open", "paths": ["do-work"], "at": "/opt/keep-a-door-tunnel-open" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "credential_mounts": [
+            { "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }
+          ]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 60, "network_egress": true },
+        "maker": "maker:keep-a-door-tunnel-open",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    }
+  ]
+}

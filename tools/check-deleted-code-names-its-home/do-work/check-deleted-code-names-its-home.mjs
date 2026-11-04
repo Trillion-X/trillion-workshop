@@ -22,6 +22,7 @@
 //   node check-deleted-code-names-its-home.mjs --root <checkout> (--staged | --range <from>..<to>
 //     | --for-command <a shell command an AI is about to run>) [--repository <name>] [--repositories <json>]
 //     [--rules-json <json>]
+//   node check-deleted-code-names-its-home.mjs --granted <checkout> < { "range": "<from>..<to>", "repository"? }
 //
 // --for-command judges what that command would publish, as tools/check-a-port-against-its-source does (the one owner
 // of that reading): a `git commit` the staged index, a `git push` the commits from where HEAD left origin/main; any
@@ -29,14 +30,20 @@
 //
 // Prints the refusal in words, then { valid, judged: [{ path, home, how }], errors, unread } on the last line. Exits 0
 // when every deleted file has a home or a decision, 1 when one has neither, 2 when it could not judge.
+//
+// --granted is the run of the Workshop tool `tool:check-deleted-code-names-its-home`, in the checkout the person
+// granted: it reads `range` (and `repository`) as JSON on stdin and prints the judgement as { result } alone, or
+// { error }, with the same statuses.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
-import { basename, dirname, join, resolve } from 'node:path';
+import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
+import { text } from 'node:stream/consumers';
 import { spanForCommand } from '../../check-a-port-against-its-source/do-work/check-a-repository-for-port-contracts.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const RULES = JSON.parse(readFileSync(new URL('../read-data/rules.json', import.meta.url), 'utf8'));
 const EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
+const RANGE = /^([\w./@^~-]+)\.\.([\w./@^~-]+)$/;
 
 function git(root, args) {
   return execFileSync('git', ['-C', root, ...args], { maxBuffer: 1 << 28, stdio: ['ignore', 'pipe', 'pipe'] }).toString('utf8');
@@ -189,7 +196,26 @@ function option(args, name) {
   return at >= 0 ? args[at + 1] : undefined;
 }
 
-if (process.argv[1] && import.meta.url === `file://${realpathSync(process.argv[1])}`) {
+/** The tool row's run: the checkout the person granted, and { range, repository? } on stdin. */
+async function judgeGranted(folder) {
+  try {
+    if (!folder || !isAbsolute(folder) || !statSync(folder, { throwIfNoEntry: false })?.isDirectory())
+      throw new Error('the granted checkout was not given as an absolute path to a folder');
+    const input = JSON.parse((await text(process.stdin)) || '{}');
+    const [, from, to] = RANGE.exec(String(input.range ?? '')) ?? [];
+    if (!from) throw new Error('give range: two commits of the granted checkout as <from>..<to>');
+    const result = judgeDeletions({ root: folder, span: { from, to }, repository: input.repository });
+    console.log(JSON.stringify({ result }));
+    process.exitCode = result.valid ? 0 : 1;
+  } catch (error) {
+    console.log(JSON.stringify({ error: String(error?.message ?? error) }));
+    process.exitCode = 2;
+  }
+}
+
+if (process.argv[1] && import.meta.url === `file://${realpathSync(process.argv[1])}` && process.argv.includes('--granted')) {
+  await judgeGranted(option(process.argv.slice(2), '--granted'));
+} else if (process.argv[1] && import.meta.url === `file://${realpathSync(process.argv[1])}`) {
   const args = process.argv.slice(2);
   try {
     const root = option(args, '--root') ?? process.cwd();

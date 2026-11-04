@@ -1,0 +1,68 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PUBLIC-DOOR-DNS-CUTOVER",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:f4c5cc948fc55f0e02604c7c1fe527172f371c89624704128c7d8b5430e5eb89",
+    "quote": "Port the reader's logic line for line (rowsWith, one, the rents_a_host / points_a_name / public-door-placement shapes, the vault-name-only credentials). Replace only its source: file reads and writes become door records reads and writes."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "path": "scripts/portable-dns-cutover.mjs",
+      "multihash": "1f:9ac4fdf8dd3d886a2178e34eb31540d0de1d7bbc2f830d902ee284c659adf31d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T21:00:00Z",
+        "deleted_with": "the same change that deletes the old door rows reader"
+      }
+    }
+  ],
+  "targets": [
+    { "path": "tools/move-the-public-door/do-work/portable-dns-cutover.mjs" }
+  ],
+  "preserve": [
+    "the DNS client allows only the exact-host zone, record, route and Worker-domain shapes, and only the mutations a cutover makes; anything else is refused before any network call",
+    "the token is sent only in the DNS row's auth header, and a provider refusal names its codes, never the token",
+    "prepare keeps the one address record or production Worker domain the hostname holds, and refuses when there is not exactly one",
+    "before every change, every other record, route and domain must be as prepare read them, else nothing is changed",
+    "a change whose answer was lost is reconciled from what the provider shows, never sent twice; each change is read back",
+    "rollback puts back exactly what prepare read, including a Worker custom domain",
+    "the receipt is saved before each provider change"
+  ],
+  "allowed_deltas": [
+    "the receipt is a row of the person's Public door receipts list (read-data/door-receipts.mjs), each save conditioned on the value last read, not a file renamed into place",
+    "the DNS provider row is always handed in, not defaulted to one named provider",
+    "the command-line entry that read the token from the old vault goes: tool:cut-a-hostname-over-to-a-new-address runs do-work/door-tools.mjs, which takes it from the row's credential mount",
+    "the receipt schema name loses its product prefix (baseline redaction)"
+  ],
+  "banned_substitutions": [
+    "a change sent twice",
+    "a change that ignores an unrelated record, route or domain that moved",
+    "the token in a receipt, an error or an answer"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T21:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:9ac4fdf8dd3d886a2178e34eb31540d0de1d7bbc2f830d902ee284c659adf31d",
+    "target_multihash_at_baseline": "1f:8c855a6ec33cfc00cb4cbaec932f1fb01205adaf5a148cc8238136867d23f43d",
+    "commit": "1028d8fd5d9d4993a11a8f2a10a3e892e2c44e8e",
+    "redactions": [
+      { "from": "'trillion.portable-dns-cutover/1'", "to": "'portable-dns-cutover/1'", "why": "the receipt schema name carried the older owner's product prefix, which a public tool does not" }
+    ]
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/move-the-public-door/test/dns-cutover.test.mjs exact existing record changes to direct host; unrelated DNS, routes and rollback fields survive",
+      "tools/move-the-public-door/test/dns-cutover.test.mjs concurrent unrelated changes and target changes refuse before mutation",
+      "tools/move-the-public-door/test/dns-cutover.test.mjs lost provider answer reconciles desired record on retry without duplicate mutation",
+      "tools/move-the-public-door/test/dns-cutover.test.mjs provider error and request guards cannot disclose credential or perform arbitrary mutation",
+      "tools/move-the-public-door/test/dns-cutover.test.mjs managed custom-domain cutover preserves other domains and routes and restores original binding",
+      "tools/move-the-public-door/test/dns-cutover.test.mjs managed custom-domain lost deletion answer retries from observed state; independent domain edit refuses",
+      "tools/move-the-public-door/test/dns-cutover.test.mjs empty successful Worker domain deletion still permits only the exact delete operation"
+    ]
+  }
+}

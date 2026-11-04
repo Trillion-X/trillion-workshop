@@ -34,7 +34,7 @@ function pretendMac({ failAct = false } = {}) {
 const driverOn = (mac, readSecret) => makeScreenDriver({ settings, home: mkdtempSync(join(tmpdir(), 'secret-home-')), program: mac.program,
   capture: async () => Buffer.from('pixels'), ocr: async () => ({ width: 2000, height: 1000, lines: [] }), wait: async () => {}, readSecret });
 
-const reader = (reads, { values = [{ label: 'Password', value: PASSWORD }], user_name = 'Avery@example.com' } = {}) => async (tool, args, account) => {
+const reader = (reads, { values = [{ label: 'Password', value: PASSWORD }], user_name = 'sam@example.com' } = {}) => async (tool, args, account) => {
   reads.push({ tool, args, origin: account.origin });
   return { login_id: args.login_id, title: 'Bank', site: 'bank.example', user_name, values };
 };
@@ -56,7 +56,7 @@ test('user_name is read from the login itself, and a value that is not there is 
   const mac = pretendMac();
   const reads = [];
   await driverOn(mac, reader(reads)).drive({ ...field, value: { saved_login: { login_id: 'login_1', field: 'user_name' } } }, {});
-  assert.equal(mac.state.field, 'Avery@example.com');
+  assert.equal(mac.state.field, 'sam@example.com');
   await assert.rejects(driverOn(mac, reader(reads)).drive({ ...field, value: { saved_login: { login_id: 'login_1', field: 'PIN' } } }, {}),
     error => { assert.equal(error.status, 404); assert.match(error.message, /no field called PIN/); return true; });
 });

@@ -22,10 +22,10 @@
     "./wake-handlers/keep-every-message.mjs",
     "./wake-handlers/keep-web-chats.mjs",
     "./wake-handlers/wake-stopped-chats.mjs",
-    "../computer/read-this-computer.mjs",
-    "../computer/report-progress.mjs",
-    "../computer/watch-this-mac.mjs",
-    "../computer/mac-tools.mjs"
+    "../../run-on-a-persons-computer/read-this-computer.mjs",
+    "../../run-on-a-persons-computer/report-progress.mjs",
+    "../../run-on-a-persons-computer/watch-this-mac.mjs",
+    "../../run-on-a-persons-computer/mac-tools.mjs"
   ],
   "helper_agent": {
     "name": "This computer",

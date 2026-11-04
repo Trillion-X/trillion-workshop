@@ -1,0 +1,43 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PUBLIC-DOOR-RECEIPTS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:fe288908d13b23fc32433ef95fdc6a18f45ff36cf30bcdb64d8f3745706a84f1",
+    "quote": "Replace only its source: file reads and writes become door records reads and writes."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "keep a door move's lease, cutover and journal receipts as rows of the person's list, each save conditioned on the value last read",
+  "sources": [],
+  "targets": [
+    { "path": "tools/move-the-public-door/read-data/door-receipts.mjs" }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [],
+  "baseline": {},
+  "distinct_from": [
+    { "repository": "trillion", "path": "scripts/portable-host-lease.mjs", "why": "Its save(file, lease) wrote the lease receipt to a mode-600 file; this keeps the same receipts as list rows through the records door. That file leaves with the older owner's door scripts." },
+    { "repository": "trillion", "path": "scripts/portable-dns-cutover.mjs", "why": "Its save(file, receipt) wrote the cutover receipt to a file; the same receipts become list rows here. That file leaves with the older owner's door scripts." },
+    { "repository": "trillion", "path": "scripts/move-public-door.mjs", "why": "Its journal(file, receipt) wrote the move's journal to a file; the same journal becomes a list row here. That file leaves with the older owner's door scripts." }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "keep a door move's lease, cutover and journal receipts as rows of the person's list, each save conditioned on the value last read",
+        "keep a door move's lease, cutover and journal receipts as rows of the person's list",
+        "door receipts kept through the records door",
+        "public door receipt rows"
+      ],
+      "capability_rows": [],
+      "code_patterns": ["doorReceipts", "public-door-receipt"],
+      "repositories": [
+        { "repository": "trillion-workshop", "commit": "6323f8f" },
+        { "repository": "trillion", "commit": "9b5614150bf2ff506cb296337b79af328ffc7381" }
+      ]
+    },
+    "test_refs": [
+      "tools/move-the-public-door/test/host-lease.test.mjs a receipt changed by another run meanwhile is refused, never written over"
+    ]
+  }
+}
