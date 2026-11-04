@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { generateKeyPairSync } from 'node:crypto';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { openSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
@@ -368,4 +370,21 @@ test('the sender default reaches APNs through HTTP/2 CONNECT rather than fetch',
     if (beforeProxy === undefined) delete process.env.HTTPS_PROXY; else process.env.HTTPS_PROXY = beforeProxy;
     await new Promise(resolve => proxy.close(resolve));
   }
+});
+
+test('the browser push key row answers from its held key alone, with no records door mounted', async () => {
+  const command = row('tool:my-browser-push-application-key').invoke.argv.slice(1).map(part => part
+    .replace('/opt/records-door/', fileURLToPath(new URL('../../records-door/', import.meta.url)))
+    .replace('/opt/notifications/', fileURLToPath(new URL('../', import.meta.url))));
+  const jwk = await makeSigningKey();
+  // As the engine runs it: the input on standard input, the held bundle on descriptor 4, nothing on descriptor 3.
+  const child = spawn(process.execPath, command, { stdio: ['pipe', 'pipe', 'pipe', 'ignore', 'pipe'] });
+  child.stdio[4].end(JSON.stringify({ web_push: { jwk, contact: 'mailto:push@example.test' } }));
+  child.stdin.end('{}');
+  let out = '';
+  child.stdout.on('data', chunk => { out += chunk; });
+  await new Promise(done => child.on('close', done));
+  const answer = JSON.parse(out.trim().split('\n').at(-1));
+  assert.equal(answer.error, undefined, answer.error);
+  assert.equal(answer.result.applicationServerKey, base64url(publicPoint(jwk)));
 });
