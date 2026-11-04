@@ -23,7 +23,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/draw-trillions-app-icon-in-every-size-from/scripts/make-stories-share-image.mjs",
       "source_identity": "1f:fda9b257eae19c0a2c421b56f4866943aaa35730d486d5331a1698880207dc9b",
-      "identity": "1f:1f:336a48f7df25a6e9cf5703dbcb25c551a8376381bd7e3f43646c130782a36f7d",
+      "identity": "1f:336a48f7df25a6e9cf5703dbcb25c551a8376381bd7e3f43646c130782a36f7d",
       "reads_rows": [
         "src/story-settings.json"
       ]
@@ -33,7 +33,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/draw-trillions-app-icon-in-every-size-from/src/page-look.mjs",
       "source_identity": "1f:7a145d491c69b42bdb7a5f0b0b4fbcf57f63a6ddadc68069d1777ad6b983acd6",
-      "identity": "1f:1f:34c21aaddbdafb3fda0bda36d267f3d340b78f1b2220f7c87a9f27ef9e4c0447"
+      "identity": "1f:34c21aaddbdafb3fda0bda36d267f3d340b78f1b2220f7c87a9f27ef9e4c0447"
     },
     {
       "from": "test/thread-cover.test.mjs",

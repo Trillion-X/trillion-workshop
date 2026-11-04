@@ -16,7 +16,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-links-i-saved-elsewhere-such/src/saved-links.mjs",
       "source_identity": "1f:d0e89f97067d3289b4af9dc275aaa9ae68e789b0e1751ccb164c37f8d5317e79",
-      "identity": "1f:1f:d7538562e54393ddbd323b6416586ca74e0289f7b423de7067efc35b0a9388c8"
+      "identity": "1f:d7538562e54393ddbd323b6416586ca74e0289f7b423de7067efc35b0a9388c8"
     },
     {
       "from": "src/saved-pages.json",
