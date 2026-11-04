@@ -17,7 +17,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { rowAnswers } from '../../delight-moments/read-data/choose-moment.mjs';
+import { rowAnswers } from './choose-moment.mjs';
 
 /** The first moment row that answers `event`, or null. */
 export function momentFor(data, event) {

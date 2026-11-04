@@ -1,0 +1,191 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:browse-and-publish-what-my-ai-can-use",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:read-rows-as-marketplace-shelf-items",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Read rows as Marketplace shelf items",
+        "job": "Show rows of one kind (tools, workflows, looks, layouts and more) as the Marketplace shelf shows everything my AI can use: title, what it does, who made it, its price and runs, whether it is mine and published, and whether I can use, publish or withdraw it",
+        "description": "Give kind (one of the kinds in marketplace-kinds.json: tool, workflow, studied-screen, design-component, look, layout, configuration), rows (the source rows of that kind, as their own owner answers them) and published (the ids of that kind this account has published to the shared shelf). Answers items, one shelf item per row: id, key, kind and its label, icon, title (a row's own title when it reads as words, else the action its id names, with the service), job, made_by in the person's words, price and its key value and unit, runs, mine, published and its badge, facts, picture, preview, a link only when it is a web page, open_target, action_input and can (use, publish or withdraw); plus kind ({ id, one, icon }) and kinds (every kind). Which fields are read and how they read is the kinds file's DATA. It reads, publishes and withdraws nothing: reading each kind's rows from the person's store and the shared shelf, paging and searching across kinds, and publishing or withdrawing are the hosted Marketplace's routes and are not run here.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "kind",
+            "rows"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "tool",
+                "workflow",
+                "studied-screen",
+                "design-component",
+                "look",
+                "layout",
+                "configuration"
+              ]
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "published": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "items",
+            "kind",
+            "kinds"
+          ],
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "key",
+                  "kind",
+                  "title",
+                  "mine",
+                  "published",
+                  "can"
+                ]
+              }
+            },
+            "kind": {
+              "type": "object"
+            },
+            "kinds": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/browse-and-publish-what-my-ai-can-use",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/browse-and-publish-what-my-ai-can-use/do-work/read-a-shelf.mjs",
+            "readAShelf"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "browse-and-publish-what-my-ai-can-use",
+                "paths": [
+                  "do-work",
+                  "marketplace-kinds.json"
+                ],
+                "at": "/opt/browse-and-publish-what-my-ai-can-use"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/work-marketplace.mjs lines 45-147 and src/work-workshop.mjs lines 74-88 at 4ffa1dc4a2^ (moved-from.json, ports/); marketplace-kinds.json moved in a9ee258 (#76); old capability row capabilities.json:302 at 4ffa1dc4a2^"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "kind": "tool",
+              "rows": [
+                {
+                  "tool_id": "tool:sample-garden-planner",
+                  "title": "Plan my garden beds",
+                  "description": "Lays out beds by sun and season",
+                  "made_by": "this account",
+                  "price": {
+                    "amount": "$0.01",
+                    "per": "call"
+                  },
+                  "earlier_runs": {
+                    "runs": 3
+                  },
+                  "source": {
+                    "licence": "MIT"
+                  }
+                },
+                {
+                  "tool_id": "agentmail-list_messages",
+                  "made_by": "a registry"
+                }
+              ],
+              "published": [
+                "tool:sample-garden-planner"
+              ]
+            },
+            "output_selector": "$.kind.one",
+            "contains": "Tool"
+          }
+        ]
+      }
+    }
+  ]
+}

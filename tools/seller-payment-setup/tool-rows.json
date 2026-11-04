@@ -1,0 +1,253 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:seller-payment-setup",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:build-a-sellers-payment-setup-request",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Build the request that starts a seller's payment setup",
+        "job": "Build, without sending it, the payment provider (Stripe) request that starts a seller's payment setup and gets their hosted onboarding link, or any other request the folder's operation map names",
+        "description": "Calls buildStripeHttpRequest (process/build-stripe-http-request.mjs) with the input: operation_id names one row of data/stripe-operation-map.json (operation:create-connected-account and operation:create-account-link start a seller's setup and its hosted onboarding link; the map has every other operation too), input_facts holds what the request says (operation_subject becomes the form-encoded body of a write or the query of a search, provider_object_ref fills the address, acting_account the Stripe-Account header where the row declares it; a subject id becomes client_reference_id), idempotency_key becomes the Idempotency-Key header of a write, api_version_policy the Stripe-Version (the map's current version when left out) and required_credential_ref the name of the key a sender would use (credential-class:stripe-restricted-key when left out). Answers the finished request: method, url, headers, body, auth { scheme, credential_ref } and api_version. It holds and reads no key, puts no Authorization header on the request, sends nothing and moves no money: the request is for a sender (or a person) to look at first. Refuses an operation the map does not name and a missing provider_object_ref where the address needs one. The old screen also sent the request with the seller's own key and took the seller to the onboarding page the answer names; this run does neither.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "operation_id"
+          ],
+          "properties": {
+            "operation_id": {
+              "type": "string",
+              "enum": [
+                "operation:create-session",
+                "operation:read-session",
+                "operation:read-setup-intent",
+                "operation:find-subscription-schedules",
+                "operation:read-subscription-schedule",
+                "operation:read-invoice",
+                "operation:create-subscription-schedule",
+                "operation:create-payment-intent",
+                "operation:create-setup-intent",
+                "operation:create-connect-account",
+                "operation:read-event",
+                "operation:observe-event",
+                "operation:create-transfer",
+                "operation:create-refund",
+                "operation:find-prices",
+                "operation:create-product",
+                "operation:update-product",
+                "operation:create-price",
+                "operation:find-payment-links",
+                "operation:create-payment-link",
+                "operation:update-payment-link",
+                "operation:find-promotion-codes",
+                "operation:create-coupon",
+                "operation:create-promotion-code",
+                "operation:update-promotion-code",
+                "operation:find-portal-configurations",
+                "operation:create-portal-configuration",
+                "operation:find-webhook-endpoints",
+                "operation:create-webhook-endpoint",
+                "operation:delete-webhook-endpoint",
+                "operation:create-connected-account",
+                "operation:read-connected-account",
+                "operation:create-account-link",
+                "operation:create-login-link",
+                "operation:read-balance",
+                "operation:find-payouts",
+                "operation:read-payment-intent",
+                "operation:read-charge",
+                "operation:read-subscription",
+                "operation:read-subscription-card",
+                "operation:cancel-subscription",
+                "operation:find-invoice-payments",
+                "operation:create-customer-balance-transaction",
+                "operation:find-meters",
+                "operation:create-meter",
+                "operation:create-meter-event",
+                "operation:create-subscription-item",
+                "operation:read-price",
+                "operation:find-subscriptions",
+                "operation:create-portal-session"
+              ]
+            },
+            "input_facts": {
+              "type": "object",
+              "properties": {
+                "operation_subject": {
+                  "type": "object"
+                },
+                "provider_object_ref": {
+                  "type": [
+                    "string",
+                    "object"
+                  ]
+                },
+                "acting_account": {
+                  "type": "string"
+                }
+              }
+            },
+            "idempotency_key": {
+              "type": "string"
+            },
+            "api_version_policy": {
+              "type": "string"
+            },
+            "required_credential_ref": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "operation_id",
+            "method",
+            "url",
+            "headers",
+            "auth",
+            "api_version"
+          ],
+          "properties": {
+            "operation_id": {
+              "type": "string"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET",
+                "POST",
+                "DELETE"
+              ]
+            },
+            "url": {
+              "type": "string"
+            },
+            "headers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "body": {
+              "type": "string"
+            },
+            "auth": {
+              "type": "object",
+              "required": [
+                "scheme",
+                "credential_ref"
+              ],
+              "properties": {
+                "scheme": {
+                  "type": "string"
+                },
+                "credential_ref": {
+                  "type": "string"
+                }
+              }
+            },
+            "api_version": {
+              "type": "string"
+            },
+            "idempotency_key": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/seller-payment-setup",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/seller-payment-setup/process/build-stripe-http-request.mjs",
+            "buildStripeHttpRequest"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "seller-payment-setup",
+                "paths": [
+                  "process",
+                  "data"
+                ],
+                "at": "/opt/seller-payment-setup"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/stripe-payment-provider/process/build-stripe-http-request.mjs, stripe-request-mapper.mjs, stripe-form-encode.mjs and data/stripe-operation-map.json, moved in a9ee258 (#76); old capability row capabilities.json:724 at 4ffa1dc4a2^ (start seller payment setup and send the seller to the payment provider's hosted onboarding)."
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation_id": "operation:create-account-link",
+              "idempotency_key": "seller-setup-sample-0001",
+              "input_facts": {
+                "operation_subject": {
+                  "account": "acct_sample_seller_0001",
+                  "type": "account_onboarding",
+                  "refresh_url": "https://shop.example/payments/setup/again",
+                  "return_url": "https://shop.example/payments/setup/done"
+                }
+              }
+            },
+            "output_selector": "$.url",
+            "contains": "https://api.stripe.com/v1/account_links"
+          }
+        ]
+      }
+    }
+  ]
+}

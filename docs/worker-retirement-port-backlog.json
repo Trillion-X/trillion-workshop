@@ -403,159 +403,159 @@
   },
   {
    "path": "parts/ui/show/action-control/ActionControl.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/action-control/ActionControl.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/action-feedback/action-feedback.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/action-feedback/action-feedback.ts",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/action-menu/ActionMenu.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/action-menu/ActionMenu.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/action-menu/index.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/action-menu/index.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/action-menu/menu-rows.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/action-menu/menu-rows.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/ai-app-bridge/ai-app-bridge.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/ai-app-bridge/ai-app-bridge.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/ai-app-bridge/ai-app-site-page.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/ai-app-bridge/ai-app-site-page.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/ai-app-bridge/ai-app-view-document.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/ai-app-bridge/ai-app-view-document.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/anatomy/explainer-page.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/anatomy/explainer-page.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/avatar-group/AvatarGroup.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/avatar-group/AvatarGroup.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/avatar-group/index.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/avatar-group/index.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/button/press-work.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/button/press-work.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/choice-tiles/ChoiceTiles.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/choice-tiles/ChoiceTiles.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/choice-tiles/OpenChoice.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/choice-tiles/OpenChoice.tsx",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/choice-tiles/remembered-choice.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/choice-tiles/remembered-choice.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/copy-button/CopyButton.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/copy-button/CopyButton.tsx",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/coss/notifications.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/coss/notifications.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/coss/ui/button.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/coss/ui/button.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/coss/ui/toast.tsx",
    "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
+   "destination": "held: show-coss: web/parts/ui/show/show-rules/show-of.ts is already in the destination with other bytes",
    "why": "parts/ui/show lane"
   },
   {
    "path": "parts/ui/show/display-mark/DisplayMark.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/display-mark/DisplayMark.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/display-mark/index.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/display-mark/index.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/document-page/document-page-html.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/document-page/document-page-html.mjs",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/document-page/word-marks.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/document-page/word-marks.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/fact-chips/FactChips.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/fact-chips/FactChips.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/fact-chips/index.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/fact-chips/index.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/fact-chips/mount-fact-chips.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/fact-chips/mount-fact-chips.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/file-chip/file-kinds.json",
@@ -580,15 +580,15 @@
   },
   {
    "path": "parts/ui/show/file-view-document/file-view-bridge.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/file-view-document/file-view-bridge.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/file-view-document/file-view-document.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/file-view-document/file-view-document.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
@@ -606,243 +606,246 @@
   },
   {
    "path": "parts/ui/show/layer-diagram/author-input.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/author-input.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/author-input.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/author-input.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/change-graph.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/change-graph.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/change-graph.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/change-graph.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/graph-authoring.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/graph-authoring.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/graph-authoring.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/graph-authoring.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/graph-contract.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/graph-contract.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/graph-contract.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/graph-contract.mjs",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/layer-diagram/graph-live.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/graph-live.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/graph-live.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/graph-live.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/graph-patch.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/graph-patch.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/graph-patch.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/graph-patch.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/graph-svg.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/graph-svg.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/graph-svg.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/graph-svg.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/layer-diagram/layer-diagram.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/layer-diagram.mjs",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/layer-diagram/select-glob.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/layer-diagram/select-glob.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/linked-identity/LinkedIdentity.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/linked-identity/LinkedIdentity.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/linked-identity/index.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/linked-identity/index.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/listing-card/ListingCard.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/listing-card/ListingCard.tsx",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/load-later/later.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/load-later/later.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/loading-mark/LoadingMark.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/ui/show/loading-mark/LoadingMark.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/loading-mark/index.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/ui/show/loading-mark/index.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/loading-mark/loading-mark-html.mjs",
    "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "destination": "trillion-apps:web/parts/ui/show/loading-mark/loading-mark-html.mjs",
+   "why": "parts/ui/show lane",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "parts/ui/show/loading-mark/stitch.ts",
    "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "destination": "trillion-apps:web/parts/ui/show/loading-mark/stitch.ts",
+   "why": "parts/ui/show lane",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "parts/ui/show/media-preview/picture-readiness.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/media-preview/picture-readiness.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/media-preview/picture-readiness.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/media-preview/picture-readiness.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/merchant-storefront/merchant-storefront.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/merchant-storefront/merchant-storefront.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/notifications/NotificationParts.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/notifications/NotificationParts.tsx",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/page-storage/page-storage.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/page-storage/page-storage.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/person-tag/PersonTag.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/person-tag/PersonTag.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/plan-card/plan-card-html.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/plan-card/plan-card-html.mjs",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/provider-mark/lazy-provider-mark.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/provider-mark/lazy-provider-mark.tsx",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/public-app-editor/placed-capability-runtime.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/public-app-editor/placed-capability-runtime.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/public-app-editor/public-app-run-form.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/public-app-editor/public-app-run-form.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/record-chip/RecordChip.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/record-chip/RecordChip.tsx",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/request/quiet-retry.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/request/quiet-retry.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/request/quiet-retry.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/request/quiet-retry.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/safe-error-card/sanitize-error-text.ts",
    "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "destination": "trillion-apps:web/parts/ui/show/safe-error-card/sanitize-error-text.ts",
+   "why": "parts/ui/show lane",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "parts/ui/show/screen-state/ScreenState.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/screen-state/ScreenState.tsx",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/scroll-thread/thread-geometry.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/scroll-thread/thread-geometry.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/server-rendered-page/escape-html.mjs",
@@ -858,69 +861,69 @@
   },
   {
    "path": "parts/ui/show/server-rendered-page/page-egress.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/server-rendered-page/page-egress.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/server-rendered-page/page-sections-html.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/server-rendered-page/page-sections-html.mjs",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/server-rendered-page/page-work.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/server-rendered-page/page-work.mjs",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/share-row/share-row-html.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/share-row/share-row-html.mjs",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/share-row/share-row.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/share-row/share-row.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/show-rules/ShowRuleMenu.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/show-rules/ShowRuleMenu.tsx",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/site-nav/site-nav-look.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/site-nav/site-nav-look.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/spinner/Spinner.tsx",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/spinner/Spinner.tsx",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "parts/ui/show/spinner/index.ts",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/spinner/index.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/thread-cover/thread-cover.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/thread-cover/thread-cover.json",
+   "why": "same bytes on main"
   },
   {
    "path": "parts/ui/show/thread-cover/thread-cover.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/parts/ui/show/thread-cover/thread-cover.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "proof/2026-09-30-send-to-trillion-popup/plan-refusal-probe.mjs",
@@ -1057,14 +1060,16 @@
   {
    "path": "scripts/build-native-app.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps scripts/",
-   "why": "Mac/iPhone app build"
+   "destination": "trillion-apps:scripts/build-native-app.mjs",
+   "why": "Mac/iPhone app build",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "scripts/build-native-source-app.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps scripts/",
-   "why": "Mac/iPhone app build"
+   "destination": "trillion-apps:scripts/build-native-source-app.mjs",
+   "why": "Mac/iPhone app build",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "scripts/build-starting-set.mjs",
@@ -2694,9 +2699,9 @@
   },
   {
    "path": "src/account-app-grants.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/door.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 419); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/account-app-original-state.mjs",
@@ -2910,9 +2915,9 @@
   },
   {
    "path": "src/admitted-commands.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_rights.rs, trillion-rust:src/mcp_current_policy.rs, trillion-rust:src/resource_authority/rights_gate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 420); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/ag-ui.json",
@@ -2972,7 +2977,7 @@
   {
    "path": "src/ai-apps-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: ai-apps-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
@@ -3169,9 +3174,9 @@
   },
   {
    "path": "src/authorization-timing.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_rights.rs, trillion-rust:src/mcp_current_policy.rs, trillion-rust:src/resource_authority/rights_gate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 420); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/automation-guards.json",
@@ -3248,13 +3253,13 @@
   {
    "path": "src/billing-screen.json",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: billing-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
    "path": "src/billing-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: billing-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
@@ -3295,15 +3300,15 @@
   },
   {
    "path": "src/born-account.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_rights.rs, trillion-rust:src/mcp_current_policy.rs, trillion-rust:src/resource_authority/rights_gate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 420); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/box-name.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/box-name.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/brand-assets.mjs",
@@ -3314,8 +3319,9 @@
   {
    "path": "src/brand-static-assets.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/brand-static-assets.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/brought-in.json",
@@ -3332,7 +3338,7 @@
   {
    "path": "src/browser-pages.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: browser-pages: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
@@ -3356,14 +3362,14 @@
   {
    "path": "src/business-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: business-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
    "path": "src/byte-range.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 475); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/camera-live.mjs",
@@ -3683,8 +3689,9 @@
   {
    "path": "src/community-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/community-screen.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/community-tools.mjs",
@@ -3812,8 +3819,9 @@
   {
    "path": "src/connector-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/connector-screen.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/consent-fingerprint.mjs",
@@ -3962,9 +3970,9 @@
   },
   {
    "path": "src/database-command-quota.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/native_command_quota.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 528); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/database-list-calls.mjs",
@@ -4059,9 +4067,9 @@
   },
   {
    "path": "src/derived-keys.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/secrets.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 544); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/design-library.mjs",
@@ -4132,13 +4140,13 @@
   {
    "path": "src/drives-screen.json",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: drives-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
    "path": "src/drives-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: drives-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
@@ -4210,8 +4218,9 @@
   {
    "path": "src/error-page-lines.json",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/error-page-lines.json",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/event-inbox-names.mjs",
@@ -4326,9 +4335,9 @@
   },
   {
    "path": "src/file-type.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/run-on-a-persons-computer/file-type.mjs",
+   "why": "the same bytes but for its moved-from header line (moved-from.json receipt of tools/run-on-a-persons-computer)"
   },
   {
    "path": "src/file-versions.json",
@@ -4351,8 +4360,9 @@
   {
    "path": "src/first-answers-copy.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/first-answers-copy.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/first-match-check.mjs",
@@ -4392,9 +4402,9 @@
   },
   {
    "path": "src/free-store-space.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 586); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/friend-invites.json",
@@ -4410,9 +4420,9 @@
   },
   {
    "path": "src/full-store-recovery.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/settings.json",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 587); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/funded-usage.mjs",
@@ -4500,9 +4510,9 @@
   },
   {
    "path": "src/held-values-modules.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/secrets.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 607); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/held-values-rotation.mjs",
@@ -4621,8 +4631,9 @@
   {
    "path": "src/html-page.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/html-page.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/hybrid-clock.mjs",
@@ -4814,9 +4825,9 @@
   },
   {
    "path": "src/kept-reads.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/kept-reads.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/layouts-tools.mjs",
@@ -4877,14 +4888,15 @@
   {
    "path": "src/link-page-pages.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: link-page-pages: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
    "path": "src/link-page-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/link-page-screen.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/link-page-tools.mjs",
@@ -5140,9 +5152,9 @@
   },
   {
    "path": "src/local-access.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 678); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/local-choice-observations.mjs",
@@ -5182,9 +5194,9 @@
   },
   {
    "path": "src/local-store.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/sqlite.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 593); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/looks.mjs",
@@ -5298,27 +5310,27 @@
   },
   {
    "path": "src/mcp-continuation.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/mcp.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 690); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/mcp-events.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/mcp-events.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/mcp-events.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/mcp-events.mjs",
+   "why": "the same bytes but for import lines"
   },
   {
    "path": "src/mcp-failure-boundary.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/mcp.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 690); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/mcp-oauth-local-bridge.mjs",
@@ -5501,33 +5513,33 @@
   },
   {
    "path": "src/namespace-account-merge.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/migrate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 721); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-account-route.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/door.rs, trillion-rust:src/account_files/account-files-door.json",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 722); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-book-name.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 723); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-book-resource.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 723); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-bulk-carry.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/migrate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 720); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-byte-release.json",
@@ -5543,9 +5555,9 @@
   },
   {
    "path": "src/namespace-carry-ledger.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/migrate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 720); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-carry-out-tables.json",
@@ -5555,9 +5567,9 @@
   },
   {
    "path": "src/namespace-carry-source.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/migrate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 720); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-chunk-cache.json",
@@ -5573,15 +5585,15 @@
   },
   {
    "path": "src/namespace-cloud-supplies.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 723); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-credential-carry.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/migrate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 721); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-dav.mjs",
@@ -5597,33 +5609,33 @@
   },
   {
    "path": "src/namespace-file-lookup.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 713); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-handover.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/moves.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 719); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-identity-module.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 723); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-import-credentials.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/migrate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 721); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-import-source.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/migrate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 721); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-kept-answers.json",
@@ -5633,21 +5645,21 @@
   },
   {
    "path": "src/namespace-lease-principal.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/door.rs, trillion-rust:src/account_files/account-files-door.json",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 722); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-lifecycle-owner.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 723); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-live-source.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/migrate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 720); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-moves.json",
@@ -5657,9 +5669,9 @@
   },
   {
    "path": "src/namespace-name-counts.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/namespace-name-counts.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/namespace-name-retirement.mjs",
@@ -5669,27 +5681,27 @@
   },
   {
    "path": "src/namespace-native-carry.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/migrate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 720); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-native-command.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/door.rs, trillion-rust:src/account_files/account-files-door.json",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 722); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-native-host.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 723); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-native-routing.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/door.rs, trillion-rust:src/account_files/account-files-door.json",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 722); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-opening-schema.json",
@@ -5706,9 +5718,9 @@
   },
   {
    "path": "src/namespace-recovery-erasure.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/moves.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 718); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-release-rules.mjs",
@@ -5724,21 +5736,21 @@
   },
   {
    "path": "src/namespace-resource-erasure.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/moves.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 718); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-resource-mount.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 723); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-resource-owner.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 723); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-results.mjs",
@@ -5748,39 +5760,39 @@
   },
   {
    "path": "src/namespace-set-aside.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/namespace-set-aside.json, trillion-apps:web/src/namespace-set-aside.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/namespace-sqlite-target.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/migrate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 720); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-state-carry.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/migrate.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 720); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/namespace-store.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/namespace-store.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/namespace-view.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/namespace-view.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/namespace-view.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/namespace-view.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/namespace.mjs",
@@ -5797,14 +5809,16 @@
   {
    "path": "src/narrowed-screen.json",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/narrowed-screen.json",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/narrowed-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/narrowed-screen.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/native-account-action-mount.mjs",
@@ -5832,9 +5846,9 @@
   },
   {
    "path": "src/native-account-key-issuance.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/door.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 731); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/native-account-key.json",
@@ -5844,9 +5858,9 @@
   },
   {
    "path": "src/native-account-key.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/door.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 731); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/native-account-peer-actions.mjs",
@@ -6204,9 +6218,9 @@
   },
   {
    "path": "src/native-namespace-account-host.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/names.rs, trillion-rust:src/account_files/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 774); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/native-namespace-evidence.mjs",
@@ -6384,9 +6398,9 @@
   },
   {
    "path": "src/native-owner-routes.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/native_entry/computer.rs, trillion-rust:src/account/computers/messages.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 792); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/native-payment-followup.mjs",
@@ -6468,9 +6482,9 @@
   },
   {
    "path": "src/native-resource-command.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/store.rs, trillion-rust:src/storage/record_store/settings.json",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 807); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/native-resource-erasure.mjs",
@@ -6480,21 +6494,21 @@
   },
   {
    "path": "src/native-resource-event-target.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/wake.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 809); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/native-resource-events.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/wake.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 809); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/native-resource-execution.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime/workshop.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 810); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/native-resource-meter.mjs",
@@ -6504,9 +6518,9 @@
   },
   {
    "path": "src/native-resource-policy-view.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/mcp_current_policy.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 812); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/native-resource-profile.mjs",
@@ -6522,9 +6536,9 @@
   },
   {
    "path": "src/native-resource-scheduling.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/wake.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 813); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/native-resource-screen-behavior.mjs",
@@ -6570,9 +6584,9 @@
   },
   {
    "path": "src/native-resource-work.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime/workshop.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 810); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/native-saved-logins-owner.mjs",
@@ -6739,7 +6753,7 @@
   {
    "path": "src/native-work-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: native-work-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
@@ -6907,8 +6921,9 @@
   {
    "path": "src/old-tab-repaint.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/old-tab-repaint.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/operational-state.mjs",
@@ -7034,21 +7049,21 @@
   },
   {
    "path": "src/own-record-heads.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/records.rs, trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 865); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/own-record-resource-composition.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/records.rs, trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 865); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/own-record-resource.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/records.rs, trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 865); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/own-record-volume.json",
@@ -7070,27 +7085,27 @@
   },
   {
    "path": "src/own-resource-command-quota.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/records.rs, trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 865); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/own-resource-compatibility.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/native_boot/mcp_selected_personal/workspace_read.rs, trillion-rust:src/native_boot/mcp_selected_personal/workspace_write.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 866); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/own-resource-request.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/records.rs, trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 865); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/own-resource-scheduler-carry.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/records.rs, trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 865); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/own-work.mjs",
@@ -7126,14 +7141,16 @@
   {
    "path": "src/page-look.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/page-look.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/page-words.json",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/page-words.json",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/pages-domain-provider.mjs",
@@ -7149,9 +7166,9 @@
   },
   {
    "path": "src/passkey-authority.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/passkey-authority.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/passkey-authority.mjs",
@@ -7185,15 +7202,15 @@
   },
   {
    "path": "src/password-strength.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/sign-in-with-a-passkey/password-strength.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/passwords.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/sign-in-with-a-passkey/passwords.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/passwords.mjs",
@@ -7281,15 +7298,15 @@
   },
   {
    "path": "src/person-store-purpose.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 893); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/person-store.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 893); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/person-work-concerns.json",
@@ -7336,8 +7353,9 @@
   {
    "path": "src/photograph-page.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/photograph-page.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/placed-lists.mjs",
@@ -7450,14 +7468,14 @@
   },
   {
    "path": "src/presentation-bootstrap.mjs",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/presentation-bootstrap.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "src/presentation-content.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: presentation-content: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
@@ -7475,19 +7493,21 @@
   {
    "path": "src/price-tests-screen.json",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/price-tests-screen.json",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/price-tests-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/price-tests-screen.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/privacy-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: privacy-screen: web/src/hq-sharing.mjs:48 still calls kv (env.APP_KV); add a swap row for it in calls",
    "why": "screen or page the app shows"
   },
   {
@@ -7728,8 +7748,9 @@
   {
    "path": "src/public-site-pages.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/public-site-pages.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/public-tool-catalog.mjs",
@@ -7788,8 +7809,9 @@
   {
    "path": "src/pursuit-detail-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/pursuit-detail-screen.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/pursuit-hierarchy-view.mjs",
@@ -7921,27 +7943,27 @@
   },
   {
    "path": "src/record-book-capability-resource.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store_resources.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 966); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/record-book-namespace-supply.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store_resources.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 966); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/record-book-own-resource.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store_resources.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 966); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/record-book-presentation.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store_resources.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 966); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/record-book-public-app-installation.mjs",
@@ -7951,27 +7973,27 @@
   },
   {
    "path": "src/record-book-tool-run.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime/workshop/journals.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 967); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/record-book.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store_resources.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 966); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/record-copies.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/record-copies.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/record-copies.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/computers/copies.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 969); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/record-engine.mjs",
@@ -7982,9 +8004,9 @@
   },
   {
    "path": "src/record-find.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/record-find.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/record-history.json",
@@ -7994,9 +8016,9 @@
   },
   {
    "path": "src/record-history.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/history.rs, trillion-rust:src/storage/record_store/settings.json",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 974); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/record-indexes.json",
@@ -8034,15 +8056,15 @@
   },
   {
    "path": "src/record-reference.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/record-reference.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/record-replica.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/follow.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 970); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/record-replicas.json",
@@ -8095,9 +8117,9 @@
   },
   {
    "path": "src/record-version-tools.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/record_value/history.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 988); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/records-import.mjs",
@@ -8108,8 +8130,9 @@
   {
    "path": "src/referral-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/referral-screen.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/referrals.json",
@@ -8119,9 +8142,9 @@
   },
   {
    "path": "src/refresh-once.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/oauth.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 991); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/reliability-ceilings.json",
@@ -8314,15 +8337,15 @@
   },
   {
    "path": "src/root-keys.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/secrets.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 964); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/routes.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/routes.rs, trillion-rust:src/server.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 960); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/rule-decisions.mjs",
@@ -8338,9 +8361,9 @@
   },
   {
    "path": "src/s3-compatible-origin.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account_files/objects.rs, trillion-rust:src/storage/supplies/s3",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1010); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/saas-domain-provider.mjs",
@@ -8423,9 +8446,9 @@
   },
   {
    "path": "src/saved-module-host.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime/workshop/program_fetch.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1018); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/schedule-lateness.json",
@@ -8441,9 +8464,9 @@
   },
   {
    "path": "src/scheduler-memo.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/wake.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1021); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/scheduler.json",
@@ -8468,37 +8491,41 @@
   {
    "path": "src/screen-capabilities.json",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/screen-capabilities.json",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/screen-capabilities.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/screen-capabilities.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/screen-day.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/screen-day.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/screen-host.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/screen-host.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/screen-pictures.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: screen-pictures: web/src/screen-pictures.mjs:82 still calls kv (env.APP_KV); add a swap row for it in calls",
    "why": "screen or page the app shows"
   },
   {
    "path": "src/screen-reads.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: screen-reads: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
@@ -8522,14 +8549,16 @@
   {
    "path": "src/screen-view.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/screen-view.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/screen-words.json",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/screen-words.json",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/screen.mjs",
@@ -8733,9 +8762,9 @@
   },
   {
    "path": "src/service-signing.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/secrets.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 964); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/service-values.mjs",
@@ -8920,8 +8949,9 @@
   {
    "path": "src/share-pages.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/share-pages.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/share-starting-action.mjs",
@@ -9137,14 +9167,14 @@
   {
    "path": "src/show-as-a-page.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: show-as-a-page: it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/**)",
    "why": "screen or page the app shows"
   },
   {
    "path": "src/show-rules-tools.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/decide-when-things-show/read-data/show-rules-tools.mjs",
+   "why": "the same bytes are already on main"
   },
   {
    "path": "src/showcase-spare-facts.mjs",
@@ -9232,9 +9262,9 @@
   },
   {
    "path": "src/sign-in-methods.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:test-helpers/sign-in-methods.json",
+   "why": "the same bytes"
   },
   {
    "path": "src/sign-in-methods.mjs",
@@ -9250,9 +9280,9 @@
   },
   {
    "path": "src/sign-in-vouch.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/door.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1078); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/site-icon-url.mjs",
@@ -9704,9 +9734,9 @@
   },
   {
    "path": "src/store-health.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/settings.json, trillion-rust:src/account/computers.rs, trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1097); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/store-size.json",
@@ -9722,9 +9752,9 @@
   },
   {
    "path": "src/store-use.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/settings.json, trillion-rust:src/account/computers.rs, trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1097); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/stored-checks.mjs",
@@ -9734,9 +9764,9 @@
   },
   {
    "path": "src/stored-object.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/mod.rs, trillion-rust:src/storage/record_store/mod.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1099); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/stories.mjs",
@@ -9747,8 +9777,9 @@
   {
    "path": "src/story-pages.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/story-pages.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/story-settings.json",
@@ -9862,9 +9893,9 @@
   },
   {
    "path": "src/time-cursor.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/time-cursor.mjs",
+   "why": "the same bytes"
   },
   {
    "path": "src/tool-allowlist.json",
@@ -9904,9 +9935,9 @@
   },
   {
    "path": "src/tool-container.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime/workshop/container.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1124); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/tool-effect-signals.json",
@@ -9952,9 +9983,9 @@
   },
   {
    "path": "src/tool-run-call.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime/workshop.rs, trillion-rust:src/runtime.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1129); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/tool-run-owner.json",
@@ -9964,15 +9995,15 @@
   },
   {
    "path": "src/tool-run-owner.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime/workshop.rs, trillion-rust:src/runtime.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1129); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/tool-servers.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime/workshop/http.rs",
+   "why": "adapted port, named in trillion-rust docs/engine-port-report.md (old capabilities row 1130); its one-to-one gaps are listed or still to check there"
   },
   {
    "path": "src/tool-sources.mjs",
@@ -10042,9 +10073,9 @@
   },
   {
    "path": "src/tour-word-content.mjs",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/tour-word-content.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "src/tours-tools.mjs",
@@ -10055,8 +10086,9 @@
   {
    "path": "src/tours.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/tours-screen/read-data/tours.json",
+   "why": "a feature a person or AI uses",
+   "batch": "3 (tours-screen rows, trillion-workshop PR #127)"
   },
   {
    "path": "src/tours.mjs",
@@ -10073,7 +10105,7 @@
   {
    "path": "src/typed-on-signed-in-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
+   "destination": "held: typed-on-signed-in-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
    "why": "screen or page the app shows"
   },
   {
@@ -10201,14 +10233,16 @@
   {
    "path": "src/webhooks-screen.json",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/webhooks-screen.json",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/webhooks-screen.mjs",
    "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/webhooks-screen.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens (trillion-apps PR #13)"
   },
   {
    "path": "src/what-helped-words.json",
@@ -10575,21 +10609,21 @@
   },
   {
    "path": "src/workspace/add-pages.json",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/add-pages.json",
+   "why": "same bytes on main"
   },
   {
    "path": "src/workspace/addresses.mjs",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/addresses.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "src/workspace/api.ts",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/api.ts",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "src/workspace/conflicts.mjs",
@@ -10618,45 +10652,45 @@
   },
   {
    "path": "src/workspace/meeting-review.json",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/meeting-review.json",
+   "why": "same bytes on main"
   },
   {
    "path": "src/workspace/public-app-assembly-model.mjs",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/public-app-assembly-model.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "src/workspace/pursuit-navigation-rows.mjs",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/pursuit-navigation-rows.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "src/workspace/quiet-writes.ts",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/quiet-writes.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "src/workspace/recording.json",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/recording.json",
+   "why": "same bytes on main"
   },
   {
    "path": "src/workspace/recording.mjs",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/recording.mjs",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "src/workspace/records.ts",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/records.ts",
+   "why": "same bytes but for import lines"
   },
   {
    "path": "src/workspace/screens.mjs",
@@ -10673,21 +10707,21 @@
   },
   {
    "path": "src/workspace/starter-layouts.json",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/starter-layouts.json",
+   "why": "same bytes on main"
   },
   {
    "path": "src/workspace/startup-records.mjs",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/startup-records.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "src/workspace/store-changes.ts",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/store-changes.ts",
+   "why": "same bytes on main"
   },
   {
    "path": "src/workspace/surfaces.json",
@@ -10698,15 +10732,15 @@
   },
   {
    "path": "src/workspace/tour-words.json",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/tour-words.json",
+   "why": "same bytes on main"
   },
   {
    "path": "src/workspace/view-transition.mjs",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-apps:web/src/workspace/view-transition.mjs",
+   "why": "same bytes on main"
   },
   {
    "path": "src/write-only-input.mjs",

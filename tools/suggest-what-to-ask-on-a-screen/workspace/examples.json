@@ -1,0 +1,441 @@
+{
+  "_what": "Examples shown at the top of each workspace screen, as DATA keyed by the screen's key (a pane's data-trillion-screen: the surface's surface_input.screen, else its entry name). Each example is written by us as something a person could ask their AI to do there; it never claims a person did it, and it carries no counts or results. do_this is the request handed to the person's AI when they press Do this for me (src/work-examples.mjs hands it off as a job the next of their AIs takes); only when their plan cannot keep a job is it copied instead (plan_copy). A screen with stories: true also shows the newest stories people published at /stories, which are real. examples_from reuses another row's examples; about is put before the request when the pane has an open thing, with {name} filled from the pane's own input (an id), never from free text. Adding a screen or an example is a row here; no screen code changes.",
+  "words": {
+    "heading": "Ideas for {screen}",
+    "count": { "one": "1 idea", "many": "{count} ideas" },
+    "written": "An example",
+    "story": "Someone's story",
+    "do": "Do this for me",
+    "not_copied": "Could not copy. Press and hold to select the request instead.",
+    "handed": "Handed to your AI. The next AI you use with Trillion takes it.",
+    "plan_copy": "Handing jobs to your AI comes with a paid plan, so the request is copied. Paste it into your AI.",
+    "read_story": "Read the story",
+    "story_request": "Read this story on Trillion and help me make a decision like it for my own situation: {url}"
+  },
+  "screens": {
+    "calendar": {
+      "label": "Posting calendar",
+      "examples": [
+        {
+          "id": "fill-the-week",
+          "title": "Fill next week",
+          "detail": "A post for each day, at the hours people see them.",
+          "do_this": "Look at my posting calendar for next week with list_post_calendar. Draft a post for each empty day from my files with draft_post, each with a scheduled_for at a good hour for where it goes, and show me the drafts to approve."
+        },
+        {
+          "id": "spread-out",
+          "title": "Spread out my drafts",
+          "detail": "Give every draft with no time its own slot.",
+          "do_this": "Read my posting calendar for the next two weeks with list_post_calendar. Give each unscheduled draft its own day and hour with draft_post and scheduled_for, never two on the same day, then tell me what goes out when."
+        }
+      ]
+    },
+    "marketplace": {
+      "label": "Marketplace",
+      "examples": [
+        { "id": "build-tool", "title": "Build a tool you need again and again", "detail": "Your AI makes it once and every AI of yours can use it.", "do_this": "Ask me which job I do again and again, check find_tool_for_job for an existing tool, and if none fits build one and save it with save_tool." },
+        { "id": "offer-tool", "title": "Offer a tool to others", "detail": "Publish one of your tools so other people can use it.", "do_this": "Pick the Trillion tool of mine that worked best and publish it with publish_tool so other people can use it. Ask me the price first." },
+        {
+          "id": "find-before-building",
+          "title": "Find something someone already made",
+          "detail": "Before your AI builds a tool, it looks here first.",
+          "do_this": "Ask me which job I want done, look for an existing tool or workflow with find_tool_for_job and find_workflow, and run the best one instead of building a new one."
+        },
+        {
+          "id": "publish-your-best",
+          "title": "Share what worked for you",
+          "detail": "Publish one of your tools or workflows so other people's AIs can use it.",
+          "do_this": "Pick the tool or workflow of mine that worked best, ask me whether to publish it and at what price, then publish it with publish_tool or publish_workflow."
+        },
+        {
+          "id": "wear-a-look",
+          "title": "Wear a look someone made",
+          "detail": "Looks people published change how your whole Trillion looks.",
+          "do_this": "Show me the looks I can wear with list_looks and the ones people published on the Marketplace, describe each by its colours, and wear the one I pick with wear_look."
+        }
+      ]
+    },
+    "screen-look": {
+      "label": "Screen look",
+      "examples": [
+        {
+          "id": "make-my-look",
+          "title": "Make Trillion look like your brand",
+          "detail": "Your colours on every screen, kept as your own look.",
+          "do_this": "Ask me for my brand colours or read them from my website, make a look from them with save_look, wear it, and publish it with publish_look if I want other people to use it."
+        }
+      ]
+    },
+    "record": {
+      "label": "Record",
+      "examples": [
+        {
+          "id": "memo-to-plan",
+          "title": "Turn a voice memo into a plan",
+          "detail": "Say what is on your mind and get back the steps to take next.",
+          "do_this": "Read my newest voice memo in Trillion Files and turn what I said into a short plan: the goal, the next three steps, and anything I said I was waiting on."
+        },
+        {
+          "id": "memo-to-post",
+          "title": "Turn a voice memo into a post",
+          "detail": "Talk it through out loud and get a written post in your own words.",
+          "do_this": "Read my newest voice memo in Trillion Files and write it up as a post in one of my content formats (content_formats), keeping my own words where you can. Save the draft beside the memo."
+        },
+        {
+          "id": "memo-to-tasks",
+          "title": "Pull the to-dos out of a memo",
+          "detail": "Record a quick brain dump and get back a clean list of things to do.",
+          "do_this": "Read my newest voice memo in Trillion Files, list every thing I said I need to do, and save the list as a note named after the memo."
+        }
+      ]
+    },
+    "formats": {
+      "label": "Formats",
+      "examples": [
+        {
+          "id": "format-from-a-post",
+          "title": "Keep the shape of a post you like",
+          "detail": "Turn a post you admire into a format you can write in again.",
+          "do_this": "Ask me for a link to a post I like, work out its parts in order, and save it as one of my content formats with save_content_formats."
+        },
+        {
+          "id": "memo-in-a-format",
+          "title": "Write a recording in your format",
+          "detail": "Take something you said and shape it into one of your formats.",
+          "do_this": "Read my newest recording's transcript in Trillion Files and write it as a piece in the content format I use most (content_formats). Save the draft in my Files."
+        },
+        {
+          "id": "week-of-posts",
+          "title": "Plan a week of posts",
+          "detail": "Spread your formats across the week so each day has something ready.",
+          "do_this": "Read my content formats (content_formats) and my pursuits, then suggest one post for each day of the coming week, naming the format and the idea for each."
+        }
+      ]
+    },
+    "notification-settings": {
+      "label": "Notification settings",
+      "examples": [
+        {
+          "id": "quiet-hours",
+          "title": "Only hear about what matters",
+          "detail": "Keep notifications for the things you would act on today.",
+          "do_this": "Look at what Trillion has told me about lately and suggest which kinds I should keep and which I should turn off, based on what I actually acted on."
+        },
+        {
+          "id": "tell-me-when-done",
+          "title": "Hear when your AI finishes",
+          "detail": "Get told the moment a job you handed over is done.",
+          "do_this": "When a job I hand to my AIs is finished, tell me with tool:tell-the-person, with one line saying what was done and where to find it."
+        },
+        {
+          "id": "morning-summary",
+          "title": "A short morning note",
+          "detail": "One message each morning with what is new and what is next.",
+          "do_this": "Every weekday at 8am, send me one short note with what is new in my Trillion since yesterday and the one thing to do first today. Use set_schedule."
+        }
+      ]
+    },
+    "home": {
+      "label": "Home",
+      "stories": true,
+      "examples": [
+        { "id": "what-matters-today", "title": "What matters most today", "detail": "The one thing to do today, from what is waiting and what you are working toward.", "do_this": "Read what is waiting for my answer in Trillion and my pursuits, and tell me the one thing I should do today and why." },
+        { "id": "morning-note", "title": "A short note every morning", "detail": "What changed overnight and what is waiting for you.", "do_this": "Set a Trillion schedule that every morning at 8 reads what is waiting for my answer and what my AIs did overnight, and sends me a five-line note." }
+      ]
+    },
+    "sharing": {
+      "label": "Sharing",
+      "examples": [
+        { "id": "share-to-inbox", "title": "Send a link from your phone to your AI", "detail": "Share anything from your phone and your AI works on it.", "do_this": "Tell me how to share a link from my phone into Trillion, and when one arrives, read it, save what matters to my files, and tell me what you found." },
+        { "id": "shared-video", "title": "Turn a shared video into notes", "detail": "Share a video and get its main points saved beside it.", "do_this": "When I share a video into Trillion, read or listen to it, write its main points in a short note, and save the note beside it in my files." }
+      ]
+    },
+    "message-task-canvas": {
+      "label": "Task map",
+      "examples": [
+        { "id": "see-message-work", "title": "See what a message started", "detail": "Follow a message through the work it led to.", "do_this": "Show me the newest message in Trillion that started work, the tasks it led to, and what is still waiting." }
+      ]
+    },
+    "messages": {
+      "label": "Messages",
+      "examples": [
+        { "id": "find-unanswered", "title": "Find a message that needs an answer", "detail": "See which message still needs your reply.", "do_this": "Find the newest message in my Trillion Messages that still needs an answer, and draft a short reply using what you know about my work." }
+      ]
+    },
+    "media": {
+      "label": "Media",
+      "examples": [
+        { "id": "find-recording", "title": "Find a recording", "detail": "Find the recording you need and save the useful moment.", "do_this": "Find my newest recording in Trillion, identify the moment most relevant to my current pursuits, and save a note with the timestamp beside it." }
+      ]
+    },
+    "files": {
+      "label": "Files",
+      "examples": [
+        { "id": "sort-new-files", "title": "Tidy what you saved", "detail": "Sort the files you added this month into folders by what they are for.", "do_this": "Look through the files in my Trillion that were added this month and sort them into folders by what each is for. Tell me what you moved and why." },
+        { "id": "best-moments", "title": "Find the best moments in a video", "detail": "Pick the strongest moments from a recording and save them as short clips.", "do_this": "Take my newest video in Trillion Files, find its three strongest moments with find_tool_for_job, and save each as a short clip in a folder named Clips." },
+        { "id": "summarise-document", "title": "Summarise a document", "detail": "Read a long document and save a one-page summary beside it.", "do_this": "Open the longest document in my Trillion Files, write a one-page summary of what matters in it, and save it beside the original." }
+      ]
+    },
+    "decisions": {
+      "label": "Decisions",
+      "stories": true,
+      "examples": [
+        { "id": "weigh-offer", "title": "Weigh a job offer", "detail": "Compare staying and leaving against what you are working toward.", "do_this": "Help me decide whether to take the job offer I am weighing. Start a Trillion decision, read my pursuits first, and ask me only what you cannot find." },
+        { "id": "next-step", "title": "Pick the one next step", "detail": "Choose the single move that matters most this week.", "do_this": "Read my pursuits in Trillion and start a decision about the one thing I should do this week that moves them most. Ask me only what you cannot find." },
+        { "id": "record-results", "title": "Check how past decisions turned out", "detail": "Record what happened after a decision so the next one is better.", "do_this": "List my Trillion decisions that have no result yet, ask me how each turned out, and record the results." }
+      ]
+    },
+    "activity": {
+      "label": "AI activity",
+      "examples": [
+        { "id": "weekly-summary", "title": "What did my AIs do this week", "detail": "A short summary of the work every connected AI did.", "do_this": "Read my Trillion activity for the last seven days and tell me in five lines what my AIs got done and what failed." },
+        { "id": "retry-failures", "title": "Retry what did not work", "detail": "Find the jobs that failed and try them again.", "do_this": "Find the work in my Trillion activity that did not work this week, find out why, and try each again." }
+      ]
+    },
+    "ai-work": {
+      "label": "AI work",
+      "examples": [
+        { "id": "whats-stuck", "title": "What is stuck", "detail": "Find work that has waited too long and get it moving.", "do_this": "Read the work my AIs handed each other in Trillion, find anything that has been waiting more than a day or is held by an AI that has gone quiet, and either take it or hand it to an AI that is free." },
+        { "id": "who-does-what", "title": "Who is doing what", "detail": "A short list of what each AI is working on now.", "do_this": "Read the work my AIs handed each other in Trillion and tell me in a few lines what each AI is working on now, what is waiting, and what finished today." }
+      ]
+    },
+    "sent": {
+      "label": "Sent",
+      "examples": [
+        { "id": "who-heard-back", "title": "Who has not replied", "detail": "Find the emails your AIs sent that nobody answered.", "do_this": "Read what my AIs sent from Trillion this week, find the emails nobody has replied to yet, and draft a short follow-up for each for me to look at." },
+        { "id": "what-went-out", "title": "What went out this week", "detail": "A short list of every email and post your AIs sent.", "do_this": "Read what my AIs sent from Trillion in the last seven days and tell me in a few lines what went out, to whom, and anything that did not send." }
+      ]
+    },
+    "spaces": {
+      "label": "Shared pursuits",
+      "examples": [
+        {"id": "founders-run-a-brand", "title": "Run a small brand with your co-founders", "detail": "Three founders keep their pursuits and every decision in one pursuit, so each founder's AI works from the same calls.", "do_this": "Set up a pursuit for my co-founders and me to run our brand. Start a project pursuit, ask me who my co-founders are and invite them, and add our current pursuits to it. When we make a decision together, share it into the pursuit. Then set a rule so that when a co-founder adds a decision to the pursuit, you tell me what it changes for my work."},
+        {"id": "content-team-formats", "title": "Share content formats with your team", "detail": "A content team keeps its post formats in one pursuit, with a shared tool that turns a recording into a post in any of them.", "do_this": "Set up a pursuit for my content team. Add the post formats we use as items (name, length, structure, an example), ask me who is on the team and invite them, and share the tool we use to turn a recording into a post so each teammate's AI can save its own copy. Then set a rule so that when someone adds a new format, you tell me."},
+        {"id": "diligence-with-an-adviser", "title": "Look into a company with an adviser", "detail": "You and an adviser collect what you find about a company in one pursuit and decide together whether to go ahead.", "do_this": "Set up a pursuit to look into a company with my adviser. Ask me which company and who my adviser is, invite them, and add what we already know as items: the questions to answer, the documents we have and the open risks. Start a decision on whether to go ahead, and share it into the pursuit when it is ready. Then set a rule so that when my adviser adds a finding, you tell me whether it changes the decision."},
+        {"id": "family-trip", "title": "Plan a trip with your family", "detail": "Everyone going adds dates, places and bookings to one pursuit, so nothing gets booked twice or forgotten.", "do_this": "Set up a pursuit to plan a family trip. Ask me where we are going, when, and who is coming, and invite them. Add the dates, the places we want to see, and a list of what still needs booking. Then set a rule so that when someone adds a booking to the pursuit, you tell me what is still left to book."},
+        {"id": "coaches-session-plans", "title": "Share session plans with your club's coaches", "detail": "A club's coaches keep their session plans in one pursuit, so any coach can run any group's next session.", "do_this": "Set up a pursuit for the coaches at my club. Ask me who the coaches are and invite them, and add our session plans as items, one per plan, each with its group, goal, drills and timing. Then set a rule so that when a coach adds a session plan, you tell me which group it is for."},
+        {"id": "client-and-freelancer", "title": "Run a client project with a freelancer", "detail": "You and a freelancer keep the brief, what was agreed and what was delivered in one pursuit, apart from everything else you each do.", "do_this": "Set up a pursuit for a client project with a freelancer. Ask me what the project is and who the freelancer is, invite them, and add the brief, the deadline and what we agreed as items. Then set a rule so that when the freelancer adds a delivery to the pursuit, you tell me it is ready to review."},
+        {"id": "hand-work-between-ais", "title": "Let your AIs hand work to each other", "detail": "People in a pursuit let their AIs pass jobs between them, so work moves without anyone copying it across.", "do_this": "In one of my pursuits, publish an agent for me that says what my AI can take on, and show me the agents the other members have published. Then, when there is work in the pursuit that another member's agent is better at, hand it to that agent and tell me when it is finished."},
+        {"id": "weekly-space-summary", "title": "Get a weekly summary of a pursuit", "detail": "Every week you get a short summary of what was added to a pursuit and what still needs you.", "do_this": "Every Monday at 9 in my time zone, read what was added to my pursuits in the past week and tell me in a few lines what changed and what still needs me. Ask me which pursuits to include and my time zone if you do not know them, and set it up as a schedule."},
+        { "id": "first-post", "title": "Write your first post", "detail": "Introduce yourself and what you are working on.", "do_this": "Draft a short first post for a Trillion pursuit I am in that has a feed, introducing me and what I am working on, using my pursuits. Show it to me before posting." },
+        { "id": "pick-event", "title": "Find an event to go to", "detail": "The next events that fit what you are working toward.", "do_this": "Look at the upcoming events in the Trillion pursuits I am in and tell me which one fits what I am working toward, and why." }
+      ]
+    },
+    "space": {
+      "label": "this pursuit",
+      "examples_from": "spaces",
+      "about": "Do this in the pursuit I have open in Trillion (its id is {id})."
+    },
+    "network": {
+      "label": "Network",
+      "examples": [
+        { "id": "meet-someone", "title": "Meet someone who can help", "detail": "Find a person who has done what you are working toward and ask to be introduced.", "do_this": "Read my Trillion pursuits, use find_people to find someone who has done what I am working toward, and draft a request_introduction for me to approve before it is sent." },
+        { "id": "profile", "title": "Set up how others find you", "detail": "A short profile saying what you do and what you can help with.", "do_this": "Write my Trillion network_profile from my pursuits and skills: what I do and what I can help others with. Show it to me before saving." }
+      ]
+    },
+    "progress": {
+      "label": "Progress",
+      "stories": true,
+      "examples": [
+        { "id": "weekly-review", "title": "Review your week", "detail": "What moved, what did not, and the one thing to change.", "do_this": "Read my Trillion pursuits and progress and give me a short weekly review: what moved, what did not, and the one change for next week." },
+        { "id": "answer-waiting", "title": "Clear what is waiting on you", "detail": "Go through the questions waiting for your answer.", "do_this": "Go through everything in Trillion that is waiting for my answer, one at a time, and ask me each question plainly." }
+      ]
+    },
+    "clients": {
+      "label": "Clients",
+      "examples": [
+        { "id": "prepare-call", "title": "Prepare for a client call", "detail": "What they decided since you last spoke, on one page.", "do_this": "Read my client feed with tool:read-client-feed and write me one page per client on what they decided since their last call, and what to ask them." },
+        { "id": "answer-applications", "title": "Answer new applications", "detail": "Each applicant summed up, with what they want to change.", "do_this": "Read the applications waiting in my client feed and sum each one up in three lines: who they are, what they want to change, and whether it fits the program." }
+      ]
+    },
+    "get-started": {
+      "label": "Get started",
+      "examples": [
+        { "id": "set-me-up", "title": "Set me up", "detail": "Your AI connects your accounts and learns what you are working toward.", "do_this": "Set me up with Trillion." }
+      ]
+    },
+    "ai": {
+      "label": "your AI",
+      "examples": [
+        { "id": "remember", "title": "Keep Trillion in every conversation", "detail": "Your AI adds Trillion to its standing instructions.", "do_this": "Add Trillion to your standing instructions for me, as Trillion's server instructions describe, and tell me what you added." },
+        { "id": "set-me-up", "title": "Set me up", "detail": "Connect your accounts and record what you are working toward.", "do_this": "Set me up with Trillion." }
+      ]
+    },
+    "tours": {
+      "label": "Tours",
+      "examples": [
+        { "id": "first-three", "title": "What Trillion can do for me first", "detail": "Three things worth doing first, based on what you are working toward.", "do_this": "Read my Trillion pursuits and tell me the three things Trillion can do for me first, each as one request I can give you." }
+      ]
+    },
+    "connections": {
+      "label": "Connections",
+      "examples": [
+        { "id": "connect-everything", "title": "Connect what is already on this computer", "detail": "Your AI finds the accounts you already use and adds them.", "do_this": "Find the accounts and services I already use on this computer and connect each one to Trillion with connect_service, then tell me what you connected." },
+        { "id": "comment-reply", "title": "Answer comments for me", "detail": "Send a private message to whoever comments a word on your post.", "do_this": "Set a Trillion rule so that when someone comments a word I choose on my newest post, they get a private message with my link. Ask me the word and the message." }
+      ]
+    },
+    "plan": {
+      "label": "Plan",
+      "examples": [
+        { "id": "what-it-did", "title": "What did my plan get me", "detail": "What you used this month and what it did for you.", "do_this": "Read my Trillion plan and what I used this month and tell me in a few lines what it got done for me." }
+      ]
+    },
+    "account": {
+      "label": "Account & security",
+      "examples": [
+        { "id": "check-apps", "title": "Check who can use your Trillion", "detail": "The apps and keys connected, and any you no longer use.", "do_this": "List the AI apps and keys connected to my Trillion and tell me which I have not used recently so I can disconnect them." }
+      ]
+    },
+    "business": {
+      "label": "Business",
+      "examples": [
+        { "id": "who-pays", "title": "Who is paying and what for", "detail": "A short read of paid plans and how people use them.", "do_this": "Read the Business screen in Trillion and tell me in five lines who is paying, for what, and what they use most." }
+      ]
+    },
+    "workflows": {
+      "label": "Workflows",
+      "examples": [
+        { "id": "every-morning", "title": "Something that runs every morning", "detail": "A workflow that gathers what matters and sends you a short note.", "do_this": "Build a Trillion workflow that runs every morning at 8, reads what is waiting for my answer and my pursuits, and sends me a short note. Show me the steps first." },
+        { "id": "video-to-posts", "title": "Turn a recording into posts", "detail": "From one video: clips, captions and a draft for each place you post.", "do_this": "Build a Trillion workflow that takes a new video from my Files, cuts its best moments, adds captions and drafts a post for each, and waits for my approval before posting." }
+      ]
+    },
+    "funnels": {
+      "label": "Funnels",
+      "examples": [
+        { "id": "lay-out", "title": "Lay out your funnel", "detail": "From first visit to paying, stage by stage.", "do_this": "Lay out my funnel in Trillion from first visit to paying customer, as a funnel file in my Funnels folder, and show me each stage." }
+      ]
+    },
+    "lists": {
+      "label": "Lists",
+      "examples": [
+        { "id": "people-you-sell-to", "title": "Keep the people you sell to", "detail": "Each person, how to reach them, where they are and what to send next.", "do_this": "Make a list in Trillion of the people I am selling to, from my messages, notes and calls: their name, email, where each one is, what they are working on, and a draft of what to send them next. Show me the list." },
+        { "id": "ais-in-a-space", "title": "See every AI in a pursuit", "detail": "Which AIs each member has put to work there.", "do_this": "Make a list in Trillion of the AIs at work in each of my shared pursuits, each linked to the member who runs it, and show me the list." }
+      ]
+    },
+    "audience-questions": {
+      "label": "Audience questions",
+      "examples": [
+        { "id": "answer-top-question", "title": "Answer the question asked most", "detail": "Draft an answer from sources you approve, for you to check.", "do_this": "Read my Trillion audience questions, pick the one asked most, and draft an answer from sources I have approved. Show it to me before anything goes out." }
+      ]
+    },
+    "workshop": {
+      "label": "Runs",
+      "examples": [
+        { "id": "check-failed-runs", "title": "See what did not work", "detail": "Your AI reads the runs that failed and tries again another way.", "do_this": "Read my recent Trillion tool runs that failed (read_activity with failed true), say in one line each why, and run each job again with a better tool or input." },
+        { "id": "rate-runs", "title": "Say how a run went", "detail": "Tools are ranked by what people report after real runs.", "do_this": "List my last five Trillion tool runs, ask me in one question whether each did the job, and record my answers with report_result." }
+      ]
+    },
+    "home-card": {
+      "label": "Waiting for you",
+      "examples": [
+        { "id": "answer-waiting", "title": "Go through what is waiting", "detail": "Your AI reads each one and says what it needs from you.", "do_this": "Read what is waiting for my answer in Trillion and, for each one, tell me in one line what you need from me and what you would answer." }
+      ]
+    },
+    "command-palette": {
+      "label": "Find anything",
+      "examples": [
+        { "id": "find-and-sum-up", "title": "Find everything about one thing", "detail": "Files, messages and decisions about it, summed up.", "do_this": "Ask me what I want to find, then search my Trillion with search for it and sum up what you found, with a link to each source." }
+      ]
+    },
+    "message-box": {
+      "label": "Message your AIs",
+      "examples": [
+        { "id": "one-message-all-ais", "title": "Ask all your AIs at once", "detail": "One message reaches every AI you use.", "do_this": "Read my newest message to all my AIs in Trillion and do what it asks, then tell me what you did." }
+      ]
+    },
+    "tray": {
+      "label": "Your tray",
+      "examples": [
+        { "id": "work-from-tray", "title": "Do something with what you picked", "detail": "Your AI takes the things in your tray and works on them together.", "do_this": "Read what is in my Trillion tray and ask me what to do with those things together, then do it." }
+      ]
+    },
+    "tool-screen": {
+      "label": "Tool",
+      "examples": [
+        { "id": "run-it-for-me", "title": "Run this for me", "detail": "Your AI fills it in from what it knows and runs it.", "do_this": "Read the Trillion tool open on my screen with describe_tool, fill in what you can from what you know about me, ask me only what you cannot, and run it." }
+      ]
+    },
+    "record-audio": { "label": "Record audio", "examples_from": "record" },
+    "record-video": { "label": "Record video", "examples_from": "record" },
+    "always-recording": { "label": "Always recording", "examples_from": "record" },
+    "shared-calendar": { "label": "Calendar", "examples_from": "calendar" },
+    "waiting": {
+      "label": "Waiting on you",
+      "examples": [
+        { "id": "clear-waiting", "title": "Help me clear what needs me", "detail": "Separate what your AI can finish from the decisions only you can make.", "do_this": "Read what is waiting on me in Trillion. Complete anything my AIs can safely handle from my existing instructions, then show me the exact remaining decisions or outside steps that need me without guessing a person's identity or approval." }
+      ]
+    },
+    "price-tests": {
+      "label": "Price tests",
+      "examples": [
+        { "id": "review-price-test", "title": "Review a price test", "detail": "Use the real responses to decide what to test again.", "do_this": "Read my current Trillion price tests and their actual responses. Explain what the evidence supports and what remains uncertain, then suggest a useful next test without inventing demand or revenue." }
+      ]
+    },
+    "email": {
+      "label": "Mail",
+      "examples": [
+        { "id": "review-mail", "title": "Find the messages that need attention", "detail": "Bring the useful replies and decisions to the front.", "do_this": "Read the mail my connected account makes available in Trillion and find the messages relevant to my active pursuits. Summarize what needs attention and draft useful replies in my voice, preserving the original messages and my instructions for sending." }
+      ]
+    },
+    "settings": {
+      "label": "Settings",
+      "examples": [
+        { "id": "simplify-workspace", "title": "Make my workspace easier to use", "detail": "Keep the things you need visible and adjust the rest for your work.", "do_this": "Read my current Trillion workspace settings and the controls available to my account. Use my stated preferences and current work to simplify what I see, preserving access to my work, then read back the settings you changed and explain how to find anything you hid." }
+      ]
+    },
+    "spend": {
+      "label": "Spend",
+      "examples": [
+        { "id": "cut-costs", "title": "Spend less on your services", "detail": "Where your money goes and what to stop.", "do_this": "Read what my services cost in Trillion (Spend) and tell me which ones I could cut or cap, and what each would save." }
+      ]
+    },
+    "billing": {
+      "label": "Billing",
+      "examples": [
+        { "id": "explain-bill", "title": "Explain my bill", "detail": "What you pay for, in a few lines.", "do_this": "Read my Trillion billing and tell me in a few lines what I pay for and when the next payment is." }
+      ]
+    },
+    "invite": {
+      "label": "Invite friends",
+      "examples": [
+        { "id": "who-to-invite", "title": "Who would this help", "detail": "Your AI suggests people who are working on something like you.", "do_this": "Read my pursuits in Trillion and suggest three people I know who are working on something similar and would get value from Trillion, with a short note I could send each." }
+      ]
+    },
+    "look": {
+      "label": "Look",
+      "examples": [
+        { "id": "easier-to-read", "title": "Make it easier to read", "detail": "Bigger text or more contrast, in a look of your own.", "do_this": "Make my Trillion look easier to read with save_look: larger text and more contrast, and tell me what you changed." }
+      ]
+    },
+    "privacy": {
+      "label": "Privacy",
+      "examples": [
+        { "id": "what-is-shared", "title": "What do I share", "detail": "Everything you share and with whom.", "do_this": "Read what I share in Trillion (sharing_of on my records, and my share links) and list who can see what, in plain words." }
+      ]
+    },
+    "ai-apps": {
+      "label": "AI apps & keys",
+      "examples": [
+        { "id": "connect-my-ai", "title": "Connect another AI", "detail": "Your other AI app reaches the same Trillion.", "do_this": "Tell me, step by step, how to connect another AI app I use to my Trillion, and check afterwards that it can read my messages." }
+      ]
+    },
+    "public-apps": {
+      "label": "Sites",
+      "examples": [
+        { "id": "make-a-page", "title": "Make a page for what you offer", "detail": "A simple page people can visit and answer.", "do_this": "Ask me what I offer and who it is for, then make a public page for it in Trillion and send me its link." }
+      ]
+    },
+    "visitors": {
+      "label": "Visitors",
+      "examples": [
+        { "id": "where-they-leave", "title": "See where visitors stop", "detail": "The page most people leave from, and why.", "do_this": "Read my Visitors in Trillion and tell me which page people most often leave from, what they clicked last, and one change to try there." }
+      ]
+    },
+    "chart": {
+      "label": "Chart",
+      "examples": [
+        { "id": "chart-a-list", "title": "Chart something you track", "detail": "Any list or reading, as one chart you can place.", "do_this": "Ask me which of my Trillion lists or readings I want to watch, then make it a chart and place it on my Home." }
+      ]
+    }
+  }
+}

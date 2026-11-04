@@ -5,7 +5,7 @@
 import {
   invokeLocalFilesTarget,
   type LocalFilesTargetFile,
-} from '../read-data/invoke-local-files-target';
+} from '../read-data/invoke-local-files-target.ts';
 
 const DEFAULT_PICKER_PROMPT = 'Choose files';
 

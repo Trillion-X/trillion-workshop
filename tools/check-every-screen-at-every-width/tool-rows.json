@@ -1,0 +1,474 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-every-screen-at-every-width",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:check-given-pages-at-every-width",
+        "placements": [
+          "placement:deployed-container"
+        ],
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": false,
+          "memory_mb": 2048
+        },
+        "label": "Check pages at every width and device setting",
+        "job": "Open each page I give at every width and device setting and read every piece of text a person can see, refusing text that cannot be read, is drawn in a font the page did not ask for, is cut off or makes a phone scroll sideways",
+        "description": "Opens each of screens (each { id, html, route?, fonts?, ready?, steps?, widths?, modes? }) in a headless Chromium through Playwright (headless-browser/launch.mjs, with its quiet switches and one-browser-at-a-time admission), at every width of views.json (phone 390x844 with no sideways scroll, tablet, desktop) and in every mode (light, dark, forced colours, Dark Reader), or the widths and modes asked for, through runMatrix (check-screens.mjs). The page's HTML is answered by the browser itself at its route on a made-up origin; any other request the page makes is aborted, never sent. Each view is scrolled window by window and every visible text node is judged: contrast under WCAG AA against the colour really behind it, a glyph drawn by a platform font the screen does not declare in fonts (system names such as system-ui never count), text cut off or outside the window, a phone page wider than its window, and a control with no accessible name; a screen that does not open is a failure. allowlist (allowlist.json's shape, none when left out) drops a proven false positive or keeps a decided look as reported. Answers passed, failures ({ screen, width, mode, probe, selector, text, detail }), reported, counts (failures per probe) and report (views read, texts read, seconds per phase). Writes no file and keeps nothing; needs a Chromium Playwright can find. Refuses a screen without an id or html, two screens at one route, and a width or mode views.json does not name. The deploy check also opens a live origin or a Worker, takes pictures of failures, runs the real Dark Reader extension and refuses a deploy; this run checks only the pages given.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "screens"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "screens": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "html"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "html": {
+                    "type": "string"
+                  },
+                  "route": {
+                    "type": "string",
+                    "pattern": "^/"
+                  },
+                  "fonts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "ready": {
+                    "type": "object",
+                    "properties": {
+                      "selector": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "gone": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "do"
+                      ],
+                      "properties": {
+                        "do": {
+                          "type": "string",
+                          "enum": [
+                            "click",
+                            "wait"
+                          ]
+                        },
+                        "selector": {
+                          "type": "string"
+                        },
+                        "ms": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  },
+                  "widths": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "modes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "widths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "phone",
+                  "tablet",
+                  "desktop"
+                ]
+              }
+            },
+            "modes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "light",
+                  "dark",
+                  "forced",
+                  "darkreader"
+                ]
+              }
+            },
+            "allowlist": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "pool": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "passed",
+            "failures",
+            "reported",
+            "counts",
+            "report"
+          ],
+          "properties": {
+            "passed": {
+              "type": "boolean"
+            },
+            "failures": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "screen",
+                  "width",
+                  "mode",
+                  "probe"
+                ],
+                "properties": {
+                  "screen": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string"
+                  },
+                  "probe": {
+                    "type": "string"
+                  },
+                  "selector": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "text": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "mark": {},
+                  "decided": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "reported": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "screen",
+                  "width",
+                  "mode",
+                  "probe"
+                ],
+                "properties": {
+                  "screen": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string"
+                  },
+                  "probe": {
+                    "type": "string"
+                  },
+                  "selector": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "text": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "mark": {},
+                  "decided": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "counts": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer"
+              }
+            },
+            "report": {
+              "type": "object",
+              "required": [
+                "jobs",
+                "texts",
+                "results"
+              ],
+              "properties": {
+                "seconds": {
+                  "type": "number"
+                },
+                "jobs": {
+                  "type": "integer"
+                },
+                "texts": {
+                  "type": "integer"
+                },
+                "modes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "widths": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "screens": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "screen": {
+                        "type": "string"
+                      },
+                      "width": {
+                        "type": "string"
+                      },
+                      "mode": {
+                        "type": "string"
+                      },
+                      "texts": {
+                        "type": "integer"
+                      },
+                      "failures": {
+                        "type": "integer"
+                      },
+                      "reported": {
+                        "type": "integer"
+                      },
+                      "seconds": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "timing": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/check-every-screen-at-every-width",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/check-every-screen-at-every-width/check-given-pages.mjs",
+            "checkGivenPages"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-every-screen-at-every-width",
+                "paths": [
+                  "check-given-pages.mjs",
+                  "check-screens.mjs",
+                  "in-page.mjs",
+                  "views.json",
+                  "allowlist.json",
+                  "vendor"
+                ],
+                "at": "/opt/check-every-screen-at-every-width"
+              },
+              {
+                "package": "headless-browser",
+                "paths": [
+                  "launch.mjs",
+                  "admission.mjs",
+                  "quiet-switches.json"
+                ],
+                "at": "/opt/headless-browser"
+              },
+              {
+                "package": "process-session",
+                "paths": [
+                  "do-work/process-admission.mjs",
+                  "do-work/place-cache-folder.mjs"
+                ],
+                "at": "/opt/process-session"
+              },
+              {
+                "package": "page-critic",
+                "paths": [
+                  "do-work/measure-page-craft.mjs",
+                  "do-work/collect-control-names.mjs",
+                  "do-work/measure-rendered-label-size.mjs",
+                  "read-data/page-craft-rules.json"
+                ],
+                "at": "/opt/page-critic"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "playwright",
+                "paths": [
+                  "LICENSE",
+                  "NOTICE",
+                  "package.json",
+                  "index.js",
+                  "index.mjs",
+                  "cli.js",
+                  "lib"
+                ],
+                "at": "/opt/node_modules/playwright"
+              },
+              {
+                "module": "playwright-core",
+                "paths": [
+                  "LICENSE",
+                  "NOTICE",
+                  "package.json",
+                  "index.js",
+                  "index.mjs",
+                  "cli.js",
+                  "browsers.json",
+                  "bin",
+                  "lib"
+                ],
+                "at": "/opt/node_modules/playwright-core"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/screen-matrix/check-screens.mjs, in-page.mjs, views.json, allowlist.json and vendor/darkreader.js, moved in a9ee258 (#76); old capability row capabilities.json:558 at 4ffa1dc4a2^ (open every screen at every width and device setting and read every piece of text a person can see, before going live). check-given-pages.mjs is new: it serves the given pages inside the browser and runs runMatrix over them."
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "screens": [
+                {
+                  "id": "sample-notice",
+                  "html": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Sample notice</title><style>:root{color-scheme:light dark}body{margin:0;padding:16px;font-family:system-ui,sans-serif;background:#ffffff;color:#1a1a1a}.faint{color:#c8c8c8}</style></head><body><h1>Garden club notice</h1><p>The next meeting is on Saturday morning.</p><p class=\"faint\">Bring your own gloves.</p></body></html>"
+                }
+              ],
+              "widths": [
+                "phone",
+                "desktop"
+              ],
+              "modes": [
+                "light",
+                "dark"
+              ]
+            },
+            "output_selector": "$.counts.contrast",
+            "at_least": 1
+          }
+        ]
+      }
+    }
+  ]
+}

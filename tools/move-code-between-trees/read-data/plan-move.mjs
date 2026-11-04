@@ -129,6 +129,19 @@ export function planMove(row, source, destination) {
     const there = destinationByIdentity.get(makeHashCodeHexFromBytes(new Uint8Array(source.read(path))));
     if (there) { reused.set(path, there); landing.set(path, there); }
   }
+  // A file the destination already holds at the very place it would land, with the same bytes once import paths are
+  // set aside, is home already: it is not copied again, and the files that move import it there.
+  const withoutRequests = text => { let out = ''; let at = 0; for (const item of requestsIn(text)) { out += text.slice(at, item.start) + '\u0000'; at = item.end; } return out + text.slice(at); };
+  const homeAlready = new Map();
+  for (const [path, to] of landing) {
+    if (reused.has(path) || !destination.exists(to)) continue;
+    const here = destination.read(to);
+    const before = source.read(path);
+    if (here.equals(before) || (isCode(path) && withoutRequests(here.toString('utf8')) === withoutRequests(before.toString('utf8')))) {
+      reused.set(path, to);
+      homeAlready.set(path, makeHashCodeHexFromBytes(new Uint8Array(here)));
+    }
+  }
 
   // 4. Each moved file's new bytes: imports written for the new places, and provider calls swapped.
   const files = new Map();
@@ -139,7 +152,7 @@ export function planMove(row, source, destination) {
   const packagesToAdd = new Map();
   for (const [path, to] of landing) {
     const owners = needed.get(path);
-    const plan = { from: path, to, groups: owners, reused: reused.has(path), source_identity: makeHashCodeHexFromBytes(new Uint8Array(source.read(path))) };
+    const plan = { from: path, to, groups: owners, reused: reused.has(path), source_identity: makeHashCodeHexFromBytes(new Uint8Array(source.read(path))), ...(homeAlready.has(path) ? { identity_here: homeAlready.get(path) } : {}) };
     if (!reused.has(path) && destination.exists(to)) {
       for (const id of owners) byId.get(id).held.push(`${to} is already in the destination with other bytes`);
     }

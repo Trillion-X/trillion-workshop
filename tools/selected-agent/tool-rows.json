@@ -1,0 +1,175 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:selected-agent",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:choose-which-ai-answers-me",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Choose which AI answers me",
+        "job": "Make the request that sets which AI answers a person, or sends them back to automatic routing, as the selected-agent part sends it to the workflow slot, without sending it",
+        "description": "Give agent_id: the AI that should answer the person, or \"\" to go back to automatic routing (and, rarely, definition_id: the workflow definition that keeps the choice, action:update-selected-agent when left out). Runs do-work/set-selected-agent.ts's own setSelectedAgent with the workspace's sender stood in (run/requests-kept-here.mjs), and answers the one request it would send: { target: slot::workflow, payload: { operation: execute_definition, include_output: false, definition_id, input: { value: agent_id } } }, and automatic (whether it restores automatic routing). It sends nothing and changes no one's choice: the request is for a sender, or a person, to look at first. Refuses an agent_id that is not text and a definition_id that is not an action id. The chat screen sends the request and keeps the choice as the person's owner fact; this run does neither.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "agent_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "agent_id": {
+              "type": "string",
+              "description": "The AI that should answer, or \"\" for automatic routing."
+            },
+            "definition_id": {
+              "type": "string",
+              "pattern": "^action:[a-z0-9-]+$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "request",
+            "automatic"
+          ],
+          "properties": {
+            "request": {
+              "type": "object",
+              "required": [
+                "target",
+                "payload"
+              ],
+              "properties": {
+                "target": {
+                  "type": "string"
+                },
+                "payload": {
+                  "type": "object",
+                  "required": [
+                    "operation",
+                    "definition_id",
+                    "input"
+                  ],
+                  "properties": {
+                    "operation": {
+                      "type": "string"
+                    },
+                    "include_output": {
+                      "type": "boolean"
+                    },
+                    "definition_id": {
+                      "type": "string"
+                    },
+                    "input": {
+                      "type": "object",
+                      "required": [
+                        "value"
+                      ],
+                      "properties": {
+                        "value": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "automatic": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/selected-agent/run",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/selected-agent/run/plan-selected-agent.mjs",
+            "planSelectedAgent"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "selected-agent",
+                "paths": [
+                  "run"
+                ],
+                "at": "/opt/selected-agent"
+              },
+              {
+                "package": "selected-agent",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/selected-agent/run"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/selected-agent/do-work/set-selected-agent.ts at 7fd88384^ (its header: ported from bitfield-packages packages/selected-agent at e99ac5976), moved byte for byte in a9ee258 (#76); old capability row capabilities.json:1164 at 4ffa1dc4a2^ (run AI tools and serve local MCP servers; owner parts/selected-agent/** among others, no moves_to); run/ written here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "agent_id": "agent:sample-writer"
+            },
+            "output_selector": "$.request.payload.input.value",
+            "equals": "agent:sample-writer"
+          }
+        ]
+      }
+    }
+  ]
+}

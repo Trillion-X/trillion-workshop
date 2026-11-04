@@ -8,6 +8,8 @@ A current view where a key (a record id, a file name, anything with text) become
 |------|---------|
 | `part.json` | Which files other code may import (`do-work/slot-table.mjs`) |
 | `do-work/slot-table.mjs` | The table: interning, slots, typed columns, handles, the CLOCK sweep that keeps it inside its bytes |
+| `do-work/run-steps.mjs` | `runSlotTableSteps({ capacity_bytes, columns, steps })`: one run of the table, the steps applied in order and each answer given back (what `tool-rows.json` runs) |
+| `tool-rows.json` | The row `tool:keep-keyed-things-in-a-fixed-memory-budget`, with a sample run that fills a 40-byte budget and sees the older key let go |
 | `README.md` | This file |
 
 ## Key Types / Functions

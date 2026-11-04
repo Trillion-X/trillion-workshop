@@ -1,4 +1,4 @@
-import { invokeLocalFilesTarget } from '../read-data/invoke-local-files-target';
+import { invokeLocalFilesTarget } from '../read-data/invoke-local-files-target.ts';
 
 /** Save a new copy through the device-files owner and verify its exact bytes.
  * write_new_file publishes synced bytes atomically without replacing an existing

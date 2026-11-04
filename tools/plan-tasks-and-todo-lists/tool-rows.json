@@ -1,0 +1,188 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:plan-tasks-and-todo-lists",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:sort-mail-into-built-in-task-lists",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Sort mail into my built-in task lists",
+        "job": "Say which built-in to-do list (calendar, email or other) each email would become a task in when I turn my mail into tasks",
+        "description": "Give messages (at most 50, each { subject?, from?, labels?, list_unsubscribe?, has_invite? }). Each is tested against the email_split rows of calendar-tasks.json in order (an invite or invitation subject goes to calendar; a list-unsubscribe header, a promotions, updates, social, forums or spam label, or unsubscribe in the subject goes to other; anything else to email), and the first row that matches names its list. Answers messages ({ index, subject, smart_list }) and counts per list. It reads only the messages it is given: it reads no mailbox, makes and saves no task, and sends nothing. The Calendar task screen (calendar-tasks.mjs, kept in this folder but not run here) does the rest of the old job: it keeps named task lists with counts, groups and sorts them, schedules a task onto a day or time, and saves each email as a task with its title, priority, duration, deadline and repeat rule. That needs the records store and the timed-action parts, which this run does not have.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "messages"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "messages": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 50,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "subject": {
+                    "type": "string"
+                  },
+                  "from": {
+                    "type": "string"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "list_unsubscribe": {
+                    "type": "boolean"
+                  },
+                  "has_invite": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "messages",
+            "counts"
+          ],
+          "properties": {
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "index",
+                  "smart_list"
+                ],
+                "properties": {
+                  "index": {
+                    "type": "integer"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "smart_list": {
+                    "type": "string",
+                    "enum": [
+                      "calendar",
+                      "email",
+                      "other"
+                    ]
+                  }
+                }
+              }
+            },
+            "counts": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/plan-tasks-and-todo-lists",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/plan-tasks-and-todo-lists/sort-mail-into-task-lists.mjs",
+            "sortMailIntoTaskLists"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "plan-tasks-and-todo-lists",
+                "paths": [
+                  "sort-mail-into-task-lists.mjs",
+                  "calendar-task-messages.mjs",
+                  "calendar-tasks.json"
+                ],
+                "at": "/opt/plan-tasks-and-todo-lists"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/calendar-tasks.mjs, moved in a9ee258 (#76); src/calendar-task-messages.mjs and src/calendar-tasks.json brought in byte for byte from b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (moved-from.json); old capability row capabilities.json:44 at 4ffa1dc4a2^ (plan tasks and to-do lists on a calendar)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "messages": [
+                {
+                  "subject": "Invitation: Team lunch"
+                },
+                {
+                  "subject": "Your weekly deals",
+                  "list_unsubscribe": true
+                },
+                {
+                  "subject": "Can you review the draft?"
+                }
+              ]
+            },
+            "output_selector": "$.counts.calendar",
+            "at_least": 1
+          }
+        ]
+      }
+    }
+  ]
+}

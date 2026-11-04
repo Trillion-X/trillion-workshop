@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "type": "module",
+  "description": "Only for a run of this folder's row: the row lays do-work/ and read-data/ under run/, so its #workspace-records import reaches requests-kept-here.mjs, which keeps each request instead of sending it.",
+  "imports": {
+    "#workspace-records": "./requests-kept-here.mjs"
+  }
+}

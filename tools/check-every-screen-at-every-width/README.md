@@ -12,6 +12,8 @@ One headless check both Trillion deploys run before going live: every screen, in
 | `allowlist.json` | Failures proven to be false positives, each with its reason (empty is the goal), and looks the person decided (a row with `decided`): those failures are reported in the run and its report and never refuse a deploy. |
 | `vendor/darkreader.js`, `vendor/LICENSE` | Dark Reader 4.9.133 (MIT), taken unchanged from `npm pack darkreader`; injected with an init script and enabled with the options the mode row names. |
 | `part.json` | The files code outside this part may import. |
+| `check-given-pages.mjs` | `checkGivenPages({ screens, widths, modes, allowlist, pool })`: `runMatrix` over pages given as HTML, each answered inside the browser at its route on a made-up origin, every other request aborted (what `tool-rows.json` runs) |
+| `tool-rows.json` | The row `tool:check-given-pages-at-every-width`, with a sample whose made-up notice page has one faint line that fails contrast |
 
 ## Probes
 
