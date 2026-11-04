@@ -1,6 +1,7 @@
 {
   "_what": "Speech enhancement on this Mac (computer/speech-enhance.mjs): interchangeable tiers that clean a recording before it is heard, chosen by what this Mac can afford, and a voice-activity pass that says where speech is. A tier is a row: `cost` is the relative CPU it needs, `filter` is the ffmpeg audio filter chain (`{model}` is filled from `model_file`), `needs_filters` are ffmpeg filters that must exist, `model_file` (under `models_folder`) must be present when the row names one, so a model is data fetched and dropped in, never a rebuild. `cpu_budget` is how much cost the person lets enhancement use (a number, or `cores_over` cores per unit of cost when null). The tier chosen is the most expensive one that fits the budget and whose needs are met; none fits means no enhancement and `why` says so. `vad` is the silence-detect pass: speech is what lies between silences.",
-  "models_folder": "~/.trillion/models",
+  "models_folder": null,
+  "_workshop": "In Workshop (read-data/speech-enhance.mjs enhanceSpeech, F-0478) the models folder is the one the person granted (input models_folder; with none, a tier that names a model_file is passed over), and the granted ffmpeg's own folder is searched first (input ffmpeg), else the run's PATH.",
   "cpu_budget": null,
   "cores_over": 2,
   "tiers": [
@@ -11,12 +12,14 @@
   "vad": { "noise_db": -35, "least_silence_seconds": 0.5, "least_speech_seconds": 0.25 },
   "run": ["ffmpeg", "-v", "error", "-nostdin", "-i", "{input}", "-af", "{filter}", "-ac", "1", "-ar", "16000", "-y", "{output}"],
   "vad_run": ["ffmpeg", "-nostdin", "-i", "{input}", "-af", "silencedetect=noise={noise}dB:d={seconds}", "-f", "null", "-"],
-  "search_path": ["/opt/homebrew/bin", "/usr/local/bin"],
+  "search_path": [],
   "words": {
     "none_fit": "No enhancement tier fits: {why}.",
-    "needs_input": "Name the recording: path.",
+    "needs_input": "Name the recording: `file` (or `path`) is its name in the person's files.",
     "no_ffmpeg": "This Mac has no ffmpeg to clean sound with.",
     "over_budget": "every tier costs more than the budget {budget}",
-    "missing_needs": "the tiers within the budget need {needs}, which this Mac does not have"
+    "missing_needs": "the tiers within the budget need {needs}, which this computer does not have",
+    "too_large": "{file} is {size} bytes, more than one run reads.",
+    "bad_budget": "cpu_budget is a whole number from 1 to 64."
   }
 }

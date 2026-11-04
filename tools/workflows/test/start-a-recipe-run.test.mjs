@@ -4,14 +4,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { runRow, rowOf } from '../../records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
 const starter = rowOf(rows, 'tool:start-a-recipe-run');
 const recipeId = 'workflow:read-the-week-and-make-more-of-what-won';
 const recipe = JSON.parse(readFileSync(new URL('../recipes/workflows.json', import.meta.url), 'utf8')).records.map(record => record.payload).find(payload => payload.id === recipeId);
 const cause = { kind: 'time', tool: recipeId, wake: 'monday', due_ms: 1800000000000 };
-const started = { input: { row: recipeId, start_at: 'read-pieces' }, task: { request_key: 'cause-key-1', cause } };
+const started = { row: recipeId, start_at: 'read-pieces' };
+// One firing of the starter: its input as the row's stdin fill hands it, under a task holding this request key and cause.
+const fire = (input, sample = {}) => answerOf(starter, input, { task: { request_key: 'cause-key-1', cause }, ...sample });
 
 test('the recipes source runs every recipe as the starter', () => {
   assert.equal(rowOf(rows, 'source:workflow-recipes').invoke_with, 'tool:start-a-recipe-run');
@@ -24,7 +26,7 @@ test('the recipes source runs every recipe as the starter', () => {
 });
 
 test('a firing writes one waiting ai-job holding the recipe steps, its input and its cause', async () => {
-  const ran = await runRow(starter, started);
+  const ran = await fire(started);
   assert.equal(ran.status, 0);
   const id = `ai-job:${recipeId}:cause-key-1`;
   assert.deepEqual(ran.result, { job: id, status: 'written' });
@@ -42,14 +44,14 @@ test('a firing writes one waiting ai-job holding the recipe steps, its input and
 test('the same firing again finds its job and writes nothing, even after the AI marked it done', async () => {
   const id = `ai-job:${recipeId}:cause-key-1`;
   const done = { id, type: 'ai-job', value: { kind: 'ai-job', status: 'done', row: recipeId } };
-  const ran = await runRow(starter, started, { records: [done] });
+  const ran = await fire(started, { records: [done] });
   assert.deepEqual(ran.result, { job: id, status: 'already-there' });
   assert.deepEqual(ran.kept, [done]);
   assert.ok(!ran.calls.some(call => call.method === 'records:write'));
 });
 
 test('a recipe that is not in the folder writes nothing and says so', async () => {
-  const ran = await runRow(starter, { ...started, input: { row: 'workflow:not-a-recipe' } });
+  const ran = await fire({ row: 'workflow:not-a-recipe' });
   assert.match(ran.error, /No recipe workflow:not-a-recipe/);
   assert.deepEqual(ran.kept, []);
 });
@@ -64,7 +66,7 @@ const ownRows = slug => [
 
 test('a recipe only in the person\'s own list of workflows is started from its row and its step rows, in order', async () => {
   const slug = 'a-recipe-only-i-keep';
-  const ran = await runRow(starter, { ...started, input: { row: `workflow:${slug}` } }, { records: ownRows(slug) });
+  const ran = await fire({ row: `workflow:${slug}` }, { records: ownRows(slug) });
   assert.equal(ran.status, 0);
   const [job] = ran.kept.filter(record => record.type === 'ai-job');
   assert.equal(job.value.label, 'My own version');
@@ -72,7 +74,7 @@ test('a recipe only in the person\'s own list of workflows is started from its r
 });
 
 test('when the person\'s list and the public recipes both hold the id, the person\'s own row wins', async () => {
-  const ran = await runRow(starter, started, { records: ownRows(recipeId.replace('workflow:', '')) });
+  const ran = await fire(started, { records: ownRows(recipeId.replace('workflow:', '')) });
   const [job] = ran.kept.filter(record => record.type === 'ai-job');
   assert.equal(job.value.label, 'My own version');
   assert.notDeepEqual(job.value.job, recipe.steps);

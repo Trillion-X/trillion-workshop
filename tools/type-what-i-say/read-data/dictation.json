@@ -128,7 +128,7 @@
     "keep_text": true
   },
   "polish": {
-    "_what": "The two text steps that need a language model (read-data/dictation.mjs modelStep): the local-model job that answers them (a Marketplace job row, published separately; without it the text is returned unchanged), the most tokens, and each step's words. The Mac app's local model is not carried here; until a model is handed in, both steps leave the text unchanged.",
+    "_what": "The two text steps that need a language model (read-data/dictation.mjs modelStep): the local-model job that answers them (`jobs.dictation-polish` in tools/models-on-this-computer/read-data/models-on-this-computer.json, asked through that folder's askLocal, the port of the Mac app's computer/local-models.mjs), the most tokens, and each step's words. When no model there answers, both steps leave the text unchanged and say so.",
     "job": "dictation-polish",
     "most_tokens": 400,
     "words": {

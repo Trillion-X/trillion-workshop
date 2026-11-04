@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { runRow, rowOf } from '../../records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { KEPT_APART } from '../read-data/catch-up.mjs';
 import settings from '../read-data/catch-up.json' with { type: 'json' };
 import { sayHowThisDeviceStands, settleTwoVersions } from '../do-work/copies.mjs';
@@ -29,7 +29,7 @@ const PERSON = [
 
 test('the read answers the devices and the note kept apart, and names the other kinds kept apart', async () => {
   const positions = [{ copy: 'sample-copy', settled_at: '2026-01-10T10:00:00.000Z' }];
-  const { status, result } = await runRow(SEE, { thing_type: 'note', positions }, { records: PERSON });
+  const { status, result } = await answerOf(SEE, { thing_type: 'note', positions }, { records: PERSON });
   assert.equal(status, 0);
   assert.deepEqual(result.devices.map(device => [device.device_id, device.state]), [['d-sample01', 'caught-up'], ['sample-copy', settings.copy_state]]);
   assert.equal(result.devices[1].title, settings.words.copy_title, 'a copy no device names is shown by itself, never by its id');
@@ -41,26 +41,28 @@ test('the read answers the devices and the note kept apart, and names the other 
 });
 
 test('a read without the kind of record refuses and says what to send', async () => {
-  const { status, error } = await runRow(SEE, {}, { records: PERSON });
+  // The row's rights fill from input.thing_type, so the engine never starts a run without it: the input fills the
+  // rights, and the program is handed a standard input without the kind, to prove it refuses one all the same.
+  const { status, error } = await answerOf(SEE, { thing_type: 'note' }, { records: PERSON, stdin: {} });
   assert.notEqual(status, 0);
   assert.match(error ?? '', /thing_type/);
 });
 
 test('a device report is written once, and again only when what the person sees changed', async () => {
   const report = { device_id: 'd-sample02', title: 'Sample phone', kind: 'phone', state: 'waiting', waiting: 2, request_key: 'report-1', now: NOW };
-  const first = await runRow(HERE, report, { records: PERSON });
+  const first = await answerOf(HERE, report, { records: PERSON });
   assert.equal(first.status, 0);
   assert.equal(first.result.written, true);
   const rows = first.kept.find(record => record.id === DEVICES).value.value;
   assert.deepEqual(rows.map(device => device.device_id), ['d-sample02', 'd-sample01'], 'newest first, the others kept');
-  const again = await runRow(HERE, { ...report, request_key: 'report-2' }, { records: first.kept });
+  const again = await answerOf(HERE, { ...report, request_key: 'report-2' }, { records: first.kept });
   assert.equal(again.result.written, false, 'the same state is not written again');
-  const refused = await runRow(HERE, { device_id: 'x', state: 'caught-up', request_key: 'report-3' }, { records: PERSON });
+  const refused = await answerOf(HERE, { device_id: 'x', state: 'caught-up', request_key: 'report-3' }, { records: PERSON });
   assert.match(refused.error ?? '', /which device/);
 });
 
 test('keep one writes the chosen version and removes the kept versions in one write', async () => {
-  const { status, result, kept: after } = await runRow(SETTLE, { id: `${KEPT_APART}:plan-7`, keep: 'one', side: 'kept-1', thing_type: 'note', request_key: 'settle-1' }, { records: PERSON });
+  const { status, result, kept: after } = await answerOf(SETTLE, { id: `${KEPT_APART}:plan-7`, keep: 'one', side: 'kept-1', thing_type: 'note', request_key: 'settle-1' }, { records: PERSON });
   assert.equal(status, 0);
   assert.deepEqual(result.written, ['plan-7', `${KEPT_APART}:plan-7`]);
   const byId = new Map(after.map(record => [record.id, record]));
@@ -71,7 +73,7 @@ test('keep one writes the chosen version and removes the kept versions in one wr
 
 test('keep both keeps the other version under the first free name', async () => {
   const taken = note(`plan-7${settings.both_suffix}1`, { title: 'An unrelated sample' });
-  const { status, result, kept: after } = await runRow(SETTLE, { id: `${KEPT_APART}:plan-7`, keep: 'both', thing_type: 'note', request_key: 'settle-2' }, { records: [...PERSON, taken] });
+  const { status, result, kept: after } = await answerOf(SETTLE, { id: `${KEPT_APART}:plan-7`, keep: 'both', thing_type: 'note', request_key: 'settle-2' }, { records: [...PERSON, taken] });
   assert.equal(status, 0);
   assert.deepEqual(result.written, [`plan-7${settings.both_suffix}2`, `${KEPT_APART}:plan-7`]);
   const byId = new Map(after.map(record => [record.id, record]));

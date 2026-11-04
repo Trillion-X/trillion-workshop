@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:c3001cc0205e4138a2a552c84563e5f3521ac78f24bd22a353cdb85f4fb6b1e3"
+  "blake3": "1f:f6d4803f51655e35b484f88dc21687797d350c938718c167791f27b86bc3a40c"
  },
  "fields": [
   {
@@ -540,6 +540,21 @@
    }
   },
   {
+   "id": "tool:ask-what-was-said",
+   "values": {
+    "title": "What was said since this conversation last asked",
+    "job": "Tell me what was said in a listening since I last asked, once what was said before my question is written down",
+    "description": "Waits (at most wait_seconds) until what was said before the ask is heard and written, from the listening's status row; then answers the turns this conversation was not given yet, with the captions' corrections applied, and moves the conversation's cursor past them. A listening that is not live is not waited for.",
+    "status": "active",
+    "maker": "maker:listen-for-a-while",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "listen-for-a-while"
+   }
+  },
+  {
    "id": "tool:assemble-a-plan-into-a-cut",
    "values": {
     "title": "Cut my recordings into a video from a plan (runs on your computer)",
@@ -852,6 +867,21 @@
      "placement:small-container"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:caption-what-is-heard",
+   "values": {
+    "title": "Captions of what is being heard",
+    "job": "Show the captions of a listening and fix a word, a speaker or a line in them",
+    "description": "Answers the last captions of a listening from its heard rows, with the person's corrections applied, after applying the caption ops given: on, off, edit { id, text }, speaker { id, name }, hide { id }, show { id }, undo { id }. Corrections are kept in the listening's captions row beside the words; a heard row is never rewritten.",
+    "status": "active",
+    "maker": "maker:listen-for-a-while",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "listen-for-a-while"
    }
   },
   {
@@ -1331,7 +1361,7 @@
    "values": {
     "title": "Check words or anything made against a person's own rules and verdicts",
     "job": "Check words, a title, a script line or a plan against a person's own rules and the verdicts they already gave, and say pass, fail or uncertain for each, with why",
-    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's method rows (list:methods, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: the rows of their one Checks list (list:checks) whose method is that branch or a branch it extends, each branch read on its own, plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, a row that states no test (no words, pattern, exact, check, groups, path, evidence, ask or part) but says something is a reading row: a question a model answers once for each whole unit, made from the tool's own DATA over the row's words, carrying the calibration and model of the nearest branch's reading_settings, and listed in read_by_a_model; a piece of a source file, or a row that says nothing, is never judged: it is counted in rows_used.skipped.no_test, and a branch with only such rows answers no-applicable-rule; and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
+    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's branch rows (a node of kind branch in their one Checks list, list:checks, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: one tree in one list, every node naming the node it is part_of; the rows part_of that branch or a branch it is part_of, each branch read on its own (a branch below is never judged), plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, a row that states no test (no words, pattern, exact, check, groups, path, evidence, ask or part) but says something is a reading row: a question a model answers once for each whole unit, made from the tool's own DATA over the row's words, carrying the calibration and model of the nearest branch's reading_settings, and listed in read_by_a_model; a piece of a source file, or a row that says nothing, is never judged: it is counted in rows_used.skipped.no_test, and a branch with only such rows answers no-applicable-rule; and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
     "status": "active",
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
     "licence_class": "licence:maker-own",
@@ -2373,7 +2403,7 @@
    "values": {
     "title": "Dictation text and dictionary",
     "job": "Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history",
-    "description": "Give action: clean (text, context, entry_id?; polish or command need a model and leave the text as it was without one), bias (context), learn (inserted, final, entry_id?), add (from and to, or kind: snippet with says and expands_to), list, edit (id and fields), delete (id), history, or erase (entry_id, or all). The rows and the history are kept in the folder the person granted. Putting text at the cursor is tool:type-dictated-text.",
+    "description": "Give action: clean (text, context, entry_id?; polish or command are asked of the model server on this computer (the dictation-polish job of tool:ask-a-model's models) and leave the text as it was when none answers), bias (context), learn (inserted, final, entry_id?), add (from and to, or kind: snippet with says and expands_to), list, edit (id and fields), delete (id), history, or erase (entry_id, or all). The rows and the history are kept in the folder the person granted. Putting text at the cursor is tool:type-dictated-text.",
     "status": "active",
     "maker": "maker:type-what-i-say",
     "licence_class": "licence:maker-own",
@@ -2507,6 +2537,21 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:enhance-speech",
+   "values": {
+    "title": "Clean a recording's noise and find where the speech is",
+    "job": "Clean the noise out of a recording on my own computer with what it can afford, and tell me where the speech is",
+    "description": "Reads a recording from the person's files (`file`) through the run's door, picks the most expensive noise-removal tier within the CPU budget whose ffmpeg filters (and model file, in the models folder the person granted) exist here (light, near-voice, neural), writes the cleaned sound beside it (`<name>.clean.wav`, or `output`), and answers the speech places found by a silence-detect pass, in seconds of the original. When no tier fits, the recording is left as it is and `why` says what is missing. The person's recording is never changed.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
    }
   },
   {
@@ -5866,6 +5911,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:name-a-heard-voice",
+   "values": {
+    "title": "Name a voice heard before it was enrolled",
+    "job": "Put a person's name on what they said in a listening before I enrolled their voice",
+    "description": "After tool:enrol-a-voice-or-face names a voice heard in a listening (its heard_as), renames that listening's heard turns still under \"Someone (voice-N)\" for those voices to the person's name, keeping the former label on each row. Turns a person already named, unsure turns and other listenings are left as they are.",
+    "status": "active",
+    "maker": "maker:listen-for-a-while",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "listen-for-a-while"
    }
   },
   {

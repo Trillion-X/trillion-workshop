@@ -12,6 +12,23 @@ import { settings, rowsFrom, drainTranscript } from '../harness/record-every-mes
 
 const script = fileURLToPath(new URL('../harness/record-every-message.mjs', import.meta.url));
 
+// A drain run as its own process, its peak memory read by the process itself as it ends (process.resourceUsage's
+// maxRSS, in KiB on every system) rather than by macOS's `/usr/bin/time -l`, which Linux does not have: { peak, stuck }.
+const peakProbe = `data:text/javascript,${encodeURIComponent("process.on('exit', () => process.stderr.write(`\\npeak_rss_kib ${process.resourceUsage().maxRSS}\\n`));")}`;
+function drainOnItsOwn(args, env, mostMs) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, ['--import', peakProbe, script, ...args], { env, stdio: ['ignore', 'ignore', 'pipe'] });
+    let err = '';
+    child.stderr.on('data', chunk => { err += chunk; });
+    const timer = setTimeout(() => { child.kill(); resolve({ err, stuck: true }); }, mostMs);
+    child.on('error', error => { clearTimeout(timer); reject(error); });
+    child.on('exit', () => {
+      clearTimeout(timer);
+      resolve({ err, peak: Number(/peak_rss_kib (\d+)/.exec(err)?.[1]) * 1024 });
+    });
+  });
+}
+
 test('a live read takes a bounded slice of a large transcript and says more is left', t => {
   const root = mkdtempSync(join(tmpdir(), 'trillion-live-read-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
@@ -71,18 +88,11 @@ test('a drain over a 520 MB transcript stays under 100 MB of memory and ends wit
   for (let written = 0; written < 520 * 1024 * 1024; written += block.length) writeSync(handle, block);
   closeSync(handle);
   const began = Date.now();
-  const out = await new Promise(resolve => {
-    const child = spawn('/usr/bin/time', ['-l', process.execPath, script, '--drain', '--transcript', path, '--session-id', 'big-drain-session'],
-      { env: { ...process.env, HOME: home }, stdio: ['ignore', 'ignore', 'pipe'] });
-    let err = '';
-    child.stderr.on('data', chunk => { err += chunk; });
-    const timer = setTimeout(() => { child.kill(); resolve({ err, stuck: true }); }, settings.drain_most_ms);
-    child.on('exit', () => { clearTimeout(timer); resolve({ err }); });
-  });
+  const out = await drainOnItsOwn(['--drain', '--transcript', path, '--session-id', 'big-drain-session'],
+    { ...process.env, HOME: home }, settings.drain_most_ms);
   assert.ok(!out.stuck, 'the drain ended');
   assert.ok(Date.now() - began < settings.drain_session_ms + 15_000, `ended after ${Date.now() - began} ms`);
-  const peak = Number(/(\d+)\s+maximum resident set size/.exec(out.err)?.[1]);
-  assert.ok(peak < 100 * 1024 * 1024, `peak memory ${peak >> 20} MB`);
+  assert.ok(out.peak < 100 * 1024 * 1024, `peak memory ${out.peak >> 20} MB`);
 });
 
 test('one chat takes only its turn at the drain, and says it has more', async t => {
@@ -140,18 +150,12 @@ test('a drain over a 520 MB transcript against a server that answers 507 stays u
   writeSync(handle, reply('A reply the account will not take yet.', 1));
   closeSync(handle);
   const began = Date.now();
-  const out = await new Promise(resolve => {
-    const child = spawn('/usr/bin/time', ['-l', process.execPath, script, '--drain', '--transcript', path, '--session-id', 'drain-507-session'],
-      { env: { ...process.env, HOME: home, TRILLION_RECORDER_TEST_ORIGIN: server.origin, TRILLION_RECORDER_TEST_KEY_FILE: keyFile }, stdio: ['ignore', 'ignore', 'pipe'] });
-    let err = '';
-    child.stderr.on('data', chunk => { err += chunk; });
-    const timer = setTimeout(() => { child.kill(); resolve({ err, stuck: true }); }, settings.drain_most_ms);
-    child.on('exit', () => { clearTimeout(timer); resolve({ err }); });
-  });
+  const out = await drainOnItsOwn(['--drain', '--transcript', path, '--session-id', 'drain-507-session'],
+    { ...process.env, HOME: home, TRILLION_RECORDER_TEST_ORIGIN: server.origin, TRILLION_RECORDER_TEST_KEY_FILE: keyFile }, settings.drain_most_ms);
   assert.ok(!out.stuck, 'the drain ended');
   assert.ok(Date.now() - began < settings.drain_session_ms + 30_000, `ended after ${Date.now() - began} ms`);
   assert.ok(server.seen.length > 0 && server.seen.every(body => body === server.seen[0]), 'the same reply was sent again each time, never a second message');
-  const peak = Number(/(\d+)\s+maximum resident set size/.exec(out.err)?.[1]);
+  const { peak } = out;
   // 65 MB reading the file; about 100 MB once the first request is made and refused (the engine's own network stack).
   assert.ok(peak < 120 * 1024 * 1024, `peak memory ${peak >> 20} MB`);
 });

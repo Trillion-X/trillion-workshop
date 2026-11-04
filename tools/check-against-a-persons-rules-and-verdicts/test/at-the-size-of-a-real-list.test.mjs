@@ -43,7 +43,7 @@ function madeUpList() {
   const records = [];
   for (let c = 0; c < CHECKS; c += 1) {
     const id = `made-up-check-${String(c).padStart(4, '0')}`;
-    records.push({ id: `record:check:${id}`, type: 'record:check', value: { id, method: 'made-up-base', says: `Made-up check ${c}`, words: ['made-up'] } });
+    records.push({ id: `record:check:${id}`, type: 'record:check', value: { id, part_of: 'made-up-base', says: `Made-up check ${c}`, words: ['made-up'] } });
   }
   for (let n = 0; n < PIECES; n += 1) {
     const sources = [{ file: fileName(n), section: `Made-up part ${n % 97} / Made-up rule ${n}`, file_identity: `1f:${'c'.repeat(64)}`, at: 1 + (n % 400) }];
