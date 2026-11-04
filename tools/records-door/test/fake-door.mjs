@@ -2,7 +2,9 @@
 // the bearer capability and its rights, pages lists, and can answer busy or as an event stream, the way the engine's
 // door does (tools/records-door/README.md, the contract). Given `files` ({ name: text }) and a files right, it is also
 // the run's files door: the descriptor names `files_resource`, and list_files and read_file answer from those made-up
-// files under the right's folder, a file's identity being the BLAKE3 identity of its bytes.
+// files under the right's folder, a file's identity being the BLAKE3 identity of its bytes. Given `usageDays` (the engine's
+// usage day rows, { day, stored_bytes, source_bytes_read, work_ms }, made up) and a files right to usage_days, it
+// answers usage_days the way the engine's files door pages them: { days, next_after, stored_bytes_now }.
 import { createServer } from 'node:http';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -16,7 +18,7 @@ const WRITE_CAP = 256;
 const FILES_RESOURCE = '@own-files';
 const FILE_SPAN = 65_536;
 
-export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], files = {}, workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false } = {}) {
+export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false } = {}) {
   const capability = 'run_fake_capability';
   const kept = new Map(records.map(record => [record.id, record]));
   const receipts = new Map();
@@ -129,6 +131,13 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       const bytes = bytesOf(name);
       const part = bytes.subarray(offset, offset + Math.min(length || FILE_SPAN, FILE_SPAN));
       return { structuredContent: { identity: makeHashCodeHexFromBytes(bytes), byte_length: bytes.length, offset, bytes_returned: part.length, encoding: 'base64', content: part.toString('base64') } };
+    },
+    usage_days: ({ after, limit = 50 }) => {
+      if (!mayFile('usage_days', '/')) return refuse(OUTSIDE);
+      const days = [...usageDays].sort((a, b) => a.day.localeCompare(b.day));
+      const page = days.filter(row => !after || row.day > after).slice(0, limit);
+      const more = page.length && days.at(-1).day > page.at(-1).day;
+      return { structuredContent: { days: page, next_after: more ? page.at(-1).day : null, stored_bytes_now: days.at(-1)?.stored_bytes ?? 0 } };
     },
   };
   const server = createServer((request, reply) => {
