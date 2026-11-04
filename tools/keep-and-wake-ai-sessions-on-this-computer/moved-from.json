@@ -338,14 +338,14 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-sessions.json",
       "source_identity": "1f:a3860d8507602e1c3ab1dbebc8df7db01fcfef7043993baa93df0d21c218b58a",
-      "identity": "1f:a3860d8507602e1c3ab1dbebc8df7db01fcfef7043993baa93df0d21c218b58a"
+      "identity": "1f:5bbe84b2b8b584fcf5c4526a685046c40c4a158d50ceb8ca91cfd3dd0b6784bb"
     },
     {
       "from": "harness/wake-sessions.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-sessions.mjs",
       "source_identity": "1f:5e5d62d3754a517446b0217b5bd9590f84173f941fd58d7473a56866bad96df6",
-      "identity": "1f:5e5d62d3754a517446b0217b5bd9590f84173f941fd58d7473a56866bad96df6"
+      "identity": "1f:2bc1184dfeee9fafc974d44711da4e6f7691670a9309b9178560aa6aeb610335"
     },
     {
       "from": "harness/work-consumer.json",
@@ -506,7 +506,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/agent-delivery.mjs",
       "source_identity": "1f:1f66131dabb94be766a0da8847244d1bc9a50380e25277308bc7872169a7c375",
-      "identity": "1f:1f66131dabb94be766a0da8847244d1bc9a50380e25277308bc7872169a7c375"
+      "identity": "1f:9a2e01d41a820b0381f81e527d940757549a1479b991f803e1c475f95915a85d"
     },
     {
       "from": "src/check-uses.mjs",
@@ -534,7 +534,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/configurations.mjs",
       "source_identity": "1f:7bd734cf8e0536d8937ca8c4fca319218645d3d11b6088befbb44daee7480b57",
-      "identity": "1f:7bd734cf8e0536d8937ca8c4fca319218645d3d11b6088befbb44daee7480b57"
+      "identity": "1f:286209bd5f1290b4343fcd9c8d617ff778c7dcf6f4f55a2615e021472164c959"
     },
     {
       "from": "src/connecting-without-the-store.json",
@@ -569,21 +569,21 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/escape-chain.json",
       "source_identity": "1f:e3d52cfff663d685dee3b131c5d97409fc32d4c29654413edb3ed2c8aa53bec2",
-      "identity": "1f:e3d52cfff663d685dee3b131c5d97409fc32d4c29654413edb3ed2c8aa53bec2"
+      "identity": "1f:1a89076ca6690790a75a4e8213906c9f0d5b3a063894838f0ebbf249d86863b1"
     },
     {
       "from": "src/event-route-listeners.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/event-route-listeners.mjs",
       "source_identity": "1f:f624f7fe522b149b41d63b97522e2efd2b6721a9c356a73e7a1e02780cfed98e",
-      "identity": "1f:f624f7fe522b149b41d63b97522e2efd2b6721a9c356a73e7a1e02780cfed98e"
+      "identity": "1f:4c4172256871c5bfdcae0bfc16fa31d7907354e25cc588cf7bd6b70a5aa16091"
     },
     {
       "from": "src/events.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/events.mjs",
       "source_identity": "1f:cfd24b885376bf73f8b826478bcfa2dcae7d4007a3b1e56f8e80ccfd40b90d6d",
-      "identity": "1f:cfd24b885376bf73f8b826478bcfa2dcae7d4007a3b1e56f8e80ccfd40b90d6d"
+      "identity": "1f:ebdbc8ce0e051cfa257cc0777539726e8c6d870351a1cf522628e8e7c54ab3a9"
     },
     {
       "from": "src/execution-context.mjs",
@@ -674,7 +674,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/live-tool-sources.mjs",
       "source_identity": "1f:49ce50e565b65a1b7f00d428394493418754de5bf1b4400a464634c05260af82",
-      "identity": "1f:49ce50e565b65a1b7f00d428394493418754de5bf1b4400a464634c05260af82"
+      "identity": "1f:21eed2e0386f41f7c0faac42227ff9374f81311c55b8384ea3aa4d67aecf94a8"
     },
     {
       "from": "src/maker-payouts.json",
@@ -737,7 +737,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/outcome-checks.mjs",
       "source_identity": "1f:e8cbb27fe2523f109b62af13d663d906c9aca16210c3031203c3a060e24f33d1",
-      "identity": "1f:e8cbb27fe2523f109b62af13d663d906c9aca16210c3031203c3a060e24f33d1"
+      "identity": "1f:b2f80c024d1535d2deb9a8cbb0cd2f8e65831223dc337a3a2caa66f843e1bf6b"
     },
     {
       "from": "src/outcome-precedence.json",
@@ -786,7 +786,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs",
       "source_identity": "1f:94d1938e9806ac98510f901716d7c0d417f98ff178473bd9da514ea6468cb121",
-      "identity": "1f:8be43e974ca04ebd5bd3774b64d4a4eaa2b2fe2765a57529f55f7f28d7edbba7"
+      "identity": "1f:94d1938e9806ac98510f901716d7c0d417f98ff178473bd9da514ea6468cb121"
     },
     {
       "from": "src/record-indexes.json",
@@ -800,7 +800,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/record-model-tools.mjs",
       "source_identity": "1f:1626699cce23df5e219059b94c7950015578ee355a975575bbe97112527ad78e",
-      "identity": "1f:2bc452c18602339a0a02634692b203b17b91cb16929a218725accdb030bfb376"
+      "identity": "1f:044e634142833fb8aab73fe22746eb11e10816648bdcf5745111b179ed7ec5b5"
     },
     {
       "from": "src/record-model.json",
@@ -877,7 +877,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/screen-spec.mjs",
       "source_identity": "1f:924bbfcec64c4dfbb47207f45738debd5e1ba8fbb150e0bc09c2bd700f78552d",
-      "identity": "1f:a4b5e51d309cbef5658ca419decd87aa24c03004f7b36197905d3e07223404ed"
+      "identity": "1f:2d2b614fe40c83a128b6327a8b526194ddef193f5e774109057698312a035e0a"
     },
     {
       "from": "src/sender-pairing.mjs",
@@ -891,7 +891,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/sent.mjs",
       "source_identity": "1f:53052ef8a0d090abff5a1fa4582bb1457aa8147c4e4b044f759bec25227b3b56",
-      "identity": "1f:53052ef8a0d090abff5a1fa4582bb1457aa8147c4e4b044f759bec25227b3b56"
+      "identity": "1f:a1e91f2561507174446b457a1dc149c49df5265f7e00306572cd4cc98634d722"
     },
     {
       "from": "src/server-instructions.json",
@@ -1024,7 +1024,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs",
       "source_identity": "1f:172fc5ddc10f4c05d04ea73375a4daadc2c7c29db6ceed3b769499b9703fa787",
-      "identity": "1f:172fc5ddc10f4c05d04ea73375a4daadc2c7c29db6ceed3b769499b9703fa787"
+      "identity": "1f:66e5565912e2d04d87e5a58bb4d708eb042430e6ae377db0615832aa86ac81e7"
     },
     {
       "from": "src/workspace/file-previews.json",
@@ -1073,7 +1073,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/account-key.test.mjs",
       "source_identity": "1f:50504bf83d8918ff01c807d0e2066bd3086aa2a5abbaf4f51a049bc2294b1f5f",
-      "identity": "1f:50504bf83d8918ff01c807d0e2066bd3086aa2a5abbaf4f51a049bc2294b1f5f"
+      "identity": "1f:c615ec335b1a7d358426294961f4e0a8f1e2eca2e947565b490636248f552ff0"
     },
     {
       "from": "test/ask-trillion-first.test.mjs",
@@ -1108,7 +1108,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/escape-chain.test.mjs",
       "source_identity": "1f:15f9bc67fb2c29febe664a7d3b0e2412e1092871d95b8e6450fa5c0e314ef5e4",
-      "identity": "1f:15f9bc67fb2c29febe664a7d3b0e2412e1092871d95b8e6450fa5c0e314ef5e4"
+      "identity": "1f:6369c217b5730eb0d20bda8bfde4f5a8e03528ace3090e8fa4a5a370b347f905"
     },
     {
       "from": "test/fixtures/native-read-authorization-failure.json",
@@ -1122,7 +1122,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/harness-setup.test.mjs",
       "source_identity": "1f:edfe7256fe9bbc8ccf7b8e85725ea1fc71b985e388fd06aa37a697ea503ca963",
-      "identity": "1f:edfe7256fe9bbc8ccf7b8e85725ea1fc71b985e388fd06aa37a697ea503ca963"
+      "identity": "1f:38e5d274d4008dd065b99dcec773f1b6fead5841879f5525970d225c605196a2"
     },
     {
       "from": "test/hold-tool-contract.test.mjs",
@@ -1164,7 +1164,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/read-this-computer.test.mjs",
       "source_identity": "1f:14c2f96ce2eefaa11cb0caf2061bab8a22b9585e6f95d26a9634fdc18bdb0e48",
-      "identity": "1f:14c2f96ce2eefaa11cb0caf2061bab8a22b9585e6f95d26a9634fdc18bdb0e48"
+      "identity": "1f:2e183629e5a35b335f25e4fc57c42282fcb9ba3a431da0867adc65478a6783c3"
     },
     {
       "from": "test/record-every-message-bounded-history.test.mjs",
@@ -1235,6 +1235,20 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/wake-sessions.test.mjs",
       "source_identity": "1f:c5074b5340d6d7daa51eee5e4dd09f18dbc1c2a58acce5faf06bbcb086707705",
       "identity": "1f:c5074b5340d6d7daa51eee5e4dd09f18dbc1c2a58acce5faf06bbcb086707705"
+    },
+    {
+      "from": "harness/wake-handlers/send-requests-here.mjs",
+      "commit": "7b5e20cd2fffc86628675106131995a61e31bc50",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/send-requests-here.mjs",
+      "source_identity": "1f:88d780ae2b4dc16e446b3953761afbcb0a2f4c4734992848cd04b29b9e3aed9f",
+      "identity": "1f:88d780ae2b4dc16e446b3953761afbcb0a2f4c4734992848cd04b29b9e3aed9f"
+    },
+    {
+      "from": "harness/wake-handlers/keep-every-message.mjs",
+      "commit": "7b5e20cd2fffc86628675106131995a61e31bc50",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/keep-every-message.mjs",
+      "source_identity": "1f:3cee3de88d0aa4f60a46400624baca7f62610a9a2a01daaddea2a51cc8679570",
+      "identity": "1f:3cee3de88d0aa4f60a46400624baca7f62610a9a2a01daaddea2a51cc8679570"
     }
   ]
 }

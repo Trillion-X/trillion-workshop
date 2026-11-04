@@ -1,0 +1,26 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [],
+  "files": [
+    {
+      "from": "parts/screen-ready-records/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/screen-ready-records/README.md",
+      "source_identity": "1f:7f6e39c6859b3d43411aaace45059cfa551b65dd7191ef0f25af2c4b3a438767",
+      "identity": "1f:7f6e39c6859b3d43411aaace45059cfa551b65dd7191ef0f25af2c4b3a438767"
+    },
+    {
+      "from": "parts/screen-ready-records/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/screen-ready-records/part.json",
+      "source_identity": "1f:c5c1b3b1a03334cee403c2c9da9b4813a93f672173c629ea209709cf706923d0",
+      "identity": "1f:f73b12f56e10781c36129c94a88e2db2aa2a458f035f764cb8f61a2b97c7f404"
+    }
+  ],
+  "not_matched": [
+    "tools/screen-ready-records/read-data/read-screen-ready-records.ts"
+  ]
+}

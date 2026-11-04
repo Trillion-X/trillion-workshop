@@ -1,0 +1,14 @@
+{
+  "_what": "The safety nets of the decision store kept on this computer (src/local-store-safety.mjs). `snapshots_kept` rolling snapshots are written beside the store file in a folder named after it plus `folder_suffix`, no more often than every `min_interval_hours`. `before_change_kept` copies taken just before a change to the store's shape or a restore are kept the same way, in `before_folder_suffix`. `automatic` lets the store take a due snapshot each time it is opened. `shape_sources` are the source files (relative to src/) that define the store's tables; the BLAKE3 of their bytes is the store's shape, kept in the file's user_version. Opening a store whose kept shape differs from the code's first takes a copy before the change (src/local-store-safety.mjs guardShape).",
+  "automatic": true,
+  "snapshots_kept": 7,
+  "min_interval_hours": 24,
+  "before_change_kept": 5,
+  "folder_suffix": ".snapshots",
+  "before_folder_suffix": ".before",
+  "shape_sources": [
+    "decision-store.mjs",
+    "record-engine.mjs",
+    "../parts/record-log/do-work/record-log-store.mjs"
+  ]
+}

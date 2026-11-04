@@ -4,7 +4,7 @@
 // Provider subscriptions can be shared by several Trillion accounts. Stopping here removes only this account's
 // routes; it never deletes the shared provider subscription on the strength of an eventually consistent KV count.
 import { buildInvocation, WorkshopError } from './workshop.mjs';
-import { selectDeclaredValue } from '../parts/ui/read-data/declared-selector.ts';
+import { selectDeclaredValue } from '../../ui/read-data/declared-selector.ts';
 import { withoutSecrets } from './scheduler.mjs';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);

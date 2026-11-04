@@ -1,0 +1,77 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [],
+  "files": [
+    {
+      "from": "parts/ai-tool-catalog/do-work/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/ai-tool-catalog/do-work/README.md",
+      "source_identity": "1f:9bddb283de31e0396a2429f18ade43d2428fdf04ebcec14b3b0a22a1bfaf6886",
+      "identity": "1f:9bddb283de31e0396a2429f18ade43d2428fdf04ebcec14b3b0a22a1bfaf6886"
+    },
+    {
+      "from": "parts/ai-tool-catalog/do-work/derive-tool-rows-from-sources-cli.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/ai-tool-catalog/do-work/derive-tool-rows-from-sources-cli.mjs",
+      "source_identity": "1f:6dab8ef2ad996f63bde40680fc3d21d4dcd3eef519fdaacd3817d493e4bffc6b",
+      "identity": "1f:6dab8ef2ad996f63bde40680fc3d21d4dcd3eef519fdaacd3817d493e4bffc6b"
+    },
+    {
+      "from": "parts/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs",
+      "source_identity": "1f:b5abde11fa95f2a0302ac81b57a891cf11b4c9859730a751f949cd6d878cc59a",
+      "identity": "1f:b5abde11fa95f2a0302ac81b57a891cf11b4c9859730a751f949cd6d878cc59a"
+    },
+    {
+      "from": "parts/ai-tool-catalog/do-work/read-openapi.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/ai-tool-catalog/do-work/read-openapi.mjs",
+      "source_identity": "1f:bb36c251cf86f9ba564e8db444582dcc1c40bb0750ccd5240542cb3a2870d6c0",
+      "identity": "1f:bb36c251cf86f9ba564e8db444582dcc1c40bb0750ccd5240542cb3a2870d6c0"
+    },
+    {
+      "from": "parts/ai-tool-catalog/do-work/sign-in-to-a-tool-server.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/ai-tool-catalog/do-work/sign-in-to-a-tool-server.mjs",
+      "source_identity": "1f:58a36e53a9472580239a5c28f8abe0a0ff9bbf55f14d2c0fe8a420a87c8d885c",
+      "identity": "1f:58a36e53a9472580239a5c28f8abe0a0ff9bbf55f14d2c0fe8a420a87c8d885c"
+    },
+    {
+      "from": "parts/ai-tool-catalog/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/ai-tool-catalog/part.json",
+      "source_identity": "1f:88de7e619a4a1f636cb9125f129e6dce6a1e613c6c67c681e56591c6a88e7846",
+      "identity": "1f:11c93430a8116f52ac2c07e7bbaf6fbdb57cbc28068b58a31175dd85968b9d95"
+    },
+    {
+      "from": "parts/ai-tool-catalog/read-data/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/ai-tool-catalog/read-data/README.md",
+      "source_identity": "1f:23839d5b9d83ae0e6568ee0a6239c7e7a57143e323be4d7ce4f652ce931822cb",
+      "identity": "1f:23839d5b9d83ae0e6568ee0a6239c7e7a57143e323be4d7ce4f652ce931822cb"
+    },
+    {
+      "from": "parts/ai-tool-catalog/read-data/declared-effects.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/ai-tool-catalog/read-data/declared-effects.ts",
+      "source_identity": "1f:da9133d8f318f00f397396a134d4b614b5c0464ce0c2e4d6ec30f1904d25fe46",
+      "identity": "1f:da9133d8f318f00f397396a134d4b614b5c0464ce0c2e4d6ec30f1904d25fe46"
+    },
+    {
+      "from": "parts/ai-tool-catalog/read-data/read-ai-tool-catalog.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/ai-tool-catalog/read-data/read-ai-tool-catalog.ts",
+      "source_identity": "1f:f65e94b1a5d27a1b1c304ed22197b34e167958ec2eb43689193b5e9a9d61f85d",
+      "identity": "1f:f65e94b1a5d27a1b1c304ed22197b34e167958ec2eb43689193b5e9a9d61f85d"
+    }
+  ],
+  "not_matched": [
+    "tools/ai-tool-catalog/do-work/prepare-tool-result.ts",
+    "tools/ai-tool-catalog/do-work/request-tool-run.ts",
+    "tools/ai-tool-catalog/do-work/talk-to-a-tool-server.mjs"
+  ]
+}

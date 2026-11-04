@@ -32,7 +32,7 @@
 //
 import { executionText, providerObservation } from './execution-context.mjs';
 import SENT_KINDS from '../records/sent-kinds.json' with { type: 'json' };
-import { selectDeclaredValue } from '../parts/ui/read-data/declared-selector.ts';
+import { selectDeclaredValue } from '../../ui/read-data/declared-selector.ts';
 import { claimedTime } from './claimed-time.mjs';
 
 export { SENT_KINDS };

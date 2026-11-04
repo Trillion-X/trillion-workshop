@@ -1,0 +1,266 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-check-rows-fixtures",
+        "label": "Check that a check row proves what it says",
+        "status": "active",
+        "job": "Check that each check row a person is about to write judges what it says: every text it should pass passes it, and every text it should refuse is refused",
+        "description": "Give rows: the check rows of a person's Checks list ({ id, kind: check, says, kinds, a test such as words, pattern, exact or path with where_pattern and allow_exact, and fixtures: { pass: [...], refuse: [...] } }). Each row is judged alone by the one judge (tools/check-against-a-persons-rules-and-verdicts, rules mode) on each of its fixtures: a fixture is a text, { text } or { view }; a text given to a row that reads a value is placed at the row's path. Returns holds (true only when every row with a test holds), rows ([{ id, holds, checked, wrong: [{ expected, fixture, got, findings }], no_fixtures?, broken?, read_by_a_model? }]) and lines saying what is wrong. A row with a test needs at least one pass and one refuse fixture; a row with no test is read by a model and holds null. Nothing is read from or written to anyone's records.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "rows"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rows": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "says": {
+                    "type": "string"
+                  },
+                  "kinds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "fixtures": {
+                    "type": "object",
+                    "properties": {
+                      "pass": {
+                        "type": "array",
+                        "items": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "text": {
+                                  "type": "string"
+                                },
+                                "view": {}
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "refuse": {
+                        "type": "array",
+                        "items": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "text": {
+                                  "type": "string"
+                                },
+                                "view": {}
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "holds",
+            "rows",
+            "lines"
+          ],
+          "properties": {
+            "holds": {
+              "type": "boolean"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "holds",
+                  "checked",
+                  "wrong"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "holds": {
+                    "type": [
+                      "boolean",
+                      "null"
+                    ]
+                  },
+                  "checked": {
+                    "type": "integer"
+                  },
+                  "wrong": {
+                    "type": "array"
+                  },
+                  "no_fixtures": {
+                    "type": "boolean"
+                  },
+                  "broken": {
+                    "type": "string"
+                  },
+                  "read_by_a_model": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "lines": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "check-every-tool-call",
+                "paths": [
+                  "do-work/judge-check-rows.mjs",
+                  "read-data/check-rows.json"
+                ],
+                "at": "/opt/check-every-tool-call"
+              },
+              {
+                "package": "check-against-a-persons-rules-and-verdicts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/check-against-a-persons-rules-and-verdicts"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "package": "where-a-person-stands",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/where-a-person-stands"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/check-every-tool-call",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "do-work/judge-check-rows.mjs",
+            "fixtures"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:check-every-tool-call",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "rows": [
+                {
+                  "id": "made-up-literals",
+                  "kind": "check",
+                  "kinds": [
+                    "git-commit"
+                  ],
+                  "says": "A literal is a bounded namespace, or one this row names.",
+                  "path": "capabilities.*.protocol_literals.*",
+                  "where_pattern": "^(?![a-z][a-z0-9_.-]*:)",
+                  "allow_exact": [
+                    "made-up-literal"
+                  ],
+                  "fixtures": {
+                    "pass": [
+                      "made-up-literal",
+                      "ns:thing"
+                    ],
+                    "refuse": [
+                      "thing"
+                    ]
+                  }
+                }
+              ]
+            },
+            "output_selector": "$.rows[0].id",
+            "contains": "made-up-literals"
+          }
+        ]
+      }
+    }
+  ]
+}

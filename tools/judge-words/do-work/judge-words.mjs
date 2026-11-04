@@ -18,6 +18,8 @@
 //   3. Findings are machine-readable: { rule, says, text?, found, path?, kind?, test?, limit?, suggest?, because?,
 //      at_most? }. Nothing is thrown for a finding; callers decide what it refuses.
 //   4. A text containing one of a rule's `allow` phrases is never flagged by that rule.
+//      `allow_exact` (a list of values) is the exact form: a selected piece equal to one of them (a string in full, its
+//      case and all) is passed over, whether the rule reads words or values, and a piece only containing one is not.
 //   5. A rule with `kinds` applies only to an item whose `kind` it lists; an item of no kind is of no listed kind. A
 //      kind is a caller's DATA word, never named here.
 //   6. A rule may select values instead of words: `path` (a dot path, `*` for one segment, `**` for any depth) picks
@@ -351,6 +353,8 @@ function compile(rule) {
   if (rule.weight !== undefined && !(isNumber(rule.weight) && rule.weight >= 0)) throw new Error(`Rule ${rule.id} weight must be a number of at least 0.`);
   whenOf(rule);
   const wanted = rule.where === undefined ? null : Array.isArray(rule.where) ? rule.where : [rule.where];
+  if (rule.allow_exact !== undefined && !Array.isArray(rule.allow_exact)) throw new Error(`Rule ${rule.id} allow_exact must be a list of values.`);
+  const allowedExactly = piece => (rule.allow_exact ?? []).some(one => same(one, piece.value));
   if (rule.where_pattern !== undefined && typeof rule.where_pattern !== 'string') throw new Error(`Rule ${rule.id} where_pattern must be a regular expression.`);
   const wherePattern = typeof rule.where_pattern === 'string' ? new RegExp(rule.where_pattern, withoutG(rule.flags)) : null;
   const tests = TEST_NAMES.filter(name => rule[name] !== undefined).map(name => {
@@ -364,7 +368,7 @@ function compile(rule) {
     // An item holding one of the row's `allow` phrases is out of the row altogether.
     skips: item => typeof item.text === 'string' && allowed(item.text),
     pieces: (item, index) => select(item, index).filter(piece => (!wanted || wanted.some(one => same(one, piece.value)))
-      && (!wherePattern || (typeof piece.value === 'string' && wherePattern.test(piece.value)))),
+      && (!wherePattern || (typeof piece.value === 'string' && wherePattern.test(piece.value))) && !allowedExactly(piece)),
     findings: raw => {
       const selected = groups ? mergeGroups(raw, groups) : raw;
       const located = piece => ({ path: piece.path, offset: piece.offset, index: piece.index });

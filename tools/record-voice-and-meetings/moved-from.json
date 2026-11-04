@@ -1,0 +1,174 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [
+    "src/workspace/record-screen.tsx",
+    "src/workspace/record-audio-screen.tsx",
+    "src/workspace/recording.json",
+    "src/workspace/recording.mjs",
+    "src/workspace/recordings.ts",
+    "src/workspace/meeting-recording-runtime.ts",
+    "src/workspace/recording-widgets.ts",
+    "parts/record-audio/",
+    "parts/permission-lease/",
+    "parts/content-media-evidence/",
+    "macos/App/RecordingWindow.swift",
+    "macos/App/SystemAudioCapture.swift",
+    "macos/App/MeetingActivityObserver.swift"
+  ],
+  "files": [
+    {
+      "from": "parts/content-media-evidence/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/content-media-evidence/README.md",
+      "source_identity": "1f:7226211bede70e705366600d2873badeb85cbee209430445a6d0d163038d54b0",
+      "identity": "1f:7226211bede70e705366600d2873badeb85cbee209430445a6d0d163038d54b0"
+    },
+    {
+      "from": "parts/record-audio/do-work/meeting-join-recording.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/do-work/meeting-join-recording.ts",
+      "source_identity": "1f:0e3e2a25b0445454696f3244f8a3035f2ef0a37b161cf542ee96744527a273f0",
+      "identity": "1f:0e3e2a25b0445454696f3244f8a3035f2ef0a37b161cf542ee96744527a273f0"
+    },
+    {
+      "from": "parts/record-audio/entry-read-scope-packages.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/entry-read-scope-packages.json",
+      "source_identity": "1f:6776994e5a427f40deb41ce8bc1ff0347d7fd7bd7fb56c800b2ca7cea2d52085",
+      "identity": "1f:6776994e5a427f40deb41ce8bc1ff0347d7fd7bd7fb56c800b2ca7cea2d52085"
+    },
+    {
+      "from": "parts/record-audio/entry-to-package-data-map.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/entry-to-package-data-map.json",
+      "source_identity": "1f:3190a071b5712d4c6f6c50f3f0c9835d06e7d4417789270841863e69e4b82a0c",
+      "identity": "1f:3190a071b5712d4c6f6c50f3f0c9835d06e7d4417789270841863e69e4b82a0c"
+    },
+    {
+      "from": "parts/record-audio/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/part.json",
+      "source_identity": "1f:054752856a49816e345af4b1f44cf155cd86ad1dae60cabec4ed3daf2024a3a0",
+      "identity": "1f:aaea68b134d5edeab319c72a64d34f5363ad12b552931a131d89c07c326a3bb8"
+    },
+    {
+      "from": "parts/permission-lease/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/permission-lease/README.md",
+      "source_identity": "1f:efd1fcb588e8f501205ef2d37af69c268b218318182ef05a181561dd70c0254f",
+      "identity": "1f:efd1fcb588e8f501205ef2d37af69c268b218318182ef05a181561dd70c0254f"
+    },
+    {
+      "from": "parts/content-media-evidence/read-data/content-media-evidence.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/read-data/content-media-evidence.ts",
+      "source_identity": "1f:1e2a63ef786ac97a5971f5bba7c20596cd21ad49becb8ce71c7d0e70c8972862",
+      "identity": "1f:1e2a63ef786ac97a5971f5bba7c20596cd21ad49becb8ce71c7d0e70c8972862"
+    },
+    {
+      "from": "parts/record-audio/read-data/heard-words.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/read-data/heard-words.json",
+      "source_identity": "1f:3ca197ac112c13ce46e8a0154c359ae548a1e20bfd397fee4aeea6abc54b09c7",
+      "identity": "1f:3ca197ac112c13ce46e8a0154c359ae548a1e20bfd397fee4aeea6abc54b09c7"
+    },
+    {
+      "from": "parts/record-audio/read-data/heard-words.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/read-data/heard-words.mjs",
+      "source_identity": "1f:146a6f5cb4a931b801be5ad6fce92a755ced523d5d85fae714626d619795e12d",
+      "identity": "1f:146a6f5cb4a931b801be5ad6fce92a755ced523d5d85fae714626d619795e12d"
+    },
+    {
+      "from": "parts/record-audio/read-data/meeting-settings.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/read-data/meeting-settings.json",
+      "source_identity": "1f:ddee3f6a6260de1e16e59e33d99bd23c0eabee07b8e6fc9937961c2f516898a4",
+      "identity": "1f:ddee3f6a6260de1e16e59e33d99bd23c0eabee07b8e6fc9937961c2f516898a4"
+    },
+    {
+      "from": "parts/record-audio/read-data/meeting-settings.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/read-data/meeting-settings.mjs",
+      "source_identity": "1f:2b0f7e043f42bf3e28a48728c1e654edc70f7ae89adf7d25960a67161557fbf1",
+      "identity": "1f:2b0f7e043f42bf3e28a48728c1e654edc70f7ae89adf7d25960a67161557fbf1"
+    },
+    {
+      "from": "parts/record-audio/read-data/meeting-start-settings.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/read-data/meeting-start-settings.json",
+      "source_identity": "1f:c73e469add639a5ac8d5f34df8c3abe5afc21f840292c325a1c3821d5012358b",
+      "identity": "1f:c73e469add639a5ac8d5f34df8c3abe5afc21f840292c325a1c3821d5012358b"
+    },
+    {
+      "from": "parts/record-audio/read-data/recording-enrichment.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/read-data/recording-enrichment.ts",
+      "source_identity": "1f:ace7cddf3a78e73d22724c2c2ef27e3d889a183057258fa4cdf0714c95ec600a",
+      "identity": "1f:ace7cddf3a78e73d22724c2c2ef27e3d889a183057258fa4cdf0714c95ec600a"
+    },
+    {
+      "from": "parts/record-audio/reference-adaptation-contract.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/reference-adaptation-contract.json",
+      "source_identity": "1f:180bec546e4e11da321cf7831ad274e785ade071d133567104d12e846d089797",
+      "identity": "1f:180bec546e4e11da321cf7831ad274e785ade071d133567104d12e846d089797"
+    },
+    {
+      "from": "parts/record-audio/show/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-voice-and-meetings/show/README.md",
+      "source_identity": "1f:8ab3b13bf5dd036f4bf20046dc8823fb1692cc84b288cb1e860317785e308daa",
+      "identity": "1f:8ab3b13bf5dd036f4bf20046dc8823fb1692cc84b288cb1e860317785e308daa"
+    }
+  ],
+  "not_matched": [
+    "tools/record-voice-and-meetings/do-work/content-media-work-loop.ts",
+    "tools/record-voice-and-meetings/do-work/evidence-completion.ts",
+    "tools/record-voice-and-meetings/do-work/meeting-application-recording.ts",
+    "tools/record-voice-and-meetings/do-work/native-meeting-activity.ts",
+    "tools/record-voice-and-meetings/do-work/record-audio-requests.ts",
+    "tools/record-voice-and-meetings/do-work/recorded-file-artifact.ts",
+    "tools/record-voice-and-meetings/do-work/recorded-file-store.ts",
+    "tools/record-voice-and-meetings/do-work/recording-meeting-context-update.ts",
+    "tools/record-voice-and-meetings/do-work/recording-on-device.ts",
+    "tools/record-voice-and-meetings/do-work/send-while-recording.ts",
+    "tools/record-voice-and-meetings/read-data/capability-permission.ts",
+    "tools/record-voice-and-meetings/read-data/capture-policy.ts",
+    "tools/record-voice-and-meetings/read-data/capture-preflight.json",
+    "tools/record-voice-and-meetings/read-data/capture-preflight.mjs",
+    "tools/record-voice-and-meetings/read-data/capture-sources.json",
+    "tools/record-voice-and-meetings/read-data/processing-steps.ts",
+    "tools/record-voice-and-meetings/read-data/recording-library.json",
+    "tools/record-voice-and-meetings/read-data/recording-widgets.json",
+    "tools/record-voice-and-meetings/show/AiInstructionsSettings.tsx",
+    "tools/record-voice-and-meetings/show/CapabilityPermissionPrompt.tsx",
+    "tools/record-voice-and-meetings/show/MeetingAssociationPanel.tsx",
+    "tools/record-voice-and-meetings/show/MeetingNoteMetadata.tsx",
+    "tools/record-voice-and-meetings/show/MeetingNotesSettings.tsx",
+    "tools/record-voice-and-meetings/show/MeetingStartSettings.tsx",
+    "tools/record-voice-and-meetings/show/ProcessingStepsPill.tsx",
+    "tools/record-voice-and-meetings/show/RecordAudioPanel.tsx",
+    "tools/record-voice-and-meetings/show/RecordingEnrichmentPanel.tsx",
+    "tools/record-voice-and-meetings/show/RecordingLibrary.tsx",
+    "tools/record-voice-and-meetings/show/RecordingPill.tsx",
+    "tools/record-voice-and-meetings/show/adaptation-ladder.json",
+    "tools/record-voice-and-meetings/show/adaptation-ladder.ts",
+    "tools/record-voice-and-meetings/show/browser-media-capture.ts",
+    "tools/record-voice-and-meetings/show/edit-recording.ts",
+    "tools/record-voice-and-meetings/show/live-audio-encoding.ts",
+    "tools/record-voice-and-meetings/show/live-audio-stream.json",
+    "tools/record-voice-and-meetings/show/live-audio-stream.ts",
+    "tools/record-voice-and-meetings/show/live-recording-controls.ts",
+    "tools/record-voice-and-meetings/show/live-recording.ts",
+    "tools/record-voice-and-meetings/show/mount-record-audio.tsx",
+    "tools/record-voice-and-meetings/show/native-system-audio-session.mjs",
+    "tools/record-voice-and-meetings/show/record-in-the-browser.ts",
+    "tools/record-voice-and-meetings/show/recording-lifecycle.ts",
+    "tools/record-voice-and-meetings/show/recording-notices.ts",
+    "tools/record-voice-and-meetings/things-to-store-and-run.json"
+  ]
+}

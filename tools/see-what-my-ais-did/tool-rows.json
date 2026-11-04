@@ -259,7 +259,7 @@
                 "paths": [
                   "do-work/fractional-order.ts"
                 ],
-                "at": "/opt/activity/parts/visual-database"
+                "at": "/opt/keep-lists-of-rows"
               },
               {
                 "package": "record-log",

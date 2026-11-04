@@ -1,4 +1,8 @@
 {
+  "imported_by": [
+    "Trillion-X/trillion-apps",
+    "Trillion-X/trillion"
+  ],
   "public": [
     "do-work/connect-service.ts",
     "do-work/disconnect-service.ts",

@@ -13,7 +13,7 @@
 //   node author-effect-stack.mjs --clip-id <id> --look vhs [--out file]
 //   node author-effect-stack.mjs --global --stack '[...]'
 import { writeFileSync } from 'node:fs';
-import { blake3 } from '@noble/hashes/blake3.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import {
   buildEffectCatalog, validateEffectStack, resolveLookStack,
   createComputeEffects, createKeyframeEffects,
@@ -73,7 +73,7 @@ export function authorEffectStackRecord(args = {}, deps = {}) {
   if (!res.ok) return res;
   const decision = { ...res.decision };
   if (typeof args.createdAt === 'string' && args.createdAt) decision.created_at = args.createdAt;
-  const id = typeof args.id === 'string' && args.id ? args.id : Buffer.from(blake3(new TextEncoder().encode(JSON.stringify(decision)))).toString('hex').slice(0, 16);
+  const id = typeof args.id === 'string' && args.id ? args.id : makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify(decision))).slice(3, 19);
   const address = `package::media-composition::edit-decision::${id}`;
   return { ok: true, record: { address, payload: { kind: 'media-composition.edit-decision', ...decision } } };
 }

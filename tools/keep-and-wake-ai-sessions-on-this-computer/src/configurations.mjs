@@ -1,7 +1,7 @@
 // Reusable UI state is an ordinary EEAF record. Lists, screens, humans and AIs
 // use this one owner; credentials and data selected by a query stay elsewhere.
-import { captureConfigurationSettings, selectedConfigurationAspects } from '../parts/visual-database/read-data/configuration-values.mjs';
-import { resolveSavedViewTimeBound } from '../parts/visual-database/read-data/saved-view-engine.mjs';
+import { captureConfigurationSettings, selectedConfigurationAspects } from '../../keep-lists-of-rows/read-data/configuration-values.mjs';
+import { resolveSavedViewTimeBound } from '../../keep-lists-of-rows/read-data/saved-view-engine.mjs';
 import { failureOf } from './failure.mjs';
 
 export const CONFIGURATION_TYPE = 'record:configuration';

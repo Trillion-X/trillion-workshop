@@ -1,4 +1,7 @@
 {
+  "imported_by": [
+    "tools/arrange-screens-in-panes"
+  ],
   "public": [
     "do-work/browser-session-browser-id.ts",
     "do-work/read-current-browser-session.ts",

@@ -1,0 +1,24 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [],
+  "files": [
+    {
+      "from": "parts/serialized-content/do-work/base64.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/serialized-content/do-work/base64.mjs",
+      "source_identity": "1f:290d74c0b42bf314416307108928f7e7604479ad2c10b8e25eb379722ed1a5ac",
+      "identity": "1f:290d74c0b42bf314416307108928f7e7604479ad2c10b8e25eb379722ed1a5ac"
+    },
+    {
+      "from": "parts/serialized-content/do-work/content-json.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/serialized-content/do-work/content-json.mjs",
+      "source_identity": "1f:cada04a32a2c194db3217962845eb013f158777d4a477398fb43b5d26c5a5d94",
+      "identity": "1f:cada04a32a2c194db3217962845eb013f158777d4a477398fb43b5d26c5a5d94"
+    }
+  ],
+  "not_matched": []
+}
