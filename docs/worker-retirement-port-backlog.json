@@ -281,13 +281,13 @@
   {
    "path": "parts/eeaf/do-work/eeaf-field-reads.mjs",
    "class": "home-exists",
-   "destination": "trillion-workshop:tools/eeaf/do-work/eeaf-field-reads.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-field-reads.mjs",
    "why": "same bytes on main"
   },
   {
    "path": "parts/eeaf/do-work/eeaf-sqlite-store.mjs",
    "class": "home-exists",
-   "destination": "trillion-workshop:tools/eeaf/do-work/eeaf-sqlite-store.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs",
    "why": "same bytes on main"
   },
   {
