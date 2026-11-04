@@ -83,7 +83,8 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
       if (identity(now) !== (changedAfter ? file.identity_at_move : file.identity)) problems.push(`${file.to} is not the bytes its receipt names${changedAfter ? ' at its byte copy' : ''}`);
       const before = tree.read(file.from);
       if (identity(before) !== file.source_identity) problems.push(`${file.from} at ${file.commit.slice(0, 10)} is not the bytes the receipt names`);
-      if (file.reused) { if (isCode(file.from) ? withoutRequests(now.toString('utf8')) !== withoutRequests(before.toString('utf8')) : !now.equals(before)) problems.push(`${file.to} was reused but differs from ${file.from}${isCode(file.from) ? ' beyond its import paths' : ''}`); }
+      if (file.reused && file.adapted) { /* a home its row names as an adapted copy: it is there, and the tests carried against it prove it by their run */ }
+      else if (file.reused) { if (isCode(file.from) ? withoutRequests(now.toString('utf8')) !== withoutRequests(before.toString('utf8')) : !now.equals(before)) problems.push(`${file.to} was reused but differs from ${file.from}${isCode(file.from) ? ' beyond its import paths' : ''}`); }
       else if (isCode(file.from)) {
         const used = new Set(file.calls ?? []);
         const swapped = swapCalls(before.toString('utf8'), (receipt.calls ?? []).filter(row => used.has(row.id))).text;

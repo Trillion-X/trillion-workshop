@@ -137,6 +137,13 @@
       "to": "tools/record-log/test/record-sync-selected-bucket-stability.test.mjs",
       "source_identity": "1f:1cb59ee616ba56d0a6f528d38f646ca305e04ca654b8400643b95b6b20f4d37f",
       "identity": "1f:478934bd70e254e2eea643c4a7773058da0155ee72ea697b5d76e2fc8e061a1a"
+    },
+    {
+      "from": "test/record-table-integration.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/test/record-table-integration.test.mjs",
+      "source_identity": "1f:025731aabae9f4eea5d573f80fb335031ae43070d4fef76808929868c79779c0",
+      "identity": "1f:aa0d7b13333f3b2fe7166f5f86c75d2564b320409959bdc5c9b31113c5c75f7e"
     }
   ]
 }

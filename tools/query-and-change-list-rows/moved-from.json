@@ -19,6 +19,14 @@
       "identity": "1f:e2569f97dcda96c6bc9bd4f3f1c512f46d906a3a4b158e7bae95dfeb8a432d84"
     },
     {
+      "from": "src/choice-mapping.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/src/choice-mapping.mjs",
+      "source_identity": "1f:e2569f97dcda96c6bc9bd4f3f1c512f46d906a3a4b158e7bae95dfeb8a432d84",
+      "identity": "1f:e2569f97dcda96c6bc9bd4f3f1c512f46d906a3a4b158e7bae95dfeb8a432d84",
+      "reused": true
+    },
+    {
       "from": "src/configurations.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/query-and-change-list-rows/src/configurations.mjs",
@@ -68,6 +76,14 @@
       "identity": "1f:b1785bc7e279575df9e50ec7ab9ea993633c01274e9c6c9e27760760e26d6a3f"
     },
     {
+      "from": "src/list-identity.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/src/list-identity.mjs",
+      "source_identity": "1f:8477a765d4e4d9230b3716ae68bc23a887226f77f8120b053578e95678283c05",
+      "identity": "1f:b1785bc7e279575df9e50ec7ab9ea993633c01274e9c6c9e27760760e26d6a3f",
+      "reused": true
+    },
+    {
       "from": "src/list-input-grammar.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/query-and-change-list-rows/src/list-input-grammar.mjs",
@@ -80,6 +96,14 @@
       "to": "tools/query-and-change-list-rows/src/list-keys.mjs",
       "source_identity": "1f:8705e7857c776e5bf366f7052569b2374f169f9e176eb351a4c41d0315dbd972",
       "identity": "1f:03498ac582a458639104d32e013a3fff01d17fff0a6d38562ceb77b94aceaeae"
+    },
+    {
+      "from": "src/list-keys.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/src/list-keys.mjs",
+      "source_identity": "1f:8705e7857c776e5bf366f7052569b2374f169f9e176eb351a4c41d0315dbd972",
+      "identity": "1f:03498ac582a458639104d32e013a3fff01d17fff0a6d38562ceb77b94aceaeae",
+      "reused": true
     },
     {
       "from": "src/list-pairs.mjs",
@@ -108,6 +132,14 @@
       "to": "tools/query-and-change-list-rows/src/list-people.mjs",
       "source_identity": "1f:1a6230b795e12819afee93678a4d5f0cd958a767775d41bab97234f357362299",
       "identity": "1f:67f23953418484a93c129e282e91485b2ab6cc7db419f611b70abaa881c1c42d"
+    },
+    {
+      "from": "src/list-people.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/src/list-people.mjs",
+      "source_identity": "1f:1a6230b795e12819afee93678a4d5f0cd958a767775d41bab97234f357362299",
+      "identity": "1f:67f23953418484a93c129e282e91485b2ab6cc7db419f611b70abaa881c1c42d",
+      "reused": true
     },
     {
       "from": "src/list-plain-files.mjs",
@@ -159,11 +191,27 @@
       "identity": "1f:2fe602fa1571e5d5a429df4287afb2e972ecd5a5c7614434c8e46e9c8852240f"
     },
     {
+      "from": "src/list-row-operations.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/src/list-row-operations.mjs",
+      "source_identity": "1f:575e364e6022ffc353c22d0f38c7beeae2b8b878df21ccec928014512640fdbd",
+      "identity": "1f:2fe602fa1571e5d5a429df4287afb2e972ecd5a5c7614434c8e46e9c8852240f",
+      "reused": true
+    },
+    {
       "from": "src/list-row-transfer.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/query-and-change-list-rows/src/list-row-transfer.mjs",
       "source_identity": "1f:898196c5da86c1588284e0c7e95c15100820d0c1c4017d684f93195c8d1ebb48",
       "identity": "1f:12928c6ef0c50663fa6dac77d178c6d8bf10903e47c55becc753be37b9ce8b26"
+    },
+    {
+      "from": "src/list-row-transfer.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/src/list-row-transfer.mjs",
+      "source_identity": "1f:898196c5da86c1588284e0c7e95c15100820d0c1c4017d684f93195c8d1ebb48",
+      "identity": "1f:12928c6ef0c50663fa6dac77d178c6d8bf10903e47c55becc753be37b9ce8b26",
+      "reused": true
     },
     {
       "from": "src/list-snapshots.mjs",
@@ -180,6 +228,14 @@
       "identity": "1f:369f79ab58317f302ff86f6f51861c05b43135058489bd2cfa13fc5bfd964784"
     },
     {
+      "from": "src/list-stamps.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/src/list-stamps.mjs",
+      "source_identity": "1f:72613cfc2aca22351f4f6517e76610ce5e88234a3c743658f6dc9340349926ea",
+      "identity": "1f:369f79ab58317f302ff86f6f51861c05b43135058489bd2cfa13fc5bfd964784",
+      "reused": true
+    },
+    {
       "from": "src/list-tool-actions.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/query-and-change-list-rows/src/list-tool-actions.mjs",
@@ -192,6 +248,14 @@
       "to": "tools/query-and-change-list-rows/src/list-tools.mjs",
       "source_identity": "1f:4d5a26f8946d30ddde1d7abb9dba5a0be90089751e24c389f7a461c2c1c174b5",
       "identity": "1f:f060360946cd543ce114c7b2ae0ab3b0c6c50d4a4e0c4ba52c26e3c309e41482"
+    },
+    {
+      "from": "src/list-tools.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/src/list-tools.mjs",
+      "source_identity": "1f:4d5a26f8946d30ddde1d7abb9dba5a0be90089751e24c389f7a461c2c1c174b5",
+      "identity": "1f:f060360946cd543ce114c7b2ae0ab3b0c6c50d4a4e0c4ba52c26e3c309e41482",
+      "reused": true
     },
     {
       "from": "src/list-view-parameters.mjs",
@@ -213,6 +277,62 @@
       "to": "tools/query-and-change-list-rows/src/record-model-tools.mjs",
       "source_identity": "1f:1626699cce23df5e219059b94c7950015578ee355a975575bbe97112527ad78e",
       "identity": "1f:e01d8c01fed62c92989d5e8e61aa53592f79fc4a000f896026f297648083b78d"
+    },
+    {
+      "from": "test/choice-mapping.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/test/choice-mapping.test.mjs",
+      "source_identity": "1f:7d09888e8c1789b252497a94d6815f663b52f1d6f6379b03f39b737ef4e03eca",
+      "identity": "1f:2c434d9705298269f90e0e6859063b48872439a4c26c5e0a89844dab7720dd3b"
+    },
+    {
+      "from": "test/list-history.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/test/list-history.test.mjs",
+      "source_identity": "1f:23e5c0071f81c51d0f284093c47de7a984224ff8b40883ecba07d5fb18ea0a32",
+      "identity": "1f:ab51807741e456d376da287c9d6a191955f735c211a86f15819d9f2e55e868b9"
+    },
+    {
+      "from": "test/list-link-index.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/test/list-link-index.test.mjs",
+      "source_identity": "1f:035a222eb16209ae4b76a6e3d53feb789c83ca7a4e58365b192ce05802c15b29",
+      "identity": "1f:30cf3d735f0346484c8f0600be2015736134529197ace4b0ce24f246928aeeba"
+    },
+    {
+      "from": "test/list-people.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/test/list-people.test.mjs",
+      "source_identity": "1f:377a9908561f36ed02862618ebd932806f04a084fa73278aeb006a591da3e799",
+      "identity": "1f:a7d38f9acd1b8ac76ed86bfff6dd52a51c6297a0a01712f04707104c6efd900e"
+    },
+    {
+      "from": "test/list-roots-and-machine-fields.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/test/list-roots-and-machine-fields.test.mjs",
+      "source_identity": "1f:2c653dd9b85b5e85b11ecee2b22bcfb649136a29036f319ea19bf2181a1db1a9",
+      "identity": "1f:288d6983f345b3a229ec9d785b9131f34ed897de95a38d86a96cc9f90617a66e"
+    },
+    {
+      "from": "test/list-row-operations.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/test/list-row-operations.test.mjs",
+      "source_identity": "1f:52df9eb831672ac89366a6dbecff7b11da1fcdb861ff0e82b66154cea929e47f",
+      "identity": "1f:3a5b65ef71a3596efb556b7f46db6346651ac8b4e7eb2e208bc60b8901eb3b17"
+    },
+    {
+      "from": "test/list-unique-keys.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/test/list-unique-keys.test.mjs",
+      "source_identity": "1f:f560d95aa09aa00999048c6ac7a8439e0a59a7f71f082b58a57a6a4e570fa23e",
+      "identity": "1f:f3848992b749d023b1789ce9f903b1b14995390c02cce54faacd54fa72575a55"
+    },
+    {
+      "from": "test/lists-ordering.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/query-and-change-list-rows/test/lists-ordering.test.mjs",
+      "source_identity": "1f:1719c4883203deadd6c7ca5aa7f5f9c2ba08b141da8f0e9f0349aa87fb8e84df",
+      "identity": "1f:395bbb3a8a4938646e39774cd4e65e53468addce385aefcf65269caa7e88cf56"
     }
   ]
 }

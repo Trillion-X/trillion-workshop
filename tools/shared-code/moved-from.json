@@ -235,6 +235,14 @@
       "reused": true
     },
     {
+      "from": "src/carried-connections.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/src/carried-connections.mjs",
+      "source_identity": "1f:66cdff548b65d2c7492a07560f8f69aa4576bbad707ab676016d497dda6410be",
+      "identity": "1f:66cdff548b65d2c7492a07560f8f69aa4576bbad707ab676016d497dda6410be",
+      "reused": true
+    },
+    {
       "from": "src/data-rows.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/data-rows.mjs",
@@ -871,6 +879,20 @@
       "to": "tools/shared-code/test/agent-store-for-tests.mjs",
       "source_identity": "1f:1cfc468b0275ef8b34590a9f235678a2fd2a58c4e56e284e053718083c3685b9",
       "identity": "1f:f7bf66e6cf4485049eb49fbaecc8f714bc027f866f48c7c748f1c16634a32de4"
+    },
+    {
+      "from": "test/carried-lifecycle-races.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/test/carried-lifecycle-races.test.mjs",
+      "source_identity": "1f:1a4961b04ab9c3fbee920f07e83eb8211031eaad9800d99e241f20213fc628fa",
+      "identity": "1f:2759bd3083186c2db0a1fa428d78d8cb690d7a916945829c13981c08cf6bdbce"
+    },
+    {
+      "from": "test/carried-lifecycle.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/test/carried-lifecycle.test.mjs",
+      "source_identity": "1f:7e83aaf587a90e7b1697923aedd1a80fa78d3a1de71b660a230fd08880968023",
+      "identity": "1f:06993dc841728587e3b8c167a74e808d2789cbed611c8e79fd02ed945fdf11cd"
     },
     {
       "from": "test/namespace-worker-vars.test.mjs",
