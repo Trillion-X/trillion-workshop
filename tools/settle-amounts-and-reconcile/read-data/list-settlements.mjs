@@ -97,12 +97,12 @@ function outcomeOf(items) {
 }
 
 export function makeSettlements({ lists, now = () => new Date().toISOString() }) {
-  const ensureAllocations = (spec, fields) => {
+  const ensureAllocations = async (spec, fields) => {
     const definition = data.lists.allocations;
     const names = { source: spec.source.list_id, target: spec.targets.list_id };
     const id = text(spec.allocations?.list_id) ?? fill(definition.id, names);
-    if (!lists.find(id)) {
-      return lists.ensure({
+    if (!await lists.find(id)) {
+      return await lists.ensure({
         id, label: fill(definition.label, names), row_type: definition.row_type, title_field: fields.amount,
         fields: [
           { id: fields.source, label: 'Source', kind: 'link', links_to: spec.source.list_id },
@@ -137,7 +137,7 @@ export function makeSettlements({ lists, now = () => new Date().toISOString() })
     const bySource = new Map();
     const byTarget = new Map();
     const rows = new Map();
-    if (lists.find(id)) {
+    if (await lists.find(id)) {
       for (const row of await scanAll(lists, id)) {
         const amount = unitsOf(row.values[fields.amount]);
         if (amount === null) continue;
@@ -306,7 +306,7 @@ export function makeSettlements({ lists, now = () => new Date().toISOString() })
     if (amount === null) throw say('no_amount', { row_id: rowId, list_id: listId, field_id: amountField });
     const allocationsList = need(text(input.allocations?.list_id), 'allocations.list_id', 'the list that keeps the allocations');
     const side = role === 'source' ? fields.source : fields.target;
-    const behind = lists.find(allocationsList) ? await scanAll(lists, allocationsList, values => idsOf(values[side]).includes(rowId)) : [];
+    const behind = await lists.find(allocationsList) ? await scanAll(lists, allocationsList, values => idsOf(values[side]).includes(rowId)) : [];
     const applied = behind.reduce((sum, one) => sum + (unitsOf(one.values[fields.amount]) ?? 0), 0);
     return {
       row_id: rowId, role, amount: amountOf(amount), applied: amountOf(applied), open: amountOf(amount - applied),
@@ -331,10 +331,10 @@ export function makeSettlements({ lists, now = () => new Date().toISOString() })
     return text(input?.receipts?.list_id) ?? fill(data.lists.receipts.id, { lines: lines.list_id });
   }
 
-  function ensureReceipts(id, lines) {
-    if (lists.find(id)) return null;
+  async function ensureReceipts(id, lines) {
+    if (await lists.find(id)) return null;
     const definition = data.lists.receipts;
-    return lists.ensure({
+    return await lists.ensure({
       id, label: fill(definition.label, { lines: lines.list_id }), row_type: definition.row_type, title_field: definition.title_field,
       fields: [
         { id: receiptFields.kind, label: 'Kind', kind: 'text' },
@@ -357,8 +357,8 @@ export function makeSettlements({ lists, now = () => new Date().toISOString() })
     });
   }
 
-  function requireLineFields(lines) {
-    const list = lists.find(lines.list_id);
+  async function requireLineFields(lines) {
+    const list = await lists.find(lines.list_id);
     if (!list) throw say('no_row', { row_id: '(any)', list_id: lines.list_id });
     for (const [id, what] of [[lines.amount_field, 'lines.amount_field'], [lines.closed_in_field, 'lines.closed_in_field']]) {
       if (!list.fields.some(field => field.id === id)) throw say('bad_input', { what, detail: `${id} is not a field of ${lines.list_id}; save_list adds it` });
@@ -377,7 +377,7 @@ export function makeSettlements({ lists, now = () => new Date().toISOString() })
     if (opening === null || statement === null) throw say('bad_input', { what: 'opening_balance and statement_balance', detail: 'both are numbers' });
     const rowIds = Array.isArray(input.row_ids) ? [...new Set(input.row_ids)] : [];
     if (!rowIds.length) throw say('no_lines');
-    requireLineFields(lines);
+    await requireLineFields(lines);
     const receiptsId = receiptsList(input, lines);
     await ensureReceipts(receiptsId, lines);
     const receiptId = `r-${identity(requestKey).slice(0, 24)}`;
@@ -415,7 +415,7 @@ export function makeSettlements({ lists, now = () => new Date().toISOString() })
     return { receipt_id: receiptId, receipts_list: receiptsId, receipt, closed: rowIds.length };
   }
 
-  const openReceipts = async receiptsId => (lists.find(receiptsId)
+  const openReceipts = async receiptsId => (await lists.find(receiptsId)
     ? await scanAll(lists, receiptsId, values => values[receiptFields.kind] === 'receipt' && !values[receiptFields.undone_at])
     : []);
 
@@ -593,12 +593,12 @@ export function makeSettlements({ lists, now = () => new Date().toISOString() })
     const within = value => typeof value === 'string' && value.slice(0, 10) >= from && value.slice(0, 10) <= to;
     const accrualRows = (await scanAll(lists, targetList)).filter(row => within(row.values[dateField]) && unitsOf(row.values[amountField]) !== null);
     const accrual = accrualRows.reduce((sum, row) => sum + unitsOf(row.values[amountField]), 0);
-    const cashRows = lists.find(allocationsId) ? (await scanAll(lists, allocationsId, values => within(values[fields.date]))).filter(row => unitsOf(row.values[fields.amount]) !== null) : [];
+    const cashRows = await lists.find(allocationsId) ? (await scanAll(lists, allocationsId, values => within(values[fields.date]))).filter(row => unitsOf(row.values[fields.amount]) !== null) : [];
     const cash = cashRows.reduce((sum, row) => sum + unitsOf(row.values[fields.amount]), 0);
     const cap = rows => ({ rows: rows.slice(0, limits.report_rows), truncated: rows.length > limits.report_rows });
     // The basis is a setting: the call's own, else the one saved on the list (save_list report_basis), else the DATA default.
     const optionIds = data.basis.options.map(option => option.id);
-    const basis = text(input.basis) ?? text(lists.find(targetList)?.report_basis) ?? data.default_basis;
+    const basis = text(input.basis) ?? text((await lists.find(targetList))?.report_basis) ?? data.default_basis;
     if (!optionIds.includes(basis)) throw say('bad_basis', { basis, bases: optionIds.join(', ') });
     const says = id => data.basis.options.find(option => option.id === id).says;
     const shown = id => basis === id || basis === 'both';
