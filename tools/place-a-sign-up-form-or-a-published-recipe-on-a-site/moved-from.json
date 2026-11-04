@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/public-app-visitor-view.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/place-a-sign-up-form-or-a-published-recipe-on-a-site/src/public-app-visitor-view.mjs",
+      "source_identity": "1f:9ddffdf36cc55b35ea3f18bf97770e86cab90ecc4ae5ef8581c4fdef15255319",
+      "identity": "1f:9ddffdf36cc55b35ea3f18bf97770e86cab90ecc4ae5ef8581c4fdef15255319"
+    },
+    {
+      "from": "test/public-app-visitor-view.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/place-a-sign-up-form-or-a-published-recipe-on-a-site/test/public-app-visitor-view.test.mjs",
+      "source_identity": "1f:e91f62e89c932f5c50f29637cee33ec9d1cad3dd8a0bd11171a6e7f87729a169",
+      "identity": "1f:e91f62e89c932f5c50f29637cee33ec9d1cad3dd8a0bd11171a6e7f87729a169"
+    }
+  ]
+}

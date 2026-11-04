@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-board-live.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-board-live-for-several-people/src/native-board-live.mjs",
+      "source_identity": "1f:d3a73a9e75150524f8d9565eb1cbe19902d643e4905f2bdd1cb78fdbde1a3cfe",
+      "identity": "1f:d3a73a9e75150524f8d9565eb1cbe19902d643e4905f2bdd1cb78fdbde1a3cfe"
+    },
+    {
+      "from": "test/native-board-live.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-board-live-for-several-people/test/native-board-live.test.mjs",
+      "source_identity": "1f:e7ca91731647b80fc95e6e645b845c33a145aaa75878fb606491e1f6673c5dcf",
+      "identity": "1f:e7ca91731647b80fc95e6e645b845c33a145aaa75878fb606491e1f6673c5dcf"
+    }
+  ]
+}

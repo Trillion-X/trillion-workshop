@@ -1,0 +1,9 @@
+{
+  "_what": "How the passages of a person's kept results are encoded by the meaning encoders they installed (src/meaning-sets.mjs), so search finds things by meaning in every installed model's space (src/search.json lane `meaning`). Each installed tool serving `encode` names in its descriptor the results it reads (`encodes.reads`: a result kind, its place, where its pieces are and which field holds each piece's words). Consecutive pieces are joined into passages of about `passage_characters`, so a long recording is a bounded number of vectors; each encoder run is sent at most `per_request` passages. The vectors are kept as the file's `meaning` result, one set per space and place, beside the sets of other spaces. The store's alarm encodes `per_wake` results at a time, `seconds_between_wakes` apart; a run still working is waited on at most `tool_wait_seconds` and asked again on the next wake; a result whose encoding failed is tried at most `tries` times. When an encoder is uninstalled, its sets are removed from `meaning` results `per_wake` at a time. A new model is an installed tool, never a row here.",
+  "passage_characters": 600,
+  "per_request": 64,
+  "per_wake": 8,
+  "seconds_between_wakes": 20,
+  "tool_wait_seconds": 20,
+  "tries": 3
+}
