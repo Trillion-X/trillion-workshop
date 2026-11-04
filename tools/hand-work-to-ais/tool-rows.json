@@ -184,7 +184,10 @@
               ],
               "_read_by": "src/agent-records.mjs reachableCards"
             }
-          ]
+          ],
+          "harness_hooks": {
+            "agent_card": "agent-card"
+          }
         },
     "verify": [
      {"kind":"sample-run","input":{"can":["code"]},"records":[{"id":"ai:sample-sender","type":"ai","value":{"label":"Sample sample-sender","can":["code"],"order":1,"live":{"seen_at":"2026-11-03T00:00:00.000Z","minutes":10}}},{"id":"ai:sample-taker","type":"ai","value":{"label":"Sample sample-taker","can":["code"],"order":2,"live":{"seen_at":"2026-11-03T00:00:00.000Z","minutes":10}}},{"id":"ai-job:sample-1","type":"ai-job","value":{"kind":"ai-job","status":"taken","job":"Write a made-up sample report","to":null,"from":"ai:sample-sender","priority":5,"sent_at":"2026-11-03T00:00:00.000Z","taker":"ai:sample-taker","taken_at":"2026-11-03T00:05:00.000Z"}}]}
