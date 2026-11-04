@@ -98,6 +98,17 @@
       "source_identity": "1f:2e6916ca36b06357412039d95b9e5c1fcbbc63858723813913c53768883384c4",
       "identity": "1f:2e6916ca36b06357412039d95b9e5c1fcbbc63858723813913c53768883384c4",
       "found_by": "same bytes"
+    },
+    {
+      "from": "src/ai-app-guides.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/set-up-my-account/read-data/ai-app-guides.mjs",
+      "source_identity": "1f:8fedd8518e7239b5288e0d97c92da912039f209e4a4eae8049c237391aeb6982",
+      "identity_at_move": "1f:8fedd8518e7239b5288e0d97c92da912039f209e4a4eae8049c237391aeb6982",
+      "byte_copy_commit": "6e363424f4228367c5edbfc1404eea4d73cbd437",
+      "changed": true,
+      "found_by": "same bytes"
     }
   ]
 }

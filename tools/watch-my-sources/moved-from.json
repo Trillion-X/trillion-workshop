@@ -1,0 +1,30 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here (or, for a file changed here since, to its bytes at byte_copy_commit); deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/feed-items.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7aba9db6af1cfaeac715babe0c01a13f2d669d05",
+      "to": "tools/watch-my-sources/read-data/feed-items.mjs",
+      "source_identity": "1f:3314536b9ec29c336fb5204662e89d2b3c9e78e20d6895ed71d302800f18b238",
+      "identity_at_move": "1f:3314536b9ec29c336fb5204662e89d2b3c9e78e20d6895ed71d302800f18b238",
+      "byte_copy_commit": "5ffa9dbf6db59af17bf98ee940aa47b5047ee341",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "src/watch-sources.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7aba9db6af1cfaeac715babe0c01a13f2d669d05",
+      "to": "tools/watch-my-sources/read-data/watch-sources.mjs",
+      "source_identity": "1f:32a31d990318b72846a238a2c5d73718de00e119475c2e019670db82cd27644d",
+      "identity_at_move": "1f:32a31d990318b72846a238a2c5d73718de00e119475c2e019670db82cd27644d",
+      "byte_copy_commit": "5ffa9dbf6db59af17bf98ee940aa47b5047ee341",
+      "changed": true,
+      "found_by": "same bytes"
+    }
+  ]
+}

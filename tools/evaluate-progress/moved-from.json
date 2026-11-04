@@ -33,6 +33,17 @@
       "to": "tools/evaluate-progress/test/community-logic/board-habit.test.ts",
       "source_identity": "1f:c68ad2fa9197fd5d349e5951ebb88ade01be9d0cb098fa8bc2bc2ffe3a2d5246",
       "identity": "1f:980a36db3fdc14451f495c0ca0067b21d8a7e741743ed896b1c273fa66850e11"
+    },
+    {
+      "from": "src/progression.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/evaluate-progress/read-data/progression.mjs",
+      "source_identity": "1f:d0a88184b2b2f65bd8c1c082b6aad9aed1fbe118669d88d1837cbcc2b10fbeeb",
+      "identity_at_move": "1f:d0a88184b2b2f65bd8c1c082b6aad9aed1fbe118669d88d1837cbcc2b10fbeeb",
+      "byte_copy_commit": "3d1f357e81203c662f2262d25de81609252c1845",
+      "changed": true,
+      "found_by": "same bytes"
     }
   ]
 }

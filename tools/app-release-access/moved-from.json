@@ -1,0 +1,30 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here (or, for a file changed here since, to its bytes at byte_copy_commit); deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "computer/setup-access.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/app-release-access/read-data/setup-access.mjs",
+      "source_identity": "1f:099750a004b728f74f0d6de5ff0182b22852404e612faf4d9f922b3b5ff07a79",
+      "identity_at_move": "1f:099750a004b728f74f0d6de5ff0182b22852404e612faf4d9f922b3b5ff07a79",
+      "byte_copy_commit": "b657df564849916a920e9eb7d9d756b107ab7c6a",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "scripts/testflight-readiness.mjs",
+      "commit": "0e59f5478ccf0d20165b3f3cc914e08bfa526f0b",
+      "deleted_by": "7cbcbce91daa50c0d1acb74b6a7ad15d01fd2841",
+      "to": "tools/app-release-access/read-data/testflight-readiness.mjs",
+      "source_identity": "1f:79e2400b996a1dc6f1fa4c97f6ce1ada04593f403f2b7a2de2dff86b3e2f52db",
+      "identity_at_move": "1f:79e2400b996a1dc6f1fa4c97f6ce1ada04593f403f2b7a2de2dff86b3e2f52db",
+      "byte_copy_commit": "b657df564849916a920e9eb7d9d756b107ab7c6a",
+      "changed": true,
+      "found_by": "same bytes"
+    }
+  ]
+}

@@ -12,6 +12,17 @@
       "source_identity": "1f:83896f213940b50907f58d30636c10d47d48101bf5e2a3a3327730cfc159bd00",
       "identity": "1f:83896f213940b50907f58d30636c10d47d48101bf5e2a3a3327730cfc159bd00",
       "found_by": "same bytes"
+    },
+    {
+      "from": "src/show-rules-store.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/decide-when-things-show/read-data/show-rules-store.mjs",
+      "source_identity": "1f:1e8a1f6a951cd95848c5aa1ae1265375c41496b97e7fbacdf9da2743325dcdb0",
+      "identity_at_move": "1f:1e8a1f6a951cd95848c5aa1ae1265375c41496b97e7fbacdf9da2743325dcdb0",
+      "byte_copy_commit": "a669629507e510074ebdd491b2d6b7c14bb84002",
+      "changed": true,
+      "found_by": "same bytes"
     }
   ]
 }

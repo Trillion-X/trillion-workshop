@@ -93,6 +93,17 @@
       "source_identity": "1f:978a764ca7eb3546fa7e5d4b3785ec131c73dacbfa1d78c2a557d356038c9a37",
       "identity": "1f:978a764ca7eb3546fa7e5d4b3785ec131c73dacbfa1d78c2a557d356038c9a37",
       "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ui/show/loading-mark/index.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/ui/show/loading-mark/index.ts",
+      "source_identity": "1f:5d7520ede1ece43fb37433119d56c60c7c177341324b6e1a64e4ea1b5f508736",
+      "identity_at_move": "1f:5d7520ede1ece43fb37433119d56c60c7c177341324b6e1a64e4ea1b5f508736",
+      "byte_copy_commit": "5998eb5471c0f560a48b1de2dd390fc63526f39d",
+      "changed": true,
+      "found_by": "same bytes"
     }
   ]
 }

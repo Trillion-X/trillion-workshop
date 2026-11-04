@@ -17,6 +17,17 @@
       "to": "tools/sign-in-with-a-passkey/passwords.json",
       "source_identity": "1f:e3708644deb0eaea91286e6ab2c28e423d53a67b34e62081c8c5ae4e1d89fff5",
       "identity": "1f:e3708644deb0eaea91286e6ab2c28e423d53a67b34e62081c8c5ae4e1d89fff5"
+    },
+    {
+      "from": "src/client/passkey.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/sign-in-with-a-passkey/passkey.mjs",
+      "source_identity": "1f:b2e50720ca4c7db305ef85d0de83918dbb654a566e4725ec34ed9467b02ae078",
+      "identity_at_move": "1f:b2e50720ca4c7db305ef85d0de83918dbb654a566e4725ec34ed9467b02ae078",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
     }
   ]
 }
