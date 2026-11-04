@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:892c5d4a2ed2289e74e84d617861edc1041484485e105d686b2c95a006c19856"
+  "blake3": "1f:98d26a4cb6cad4090bb09c258c7a18c4813e2e2f35259839f1f4e8c2ea947719"
  },
  "fields": [
   {
@@ -4208,7 +4208,7 @@
    "values": {
     "title": "Import my conversations from one source",
     "job": "Bring every conversation of one app (an AI chat export, Google Takeout activity, or a local AI app's sessions) from this computer into my records completely, one row per conversation and every message, continuing where an earlier run stopped",
-    "description": "Runs on the person's computer over the folder they granted (their home folder). source is one id tool:list-the-conversation-sources-on-this-computer gives; files, when given, names the files (paths in the folder) instead of looking for them. Each conversation is kept as the person's messages (record message, with its source key, so bringing it in again adds nothing twice) and one row of their AI conversations list (record:ai-conversation: title, app, conversation, started, last, messages, models, original_file; labels, people, pursuits and follow-ups they set are never touched). Writes go through the records door in batches; a busy (503) or slow door is asked again after a growing wait with the same request key. Each file has a cursor row (conversation-import-cursor) that moves only past what was kept, so a run that stops, or reaches time_box_seconds, answers more: true and the next run goes on from there; a file already done and unchanged is skipped. Files the messages carried (attachments) are counted, not copied.",
+    "description": "Runs on the person's computer over the folder they granted (their home folder). source is one id tool:list-the-conversation-sources-on-this-computer gives; files, when given, names the files (paths in the folder) instead of looking for them. Each conversation is kept as the person's messages (record message, with its source key, so bringing it in again adds nothing twice) and one row of their AI conversations list (record:ai-conversation: title, app, conversation, started, last, messages, models, original_file; labels, people, pursuits and follow-ups they set are never touched). Writes go through the records door in batches; a busy (503) or slow door is asked again after a growing wait with the same request key. Each file has a cursor row (conversation-import-cursor) that moves only past what was kept, so a run that stops, or reaches time_box_seconds, answers more: true and the next run goes on from there; a file already done and unchanged is skipped. Files the messages carried are copied into the person's files through the files door under /messages: an export's file (ChatGPT's file-XXXX, Grok's asset) found beside the export as /messages/<app>/<name>, an image pasted into a session as /messages/<conversation>/<message>-<n>; a file already there with the same bytes is not written again, and a file not found beside the export is counted (attachments_not_kept), never an error.",
     "status": "active",
     "maker": "maker:conversations",
     "licence_class": "licence:maker-own",

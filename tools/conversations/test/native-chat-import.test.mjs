@@ -55,7 +55,7 @@ test('an export\'s files are found beside it, linked in their messages, and a re
   assert.deepEqual([first.done, first.messages_added, first.attachments_kept, first.attachments_not_kept], [true, 2, 1, 1]);
   const kept = keptMessages(fake);
   assert.deepEqual(kept.find(message => message.text === 'Why did this glaze crawl?').about, [{ kind: 'file', id: identityOf('tile') }], 'file-Tile01 never finds file-Tile011');
-  assert.deepEqual(Object.keys(fake.files), ['/messages/ChatGPT/file-Tile01-tile.jpg']);
+  assert.deepEqual([...fake.stored.keys()], ['/messages/ChatGPT/file-Tile01-tile.jpg']);
   const written = fake.calls.filter(call => call.method === 'write_file_finish').length;
   touch();
   const again = await run();
@@ -70,5 +70,5 @@ test('a name the person gave is read by that name, and with nothing beside the e
   const result = await importConversationsFrom({ input: { source: 'chatgpt-export', attachments: { 'file-Tile01': 'Pictures/photo.png', 'file_00000000aa11': '../outside.png' } }, folder: home }, context);
   assert.deepEqual([result.attachments_kept, result.attachments_not_kept], [1, 1], 'a path that leaves the granted folder is a file not there, never an error');
   assert.deepEqual(keptMessages(fake).find(message => message.text === 'Why did this glaze crawl?').attachments, [{ identity: identityOf('given'), name: 'tile.jpg', media_type: 'image/jpeg' }]);
-  assert.deepEqual(Object.keys(fake.files), ['/messages/ChatGPT/photo.png']);
+  assert.deepEqual([...fake.stored.keys()], ['/messages/ChatGPT/photo.png']);
 });
