@@ -3,7 +3,7 @@
 #
 # Runs as root on the builder, sent over SSH on standard input (`ssh root@ADDRESS sh -s -- ARGS < this file`). It
 # makes the machine ready to build, sign and serve engine releases and changes nothing it already made: a system user
-# that builds and signs, git and a C toolchain, Node.js (from the official build, checked against its SHASUMS256.txt,
+# that builds and signs, git, a C toolchain and the OpenSSL headers the engine's TLS crates link against, Node.js (from the official build, checked against its SHASUMS256.txt,
 # when the machine has none new enough), rust through rustup for that user (the repository's own toolchain file picks
 # the version), the feed folder, Caddy answering HOST_NAME with its own certificate (the feed folder at FEED_PATH, push
 # deliveries at PUSH_PATH passed to the receiver on 127.0.0.1:PORT), and a firewall that admits SSH, HTTP and HTTPS.
@@ -20,7 +20,7 @@ SYSTEMD=$(systemctl --version | sed -n '1s/^systemd \([0-9]*\).*/\1/p')
 [ "${SYSTEMD:-0}" -ge 250 ] || { echo "This machine's systemd ($SYSTEMD) is older than 250, which keeps the push secret encrypted: use Debian 12 or Ubuntu 24.04 or later." >&2; exit 3; }
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq caddy git curl ca-certificates build-essential pkg-config xz-utils tar ufw >/dev/null
+apt-get install -y -qq caddy git curl ca-certificates build-essential pkg-config libssl-dev xz-utils tar ufw >/dev/null
 
 node_major() { node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0; }
 if [ "$(node_major)" -lt "$NODE_MAJOR" ]; then
