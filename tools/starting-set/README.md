@@ -13,6 +13,7 @@ Trillion's defaults: what every account starts with, published by the default pu
 | `part.json` | Read by trillion-rust `src/runtime/workshop/shipped_defaults.rs` (`imported_by`). |  |
 | `moved-from.json` | Where each file came from in Trillion-X/trillion. |  |
 | `test/starting-set.test.mjs` | The rows' own checks, run by `npm test` at the top of the repository. | `test/starting-catalog.test.mjs` (the checks over the rows themselves) |
+| `test/shipped-defaults.test.mjs` | The defaults as the reader reads them: one payload per record, the Simple workspace type byte for byte and in use, accepted by the show-rules store (`tools/set-up-my-account/read-data/show-rules.mjs` `changedRecord`), hiding the workspace chrome when given, naming no person, and equal to trillion-rust's test copy when that checkout is beside this one. | `test/marketplace-starting-defaults.test.mjs` (the defaults ship as data and are read, never written) |
 
 ## Invariants
 
@@ -27,4 +28,5 @@ Trillion's defaults: what every account starts with, published by the default pu
 ## Gaps
 
 - The old automation engine that ran `starting-rules.json` (`src/starting-rules.mjs`, `src/automations.mjs`) and the Marketplace catalog over `records.json` (`src/starting-catalog.mjs`, `src/share-starting-action.mjs`) have no reader yet. The rows are kept here so that reader has its source; until it lands, `every_account` rules and schedules do not run.
+- The show-rules rows (`tools/decide-when-things-show`) do not read the overlay: `tool:switch-a-kept-show-type` switches only a type kept in the person's own record, and `starting` there takes only starting-rule ids. Switching the shipped Simple workspace off is the page's write of `starting.simple-workspace.on: false` (trillion-apps, the simple-workspace-controls lane).
 - `records.json` was written by the old `scripts/build-starting-set.mjs` over the old repository's rows; that generator is not restored (it read files that no longer exist). Its versions are as of the tag.
