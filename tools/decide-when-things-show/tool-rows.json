@@ -231,7 +231,56 @@
               }
             }
           }
-        ]
+        ],
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "record:configuration",
+              "parts": [
+                {
+                  "role": "target",
+                  "path": [
+                    "target"
+                  ]
+                },
+                {
+                  "role": "copied_from",
+                  "path": [
+                    "copied_from"
+                  ]
+                }
+              ],
+              "guard_properties": {
+                "label": "text",
+                "target": "text",
+                "format": "text",
+                "aspects": "texts",
+                "settings": "object",
+                "field_ids": "texts",
+                "revision": "number",
+                "owner": "object",
+                "owner_name": "text",
+                "created_at": "text",
+                "updated_at": "text",
+                "open_path": "text",
+                "copied_from": "text"
+              }
+            }
+          ],
+          "indexes": [
+            {
+              "type": "record:configuration",
+              "name": "target",
+              "paths": [
+                [
+                  "target"
+                ]
+              ],
+              "_read_by": "src/configurations.mjs: bounded target-specific saved configuration pages with stable identity cursors"
+            }
+          ]
+        }
       }
     },
     {

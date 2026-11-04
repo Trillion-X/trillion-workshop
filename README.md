@@ -262,8 +262,9 @@ A kind row is `{ type, properties?, guard_properties?, parts?, erasable?, erasab
 stays_on_this_device?, table? }`: `erasable` fields are sealed under a key of the record's own, so erasing the record
 erases their words; `stays_on_this_device: true` keeps every record of the kind off any road that leaves the
 person's computer. An index row is `{ type, name, paths, where?, carry?, backfill? }`.
-`tools/keep-a-record-library-valid` holds, unchanged, the kinds whose owning tool is not here yet; move a kind to the
-tool that writes it when you add that tool.
+Each kind is declared by the tool whose job keeps it. A section the engine reads by name is declared by one tool:
+`rules_and_runs` (the kinds its rules and workflow runs read and write) and `live_heads` (the record its live screen
+heads read).
 
 ## Add a tool
 

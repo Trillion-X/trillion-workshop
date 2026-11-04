@@ -194,6 +194,303 @@
                 "unconfirmed_at": "text",
                 "unconfirmed_from": "text"
               }
+            },
+            {
+              "type": "whatsapp-pairing-offer",
+              "properties": {},
+              "stays_on_this_device": true
+            },
+            {
+              "type": "arrival",
+              "erasable": [
+                "job",
+                "said",
+                "resolved_text",
+                "entities"
+              ],
+              "erasable_key": [
+                "message_id"
+              ],
+              "erase_with": [
+                {
+                  "field": "message_id",
+                  "type": "message"
+                }
+              ],
+              "parts": [
+                {
+                  "role": "message",
+                  "path": [
+                    "message_id"
+                  ]
+                },
+                {
+                  "role": "moment",
+                  "path": [
+                    "moment"
+                  ]
+                },
+                {
+                  "role": "decision",
+                  "path": [
+                    "case_id"
+                  ]
+                },
+                {
+                  "role": "follows",
+                  "path": [
+                    "follows"
+                  ]
+                },
+                {
+                  "role": "speaker",
+                  "path": [
+                    "speaker_record"
+                  ]
+                },
+                {
+                  "role": "file",
+                  "path": [
+                    "files"
+                  ],
+                  "each": [
+                    "id"
+                  ]
+                }
+              ],
+              "_read_by": "src/inbound.mjs: what arrived, the message it is, the moment it joined, its files",
+              "guard_properties": {
+                "at": "text",
+                "case_id": "text",
+                "chat_first_minutes": "number",
+                "clock": "object",
+                "depth": "number",
+                "entities": "objects",
+                "files": "objects",
+                "follows": "text",
+                "from": "text",
+                "from_person": "boolean",
+                "job": "text",
+                "message_id": "text",
+                "moment": "text",
+                "once_per": "text",
+                "priority": "number",
+                "resolved_text": "text",
+                "route": "text",
+                "said": "text",
+                "source_id": "text",
+                "speaker_record": "text",
+                "title": "text"
+              }
+            },
+            {
+              "type": "file-arrival",
+              "parts": [
+                {
+                  "role": "file",
+                  "path": [
+                    "identity"
+                  ]
+                }
+              ],
+              "_read_by": "src/person-store.mjs recordFileArrival: a file that arrived (a camera clip, an upload)",
+              "guard_properties": {
+                "at": "text",
+                "byte_length": "number",
+                "identity": "text",
+                "made_by_tool": "boolean",
+                "media_type": "text",
+                "names": "list"
+              }
+            },
+            {
+              "type": "item-of",
+              "guard_properties": {
+                "file": "text",
+                "item": "text"
+              }
+            },
+            {
+              "type": "ask-again",
+              "erasable": [
+                "facts"
+              ],
+              "erasable_key": [
+                "message_id"
+              ],
+              "guard_properties": {
+                "at": "text",
+                "facts": "object",
+                "message_id": "text"
+              }
+            },
+            {
+              "type": "message-content-key",
+              "guard_properties": {
+                "message_id": "text"
+              }
+            },
+            {
+              "type": "message-duplicate-correction",
+              "erasable": [
+                "duplicate"
+              ],
+              "erase_with": [
+                {
+                  "field": "duplicate_id",
+                  "type": "message"
+                }
+              ],
+              "guard_properties": {
+                "corrected_at": "text",
+                "duplicate": "object",
+                "duplicate_id": "text",
+                "evidence": "text",
+                "kept_id": "text"
+              }
+            },
+            {
+              "type": "message-provenance-correction",
+              "erasable": [
+                "original"
+              ],
+              "erase_with": [
+                {
+                  "field": "corrected_message_id",
+                  "type": "message"
+                }
+              ],
+              "guard_properties": {
+                "corrected_at": "text",
+                "corrected_message_id": "text",
+                "evidence": "text",
+                "message_id": "text",
+                "original": "object",
+                "retired_arrival_ids": "list",
+                "speaker": "text"
+              }
+            },
+            {
+              "type": "message-resend-key",
+              "guard_properties": {
+                "message_id": "text"
+              }
+            },
+            {
+              "type": "message-source-key",
+              "guard_properties": {
+                "message_id": "text"
+              }
+            },
+            {
+              "type": "message-thread-index",
+              "erasable": [
+                "conversation_id"
+              ],
+              "erasable_key": [
+                "message_id"
+              ],
+              "guard_properties": {
+                "app": "text",
+                "at": "text",
+                "conversation_id": "text",
+                "message_id": "text"
+              }
+            },
+            {
+              "type": "message-time-correction",
+              "guard_properties": {
+                "authored_at": "text",
+                "captured_at": "text",
+                "corrected_at": "text",
+                "evidence": "text",
+                "message_id": "text"
+              }
+            },
+            {
+              "type": "thread-summary",
+              "_read_by": "src/thread-summaries.mjs: an AI's summary of one conversation and the message it covers through",
+              "guard_properties": {
+                "app": "text",
+                "conversation_id": "text",
+                "set_at": "text",
+                "summary": "text",
+                "summary_id": "text",
+                "through_at": "text",
+                "through_message_id": "text"
+              }
+            },
+            {
+              "type": "resource-input-source",
+              "guard_properties": {
+                "message_id": "text",
+                "app": "text",
+                "conversation_id": "text",
+                "source_ref": "text"
+              },
+              "erasable": [
+                "conversation_id",
+                "source_ref"
+              ],
+              "erasable_key": [
+                "message_id"
+              ],
+              "_read_by": "src/resource-inbound.mjs: original source identity index for exact retained-input recovery, sealed under its message key"
+            },
+            {
+              "type": "resource-input-provenance",
+              "guard_properties": {
+                "message_id": "text",
+                "source": "object",
+                "classified": "object",
+                "recorded_by": "text",
+                "captured_at": "text"
+              },
+              "erasable": [
+                "source",
+                "classified"
+              ],
+              "erasable_key": [
+                "message_id"
+              ]
+            },
+            {
+              "type": "resource-input-interpretation",
+              "guard_properties": {
+                "message_id": "text",
+                "state": "text",
+                "next_due": "text",
+                "wake_at": "text",
+                "created_at": "text",
+                "worker": "text",
+                "claimed_at": "text",
+                "lease_until": "text",
+                "released_at": "text",
+                "completed_at": "text",
+                "cancelled_at": "text",
+                "generation": "number",
+                "attempts": "number",
+                "outcome": "any",
+                "source_revision": "text",
+                "reopened_at": "text",
+                "previous_outcome": "any"
+              },
+              "erasable": [
+                "outcome",
+                "previous_outcome"
+              ],
+              "erasable_key": [
+                "message_id"
+              ]
+            },
+            {
+              "type": "resource-input-erasure",
+              "guard_properties": {
+                "route": "text",
+                "conversation_id": "text",
+                "source_ref": "text",
+                "erased_at": "text"
+              }
             }
           ],
           "indexes": [
@@ -260,8 +557,89 @@
                 ]
               ],
               "_read_by": "src/messages.mjs"
+            },
+            {
+              "type": "arrival",
+              "name": "message_id",
+              "backfill": "arrival-task-map-v1",
+              "paths": [
+                [
+                  "message_id"
+                ]
+              ],
+              "carry": [
+                [
+                  "files"
+                ]
+              ],
+              "_read_by": "src/messages.mjs correctProvenance, src/person-store.mjs arrivalsOf, src/task-map-reads.mjs drawnArrivals (what the task map draws of a message's arrivals, from the entries alone: their words are never read)"
+            },
+            {
+              "type": "arrival",
+              "name": "at",
+              "paths": [
+                [
+                  "at"
+                ]
+              ],
+              "_read_by": "src/automations.mjs readHealth"
+            },
+            {
+              "type": "arrival",
+              "name": "route_at",
+              "paths": [
+                [
+                  "route"
+                ],
+                [
+                  "at"
+                ]
+              ],
+              "_read_by": "src/automations.mjs readHealth (newest arrival per route)"
+            },
+            {
+              "type": "ask-again",
+              "name": "at",
+              "paths": [
+                [
+                  "at"
+                ]
+              ],
+              "_read_by": "src/person-store.mjs askAgainWaiting (words the classifier never answered about, oldest first)"
+            },
+            {
+              "type": "message-duplicate-correction",
+              "name": "kept",
+              "paths": [
+                [
+                  "kept_id"
+                ]
+              ],
+              "_read_by": "parts/record-log record-log-store erase (a message erased takes the manual copies kept as its duplicates with it: src/record-model.json erase_with)"
+            },
+            {
+              "type": "resource-input-interpretation",
+              "name": "wake_at",
+              "paths": [
+                [
+                  "wake_at"
+                ]
+              ],
+              "where": [
+                {
+                  "path": [
+                    "state"
+                  ],
+                  "not": [
+                    "complete",
+                    "cancelled"
+                  ]
+                }
+              ],
+              "_read_by": "src/resource-input-capture.mjs bounded resource alarm and claim recovery"
             }
-          ]
+          ],
+          "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
         },
         "verify": [{"kind": "sample-run", "input": {"file": "saved/orders.json"}, "files": [{"grant": "read-a-folder", "path": "saved/orders.json", "text": "{\"self_id\":\"U1\",\"channels\":[{\"id\":\"C1\",\"name\":\"bakery-orders\",\"messages\":[{\"ts\":\"1700000000.000100\",\"user\":\"U1\",\"text\":\"Fresh rye is up\"},{\"ts\":\"1700000060.000200\",\"user\":\"U2\",\"user_profile\":{\"real_name\":\"Rosa\"},\"text\":\"Two loaves please\"}]}]}"}]}]
       }

@@ -215,7 +215,33 @@
             "output_selector": "$.result.sections[1].id",
             "contains": "setup-with-ai"
           }
-        ]
+        ],
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "computer-sources",
+              "guard_properties": {
+                "browser_sites": "texts",
+                "computer_id": "text",
+                "gates": "list",
+                "name": "text",
+                "readers": "objects",
+                "reported_at": "text",
+                "sources": "objects"
+              }
+            },
+            {
+              "type": "sign-in-reach",
+              "guard_properties": {
+                "ceiling": "object",
+                "changed_at": "any",
+                "chosen": "any",
+                "made": "object"
+              }
+            }
+          ]
+        }
       }
     }
   ]

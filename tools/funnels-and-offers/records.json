@@ -141,6 +141,116 @@
             "subject_id": "text",
             "subject_kind": "text"
           }
+        },
+        {
+          "type": "audience-answer-draft",
+          "parts": [
+            {
+              "role": "candidate",
+              "path": [
+                "candidate_id"
+              ]
+            }
+          ],
+          "_read_by": "src/audience-question-admission.mjs"
+        },
+        {
+          "type": "audience-question-work",
+          "parts": [
+            {
+              "role": "candidate",
+              "path": [
+                "candidate_id"
+              ]
+            }
+          ],
+          "_read_by": "src/audience-question-admission.mjs"
+        },
+        {
+          "type": "audience-question-decision",
+          "guard_properties": {
+            "candidate_id": "text",
+            "candidate_revision": "text",
+            "evidence_refs": "list",
+            "kind": "text",
+            "reason": "text",
+            "venture_ref": "text",
+            "verdict": "text"
+          }
+        },
+        {
+          "type": "audience-source",
+          "guard_properties": {
+            "id": "text",
+            "observed_at": "text",
+            "offer_ref": "text",
+            "quote": "text",
+            "role": "text",
+            "source_url": "text",
+            "venture_ref": "text"
+          }
+        },
+        {
+          "type": "record:audience-answer-evidence",
+          "guard_properties": {
+            "answer_note": "text",
+            "excerpt": "text",
+            "id": "text",
+            "kind": "text",
+            "rights_basis_ref": "text",
+            "rights_note": "text",
+            "rights_status": "text",
+            "source_ref": "text",
+            "supports_answer": "boolean",
+            "venture_ref": "text"
+          }
+        },
+        {
+          "type": "record:audience-question",
+          "guard_properties": {
+            "audience": "text",
+            "id": "text",
+            "kind": "text",
+            "locale": "text",
+            "offer_ref": "text",
+            "question": "text",
+            "question_key": "text",
+            "revision": "text",
+            "source_ref": "text",
+            "venture_ref": "text"
+          }
+        },
+        {
+          "type": "record:audience-question-review",
+          "guard_properties": {
+            "candidate_id": "text",
+            "candidate_revision": "text",
+            "evidence_refs": "list",
+            "kind": "text",
+            "reason": "text",
+            "venture_ref": "text",
+            "verdict": "text"
+          }
+        },
+        {
+          "type": "record:audience-question-work",
+          "guard_properties": {
+            "audience": "text",
+            "candidate_id": "text",
+            "candidate_revision": "text",
+            "grounding": "objects",
+            "id": "text",
+            "kind": "text",
+            "locale": "text",
+            "offer_ref": "text",
+            "question": "text",
+            "question_key": "text",
+            "source_observed_at": "text",
+            "source_ref": "text",
+            "source_url": "text",
+            "state": "text",
+            "venture_ref": "text"
+          }
         }
       ],
       "indexes": [
@@ -155,7 +265,8 @@
           ],
           "_read_by": "src/commercial-events.mjs commercialEventsFor: exact-funnel event pages, without enumerating unrelated account history; old records join through bounded background index work"
         }
-      ]
+      ],
+      "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
     }
    }
   },

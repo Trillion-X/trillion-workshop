@@ -112,6 +112,105 @@
                 "order": "text",
                 "view": "object"
               }
+            },
+            {
+              "type": "naming-fields-mark",
+              "properties": {
+                "due": "boolean",
+                "looked_at": "number"
+              },
+              "_read_by": "src/naming-fields.mjs: whether a change marked the lists to be looked at again for fields that name things, and when they last were"
+            },
+            {
+              "type": "list-open-mark",
+              "guard_properties": {
+                "before": "text",
+                "done": "boolean",
+                "shared": "objects",
+                "signature": "text"
+              }
+            },
+            {
+              "type": "list-key",
+              "_what": "Which row of a list holds one value of a unique field in its shared form (src/list-keys.mjs); the id carries a BLAKE3 of the form, never the form.",
+              "guard_properties": {
+                "field_id": "text",
+                "list_id": "text",
+                "row_id": "text"
+              }
+            },
+            {
+              "type": "list-snapshot",
+              "_what": "The ids a list or saved view held when a snapshot was taken (src/list-snapshots.mjs), kept for snapshots.minutes.",
+              "guard_properties": {
+                "complete": "boolean",
+                "created_at": "text",
+                "expires_at": "text",
+                "ids": "texts",
+                "list_id": "text",
+                "view_id": "text"
+              }
+            },
+            {
+              "type": "list-tombstone",
+              "_what": "Where a row merged away went (src/lists.mjs, lists.json history).",
+              "guard_properties": {
+                "at": "text",
+                "list_id": "text",
+                "merged_into": "text",
+                "row_id": "text"
+              }
+            },
+            {
+              "type": "list-heat",
+              "_what": "How much one list row is used, halving with time (src/lists.mjs noteUse, src/list-review.mjs coldRows).",
+              "guard_properties": {
+                "at": "text",
+                "heat": "number",
+                "list_id": "text",
+                "row_id": "text"
+              }
+            },
+            {
+              "type": "list-proposal",
+              "_what": "A change an AI proposed to a list, waiting for a person to approve or decline it (src/list-proposals.mjs).",
+              "guard_properties": {
+                "by": "text",
+                "conflicts": "objects",
+                "decided_at": "text",
+                "decided_by": "text",
+                "decided_via": "object",
+                "editable": "texts",
+                "evidence": "objects",
+                "list_id": "text",
+                "note": "text",
+                "proposed_at": "text",
+                "remove": "texts",
+                "rows": "objects",
+                "saw": "objects",
+                "scopes": "objects",
+                "status": "text",
+                "via": "object"
+              }
+            },
+            {
+              "type": "list-trash",
+              "_what": "A removed list row, listed as recently removed and put back from the log (src/lists.mjs removedRows, restoreRows).",
+              "guard_properties": {
+                "by": "text",
+                "list_id": "text",
+                "removed_at": "text",
+                "row_id": "text",
+                "via": "object"
+              }
+            },
+            {
+              "type": "list-filter",
+              "_what": "One saved filter of a list, kept on its own for views and other filters to use (lists.json filters, src/list-filters.mjs).",
+              "guard_properties": {
+                "filter": "object",
+                "list_id": "text"
+              }
             }
           ],
           "declared_by": [
@@ -392,7 +491,8 @@
                 "_what": "A button on every row that runs a Workshop tool: action.definition_ids names the tool, action.label the button's words, action.input fixed inputs, and action.copy maps the row's values to the tool's inputs ({ key: <tool input>, from: \"answers.<field id>\" } or \"record.title\"). The tool receives only the inputs its own schema takes."
               }
             }
-          ]
+          ],
+          "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
         },
         "verify": [{"kind": "sample-run", "input": {"mapping": "{grant:read-a-folder}/mapping.json", "source_type": "sample-source", "source_prefix": "sample-source:"}, "files": [{"grant": "read-a-folder", "path": "shelf-lists.json", "text": "{\"lists\": [{\"id\": \"stores\", \"value\": {\"label\": \"Stores\", \"row_type\": \"stores\", \"title_field\": \"name\", \"fields\": [{\"id\": \"name\", \"label\": \"Name\", \"kind\": \"text\"}]}}], \"views\": []}"}, {"grant": "read-a-folder", "path": "stores.json", "text": "{\"stores\": [{\"id\": \"corner\", \"values\": {\"name\": \"Corner Store\"}}]}"}, {"grant": "read-a-folder", "path": "mapping.json", "text": "{\"lists_file\": {\"root\": \"here\", \"path\": \"shelf-lists.json\"}, \"by\": \"sample-build\", \"confidence\": \"medium\", \"limits\": {\"text_chars\": 120, \"basis_sources\": 10, \"per_command\": 3}, \"sources\": [{\"name\": \"stores\", \"list\": \"stores\", \"kind\": \"rows\", \"rows\": {\"file\": {\"root\": \"here\", \"path\": \"stores.json\"}, \"path\": \"stores\"}, \"id\": {\"path\": \"id\"}, \"values\": {\"...\": {\"path\": \"values\"}}}]}"}]}]
       }
