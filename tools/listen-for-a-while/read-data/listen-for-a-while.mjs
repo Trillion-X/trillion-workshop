@@ -26,6 +26,11 @@
 //   8. What listening sends off this computer is told from DATA (read-data/leaves.json, leavesOf), in every answer.
 //   9. A stretch that is only text a hearing model makes up out of silence (read-data/meeting-ledger.mjs isFalseText) is
 //      left out before it is named or written.
+//  10. One device hears a listening at a time (the `transcriber` row, F-0793): a piece another device's live role covers is
+//      let go unheard. Each piece says in the `listening-status` row that it is being heard and, once written, how far
+//      what was said is written (F-0298), so an ask can wait for it (read-data/what-was-said.mjs).
+//  11. The sound is kept only when the person asked (`keep_sound`), as one compressed file per piece in their files with
+//      each turn's place in it (read-data/what-was-said.mjs keepPieceSound); invariant 2 holds otherwise.
 import { spawn, execFile } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { extname, join } from 'node:path';
@@ -34,6 +39,7 @@ import { evaluate } from './recording-rules.mjs';
 import { isFalseText } from './meeting-ledger.mjs';
 import leaves from './leaves.json' with { type: 'json' };
 import { readWholeFile } from '../../records-door/read-data/whole-file.mjs';
+import { TRANSCRIBER, keepPieceSound, mayTranscribe, roleHolder, roleRow, statusRow, writeSpeakersBack } from './what-was-said.mjs';
 
 const run = promisify(execFile);
 const MOST_PIECE_SECONDS = 120;
@@ -209,7 +215,9 @@ export async function hearPieces(input, door, steps, { listening, device, pieces
   if (!steps.hear && !work.modelPath) throw new Error('Give model_path: the ggml Whisper model file on this computer.');
   const hear = steps.hear ?? (file => hearPiece(file, work));
   const name = steps.name ?? (request => namePiece(request, work));
-  const tally = { listening, pieces: 0, turns: 0, rows_written: 0, left_out: 0, let_go: 0, blocked: null, paused: null, ...leavesOf(leaves) };
+  const now = steps.now ?? (() => Date.now());
+  const tally = { listening, pieces: 0, turns: 0, rows_written: 0, left_out: 0, let_go: 0, blocked: null, paused: null, transcriber: null, sounds_kept: 0,
+    ...leavesOf({ ...leaves, keep_sound: { on: Boolean(input.keep_sound?.folder) } }) };
   // The unknown voices already heard in this listening (an earlier run of it), so voice-3 stays voice-3.
   let session = null;
   for await (const row of door.list({ type: SESSION })) if (row.value?.listening === listening) session = row.value;
@@ -224,6 +232,11 @@ export async function hearPieces(input, door, steps, { listening, device, pieces
     const paused = pausedAt(await door.read(SWITCH, `${SWITCH}:${listening}`));
     if (paused !== null) tally.paused = new Date(paused).toISOString();
     if (paused !== null && piece.startMs >= paused) { tally.let_go += 1; return true; }
+    // Another device holds the transcriber role and is still hearing: this piece is theirs (F-0793).
+    const role = await door.read(TRANSCRIBER, `${TRANSCRIBER}:${listening}`);
+    tally.transcriber = roleHolder(role, now());
+    if (!mayTranscribe(role, device, now())) { tally.let_go += 1; return false; }
+    await door.write([roleRow(listening, device, now()), statusRow(listening, { pending: true, heardUntilMs: tally.heard_until_ms, now: now(), device })], { key: `pending:${listening}:${piece.startMs}` });
     const segments = beforePause((await hear(piece.file)).map(segment => ({ ...segment, start_ms: piece.startMs + Math.round(segment.start * 1000) })), paused)
       .map(({ start_ms: _, ...segment }) => segment)
       // Text a hearing model makes up out of silence is left out before it is named or kept (isFalseText).
@@ -234,7 +247,11 @@ export async function hearPieces(input, door, steps, { listening, device, pieces
     for await (const row of door.list({ type: VOICE_PRINT })) prints.push(row);
     const sessions = session ? [session] : [];
     const named = await name({ file: piece.file, segments, listening, voice_prints: prints, voice_sessions: sessions, rules: input.rules, words: input.words, join_within_seconds: input.join_within_seconds });
-    const rows = heardRows(named.speakers, { listening, device, startMs: piece.startMs });
+    const sound = await keepPieceSound(door, piece, heardRows(named.speakers, { listening, device, startMs: piece.startMs }), { keep: input.keep_sound, listening, ffmpeg: input.ffmpeg, encode: steps.encode });
+    const rows = sound.rows;
+    if (sound.kept) tally.sounds_kept += 1;
+    if (sound.error) tally.sound_error = sound.error;
+    steps.collect?.push(...rows);
     tally.turns += named.speakers.length;
     tally.left_out += named.speakers.length - rows.length;
     const kept = [...rows, ...(named.records ?? []).map(({ id, kind, ...value }) => ({ id, type: kind, value: { kind, id, ...value } }))];
@@ -249,9 +266,15 @@ export async function hearPieces(input, door, steps, { listening, device, pieces
     } finally {
       rmSync(piece.file, { force: true });
     }
+    // What was said up to the end of this piece is written (or let go): an ask waiting on it may answer (F-0298).
+    if (tally.transcriber === null || tally.transcriber === device) {
+      tally.heard_until_ms = Math.max(tally.heard_until_ms ?? 0, piece.endMs);
+      await door.write([statusRow(listening, { pending: false, heardUntilMs: tally.heard_until_ms, now: now(), device })], { key: `heard:${listening}:${piece.startMs}` });
+    }
     if (stop) break;
   }
-  return tally;
+  const { heard_until_ms: heardUntil, ...answer } = tally;
+  return { ...answer, heard_until: heardUntil == null ? null : new Date(heardUntil).toISOString() };
 }
 
 /** How long before `until` recording stops, so the last piece is finished in time: `finish_seconds` within 0 and 600, default 60. */
@@ -282,8 +305,11 @@ export async function hearForADevice(input, { door }, steps = {}) {
   const file = join(folder, `0${extname(title) || '.wav'}`);
   writeFileSync(file, bytes, { mode: 0o600 });
   async function* one() { yield { file, startMs, endMs: startMs }; }
+  const collect = [];
   try {
-    return await hearPieces(input, door, steps, { listening, device, pieces: one() });
+    const tally = await hearPieces(input, door, { ...steps, collect }, { listening, device, pieces: one() });
+    // Who said each turn, written beside the person's recording when they asked (write_back).
+    return input.write_back ? { ...tally, written_back: await writeSpeakersBack(door, collect, { file: input.file, startMs }) } : tally;
   } finally {
     rmSync(folder, { recursive: true, force: true });
   }

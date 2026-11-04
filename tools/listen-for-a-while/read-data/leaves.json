@@ -3,6 +3,7 @@
   "leaves": [
     {"id": "words", "leaves": true, "what": "The words of each turn, with who said it", "to": "your records, as heard rows", "when": []},
     {"id": "voices", "leaves": false, "what": "Voice numbers used to tell people apart", "to": "stay on this computer", "when": []},
-    {"id": "hearing", "leaves": false, "what": "The recording while it is turned into words", "to": "stays on this computer and is deleted once heard", "when": []}
+    {"id": "hearing", "leaves": false, "what": "The recording while it is turned into words", "to": "stays on this computer and is deleted once heard", "when": []},
+    {"id": "sound", "leaves": true, "what": "The sound of each piece something was kept from, compressed, with each turn's place in it", "to": "your files, in the folder you chose (keep_sound)", "when": [{"setting": "keep_sound.on", "equals": true}]}
   ]
 }

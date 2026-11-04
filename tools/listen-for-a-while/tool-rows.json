@@ -37,7 +37,8 @@
               "description": "Recording rules asked for every piece besides the person's recording-rule rows: { id, effect: block | require, when: { fact: value or [values] }, facts?: [names a require rule needs], says? }",
               "items": {"type": "object"}
             },
-            "recording_facts": {"type": "object", "description": "Facts the rules ask about (for example notice_given), before the listening's recording-facts row; kind is listening and device is this device"}
+            "recording_facts": {"type": "object", "description": "Facts the rules ask about (for example notice_given), before the listening's recording-facts row; kind is listening and device is this device"},
+            "keep_sound": {"type": "object", "additionalProperties": false, "required": ["folder"], "properties": {"folder": {"type": "string", "maxLength": 300, "x-free-text-because": "A folder in the person's files."}, "keep_days": {"type": ["integer", "null"], "minimum": 1, "maximum": 3650}}, "description": "Keep the sound of each piece something was kept from, compressed, in this folder of the person's files (by day), with each turn's place in it; keep_days is written on the rows (null: always). Without it no sound is kept."}
           }
         },
         "output_schema": {
@@ -52,6 +53,11 @@
             "let_go": {"type": "integer", "minimum": 0, "description": "Pieces let go unheard: recorded while a rule said no, or after the person paused"},
             "blocked": {"type": ["string", "null"], "description": "Why the last piece was let go by a rule, or null"},
             "paused": {"type": ["string", "null"], "description": "When the person turned listening off, or null"},
+            "transcriber": {"type": ["string", "null"], "description": "The device holding the transcriber role when the last piece came, or null"},
+            "heard_until": {"type": ["string", "null"], "description": "How far what was said is heard and written"},
+            "sounds_kept": {"type": "integer", "minimum": 0},
+            "sound_error": {"type": "string"},
+            "written_back": {"type": "string", "description": "The speakers file written beside the recording (write_back)"},
             "leaves": {"type": "array", "description": "What leaves this computer: { id, what, to }"},
             "stays": {"type": "array", "description": "What stays on this computer: { id, what, to }"}
           }
@@ -72,7 +78,10 @@
               {"kind": "voice-print", "operations": ["records:list"]},
               {"kind": "recording-rule", "operations": ["records:list"]},
               {"kind": "recording-facts", "operations": ["records:read"]},
-              {"kind": "listening-switch", "operations": ["records:read"]}
+              {"kind": "listening-switch", "operations": ["records:read"]},
+              {"kind": "transcriber", "operations": ["records:read", "records:write"]},
+              {"kind": "listening-status", "operations": ["records:write"]},
+              {"files": "/", "operations": ["write_file_start", "write_file_piece", "write_file_finish"]}
             ]
           },
           "files": {
@@ -115,7 +124,12 @@
                 "me": "boolean",
                 "voice": "text",
                 "score": "number",
-                "unsure": "texts"
+                "unsure": "texts",
+                "renamed_from": "text",
+                "sound": "text",
+                "sound_from": "number",
+                "sound_to": "number",
+                "keep_until": "text"
               },
               "_read_by": "tools/listen-for-a-while writes a heard row for each turn of a listening; the hold-to-it presence check reads them"
             },
@@ -127,6 +141,26 @@
                 "labels": "texts",
                 "labels_over": "boolean"
               }
+            },
+            {
+              "type": "listening-status",
+              "properties": {"listening": "text", "device": "text", "hearing_pending": "boolean", "heard_until": "text", "heartbeat_ms": "number"},
+              "_read_by": "tool:ask-what-was-said waits on it (F-0298)"
+            },
+            {
+              "type": "transcriber",
+              "properties": {"listening": "text", "device": "text", "since": "text", "until": "text"},
+              "_read_by": "every listening of the same name: one device hears it at a time (F-0793)"
+            },
+            {
+              "type": "captions",
+              "properties": {"listening": "text", "on": "boolean"},
+              "_read_by": "tool:caption-what-is-heard and tool:ask-what-was-said (F-0792)"
+            },
+            {
+              "type": "ask-cursor",
+              "properties": {"conversation": "text", "listening": "text", "after_ms": "number", "at": "text"},
+              "_read_by": "tool:ask-what-was-said (F-0297)"
             }
           ],
           "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
@@ -161,7 +195,9 @@
             "words": {"type":"object","description":"Wording of the speaker labels; see tool:who-is-in-this"},
             "join_within_seconds": {"type":"number","minimum":0,"maximum":30,"description":"Turns of one voice this close are joined (default 2)"},
             "recording_rules": {"type":"array","maxItems":100,"description":"Recording rules asked besides the person's recording-rule rows; see tool:listen-for-a-while","items":{"type":"object"}},
-            "recording_facts": {"type":"object","description":"Facts the rules ask about; see tool:listen-for-a-while"}
+            "recording_facts": {"type":"object","description":"Facts the rules ask about; see tool:listen-for-a-while"},
+            "keep_sound": {"type": "object", "additionalProperties": false, "required": ["folder"], "properties": {"folder": {"type": "string", "maxLength": 300, "x-free-text-because": "A folder in the person's files."}, "keep_days": {"type": ["integer", "null"], "minimum": 1, "maximum": 3650}}, "description": "Keep the sound of each piece something was kept from, compressed, in this folder of the person's files (by day), with each turn's place in it; keep_days is written on the rows (null: always). Without it no sound is kept."},
+            "write_back": {"type": "boolean", "description": "Write who said each turn beside the recording, as <file>.speakers.json in the person's files"}
           }
         },
         "output_schema": {
@@ -176,6 +212,11 @@
             "let_go": {"type": "integer", "minimum": 0, "description": "Pieces let go unheard: recorded while a rule said no, or after the person paused"},
             "blocked": {"type": ["string", "null"], "description": "Why the last piece was let go by a rule, or null"},
             "paused": {"type": ["string", "null"], "description": "When the person turned listening off, or null"},
+            "transcriber": {"type": ["string", "null"], "description": "The device holding the transcriber role when the last piece came, or null"},
+            "heard_until": {"type": ["string", "null"], "description": "How far what was said is heard and written"},
+            "sounds_kept": {"type": "integer", "minimum": 0},
+            "sound_error": {"type": "string"},
+            "written_back": {"type": "string", "description": "The speakers file written beside the recording (write_back)"},
             "leaves": {"type": "array", "description": "What leaves this computer: { id, what, to }"},
             "stays": {"type": "array", "description": "What stays on this computer: { id, what, to }"}
           }
@@ -190,13 +231,15 @@
           "records": {
             "fd": 3,
             "rights": [
-              {"files":"/","operations":["find_file","read_file"]},
+              {"files":"/","operations":["find_file","read_file","write_file_start","write_file_piece","write_file_finish"]},
               {"kind":"heard","operations":["records:write"]},
               {"kind":"listening-voices","operations":["records:list","records:write"]},
               {"kind":"voice-print","operations":["records:list"]},
               {"kind":"recording-rule","operations":["records:list"]},
               {"kind":"recording-facts","operations":["records:read"]},
-              {"kind":"listening-switch","operations":["records:read"]}
+              {"kind":"listening-switch","operations":["records:read"]},
+              {"kind":"transcriber","operations":["records:read","records:write"]},
+              {"kind":"listening-status","operations":["records:write"]}
             ]
           },
           "files": {
@@ -219,6 +262,9 @@
         "maker": "maker:listen-for-a-while",
         "provenance": {"source":"listen-for-a-while/read-data/listen-for-a-while.mjs"}
       }
-    }
+    },
+    {"id": "package::listen-for-a-while::tool::name-a-heard-voice", "address": "package::listen-for-a-while::tool::name-a-heard-voice", "path": ["current-item", "published-record"], "payload": {"kind": "ai-tool-descriptor", "id": "tool:name-a-heard-voice", "status": "active", "label": "Name a voice heard before it was enrolled", "job": "Put a person's name on what they said in a listening before I enrolled their voice", "description": "After tool:enrol-a-voice-or-face names a voice heard in a listening (its heard_as), renames that listening's heard turns still under \"Someone (voice-N)\" for those voices to the person's name, keeping the former label on each row. Turns a person already named, unsure turns and other listenings are left as they are.", "input_schema": {"type": "object", "required": ["listening", "voices", "name"], "additionalProperties": false, "properties": {"listening": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The listening's name", "x-free-text-because": "The name of a listening, kept on its heard rows."}, "voices": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "maxLength": 40}, "description": "The labels the voice was heard under: the enrol tool's heard_as, or one voice-N"}, "name": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The enrolled person's name", "x-free-text-because": "A person's name, as enrolled."}, "me": {"type": "boolean", "description": "The voice is the person who owns the records"}}}, "output_schema": {"type": "object", "required": ["listening", "renamed"], "properties": {"listening": {"type": "string"}, "name": {"type": "string"}, "voices": {"type": "array"}, "renamed": {"type": "integer", "minimum": 0}, "said": {"type": "string"}}}, "invoke": {"kind": "computer", "capabilities": [], "workdir": "/opt/listen-for-a-while", "stdout": "json", "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/listen-for-a-while/read-data/what-was-said.mjs", "nameHeardVoice"], "stdin": {"fill": {"from": "input"}}, "records": {"fd": 3, "rights": [{"kind": "heard", "operations": ["records:list", "records:write"]}]}, "files": {"package_files": [{"package": "listen-for-a-while", "paths": ["read-data"], "at": "/opt/listen-for-a-while"}, {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"}, {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"}, {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}]}}, "result_selector": "$.result", "verify": [{"kind": "sample-run", "input": {"listening": "sample-meeting", "voices": ["voice-2"], "name": "Sam Example"}, "records": [{"id": "heard:sample-meeting:1000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:01.000Z", "end": "2026-11-03T22:00:03.000Z", "text": "The garden budget is next.", "speaker": "Someone (voice-2)", "me": false, "voice": "voice-2"}}, {"id": "heard:sample-meeting:5000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:05.000Z", "end": "2026-11-03T22:00:07.000Z", "text": "Thank you, go on.", "speaker": "Ada Example", "me": false, "voice": "voice-1"}}]}], "needs": {"expected_seconds": 30, "network_egress": false, "memory_mb": 256}, "licence_class": "licence:permissive", "placements": ["placement:your-computer"], "maker": "maker:listen-for-a-while", "provenance": {"source": "listen-for-a-while/read-data/what-was-said.mjs"}}},
+    {"id": "package::listen-for-a-while::tool::caption-what-is-heard", "address": "package::listen-for-a-while::tool::caption-what-is-heard", "path": ["current-item", "published-record"], "payload": {"kind": "ai-tool-descriptor", "id": "tool:caption-what-is-heard", "status": "active", "label": "Captions of what is being heard", "job": "Show the captions of a listening and fix a word, a speaker or a line in them", "description": "Answers the last captions of a listening from its heard rows, with the person's corrections applied, after applying the caption ops given: on, off, edit { id, text }, speaker { id, name }, hide { id }, show { id }, undo { id }. Corrections are kept in the listening's captions row beside the words; a heard row is never rewritten.", "input_schema": {"type": "object", "required": ["listening"], "additionalProperties": false, "properties": {"listening": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The listening's name", "x-free-text-because": "The name of a listening, kept on its heard rows."}, "ops": {"type": "array", "maxItems": 100, "items": {"type": "object", "required": ["op"], "properties": {"op": {"enum": ["on", "off", "edit", "speaker", "hide", "show", "undo"]}, "id": {"type": "string", "maxLength": 200}, "text": {"type": "string", "maxLength": 4000, "x-free-text-because": "The corrected words of one turn."}, "name": {"type": "string", "maxLength": 120, "x-free-text-because": "A speaker's name."}}}}, "last": {"type": "integer", "minimum": 1, "maximum": 500, "description": "How many captions to answer (default 50)"}}}, "output_schema": {"type": "object", "required": ["listening", "on", "lines"], "properties": {"listening": {"type": "string"}, "on": {"type": "boolean"}, "lines": {"type": "array", "items": {"type": "object"}}}}, "invoke": {"kind": "computer", "capabilities": [], "workdir": "/opt/listen-for-a-while", "stdout": "json", "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/listen-for-a-while/read-data/what-was-said.mjs", "captionWhatIsHeard"], "stdin": {"fill": {"from": "input"}}, "records": {"fd": 3, "rights": [{"kind": "heard", "operations": ["records:list"]}, {"kind": "captions", "operations": ["records:read", "records:write"]}]}, "files": {"package_files": [{"package": "listen-for-a-while", "paths": ["read-data"], "at": "/opt/listen-for-a-while"}, {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"}, {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"}, {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}]}}, "result_selector": "$.result", "verify": [{"kind": "sample-run", "input": {"listening": "sample-meeting", "ops": [{"op": "edit", "id": "heard:sample-meeting:1000", "text": "The garden budget comes next."}]}, "records": [{"id": "heard:sample-meeting:1000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:01.000Z", "end": "2026-11-03T22:00:03.000Z", "text": "The garden budget is next.", "speaker": "Someone (voice-2)", "me": false, "voice": "voice-2"}}, {"id": "heard:sample-meeting:5000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:05.000Z", "end": "2026-11-03T22:00:07.000Z", "text": "Thank you, go on.", "speaker": "Ada Example", "me": false, "voice": "voice-1"}}]}], "needs": {"expected_seconds": 30, "network_egress": false, "memory_mb": 256}, "licence_class": "licence:permissive", "placements": ["placement:your-computer"], "maker": "maker:listen-for-a-while", "provenance": {"source": "listen-for-a-while/read-data/what-was-said.mjs"}}},
+    {"id": "package::listen-for-a-while::tool::ask-what-was-said", "address": "package::listen-for-a-while::tool::ask-what-was-said", "path": ["current-item", "published-record"], "payload": {"kind": "ai-tool-descriptor", "id": "tool:ask-what-was-said", "status": "active", "label": "What was said since this conversation last asked", "job": "Tell me what was said in a listening since I last asked, once what was said before my question is written down", "description": "Waits (at most wait_seconds) until what was said before the ask is heard and written, from the listening's status row; then answers the turns this conversation was not given yet, with the captions' corrections applied, and moves the conversation's cursor past them. A listening that is not live is not waited for.", "input_schema": {"type": "object", "required": ["listening", "conversation"], "additionalProperties": false, "properties": {"listening": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The listening's name", "x-free-text-because": "The name of a listening, kept on its heard rows."}, "conversation": {"type": "string", "minLength": 1, "maxLength": 200, "description": "The conversation asking, so it is given each turn once", "x-free-text-because": "An id of the conversation that asks."}, "wait_seconds": {"type": "integer", "minimum": 0, "maximum": 120, "description": "How long to wait for what was said before the ask to be written (default 40)"}, "asked_at": {"type": "string", "maxLength": 40, "description": "When the question was asked (default now)"}}}, "output_schema": {"type": "object", "required": ["listening", "lines", "flushed"], "properties": {"listening": {"type": "string"}, "conversation": {"type": "string"}, "lines": {"type": "array", "items": {"type": "object"}}, "flushed": {"type": "boolean"}, "live": {"type": "boolean"}, "heard_until": {"type": ["string", "null"]}, "waited_ms": {"type": "number"}, "cursor": {"type": "number"}}}, "invoke": {"kind": "computer", "capabilities": [], "workdir": "/opt/listen-for-a-while", "stdout": "json", "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/listen-for-a-while/read-data/what-was-said.mjs", "askWhatWasSaid"], "stdin": {"fill": {"from": "input"}}, "records": {"fd": 3, "rights": [{"kind": "heard", "operations": ["records:list"]}, {"kind": "listening-status", "operations": ["records:read"]}, {"kind": "captions", "operations": ["records:read"]}, {"kind": "ask-cursor", "operations": ["records:read", "records:write"]}]}, "files": {"package_files": [{"package": "listen-for-a-while", "paths": ["read-data"], "at": "/opt/listen-for-a-while"}, {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"}, {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"}, {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}]}}, "result_selector": "$.result", "verify": [{"kind": "sample-run", "input": {"listening": "sample-meeting", "conversation": "sample-conversation", "wait_seconds": 0}, "records": [{"id": "heard:sample-meeting:1000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:01.000Z", "end": "2026-11-03T22:00:03.000Z", "text": "The garden budget is next.", "speaker": "Someone (voice-2)", "me": false, "voice": "voice-2"}}, {"id": "heard:sample-meeting:5000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:05.000Z", "end": "2026-11-03T22:00:07.000Z", "text": "Thank you, go on.", "speaker": "Ada Example", "me": false, "voice": "voice-1"}}]}], "needs": {"expected_seconds": 30, "network_egress": false, "memory_mb": 256}, "licence_class": "licence:permissive", "placements": ["placement:your-computer"], "maker": "maker:listen-for-a-while", "provenance": {"source": "listen-for-a-while/read-data/what-was-said.mjs"}}}
   ]
 }

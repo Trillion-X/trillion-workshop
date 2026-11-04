@@ -13,13 +13,19 @@ import { beforePause, endOf, finishMs, heardRows, leavesOf, listenForAWhile, pau
 import leaves from '../read-data/leaves.json' with { type: 'json' };
 
 const fakeDoor = (prints = [], sessions = [], { rules = [], records = {} } = {}) => {
+  // The turns' writes are `writes`; the listening's own status and transcriber-role writes (F-0298, F-0793) are `ledger`.
   const writes = [];
+  const ledger = [];
   const listed = { 'voice-print': prints, 'listening-voices': sessions, 'recording-rule': rules };
   return {
     writes,
+    ledger,
     async *list({ type }) { yield* (listed[type] ?? []); },
     async read(type, id) { return records[`${type}|${id}`] ?? null; },
-    async write(records_, { key }) { writes.push({ records: records_, key }); return { changed: records_.length }; },
+    async write(records_, { key }) {
+      (records_.every(row => ['listening-status', 'transcriber'].includes(row.type)) ? ledger : writes).push({ records: records_, key });
+      return { changed: records_.length };
+    },
   };
 };
 const turn = (start, end, who, text, extra = {}) => ({ start, end, who, me: false, voice: 'voice-1', score: 0.8, text, ...extra });
@@ -78,7 +84,8 @@ test('rows are written piece by piece as pieces finish, pieces are deleted, an e
   assert.equal(door.writes[0].key, 'listen:l1:1000000');
   assert.deepEqual(door.writes[0].records.map(r => r.type), ['heard', 'listening-voices']);
   const { leaves: _leaves, stays: _stays, ...counts } = tally;
-  assert.deepEqual(counts, { listening: 'l1', pieces: 3, turns: 2, rows_written: 2, left_out: 0, let_go: 0, blocked: null, paused: null });
+  assert.deepEqual(counts, { listening: 'l1', pieces: 3, turns: 2, rows_written: 2, left_out: 0, let_go: 0, blocked: null, paused: null,
+    transcriber: null, sounds_kept: 0, heard_until: new Date(1_090_000).toISOString() });
   assert.ok(files.every(file => !existsSync(file)), 'every piece is deleted once heard');
 });
 
