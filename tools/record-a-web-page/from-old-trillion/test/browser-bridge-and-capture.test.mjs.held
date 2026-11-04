@@ -1,0 +1,91 @@
+// test/browser-bridge-and-capture.test.mjs
+//
+// The Mac host's two ways into the capture and native-messaging engines (computer/web-capture.mjs, computer/browser-bridge.mjs),
+// run as the host runs a tool (runHere): a real capture proxy process on a loopback port that keeps what a program sent through it
+// (secrets masked), and a real native-messaging manifest and launcher a browser would read, with the frames the browser sends.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import http from 'node:http';
+import { PassThrough } from 'node:stream';
+import { existsSync, mkdtempSync, readFileSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { answerFrame, makeBrowserBridge, serve } from '../computer/browser-bridge.mjs';
+import { nativeMessagingSettings } from '../computer/native-messaging.mjs';
+import { makeWebCapture } from '../computer/web-capture.mjs';
+import { runHere, settingsOf } from '../computer/mac-tools.mjs';
+
+test('the capture tool starts a real proxy process, keeps what went through it without secrets, reads, clears and stops it', async () => {
+  const home = mkdtempSync(join(tmpdir(), 'webcap-'));
+  const upstream = http.createServer((request, reply) => reply.writeHead(200, { 'content-type': 'text/plain' }).end('hello from upstream'));
+  await new Promise(done => upstream.listen(0, '127.0.0.1', done));
+  const capture = makeWebCapture({ home });
+  try {
+    const started = await capture.start();
+    assert.equal(started.running, true);
+    const [, proxyPort] = started.listening.split(':');
+    assert.match(started.said, /Point a program at 127\.0\.0\.1:/);
+    const answer = await new Promise((done, fail) => {
+      const request = http.request({ host: '127.0.0.1', port: Number(proxyPort), method: 'GET', path: `http://127.0.0.1:${upstream.address().port}/page`, headers: { authorization: 'Bearer TOPSECRET' } }, reply => {
+        let text = ''; reply.on('data', piece => { text += piece; }); reply.on('end', () => done({ status: reply.statusCode, text }));
+      });
+      request.on('error', fail); request.end();
+    });
+    assert.deepEqual(answer, { status: 200, text: 'hello from upstream' });
+    for (let waited = 0; capture.read().exchanges.length === 0 && waited < 40; waited += 1) await new Promise(done => setTimeout(done, 50));
+    const read = capture.read();
+    assert.equal(read.exchanges.length, 1);
+    assert.equal(read.exchanges[0].request.headers.authorization, '[not kept]');
+    assert.ok(!readFileSync(join(home, '.trillion/capture/captures.jsonl'), 'utf8').includes('TOPSECRET'));
+    assert.equal(statSync(join(home, '.trillion/capture/ca.key')).mode & 0o777, 0o600);
+    assert.equal(capture.clear().cleared, true);
+    assert.equal(capture.read().exchanges.length, 0);
+    assert.equal(capture.stop().stopped, true);
+    assert.equal(capture.status().running, false);
+  } finally { capture.stop(); await new Promise(done => upstream.close(done)); }
+});
+
+test('the host tool rows exist, and an unknown action is refused with retry false', async () => {
+  const settings = settingsOf();
+  for (const id of ['tool:capture-web-traffic', 'tool:connect-browser-bridge']) assert.ok(settings.tools[id], `${id} is a host row`);
+  const refused = await runHere(settings, { tool_id: 'tool:capture-web-traffic', input: { action: 'burn' } });
+  assert.match(refused.error, /no capture action named burn/);
+  assert.equal(refused.retry, false);
+});
+
+test('connect writes a launcher and the browser manifest naming only the given extension, reads them back, never overwrites a foreign launcher, and removes', () => {
+  const home = mkdtempSync(join(tmpdir(), 'bridge-'));
+  const bridge = makeBrowserBridge({ home });
+  const installed = bridge.connect({ action: 'install', extensions: ['abcdefghijklmnopabcdefghijklmnop'], browsers: ['chrome'] });
+  assert.deepEqual(installed.installed, ['chrome']);
+  const rules = nativeMessagingSettings();
+  const manifest = JSON.parse(readFileSync(join(home, rules.browsers.find(row => row.id === 'chrome').folder, `${rules.bridge.name}.json`), 'utf8'));
+  assert.deepEqual(manifest.allowed_origins, ['chrome-extension://abcdefghijklmnopabcdefghijklmnop/']);
+  const launcher = join(home, rules.bridge.launcher);
+  assert.equal(statSync(launcher).mode & 0o777, 0o755);
+  assert.match(readFileSync(launcher, 'utf8'), /exec ".*node" ".*browser-bridge\.mjs" serve/);
+  assert.equal(bridge.connect({ action: 'status', browsers: ['chrome'] }).browsers[0].state, 'ours');
+  assert.equal(bridge.connect({ action: 'remove', browsers: ['chrome'] }).removed.length, 1);
+  assert.equal(existsSync(join(home, rules.browsers.find(row => row.id === 'chrome').folder, `${rules.bridge.name}.json`)), false);
+  assert.throws(() => bridge.connect({ action: 'install', extensions: [] }), /extension/i);
+});
+
+test('the program the browser starts speaks length-prefixed frames, runs only the tool ids DATA allows, and refuses everything else in words', async () => {
+  const rules = { ...nativeMessagingSettings() };
+  rules.bridge = { ...rules.bridge, tools: ['tool:listed'] };
+  const ran = [];
+  const runner = async run => { ran.push(run.tool_id); return run.tool_id === 'tool:listed' ? { ok: true } : { error: 'nope', retry: false }; };
+  const answer = frame => answerFrame(frame, { settings: rules, runHere: runner });
+  const input = new PassThrough(), output = new PassThrough();
+  const frames = [];
+  output.on('data', piece => { let at = 0; while (at < piece.length) { const size = piece.readUInt32LE(at); frames.push(JSON.parse(piece.subarray(at + 4, at + 4 + size).toString())); at += 4 + size; } });
+  const done = serve({ input, output, answer, limit: rules.bridge.max_message_bytes });
+  const send = value => { const body = Buffer.from(JSON.stringify(value)); const head = Buffer.alloc(4); head.writeUInt32LE(body.length); input.write(Buffer.concat([head, body])); };
+  send({ id: 1, tool_id: 'tool:listed', input: {} });
+  send({ id: 2, tool_id: 'tool:other' });
+  send({ id: 3 });
+  input.end();
+  await done;
+  assert.deepEqual(frames.map(frame => [frame.id, frame.answer ? 'answer' : frame.error]), [[1, 'answer'], [2, 'This Mac does not run tool:other for a browser extension.'], [3, 'Send { id, tool_id, input }.']]);
+  assert.deepEqual(ran, ['tool:listed'], 'a tool id DATA does not list is never run');
+});

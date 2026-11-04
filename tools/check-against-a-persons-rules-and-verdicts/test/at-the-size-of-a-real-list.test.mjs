@@ -50,7 +50,7 @@ function madeUpList() {
     if (n % 10 === 0) sources.push({ ...sources[0], file: fileName(n + 1) });
     const value = { id: pieceId(n), kind: 'piece', says: `Made-up rule ${n}`, identity: `1f:${n.toString(16).padStart(64, '0')}`, key: sources[0].section,
       text: `**Made-up rule ${n}.** ${'Made-up words said plainly about a made-up thing, so a check can be written from them. '.repeat(3)}`,
-      sources, groups: [], kinds: [], checked_by: [] };
+      sources, tags: [], kinds: [], checked_by: [] };
     if (n % 4 === 0) value.checked_by = [`made-up-check-${String(n % CHECKS).padStart(4, '0')}`];
     if (n % 4 === 1) value.no_check = { reason: 'A made-up aside, not a rule.' };
     if (n % 4 === 3) value.checked_by = [`made-up-gone-${n}`];

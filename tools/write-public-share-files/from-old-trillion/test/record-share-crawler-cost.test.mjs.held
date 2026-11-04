@@ -1,0 +1,125 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { answerRecordShare } from '../src/record-share-pages.mjs';
+
+const origin = 'https://app.gettrillion.ai';
+const nameAt = index => 'item-' + String(index).padStart(4, '0');
+const xmlLocations = body => [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1].replaceAll('&amp;', '&'));
+
+function crawlerFixture(names, shareFor = name => ({
+  name, title: name, changed: '2026-10-05', copy: { title: name, preview: { fields: [] } },
+})) {
+  const stats = { lists: 0, gets: 0, admissions: 0, active: 0, peak: 0 };
+  const kv = {
+    list: async ({ prefix, cursor, limit }) => {
+      stats.lists++;
+      const at = cursor === undefined ? 0 : Number(cursor);
+      const page = names.slice(at, at + limit);
+      return { keys: page.map(name => ({ name: prefix + name })), list_complete: at + limit >= names.length, cursor: String(at + page.length) };
+    },
+    get: async key => {
+      stats.gets++;
+      return key.startsWith('record-share-link:') ? { person_ref: 'owner' } : null;
+    },
+  };
+  const person = {
+    listedShare: async name => {
+      stats.admissions++;
+      stats.active++;
+      stats.peak = Math.max(stats.peak, stats.active);
+      await new Promise(resolve => setImmediate(resolve));
+      stats.active--;
+      return shareFor(name);
+    },
+  };
+  const env = { APP_KV: kv, PERSON: { idFromString: id => id, get: () => person } };
+  const open = (path, method = 'GET') => answerRecordShare(new Request(origin + path, { method }), { env, kv, origin,
+    shareOwnerFor: async () => person });
+  return { open, stats };
+}
+
+test('crawler roots list only bounded KV pages, while each part admits at most 250 current shares', async () => {
+  const names = Array.from({ length: 511 }, (_, index) => nameAt(index));
+  const { open, stats } = crawlerFixture(names, name => name === nameAt(27) ? null : ({
+    name, title: name, changed: '2026-10-05',
+    copy: name === nameAt(0)
+      ? { title: name, body: { fields: [{ id: 'summary', kind: 'long-text' }], rows: [{ id: 'row-1', title: 'First row', values: { summary: 'Its own public words.' } }] } }
+      : { title: name, preview: { fields: [] } },
+  }));
+
+  assert.equal((await open('/share/sitemap.xml', 'HEAD')).status, 200);
+  assert.equal((await open('/share/llms.txt', 'HEAD')).status, 200);
+  assert.deepEqual([stats.lists, stats.gets, stats.admissions], [0, 0, 0]);
+
+  const sitemap = await (await open('/share/sitemap.xml')).text();
+  assert.match(sitemap, /<sitemapindex/);
+  const parts = xmlLocations(sitemap);
+  assert.equal(parts.length, 3);
+  assert.deepEqual([stats.lists, stats.gets, stats.admissions], [3, 0, 0]);
+
+  const first = await (await open(new URL(parts[0]).pathname + new URL(parts[0]).search)).text();
+  assert.match(first, /<urlset/);
+  assert.match(first, /\/share\/item-0000\/first-row/);
+  assert.doesNotMatch(first, /\/share\/item-0027<\/loc>/);
+  assert.equal((first.match(/<url>/g) ?? []).length, 250, '249 admitted shares plus one row');
+  assert.deepEqual([stats.gets, stats.admissions], [250, 250]);
+  assert.ok(stats.peak <= 8 && stats.peak > 1, 'admissions are bounded but still overlap');
+
+  const second = await (await open(new URL(parts[1]).pathname + new URL(parts[1]).search)).text();
+  assert.match(second, /\/share\/item-0250<\/loc>/);
+  assert.doesNotMatch(second, /\/share\/item-0000<\/loc>/);
+
+  const llms = await (await open('/share/llms.txt')).text();
+  assert.match(llms, /Shares 1–250/);
+  assert.equal(stats.admissions, 500, 'the large root did not read any owner again');
+  const llmsPart = /- \[Shares 1–250\]\(([^)]+)\)/.exec(llms)?.[1];
+  assert.ok(llmsPart);
+  const llmsPage = await (await open(new URL(llmsPart).pathname + new URL(llmsPart).search)).text();
+  assert.match(llmsPage, /Its own public words/);
+  assert.doesNotMatch(llmsPage, /item-0027/);
+
+  assert.equal((await open('/share/sitemap.xml?part=share&name=item-0027', 'HEAD')).status, 404);
+  assert.equal((await open('/share/sitemap.xml?part=share&name=item-0000', 'HEAD')).status, 200);
+});
+
+test('a part with many list rows uses re-admitted per-share documents instead of exceeding sitemap or text budgets', async () => {
+  const names = Array.from({ length: 10 }, (_, index) => nameAt(index));
+  const rows = Array.from({ length: 2000 }, (_, index) => ({
+    id: 'row-' + index, title: 'Entry ' + index,
+    values: { summary: 'A public explanation of this row and what it contains, with enough words to test document size.' },
+  }));
+  const { open, stats } = crawlerFixture(names, name => ({
+    name, title: name, changed: '2026-10-05',
+    copy: { title: name, body: { fields: [{ id: 'summary', kind: 'long-text' }], rows } },
+  }));
+  const sitemap = await (await open('/share/sitemap.xml')).text();
+  assert.match(sitemap, /<sitemapindex/);
+  const children = xmlLocations(sitemap);
+  assert.equal(children.length, names.length);
+  const childUrl = new URL(children[0]);
+  const child = await (await open(childUrl.pathname + childUrl.search)).text();
+  assert.match(child, /<urlset/);
+  assert.match(child, /\/share\/item-0000\/entry-1999/);
+  assert.equal((child.match(/<url>/g) ?? []).length, 2001);
+
+  const llms = await (await open('/share/llms.txt')).text();
+  assert.match(llms, /part=share&name=item-0000/);
+  const llmsChild = await (await open('/share/llms.txt?part=share&name=item-0000')).text();
+  assert.match(llmsChild, /A public explanation of this row/);
+  assert.ok(stats.peak <= 8);
+});
+
+test('the configured 50,000-name ceiling costs listing pages, not owner reads, on the root request', async () => {
+  const names = Array.from({ length: 50001 }, (_, index) => nameAt(index));
+  const { open, stats } = crawlerFixture(names);
+  const sitemap = await (await open('/share/sitemap.xml')).text();
+  assert.equal(xmlLocations(sitemap).length, 200);
+  assert.deepEqual([stats.lists, stats.gets, stats.admissions], [200, 0, 0]);
+  assert.equal((await open('/share/sitemap.xml', 'HEAD')).status, 200);
+  assert.equal(stats.lists, 200);
+});
+
+test('a temporary owner failure refuses the crawler document rather than silently dropping a live share', async () => {
+  const { open } = crawlerFixture([nameAt(0)], () => { throw new Error('owner unavailable'); });
+  await assert.rejects(open('/share/sitemap.xml'), /owner unavailable/);
+});

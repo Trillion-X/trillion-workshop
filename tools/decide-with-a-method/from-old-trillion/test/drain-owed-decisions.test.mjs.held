@@ -1,0 +1,241 @@
+// harness/drain-owed-decisions.mjs: owed rows become owed decisions in Trillion once it answers, a turn whose case is
+// decided is settled, finished rows move to a dated archive, a run sizes its batch from how fast the store answers and stops at the first down or slow answer, and
+// rows written before the hook kept the person's words find their turn by reading the transcript from its end.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { drainOnce, holdLock, linesFromTheEnd, nextRows, readRules, rowsOf, turnsAt } from '../harness/drain-owed-decisions.mjs';
+
+const down = { down_answers: ['Wait for the service to clear', 'Exceeded the maximum database size'], local_method_commands: ['scripts/method-checks\\.mjs'] };
+const confirm = { url: 'https://decisions.example/mcp', keychain_item: 'k' };
+const decided = '# Goal\nStatus: Decided\n\n## Decision\n\n**keep**';
+
+// A stand-in for the decisions' server: answers each tool from `answers`, and records what it was asked.
+function server(answers) {
+  const asked = [];
+  const request = async (url, init) => {
+    const body = JSON.parse(init.body);
+    if (body.method === 'notifications/initialized') return new Response('', { status: 202 });
+    if (body.method === 'initialize') return new Response(JSON.stringify({ jsonrpc: '2.0', id: body.id, result: {} }), { headers: { 'mcp-session-id': 's' } });
+    const { name, arguments: args } = body.params;
+    asked.push({ name, args });
+    const answer = answers(name, args);
+    if (answer?.status) return new Response(answer.body ?? '', { status: answer.status });
+    return new Response(JSON.stringify({ jsonrpc: '2.0', id: body.id, result: { content: [{ type: 'text', text: answer }] } }), { headers: { 'mcp-session-id': 's' } });
+  };
+  return { request, asked };
+}
+
+function place() {
+  const root = mkdtempSync(join(tmpdir(), 'drain-owed-'));
+  const rules = { ...readRules(), archive_folder: join(root, 'archive') };
+  return { root, owed: join(root, 'owed.jsonl'), rules };
+}
+// A Claude Code session where the person typed a message ten seconds before every minute the rows below fall in.
+const sessions = mkdtempSync(join(tmpdir(), 'drain-owed-sessions-'));
+const minutes = (day, from, to) => Array.from({ length: (to - from) * 60 }, (_, index) => new Date(Date.parse(`${day}T${String(from).padStart(2, '0')}:00:00.000Z`) + index * 60_000 - 10_000).toISOString());
+const typed = (at, text, fields = {}) => JSON.stringify({ sessionId: 's1', type: 'user', timestamp: at, origin: { kind: 'human' }, promptSource: 'typed', message: { role: 'user', content: text }, ...fields });
+const spoken = join(sessions, 'person.jsonl');
+writeFileSync(spoken, `${[...minutes('2026-10-04', 9, 12), ...minutes('2026-10-05', 8, 10)].map(at => typed(at, `the person asks at ${at}`)).join('\n')}\n`);
+const row = (fields) => JSON.stringify({ at: '2026-10-04T10:00:00.000Z', transcript: spoken, tool_name: 'Edit', changes: ['/repo/a.mjs'], ...fields });
+
+test('an owed turn becomes an owed decision with the person\'s words, the change and the method steps', async () => {
+  const { root, owed, rules } = place();
+  writeFileSync(owed, `${row({ method_steps: ['outcome', 'proof'], cases: [] })}\n${row({ at: '2026-10-04T10:01:00.000Z', changes: ['/repo/b.mjs'] })}\n`);
+  const { request, asked } = server(name => (name === 'list_decisions' ? '[]' : JSON.stringify({ case_id: 'source:owed1', question: {} })));
+  const result = await drainOnce({ rules, owed, confirm, down, key: 'k', request });
+  const started = asked.filter(call => call.name === 'start_decision');
+  assert.equal(result.posted, 2);
+  assert.equal(started.length, 2, 'rows in two of the person\'s turns are two decisions');
+  assert.equal(started[0].args.goal, 'the person asks at 2026-10-04T09:59:50.000Z');
+  assert.match(started[0].args.evidence.find(item => item.ref === 'method').claim, /outcome, proof/);
+  assert.match(started[0].args.evidence.find(item => item.ref === 'changes').claim, /\/repo\/a\.mjs/);
+  assert.ok(started[0].args.options.some(option => option.label.startsWith('Generic:')));
+  assert.equal(existsSync(owed), false);
+  assert.equal(existsSync(`${owed}${rules.draining_suffix}`), false, 'an emptied draining file is removed');
+  const [archive] = readdirSync(rules.archive_folder);
+  const archived = readFileSync(join(rules.archive_folder, archive), 'utf8').trim().split('\n').map(line => JSON.parse(line));
+  assert.deepEqual(archived.map(item => [item.drained.state, item.drained.case_id]), [['posted', 'source:owed1'], ['posted', 'source:owed1']]);
+  assert.match(archive, /^\d{4}-\d{2}-\d{2}\.jsonl$/);
+  rmSync(root, { recursive: true });
+});
+
+test('a turn whose case is already decided is settled, and a row naming an open case is left to that case', async () => {
+  const { root, owed, rules } = place();
+  writeFileSync(owed, `${row({ cases: ['source:done'] })}\n${row({ at: '2026-10-04T11:00:00.000Z', case_id: 'source:open', agent: 'lane (Claude Code)' })}\n`);
+  const { request, asked } = server((name, args) => (name === 'export_decision' ? (args.case_id === 'source:done' ? decided : '# Goal\nStatus: Needs decision') : '[]'));
+  const result = await drainOnce({ rules, owed, confirm, down, key: 'k', request });
+  assert.equal(result.settled, 1);
+  assert.equal(result.in_trillion, 1);
+  assert.equal(asked.filter(call => call.name === 'start_decision').length, 0);
+  rmSync(root, { recursive: true });
+});
+
+test('nothing moves while Trillion cannot keep a decision, and a run stops at the first down answer keeping every unfinished row', async () => {
+  const { root, owed, rules } = place();
+  const lines = [0, 1, 2].map(minute => row({ at: `2026-10-04T10:0${minute}:00.000Z` }));
+  writeFileSync(owed, `${lines.join('\n')}\n`);
+  const busy = server(() => 'Wait for the service to clear, then send the same request again.');
+  assert.deepEqual(await drainOnce({ rules, owed, confirm, down, key: 'k', request: busy.request }), { ran: false, why: 'Trillion cannot keep a decision yet' });
+  assert.equal(readFileSync(owed, 'utf8').trim().split('\n').length, 3, 'the owed file is untouched');
+  let started = 0;
+  const flaky = server(name => {
+    if (name === 'list_decisions') return '[]';
+    if (name === 'decide') return 'Case not found'; // the missing-case availability probe is not a posted decision
+    assert.equal(name, 'start_decision');
+    return (started += 1) === 1 ? JSON.stringify({ case_id: 'source:first' }) : { status: 503 };
+  });
+  const result = await drainOnce({ rules, owed, confirm, down, key: 'k', request: flaky.request });
+  assert.equal(result.posted, 1);
+  assert.match(result.stopped, /503/);
+  const left = readFileSync(`${owed}${rules.draining_suffix}`, 'utf8').trim().split('\n');
+  assert.deepEqual(left, lines.slice(1), 'the unfinished rows stay, in order, in the draining file');
+  rmSync(root, { recursive: true });
+});
+
+const paced = (rules, fields) => ({ ...rules, pace: { ...rules.pace, ...fields } });
+
+test('one run reads the paced batch; rows that arrive meanwhile wait in a new owed file', async () => {
+  const { root, owed, rules: base } = place();
+  const rules = paced(base, { first_rows: 2, least_rows: 2, most_rows: 10 });
+  const lines = Array.from({ length: 5 }, (_, index) => row({ at: `2026-10-04T10:0${index}:00.000Z` }));
+  writeFileSync(owed, `${lines.join('\n')}\n`);
+  const { request } = server(name => (name === 'list_decisions' ? '[]' : JSON.stringify({ case_id: 'source:x' })));
+  const result = await drainOnce({ rules, owed, confirm, down, key: 'k', request });
+  assert.equal(result.read, 2);
+  assert.equal(result.next_rows, 4, 'a full run of fast answers doubles the next batch');
+  writeFileSync(owed, `${row({ at: '2026-10-05T09:00:00.000Z' })}\n`);
+  assert.equal(readFileSync(`${owed}${rules.draining_suffix}`, 'utf8').trim().split('\n').length, 3);
+  await drainOnce({ rules, owed, confirm, down, key: 'k', request });
+  assert.equal(existsSync(`${owed}${rules.draining_suffix}`), false, 'the draining file is finished before the new owed rows');
+  assert.equal(readFileSync(owed, 'utf8').trim().split('\n').length, 1);
+  rmSync(root, { recursive: true });
+});
+
+test('one drain at a time: a live lock is respected and a dead one is taken over', () => {
+  const { root } = place();
+  const path = join(root, 'lock');
+  const release = holdLock(path, { staleMs: 60_000, pid: 11, alive: () => true });
+  assert.equal(holdLock(path, { staleMs: 60_000, pid: 12, alive: () => true }), null);
+  assert.equal(typeof holdLock(path, { staleMs: 60_000, pid: 12, alive: pid => pid !== 11 }), 'function');
+  release();
+  rmSync(root, { recursive: true });
+});
+
+test('an older row finds its turn and the cases it named by reading the transcript from its end in small blocks', () => {
+  const { root } = place();
+  const path = join(root, 'session.jsonl');
+  const rows = [
+    { type: 'user', timestamp: '2026-10-04T09:00:00.000Z', message: { role: 'user', content: 'first ask' } },
+    { type: 'user', timestamp: '2026-10-04T09:59:00.000Z', message: { role: 'user', content: 'make the guard ✓ refuse sweeps' } },
+    { type: 'assistant', timestamp: '2026-10-04T09:59:30.000Z', message: { role: 'assistant', content: [{ type: 'tool_use', id: 'a', name: 'Bash', input: { command: 'node scripts/method-checks.mjs outcome root' } }] } },
+    { type: 'assistant', timestamp: '2026-10-04T09:59:40.000Z', message: { role: 'assistant', content: [{ type: 'tool_use', id: 'b', name: 'mcp__trillion__export_decision', input: { case_id: 'source:named' } }] } },
+    { type: 'user', timestamp: '2026-10-04T11:00:00.000Z', message: { role: 'user', content: 'a later ask' } },
+  ];
+  writeFileSync(path, `${rows.map(item => JSON.stringify(item)).join('\n')}\n`);
+  assert.deepEqual([...linesFromTheEnd(path, 7)].reverse(), readFileSync(path, 'utf8').trim().split('\n'), 'lines split across blocks come back whole');
+  const found = turnsAt(path, ['2026-10-04T10:00:00.000Z', '2026-10-04T09:30:00.000Z'], { blockBytes: 16 });
+  assert.equal(found.get('2026-10-04T10:00:00.000Z').asked.text, 'make the guard ✓ refuse sweeps');
+  assert.deepEqual(found.get('2026-10-04T10:00:00.000Z').turn.map(call => call.name), ['Bash', 'mcp__trillion__export_decision']);
+  assert.equal(found.get('2026-10-04T09:30:00.000Z').asked.text, 'first ask');
+  rmSync(root, { recursive: true });
+});
+
+test('an unreadable line is archived as unreadable, never left to block the file', async () => {
+  const { root, owed, rules } = place();
+  writeFileSync(owed, `not json\n`);
+  const { request } = server(() => '[]');
+  const result = await drainOnce({ rules, owed, confirm, down, key: 'k', request });
+  assert.equal(result.unreadable, 1);
+  assert.equal(existsSync(`${owed}${rules.draining_suffix}`), false);
+  assert.ok(rowsOf('a\n{"x":1}\n').length === 2);
+  rmSync(root, { recursive: true });
+});
+
+test('the batch grows while the store answers fast, halves on a slow or busy answer, and stays within its bounds', () => {
+  const pace = { least_rows: 10, most_rows: 400, grow_by: 2, shrink_by: 2, fast_ms: 1000, slow_ms: 5000 };
+  assert.equal(nextRows(40, { pace, read: 40, slowest: 300 }), 80);
+  assert.equal(nextRows(300, { pace, read: 300, slowest: 300 }), 400);
+  assert.equal(nextRows(40, { pace, read: 12, slowest: 300 }), 40, 'a short batch says nothing about a bigger one');
+  assert.equal(nextRows(40, { pace, read: 40, slowest: 2000 }), 40, 'between fast and slow the batch holds');
+  assert.equal(nextRows(40, { pace, read: 40, slowest: 6000 }), 20);
+  assert.equal(nextRows(12, { pace, read: 3, backedOff: true }), 10);
+});
+
+test('a slow answer ends the run and halves the next batch; a slow opening read runs the smallest batch', async () => {
+  const { root, owed, rules: base } = place();
+  const rules = paced(base, { first_rows: 8, least_rows: 2, most_rows: 40, fast_ms: 100, slow_ms: 500, healthy_ms: 100 });
+  writeFileSync(owed, `${Array.from({ length: 8 }, (_, index) => row({ at: `2026-10-04T10:0${index}:00.000Z` })).join('\n')}\n`);
+  let at = 0;
+  let starts = 0;
+  const clock = () => at;
+  const { request } = server(name => {
+    if (name === 'start_decision') { starts += 1; at += starts === 2 ? 900 : 10; }
+    return name === 'list_decisions' ? '[]' : JSON.stringify({ case_id: `source:${starts}` });
+  });
+  const slow = await drainOnce({ rules, owed, confirm, down, key: 'k', request, clock });
+  assert.equal(slow.posted, 2, 'the slowly answered row is finished and nothing more is asked after it');
+  assert.match(slow.stopped, /900 ms/);
+  assert.equal(slow.next_rows, 4);
+  assert.equal(JSON.parse(readFileSync(`${owed}.pace`, 'utf8')).rows, 4, 'the next batch is kept beside the owed file');
+  const sluggish = await drainOnce({ rules, owed, confirm, down, key: 'k', request, clock, isDown: async () => { at += 300; return false; } });
+  assert.equal(sluggish.read, 2, 'a light read slower than healthy_ms runs only least_rows');
+  assert.equal(sluggish.next_rows, 2);
+  rmSync(root, { recursive: true });
+});
+
+test('a turn whose source already has a case with other content is left to that case, and the run goes on', async () => {
+  const { root, owed, rules } = place();
+  writeFileSync(owed, `${row()}\n${row({ at: '2026-10-04T10:05:00.000Z' })}\n`);
+  let starts = 0;
+  const { request } = server(name => {
+    if (name !== 'start_decision') return '[]';
+    starts += 1;
+    return starts === 1 ? 'Error: Source owed:x already has case source:earlier with different content. Continue that case with its id, or use a new source_id.' : JSON.stringify({ case_id: 'source:new' });
+  });
+  const result = await drainOnce({ rules, owed, confirm, down, key: 'k', request });
+  assert.equal(result.in_trillion, 1);
+  assert.equal(result.posted, 1);
+  assert.equal(result.stopped, undefined);
+  const [archive] = readdirSync(rules.archive_folder);
+  assert.equal(JSON.parse(readFileSync(join(rules.archive_folder, archive), 'utf8').split('\n')[0]).drained.case_id, 'source:earlier');
+  rmSync(root, { recursive: true });
+});
+
+test('only a turn the person began becomes a decision: instruction files, peer prompts, headless sessions and lost transcripts are archived as not from the person, and a harness note beside a message keeps it the person\'s', async () => {
+  const { root, owed, rules } = place();
+  const claude = join(sessions, 'not-the-person.jsonl');
+  writeFileSync(claude, `${[
+    typed('2026-10-04T09:58:00.000Z', '# AGENTS.md instructions for /repo\n\nRules the harness added'),
+    typed('2026-10-04T09:59:00.000Z', 'build the importer for the lane', { origin: { kind: 'peer' } }),
+    typed('2026-10-04T10:01:00.000Z', '<teammate-message teammate_id="lead">fix the drain</teammate-message>'),
+  ].join('\n')}\n`);
+  const headless = join(sessions, 'rollout-headless.jsonl');
+  writeFileSync(headless, `${[
+    JSON.stringify({ timestamp: '2026-10-04T09:57:00.000Z', type: 'session_meta', payload: { id: 'c1', source: 'exec' } }),
+    JSON.stringify({ timestamp: '2026-10-04T09:58:00.000Z', type: 'response_item', payload: { type: 'message', role: 'user', content: [{ type: 'input_text', text: 'Run the owed work you were handed' }] } }),
+  ].join('\n')}\n`);
+  const imaged = join(sessions, 'with-an-image.jsonl');
+  writeFileSync(imaged, `${[
+    typed('2026-10-04T10:05:00.000Z', '[Image #1] the tour buttons all show at once'),
+    typed('2026-10-04T10:05:00.000Z', '[Image: source: /private/tmp/images/1.png]', { origin: undefined, isMeta: true }),
+  ].join('\n')}\n`);
+  writeFileSync(owed, `${[
+    row({ at: '2026-10-04T09:58:30.000Z', transcript: claude }),
+    row({ at: '2026-10-04T10:00:00.000Z', transcript: claude }),
+    row({ at: '2026-10-04T10:02:00.000Z', transcript: claude }),
+    row({ at: '2026-10-04T10:00:00.000Z', transcript: headless }),
+    row({ at: '2026-10-04T10:03:00.000Z', transcript: join(sessions, 'gone.jsonl') }),
+    row({ at: '2026-10-04T10:04:00.000Z', transcript: null }),
+  ].join('\n')}\n`);
+  writeFileSync(owed, `${readFileSync(owed, 'utf8')}${row({ at: '2026-10-04T10:06:00.000Z', transcript: imaged })}\n`);
+  const { request, asked } = server(name => (name === 'start_decision' ? JSON.stringify({ case_id: 'source:image' }) : '[]'));
+  const result = await drainOnce({ rules, owed, confirm, down, key: 'k', request });
+  assert.equal(result.not_person, 6);
+  const started = asked.filter(call => call.name === 'start_decision');
+  assert.deepEqual(started.map(call => call.args.goal), ['[Image #1] the tour buttons all show at once'], 'a note beside the person\'s message never hides it');
+  assert.equal(existsSync(`${owed}${rules.draining_suffix}`), false, 'they are archived, never left to wait');
+  rmSync(root, { recursive: true });
+});

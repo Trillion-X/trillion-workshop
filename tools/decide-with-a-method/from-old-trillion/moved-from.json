@@ -1,0 +1,41 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on with no home and no backlog row, moved here byte for byte from the parent of the commit that deleted each (commit; deleted_by names the deleting commit). Nothing here is rewritten: a file waits here for its wiring, under its old path, so the files keep importing each other as they did. A redaction replaces a real person's name or address with a made-up one, and is listed on the file; source_identity is the BLAKE3 identity of the bytes at commit, identity of the bytes here.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "harness/drain-owed-decisions.json",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/decide-with-a-method/from-old-trillion/harness/drain-owed-decisions.json",
+      "source_identity": "1f:e7fc6396f5f2adc0f97699d9c8e942e5049de9c21c539c32835c5b35177914a8",
+      "identity": "1f:e7fc6396f5f2adc0f97699d9c8e942e5049de9c21c539c32835c5b35177914a8"
+    },
+    {
+      "from": "harness/drain-owed-decisions.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/decide-with-a-method/from-old-trillion/harness/drain-owed-decisions.mjs",
+      "source_identity": "1f:6af4cbcd7d030f7b109073991e4a1fab9a2e6b443e90b110ba5728af16e720cf",
+      "identity": "1f:6af4cbcd7d030f7b109073991e4a1fab9a2e6b443e90b110ba5728af16e720cf"
+    },
+    {
+      "from": "scripts/prove-drain-owed-decisions.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/decide-with-a-method/from-old-trillion/scripts/prove-drain-owed-decisions.mjs",
+      "source_identity": "1f:4b4eb6e1444c3fcd3a81c53ba4c8ba67d724eaf327943fe70acd225f347522b1",
+      "identity": "1f:4b4eb6e1444c3fcd3a81c53ba4c8ba67d724eaf327943fe70acd225f347522b1"
+    },
+    {
+      "from": "test/drain-owed-decisions.test.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/decide-with-a-method/from-old-trillion/test/drain-owed-decisions.test.mjs.held",
+      "source_identity": "1f:bd51a43bc3a434f4224c3bb2212fdcc8370fd4ab91d4b1b79399adb39d3ac1e8",
+      "identity": "1f:bd51a43bc3a434f4224c3bb2212fdcc8370fd4ab91d4b1b79399adb39d3ac1e8",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    }
+  ]
+}

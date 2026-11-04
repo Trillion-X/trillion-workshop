@@ -1,0 +1,90 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on with no home and no backlog row, moved here byte for byte from the parent of the commit that deleted each (commit; deleted_by names the deleting commit). Nothing here is rewritten: a file waits here for its wiring, under its old path, so the files keep importing each other as they did. A redaction replaces a real person's name or address with a made-up one, and is listed on the file; source_identity is the BLAKE3 identity of the bytes at commit, identity of the bytes here.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "computer/browser-bridge.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/record-a-web-page/from-old-trillion/computer/browser-bridge.mjs",
+      "source_identity": "1f:73b8808a1706ffa9e5da6133f66b6375fdcd8f7f17c86e0d5a8e28aa30ba72a9",
+      "identity": "1f:73b8808a1706ffa9e5da6133f66b6375fdcd8f7f17c86e0d5a8e28aa30ba72a9"
+    },
+    {
+      "from": "computer/capture-ca.json",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/record-a-web-page/from-old-trillion/computer/capture-ca.json",
+      "source_identity": "1f:77c266ff9c8c00366acf1f2ae6331619680b1187998d0db55155dbd71f417d01",
+      "identity": "1f:77c266ff9c8c00366acf1f2ae6331619680b1187998d0db55155dbd71f417d01"
+    },
+    {
+      "from": "computer/capture-ca.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/record-a-web-page/from-old-trillion/computer/capture-ca.mjs",
+      "source_identity": "1f:b94a3b70740cf51c583a479ab0e822e31f7a7684f02d5819a312f7dfda6f3705",
+      "identity": "1f:b94a3b70740cf51c583a479ab0e822e31f7a7684f02d5819a312f7dfda6f3705"
+    },
+    {
+      "from": "computer/capture-proxy.json",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/record-a-web-page/from-old-trillion/computer/capture-proxy.json",
+      "source_identity": "1f:71eaa7a25963d993efe140f8ed33d1eac62983659486b908f59271d5c57c5413",
+      "identity": "1f:71eaa7a25963d993efe140f8ed33d1eac62983659486b908f59271d5c57c5413"
+    },
+    {
+      "from": "computer/capture-proxy.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/record-a-web-page/from-old-trillion/computer/capture-proxy.mjs",
+      "source_identity": "1f:87131de347fcde267bfe14c4db9b3f711e3a16a95acd40ccc10aad8d1aef240d",
+      "identity": "1f:87131de347fcde267bfe14c4db9b3f711e3a16a95acd40ccc10aad8d1aef240d"
+    },
+    {
+      "from": "computer/native-messaging.json",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/record-a-web-page/from-old-trillion/computer/native-messaging.json",
+      "source_identity": "1f:11f768c944534fe7ee78222f7c8dddb4e3452740b0a25469935cd41f5869a195",
+      "identity": "1f:11f768c944534fe7ee78222f7c8dddb4e3452740b0a25469935cd41f5869a195"
+    },
+    {
+      "from": "computer/native-messaging.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/record-a-web-page/from-old-trillion/computer/native-messaging.mjs",
+      "source_identity": "1f:0715bb7673564d92d7502e88ac565daa4733ac24475afdc4def2519bf028e0ac",
+      "identity": "1f:0715bb7673564d92d7502e88ac565daa4733ac24475afdc4def2519bf028e0ac"
+    },
+    {
+      "from": "computer/web-capture.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/record-a-web-page/from-old-trillion/computer/web-capture.mjs",
+      "source_identity": "1f:6b1ffc33e3330c8aeab413b8256e6b409aa4732d356dedfb8f4d3a77b0c2d5f0",
+      "identity": "1f:6b1ffc33e3330c8aeab413b8256e6b409aa4732d356dedfb8f4d3a77b0c2d5f0"
+    },
+    {
+      "from": "test/browser-bridge-and-capture.test.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/record-a-web-page/from-old-trillion/test/browser-bridge-and-capture.test.mjs.held",
+      "source_identity": "1f:83d348c022e9e723e182405265c5aaf0d7b2a2558b4d747a5d04867abc68daaa",
+      "identity": "1f:83d348c022e9e723e182405265c5aaf0d7b2a2558b4d747a5d04867abc68daaa",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/capture-and-native-messaging.test.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/record-a-web-page/from-old-trillion/test/capture-and-native-messaging.test.mjs.held",
+      "source_identity": "1f:23a07bf88445d038a563dcdd8eaa416dfb450a6bade4e2bbd6b2473cd786c270",
+      "identity": "1f:23a07bf88445d038a563dcdd8eaa416dfb450a6bade4e2bbd6b2473cd786c270",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    }
+  ]
+}

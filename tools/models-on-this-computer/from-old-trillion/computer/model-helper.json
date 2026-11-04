@@ -1,0 +1,15 @@
+{
+  "_what": "Heavy on-device AI that runs in its own helper process instead of inside the app (computer/model-helper.mjs). A job is a row of `jobs`: `tiers`, best first, each naming the `runner` helper and the model `bundle` helper (both rows of computer/helper-runtimes.json, fetched on first use and checked against their pinned hash) and what the Mac needs to run it (min_memory_gb, optional arch). The most capable tier this Mac meets is used; none fits means the job says so in words. The runner is started with only the environment variables in `env`, in `timeout_seconds`, and is given the bundle's folder, the input path and the output path as arguments. Nothing is listed yet: a job and its tiers are rows added here once their helper rows are pinned, and with no rows the tool lists nothing and runs nothing.",
+  "jobs": [],
+  "env": ["PATH", "HOME", "TMPDIR"],
+  "timeout_seconds": 600,
+  "max_output_bytes": 65536,
+  "words": {
+    "unknown_job": "There is no job named {id}. The jobs: {ids}.",
+    "no_jobs": "No heavy AI job is set up on this Mac yet.",
+    "no_tier": "This Mac ({memory_gb} GB memory, {arch}) is below the smallest tier of {id}, which needs {need_gb} GB.",
+    "needs_input": "Give the path of the file to work on.",
+    "ran": "{id} ran on tier {tier}.",
+    "failed": "{id} did not finish: {why}"
+  }
+}
