@@ -17,6 +17,11 @@
 //      or a grant the person gives). A record changed meanwhile is not written over. Nothing here keeps a second store.
 //   4. A share key is made here and answered once (`key`, to hand to the person); the grant keeps only its BLAKE3.
 //   5. A shipped default is an overlay the reader lays under the person's record; it is never written into the record.
+//      The rows lay tools/starting-set/shipped-defaults.json's show-rules default under the record the way trillion-rust
+//      src/records/shipped_defaults.rs does (`by_id` types: the person's own entry wins; `switched` in_use: a shipped id
+//      is on unless the person's `starting` holds it with on false), and take it back off before answering `keep`: a
+//      shipped type the person did not change is not kept, and switching a shipped type is the person's
+//      `starting.<id>.on` (false to switch it off; left out to switch it back on).
 //
 import { readFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
@@ -25,6 +30,7 @@ import { bytesToHex } from '@noble/hashes/utils.js';
 import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
 import sharing from '../read-data/record-sharing.json' with { type: 'json' };
+import shippedDefaults from '../../starting-set/shipped-defaults.json' with { type: 'json' };
 import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import { typesOf, heldTypes } from '../../set-up-my-account/read-data/show-rules.mjs';
 import { makeShowRules } from '../read-data/show-rules-store.mjs';
@@ -51,6 +57,64 @@ function nowOf(input) {
   return at;
 }
 
+// The shipped default laid under the person's show-rules record, if one ships.
+const SHIPPED = shippedDefaults.records.map(row => row.payload).find(one => one?.kind === 'shipped-default' && one.record === data.record) ?? null;
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const listOf = value => (Array.isArray(value) ? value : []);
+const shippedTypes = () => (SHIPPED && (SHIPPED.merge?.by_id ?? []).includes('types') ? listOf(SHIPPED.value?.types).filter(type => object(type) && word(type.id)) : []);
+const shippedSwitches = () => (SHIPPED ? (SHIPPED.merge?.switched ?? []).filter(one => one.field === 'in_use' && word(one.off_in)) : []);
+/** The ids a shipped default switches on, each with where the person switches it off. */
+const shippedOn = () => shippedSwitches().flatMap(({ off_in }) => listOf(SHIPPED.value.in_use).map(id => ({ id, off_in })));
+
+/** Whether a type id is a shipped type the person keeps no copy of their own of. */
+const isShipped = (id, record) => shippedTypes().some(type => type.id === id) && !listOf(record?.types).some(one => object(one) && one.id === id);
+
+/** The person's record with the shipped default laid under it, as the engine's reader lays it; null stays null only when nothing ships. */
+export function laidUnder(record) {
+  const types = shippedTypes();
+  const on = shippedOn();
+  if (!types.length && !on.length) return record ?? null;
+  const own = object(record) ? record : {};
+  const ownTypes = listOf(own.types);
+  const merged = [...types.filter(type => !ownTypes.some(one => object(one) && one.id === type.id)), ...ownTypes];
+  const inUse = [...new Set([...on.filter(({ id, off_in }) => own[off_in]?.[id]?.on !== false && merged.some(type => type.id === id)).map(({ id }) => id), ...listOf(own.in_use)])];
+  // The shipped switches are read into in_use here, so the store (which knows only starting-rule ids there) never sees them.
+  const rest = { ...own };
+  for (const off_in of new Set(on.map(one => one.off_in))) {
+    if (!object(own[off_in])) continue;
+    const switches = Object.fromEntries(Object.entries(own[off_in]).filter(([id]) => !on.some(one => one.id === id && one.off_in === off_in)));
+    rest[off_in] = switches;
+  }
+  return { ...rest, ...(merged.length ? { types: merged } : {}), ...(inUse.length ? { in_use: inUse } : {}) };
+}
+
+/**
+ * What the person's own record holds after a change made over laidUnder(before): the shipped types they did not
+ * change are left out, and each shipped switch is kept as their `starting.<id>.on` instead of in their in_use.
+ */
+export function takenOff(after, before) {
+  const types = shippedTypes();
+  const on = shippedOn();
+  if ((!types.length && !on.length) || !object(after)) return after;
+  const own = object(before) ? before : {};
+  const kept = listOf(after.types).filter(type => {
+    const shipped = types.find(one => one.id === type.id);
+    return !shipped || listOf(own.types).some(one => object(one) && one.id === type.id) || !same(type, shipped);
+  });
+  const shippedIds = new Set(on.map(({ id }) => id));
+  const inUse = listOf(after.in_use).filter(id => !shippedIds.has(id) || kept.some(type => type.id === id));
+  const next = { ...after };
+  for (const { id, off_in } of on) {
+    if (kept.some(type => type.id === id)) continue; // the person keeps their own copy: their in_use says
+    const switches = object(next[off_in]) ? { ...next[off_in] } : {};
+    if (listOf(after.in_use).includes(id)) delete switches[id];
+    else switches[id] = { on: false };
+    next[off_in] = switches;
+  }
+  delete next.types; delete next.in_use;
+  return { ...next, ...(kept.length ? { types: kept } : {}), ...(inUse.length ? { in_use: inUse } : {}) };
+}
+
 /** The records the door holds for these labels: label → value, absent labels left out. */
 async function readLabels(door, labels) {
   const { records } = await door.readWorkspace(labels);
@@ -63,7 +127,10 @@ async function readLabels(door, labels) {
  */
 async function storeOver(door, input) {
   const first = await readLabels(door, [data.record]);
+  // The store reads the record with the shipped default laid under it; keep() takes the default back off.
   const held = new Map(first);
+  const laid = laidUnder(first.get(data.record) ?? null);
+  if (laid) held.set(data.record, laid);
   const writes = [];
   const records = {
     read: label => held.get(label) ?? null,
@@ -74,8 +141,9 @@ async function storeOver(door, input) {
   };
   const at = nowOf(input);
   const store = makeShowRules({ records, filterRows: await rowFilter(), authority: 'personal', now: () => new Date(at) });
-  const keep = () => [...new Set(writes)].map(label => ({ label, value: held.get(label) ?? null, expected: first.get(label) ?? null }));
-  return { store, keep, held };
+  const own = label => (label === data.record ? takenOff(held.get(label) ?? null, first.get(label) ?? null) : held.get(label) ?? null);
+  const keep = () => [...new Set(writes)].map(label => ({ label, value: own(label), expected: first.get(label) ?? null }));
+  return { store, keep, held, first };
 }
 
 const changeOnly = (input, field) => {
@@ -87,10 +155,12 @@ const changeOnly = (input, field) => {
 /** tool:see-when-things-show (show-rules-store.mjs read) */
 export async function seeWhenThingsShow(input = {}, { door } = {}) {
   if (!object(input)) throw new Error('The request is one object.');
-  const { store } = await storeOver(door, input);
+  const { store, first } = await storeOver(door, input);
   const answer = await store.read({ space_id: input.space_id ?? null });
-  // Where each kept type's share is kept, for share-a-kept-show-type and stop-sharing-a-show-type to name.
-  return { ...answer, types: answer.types.map(type => ({ ...type, grant: grantLabel(type.id) })) };
+  // Where each kept type's share is kept, for share-a-kept-show-type and stop-sharing-a-show-type to name; a type
+  // that ships with Trillion and the person did not change says `shipped`.
+  const shipped = id => isShipped(id, first.get(data.record));
+  return { ...answer, types: answer.types.map(type => ({ ...type, ...(shipped(type.id) ? { shipped: true } : {}), grant: grantLabel(type.id) })) };
 }
 
 async function set(door, input, change) {
@@ -125,7 +195,24 @@ export async function keepAShowType(input = {}, { door } = {}) {
 export async function takeAShowTypeAway(input = {}, { door } = {}) {
   const change = changeOnly(input, 'remove_type');
   if (!word(change.remove_type)) throw new Error('remove_type names the id of a type you keep.');
-  return set(door, input, change);
+  const id = change.remove_type;
+  const switched = shippedOn().find(one => one.id === id);
+  const { store, keep, first } = await storeOver(door, input);
+  const before = first.get(data.record) ?? null;
+  // A shipped type is every account's and cannot be taken away, only switched off; taking away the person's own copy
+  // of one gives them the shipped one back, switched as their copy was.
+  if (isShipped(id, before)) throw new Error(`${id} ships with Trillion for every account and cannot be taken away; switch it off with use: { type: "${id}", on: false }.`);
+  const answer = await store.set(change, { actor: OWN });
+  const kept = keep();
+  if (switched && shippedTypes().some(type => type.id === id)) {
+    for (const one of kept) {
+      if (one.label !== data.record || !object(one.value)) continue;
+      const switches = object(one.value[switched.off_in]) ? { ...one.value[switched.off_in] } : {};
+      if (listOf(before?.in_use).includes(id)) delete switches[id]; else switches[id] = { on: false };
+      one.value = { ...one.value, [switched.off_in]: switches };
+    }
+  }
+  return { ...answer, keep: kept };
 }
 
 /**
@@ -171,7 +258,7 @@ export async function shareAKeptShowType(input = {}, { door } = {}) {
   const { type, principal } = shareInput(input);
   const at = nowOf(input);
   const read = await readLabels(door, [data.record, grantLabel(type)]);
-  const presets = typesOf(read.get(data.record));
+  const presets = typesOf(laidUnder(read.get(data.record) ?? null));
   const preset = presets.find(one => one.id === type);
   if (!preset) throw new Error(`${words.share_failed}: no preset ${type} is kept here. ${words.none}`);
   const before = read.get(grantLabel(type)) ?? null;
