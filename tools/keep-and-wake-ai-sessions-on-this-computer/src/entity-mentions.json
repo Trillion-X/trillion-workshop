@@ -1,0 +1,8 @@
+{
+  "what_this_is": "Bounds of the name index src/entity-mentions.mjs keeps beside a person's titled list rows. words_per_read: the words of a message whose spellings are looked up in one read (a longer message is read in steps, never cut). longest_name_words: the most words of one name. candidates_read: the most rows kept for one spelling (two rows with one spelling already make it ambiguous; the count of rows is kept beyond them). build_page: the rows of one list indexed in one step when a list's index is built or rebuilt (a step is taken whenever words are checked for names, until every list is built). spelling_ids_page: the spelling ids read in one step when a store first learns which spellings exist (read once, by id alone, then kept current by every spelling written).",
+  "words_per_read": 400,
+  "longest_name_words": 8,
+  "candidates_read": 8,
+  "build_page": 100,
+  "spelling_ids_page": 1000
+}

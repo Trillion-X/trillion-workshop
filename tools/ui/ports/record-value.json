@@ -1,0 +1,53 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-RECORD-VALUE-FROM-WEB-SHELL-TO-UI",
+  "status": "BASELINED",
+  "directive": {
+    "quote": "Imports inside the tool don't resolve in the Workshop ... The screens can't build until those imports point at web/ or at moved Workshop code. Port code one to one; never rebuild what already worked; keep one generic owner."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-apps",
+      "commit": "90e8c7acdccc5d907c70157fad958d51e65ee985",
+      "path": "web/parts/ui/show/record-picker/record-value.ts",
+      "multihash": "1f:978a764ca7eb3546fa7e5d4b3785ec131c73dacbfa1d78c2a557d356038c9a37",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T23:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/ui/show/record-picker/record-value.ts"
+    }
+  ],
+  "preserve": [
+    "a chosen row travels as JSON text {id, title, list_id}; plain words read as a title with no row",
+    "recordPart is the one reading of a value for a run",
+    "bestGuess chooses the first suggestion that is a row",
+    "zero DOM and zero React, no imports"
+  ],
+  "allowed_deltas": [
+    "none: the file moves byte for byte; tools/keep-lists-of-rows/lists.mjs (node, no web shell to answer it) imports it as ../ui/show/record-picker/record-value.ts, and the web shell's importers import it from trillion-workshop/tools/ui/show/record-picker/record-value.ts"
+  ],
+  "banned_substitutions": [
+    "a rewritten record value reader in lists.mjs",
+    "a second copy of record-value.ts kept in the web shell"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:978a764ca7eb3546fa7e5d4b3785ec131c73dacbfa1d78c2a557d356038c9a37",
+    "target_multihash_at_baseline": "1f:978a764ca7eb3546fa7e5d4b3785ec131c73dacbfa1d78c2a557d356038c9a37",
+    "recorded_at": "2026-11-04T15:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 1,
+    "required_mechanisms": [
+      "export function recordText",
+      "export function validRecordField"
+    ],
+    "test_refs": ["tools/keep-lists-of-rows/test/imports-resolve.test.mjs"]
+  }
+}
