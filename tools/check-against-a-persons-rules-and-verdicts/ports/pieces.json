@@ -48,7 +48,8 @@
    "capability_rows": [],
    "code_patterns": [
     "pieceRows",
-    "pieceRow"
+    "pieceRow",
+    "keepPieces"
    ],
    "repositories": [
     {
@@ -63,7 +64,8 @@
   },
   "test_refs": [
    "tools/check-against-a-persons-rules-and-verdicts/test/pieces.test.mjs",
-   "tools/check-against-a-persons-rules-and-verdicts/test/piece-sweep.test.mjs"
+   "tools/check-against-a-persons-rules-and-verdicts/test/piece-sweep.test.mjs",
+   "tools/check-against-a-persons-rules-and-verdicts/test/at-the-size-of-a-real-list.test.mjs"
   ]
  }
 }
