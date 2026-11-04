@@ -12,6 +12,14 @@
       "identity": "1f:eee1bd030fc867d1c532f066ed394edc04b24947fb186ed8ef0015607235c3c8"
     },
     {
+      "from": "records/workshop-space-tool-records.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/add-a-leaderboard-points-rewards-a-streak-or-a-classroom/records/workshop-space-tool-records.json",
+      "source_identity": "1f:eee1bd030fc867d1c532f066ed394edc04b24947fb186ed8ef0015607235c3c8",
+      "identity": "1f:eee1bd030fc867d1c532f066ed394edc04b24947fb186ed8ef0015607235c3c8",
+      "reused": true
+    },
+    {
       "from": "src/space-capabilities.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/add-a-leaderboard-points-rewards-a-streak-or-a-classroom/src/space-capabilities.mjs",
@@ -19,11 +27,26 @@
       "identity": "1f:7a2989a389806d8243e4919c22db1092fca65420ef1bbf71c249112d0484f491"
     },
     {
+      "from": "src/space-capabilities.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/add-a-leaderboard-points-rewards-a-streak-or-a-classroom/src/space-capabilities.mjs",
+      "source_identity": "1f:7a2989a389806d8243e4919c22db1092fca65420ef1bbf71c249112d0484f491",
+      "identity": "1f:7a2989a389806d8243e4919c22db1092fca65420ef1bbf71c249112d0484f491",
+      "reused": true
+    },
+    {
       "from": "test/space-capabilities.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/add-a-leaderboard-points-rewards-a-streak-or-a-classroom/test/space-capabilities.test.mjs",
       "source_identity": "1f:7ae2028c087ef34122792b0dcb0078e8918d7ea021be9fdf6f1b14179ec566ac",
       "identity": "1f:7ae2028c087ef34122792b0dcb0078e8918d7ea021be9fdf6f1b14179ec566ac"
+    },
+    {
+      "from": "test/space-capability-versions.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/add-a-leaderboard-points-rewards-a-streak-or-a-classroom/test/space-capability-versions.test.mjs",
+      "source_identity": "1f:18a2cdd1443f99c9396f78c3e721e7cc3704cd74c2c4a00272ad0649c045e0a6",
+      "identity": "1f:76ca9681729cb001f075378858ac72d961648ae594143820a6da51b103190c74"
     }
   ]
 }

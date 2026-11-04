@@ -1,0 +1,35 @@
+{
+  "_what": "Where a piece of work for a person runs, owned by src/placement.mjs (zero-cost Trillion X move 10). places are tried in order and the first whose `when` holds for the work's facts is chosen: a rule tree in the formula engine's shape over the facts listed in `facts`. `pays` says who pays for work placed there (the person's own device or account, or Trillion). A job row names the kind of work and the places that can do it (`can`); a place a job cannot use is passed over. Its `devices` name the Workshop placement of a device and the tool that does the job there; such a device counts as awake (devices_awake_that_can) while the agent that placement names has a current claim to take work and lists that tool among its skills, and a place whose `runs_on` is device hands the work to the first of them. When no place holds, the work waits for one (`otherwise`), and it is never sent to Trillion's own machines unless the person set a budget for that: `trillion_budget_dollars` is the day budget of the person's own spend row `budget_row` (set_spend_budget), or `default_trillion_budget_dollars` when they set none. Adding a place, a job or a fact is a row here; nothing in code names one.",
+  "budget_row": "trillion-work-day",
+  "default_trillion_budget_dollars": 0,
+  "facts": [
+    { "id": "made_at_capture", "kind": "boolean", "label": "The device that captured it already did it" },
+    { "id": "devices_awake_that_can", "kind": "number", "label": "The person's devices that are awake now and can do this job" },
+    { "id": "viewer_can", "kind": "boolean", "label": "The device the person is looking at it on can do this job when they open it" },
+    { "id": "subscription_can", "kind": "boolean", "label": "An AI subscription the person connected can do this job" },
+    { "id": "their_cloud_can", "kind": "boolean", "label": "A cloud account of the person's own can do this job" },
+    { "id": "trillion_budget_dollars", "kind": "number", "label": "What the person lets Trillion spend on their work in a day" }
+  ],
+  "places": [
+    { "id": "capturing-device", "label": "The device that captured it", "pays": "person",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "made_at_capture", "operator": "is_true", "params": {} }] } },
+    { "id": "awake-device", "label": "The strongest of their devices that is awake", "pays": "person", "runs_on": "device",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "devices_awake_that_can", "operator": "greater_than", "params": { "value": 0 } }] } },
+    { "id": "viewing-device", "label": "The device they open it on", "pays": "person",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "viewer_can", "operator": "is_true", "params": {} }] } },
+    { "id": "their-subscription", "label": "Their AI subscription", "pays": "person",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "subscription_can", "operator": "is_true", "params": {} }] } },
+    { "id": "their-cloud", "label": "Their own cloud account", "pays": "person",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "their_cloud_can", "operator": "is_true", "params": {} }] } },
+    { "id": "trillion", "label": "Trillion's own machines, within the budget they set", "pays": "trillion",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "trillion_budget_dollars", "operator": "greater_than", "params": { "value": 0 } }] } }
+  ],
+  "jobs": [
+    { "id": "make-a-preview", "label": "Make a file's still, frames and waveform", "can": ["capturing-device", "awake-device", "viewing-device", "trillion"] },
+    { "id": "hear-a-recording", "label": "Hear a recording into words", "can": ["awake-device", "trillion"],
+      "devices": [{ "placement": "placement:your-computer", "tool_id": "tool:hear-a-recording" }] },
+    { "id": "speak", "label": "Say words out loud in a natural voice", "can": ["awake-device"],
+      "devices": [{ "placement": "placement:your-computer", "tool_id": "tool:say-with-a-voice-model" }] }
+  ],
+  "otherwise": { "id": "wait", "label": "Waits for one of their devices" }
+}

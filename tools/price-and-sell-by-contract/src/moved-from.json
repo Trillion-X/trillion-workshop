@@ -5,11 +5,27 @@
   "calls": [],
   "files": [
     {
+      "from": "src/credit.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/credit.mjs",
+      "source_identity": "1f:dc2f4253f93bae5b76baa4476e9ee0c58cd704e46ac9de42d0664cc725f7afdd",
+      "identity": "1f:82476e2fdeb79bca0ac3ed6b9a3cf38d6aa112249b39cc67077fbdb16c09f55b",
+      "reused": true
+    },
+    {
       "from": "src/usage-meters.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/price-and-sell-by-contract/src/usage-meters.json",
       "source_identity": "1f:a91222642323643e4406d205d4628385b90b878b24752c72add48d5b7a6d5736",
       "identity": "1f:a91222642323643e4406d205d4628385b90b878b24752c72add48d5b7a6d5736",
+      "reused": true
+    },
+    {
+      "from": "src/usage-meters.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/usage-meters.mjs",
+      "source_identity": "1f:70db817bc8b564fa8cd188039ec826e30f5b02187d68506c7f1042c57b605289",
+      "identity": "1f:b96e2f715e5a7a0ab82c60d149618af88568a701f7012dafb7dcbd42d5d384b3",
       "reused": true
     }
   ]

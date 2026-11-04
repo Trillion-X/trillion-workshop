@@ -26,6 +26,14 @@
       "identity": "1f:5d04489e775f5ae0433168fc3bd50fc8ce3a087269e30d5d57dd850e293e0dce"
     },
     {
+      "from": "parts/ui/show/document-page/document-page-html.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-my-files/parts/ui/show/document-page/document-page-html.mjs",
+      "source_identity": "1f:ce60e6c90c6541f52e44b9d0e22ac9e315e07fcca94a9788554f2ec94b03fd52",
+      "identity": "1f:5d04489e775f5ae0433168fc3bd50fc8ce3a087269e30d5d57dd850e293e0dce",
+      "reused": true
+    },
+    {
       "from": "parts/ui/show/document-page/word-marks.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/organize-my-files/parts/ui/show/document-page/word-marks.json",
@@ -187,11 +195,27 @@
       "identity": "1f:cb65eed401570a9ebd16b56ad1254e8bacf8e0bbb8d9f1c851e6a5f413cf3911"
     },
     {
+      "from": "src/file-type.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-my-files/src/file-type.mjs",
+      "source_identity": "1f:1feb0018d96810263c4bb6aa016ccac29b71112b5b1341e0186ac9f2b16f9f7c",
+      "identity": "1f:cb65eed401570a9ebd16b56ad1254e8bacf8e0bbb8d9f1c851e6a5f413cf3911",
+      "reused": true
+    },
+    {
       "from": "src/file-versions.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/organize-my-files/src/file-versions.mjs",
       "source_identity": "1f:03d76785a70910af1f901e019f0813a3404e6b9b6b40255ee0649332a6d7ae02",
       "identity": "1f:a7c01f235bac23ddbfb6b80a4a0703e2f3b820a919bf3191e3bcdefba378a7a3"
+    },
+    {
+      "from": "src/file-versions.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-my-files/src/file-versions.mjs",
+      "source_identity": "1f:03d76785a70910af1f901e019f0813a3404e6b9b6b40255ee0649332a6d7ae02",
+      "identity": "1f:a7c01f235bac23ddbfb6b80a4a0703e2f3b820a919bf3191e3bcdefba378a7a3",
+      "reused": true
     },
     {
       "from": "src/ingest-normalization.mjs",
@@ -227,6 +251,27 @@
       "to": "tools/organize-my-files/src/tool-reply.mjs",
       "source_identity": "1f:12d29b732587a16cc1b4e16f11d16bfe23f8fca6b053f2e5d9cb265235bfa519",
       "identity": "1f:12d29b732587a16cc1b4e16f11d16bfe23f8fca6b053f2e5d9cb265235bfa519"
+    },
+    {
+      "from": "test/document-capability-page.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-my-files/test/document-capability-page.test.mjs",
+      "source_identity": "1f:ca3a6a5e5cd21baf7d5a9e7e73b5cddb1be8d4c5a1792e6ec6d2c5ced5d419b2",
+      "identity": "1f:fdcef78717006a835bee1c654093cf5982ad60e305589c843492c2d6b0be200f"
+    },
+    {
+      "from": "test/file-type.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-my-files/test/file-type.test.mjs",
+      "source_identity": "1f:bcd4bba748b3232253adce458979c11c3265fd1915b85cf88fe42aad677936be",
+      "identity": "1f:650aa765e359172f391fb3db5b03b8597eb8ff437c425715c6c4e0427a858e86"
+    },
+    {
+      "from": "test/file-versions.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-my-files/test/file-versions.test.mjs",
+      "source_identity": "1f:39facf6f8a0d0e71a15620fbed1778b87647621b65b35519e9d24b08c654eefb",
+      "identity": "1f:8ef3073e098afd15007333b569ddc1c239637b6365262604d0f3c0c1b55c5411"
     },
     {
       "from": "test/namespace-file-lookup.test.mjs",

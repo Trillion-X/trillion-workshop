@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, readdirSyn
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeCarrier } from '../../run-on-a-persons-computer/carry-connections.mjs';
-import { whatsapp } from '../../run-on-a-persons-computer/connections/whatsapp.mjs';
+import { whatsapp } from '../../bring-in-new-items-from-this-computer/computer/connections/whatsapp.mjs';
 import { quoteBlock } from '../../shared-code/src/quoted-words.mjs';
 import { carriedTools, carriedAnnotations, handleCarriedRequest, isCarriedPath, makeCarriedConnections } from '../../shared-code/src/carried-connections.mjs';
 

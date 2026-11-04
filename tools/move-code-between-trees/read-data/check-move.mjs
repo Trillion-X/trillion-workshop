@@ -24,12 +24,28 @@ const ownEnv = () => { const env = { ...process.env }; delete env.NODE_TEST_CONT
 /** Every receipt in the destination, or in the named folders only. */
 export function receiptsIn(destinationFolder, folders) {
   const found = [];
-  const look = folder => { const path = join(destinationFolder, folder, 'moved-from.json'); if (existsSync(path)) found.push({ folder, receipt: JSON.parse(readFileSync(path, 'utf8')) }); };
+  // A moved-from.json some other mover wrote (its files not a list of this tool's file rows) is not one of these receipts.
+  const look = folder => { const path = join(destinationFolder, folder, 'moved-from.json'); if (!existsSync(path)) return; const receipt = JSON.parse(readFileSync(path, 'utf8')); if (Array.isArray(receipt?.files)) found.push({ folder, receipt }); };
   if (folders?.length) folders.forEach(look);
   else if (existsSync(join(destinationFolder, 'tools'))) for (const name of readdirSync(join(destinationFolder, 'tools'))) {
     if (statSync(join(destinationFolder, 'tools', name)).isDirectory()) look(`tools/${name}`);
   }
   return found;
+}
+
+/** Every receipt anywhere under tools/, nested folders included. */
+export function receiptsUnder(destinationFolder) {
+  const folders = [];
+  const walk = folder => {
+    for (const name of readdirSync(join(destinationFolder, folder))) {
+      if (name === 'node_modules' || name.startsWith('.')) continue;
+      const path = `${folder}/${name}`;
+      if (statSync(join(destinationFolder, path)).isDirectory()) walk(path);
+      else if (name === 'moved-from.json') folders.push(folder);
+    }
+  };
+  if (existsSync(join(destinationFolder, 'tools'))) walk('tools');
+  return receiptsIn(destinationFolder, folders);
 }
 
 // The text with every module request's specifier set aside, so two texts that differ only there compare equal.
@@ -43,7 +59,9 @@ const withoutRequests = text => {
 export function checkMove({ sources, destinationFolder, sourceAfterFolder, folders, run = true, timeoutMs = 600000 }) {
   const receipts = receiptsIn(destinationFolder, folders);
   // A tree that keeps its moved files outside tools/ (an app's web/) has its receipts only in the folders named.
-  const allReceipts = folders?.length ? [...receipts, ...receiptsIn(destinationFolder).filter(item => !folders.includes(item.folder))] : receipts;
+  // Where each file landed is read from every receipt in the tree, nested ones too (a group that landed in a folder
+  // inside a tool keeps its receipt there), so an import reaching a file an earlier lane carried is found wherever it went.
+  const allReceipts = [...receipts, ...receiptsUnder(destinationFolder).filter(item => !receipts.some(own => own.folder === item.folder))];
   // A source file an earlier lane moved and a later one found home already (or two lanes each carried) has every place a
   // receipt names: an import reaching any of them reaches that file.
   const landing = new Map();

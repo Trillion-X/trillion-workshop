@@ -1,0 +1,23 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/slot-table/do-work/slot-table.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/slot-table/do-work/slot-table.mjs",
+      "source_identity": "1f:eb83253c36dbf7ebf44d1bb2d7b90b3176d034a67234548586cafa06aec07469",
+      "identity": "1f:eb83253c36dbf7ebf44d1bb2d7b90b3176d034a67234548586cafa06aec07469",
+      "reused": true
+    },
+    {
+      "from": "test/slot-table.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/slot-table/test/slot-table.test.mjs",
+      "source_identity": "1f:56cd495779e2295f662e5089279d0ec3e036592c5374d0f15ef3ff185b74271c",
+      "identity": "1f:586391e05bc04064f6905b2afd7b241199a081b0ab0e61ed79bd8c4c655566fb"
+    }
+  ]
+}

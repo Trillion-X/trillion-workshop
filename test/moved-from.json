@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/passkey-account-recovery-retention.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "test/passkey-account-recovery-retention.test.mjs",
+      "source_identity": "1f:ba1efa7f5aff40ffa9c05e502ea11440cdfaef252f145268b9557a642deae3dc",
+      "identity": "1f:d750acfbdc0683a9ab41bfe2753a53640ce42f7e09bd1009217294acf10b9bd9"
+    },
+    {
+      "from": "test/passkey-account-signal-cleanup.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "test/passkey-account-signal-cleanup.test.mjs",
+      "source_identity": "1f:53742e11ca9ed2aba769eb3c7bf744bb93e2d3d10e44132339e7c92c6d628223",
+      "identity": "1f:3bd3726d5b2ea2d52a734ac1f492ee4e2a8e2e66a185e3892ef4346d381aea43"
+    },
+    {
+      "from": "test/proof-account-delete-recovery.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "test/proof-account-delete-recovery.test.mjs",
+      "source_identity": "1f:ceddc328f259b8ca5f20b153f5d6971268f97135e016e76acba9bb04fb4bc26e",
+      "identity": "1f:b9d8ac08a9875febab1583f1c0399075c858d25b06d0828b8cf7d3b3ebc5c1e1"
+    }
+  ]
+}

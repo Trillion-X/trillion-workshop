@@ -1,0 +1,113 @@
+{
+  "id": "move:trillion-tools-a-l-round-2",
+  "about": "Round 2 of the src/ a\u2013l port backlog slice (round 1: move-rows/trillion-tools-a-l.json, PR #124): the groups round 1 held on parts/eeaf and parts/record-log, now that those stores are in the Workshop (tools/keep-and-wake-ai-sessions-on-this-computer/parts/), and the browser copy group, now that tools/keep-my-records-on-this-device holds frame-compression.mjs. Rows found by content on main since round 1 are not moved.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [
+    "src/chat-import.mjs",
+    "src/chat-archives.mjs",
+    "src/ai-conversations-list.json"
+  ],
+  "provider_calls": [
+    {
+      "id": "durable-object",
+      "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+    },
+    {
+      "id": "kv",
+      "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+    }
+  ],
+  "calls": [],
+  "read_as_rows": [
+    "methods/",
+    "records/workflow-recipe-records.json",
+    "records/execution-mode-records.json",
+    "records/starting-rules.json",
+    "records/copy-rules.json",
+    "records/commercial-offer-records.json",
+    "records/content-format-starters.json",
+    "records/feel-moments.json",
+    "records/delight-moments.json",
+    "communities/",
+    "cases/",
+    "src/awareness.json",
+    "src/life-map.json",
+    "src/pursuit-plan.json",
+    "src/story-settings.json",
+    "src/attention.json",
+    "src/workspace/walkthroughs/",
+    "src/error-page-lines.json"
+  ],
+  "keep_reasons": {
+    "src/chat-import.mjs": "The conversations job owns it.",
+    "src/chat-archives.mjs": "The conversations job owns it.",
+    "src/ai-conversations-list.json": "The conversations job owns it."
+  },
+  "groups": [
+    {
+      "id": "see-and-limit-what-each-ai-can-reach",
+      "owner": [
+        "src/ai-reach-words.json",
+        "src/ai-reach.mjs",
+        "src/ais.mjs",
+        "src/app-places.json",
+        "src/asks-for-your-ais.mjs",
+        "src/computer-sources.mjs"
+      ],
+      "to": "tools/see-and-limit-what-each-ai-can-reach"
+    },
+    {
+      "id": "gather-audience-questions",
+      "owner": [
+        "src/audience-question-admission.mjs",
+        "src/audience-question-sources.mjs"
+      ],
+      "to": "tools/gather-audience-questions"
+    },
+    {
+      "id": "run-rules-and-schedules-by-themselves",
+      "owner": [
+        "src/automation-guards.json",
+        "src/automation-health-looks.json",
+        "src/automation-health.mjs",
+        "src/automation-tools.mjs",
+        "src/automations.mjs",
+        "src/compare-readings.mjs"
+      ],
+      "to": "tools/run-rules-and-schedules-by-themselves",
+      "held_until": "tools/connect-a-service-and-seal-its-key/held-sends.mjs imports a held-sends.json that is not beside it, and tools/see-what-my-ais-did/activity.mjs imports an execution-context.mjs that is not beside it (both already here): the group's modules do not load and three of its tests fail until those land"
+    },
+    {
+      "id": "carry-an-account-into-its-own-records",
+      "owner": [
+        "src/carried-rows-prune.mjs",
+        "src/carry-forward.mjs",
+        "src/duplicate-work-fold.mjs",
+        "src/growth-admission.mjs",
+        "src/history-continuation.mjs",
+        "src/imported-history-receipt.mjs"
+      ],
+      "to": "tools/carry-an-account-into-its-own-records",
+      "held_until": "tools/record-log/do-work/record-sync.mjs (already here) imports a record-log-store.mjs that is not beside it (the EEAF job's copy is in tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log): the group's modules do not load and its test fails until that lands"
+    },
+    {
+      "id": "copy-records-into-this-browser",
+      "owner": [
+        "src/browser-record-copy.mjs",
+        "src/browser-session-recorder.mjs"
+      ],
+      "to": "tools/copy-records-into-this-browser"
+    }
+  ]
+}

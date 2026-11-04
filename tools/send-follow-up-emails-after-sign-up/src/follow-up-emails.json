@@ -1,0 +1,54 @@
+{
+  "what_this_is": "The emails that follow a sign-up while the person has not bought anything, read by src/follow-up-emails.mjs and sent by the one sender (src/mail-sender.mjs, from src/mail-settings.json). Creating an account never starts the sequence (src/worker.mjs accountMade); one already started ends for good the moment the person holds any priced offer, or presses the stop link every email carries. Each step goes `after_days` after sign-up, once, to the account's own email (src/sign-in-methods.mjs signInMethodsOf); an account with no email gets none. Every step invites them to the same offer the free plan's upgrade line names to their AI (src/allowance.mjs upgradeOfferId), and its name, price and free trial are read from that offer's row at send time, so nothing sold is written here. Words fill {name}, {offer}, {then} (what it costs, from the row), {offer_line} and {paid_worth} (src/screen-words.json free.paid_worth); `offer_line` and `button` each have a `trial` wording, used when the offer starts with free days ({trial_days}), and a `no_trial` one. The button opens the offer's own checkout. `stop` is the one-click stop link's address and the page it answers with; the postal address US law (CAN-SPAM) requires is src/mail-settings.json postal_address. The timing is day 1, 3, 7 and 14.",
+  "offer_line": {
+    "trial": "you can try the full plan free for {trial_days} days, then it's {then}",
+    "no_trial": "the full plan is {then}"
+  },
+  "button": {
+    "trial": "Try it free for {trial_days} days",
+    "no_trial": "Get the full plan"
+  },
+  "steps": [
+    {
+      "id": "day-1",
+      "after_days": 1,
+      "subject": "What to ask Trillion first",
+      "preheader": "One question, and what to do with the answer.",
+      "markdown": "Hi {name},\n\nYou made your Trillion account yesterday. Here's the fastest way to get something out of it.\n\nOpen the AI you already use (ChatGPT, Claude, Gemini) and ask it: **\"What is the one thing I should do next?\"** Trillion walks your AI through the question with you, so the answer is about your work, not advice anyone could get.\n\nYour free plan covers a few decisions a month. If you want Trillion to keep every decision and what you're working toward, {offer_line}."
+    },
+    {
+      "id": "day-3",
+      "after_days": 3,
+      "subject": "Nothing you decide on the free plan is kept",
+      "preheader": "The full plan keeps it, and every AI you use reads it.",
+      "markdown": "Hi {name},\n\nOn the free plan, each decision starts from scratch. Close the chat and it's gone.\n\nThe full plan is different. {paid_worth}\n\nWhenever you're ready, {offer_line}. You can cancel any time."
+    },
+    {
+      "id": "day-7",
+      "after_days": 7,
+      "subject": "A week in: keep what you decide",
+      "preheader": "Each decision builds on the last.",
+      "markdown": "Hi {name},\n\nIt's been a week since you joined. The people who get the most from Trillion are the ones who let it remember: each decision builds on the last, and the AI you use tomorrow already knows what you settled today.\n\nIf you want that, {offer_line}."
+    },
+    {
+      "id": "day-14",
+      "after_days": 14,
+      "subject": "Should we stop writing?",
+      "preheader": "One last note from the team.",
+      "markdown": "Hi {name},\n\nThis is our last note about the full plan. If Trillion isn't the right fit, that's completely fine, and you can keep using the free plan.\n\nIf you're still working on something that matters to you, {offer_line}. And if something stopped you, reply and tell us what. We read every reply.\n\nThe Trillion team"
+    }
+  ],
+  "no_name": "there",
+  "footer": "You're getting this because you made a Trillion account.",
+  "stop": {
+    "label": "Stop these emails",
+    "path": "/emails/stop",
+    "title": "You won't get these emails again",
+    "body": "We've stopped the emails about the full plan. Your account and everything in it stay as they are.",
+    "not_found": "This link doesn't work anymore. If you still get emails you don't want, reply to one and we'll stop them.",
+    "open": {
+      "label": "Open Trillion",
+      "href": "/"
+    }
+  }
+}

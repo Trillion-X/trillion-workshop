@@ -48,6 +48,7 @@
           ]
         },
         "result_selector": "$",
+        "verify": [{ "kind": "needs-a-machine", "requires": "a rented Linux server the person administers, reached over SSH as admin_user with their held administration key and the host key the request pins (the run signs in to that server and changes it; the tests here hold no stand-in server)", "proved_on": null }],
         "needs": { "expected_seconds": 60, "network_egress": true },
         "maker": "maker:keep-a-door-tunnel-open",
         "licence_class": "licence:maker-own",

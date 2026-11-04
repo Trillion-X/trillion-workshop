@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/payers.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/work-out-who-pays-for-a-tool-call/src/payers.mjs",
+      "source_identity": "1f:d2df768f9c0b4676bac04f7de875a9cdf3a32680971e399008eed996ec5a70d0",
+      "identity": "1f:7aba2ab134e21158833d4681ef22f362d32156893cbaf62605e79bd6d3a1b70e"
+    },
+    {
+      "from": "test/marketplace-usage-pricing.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/work-out-who-pays-for-a-tool-call/test/marketplace-usage-pricing.test.mjs",
+      "source_identity": "1f:bb4b19f5ae165cb397a2e083194bbae06f8377479a7f8c6f730fe2fd3fda4b61",
+      "identity": "1f:63075e8c84bd6bafaf28209993a30d488c286566d4e01e7ea60d41092b8c3448"
+    }
+  ]
+}

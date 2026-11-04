@@ -1,0 +1,76 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/rule-decisions.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/set-up-my-account/read-data/rule-decisions.mjs",
+      "source_identity": "1f:82c5622036944cac6e4a322498b449416da24b894b450cc458835d07f2391caa",
+      "identity": "1f:82c5622036944cac6e4a322498b449416da24b894b450cc458835d07f2391caa",
+      "reused": true
+    },
+    {
+      "from": "src/setup-steps.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/set-up-my-account/read-data/setup-steps.mjs",
+      "source_identity": "1f:388d63032e89d33aba88abdf501527aeee817397ecbba8df3931771b639cbcd4",
+      "identity": "1f:5ddaffb07502c50a0d0ef4c45515552744c27e5bd53536a0be0a5a17ceb8dc1f",
+      "reused": true
+    },
+    {
+      "from": "src/workspace/show-rules.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/set-up-my-account/read-data/show-rules.json",
+      "source_identity": "1f:b9b96c69ed269fa02ca31587fb4cf5a46d2e2626378f34cffdaab043fd3681b1",
+      "identity": "1f:b9b96c69ed269fa02ca31587fb4cf5a46d2e2626378f34cffdaab043fd3681b1",
+      "reused": true
+    },
+    {
+      "from": "src/workspace/show-rules.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/set-up-my-account/read-data/show-rules.mjs",
+      "source_identity": "1f:c98ef9dfc570d5a834f7080058dc70c92844bd0f771e37b93ef10f741380fd3f",
+      "identity": "1f:4b72783f6666283746d15abc790a8224046702825a86f30f5daa9b7f1ff25b75",
+      "reused": true
+    },
+    {
+      "from": "test/rule-decisions.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/set-up-my-account/test/rule-decisions.test.mjs",
+      "source_identity": "1f:f0b987bb68d6f8877f0354e1f71923884dd0ae0f45a6afb9ea47a7f98ff1e5c9",
+      "identity": "1f:1bd1529e8b8fddf1b93129407e48bd4018d206369ccf7efc3dd40186ae23b5af"
+    },
+    {
+      "from": "test/setup-fixtures.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/set-up-my-account/test/setup-fixtures.mjs",
+      "source_identity": "1f:a22cb3fe7fb8d71316a491b429dfe8480556c9697792a198a6e375c4700e4915",
+      "identity": "1f:dea9f095960a1f77f89cfb4bf918e6c1ba259b71a4bd1ceb0b346f9532d98686",
+      "reused": true
+    },
+    {
+      "from": "test/setup-policy-formula.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/set-up-my-account/test/setup-policy-formula.test.mjs",
+      "source_identity": "1f:7fb0ee92d1adf52de164ad9dbc931315399c6fd4d6d1a018f83cf5ad321ed648",
+      "identity": "1f:2442f9cf178ae6a0f064e67055665101bbecf249c077f528d475c9c7922f4eae"
+    },
+    {
+      "from": "test/show-rules-expiry.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/set-up-my-account/test/show-rules-expiry.test.mjs",
+      "source_identity": "1f:e1f7d9b93582f6ea95a8eb231ee7843582232cf1d4e666fb61cda53d244d66a0",
+      "identity": "1f:79c1ce4bcf985dc9141ab079f60172688a4e56ea2078e835ef775f1e2a47d89d"
+    },
+    {
+      "from": "test/show-rules-in-use.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/set-up-my-account/test/show-rules-in-use.test.mjs",
+      "source_identity": "1f:8513ea4311e605d41abee88eee607f2a2afcd4259746178e5a56ea0e3423314a",
+      "identity": "1f:1a5dde76582cd5ea5790439d14ff605676821756a077006e877a1d6adfa5be1e"
+    }
+  ]
+}
