@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:4ce1f25b2df23628183b74d2a0a127b5f04ee78ef65554be6e68d0e34d6b2906"
+  "blake3": "1f:dd548133628f53dae3f1d551eeebc812e621b5d6b9b95aa2b64bf32a2255f955"
  },
  "fields": [
   {
@@ -9441,6 +9441,22 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "git-changes"
+   }
+  },
+  {
+   "id": "tool:upload-a-file-to-a-signed-slot",
+   "values": {
+    "title": "Upload a file to a signed storage slot",
+    "job": "Upload one file from a folder the person granted to a signed storage slot a page hands over, only to a destination the tool's own list allows, so the page never sees the file",
+    "description": "Give file (its name inside the folder the person granted this tool, such as reports/diag.zip), content_type (the file's media type) and slot ({ url, fields }: the https address and the text form fields the storage service signed). The slot is checked as a whole before a byte leaves: https, a host equal to a destination row's, a path inside that row's folder, no query, fragment, credentials or port, text-only fields within the row's field cap, and a content type the row lists. The file is read from the granted folder only (a name that leaves it, or a link out of it, names nothing), held once, and posted as the form's last field. Returns sent, size and said; the signed fields are never in an answer or an error. The shipped destination list is empty, so it uploads nowhere until a destination row is added to read-data/guarded-upload.json.",
+    "status": "active",
+    "maker": "maker:upload-a-file-to-a-signed-slot",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "upload-a-file-to-a-signed-slot"
    }
   },
   {
