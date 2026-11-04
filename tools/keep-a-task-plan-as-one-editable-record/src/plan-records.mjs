@@ -2,7 +2,7 @@
 // A plan names existing pursuits, decisions and workflow runs instead of copying their records. Any connected AI can
 // read and update the same account record; an owner may share its explicitly shareable fields into a Space through
 // the existing record-sharing path.
-import { identityOf } from '../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { identityOf } from '../../shared-code/src/record-identity.mjs';
 
 const PLAN = 'plan';
 const PROGRESS = 'plan-progress';

@@ -38,6 +38,9 @@ export function requestsIn(text) {
     if (specifier.startsWith('\\')) return;
     // Nor with an open bracket: such a match is a regular expression built in text (`from '([^']+)'`).
     if (/^[(\[]/.test(specifier)) return;
+    // Nor with a template placeholder: such a match is text a template fills at run time (from '${root}parts/x'), a
+    // request of the page being built, not of this file.
+    if (specifier.startsWith('${')) return;
     const start = match.index + match[0].lastIndexOf(specifier, match[0].length - 1);
     found.push({ specifier, start, end: start + specifier.length, how, whole: [match.index, match.index + match[0].length] });
   };

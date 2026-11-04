@@ -1,0 +1,74 @@
+// test/setup-access-records.test.mjs
+//
+// Each account's setup-access request is kept by its own owner, one record book per request (src/setup-access-records.mjs),
+// so preparing and reading one account's request reaches only that request: never the operator account's store, and
+// never one book every request shares. That store is reached only to run the release owner's own tool, and once after
+// start to hand over the requests it kept before.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { setupAccessRecordsOf, setupAccessRequestBookName } from '../src/setup-access-records.mjs';
+import { setupAccessRecordLabel, setupAccessSettings } from '../../../let-a-person-ask-for-the-trillion-app-to-be-installed/src/setup-access.mjs';
+import { publishServiceRecords } from '../../../publish-the-operators-shared-records-such-as/from-old-trillion/src/service-records.mjs.held';
+import { workspaceValueIdentity } from '../../../set-up-my-account/read-data/conflicts.mjs';
+import { recordBooks } from './record-book-for-tests.mjs';
+import { countingHost, personStoreOver } from './person-store-reads-for-tests.mjs';
+import { memoryKv } from './kv-for-tests.mjs';
+
+const label = setupAccessRecordLabel('account-a', 'native-ios');
+const other = setupAccessRecordLabel('account-b', 'native-ios');
+
+test('a request is written by expected identity in its own book, and that book keeps no other request', async () => {
+  const books = recordBooks({});
+  const book = books.get(setupAccessRequestBookName(label));
+  const put = write => book.run('setup-access-request', 'put', { write });
+  assert.deepEqual(await put({ address_label: label, payload: { state: 'prepared' }, expected_identity: null }), { ok: true, written: 1 });
+  assert.equal((await put({ address_label: label, payload: { state: 'queued' }, expected_identity: null })).ok, false, 'a write that read nothing is refused once a request is kept');
+  assert.equal((await put({ address_label: label, payload: { state: 'queued' }, expected_identity: workspaceValueIdentity({ state: 'prepared' }) })).ok, true);
+  assert.deepEqual((await book.run('setup-access-request', 'read', { label })).value, { state: 'queued' });
+  await assert.rejects(put({ address_label: other, payload: { state: 'prepared' }, expected_identity: null }), /keeps another setup-access request/);
+  await assert.rejects(book.run('setup-access-request', 'read', { label: 'someones-private-notes' }), /no setup-access request by that name/);
+  assert.deepEqual(await book.run('setup-access-request', 'adopt', { label, value: { state: 'older' } }), { adopted: 0 });
+  assert.deepEqual((await book.run('setup-access-request', 'read', { label })).value, { state: 'queued' }, 'adopting never replaces a request the book holds');
+});
+
+test('the requests owner reads each request from its own book, the policy from the edge store, and runs its tool through its own run, never the operator store', async () => {
+  const touched = [], queued = [];
+  const env = { OPERATOR_ACCOUNT_ID: 'release-owner', APP_KV: memoryKv(),
+    PERSON: { idFromName: name => name, get: () => new Proxy({}, { get: (_, name) => (name === 'fetch'
+      ? async request => { queued.push(await request.json()); return Response.json({ task_id: 'task_1' }); }
+      : name === 'then' ? undefined : (...args) => { touched.push(name); throw new Error(`the operator store was asked ${name}`); }) }) } };
+  env.RECORD_BOOK = recordBooks(env);
+  const policy = { sources: { 'native-ios': { enabled: true } } };
+  await publishServiceRecords(env.APP_KV, [{ label: setupAccessSettings.policy_record, value: policy, at: 1 }]);
+  const owner = setupAccessRecordsOf(env);
+  assert.deepEqual(await owner.workspaceRecord(setupAccessSettings.policy_record), policy);
+  assert.equal(await owner.workspaceRecord(label), null);
+  assert.equal((await owner.putWorkspaceRecords([{ address_label: label, payload: { state: 'prepared' }, expected_identity: null }])).ok, true);
+  assert.equal((await owner.putWorkspaceRecords([{ address_label: other, payload: { state: 'prepared' }, expected_identity: null }])).ok, true);
+  assert.deepEqual(await owner.workspaceRecord(label), { state: 'prepared' });
+  assert.deepEqual(env.RECORD_BOOK.names().sort(), [setupAccessRequestBookName(label), setupAccessRequestBookName(other)].sort(), 'each request reached its own book, no shared one');
+  await assert.rejects(owner.putWorkspaceRecords([{ address_label: label, payload: {}, expected_identity: null }, { address_label: other, payload: {}, expected_identity: null }]), /one setup-access request at a time/);
+  // This environment has no account gate, so the release owner's run is refused where its run book would be admitted; the
+  // refusal is the proof that the run goes through its own address and never the operator store (tool-run-mount.test.mjs runs one).
+  await assert.rejects(owner.runTool('setup-access', { tool_id: setupAccessSettings.tool_id, request_key: 'setup-access:test:1' }), /host binding is not installed/);
+  assert.deepEqual(touched, [], 'no read or write reached the operator store');
+  assert.equal(queued.length, 0, 'no run was asked of the operator store');
+  assert.equal(setupAccessRecordsOf({}), null, 'a deploy with no operator has no requests owner');
+});
+
+test('the operator store hands each earlier request to its own book once after start', async () => {
+  const env = { OPERATOR_ACCOUNT_ID: 'operator-adopts', APP_KV: memoryKv() };
+  const books = recordBooks(env);
+  env.RECORD_BOOK = books;
+  await books.get(setupAccessRequestBookName(other)).run('setup-access-request', 'put', { write: { address_label: other, payload: { state: 'queued' }, expected_identity: null } });
+  const person = await personStoreOver(countingHost(), 'operator-adopts', env);
+  person.putWorkspaceRecords([{ address_label: label, payload: { state: 'invited' } }, { address_label: other, payload: { state: 'older' } }]);
+  await person.publishServiceRecords();
+  const read = async request => (await books.get(setupAccessRequestBookName(request)).run('setup-access-request', 'read', { label: request })).value;
+  assert.deepEqual(await read(label), { state: 'invited' });
+  assert.deepEqual(await read(other), { state: 'queued' }, 'the book keeps the request it held');
+  const late = setupAccessRecordLabel('account-c', 'native-ios');
+  person.putWorkspaceRecords([{ address_label: late, payload: { state: 'late' } }]);
+  await person.publishServiceRecords();
+  assert.equal(await read(late), null, 'requests are handed over once, never again');
+});

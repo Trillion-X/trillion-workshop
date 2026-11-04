@@ -1,0 +1,145 @@
+// test/service-records.test.mjs
+//
+// The operator account's records every account reads (src/service-records.json: the show rules it gives, its
+// per-account setup context, the device releases) are published by their one owner into the service's edge store
+// (Workers KV, src/service-records.mjs). The operator's store publishes them when it writes one and when it starts;
+// every other reader reads its region's copy, and no Durable Object stands on the read path: not the operator's store,
+// and not one shared service object.
+//
+// The reported failure: on 2026-10-14 the operator's store had refused writes for a day while every account's rule
+// decision, setup screen and AI connection read these records from it.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { forgetServiceRecord, publishServiceRecords, serviceRecord, serviceRecordKey } from '../src/service-records.mjs';
+import { serviceRecordReader } from '../../../keep-the-services-own-signing-secrets-and-sign-in-app/from-old-trillion/src/service-values.mjs.held';
+import { distributionRecordLabel, readDeviceDistribution } from '../../../set-up-my-devices-and-cameras/src/device-distribution.mjs';
+import { recordBooks } from './record-book-for-tests.mjs';
+import { countingHost, personStoreOver } from './person-store-reads-for-tests.mjs';
+import { memoryKv } from './kv-for-tests.mjs';
+
+// A deploy whose operator store records every call made to it.
+function service() {
+  const asked = [];
+  const env = { OPERATOR_ACCOUNT_ID: `operator-${Math.random()}`, APP_KV: memoryKv(), RECORD_BOOK: recordBooks({}),
+    PERSON: { idFromName: name => name, get: () => new Proxy({}, { get: (_, name) => (name === 'then' ? undefined : (...args) => { asked.push(name); throw new Error(`the operator store was asked ${name}`); }) }) } };
+  const publish = (label, value, at = 1) => publishServiceRecords(env.APP_KV, [{ label, value, at }]);
+  return { env, asked, publish };
+}
+
+test('a published record is read from the edge store, and nothing else is asked', async () => {
+  const { env, asked, publish } = service();
+  await publish('show-rules', { rules: ['given'] });
+  assert.deepEqual(await serviceRecordReader(env).workspaceRecord('show-rules'), { rules: ['given'] });
+  await publish('setup-context', null);
+  assert.equal(await serviceRecord(env, 'setup-context'), null, 'a record published as none reads as none');
+  assert.equal(await serviceRecord(env, 'device-distribution:never-published', { seconds: 0 }), null, 'a record never published reads as none');
+  assert.deepEqual(asked, [], 'no read reached the operator store');
+  assert.equal(env.RECORD_BOOK.names().length, 0, 'no record book stands on the read path');
+});
+
+test('each isolate keeps a read for its time, shares one in flight, keeps no failure and reads a forgotten one fresh', async () => {
+  const { env, publish } = service();
+  let clock = 0;
+  const now = () => clock;
+  await publish('show-rules', { rules: ['first'] }, 1);
+  const [a, b] = await Promise.all([serviceRecord(env, 'show-rules', { seconds: 30, now }), serviceRecord(env, 'show-rules', { seconds: 30, now })]);
+  assert.deepEqual([a, b], [{ rules: ['first'] }, { rules: ['first'] }]);
+  assert.equal(env.APP_KV.reads.get(serviceRecordKey('show-rules')), 2, 'one read in flight is shared (the other read was the publication\'s)');
+  await env.APP_KV.put(serviceRecordKey('show-rules'), JSON.stringify({ label: 'show-rules', value: { rules: ['second'] }, identity: 'x', at: 2 }));
+  clock = 29_000;
+  assert.deepEqual(await serviceRecord(env, 'show-rules', { seconds: 30, now }), { rules: ['first'] }, 'kept within its time');
+  clock = 30_000;
+  assert.deepEqual(await serviceRecord(env, 'show-rules', { seconds: 30, now }), { rules: ['second'] }, 'read again once its time passed');
+  await publish('show-rules', { rules: ['third'] }, 3);
+  assert.deepEqual(await serviceRecord(env, 'show-rules', { seconds: 30, now }), { rules: ['third'] }, 'a publication in this isolate is read at once');
+  let fails = true;
+  const flaky = { APP_KV: { get: async () => { if (fails) throw new Error('busy'); return { value: 'read' }; } } };
+  await assert.rejects(serviceRecord(flaky, 'device-distribution:mac', { seconds: 30 }), /busy/);
+  fails = false;
+  assert.equal(await serviceRecord(flaky, 'device-distribution:mac', { seconds: 30 }), 'read', 'a failed read is never kept');
+  forgetServiceRecord('device-distribution:mac');
+  assert.equal(await serviceRecord({}, 'show-rules'), null, 'no edge store means no record');
+});
+
+test('the edge store keeps only the records it names and never takes back an older value', async () => {
+  const { env, publish } = service();
+  await publish('show-rules', { rules: ['newer'] }, 20);
+  await publish('show-rules', { rules: ['older'] }, 10);
+  assert.deepEqual(await serviceRecord(env, 'show-rules', { seconds: 0 }), { rules: ['newer'] });
+  await assert.rejects(publish('someones-private-notes', { a: 1 }), /keeps no record by that name/);
+  assert.equal(await serviceRecord(env, 'someones-private-notes'), null);
+});
+
+test('the operator store publishes what it writes to the edge store, and no other store publishes', async () => {
+  const kv = memoryKv();
+  const person = await personStoreOver(countingHost(), 'operator-publishes', { OPERATOR_ACCOUNT_ID: 'operator-publishes', APP_KV: kv, RECORD_BOOK: recordBooks({}) });
+  await person.background();
+  person.putWorkspaceRecords([{ address_label: 'setup-context', payload: { accounts: { a: { cohorts: ['early'] } } } }]);
+  person.putWorkspaceRecords([{ address_label: 'device-distribution:mac', payload: { current: { routes: [] } } }]);
+  person.putWorkspaceRecords([{ address_label: 'a-private-note', payload: { words: 'mine' } }]);
+  await person.background();
+  const read = label => kv.get(serviceRecordKey(label), 'json');
+  assert.equal(await read('setup-context'), null, 'the operator\'s records resource writes and publishes its setup context (test/native-show-rules.test.mjs); this store never replaces it');
+  assert.equal(await read('show-rules'), null, 'nor its show rules');
+  // Device releases and the setup-access policy are the operator's records resource's too, published from there
+  // (test/operator-own-workspace-publication.test.mjs); this store never replaces them.
+  assert.equal(await read('device-distribution:mac'), null, 'nor its device releases');
+  assert.equal(await read('setup-access-policy'), null, 'nor its setup-access policy');
+  assert.equal(kv.store.has('service-record:a-private-note'), false, 'a record not named is never published');
+  assert.equal((await read('service-relay')).value, person.relay(), 'the relay every account holds the service\'s plans under');
+  const states = await read('service-value-states');
+  if (states) assert.ok(states.value && typeof states.value === 'object' && Object.values(states.value).every(held => typeof held === 'boolean'), 'names only, never a value');
+
+  // A store that is not the operator's publishes nothing.
+  const otherKv = memoryKv();
+  const other = await personStoreOver(countingHost(), 'someone-else', { OPERATOR_ACCOUNT_ID: 'operator-publishes', APP_KV: otherKv, RECORD_BOOK: recordBooks({}) });
+  other.putWorkspaceRecords([{ address_label: 'setup-context', payload: { accounts: {} } }]);
+  await other.background();
+  assert.equal(await otherKv.get(serviceRecordKey('setup-context'), 'json'), null);
+});
+
+test('readers of every account wake the operator store to refresh a device release once per window, never once per read', async () => {
+  // The operator's refresh starts one run (src/tool-run-call.mjs runServiceTool): it mints the device-distribution actor
+  // first, so each start is a mint asked of the operator's policy owner. The stub refuses it, which keeps the run unstarted.
+  const minted = [];
+  const label = distributionRecordLabel('native-ios');
+  const books = recordBooks({});
+  const env = { OPERATOR_ACCOUNT_ID: `operator-${Math.random()}`, APP_KV: memoryKv(), RECORD_BOOK: books,
+    ACCOUNT_CONTROL: { idFromName: name => name, get: () => ({
+      mintServiceActor: async ({ scope }) => { minted.push(scope.id); throw Object.assign(new Error('stub: no policy owner here'), { status: 503 }); },
+    }) } };
+  // An expired observation, published: every read wants it refreshed.
+  await publishServiceRecords(env.APP_KV, [{ label, value: { current: { checked_at: '2026-01-01T00:00:00.000Z', expires_at: '2026-01-01T00:05:00.000Z', routes: [] } }, at: 1 }]);
+  const now = Date.parse('2026-09-28T14:00:00Z');
+  for (let reader = 0; reader < 5; reader += 1) {
+    const pending = [];
+    await readDeviceDistribution(serviceRecordReader(env), now, { refresh: true, waitUntil: promise => pending.push(promise) });
+    await Promise.all(pending);
+  }
+  assert.equal(minted.length, 1, `five readers in one window started the operator's refresh ${minted.length} times`);
+  // Another isolate's readers in the same window reach the record's own refresh owner, which says it was wanted already.
+  const refreshOwner = books.get(`service-refresh:${label}`);
+  assert.deepEqual(await refreshOwner.run('service-refresh', 'want', { label, window: Math.floor(now / 300_000) }), { first: false });
+  const pending = [];
+  await readDeviceDistribution(serviceRecordReader(env), now + 300_000, { refresh: true, waitUntil: promise => pending.push(promise) });
+  await Promise.all(pending);
+  assert.equal(minted.length, 2, 'the next window asks once again');
+  assert.match(minted[1], /^task_[0-9a-f]{32}$/, 'each start is its own run, keyed by its window');
+  assert.notEqual(minted[1], minted[0]);
+  await assert.rejects(refreshOwner.run('service-refresh', 'want', { label: 'someones-private-notes', window: 1 }), /keeps no record by that name/);
+});
+
+test('the operator store lets go of the service checks it once kept, once, and keeps its own', async () => {
+  const { default: watch } = await import('../../../service-watch/src/service-watch.json', { with: { type: 'json' } });
+  const person = await personStoreOver(countingHost(), 'operator-drops-checks', { OPERATOR_ACCOUNT_ID: 'operator-drops-checks', APP_KV: memoryKv(), RECORD_BOOK: recordBooks({}) });
+  const own = { ...watch.checks[0], check: 'my-own-check', label: 'My own check' };
+  person.capabilityChecks().keepChecks({ add: [watch.checks[0], own] });
+  const ids = () => person.capabilityChecks().ids([watch.checks[0].check, own.check]);
+  assert.deepEqual(ids().sort(), [watch.checks[0].check, own.check].sort());
+  await person.publishServiceRecords();
+  assert.deepEqual(ids(), [own.check], 'the service check left this store; the person\'s own stays');
+  assert.equal(person.workshopValue('service-checks-moved').removed, 1);
+  person.capabilityChecks().keepChecks({ add: [watch.checks[0]] });
+  await person.publishServiceRecords();
+  assert.equal(ids().length, 2, 'it lets go once, never again');
+});

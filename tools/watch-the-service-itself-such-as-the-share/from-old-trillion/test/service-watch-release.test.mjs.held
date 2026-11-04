@@ -1,0 +1,117 @@
+// test/service-watch-release.test.mjs
+//
+// A commit handed on to the restart window (deploy:waiting, scripts/deploy-worker.mjs) went live only when a GitHub
+// Actions job pushed an empty commit; on 2026-10-11 GitHub stopped starting the organisation's jobs and ready builds
+// waited with nothing to start them. The service's own schedule now starts them (src/service-watch.mjs releaseWaiting),
+// through the operator account's own GitHub connection. This holds that nothing is pushed before the window opens or
+// while a young commit's build is still deciding, that a late window or an old head gets exactly one empty commit on the
+// head's tree with the head as its only parent, that a refused move (main moved meanwhile) is tried again on the next run,
+// that a release is never repeated for the same waiting commit, and that a head that is already the empty commit waits.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import settings from '../../../service-watch/src/service-watch.json' with { type: 'json' };
+import { releaseWaiting } from '../src/service-watch.mjs';
+
+const memoryKv = () => {
+  const values = new Map();
+  return { values, async get(key) { return values.get(key) ?? null; }, async put(key, value) { values.set(key, value); } };
+};
+const MINUTE = 60_000;
+const sha = n => String(n).padStart(40, 'a');
+
+test('the service starts a deploy waiting for its restart window with one empty commit on the operator account', async () => {
+  const watch = settings.watches.find(row => row.release);
+  const rules = { ...settings, watches: [watch] };
+  const kv = memoryKv();
+  const env = { APP_KV: kv, OPERATOR_ACCOUNT_ID: 'operator' };
+  const readyAt = Date.parse('2026-10-11T08:46:41Z');
+  let head = { sha: sha(1), commit: { message: 'A change\n', committer: { date: '2026-10-11T08:45:00Z' }, tree: { sha: sha(2) } } };
+  let refuseMove = false;
+  const calls = [];
+  // Each step is one service run of the operator account's tool (src/tool-run-call.mjs runServiceTool), answered as its run.
+  const runTool = async (account, { tool_id, input, request_key, job }) => {
+      calls.push({ account, tool_id, input, request_key, job });
+      if (tool_id === watch.release.read_tool) return { state: 'completed', output: { name: input.branch, commit: head } };
+      if (tool_id === watch.release.commit_tool) return { state: 'completed', output: { sha: sha(3), parents: [{ sha: input.expected_head }] } };
+      if (tool_id === watch.release.move_tool) return refuseMove ? { state: 'failed', error: { message: 'Update is not a fast forward', status: 422 } } : { state: 'completed', output: { ref: 'refs/heads/main', object: { sha: input.commit } } };
+      throw new Error(`unexpected ${tool_id}`);
+  };
+
+  // Nothing waits, then the window is not open yet: nothing is read.
+  assert.deepEqual(await releaseWaiting(env, { rules, runTool, now: readyAt }), []);
+  await kv.put(watch.waiting_key, JSON.stringify({ commit: sha(9), ready_at: new Date(readyAt).toISOString() }));
+  assert.deepEqual(await releaseWaiting(env, { rules, runTool, now: readyAt - MINUTE }), []);
+  assert.equal(calls.length, 0);
+
+  // The window is open, but the newest commit is young and the window opened under late_minutes ago: its build decides.
+  const young = await releaseWaiting(env, { rules, runTool, now: readyAt + 2 * MINUTE });
+  assert.match(young[0].waits, /still deciding/);
+  assert.deepEqual(calls.map(call => call.tool_id), [watch.release.read_tool]);
+
+  // Late: one empty commit on the head's tree with the head as its only parent, then a fast-forward of the branch.
+  refuseMove = true;
+  const refused = await releaseWaiting(env, { rules, runTool, now: readyAt + (watch.release.late_minutes + 1) * MINUTE });
+  assert.match(refused[0].error, /not a fast forward/);
+  assert.equal(await kv.get(`${rules.released_key_prefix}${watch.id}:${sha(9)}`), null, 'a refused move is not counted as released');
+  refuseMove = false;
+  calls.length = 0;
+  const done = await releaseWaiting(env, { rules, runTool, now: readyAt + (watch.release.late_minutes + 2) * MINUTE });
+  assert.deepEqual(done, [{ watch: watch.id, commit: sha(9), released: sha(3), because: `the window opened ${watch.release.late_minutes + 2} minutes ago with nothing live` }]);
+  const [read, commit, move] = calls;
+  assert.equal(read.account, 'operator');
+  assert.equal(read.job, watch.release.tool_job);
+  assert.deepEqual(read.input, watch.release.repository);
+  assert.deepEqual(commit.input, { owner: 'Trillion-X', repo: 'trillion', tree_sha: sha(2), expected_head: sha(1), message: watch.release.message });
+  assert.deepEqual(move.input, { owner: 'Trillion-X', repo: 'trillion', branch: 'main', commit: sha(3) });
+
+  // Never twice for the same waiting commit.
+  calls.length = 0;
+  assert.deepEqual(await releaseWaiting(env, { rules, runTool, now: readyAt + 30 * MINUTE }), []);
+  assert.equal(calls.length, 0);
+
+  // A new waiting commit whose head is already the empty commit waits for the next push; an old head is released at once.
+  await kv.put(watch.waiting_key, JSON.stringify({ commit: sha(3), ready_at: new Date(readyAt + 30 * MINUTE).toISOString() }));
+  head = { sha: sha(3), commit: { message: watch.release.message, committer: { date: '2026-10-11T08:59:00Z' }, tree: { sha: sha(2) } } };
+  const repaired = await releaseWaiting(env, { rules, runTool, now: readyAt + 31 * MINUTE });
+  assert.match(repaired[0].waits, /did not go live/);
+  head = { sha: sha(4), commit: { message: 'Another change', committer: { date: '2026-10-11T08:00:00Z' }, tree: { sha: sha(5) } } };
+  const old = await releaseWaiting(env, { rules, runTool, now: readyAt + 32 * MINUTE });
+  assert.deepEqual(old, [{ watch: watch.id, commit: sha(3), released: sha(3), because: 'the newest commit is 79 minutes old' }]);
+
+  // With no operator account set, nothing is read.
+  assert.deepEqual(await releaseWaiting({ APP_KV: kv }, { rules, runTool, now: readyAt + 60 * MINUTE }), []);
+});
+
+test('with a build token the service starts the waiting build through the host trigger, never through a person store', async () => {
+  const watch = settings.watches.find(row => row.release);
+  const rules = { ...settings, watches: [watch] };
+  const kv = memoryKv();
+  const env = { APP_KV: kv, OPERATOR_ACCOUNT_ID: 'operator', CLOUDFLARE_ACCOUNT_ID: 'acct', CLOUDFLARE_BUILDS_TOKEN: 'builds-token' };
+  const readyAt = Date.parse('2026-10-14T07:38:12Z');
+  await kv.put(watch.waiting_key, JSON.stringify({ commit: sha(9), ready_at: new Date(readyAt).toISOString() }));
+  const runTool = () => { throw new Error('the account was asked to run a tool'); };
+  const asked = [];
+  let answer = { status: 200, body: { success: true, result: { build_uuid: 'build-1' } } };
+  const fetch = async (url, init) => { asked.push({ url, init }); return new Response(JSON.stringify(answer.body), { status: answer.status }); };
+
+  // Inside late_minutes a still-deciding build keeps the window: nothing is started.
+  const early = await releaseWaiting(env, { rules, runTool, fetch, now: readyAt + MINUTE });
+  assert.match(early[0].waits, /still deciding/);
+  assert.equal(asked.length, 0);
+
+  // A refused trigger is not counted as released, so the next run tries again.
+  answer = { status: 403, body: { success: false, errors: [{ code: 10000 }] } };
+  const refused = await releaseWaiting(env, { rules, runTool: async () => ({ state: 'failed', error: { message: 'overloaded', status: 503 } }), fetch, now: readyAt + (watch.release.late_minutes + 1) * MINUTE });
+  assert.match(refused[0].error, /overloaded/, 'a refused trigger falls back to the account connection');
+  assert.equal(await kv.get(`${rules.released_key_prefix}${watch.id}:${sha(9)}`), null);
+
+  answer = { status: 200, body: { success: true, result: { build_uuid: 'build-1' } } };
+  const done = await releaseWaiting(env, { rules, runTool, fetch, now: readyAt + (watch.release.late_minutes + 2) * MINUTE });
+  assert.deepEqual(done, [{ watch: watch.id, commit: sha(9), released: 'build-1', because: `the window opened ${watch.release.late_minutes + 2} minutes ago with nothing live` }]);
+  const last = asked.at(-1);
+  assert.equal(last.url, `https://api.cloudflare.com/client/v4/accounts/acct/builds/triggers/${watch.release.build_trigger.trigger_uuid}/builds`);
+  assert.equal(last.init.headers.authorization, 'Bearer builds-token');
+  assert.deepEqual(JSON.parse(last.init.body), { branch: 'main' });
+  assert.equal(await kv.get(`${rules.released_key_prefix}${watch.id}:${sha(9)}`), 'build-1');
+  assert.deepEqual(await releaseWaiting(env, { rules, runTool, fetch, now: readyAt + 30 * MINUTE }), [], 'one release per waiting commit');
+});

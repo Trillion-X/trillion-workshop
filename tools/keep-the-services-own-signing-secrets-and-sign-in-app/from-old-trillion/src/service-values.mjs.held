@@ -1,0 +1,222 @@
+// The service's own values (a sign-in app's id and secret, the secret a sender signs its deliveries with) are held
+// values of the operator account: sealed in the operator's locked box (src/held-values.mjs), under the names the DATA
+// gives, like any other connection of that account. Rows name them; nothing here knows any service.
+//
+//   /work/service-values     where the workspace's Connections screen saves a service's sign-in app, pasted by the
+//                            operator from that service's own dashboard (a visit opens /connections); it goes
+//                            straight into the operator's box and is never shown again
+//   lendSignInClient         the operator's box lends one-time handles for a sign-in app's id and secret, so another
+//                            account's request sender places them into that account's token request (src/connect.mjs)
+//   signing secrets          a sender's delivery secret is also sealed into the service's edge store, where the Worker
+//                            checks each delivery (src/service-signing.mjs)
+//
+// A sign-in app's id is not secret: every sign-in link carries it. It is also kept readable in the operator's facts,
+// because the link to the service's sign-in page is built from it. A service that authenticates its sign-in app with
+// HTTP Basic gets one more held value, `<secret name>-basic` (the id and secret joined as Basic expects), made while
+// both are in memory on the save; the request sender places it as the Authorization header.
+//
+// An account may bring its own sign-in app for any service it connects by signing in (keepOwnSignInApp, run by the
+// account tool tool:use-my-own-sign-in-app): its id and secret are sealed in that account's own box, its id also kept
+// readable for its sign-in links, and every token request of that account uses it before the service's shared one
+// (ownSignInClientHandles). A connector the account saved itself for a service with no shared row has only this one.
+
+import workspaceSurfaces from '../../../shared-code/src/workspace/screens.mjs';
+import { serviceRecord, wantServiceRecordRefresh } from '../../../publish-the-operators-shared-records-such-as/from-old-trillion/src/service-records.mjs.held';
+import { boxName } from '../../../recently-deleted-and-storage/box-name.mjs';
+import { addressOf } from '../../../hand-off-jobs-between-agents/src/workspace/addresses.mjs';
+import { signInAgainAddress } from './sign-in-again.mjs';
+import { hostOf } from './resource-host.mjs';
+import { runServiceTool } from './tool-run-call.mjs';
+
+const MAX_VALUE_LENGTH = 4096;
+const basicName = secretName => `${secretName}-basic`;
+export const plainFactName = name => `service-value-plain:${name}`;
+
+/** The sign-in app each hosted connect row names, with how that app authenticates. */
+const signInClients = rows => (rows.tools ?? []).filter(tool => tool.invoke?.connects?.acquire?.hosted_client)
+  .map(tool => ({ tool, client: tool.invoke.connects.acquire.hosted_client, basic: tool.invoke.connects.acquire.client_auth === 'basic' }));
+
+/** Every name the DATA says the service holds: `name → { label, plain }`. */
+export function serviceValueNames(rows) {
+  const names = new Map();
+  for (const source of rows.event_sources ?? []) if (source.signature) names.set(source.signature.secret_name, { label: `Signs deliveries for ${source.label}`, plain: false });
+  for (const { tool, client } of signInClients(rows)) {
+    names.set(client.id_name, { label: `${tool.label ?? tool.id}: the sign-in app's id`, plain: true });
+    names.set(client.secret_name, { label: `${tool.label ?? tool.id}: the sign-in app's secret`, plain: false });
+  }
+  return names;
+}
+
+/**
+ * What a service connected by signing in needs from its own developer dashboard before anyone can connect it:
+ * `provider → { made_at, values: [{ name, label, plain }] }`, the sign-in app's id and secret, then the secret any event
+ * source read with that service's connection signs its deliveries with (held once when it is the same value).
+ * `made_at` is the row's `{ label, url }` of where the app is made.
+ */
+export function signInAppSetups(rows) {
+  const setups = new Map();
+  for (const { tool, client } of signInClients(rows)) {
+    const values = [{ name: client.id_name, label: 'Client ID', plain: true }, { name: client.secret_name, label: 'Client secret', plain: false }];
+    for (const source of rows.event_sources ?? []) {
+      const proof = (rows.tools ?? []).find(item => item.id === source.route_key_proof?.tool_id);
+      if (!source.signature || proof?.invoke?.connection !== tool.invoke.connects.connection || values.some(value => value.name === source.signature.secret_name)) continue;
+      values.push({ name: source.signature.secret_name, label: `Signs deliveries for ${source.label}`, plain: false });
+    }
+    setups.set(tool.invoke.provider, { made_at: client.made_at ?? null, values });
+  }
+  return setups;
+}
+
+// ---- In the operator's store (src/person-store.mjs), each with that store's open box ----
+
+/** Seal the values the operator pasted; a name the DATA does not list is refused before anything is kept. */
+export function keepServiceValues({ box, rows, values, readPlain, writePlain }) {
+  const names = serviceValueNames(rows);
+  const given = Object.entries(values ?? {}).filter(([, value]) => typeof value === 'string' && value.trim());
+  for (const [name, value] of given) {
+    if (!names.has(name)) throw new Error(`${name} is not a value this service holds.`);
+    if (value.length > MAX_VALUE_LENGTH) throw new Error(`${name} is too long.`);
+  }
+  const typed = Object.fromEntries(given.map(([name, value]) => [name, value.trim()]));
+  for (const [name, value] of Object.entries(typed)) {
+    box.write(name, value);
+    if (names.get(name).plain) writePlain(name, value);
+  }
+  for (const { client, basic } of signInClients(rows)) {
+    const secret = typed[client.secret_name];
+    const id = typed[client.id_name] ?? readPlain(client.id_name);
+    if (basic && secret && id) box.write(basicName(client.secret_name), btoa(`${id}:${secret}`));
+  }
+  return { saved: Object.keys(typed) };
+}
+
+/** The plain value of each held name the DATA marks plain (a sign-in app's id, which every sign-in link carries anyway). */
+export const servicePlainValues = ({ rows, readPlain }) => Object.fromEntries([...serviceValueNames(rows)].filter(([, item]) => item.plain)
+  .map(([name]) => [name, readPlain(name)]).filter(([, value]) => typeof value === 'string' && value));
+/** One held value's words, for the operator's own freshly signed-in browser only (the route checks the sign-in time). */
+export function revealServiceValue({ box, rows, name }) {
+  if (!serviceValueNames(rows).has(name)) throw new Error(`${name} is not a value this service holds.`);
+  if (!box.exists(name)) throw new Error('Nothing is held under that name.');
+  return box.reveal(name);
+}
+/** Take a sign-in app out of the box: its id, its secret and the Basic value made from them. */
+export function removeServiceValues({ box, rows, names, removePlain }) {
+  const known = serviceValueNames(rows);
+  const asked = (Array.isArray(names) ? names : []).map(String).filter(name => known.has(name));
+  for (const name of asked) {
+    if (box.exists(name)) box.remove(name);
+    if (box.exists(basicName(name))) box.remove(basicName(name));
+    if (known.get(name).plain) removePlain(name);
+  }
+  return { removed: asked };
+}
+/** Which of the names the operator's box holds (never a value). */
+export const serviceValueStates = ({ box, rows }) => Object.fromEntries([...serviceValueNames(rows).keys()].map(name => [name, box.exists(name)]));
+
+/**
+ * One-time handles of a sign-in app for one token request of another account, one per entry of `needs` ("client_id",
+ * "client_secret" or "basic"), in order; null when the operator's box does not hold them all yet.
+ */
+export function lendSignInClient({ box, rows, toolId, needs }) {
+  const found = signInClients(rows).find(item => item.tool.id === toolId);
+  if (!found) throw new Error(`${toolId} does not connect by signing in.`);
+  const nameOf = { client_id: found.client.id_name, client_secret: found.client.secret_name, basic: basicName(found.client.secret_name) };
+  const names = (needs ?? []).map(need => nameOf[need] ?? (() => { throw new Error(`A sign-in app lends its id, its secret or its Basic value, not "${need}".`); })());
+  if (!names.every(name => box.exists(name))) return null;
+  return names.map(name => box.lend(name));
+}
+
+// ---- In any account's store: the account's own sign-in app for one connect row ----
+
+const OWN_NEEDS = ['client_id', 'client_secret', 'basic'];
+/** The name one part of an account's own sign-in app is sealed under in its box. */
+export const ownSignInAppName = (toolId, need) => boxName('own-sign-in-app', `${toolId}:${need}`);
+/** The fact an account's own sign-in app id is kept readable under (every sign-in link carries it). */
+export const ownSignInAppFact = toolId => `own-sign-in-app:${toolId}`;
+
+/**
+ * Seal an account's own sign-in app for `row` (a connect row signed in through): its id, its secret (left out only when
+ * the row's sign-in sends no secret), and the Basic value when the row authenticates its app that way. Returns the id,
+ * which the caller keeps readable under ownSignInAppFact.
+ */
+export function keepOwnSignInApp({ box, row, client_id, client_secret }) {
+  const auth = row.invoke.connects.acquire.client_auth ?? 'form';
+  const id = typeof client_id === 'string' ? client_id.trim() : '';
+  const secret = typeof client_secret === 'string' ? client_secret.trim() : '';
+  if (!id || id.length > MAX_VALUE_LENGTH) throw new Error('Give your sign-in app\'s client id, as the service\'s developer page shows it.');
+  if (auth !== 'none' && !secret) throw new Error(`${row.label ?? row.invoke.provider} checks your sign-in app with its secret: give client_secret too.`);
+  if (secret.length > MAX_VALUE_LENGTH) throw new Error('That client secret is too long.');
+  dropOwnSignInApp({ box, toolId: row.id });
+  box.write(ownSignInAppName(row.id, 'client_id'), id);
+  if (secret) box.write(ownSignInAppName(row.id, 'client_secret'), secret);
+  if (auth === 'basic') box.write(ownSignInAppName(row.id, 'basic'), btoa(`${id}:${secret}`));
+  return id;
+}
+
+/** Remove an account's own sign-in app for one connect row from its box. */
+export function dropOwnSignInApp({ box, toolId }) {
+  for (const need of OWN_NEEDS) if (box.exists(ownSignInAppName(toolId, need))) box.remove(ownSignInAppName(toolId, need));
+}
+
+// Handles of the account's own sign-in app, one per entry of `needs`, placed by its own box; null when it has none.
+function ownSignInClientHandles({ box, toolId, needs }) {
+  const names = (needs ?? []).map(need => (OWN_NEEDS.includes(need) ? ownSignInAppName(toolId, need) : null));
+  if (!names.length || names.some(name => !name || !box.exists(name))) return null;
+  return names.map(name => box.handle(name, 60));
+}
+
+/**
+ * A sign-in app's handles for one token request of the account whose box this is, one per entry of `needs`: its own app
+ * when it brought one, else lent by `lender` (the operator's store) and registered with this box, which resolves each
+ * through the lender when the request sender places it. null when neither holds the app.
+ */
+export async function borrowSignInClient({ box, toolId, needs, lender }) {
+  const own = ownSignInClientHandles({ box, toolId, needs });
+  if (own) return own;
+  if (!lender) throw new Error('This service has no operator account, so no one can sign in to a service here yet.');
+  const handles = await lender.lendSignInClient(toolId, needs);
+  if (!handles) return null;
+  for (const handle of handles) box.borrow(handle, payload => lender.resolveLentHandle(payload));
+  return handles;
+}
+
+// ---- In the Worker ----
+
+/** The operator account's store, or null when this deploy names no operator. */
+export const operatorStore = env => (env.OPERATOR_ACCOUNT_ID ? hostOf(env, { kind: 'person', key: env.OPERATOR_ACCOUNT_ID }) : null);
+
+/** What readers of the operator's records take as `operator`: its records from the service's edge store
+ *  (src/service-records.mjs), and runTool(origin, request) for what the operator alone does (running its own tool on its
+ *  own connection, a refresh asked once per window): one run in its own book (src/tool-run-call.mjs), never its store.
+ *  Null when this deploy names no operator. */
+export function serviceRecordReader(env) {
+  if (!env?.OPERATOR_ACCOUNT_ID) return null;
+  return { workspaceRecord: label => serviceRecord(env, label), runTool: (origin, request) => runServiceTool(env, { origin, account: env.OPERATOR_ACCOUNT_ID, request }),
+    want: (label, window) => wantServiceRecordRefresh(env, label, window) };
+}
+
+/** /work/service-values, for the signed-in operator account only (the caller checks the session is that account's). */
+export async function handleServiceValues(request, { operator, origin, fresh = false }) {
+  // A sign-in app is set where services are connected: the operator's Connections screen shows its boxes in place of
+  // the service's Connect button (src/account-screens.mjs); this address only takes those saves, and a visit opens that screen.
+  if (request.method === 'GET') return Response.redirect(`${origin}${addressOf(workspaceSurfaces, 'trillion.connections')}`, 302);
+  if (request.method !== 'POST') return Response.json({ error: 'Not found' }, { status: 404 });
+  if (request.headers.get('origin') !== origin) return Response.json({ error: 'Not allowed.' }, { status: 403 });
+  let body;
+  try { body = JSON.parse((await request.text()).slice(0, 64 * 1024)); } catch { return Response.json({ error: 'Send the values as JSON.' }, { status: 400 }); }
+  try {
+    // Read one held value back: only a browser that signed in within the fresh window, the same rule as saved logins.
+    if (body?.action === 'reveal') {
+      if (!fresh) return Response.json({ said: 'Sign in again to see it. For your safety it is shown only right after you sign in.', redirect: signInAgainAddress(addressOf(workspaceSurfaces, 'trillion.connections')) });
+      const name = String(body.name ?? '');
+      return Response.json({ reveal: { label: 'Copy it now. It hides again in 30 seconds.', text: await operator.revealServiceValue(name), hide_after_seconds: 30 } });
+    }
+    if (body?.action === 'remove') {
+      const { removed } = await operator.removeServiceValues(body.names ?? []);
+      return Response.json({ removed, said: removed.length ? 'Removed. Paste the new sign-in app to connect this service again.' : 'Nothing was held to remove.', refresh: true });
+    }
+    const kept = await operator.keepServiceValues(body?.values ?? {});
+    // `said` and `refresh` are what the Connections screen shows and does next (the guide's answer words).
+    return Response.json({ ...kept, said: kept.saved?.length ? `Saved. ${kept.saved.length === 1 ? 'It is' : 'They are'} locked away and never shown again.` : 'Nothing to save: every box was empty.', refresh: true });
+  } catch (error) { return Response.json({ error: String(error.message ?? error) }, { status: 400 }); }
+}

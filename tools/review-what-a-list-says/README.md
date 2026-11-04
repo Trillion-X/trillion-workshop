@@ -14,8 +14,9 @@ Keeps what a list says true, and notices what nobody uses.
 | `read-data/list-review.mjs` | `reviewRows`, `rowsNeedingReview`, `coldRows`, `heatNow`, `usedHeat`: moved unchanged from old trillion `src/list-review.mjs`. |
 | `read-data/lists.json` | The slices of old trillion `src/lists.json` it reads (`review`, `use_heat`, two `limits`, the refusal `words`), under the same names. |
 | `read-data/list-refusals.mjs` | `listSay`, moved from old trillion `src/list-refusals.mjs`, without the old app's configuration-error branch. |
-| `do-work/review-a-list.mjs` | The rows' seams: `reviewListRows` over the person's lists through `tools/records-door/read-data/lists-door.mjs`, `findColdRows` over rows and heat records handed in, `heatOfARow`. |
+| `do-work/review-a-list.mjs` | The rows' seams: `reviewListRows` over the person's lists through `tools/records-door/read-data/lists-door.mjs`, `findColdRows` over rows and heat records handed in, `findRowsNeedingReview` over the list and rows handed in, `heatOfARow`. |
 | `test/list-review-and-heat.test.mjs` | Old trillion `test/list-review-and-heat.test.mjs`: the heat test unchanged; review and cold rows over an in-memory records door. |
+| `test/rows-needing-review.test.mjs` | `findRowsNeedingReview` over a list `set_up` left: each reason, one owner, a later `now`, and the refusals. |
 
 ## The rows
 
@@ -23,6 +24,7 @@ Keeps what a list says true, and notices what nobody uses.
 |---|---|
 | `tool:review-rows-of-a-list` | Sets a list up for review, or verifies, flags, asks to check or assigns its rows |
 | `tool:find-cold-rows` | The rows nobody uses, leaving out rows whose review is current |
+| `tool:find-rows-needing-review` | Each owner's rows that need review, with why: not verified, past their check-again date, or empty |
 | `tool:heat-of-a-row` | A row's heat as of a moment, and the record one more use leaves |
 
-`rowsNeedingReview` (each owner's rows to look at, with why) needs a saved-view reader (`readView`); it moves here with no row until the lists' saved views are read through the records door.
+`rowsNeedingReview` (REA finding F-0066) reads each review view through a reader it is given (`readView`). `findRowsNeedingReview` gives it one over the rows handed in, like `findColdRows`: a view's rules go to the rule filter of `tools/formulas`, and the expired view keeps the rows whose check-again date is before its `before` binding, evaluated with `{ now }` by the same engine. The caller reads the list and its rows (through the records door, or `tools/read-a-list-view`) and hands them in.

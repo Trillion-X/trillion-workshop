@@ -448,6 +448,95 @@
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "id": "tool:update-a-computer",
+        "label": "Update a computer",
+        "job": "Bring a running computer to what a new one gets: the product settings file, the signed release feed and a release that knows both",
+        "description": "Reads a running computer's own layout from its service unit (its place config, current link, state folder, releases folder and unit name; a request's layout row wins), copies the request's engine release into its releases folder (or keeps the one current names), writes the product settings file the engine reads into its state folder (named by PRODUCT_SETTINGS in the unit), adds the product's signed release feed to its place config so it adopts new releases into its own releases folder, made writable for the service, sets a copies policy its computers can meet, points it at the release and restarts it. Every file it replaces is kept in a backup folder first; when the service is not active afterwards, or the sign-up page does not answer 200, everything is put back from it. `rollback` puts an update back on request.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "lease_file",
+            "request_file"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "lease_file": {
+              "type": "string"
+            },
+            "request_file": {
+              "type": "string",
+              "description": "A request JSON (ssh, name, engine.file and optionally the release to install; layout, release_feed and copies optional: read from the computer, the product's feed, and what its computers can meet when absent)."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "layout",
+            "release",
+            "backup",
+            "product_settings",
+            "release_feed",
+            "copies",
+            "sign_up_status"
+          ],
+          "properties": {
+            "release": {
+              "type": "string"
+            },
+            "backup": {
+              "type": "string"
+            },
+            "product_settings": {
+              "type": "string"
+            },
+            "release_feed": {
+              "type": "object"
+            },
+            "sign_up_status": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "layout": {
+              "type": "object"
+            },
+            "copies": {
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "node tools/start-a-place/do-work/start-a-place.mjs update {lease_file} {request_file}",
+          "needs": [
+            "node",
+            "ssh"
+          ],
+          "say": "No credential is needed; this reaches the computer over SSH only. Tell the person the backup folder it answered: `node tools/start-a-place/do-work/start-a-place.mjs rollback {lease_file} {request_file} BACKUP` puts the computer back from it. Update one computer at a time and check it before the next."
+        },
+        "needs": {
+          "expected_seconds": 90,
+          "network_egress": true
+        },
+        "maker": "maker:start-a-place",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
         "id": "tool:give-back-a-place",
         "label": "Give back a place",
         "job": "Stop paying for a place's machine: remove its public name and give the machine back",

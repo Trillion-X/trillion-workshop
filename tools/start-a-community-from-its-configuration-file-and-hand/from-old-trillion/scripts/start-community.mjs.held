@@ -1,0 +1,44 @@
+// Start a community from its configuration file and hand it to the person who will run it:
+//   node scripts/start-community.mjs communities/trillion.json [origin] [--take-over <hand-over link>]
+// A fresh account starts the community through the MCP endpoint any AI uses (create_membership, label "community"), makes the one-time
+// hand-over link (hand_over_community) and leaves. The link is printed once: whoever opens it signed in to Trillion
+// runs the community from then on, and changes it from their own AI with change_community. With --take-over and a
+// hand-over link nobody has used yet, the fresh account takes that community over instead, sends the file with
+// change_community, and makes a new link the same way: the community keeps its address, members, posts and events.
+import { readFileSync } from 'node:fs';
+import { browserWithPasskeyDevice, createAccount } from './passkey-account.mjs';
+
+const args = process.argv.slice(2);
+const takeAt = args.indexOf('--take-over');
+const takeOver = takeAt > -1 ? new URL(args.splice(takeAt, 2)[1]) : null;
+const [file, originArg] = args;
+if (!file) throw new Error('Name the community file, for example communities/trillion.json.');
+const origin = (originArg ?? 'https://app.gettrillion.ai').replace(/\/$/, '');
+const { comment, ...config } = JSON.parse(readFileSync(file, 'utf8'));
+const tool = async (key, name, args = {}) => {
+  const response = await fetch(`${origin}/mcp`, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${key}` }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } }) });
+  const body = await response.json();
+  if (body.result?.isError) throw new Error(`${name}: ${body.result.content[0].text}`);
+  return body.result.structuredContent;
+};
+
+const device = await browserWithPasskeyDevice();
+try {
+  // The account that starts the community hands it over and leaves; it stays so the hand-over link can be used.
+  const key = await createAccount(device.page, origin, { keep: true });
+  let id;
+  if (takeOver) {
+    id = decodeURIComponent(takeOver.pathname.split('/').pop());
+    const taken = await fetch(`${origin}/mcp/api/community/${encodeURIComponent(id)}/take-over`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` }, body: JSON.stringify({ code: takeOver.searchParams.get('take_over') }) });
+    if (!taken.ok) throw new Error(`take-over: ${(await taken.json()).error}`);
+    const current = await tool(key, 'community', { community_id: id });
+    await tool(key, 'change_community', { community_id: id, config, expected_updated_at: current.updated_at });
+  } else {
+    ({ membership_id: id } = await tool(key, 'create_membership', { label: 'community', title: config.title, config }));
+  }
+  const { link, expires_at: expires } = await tool(key, 'hand_over_community', { community_id: id });
+  await tool(key, 'leave_membership', { membership_id: id });
+  process.stdout.write(`${config.title}: ${origin}/community/${id}\nhand-over link (once, until ${expires}): ${link}\n`);
+} finally {
+  await device.browser.close();
+}

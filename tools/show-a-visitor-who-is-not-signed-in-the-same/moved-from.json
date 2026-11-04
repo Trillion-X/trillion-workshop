@@ -1,0 +1,31 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/visitor-mark.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-a-visitor-who-is-not-signed-in-the-same/from-old-trillion/src/visitor-mark.mjs",
+      "source_identity": "1f:990cc79be2b3e90ec7abd11fd1cccfbaed3ac5d9a2e8f4933f25a46b2fdc8358",
+      "identity": "1f:990cc79be2b3e90ec7abd11fd1cccfbaed3ac5d9a2e8f4933f25a46b2fdc8358"
+    },
+    {
+      "from": "src/visitor-offers.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-a-visitor-who-is-not-signed-in-the-same/from-old-trillion/src/visitor-offers.mjs.held",
+      "source_identity": "1f:5746271ddd19dc99dbe0dfb53eb2806e08970dd43c6cfa0164fae0d7506d34c7",
+      "identity": "1f:32045a0b9035081ca8e576c610cf8e396d1399b90739a721b4f0f86321c4be3f",
+      "held": true
+    },
+    {
+      "from": "test/visitor-offers.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-a-visitor-who-is-not-signed-in-the-same/from-old-trillion/test/visitor-offers.test.mjs.held",
+      "source_identity": "1f:507e2ac79e715863ff059c94d2ac3f5e90ebf6335155fd6be5a97366dc954fd3",
+      "identity": "1f:905cfa055388ca8415227227adea41688bc17bdbb8df5711d36bd88a1af6c919",
+      "held": true
+    }
+  ]
+}

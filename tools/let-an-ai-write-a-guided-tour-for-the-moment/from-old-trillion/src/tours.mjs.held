@@ -1,0 +1,226 @@
+// src/tours.mjs
+//
+// Purpose
+//   Guided tours any of the person's AIs writes for the moment it is in, kept in the person's own store and organised
+//   with the group part: each tour is a walkthrough-definition (the same DATA Trillion's own tours are, run by the one
+//   tour host, parts/guided-overlay), each sits in a category (a group), and the newest are Recent. A tour can ask to
+//   be shown at once on the person's open page.
+//
+//   GET  /tours        { tours, categories, recent, card_kinds, step_fields, said }
+//   POST /tours/save   { tour, category?, show_now?, by? }   { tour, said }
+//   POST /tours/remove { tour_id }                            { removed, said }
+//   POST /tours/show   { tour_id }                            { shown, said }
+//
+// Non-negotiable invariants
+//   1. A tour is DATA the existing tour host runs (parts/guided-overlay WalkthroughHost reads the record
+//      `guided-overlay::own-walkthroughs` beside the app's own tours). Nothing here draws a tour or names a step kind:
+//      a definition the part's own fold refuses is refused here, with why.
+//   2. Categories are group records (parts/group): one index group lists the categories in order, and each category
+//      group holds its tours as members. Moving a tour or emptying a category is the group's own ops, the same records
+//      the Tours screen reads back with group.load-graph.
+//   3. Every tour carries the trigger that starts it by name (walkthrough-requested with its id), so Tours, a link and
+//      show_now start it through the same road; the AI's own triggers are kept beside it.
+//   4. Showing now writes `guided-overlay::show-asked` ({ tour_id, asked_at }); the open page follows the store and
+//      starts that tour through the host. Skip, end and escape stay the host's own behaviour.
+//   5. Every word a tour shows is held to records/copy-rules.json (parts/judge-words, the same judge every commit
+//      runs): a tour with a stock heading, a word from how Trillion is built, an AI tell or a broken sentence is refused
+//      with where, why and what to say instead, so the AI rewrites it before the person ever reads it.
+//
+
+import settings from '../../../tours-screen/read-data/tours.json' with { type: 'json' };
+import { foldWalkthroughProgress, foldWalkthroughRecords } from '../parts/guided-overlay/read-data/walkthrough-eeaf.ts';
+import { TOUR_LIBRARY } from '../parts/guided-overlay/read-data/tour-library.ts';
+import overlayDefaults from '../parts/guided-overlay/guided-overlay-defaults.json' with { type: 'json' };
+import { GROUP_RECORD, keptLibrary } from '../../../make-screen-layouts-and-controls/src/kept-libraries.mjs';
+import { findingsInWords, makeJudge, wordsIn } from '../parts/judge-words/do-work/judge-words.mjs';
+import { failureOf } from '../../../tweak-live-controls/failure.mjs';
+import {currentCopyRules,currentTourSettings,currentPresentationContent} from './presentation-content.mjs';
+
+const library = keptLibrary(TOUR_LIBRARY);
+const text = value => (typeof value === 'string' ? value.trim() : '');
+const slug = value => text(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48);
+
+
+// What is wrong with how a step shows its thing (settings.pointing), or null: it points at a particular control, opening
+// the screen that control is on first, or it holds the thing live in the card.
+export function pointingProblem(step, pointing = settings.pointing) {
+  if (pointing.shows_itself.includes(text(step.content?.content_kind))) return null;
+  const query = text(step.target_ref?.query);
+  if (!query) return 'points at nothing: give it target_ref { from: "selector", query } naming the real control it talks about (read_layouts names the screens; open one with target_preparation), or hold the thing in the card (placeable-surface).';
+  const parts = query.split(',').map(part => part.trim().toLowerCase());
+  if (parts.every(part => pointing.too_vague.includes(part))) return `points at "${query}", which is the whole page, not a control: name the control itself (a [data-…] or aria-label selector).`;
+  const pageWide = parts.some(part => pointing.page_wide.some(prefix => part.startsWith(prefix.toLowerCase())));
+  if (!pageWide && !text(step.target_preparation?.surface?.id)) return `points at "${query}" inside a screen without opening it: add target_preparation { surface: { id } } with the screen that control is on (read_layouts lists them).`;
+  return null;
+}
+
+/**
+ * records: { read() → { label: value }, write([{ address_label, payload }]) } (the person's workspace records)
+ * now:      () → Date
+ */
+// The writes whose whole effect is one synchronous write, committed with their reply through `commit` (a write and its
+// reply kept under the command's receipt, src/standalone-resource-behavior.mjs routeReceipts).
+export const TOUR_RECEIPTED_WRITES = Object.freeze(['tours:save', 'tours:remove', 'tours:show']);
+export function makeTours({ records, env = null, current, now = () => new Date(), commit = change => change() }) {
+  const configuration=async()=>{const [settings,copy]=await Promise.all([currentTourSettings(env,{current}),currentCopyRules(env,{current})]);return {settings,judgeWords:makeJudge(copy.rules),tourWords:copy.owners.find(owner=>owner.kind==='tour')??{fields:[]}};};
+  const readRecords = () => records.read({ labels: [settings.tours_label, settings.progress_label], prefixes: [GROUP_RECORD] });
+  const ownTours = current => (Array.isArray(current[settings.tours_label]) ? current[settings.tours_label] : []);
+  const finishedOf = current => {
+    const { cursors } = foldWalkthroughProgress([{ address: '', value_json: current[settings.progress_label] ?? null }]);
+    return id => cursors[id]?.status === 'complete';
+  };
+
+  // The categories as read_tours names them: each with its tours.
+  const categoriesOf = current => library.categories(current).map(({ members, ...category }) => ({ ...category, tours: members }));
+
+  async function read() {
+    const {settings}=await configuration();
+    const current = await readRecords();
+    const tours = ownTours(current);
+    const categories = categoriesOf(current);
+    const finished = finishedOf(current);
+    const categoryOf = id => categories.find(category => category.tours.includes(id))?.name ?? null;
+    const listed = tours.map(tour => ({
+      tour_id: tour.id, title: tour.title ?? tour.id, summary: tour.summary ?? '', steps: tour.steps.length,
+      category: categoryOf(tour.id), by: tour.by ?? null, saved_at: tour.saved_at ?? null, taken: finished(tour.id),
+    }));
+    const recent = library.recent(tours);
+    return {
+      tours: listed,
+      categories,
+      recent,
+      card_kinds: settings.card_kinds,
+      step_fields: settings.step_fields,
+      said: `${listed.length} tour${listed.length === 1 ? '' : 's'} your AIs wrote, in ${categories.length} categor${categories.length === 1 ? 'y' : 'ies'}. Trillion’s own welcome and screen guides are separate. This read does not check which guide is currently onscreen.`,
+    };
+  }
+
+  // The definition as the tour host will run it (invariants 1 and 3), or the reason it cannot run.
+  function definitionOf(input, earlier, by, {settings,judgeWords,tourWords}) {
+    const tour = input && typeof input === 'object' ? input : {};
+    const title = text(tour.title);
+    if (!title) throw new Error('tour needs title: what the tour shows, in a few words.');
+    const steps = Array.isArray(tour.steps) ? tour.steps : [];
+    if (!steps.length || steps.length > settings.steps_max) throw new Error(`tour needs between 1 and ${settings.steps_max} steps.`);
+    const id = earlier?.id ?? `${settings.id_prefix}${text(tour.id) ? slug(tour.id) : slug(title) || crypto.randomUUID()}`;
+    // Every step dims and blurs the page when it shows centred, unless the AI chose its own look for it.
+    const named = steps.map((step, at) => ({ look: settings.step_look, ...step, id: text(step?.id) || `step-${at + 1}` }));
+    for (const step of named) {
+      if (!step.content || typeof step.content !== 'object' || !text(step.content.content_kind))
+        throw new Error(`Step ${step.id} needs content: { content_kind, payload }; read_tours card_kinds lists the kinds.`);
+    }
+    if (new Set(named.map(step => step.id)).size !== named.length) throw new Error('Each step needs its own id.');
+    for (const step of named) {
+      const problem = pointingProblem(step,settings.pointing);
+      if (problem) throw new Error(`Step ${step.id} ${problem}`);
+    }
+    const taskKeys = (Array.isArray(tour.triggers) ? tour.triggers : [])
+      .filter(trigger => trigger?.reason === 'asked-by-name' && typeof trigger.once_key === 'string')
+      .map(trigger => trigger.once_key);
+    const consumeOn = (Array.isArray(tour.triggers) ? tour.triggers : [])
+      .find(trigger => trigger?.reason === 'asked-by-name' && Array.isArray(trigger.consume_on))?.consume_on;
+    const askedByName = {
+      reason: 'asked-by-name',
+      on_event: { event_kind: 'walkthrough-requested', match: { walkthrough_id: id } },
+      ...(taskKeys.length ? { once_key: taskKeys[0] } : {}),
+      ...(consumeOn ? { consume_on: consumeOn } : {}),
+    };
+    const own = (Array.isArray(tour.triggers) ? tour.triggers : []).filter(trigger => trigger?.reason !== askedByName.reason);
+    const definition = {
+      kind: 'walkthrough-definition',
+      id,
+      revision: (earlier?.revision ?? 0) + 1,
+      title,
+      ...(text(tour.summary) ? { summary: text(tour.summary) } : {}),
+      entry_step: named.some(step => step.id === text(tour.entry_step)) ? text(tour.entry_step) : named[0].id,
+      steps: named,
+      triggers: [askedByName, ...own],
+      look: { ...settings.look, ...(tour.look && typeof tour.look === 'object' ? tour.look : {}) },
+      ...(tour.progress_style && typeof tour.progress_style === 'object' ? { progress_style: tour.progress_style } : { progress_style: settings.progress_style }),
+      // A tour that plays itself (a live showcase, src/showcases.mjs): { step_ms, after_ms }, read by the tour host.
+      ...(tour.play && typeof tour.play === 'object' && Number(tour.play.step_ms) > 0 ? { play: {
+        step_ms: Math.min(Number(tour.play.step_ms), 60000),
+        ...(Number(tour.play.after_ms) > 0 ? { after_ms: Math.min(Number(tour.play.after_ms), 60000) } : {}),
+      } } : {}),
+      // How much it matters, one of the tour host's urgency levels: an urgent tour that starts by itself passes rules that
+      // hold the rest (the person's show rules read it as the tour fact `urgency`).
+      ...(overlayDefaults.urgency.levels.some(level => level.id === tour.urgency) ? { urgency: tour.urgency } : {}),
+      by: by ?? earlier?.by ?? null,
+      saved_at: now().toISOString(),
+    };
+    if (!foldWalkthroughRecords([{ address: '', value_json: definition }])[id]) throw new Error('This tour is not one the tour host can run: each step needs an id and content, and entry_step must name a step.');
+    if (JSON.stringify(definition).length > settings.tour_chars_max) throw new Error(`A tour is at most ${settings.tour_chars_max} characters of DATA; split it.`);
+    const findings = judgeWords(wordsIn({ title: definition.title, summary: definition.summary, steps: definition.steps }, tourWords));
+    if (findings.length) throw new Error(`Rewrite these words before saving the tour (find_workflow "write product words" walks how):\n${findingsInWords(findings).join('\n')}`);
+    return definition;
+  }
+
+  const showAsked = (id, by) => ({ address_label: settings.show_label, payload: { ...(id ? { tour_id: id } : { next: true }), asked_at: now().toISOString(), by: by ?? null } });
+
+  async function save(input = {}) {
+    const config=await configuration(),settings=config.settings;
+    const current = await readRecords();
+    const tours = ownTours(current);
+    const askedId = text(input.tour?.id);
+    const earlier = tours.find(tour => tour.id === askedId || tour.id === `${settings.id_prefix}${slug(askedId)}`) ?? null;
+    if (!earlier && tours.length >= settings.tours_max) throw new Error(`The person keeps at most ${settings.tours_max} tours; remove one first (remove_tour).`);
+    const by = text(input.by) || null;
+    const definition = definitionOf(input.tour, earlier, by,config);
+    const kept = earlier ? tours.map(tour => (tour.id === earlier.id ? definition : tour)) : [definition, ...tours];
+    const category = text(input.category) || (earlier ? null : settings.default_category);
+    const groupWrites = category ? library.file(current, definition.id, category) : [];
+    // With no category named, nothing files the tour again, so the category it is filed under is read before the write.
+    const filed = category ?? (await read()).tours.find(tour => tour.tour_id === definition.id)?.category ?? null;
+    return commit(() => {
+      records.write([
+        { address_label: settings.tours_label, payload: kept },
+        ...groupWrites,
+        ...(input.show_now === true ? [showAsked(definition.id, by)] : []),
+      ]);
+      return {
+        tour: { tour_id: definition.id, title: definition.title, steps: definition.steps.length, revision: definition.revision, category: filed },
+        said: `${earlier ? 'Changed' : 'Kept'} the tour ${definition.title}${input.show_now === true ? '; it starts now on the person\'s open Trillion page' : ''}.`,
+      };
+    }, { operation: 'tours:save' });
+  }
+
+  async function remove(input = {}) {
+    const current = await readRecords();
+    const id = text(input.tour_id);
+    const tours = ownTours(current);
+    if (!tours.some(tour => tour.id === id)) throw new Error(`There is no tour ${id || '(none named)'}; read_tours gives every tour_id.`);
+    return commit(() => {
+      records.write([{ address_label: settings.tours_label, payload: tours.filter(tour => tour.id !== id) }, ...library.unfile(current, id)]);
+      return { removed: id, said: `Removed the tour ${id}.` };
+    }, { operation: 'tours:remove' });
+  }
+
+  // One tour by name, or (next: true) the next tour waiting to show by itself, as an opening of Trillion would start it.
+  async function show(input = {}) {
+    const id = text(input.tour_id);
+    if (!id && input.next !== true) throw new Error('Say which tour with tour_id (read_tours gives every tour_id), or next: true for the next one waiting.');
+    return commit(() => {
+      records.write([showAsked(id || null, text(input.by) || null)]);
+      return id
+        ? { shown: id, said: `The tour ${id} starts now on the person's open Trillion page.` }
+        : { shown: 'next', said: 'The next waiting tour starts now on the person\'s open Trillion page, if their show rules let one show.' };
+    }, { operation: 'tours:show' });
+  }
+
+  return { read, save, remove, show, presentation:async({part}={})=>({part,rows:await currentPresentationContent(env,part,{current:()=>current?.({part})})}) };
+}
+
+/** The /tours routes over `tours` (makeTours), answered by the account's own records resource. */
+export async function handleToursRequest(tours, request) {
+  const path = new URL(request.url).pathname;
+  const verb = path === '/tours' ? 'read' : path.slice('/tours/'.length);
+  const reads=verb==='read'||verb==='presentation';
+  if (!Object.hasOwn(tours, verb) || (request.method === 'GET') !== reads) return Response.json({ error: 'Not found' }, { status: 404 });
+  try {
+    return Response.json(await tours[verb](request.method === 'GET' ? {part:new URL(request.url).searchParams.get('part')} : await request.json().catch(() => ({}))));
+  } catch (error) {
+    // A failure that tries again later is the shared failure owner's to answer, never a refusal of this request.
+    if (failureOf(error).tries_again_later) throw error;
+    return Response.json({ error: error.message }, { status: error.status??400 });
+  }
+}

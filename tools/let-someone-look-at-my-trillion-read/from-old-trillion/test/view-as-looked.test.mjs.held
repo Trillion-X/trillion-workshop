@@ -1,0 +1,60 @@
+// test/view-as-looked.test.mjs
+// A look starting (src/view-as.mjs invariant 4) is kept by the owner's policy owner (src/account-control.mjs
+// noteAccountLooked, read back by accountLookedAtBy for the Privacy screen), the newest kept_looks of them, and the owner
+// is told one notice per look (lookedNotice, sent at the owner's own records by the Worker). For a born account no
+// PersonStore is asked: the PERSON binding here refuses every address it is asked for.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { sqliteHost } from '../src/local-store.mjs';
+import { importSource } from './import-source-for-tests.mjs';
+import { runEngineForTests } from './engine-tools-for-tests.mjs';
+import { lookedNotice, viewAsSaid, viewAsSettings } from '../src/view-as.mjs';
+
+const file = new URL('../src/account-control.mjs', import.meta.url);
+const source = (await readFile(file, 'utf8'))
+  .replace("import { DurableObject } from 'cloudflare:workers';", 'class DurableObject { constructor(ctx, env) { this.ctx = ctx; this.env = env; } }')
+  .replace(/from '(\.\/[^']+)'/g, (_, path) => `from '${new URL(path, file).href}'`);
+const { AccountControl, accountPolicyName } = await importSource(source);
+
+function world() {
+  const directories = new Map(), asked = [];
+  const objectId = text => bytesToHex(blake3(new TextEncoder().encode(text)));
+  const PERSON = { idFromName: name => ({ toString: () => objectId(name) }), idFromString: id => ({ toString: () => id }),
+    get: id => { asked.push(String(id)); throw new Error('A born account\'s PersonStore was asked.'); } };
+  const env = { PERSON, ENGINES: { run: runEngineForTests } };
+  env.ACCOUNT_CONTROL = { idFromName: name => ({ toString: () => name }), get: id => {
+    const name = id.toString();
+    if (!directories.has(name)) {
+      const host = sqliteHost(':memory:');
+      directories.set(name, new AccountControl({ id: { toString: () => name }, waitUntil: () => {},
+        storage: { sql: host.sql, transactionSync: host.transaction, getAlarm: async () => null, setAlarm: async () => {}, deleteAlarm: async () => {} } }, env));
+    }
+    return directories.get(name);
+  } };
+  return { asked, env, objectId };
+}
+
+test('a born account\'s policy owner keeps who looked, the newest kept_looks of them, and its store is never asked', async () => {
+  const { asked, env, objectId } = world();
+  const userId = '3f2a9c10-7d4e-4b8a-9c1d-2e3f4a5b6c7d', owner = objectId(userId);
+  const policy = env.ACCOUNT_CONTROL.get({ toString: () => accountPolicyName(owner) });
+  await policy.bearAccount(owner, { user_id: userId });
+  assert.deepEqual(await policy.accountLookedAtBy(owner), [], 'nobody looked yet');
+  const looks = Array.from({ length: viewAsSettings.kept_looks + 2 }, (_, index) => ({ name: `Viewer ${index}`, at: `2026-10-18T0${index % 10}:00:00.000Z`, until: '2026-10-19T00:00:00.000Z' }));
+  for (const look of looks) assert.deepEqual(await policy.noteAccountLooked(owner, look), { noted: true });
+  assert.deepEqual(await policy.accountLookedAtBy(owner), looks.slice(-viewAsSettings.kept_looks), 'the newest kept_looks are kept, oldest first');
+  await policy.noteAccountLooked(owner, { name: 'x'.repeat(200), at: '2026-10-18T11:00:00.000Z', until: '2026-10-19T00:00:00.000Z' });
+  assert.equal((await policy.accountLookedAtBy(owner)).at(-1).name.length, 120, 'a name is kept at most 120 characters');
+  await assert.rejects(env.ACCOUNT_CONTROL.get({ toString: () => accountPolicyName(objectId('someone-else')) }).noteAccountLooked(owner, looks[0]), /Wrong account policy directory/);
+  assert.deepEqual(asked, [], 'no PersonStore was asked');
+});
+
+test('the owner is told one notice per look, naming who and for how long, opening their Privacy screen', () => {
+  const notice = lookedNotice({ name: 'Ana', at: '2026-10-18T10:00:00.000Z', until: '2026-10-18T12:30:00.000Z' });
+  assert.deepEqual(notice, { key: 'someone-looked:2026-10-18T10:00:00.000Z', kind: viewAsSettings.notice_kind,
+    title: viewAsSaid('notice_title', { name: 'Ana' }), body: viewAsSaid('notice_body', { minutes: 150 }), refs: { open: '/settings/privacy' } });
+  assert.equal(lookedNotice({ name: 'Ana', at: '2026-10-18T10:00:00.000Z', until: '2026-10-18T10:00:10.000Z' }).body, viewAsSaid('notice_body', { minutes: 1 }), 'at least a minute');
+});

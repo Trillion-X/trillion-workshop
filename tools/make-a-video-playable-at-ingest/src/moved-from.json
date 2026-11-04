@@ -11,6 +11,14 @@
       "source_identity": "1f:b11da141c4c05affc012248b9c52e296d3e62f7a948d0eb545733ec7cded8298",
       "identity": "1f:b11da141c4c05affc012248b9c52e296d3e62f7a948d0eb545733ec7cded8298",
       "reused": true
+    },
+    {
+      "from": "src/ingest-normalization.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-a-video-playable-at-ingest/src/ingest-normalization.mjs",
+      "source_identity": "1f:3d68d2fea7599cec33eadf869a20e7e3cc45711814870d36bd69f6a84eb7ffec",
+      "identity": "1f:3d68d2fea7599cec33eadf869a20e7e3cc45711814870d36bd69f6a84eb7ffec",
+      "reused": true
     }
   ]
 }

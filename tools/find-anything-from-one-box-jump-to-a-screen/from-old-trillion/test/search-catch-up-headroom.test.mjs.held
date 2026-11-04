@@ -1,0 +1,54 @@
+// test/search-catch-up-headroom.test.mjs
+//
+// Run in a metered command with a rows_read bound (the Namespace book's alarm, admitted for 40,000), a catch-up wake derives no value
+// its remaining room cannot hold, judged by the costliest value derived so far in the wake; the rest stays changed for the next wake.
+// One wake derived 117,353 rows against that bound (the Namespace evidence step on Jibran's book, 2026-10-20). A wake with no bound
+// derives as many values as its DATA caps allow, as before.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { searchFeedWriter } from '../../../shared-code/src/search-feed.mjs';
+import { makeSearch } from '../src/search.mjs';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+
+const lane = { id: 'contents-words', place: 'written', source: 'files', match: 'words-in-index', kind: 'contents', text_path: '$.text', rank: 1.1 };
+const LIMIT = 40_000, COST = 15_000, DOCS = 12;
+
+function store({ bounded }) {
+  const host = sqliteHost(':memory:');
+  host.sql.exec('CREATE TABLE IF NOT EXISTS namespace_results (identity TEXT NOT NULL, kind TEXT NOT NULL, value TEXT NOT NULL, produced_by TEXT, value_identity TEXT NOT NULL, recorded_at TEXT NOT NULL, PRIMARY KEY (identity, kind))');
+  for (let n = 0; n < DOCS; n += 1) host.sql.exec("INSERT INTO namespace_results (identity, kind, value, produced_by, value_identity, recorded_at) VALUES (?, 'contents', ?, 'test', ?, '2026-10-13T00:00:00Z')", `doc${String(n).padStart(3, '0')}`, JSON.stringify({ text: `marker${n} lorem ipsum` }), `v${n}`);
+  const meter = { used: 0 };
+  // Each value kept costs COST rows read, as a long transcript's segments do.
+  const sql = { exec(query, ...params) {
+    if (/^\s*INSERT INTO search_marks/.test(query)) meter.used += COST;
+    const rows = host.sql.exec(query, ...params).toArray();
+    return { toArray: () => rows, one: () => rows[0] };
+  } };
+  const config = { ...settings, lanes: [lane], catch_up: { ...settings.catch_up, values_per_wake: 50, admit_per_wake: 50 } };
+  const search = makeSearch({ sql, transaction: host.transaction, results: searchFeedWriter(sql), config, ...(bounded ? { headroom: () => ({ rows_read: LIMIT - meter.used }) } : {}) });
+  const derived = () => host.sql.exec('SELECT COUNT(*) AS n FROM search_marks').toArray()[0].n;
+  return { search, meter, derived };
+}
+
+test('a bounded wake derives no value its remaining room cannot hold, and every value is derived across wakes', async () => {
+  const s = store({ bounded: true });
+  const wakes = [];
+  for (let wake = 0; wake < 40 && (await s.search.backlog(50)); wake += 1) {
+    s.meter.used = 0;
+    const before = s.derived();
+    await s.search.catchUp(50);
+    wakes.push({ used: s.meter.used, derived: s.derived() - before });
+    assert.ok(s.meter.used <= LIMIT, `wake ${wake} read ${s.meter.used} of ${LIMIT}`);
+  }
+  assert.equal(await s.search.backlog(50), null, 'the follower settles');
+  assert.equal(s.derived(), DOCS);
+  assert.ok(wakes.length > 1 && wakes.every(wake => wake.derived >= 1), 'several wakes, each deriving at least one value');
+});
+
+test('a wake with no bound derives everything its caps allow in one wake', async () => {
+  const s = store({ bounded: false });
+  await s.search.catchUp(50);
+  assert.equal(s.derived(), DOCS);
+  assert.ok(s.meter.used > LIMIT);
+});

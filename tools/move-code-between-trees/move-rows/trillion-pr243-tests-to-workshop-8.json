@@ -1,0 +1,241 @@
+{
+  "id": "move:trillion-pr243-tests-to-workshop-8",
+  "about": "An eighth round of the tests Trillion-X/trillion PR #243 (4ffa1dc4a2) deleted with no home and no port-backlog row (its backlog listed only source and data), carried byte for byte from 1e886c3f68 (the parent of 7fd8838475, which moved 1,028 of the files they import into this repository; each test there has the same bytes as at the tag old-trillion-before-worker-retire, and its imports still name a file) into the Workshop tool that now holds the code each one tests. Each group is one tool and the tests whose subject it holds; every file they import is home in this repository, byte for byte or as a copy an earlier lane adapted or renamed (adapted_homes names each, with how it was found), so only the tests and their test help move; each test runs against the adapted copy, and only a test with no failure by name that passes at the tag stays. the first rounds are trillion-pr243-tests-to-workshop.json, -2, -3, -4, -5, -6 and -7; docs/pr243-deleted-tests.json lists every such test and where it went. Test help a test reads by its address (a fixture page) is named as an owner of its group, since the import closure does not follow a path read.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "groups": [
+    {
+      "id": "tests-of-use-trillion-from-a-shell",
+      "owner": [
+        "test/ag-ui-agent.test.mjs"
+      ],
+      "to": "tools/use-trillion-from-a-shell",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-plan-tasks-and-todo-lists",
+      "owner": [
+        "test/calendar-task-messages.test.mjs"
+      ],
+      "to": "tools/plan-tasks-and-todo-lists",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-keep-and-wake-ai-sessions-on-this-computer",
+      "owner": [
+        "test/calendar-task-recurrence.test.mjs",
+        "test/configurations-record-engine.test.mjs",
+        "test/dynamic-list-indexes.test.mjs",
+        "test/list-paired-links.test.mjs",
+        "test/list-proposals.test.mjs",
+        "test/list-rollups-and-copies.test.mjs",
+        "test/list-source-change-feed.test.mjs",
+        "test/list-view-records.test.mjs",
+        "test/lists-linked-removal-pages.test.mjs",
+        "test/network-relationship-attributes.test.mjs",
+        "test/starting-lists.test.mjs",
+        "test/waiting-list-open-index.test.mjs"
+      ],
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-shared-code",
+      "owner": [
+        "test/carried-lifecycle-races.test.mjs",
+        "test/carried-lifecycle.test.mjs"
+      ],
+      "to": "tools/shared-code",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-query-and-change-list-rows",
+      "owner": [
+        "test/choice-mapping.test.mjs",
+        "test/list-history.test.mjs",
+        "test/list-link-index.test.mjs",
+        "test/list-people.test.mjs",
+        "test/list-roots-and-machine-fields.test.mjs",
+        "test/list-row-operations.test.mjs",
+        "test/list-unique-keys.test.mjs",
+        "test/lists-ordering.test.mjs"
+      ],
+      "to": "tools/query-and-change-list-rows",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-evaluate-progress",
+      "owner": [
+        "test/community-logic/band-membership.test.ts",
+        "test/community-logic/derive-measure.test.ts",
+        "test/community-logic/rr01-relevance-rank.test.ts",
+        "test/community-logic/swv03-quantile-op.test.ts"
+      ],
+      "to": "tools/evaluate-progress",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-organize-the-sidebar",
+      "owner": [
+        "test/community-logic/board-votes.test.ts",
+        "test/community-logic/board-weighted-signals.test.ts"
+      ],
+      "to": "tools/organize-the-sidebar",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-move-a-dated-plan",
+      "owner": [
+        "test/date-shift.test.mjs"
+      ],
+      "to": "tools/move-a-dated-plan",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-write-public-share-files",
+      "owner": [
+        "test/list-field-comparison.test.mjs"
+      ],
+      "to": "tools/write-public-share-files",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-formulas",
+      "owner": [
+        "test/list-value-history.test.mjs"
+      ],
+      "to": "tools/formulas",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-turn-a-list-column-that-holds-names-into",
+      "owner": [
+        "test/naming-fields.test.mjs"
+      ],
+      "to": "tools/turn-a-list-column-that-holds-names-into",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-bring-in-new-items-from-this-computer",
+      "owner": [
+        "test/read-new-photos.test.mjs"
+      ],
+      "to": "tools/bring-in-new-items-from-this-computer",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-record-log",
+      "owner": [
+        "test/record-table-integration.test.mjs"
+      ],
+      "to": "tools/record-log",
+      "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    }
+  ],
+  "calls": [
+    {
+      "id": "made-up-owner-name",
+      "means": "This repository is public and holds made-up data only: a real person's first name used as a test's sample owner becomes a made-up one. Nothing else in the file changes.",
+      "find": "'Jibran'",
+      "replace": "'Sam Example'"
+    },
+    {
+      "id": "made-up-owner-name-in-notes",
+      "means": "This repository is public and holds made-up data only: a real person's first name in a test's note about whose store a measure came from becomes a made-up one. Nothing else in the file changes.",
+      "find": "Jibran's",
+      "replace": "Sam Example's"
+    }
+  ],
+  "adapted_homes": [
+    {
+      "from": "computer/carry-connections.json",
+      "home": "tools/run-on-a-persons-computer/carry-connections.json",
+      "why": "an earlier lane adapted it here (the one same-name file); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "computer/carry-connections.mjs",
+      "home": "tools/run-on-a-persons-computer/carry-connections.mjs",
+      "why": "an earlier lane adapted it here (the one same-name file); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "computer/computer-sources.json",
+      "home": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.json",
+      "why": "the same bytes under another name: receipt trillion-workshop:tools/bring-in-new-items-from-this-computer/moved-from.json"
+    },
+    {
+      "from": "computer/read-new-items.mjs",
+      "home": "tools/bring-in-new-items-from-this-computer/computer/read-new-items.mjs",
+      "why": "the same bytes under another name: receipt trillion-workshop:tools/bring-in-new-items-from-this-computer/moved-from.json"
+    },
+    {
+      "from": "harness/ag-ui-agent.mjs",
+      "home": "tools/use-trillion-from-a-shell/do-work/ag-ui-agent.mjs",
+      "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "harness/trillion.json",
+      "home": "tools/use-trillion-from-a-shell/do-work/trillion.json",
+      "why": "an earlier lane adapted it here (the one same-name file); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "harness/trillion.mjs",
+      "home": "tools/use-trillion-from-a-shell/do-work/trillion.mjs",
+      "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "parts/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+      "home": "tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+      "why": "an earlier lane adapted it here (the one same-name file); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "src/community-logic/band-membership.ts",
+      "home": "tools/evaluate-progress/read-data/band-membership.ts",
+      "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "src/community-logic/board-votes.ts",
+      "home": "tools/organize-the-sidebar/read-data/board-votes.ts",
+      "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "src/community-logic/board-weighted-signals.ts",
+      "home": "tools/organize-the-sidebar/read-data/board-weighted-signals.ts",
+      "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "src/community-logic/derive-measure.ts",
+      "home": "tools/evaluate-progress/read-data/derive-measure.ts",
+      "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "src/community-logic/evaluate-progression.ts",
+      "home": "tools/evaluate-progress/read-data/evaluate-progression.ts",
+      "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "src/community-logic/measure-ops.ts",
+      "home": "tools/evaluate-progress/read-data/measure-ops.ts",
+      "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "src/list-copy.mjs",
+      "home": "tools/write-public-share-files/read-data/list-copy.mjs",
+      "why": "an earlier lane adapted it here (backlog row (workshop-tool)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "src/lists.mjs",
+      "home": "tools/keep-lists-of-rows/lists.mjs",
+      "why": "an earlier lane adapted it here (the one same-name file); not the same bytes once import paths are set aside"
+    }
+  ]
+}

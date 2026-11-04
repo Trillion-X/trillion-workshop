@@ -1,0 +1,136 @@
+// scripts/method-workflows.mjs
+//
+// Purpose
+//   Turns the decision method's own sources into workflows every Trillion account's AI can find with find_workflow,
+//   read with describe_workflow and run with start_workflow. Which sources become workflows, and which variants run
+//   them, is DATA in records/method-workflows.json. A source row becomes one step per method step (methods/methods.json,
+//   the universal method's steps first) that has checks from it, in the methods' order: the step's question, then every check
+//   written from the source and every check its pieces are recorded as covered by (methods/sources.json), each to be
+//   answered in the run's own words. A source row that names a `method` walks only that method's own steps. A
+//   variant row runs those workflows in order on the same request. The rows are
+//   written into records/workflow-recipe-records.json, the workflows the deploy ships, replacing every earlier row
+//   under id_prefix and keeping every other row as it is.
+//
+//     node scripts/method-workflows.mjs            reports what would ship and whether the shipped rows are current
+//     node scripts/method-workflows.mjs --write    writes them
+//     node scripts/method-workflows.mjs --check    exits 1 when the shipped rows are behind (scripts/commit-paths.sh
+//                                                  runs it through scripts/check-generated-files.mjs)
+//
+// Non-negotiable invariants
+//   1. The workflows say what the method says: their steps are built from methods/checks.json at write time, and
+//      test/method-workflows.test.mjs fails when the shipped rows differ from what this builds now.
+//   2. Nothing here names a source, a step, a check or a person; every name comes from the DATA files.
+//   3. Only rows under id_prefix are replaced; a written row passes recipeProblems or nothing is written.
+//
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { recipeProblems } from '../../../write-a-job-done-in-several-steps-have/from-old-trillion/src/workflows.mjs.held';
+
+const repo = resolve(import.meta.dirname, '..');
+const readJson = path => JSON.parse(readFileSync(join(repo, path), 'utf8'));
+const ROWS_FILE = 'records/workflow-recipe-records.json';
+
+/** The checks that carry a set of source files: those written from them, then those their pieces are covered by. */
+export function checksOfSources(files, { checks, sources }) {
+  const byId = new Map(checks.map(row => [row.id, row]));
+  const written = checks.filter(row => files.includes(row.source?.file));
+  const covering = sources.sources
+    .filter(source => files.includes(source.label))
+    .flatMap(source => Object.values(source.atoms ?? {}).flatMap(atom => atom.no_check?.covered_by ?? []))
+    .map(id => byId.get(id))
+    .filter(Boolean);
+  return [...new Map([...written, ...covering].map(row => [row.id, row])).values()];
+}
+
+const requestInput = settings => ({ type: 'object', required: ['request'], properties: { request: settings.request } });
+
+/** One workflow-recipe payload for a row that walks source files. */
+export function sourceRecipe(row, { settings, method, checks, sources }) {
+  const carried = checksOfSources(row.sources, { checks, sources });
+  const stageOf = new Map(method.backbone.flatMap(stage => stage.steps.map(id => [id, stage])));
+  const steps = method.steps.filter(step => step.kind !== 'scope').flatMap(step => {
+    const rows = carried.filter(check => check.step === step.id);
+    if (!rows.length) return [];
+    const list = rows.map(check => `- ${check.id}: ${check.check} A good answer: ${check.good_answer}`).join('\n');
+    return [{
+      id: step.id.replace(/_/g, '-'),
+      title: stageOf.get(step.id)?.name ?? step.id,
+      do: `For the request in this run's input: ${step.question}\n\nThen answer each check below in your own words, about this request only, as its good answer describes. A check that does not bear on this request says which fact of it shows that.\n${list}`,
+      submit: {
+        type: 'object',
+        required: ['answer', 'checks'],
+        properties: {
+          answer: { type: 'string', minLength: settings.answer_min_length, description: step.question },
+          checks: {
+            type: 'object',
+            required: rows.map(check => check.id),
+            properties: Object.fromEntries(rows.map(check => [check.id, { type: 'string', minLength: settings.check_answer_min_length, description: check.check }])),
+          },
+        },
+      },
+    }];
+  });
+  return { kind: 'workflow-recipe', id: row.id, label: row.label, job: row.job, source: { from: 'decision method', names: row.sources }, input_schema: requestInput(settings), steps };
+}
+
+/** One workflow-recipe payload for a variant that runs other workflows in order. */
+export function variantRecipe(row, { settings, recipes }) {
+  const steps = row.runs.map(id => {
+    const part = recipes.get(id);
+    if (!part) throw new Error(`${row.id} runs ${id}, which is not a row of records/method-workflows.json`);
+    return {
+      id: id.slice(settings.id_prefix.length),
+      title: part.label,
+      do: `Start the workflow "${part.label}" (start_workflow with workflow_id ${id} and input { "request": this run's request }), walk every step of it to the end, then hand back its run_id and the one thing it changed in what you are building.`,
+      submit: {
+        type: 'object',
+        required: ['run_id', 'changed'],
+        properties: {
+          run_id: { type: 'string', minLength: 1, description: `The run_id start_workflow returned for ${id}` },
+          changed: { type: 'string', minLength: settings.check_answer_min_length, description: 'What that workflow changed in the design or the build' },
+        },
+      },
+    };
+  });
+  return { kind: 'workflow-recipe', id: row.id, label: row.label, job: row.job, made_from: row.runs, source: { from: 'decision method' }, input_schema: requestInput(settings), steps };
+}
+
+/** Every method workflow as a shipped record, from the current DATA. */
+export function methodWorkflowRecords({
+  settings = readJson('records/method-workflows.json'),
+  methods = readJson('methods/methods.json'),
+  checks = readJson('methods/checks.json'),
+  sources = readJson('methods/sources.json'),
+} = {}) {
+  // Every step any method asks, in the order the methods list them (the universal method's first), with the stages
+  // that hold them, so a check written for any step is walked in its place.
+  const all = methods.flatMap(row => row.steps ?? []);
+  const method = { steps: [...new Map(all.map(step => [step.id, step])).values()], backbone: methods.flatMap(row => row.backbone ?? []) };
+  const recipes = new Map();
+  // A row naming a `method` walks only that method's own steps (a story's steps, not the universal method's).
+  const ownMethod = id => { const found = methods.find(item => item.id === id); if (!found?.steps) throw new Error(`records/method-workflows.json names method ${id}, which has no steps of its own in methods/methods.json`); return { steps: found.steps, backbone: found.backbone ?? [] }; };
+  for (const row of settings.workflows.filter(item => item.sources)) recipes.set(row.id, sourceRecipe(row, { settings, method: row.method ? ownMethod(row.method) : method, checks, sources }));
+  for (const row of settings.workflows.filter(item => item.runs)) recipes.set(row.id, variantRecipe(row, { settings, recipes }));
+  const problems = [...recipes.values()].flatMap(recipe => recipeProblems(recipe).map(problem => `${recipe.id}: ${problem}`));
+  if (problems.length) throw new Error(problems.join('\n'));
+  return settings.workflows.map(row => ({ id: row.id.replace(/^workflow:/, ''), address: `workflow-recipe:${row.id.replace(/^workflow:/, '')}`, payload: recipes.get(row.id) }));
+}
+
+/** The shelf with every method row replaced by the current ones and every other row kept. */
+export function shelfWith(records, shelf = readJson(ROWS_FILE), prefix = readJson('records/method-workflows.json').id_prefix) {
+  return { ...shelf, records: [...shelf.records.filter(record => !record.payload?.id?.startsWith(prefix)), ...records] };
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const records = methodWorkflowRecords();
+  const next = shelfWith(records);
+  const current = JSON.stringify(readJson(ROWS_FILE)) === JSON.stringify(next);
+  for (const record of records) process.stdout.write(`${record.payload.id}: ${record.payload.steps.length} steps\n`);
+  if (process.argv.includes('--write')) {
+    writeFileSync(join(repo, ROWS_FILE), `${JSON.stringify(next, null, 1)}\n`);
+    process.stdout.write(`wrote ${records.length} method workflows into ${ROWS_FILE}\n`);
+  } else {
+    process.stdout.write(current ? 'the shipped rows are current\n' : `the shipped rows are behind; run with --write\n`);
+    if (!current && process.argv.includes('--check')) process.exitCode = 1;
+  }
+}

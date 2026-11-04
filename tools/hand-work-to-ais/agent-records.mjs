@@ -41,12 +41,12 @@
 //                                                   moves into these records
 //
 
-import { handoffProjection, projectHandoff, pathPresent, taskMapHandoff, TASK_MAP_FIELDS } from './handoff-projection.mjs';
-import { MAX_PRIORITY, MAX_PULLED, reviewOf, scheduledHandoffOf, takeFactsOf, wakeFactsOf } from './agents.mjs';
-import { WorkFailure } from './failure.mjs';
-import { keepContentJson, readContentJson } from '../parts/serialized-content/do-work/content-json.mjs';
-import { SOURCE_RESULT_CONTENT, SOURCE_RESULT_JSON } from './handoff-result-source.mjs';
-import { needsOf } from './own-ais.mjs';
+import { handoffProjection, projectHandoff, pathPresent, taskMapHandoff, TASK_MAP_FIELDS } from '../shared-code/src/handoff-projection.mjs';
+import { MAX_PRIORITY, MAX_PULLED, reviewOf, scheduledHandoffOf, takeFactsOf, wakeFactsOf } from '../shared-code/src/agents.mjs';
+import { WorkFailure } from '../shared-code/src/failure.mjs';
+import { keepContentJson, readContentJson } from '../serialized-content/do-work/content-json.mjs';
+import { SOURCE_RESULT_CONTENT, SOURCE_RESULT_JSON } from '../shared-code/src/handoff-result-source.mjs';
+import { needsOf } from '../shared-code/src/own-ais.mjs';
 
 export class NotificationIndexBuilding extends WorkFailure {
   constructor() {

@@ -1,0 +1,318 @@
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { keepPublicAppFile, readPublicAppObject } from './public-app-file-store.mjs';
+import { publicAppFilePath } from 'trillion-workshop/tools/shared-code/src/public-app-files.mjs';
+import { serveSiteWorkerAsset } from './site-worker-assets.mjs';
+import { runSiteWorker, siteWorkerCode } from './site-worker-runtime.mjs';
+import emailGrants from '../../../site-worker-email-grants/src/site-worker-email-grants.json' with { type: 'json' };
+import { hostOf } from './resource-host.mjs';
+import { installerOf } from './public-app-visitor-call.mjs';
+
+const keyOf = id => `public-app-site-worker:${id}`;
+const scheduleKeyOf = id => `public-app-site-worker-scheduled:${id}`;
+const routeKeyOf = id => `public-app-route:${id}`;
+const INTERNAL = '/_trillion_site_worker/';
+const SHA = /^[0-9a-f]{40}$/;
+const identityOf = value => `1f:${bytesToHex(blake3(new TextEncoder().encode(value)))}`;
+const validHost = host => typeof host === 'string' && host.length <= 253 &&
+  /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(host);
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+export const siteUsesOriginalBackend = route => object(route?.linked_routes) && Object.keys(route.linked_routes).length > 0;
+const requireCopiedBackendAuthority = route => {
+  if (siteUsesOriginalBackend(route)) throw new Error('Remove links to the original app before turning on this site’s copied server.');
+};
+// Email grants are account facts, so none ship. A grant is read from the SITE_WORKER_EMAIL_GRANTS Worker setting
+// (a JSON list of { user_id, senders: [{ email, name }] }, or { grants: [...] }) set by the service operator, and
+// from the shipped file, which holds none.
+function emailGrantsOf(env) {
+  let setting = [];
+  try {
+    const parsed = typeof env.SITE_WORKER_EMAIL_GRANTS === 'string' && env.SITE_WORKER_EMAIL_GRANTS.trim()
+      ? JSON.parse(env.SITE_WORKER_EMAIL_GRANTS) : [];
+    setting = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.grants) ? parsed.grants : [];
+  } catch { setting = []; }
+  return [...(emailGrants.grants ?? []), ...setting.filter(grant => object(grant))];
+}
+const currentRoute = (env, installationId) => env.APP_KV.get(routeKeyOf(installationId), 'json');
+
+// KV locates the installing account; only that account's current saved settings
+// can admit execution. A stale enabled serving copy must never restore a revoked
+// Worker or its permissions when the account store cannot answer.
+async function currentWorkerExecution(env, installationId, routeHint = null) {
+  const hint = routeHint ?? await currentRoute(env, installationId);
+  if (!hint?.owner_user_id || !env.PERSON) throw new Error('The site Worker settings are unavailable right now.');
+  const current = await installerOf(env, hint.owner_user_id, installationId).readAccountSiteWorker(hint.owner_user_id, installationId);
+  if (current?.route?.installation_id !== installationId || current.route.owner_user_id !== hint.owner_user_id) {
+    throw new Error('The site Worker settings are unavailable right now.');
+  }
+  return current.status !== 'active' || current.route.site_backend === false ||
+    siteUsesOriginalBackend(current.route) || !current.backend?.enabled ? null : current;
+}
+
+export async function keepSiteWorkerInstallation(env, route, input, maker, { source = null } = {}) {
+  if (!env.SITE_WORKER_LOADER || !env.SITE_WORKER_DATABASE) throw new Error('The site Worker runtime is unavailable.');
+  const allowedInputKeys = ['module_file', 'assets', 'compatibility_date', 'compatibility_flags', 'outbound_hosts',
+    'ai_models', 'crons', 'email_senders', 'receive_email', 'enabled'];
+  if (!object(input) || Object.keys(input).some(key => !allowedInputKeys.includes(key)) ||
+      !(typeof input.module_file === 'string' || object(input.module_file)) ||
+      !object(input.assets) ||
+      typeof input.compatibility_date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(input.compatibility_date) ||
+      !Array.isArray(input.compatibility_flags) || input.compatibility_flags.some(flag => typeof flag !== 'string') ||
+      !Array.isArray(input.outbound_hosts) || input.outbound_hosts.some(host => !validHost(host)) ||
+      !Array.isArray(input.ai_models) || input.ai_models.some(model => typeof model !== 'string' || !model.startsWith('@cf/')) ||
+      (input.crons !== undefined && (!Array.isArray(input.crons) || input.crons.length > 20 || input.crons.some(cron => typeof cron !== 'string' || !validCron(cron)))) ||
+      (input.email_senders !== undefined && (!Array.isArray(input.email_senders) || input.email_senders.length > 10)) ||
+      (input.receive_email !== undefined && typeof input.receive_email !== 'boolean') ||
+      typeof input.enabled !== 'boolean' || Object.keys(input.assets).length > 512) {
+    throw new Error('The site Worker attachment is invalid.');
+  }
+  if (source !== null && (!object(source) || source.schema !== 'trillion.site-worker-origin/v1' ||
+      !/^[a-f0-9]{32}$/.test(source.project_id ?? '') || !SHA.test(source.commit ?? '') ||
+      !SHA.test(source.manifest_sha ?? '') || source.manifest_path !== 'trillion-site-worker.json' ||
+      !Array.isArray(source.files) || source.files.length < 1 || source.files.length > 513)) {
+    throw new Error('The pinned Worker source identity is invalid.');
+  }
+  if (input.enabled) requireCopiedBackendAuthority(route);
+  const grantedSenders = emailGrantsOf(env).filter(grant => grant.user_id === route.owner_user_id)
+    .flatMap(grant => Array.isArray(grant.senders) ? grant.senders : []);
+  if ((input.email_senders ?? []).some(sender => !grantedSenders.some(granted =>
+    granted.email === sender?.email && granted.name === sender?.name))) {
+    throw new Error('This site cannot send from that address.');
+  }
+  const module = await keepPublicAppFile(env, 'site-worker.js', input.module_file, maker);
+  const moduleObject = await readPublicAppObject(env, module);
+  if (!moduleObject) throw new Error('The site Worker module is unavailable.');
+  const code = await moduleObject.text();
+  const identity = identityOf(code);
+  const assets = {};
+  let total = 0;
+  for (const [path, file] of Object.entries(input.assets)) {
+    if (publicAppFilePath(path) !== path) throw new Error(`The ${path} asset path is invalid.`);
+    assets[path] = await keepPublicAppFile(env, path, file, maker, { trusted: route.files?.[path] });
+    total += assets[path].size;
+    if (total > 128_000_000) throw new Error('The site Worker has more than 128 MB of assets.');
+  }
+  const attachment = {
+    module, identity, assets,
+    ...(source ? { source } : {}),
+    compatibility_date: input.compatibility_date,
+    compatibility_flags: [...new Set(input.compatibility_flags)],
+    outbound_hosts: [...new Set(input.outbound_hosts)],
+    ai_models: [...new Set(input.ai_models)],
+    crons: [...new Set(input.crons ?? [])],
+    email_senders: input.email_senders ?? [],
+    receive_email: input.receive_email === true,
+    enabled: input.enabled,
+    enabled_at: input.enabled ? (await siteWorkerInstallation(env, route.installation_id))?.enabled_at ?? new Date().toISOString() : null,
+  };
+  attachment.configuration_identity = identityOf(JSON.stringify(attachment));
+  await env.APP_KV.put(keyOf(route.installation_id), JSON.stringify(attachment));
+  if (attachment.enabled && attachment.crons.length) await env.APP_KV.put(scheduleKeyOf(route.installation_id), '1');
+  else await env.APP_KV.delete(scheduleKeyOf(route.installation_id));
+  return { installation_id: route.installation_id, identity, configuration_identity: attachment.configuration_identity,
+    assets: Object.keys(assets).length, enabled: attachment.enabled };
+}
+
+export async function siteWorkerInstallation(env, installationId) {
+  return env.APP_KV.get(keyOf(installationId), 'json');
+}
+
+// Change only whether an attached Worker can receive traffic. Keeping this separate from
+// the full configuration writer makes retries safe and preserves its files and permissions.
+export async function setSiteWorkerInstallationEnabled(env, route, enabled) {
+  if (typeof enabled !== 'boolean') throw new Error('Say whether the site Worker should be enabled.');
+  if (enabled) requireCopiedBackendAuthority(route);
+  const installationId = route.installation_id;
+  const current = await siteWorkerInstallation(env, installationId);
+  if (!current) throw new Error('Attach a site Worker before changing whether it is enabled.');
+  if (current.enabled === enabled) {
+    if (enabled && current.crons.length) await env.APP_KV.put(scheduleKeyOf(installationId), '1');
+    else await env.APP_KV.delete(scheduleKeyOf(installationId));
+    return { installation_id: installationId, identity: current.identity,
+      configuration_identity: current.configuration_identity, enabled: current.enabled };
+  }
+  const updated = { ...current, enabled,
+    enabled_at: enabled ? new Date().toISOString() : null };
+  const { configuration_identity: _oldConfigurationIdentity, ...configuration } = updated;
+  updated.configuration_identity = identityOf(JSON.stringify(configuration));
+  await env.APP_KV.put(keyOf(installationId), JSON.stringify(updated));
+  if (enabled && updated.crons.length) await env.APP_KV.put(scheduleKeyOf(installationId), '1');
+  else await env.APP_KV.delete(scheduleKeyOf(installationId));
+  return { installation_id: installationId, identity: updated.identity,
+    configuration_identity: updated.configuration_identity, enabled: updated.enabled };
+}
+
+export async function deleteSiteWorkerInstallation(env, installationId) {
+  await env.APP_KV.delete(keyOf(installationId));
+  await env.APP_KV.delete(scheduleKeyOf(installationId));
+  return { installation_id: installationId, attached: false };
+}
+
+function validCron(cron) {
+  const bounds = [[0, 59], [0, 23], [1, 31], [1, 12], [0, 6]];
+  const fields = cron.split(' ');
+  return fields.length === 5 && fields.every((field, index) => field.split(',').every(part => {
+    if (!/^(?:\*|\d{1,2}(?:-\d{1,2})?)(?:\/\d{1,2})?$/.test(part)) return false;
+    const [span, stepText] = part.split('/');
+    const [first, last] = span === '*' ? bounds[index] : span.includes('-') ? span.split('-').map(Number) : [Number(span), Number(span)];
+    return (!stepText || Number(stepText) > 0) && first >= bounds[index][0] && last <= bounds[index][1] && first <= last;
+  }));
+}
+
+function cronMatches(cron, date) {
+  const values = [date.getUTCMinutes(), date.getUTCHours(), date.getUTCDate(), date.getUTCMonth() + 1, date.getUTCDay()];
+  const bounds = [[0, 59], [0, 23], [1, 31], [1, 12], [0, 6]];
+  const fields = cron.split(' ');
+  const matches = fields.map((field, index) => field.split(',').some(part => {
+    const [span, stepText] = part.split('/');
+    const step = stepText ? Number(stepText) : 1;
+    if (step < 1) return false;
+    const [first, last] = span === '*' ? bounds[index] : span.includes('-') ? span.split('-').map(Number) : [Number(span), Number(span)];
+    return first >= bounds[index][0] && last <= bounds[index][1] && first <= values[index] && values[index] <= last &&
+      (values[index] - first) % step === 0;
+  }));
+  const dayMatches = fields[2] === '*' || fields[4] === '*' ? matches[2] && matches[4] : matches[2] || matches[4];
+  return matches[0] && matches[1] && dayMatches && matches[3];
+}
+
+async function loadedSiteWorker(request, env, ctx, installationId, attachment) {
+  if (!env.SITE_WORKER_LOADER || !env.SITE_WORKER_DATABASE || !ctx?.exports) {
+    return new Response('This site is unavailable right now.', { status: 503 });
+  }
+  const props = { installation_id: installationId };
+  const unavailable = 'The site Worker module is unavailable.';
+  let loadingFailed = false;
+  try {
+    return await runSiteWorker({ loader: env.SITE_WORKER_LOADER, request, installationId,
+      identity: attachment.identity, configurationIdentity: attachment.configuration_identity,
+      // The Loader owns the cache. Warm requests still check current settings,
+      // but only a new Worker needs the immutable source bytes and bindings.
+      code: async () => {
+        try {
+          const source = await readPublicAppObject(env, attachment.module);
+          if (!source) throw new Error(unavailable);
+          return siteWorkerCode({ source: await source.text(), identity: attachment.identity,
+            compatibilityDate: attachment.compatibility_date, compatibilityFlags: attachment.compatibility_flags,
+            bindings: {
+              ASSETS: ctx.exports.SiteWorkerAssets({ props: { ...props, assets: attachment.assets } }),
+              DATABASE: ctx.exports.SiteWorkerSql({ props }),
+              SHARED_LISTS: ctx.exports.SiteWorkerCache({ props }),
+              ...(attachment.ai_models.length ? { AI: ctx.exports.SiteWorkerAi({ props: { ...props, models: attachment.ai_models } }) } : {}),
+              ...(attachment.email_senders?.length ? { EMAIL: ctx.exports.SiteWorkerEmail({ props: { ...props, senders: attachment.email_senders } }) } : {}),
+            },
+            outbound: ctx.exports.SiteWorkerOutbound({ props: { ...props, hosts: attachment.outbound_hosts } }),
+          });
+        } catch (error) {
+          loadingFailed = true;
+          throw new Error(unavailable, { cause: error });
+        }
+      },
+    });
+  } catch (error) {
+    // Another request may share the same failed cold load. Preserve an
+    // unavailable reply there too, without replacing an unrelated Worker error.
+    if (!loadingFailed && error?.message !== unavailable) throw error;
+    return new Response('This site is unavailable right now.', { status: 503 });
+  }
+}
+
+export async function serveSiteWorker(request, env, ctx, route) {
+  const pathname = new URL(request.url).pathname;
+  if (pathname.startsWith(INTERNAL)) return new Response('Not found', { status: 404 });
+  let current;
+  try { current = await currentWorkerExecution(env, route.installation_id, route); }
+  catch { return new Response('This site is unavailable right now.', { status: 503 }); }
+  if (!current) return null;
+  const { backend: attachment, route: authoritativeRoute } = current;
+  // Wrangler normally answers a built asset before calling the source Worker.
+  // Loader has no asset directory, so the installation's checked manifest owns
+  // that route. The entry page is source-owned, as in the original config.
+  if (['GET', 'HEAD'].includes(request.method) && pathname !== '/' && pathname !== '/index.html') {
+    let path;
+    try { path = publicAppFilePath(pathname); } catch { /* Let the source Worker answer unusual paths. */ }
+    if (path) {
+      const asset = await serveSiteWorkerAsset(request, env,
+        { installation_id: route.installation_id, assets: attachment.assets }, authoritativeRoute);
+      if (asset.status !== 404) return asset;
+    }
+  }
+  return loadedSiteWorker(request, env, ctx, route.installation_id, attachment);
+}
+
+export async function deliverSiteWorkerEmail(env, ctx, installationId, mail) {
+  const current = await currentWorkerExecution(env, installationId);
+  if (!current?.backend.receive_email) return false;
+  const attachment = current.backend;
+  const request = new Request(`https://site-internal.invalid${INTERNAL}email`, { method: 'POST',
+    body: JSON.stringify(mail), headers: { 'content-type': 'application/json' } });
+  const answer = await loadedSiteWorker(request, env, ctx, installationId, attachment);
+  if (!answer.ok) throw new Error(`This site could not receive mail (${answer.status}).`);
+  return true;
+}
+
+export async function runSiteWorkerSchedules(env, ctx, scheduledTime, { lookbackMinutes = 0 } = {}) {
+  const date = new Date(scheduledTime);
+  if (!Number.isFinite(date.getTime())) throw new Error('The site schedule time is invalid.');
+  if (!Number.isSafeInteger(lookbackMinutes) || lookbackMinutes < 0 || lookbackMinutes > 10) {
+    throw new Error('The site schedule lookback is invalid.');
+  }
+  const minute = Math.floor(date.getTime() / 60_000);
+  let cursor;
+  const jobs = [];
+  const failures = [];
+  const recordFailure = (installationId, error) => {
+    failures.push(new Error(`Site ${installationId} schedules failed: ${error.message}`, { cause: error }));
+    return false;
+  };
+  try {
+    do {
+      const page = await env.APP_KV.list({ prefix: 'public-app-site-worker-scheduled:', limit: 1000, ...(cursor ? { cursor } : {}) });
+      for (const key of page.keys) {
+        const installationId = key.name.slice('public-app-site-worker-scheduled:'.length);
+        try {
+          const current = await currentWorkerExecution(env, installationId);
+          if (!current) continue;
+          const attachment = current.backend;
+          const enabledMinute = Math.ceil(Date.parse(attachment.enabled_at ?? date.toISOString()) / 60_000);
+          for (let dueMinute = Math.max(minute - lookbackMinutes, enabledMinute); dueMinute <= minute; dueMinute++) {
+            for (const cron of attachment.crons ?? []) {
+              if (!cronMatches(cron, new Date(dueMinute * 60_000))) continue;
+              const database = hostOf(env, { kind: 'site-worker-database', key: installationId });
+              const claim = await database.claimSchedule(cron, dueMinute);
+              if (!claim) continue;
+              jobs.push((async () => {
+                let succeeded = false;
+                try {
+                  // Claiming the minute awaits another store. Recheck revocation and
+                  // the current cron before dispatching the claimed work.
+                  const dispatch = await currentWorkerExecution(env, installationId, current.route);
+                  if (!dispatch?.backend.crons?.includes(cron)) return false;
+                  const dispatchEnabledMinute = Math.ceil(Date.parse(dispatch.backend.enabled_at ?? date.toISOString()) / 60_000);
+                  if (!Number.isFinite(dispatchEnabledMinute) || dueMinute < dispatchEnabledMinute) return false;
+                  const request = new Request(`https://site-internal.invalid${INTERNAL}scheduled`, { method: 'POST',
+                    body: JSON.stringify({ cron, scheduledTime: dueMinute * 60_000 }), headers: { 'content-type': 'application/json' } });
+                  const answer = await loadedSiteWorker(request, env, ctx, installationId, dispatch.backend);
+                  if (!answer.ok) throw new Error(`Site ${installationId} schedule ${cron} failed (${answer.status}).`);
+                  succeeded = true;
+                  return true;
+                } finally {
+                  await database.finishSchedule(cron, dueMinute, claim, succeeded);
+                }
+              })().catch(error => recordFailure(installationId, error)));
+            }
+          }
+        } catch (error) {
+          recordFailure(installationId, error);
+        }
+      }
+      cursor = page.list_complete ? null : page.cursor;
+    } while (cursor);
+  } catch (error) {
+    failures.push(error);
+  }
+  // A failing site must not cancel healthy sites. Completed claims prevent
+  // their duplication when the existing scheduled owner retries these failures.
+  const dispatched = await Promise.all(jobs);
+  if (failures.length) throw new AggregateError(failures, failures.map(error => error.message).join('\n'));
+  return dispatched.filter(Boolean).length;
+}

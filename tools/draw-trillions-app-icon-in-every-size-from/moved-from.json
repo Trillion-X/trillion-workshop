@@ -1,0 +1,47 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "assets/stories-share.png",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-trillions-app-icon-in-every-size-from/assets/stories-share.png",
+      "source_identity": "1f:d3fd0bf3af63546a48cac7357b45f0443706abf7600fdfeb1fc750f4a0fa7041",
+      "identity": "1f:d3fd0bf3af63546a48cac7357b45f0443706abf7600fdfeb1fc750f4a0fa7041"
+    },
+    {
+      "from": "scripts/make-opening-cover.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-trillions-app-icon-in-every-size-from/scripts/make-opening-cover.mjs",
+      "source_identity": "1f:c6c3c567a952cc49240a52c81550632d6dc2c2b7faf2ef33698a73bd45aad309",
+      "identity": "1f:e5c905e565b42972d55aa8be64f695465fe474f81c876fbcbccf9b52f67df286"
+    },
+    {
+      "from": "scripts/make-stories-share-image.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-trillions-app-icon-in-every-size-from/scripts/make-stories-share-image.mjs",
+      "source_identity": "1f:fda9b257eae19c0a2c421b56f4866943aaa35730d486d5331a1698880207dc9b",
+      "identity": "1f:336a48f7df25a6e9cf5703dbcb25c551a8376381bd7e3f43646c130782a36f7d",
+      "reads_rows": [
+        "src/story-settings.json"
+      ]
+    },
+    {
+      "from": "src/page-look.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-trillions-app-icon-in-every-size-from/src/page-look.mjs",
+      "source_identity": "1f:7a145d491c69b42bdb7a5f0b0b4fbcf57f63a6ddadc68069d1777ad6b983acd6",
+      "identity": "1f:34c21aaddbdafb3fda0bda36d267f3d340b78f1b2220f7c87a9f27ef9e4c0447"
+    },
+    {
+      "from": "test/thread-cover.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-trillions-app-icon-in-every-size-from/test/thread-cover.test.mjs.held",
+      "source_identity": "1f:311f68154aea6f8fa5709ae5fac7044f207ef3b6d38bf3236b6ea06413691521",
+      "identity": "1f:275f28b52ea4521321fe6c7e982553476c640f37422c3a1ba0f44d9f25efbfc8",
+      "held": "cannot pass here yet; see README"
+    }
+  ]
+}

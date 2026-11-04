@@ -1,0 +1,20 @@
+// src/service-notice.mjs
+//
+// Purpose
+//   Trillion's own owners (the service watch's bill notices, the model budget alert of everyone's spend) tell the person
+//   of one account something: one tell:serviceNotice command in that account's own records (RecordBook tellServiceNotice),
+//   as the service actor its policy owner mints for that (src/service-actor-origins.json service-notice), never through
+//   the account's store.
+//
+// Non-negotiable invariants
+//   1. A notice names its key: the same key is one notice (src/tell-the-person.mjs), so a retry never tells twice and
+//      `update` changes its words in place.
+//   2. The account is addressed by its user id; its records are reached at their own address (hostOf record-book).
+import { addressId, hostOf } from './resource-host.mjs';
+import { ownRecordBookName } from './own-record-resource.mjs';
+
+/** Tell the person of the account `userId` one notice ({ key, title, body?, kind?, refs?, open?, update? }). */
+export function tellServiceNotice(env, userId, notice) {
+  const owner = addressId(env, { kind: 'person', key: userId });
+  return hostOf(env, { kind: 'record-book', key: ownRecordBookName(owner, '@own-records') }).tellServiceNotice(owner, notice);
+}

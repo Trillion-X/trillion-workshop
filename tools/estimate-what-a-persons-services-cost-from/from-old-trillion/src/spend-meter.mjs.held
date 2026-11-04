@@ -1,0 +1,639 @@
+// src/spend-meter.mjs
+//
+// Purpose: estimate a person's service costs from measured usage and listed rates, with budgets that tell them and can stop paid work.
+// Every line a service bills for (requests, CPU time, rows read and written, model neurons, files kept, a monthly plan)
+// is a DATA row (src/spend-meter.json, and the person's own budget rows) saying where its amount is read, what one
+// unit costs and how much the plan includes. The meter reads each line for today and for the month so far, prices it,
+// checks every budget row, tells the person once per budget, period and state, and answers the stops a reached budget
+// asks for, which the host hands to the places paid work starts (src/metered-use.mjs for store work, src/model-calls.mjs
+// for model calls). The same answer is the Spend screen's list (records shape: { view, items, kinds, states }).
+//
+// Why it exists: on 2026-10-04 Trillion's Cloudflare spend reached about $175 a day and nobody could see which work
+// cost what until the invoice. Jibran: "this has to come under check... 10,000,000,000x this amount of work capacity
+// at zero dollars per month". A cost that is not counted where it runs cannot be bounded; this counts it, prices it and
+// bounds it, for Trillion's own services and for any person's own connected services alike.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. Nothing here names a service, a line, a unit or a reading kind. A line's reading kind is a reader the host hands
+//      in (readers[kind]); a reading shared by many lines (data.readings, one provider query) is read once per period.
+//   2. An amount comes from where it is counted: a provider's own counters, or Trillion's own count of its work. A line
+//      that cannot be read says so (not connected, could not read); it is never shown as zero.
+//   3. Dollars are amounts beyond what the plan includes, at the DATA price; a line with in_total false breaks another
+//      line down and never adds to the total, so nothing is counted twice.
+//   4. A budget row's coverage is a formula-engine rule tree over line facts; its stop is a rule tree over the facts of a
+//      piece of work, answered here as a stop with the time it ends (the period's end). Rows with scope service act only
+//      when the host says this meter is the service's own (whoever runs Trillion).
+//   5. Telling is once per (budget, period start, state); the host's tell also keeps each key once.
+//   6. A budget's states are ok, pace (the rate spent so far carries the period past most_dollars, read only once
+//      data.pace_from_hours of it have gone), near (alert_at of it used) and reached; each is told once.
+//
+// Shapes
+//   spendMeter({ readers, matches, tell?, budgets?, cycleDay?, service?, now?, data? }) -> {
+//     read() -> Promise<{ view, kinds, states, items, groups, total, dollars_basis, budgets, stops, read_at, today, counted }>
+//     inside(lineId) -> Promise<{ view, items, read_at } | null>   a line's pieces today (its `inside` DATA): each piece's
+//       dimensions, amount and share of the line's cost today; null for a line that says nothing of its pieces
+//     history({ kept, counted }) -> Promise<[day row]>   the past days' rows (spendDayOf's shape plus `final` and
+//       `missing`), read from the same readers over one day each (period id 'day'), for every day of historyDaysAt that
+//       is not yet kept final; empty when every past day is
+//   }
+//   `today` is the day (UTC) the answer is for; spendDayOf(answer) is the row a store keeps for it and spendDays(kept)
+//   the day records Spend's charts read. `counted` (in read()'s answer) lists the lines read today.
+//   historyDaysAt(ms, cycleDay, data?) -> ['YYYY-MM-DD', ...]   the past days history reads: back `history_days`, from the
+//     start of the billing month that day falls in, to yesterday
+//   every item but a connect card carries `cost` (its dollars in words, today and this month); `groups` is one row per
+//   line group (a service) with its summed dollars, so a glance surface (records/glance-feeds.json) can show one
+//   service's spend as one row.
+//   readers[kind](reading, period, { id, period: 'today' | 'month' | 'now' | 'day:YYYY-MM-DD' })
+//     -> Promise<answer | { kept: answer, read_at } | { state: 'not-connected', connection } | { state: 'unread', error }>
+//     { kept, read_at } is an answer read earlier (src/outside-readings.mjs); each line built from it carries that read_at,
+//     so a surface says how fresh it is. A snapshot reading's period is 'now'.
+//     a service reading answers its provider's output, from which each line takes its numbers (sum or most over paths,
+//     '*' walking every item of a list, `where` keeping items whose value at path is one of a list, or `items` pricing
+//     each item of a list by its own fields and a DATA table, see amountOfEach); any other kind
+//     answers { amount } for the period.
+//   period: { id: 'today' | 'month' | 'day', since, until (YYYY-MM-DD, UTC), days, back_days? }   back_days: how many days
+//     back from today a reader must look to reach `since` (a past day's period)
+//   stopCovers({ stop, facts, matches }) -> Promise<boolean>   whether a stop refuses a piece of work with these facts
+//   spendBudgetRow(input) -> a person's own budget row, checked (ai_ceiling_dollars: the most an AI may raise it to, src/cap-change.mjs)
+//
+// History (why it exists): Spend's cost-over-time charts used to start the first day a person opened Spend, because
+// the only day rows were the ones kept as Spend was read. Every amount is already counted where it runs (a provider's
+// own analytics by day, Trillion's own model-call and store-work counts by day), so a past day is read from there, the
+// same way today is, and a new person sees their measured usage history at once. A past day is priced inside its own billing
+// month (each day's month-so-far adds the days before it in that month, so a monthly allowance is used up in order). A
+// day row is final once every line it counts was read after the day ended plus `history_settle_hours` (providers settle
+// their counts late); a final row is never read again unless a line it lacked (not connected then, or not kept that far
+// back by its source) is counted now. A
+// snapshot reading (what is kept or running now) says nothing of a past day and is left out of history.
+//
+
+import defaults from '../../../shared-code/src/spend-meter.json' with { type: 'json' };
+import moneyDefaults from '../../../money-out/src/money-out.json' with { type: 'json' };
+import { merchantsFrom } from './money-out.mjs';
+import { raiseAsked } from './cap-change.mjs';
+
+// The one key every store reads the service's current stops from (written by SharedPool.setSpendStops).
+export const SPEND_STOPS_KEY = 'spend:stops';
+
+const DAY_MS = 86_400_000;
+const dayOf = ms => new Date(ms).toISOString().slice(0, 10);
+const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
+const money = dollars => `$${dollars < 10 ? dollars.toFixed(2) : Math.round(dollars).toLocaleString('en-US')}`;
+const earlierReadAt = (old, value) => {
+  const at = Date.parse(value);
+  if (!Number.isFinite(at)) return old;
+  return old && Date.parse(old) <= at ? old : new Date(at).toISOString();
+};
+// How a piece's dimension value reads (a line's inside.dimensions[].as): an hour as its day and time in UTC, a long id by
+// its last eight characters. A value with no `as` reads as it is.
+const AS_WORDS = {
+  hour: value => (typeof value === 'string' && value.length >= 16 ? `${value.slice(0, 10)} ${value.slice(11, 16)} UTC` : String(value ?? '')),
+  'short-id': value => { const text = String(value ?? ''); return text.length > 12 ? `…${text.slice(-8)}` : text; },
+};
+const compact = amount => new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(amount);
+const addUp = numbers => numbers.reduce((total, number) => total + number, 0);
+
+/** The month so far: from the last cycle day on or before today (UTC) to today. */
+export function periodsAt(ms, cycleDay) {
+  const today = new Date(ms);
+  const day = Math.min(Math.max(1, Math.round(Number(cycleDay) || 1)), 28);
+  let start = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), day);
+  if (start > ms) start = Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1, day);
+  const startDate = new Date(start);
+  const next = Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth() + 1, day);
+  const todayStart = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  return {
+    today: { id: 'today', since: dayOf(ms), until: dayOf(ms), days: 1, ends_at: todayStart + DAY_MS },
+    month: { id: 'month', since: dayOf(start), until: dayOf(ms), days: Math.floor((todayStart - start) / DAY_MS) + 1, length_days: Math.round((next - start) / DAY_MS), ends_at: next },
+  };
+}
+
+/** The past days history reads (UTC): from the start of the billing month that `history_days` back falls in, to
+ *  yesterday, so each day is priced with the days before it in its month. */
+export function historyDaysAt(ms, cycleDay, data = defaults) {
+  const first = Date.parse(periodsAt(ms - (data.history_days ?? 0) * DAY_MS, cycleDay).month.since);
+  const today = Date.parse(dayOf(ms));
+  const days = [];
+  for (let at = first; at < today; at += DAY_MS) days.push(dayOf(at));
+  return days;
+}
+
+// Every value at a path, '*' walking each item of a list.
+export function valuesAt(value, path) {
+  let found = [value];
+  for (const key of path) {
+    found = found.flatMap(item => {
+      if (item === null || item === undefined) return [];
+      if (key === '*') return Array.isArray(item) ? item : [];
+      return item[key] === undefined ? [] : [item[key]];
+    });
+  }
+  return found;
+}
+// The items a `where` keeps: the list reached by the path's part before its last '*', each kept when its value at
+// where.path is one of where.one_of. Without where, every value at the paths counts.
+// `sum` adds every value at every path; `most` takes each path's largest value (a size seen over the period) and adds
+// those (a file's bytes and its metadata).
+// `items` prices each thing a list holds on its own (a server by its size and place): the items at that path, kept when
+// every `where` row ({ path, one_of }, read on the item) holds, each counting `each.terms` (the item's value at path,
+// times a number) added up and never below `each.at_least`, times each `each.times_by` row's factor (the item's value
+// at path looked up in the named DATA table, `otherwise` when the table has none).
+function amountOfEach(answer, reading, tables) {
+  const one = (item, path) => Number(valuesAt(item, path)[0]);
+  const conditions = [reading.where ?? []].flat();
+  const kept = valuesAt(answer, reading.items).filter(item => conditions.every(where => where.one_of.includes(valuesAt(item, where.path)[0])));
+  return kept.reduce((sum, item) => {
+    const own = (reading.each.terms ?? []).reduce((total, term) => total + (Number.isFinite(one(item, term.path)) ? one(item, term.path) : 0) * (term.times ?? 1), 0);
+    const factor = (reading.each.times_by ?? []).reduce((product, by) => product * Number(tables?.[by.table]?.[valuesAt(item, by.path)[0]] ?? by.otherwise ?? 1), 1);
+    return sum + Math.max(reading.each.at_least ?? -Infinity, own) * factor;
+  }, 0) * (reading.times ?? 1);
+}
+function amountFrom(answer, reading, tables) {
+  if (reading.items) return amountOfEach(answer, reading, tables);
+  const numbersAt = path => {
+    const values = !reading.where ? valuesAt(answer, path) : (() => {
+      const at = path.lastIndexOf('*');
+      return valuesAt(answer, path.slice(0, at + 1))
+        .filter(item => reading.where.one_of.includes(valuesAt(item, reading.where.path)[0]))
+        .flatMap(item => valuesAt(item, path.slice(at + 1)));
+    })();
+    return values.map(Number).filter(Number.isFinite);
+  };
+  const add = numbers => numbers.reduce((sum, number) => sum + number, 0);
+  const amount = reading.sum ? add(reading.sum.flatMap(numbersAt)) : add((reading.most ?? []).map(path => Math.max(0, ...numbersAt(path))));
+  return amount * (reading.times ?? 1);
+}
+
+/** What an amount over a period costs at a line's price, beyond what the plan includes in that period. */
+export function dollarsFor(line, amounts, periods) {
+  const price = line.price ?? {};
+  const rate = price.dollars_per_million !== undefined ? price.dollars_per_million / 1e6 : Number(price.dollars_per_unit ?? 0);
+  if (line.reading.kind === 'fixed') return { today: 0, month: (line.reading.per_month ?? 1) * rate };
+  // Something kept (a size) is billed for each month it is kept: its share of the month so far, and one day's share today.
+  if (line.reading.per_month) {
+    const over = Math.max(0, (amounts.month ?? amounts.today ?? 0) - (price.included_per_month ?? 0)) * rate;
+    return { today: over / periods.month.length_days, month: (over * periods.month.days) / periods.month.length_days };
+  }
+  const includedMonth = (price.included_per_month ?? 0) + (price.included_per_day ?? 0) * periods.month.days;
+  const month = amounts.month === null ? null : Math.max(0, amounts.month - includedMonth) * rate;
+  // Today costs what it added beyond what is still included: a daily allowance is today's own, a monthly one is shared.
+  const todayIncluded = price.included_per_day !== undefined ? price.included_per_day : Math.max(0, includedMonth - ((amounts.month ?? 0) - (amounts.today ?? 0)));
+  const today = amounts.today === null ? null : Math.max(0, amounts.today - todayIncluded) * rate;
+  return { today, month };
+}
+
+/** Whether a stop's rule tree refuses a piece of work with these facts. */
+export function spendStopEnabled(stop, data = defaults) {
+  return Boolean(stop?.when) && !data.budgets.some(row => row.scope === 'service' && !row.stop
+    && (stop.budget === row.id || row.each && String(stop.budget).startsWith(`${row.id}:`)));
+}
+export async function stopCovers({ stop, facts, matches, data = defaults }) {
+  if (!spendStopEnabled(stop,data)) return false;
+  return matches(stop.when, data.work_facts, facts);
+}
+
+export function spendMeter({ readers, matches, tell = async () => {}, budgets: ownBudgets = () => [], cycleDay = () => defaults.cycle_day, service = () => false, now = () => Date.now(), data = defaults }) {
+  const budgetRows = () => {
+    const own = ownBudgets() ?? [];
+    const ids = new Set(own.map(row => row.id));
+    return [...data.budgets.filter(row => !ids.has(row.id)), ...own].filter(row => row.scope === 'person' || (row.scope === 'service' && service()));
+  };
+
+  // Every period's answer of one line: { amount } or, for a line split by what its reader answers (one row per account it
+  // counted, reading.split), { rows: [{ key, label, amount, shown? }] }.
+  async function readLine(line, period, shared, periodName = period.id) {
+    const reading = line.reading;
+    // A fixed charge billed with a service (`with`, a named reading) counts only while that service can be read.
+    if (reading.kind === 'fixed') {
+      const along = reading.with ? await readLine({ id: line.id, reading: { from: reading.with } }, period, shared, periodName) : null;
+      return along?.state ? along : { amount: reading.per_month ?? 1 };
+    }
+    const named = reading.from ? data.readings[reading.from] : null;
+    const kind = named ? named.kind : reading.kind;
+    const reader = readers[kind];
+    if (!reader) return { state: 'unread', error: `Nothing here reads ${kind}.` };
+    // A snapshot reading (what is kept or running now, not used over the period) is read once for every period.
+    const which = { id: reading.from ?? line.id, period: named?.snapshot ? 'now' : periodName };
+    const key = `${which.id}\u0000${which.period}`;
+    if (!shared.has(key)) shared.set(key, reader(named ?? reading, period, which).catch(error => ({ state: 'unread', error: String(error?.message ?? error) })));
+    // A reader answering a kept reading says when it was read ({ kept, read_at }); any other answer is read now.
+    const got = await shared.get(key);
+    const answer = got && 'kept' in got ? got.kept : got;
+    const read_at = got && 'kept' in got ? got.read_at : null;
+    if (answer?.state) return read_at ? { ...answer, read_at } : answer;
+    if (reading.split) return { rows: Array.isArray(answer?.rows) ? answer.rows : [], read_at };
+    return { amount: named ? amountFrom(answer, reading, data.tables) : Number(answer?.amount ?? 0), read_at };
+  }
+  // A split line becomes one line per row key either period answered (a key absent from a period used nothing then).
+  const entriesOf = (line, today, month, periods) => {
+    const missing = [today, month].find(answer => answer.state);
+    // A line built from kept readings was read when its older reading was read.
+    const read_at = [today.read_at, month.read_at].filter(Boolean).sort()[0] ?? null;
+    if (!line.reading.split || missing) {
+      const amounts = { today: today.state ? null : today.amount, month: month.state ? null : month.amount };
+      return [{ line, facts: { line: line.id, group: line.group, kind: line.reading.kind }, amounts, dollars: missing ? { today: null, month: null } : dollarsFor(line, amounts, periods), missing, read_at }];
+    }
+    const byKey = new Map();
+    for (const [id, answer] of [['today', today], ['month', month]]) for (const row of answer.rows) {
+      const entry = byKey.get(row.key) ?? { row, amounts: { today: 0, month: 0 }, shown: {} };
+      entry.amounts[id] = Number(row.amount) || 0;
+      entry.shown[id] = row.shown ?? null;
+      byKey.set(row.key, entry);
+    }
+    return [...byKey].map(([key, { row, amounts, shown }]) => {
+      const one = { ...line, id: `${line.id}:${key}`, label: row.label ?? key, shown };
+      return { line: one, facts: { line: line.id, group: line.group, kind: line.reading.kind, key }, amounts, dollars: dollarsFor(one, amounts, periods), missing: null, read_at };
+    });
+  };
+  // Whether a budget row covers a line, by its rule tree over the line's facts.
+  const covers = (budget, facts) => !budget.when || matches(budget.when, data.line_facts, facts);
+
+  // The payments answer: { answer } when it came, { state } when it says it is unread or not connected. A missing or
+  // rejected reader is no answer at all, so the merchants are none and the connect cards keep their own signal.
+  async function paymentsOf() {
+    if (!readers.payments) return { answer: null, state: null };
+    const got = await Promise.resolve().then(() => readers.payments()).catch(error => ({ state: 'unread', error: String(error?.message ?? error) }));
+    if (got?.state) return { answer: null, state: got };
+    return { answer: got ?? null, state: null };
+  }
+  // The merchants a payments answer makes (one per name a person pays), and each source's label for the words.
+  function merchantsAt(answer, at) {
+    const sources = answer?.sources ?? [];
+    const { merchants } = merchantsFrom({ sources, connectors: answer?.descriptors ?? [], now: at });
+    return { merchants, labels: new Map(sources.map(({ source }) => [source.id, source.label])) };
+  }
+  // The vendor a line's named reading is read from (a fixed charge reads the service it is billed with).
+  const vendorOf = line => data.readings[line.reading.from ?? line.reading.with]?.connection ?? null;
+  // The merchant a line sits inside: the biggest one paid to its vendor.
+  const ownerOf = (line, merchants) => {
+    const vendor = vendorOf(line);
+    return vendor ? merchants.find(merchant => merchant.vendor === vendor) ?? null : null;
+  };
+  // Every line counted for these periods; a reading several lines share is read once per period.
+  async function countLines(periods) {
+    const shared = new Map();
+    return (await Promise.all(data.lines.map(async line => {
+      const [today, month] = await Promise.all([readLine(line, periods.today, shared), readLine(line, periods.month, shared)]);
+      return entriesOf(line, today, month, periods);
+    }))).flat();
+  }
+  // A merchant's breakdown: each line counted inside it this cycle, then each charge it was paid.
+  async function insideMerchant(id) {
+    const at = now();
+    const readAt = new Date(at).toISOString();
+    const periods = periodsAt(at, cycleDay());
+    const payments = await paymentsOf();
+    const { merchants, labels } = merchantsAt(payments.answer, at);
+    const merchant = merchants.find(row => `merchant:${row.key}` === id);
+    if (!merchant) return null;
+    const lines = (await countLines(periods)).filter(entry => entry.missing?.state !== 'not-connected' && ownerOf(entry.line, merchants)?.key === merchant.key);
+    const items = [
+      ...lines.map(entry => ({ id: `line:${entry.line.id}`, what: entry.line.label, when: periods.month.since, amount: entry.dollars.month, source: entry.line.group, kind: data.words.charge_kind_usage })),
+      ...merchant.charges.map(charge => ({ id: `charge:${charge.id}`, what: charge.plan ?? merchant.title, when: charge.at, amount: charge.amount, source: labels.get(charge.source) ?? charge.source, kind: data.words.charge_kind_charge })),
+    ];
+    const view = {
+      label: fill(data.words.merchant_inside_label, { title: merchant.title }), preference_key: `trillion-spend-inside:${id}`,
+      first_view: { wide: 'table', narrow: 'table' }, group: [{ field: 'kind' }],
+      empty: { icon: 'Receipt', title: data.words.inside_empty }, no_match: data.words.inside_no_match,
+      fields: [
+        { id: 'what', label: data.words.inside_what, rule_kind: 'text', filterable: true, sortable: true, width: 260 },
+        { id: 'when', label: data.words.inside_when, kind: 'date', rule_kind: 'date', sortable: true, width: 150 },
+        { id: 'amount', label: data.words.inside_money, kind: 'money', rule_kind: 'number', sortable: true, total: 'sum', width: 160 },
+        { id: 'source', label: data.words.inside_source, kind: 'tag', rule_kind: 'choice', filterable: true, groupable: true, width: 180 },
+        { id: 'kind', label: data.words.inside_kind, kind: 'tag', rule_kind: 'choice', filterable: true, groupable: true, width: 160 },
+      ],
+    };
+    return { view, items, read_at: readAt };
+  }
+
+  return {
+    // Actual current priced values before display rounding. Unknown covered
+    // readings cannot become an invented zero during quota initialization.
+    async quotaMeasurements() {
+      const at = now(), periods = periodsAt(at, cycleDay());
+      const lines = await countLines(periods), rows = [];
+      // Independent work costs are counted by their quota owner's measured settlements,
+      // never reconstructed from the operator's outside provider expense dashboard.
+      const policies = budgetRows().filter(budget => budget.scope === 'person' && budget.measurement_owner !== 'resource-quota');
+      for (const budget of policies) {
+        const covered = [];
+        for (const entry of lines) {
+          if (!entry.line.in_total || !(await covers(budget, entry.facts))) continue;
+          const amount = budget.period === 'month' ? entry.dollars.month : entry.dollars.today;
+          if (typeof amount !== 'number' || !Number.isFinite(amount) || amount < 0) throw new Error(`The current ${budget.id} meter reading is unavailable.`);
+          covered.push({ subject: String(entry.facts.key ?? entry.line.id), amount });
+        }
+        const window = budget.period === 'month' ? periods.month : periods.today;
+        if (budget.each) for (const row of covered) rows.push({ policy_id: budget.id, window_key: window.since, ...row });
+        else rows.push({ policy_id: budget.id, window_key: window.since, subject: '*', amount: covered.reduce((sum, row) => sum + row.amount, 0) });
+      }
+      return { policies: structuredClone(policies), rows, read_at: new Date(at).toISOString(), cycle_day: cycleDay() };
+    },
+    async read() {
+      const at = now();
+      const readAt = new Date(at).toISOString();
+      const periods = periodsAt(at, cycleDay());
+      const lines = await countLines(periods);
+      const payments = await paymentsOf();
+      const merchantsAnswer = merchantsAt(payments.answer, at);
+      const { merchants } = merchantsAnswer;
+
+      const totals = { today: 0, month: 0 };
+      const byGroup = new Map();
+      let totalSourceAt = null;
+      for (const { line, dollars, read_at } of lines) {
+        if (!line.in_total || dollars.month === null) continue;
+        totals.today += dollars.today; totals.month += dollars.month;
+        totalSourceAt = earlierReadAt(totalSourceAt, read_at);
+        const sum = byGroup.get(line.group) ?? { today: 0, month: 0, read_at: null };
+        byGroup.set(line.group, { today: sum.today + dollars.today, month: sum.month + dollars.month, read_at: earlierReadAt(sum.read_at, read_at) });
+      }
+
+      const budgets = [];
+      const stops = [];
+      for (const budget of budgetRows()) {
+        const covered = [];
+        for (const entry of lines) {
+          if (!entry.line.in_total || entry.dollars.month === null) continue;
+          if (await covers(budget, entry.facts)) covered.push(entry);
+        }
+        const period = periods[budget.period === 'month' ? 'month' : 'today'];
+        const periodWord = budget.period === 'month' ? 'billing cycle' : 'day';
+        // A row with `each` caps every line it covers on its own (each account its own day), else all of them together.
+        const groups = budget.each ? covered.map(entry => ({ id: `${budget.id}:${entry.facts.key ?? entry.line.id}`, label: `${entry.line.label}: ${budget.label}`, entries: [entry] })) : [{ id: budget.id, label: budget.label, entries: covered }];
+        if (budget.each && !groups.length) budgets.push({ ...budget, used_dollars: 0, state: 'ok', words: fill(data.words.each_budget_words, { most: money(budget.most_dollars), period: periodWord }) });
+        for (const group of groups) {
+          const used = group.entries.reduce((sum, entry) => sum + (budget.period === 'month' ? entry.dollars.month : entry.dollars.today), 0);
+          const usedToday = group.entries.reduce((sum, entry) => sum + entry.dollars.today, 0);
+          // Heading past: at the rate spent so far, the period ends past its most (read once data.pace_from_hours have
+          // gone, so the first minutes of a day are never stretched over all of it).
+          const start = Date.parse(period.since);
+          const gone = at - start;
+          const projected = gone > 0 ? used * ((period.ends_at - start) / gone) : 0;
+          const heading = gone >= (data.pace_from_hours ?? 1) * 3_600_000 && projected >= budget.most_dollars;
+          const state = used >= budget.most_dollars ? 'reached' : used >= budget.most_dollars * budget.alert_at ? 'near' : heading ? 'pace' : 'ok';
+          const providerReadAt = group.entries.reduce((oldest, entry) => earlierReadAt(oldest, entry.read_at), null);
+          const asOf = new Date(providerReadAt ?? at).toISOString().slice(0, 16).replace('T', ' ');
+          const periodEnd = new Date(period.ends_at - DAY_MS).toISOString().slice(0, 10);
+          const values = { label: group.label, used: money(used), today: money(usedToday), most: money(budget.most_dollars), period: periodWord, period_start: period.since, period_end: periodEnd, as_of: `${asOf} UTC`, projected: money(projected), share: budget.most_dollars > 0 ? `${Math.round((used / budget.most_dollars) * 100)}%` : '100%' };
+          if (state === 'reached' && budget.stop && budget.scope === 'service') stops.push({ budget: group.id, label: group.label, when: budget.stop, until: new Date(period.ends_at).toISOString(), words: fill(data.words.refused, values) });
+          if (state !== 'ok') {
+            const notice = budget.notice ?? {};
+            const body = state === 'reached' ? (budget.stop ? 'reached_body' : 'told_body') : `${state}_body`;
+            await tell({
+              kind: notice.kind ?? data.words.kind, open: notice.open ?? data.words.open,
+              ...(notice.update === true ? { update: true } : {}),
+              key: `spend-budget:${group.id}:${period.since}:${state}${notice.revision ? `:${notice.revision}` : ''}`,
+              title: fill(notice[`${state}_title`] ?? data.words[`${state}_title`], values),
+              body: fill(notice[body] ?? data.words[body], values),
+            }).catch(() => null);
+          }
+          // A budget over every line counted (no `when`, not one per account) is a line on the cost charts, by its short name.
+          budgets.push({ ...budget, id: group.id, label: group.label, used_dollars: used, state, words: fill(budget.notice?.budget_words ?? data.words.budget_words, values), covers_total: !budget.each, line_label: budget.short_label ?? group.label, read_at: providerReadAt ?? readAt });
+        }
+      }
+
+      // Lines: one row each, except a line paid to a merchant, which sits inside that merchant's row. A line whose service is
+      // not connected gets a connect card instead; `offline` names those services.
+      const offline = new Set();
+      const byVendor = new Map();
+      const lineRows = [];
+      for (const { line, amounts, dollars, missing, read_at } of lines) {
+        if (missing?.state === 'not-connected') { offline.add(missing.connection); continue; }
+        const price = line.price ?? {};
+        const rate = line.price_words ?? (price.dollars_per_million !== undefined ? `$${price.dollars_per_million} per million ${line.unit}` : `$${price.dollars_per_unit ?? 0} per ${line.unit}`);
+        const included = price.included_per_month ? `, ${compact(price.included_per_month)} a month included` : price.included_per_day ? `, ${compact(price.included_per_day)} a day included` : '';
+        const owner = ownerOf(line, merchants);
+        const row = {
+          id: `line:${line.id}`, kind: 'line', title: line.label, group: owner ? owner.title : line.group, state: missing ? 'unread' : 'counted', reader: line.reading.from ? data.readings[line.reading.from]?.kind : line.reading.kind,
+          today_dollars: dollars.today, month_dollars: dollars.month,
+          today_amount: line.shown?.today ?? (amounts.today === null ? '' : `${compact(amounts.today)} ${line.unit}`), month_amount: line.shown?.month ?? (amounts.month === null ? '' : `${compact(amounts.month)} ${line.unit}`),
+          ...(line.inside ? { inside: fill(data.inside_address, { line: encodeURIComponent(line.id) }) } : {}),
+          price: `${rate}${included}`, read_at: read_at ?? readAt, words: missing ? missing.error ?? '' : `${line.in_total ? '' : 'Part of another line, not added to the total. '}Price read from ${line.source?.from ?? 'its source'} on ${line.source?.read_on ?? 'an unknown date'}.`,
+          ...(owner ? { under: `merchant:${owner.key}` } : {}),
+        };
+        // Usage lines only for the Unused check: a fixed plan is billed whatever is used.
+        if (vendorOf(line) && line.reading.kind !== 'fixed') byVendor.set(vendorOf(line), [...(byVendor.get(vendorOf(line)) ?? []), { row, usage: amounts.month }]);
+        if (!owner) lineRows.push(row);
+      }
+      // Merchants: what each costs a month, what it was charged this cycle and today, its trend, its checks and its words.
+      const since = Date.parse(periods.month.since);
+      const todayAt = Date.parse(periods.today.since);
+      const merchantRows = merchants.map(merchant => {
+        const belonging = byVendor.get(merchant.vendor) ?? [];
+        // Unused: nothing measured this cycle on any of its usage lines. A service inside its free allowance is used, not unused.
+        const unused = Boolean(merchant.vendor) && belonging.length > 0 && belonging.every(({ row, usage }) => row.state === 'counted' && usage === 0);
+        const { change, percent } = merchant.trend;
+        const trend = change === 'new' ? data.words.trend_new : change === 'flat' ? data.words.trend_flat
+          : change === 'up' ? (percent === null ? data.words.trend_up_plain : fill(data.words.trend_up, { percent: Math.abs(percent) }))
+            : fill(data.words.trend_down, { percent: Math.abs(percent) });
+        const id = `merchant:${merchant.key}`;
+        return {
+          id, kind: 'merchant', title: merchant.title, group: merchant.group, logo: merchant.logo, plan: merchant.plan,
+          per_month: merchant.month, days_90: merchant.days_90, renews_at: merchant.renews_at, cycle: merchant.cycle, trend,
+          flags: [...merchant.flags, ...(unused ? ['unused'] : [])].map(flag => data.words[`flag_${flag}`] ?? flag),
+          today_dollars: addUp(merchant.charges.filter(charge => Date.parse(charge.at) >= todayAt).map(charge => charge.amount)),
+          month_dollars: addUp(merchant.charges.filter(charge => Date.parse(charge.at) >= since).map(charge => charge.amount)),
+          state: 'counted', vendor: merchant.vendor, last_at: merchant.last_at,
+          inside: fill(data.inside_address, { line: encodeURIComponent(id) }), read_at: readAt,
+          words: fill(data.words.merchant_words, { count: merchant.charges.length, source: merchant.sources.map(source => merchantsAnswer.labels.get(source) ?? source).join(', '), days: moneyDefaults.window_days }),
+        };
+      });
+      // Biggest monthly cost first: a merchant by what it costs a month, a line by what it costs this cycle.
+      const costOf = row => (row.kind === 'merchant' ? row.per_month : row.month_dollars ?? 0);
+      const sorted = [...merchantRows, ...lineRows].sort((a, b) => costOf(b) - costOf(a));
+      // Lines outside any merchant that are in the total, so the total's month per_month is merchants plus these.
+      const remainingMonth = addUp(lines.filter(entry => entry.line.in_total && entry.dollars.month !== null && !ownerOf(entry.line, merchants)).map(entry => entry.dollars.month));
+      // A line paid to a merchant is already in that merchant's row, so it comes out of the total here. `totals` itself,
+      // the groups and the budgets still see every line.
+      const owned = lines.filter(entry => entry.line.in_total && entry.dollars.month !== null && ownerOf(entry.line, merchants));
+      const ownedToday = addUp(owned.map(entry => entry.dollars.today ?? 0));
+      const ownedMonth = addUp(owned.map(entry => entry.dollars.month));
+      const items = [
+        { id: 'total', kind: 'total', title: data.words.total_title, group: '', state: ['reached', 'near', 'pace'].find(state => budgets.some(row => row.state === state)) ?? 'ok', today_dollars: totals.today - ownedToday + addUp(merchantRows.map(row => row.today_dollars)), month_dollars: totals.month - ownedMonth + addUp(merchantRows.map(row => row.month_dollars)), per_month: addUp(merchantRows.map(row => row.per_month)) + remainingMonth, days_90: addUp(merchantRows.map(row => row.days_90)), read_at: totalSourceAt ?? readAt },
+        ...budgets.map(row => ({ id: `budget:${row.id}`, kind: 'budget', title: row.label, group: row.scope === 'service' ? 'Trillion' : 'Yours', state: row.state, budget: row.words, today_dollars: row.period === 'month' ? null : row.used_dollars, month_dollars: row.period === 'month' ? row.used_dollars : null, read_at: row.read_at ?? readAt })),
+        ...(payments.state?.state === 'unread' ? [{ id: 'payments', kind: 'payments', title: data.words.payments_unread, group: '', state: 'unread', words: payments.state.error ?? '', read_at: readAt }] : []),
+        ...sorted,
+      ];
+      // Connect cards: a service named by a reading that is not connected, when the payments answer (if any) has a merchant
+      // paid to it; with no money source connected at all, one card to connect a bank or email.
+      const connected = payments.answer?.connections ? new Set(payments.answer.connections.filter(row => row.status === 'connected').map(row => row.vendor)) : null;
+      const descriptors = payments.answer?.descriptors ?? [];
+      const vendors = [...new Set(Object.values(data.readings).map(reading => reading.connection).filter(Boolean))];
+      // Receipt mail alone never adds up to a statement, so the card stays until a bank feed is connected.
+      const moneyKinds = new Set((payments.answer?.sources ?? []).map(({ source }) => source.kind));
+      const moneyAsk = !moneyKinds.size ? 'money_connect' : moneyKinds.has('bank') ? null : 'bank_connect';
+      if (payments.answer && moneyAsk) items.push({ id: 'connect:money', kind: 'connect', title: data.words[`${moneyAsk}_title`], words: data.words[`${moneyAsk}_words`], open: '/connections', state: 'not-connected', read_at: readAt });
+      for (const vendor of vendors) {
+        const away = connected ? !connected.has(vendor) : offline.has(vendor);
+        if (!away || (payments.answer && !merchants.some(merchant => merchant.vendor === vendor))) continue;
+        const service = descriptors.find(row => row.vendor === vendor)?.name ?? vendor;
+        items.push({ id: `connect:${vendor}`, kind: 'connect', title: fill(data.words.connect_title, { service }), words: fill(data.words.connect_words, { service }), open: fill(data.words.connect_open, { vendor }), state: 'not-connected', read_at: readAt });
+      }
+      // What each row cost in words, so a surface that draws text (a widget, a board piece) shows dollars as written.
+      const cost = row => [row.today_dollars, row.month_dollars].map((dollars, at) => (dollars === null || dollars === undefined ? null : fill(data.words[at ? 'cost_month' : 'cost_today'], { dollars: money(dollars) }))).filter(Boolean).join(', ');
+      for (const row of items) if (row.kind !== 'connect') row.cost = cost(row);
+      const groups = [...byGroup].map(([group, sum]) => ({ id: group, title: fill(data.words.group_title, { group }), group, today_dollars: sum.today, month_dollars: sum.month, read_at: sum.read_at ?? readAt }));
+      for (const row of groups) row.cost = cost(row);
+      const counted = [...new Set(lines.filter(entry => !entry.missing).map(entry => entry.facts.line))];
+      return { view: data.view, kinds: data.kinds, states: data.states, items, groups, total: totals,
+        dollars_basis: 'Estimated from measured usage at listed rates after configured plan allowances. This is not a provider invoice or an amount billed.',
+        budgets, stops, read_at: readAt, today: periods.today.since, cycle_start: periods.month.since, counted };
+    },
+    async inside(lineId) {
+      if (String(lineId).startsWith('merchant:')) return insideMerchant(lineId);
+      const line = data.lines.find(row => row.id === lineId && row.inside);
+      if (!line) return null;
+      const at = now();
+      const periods = periodsAt(at, cycleDay());
+      const shared = new Map();
+      const [today, month] = await Promise.all([readLine(line, periods.today, shared), readLine(line, periods.month, shared)]);
+      const [entry] = entriesOf(line, today, month, periods);
+      const inside = line.inside;
+      const dimensions = inside.dimensions ?? [];
+      const view = {
+        label: fill(data.words.inside_label, { line: line.label }), preference_key: `trillion-spend-inside:${line.id}`,
+        first_view: { wide: 'table', narrow: 'table' }, group: inside.group ?? [],
+        empty: { icon: 'Receipt', title: data.words.inside_empty }, no_match: data.words.inside_no_match,
+        fields: [
+          ...dimensions.map(dimension => ({ id: dimension.id, label: dimension.label, kind: 'tag', rule_kind: 'choice', filterable: true, groupable: true, sortable: true, width: 200 })),
+          { id: 'amount', label: `${data.words.inside_amount} (${line.unit})`, rule_kind: 'number', sortable: true, total: 'sum', width: 160 },
+          { id: 'dollars', label: data.words.inside_share, kind: 'money', rule_kind: 'number', sortable: true, total: 'sum', width: 170 },
+        ],
+      };
+      const named = data.readings[inside.from];
+      const reader = named ? readers[named.kind] : null;
+      const got = reader ? await reader(named, periods.today, { id: inside.from, period: 'today' }).catch(error => ({ state: 'unread', error: String(error?.message ?? error) })) : { state: 'unread', error: `Nothing here reads ${inside.from}.` };
+      const answer = got && 'kept' in got ? got.kept : got;
+      const read_at = (got && 'kept' in got ? got.read_at : null) ?? new Date(at).toISOString();
+      if (answer?.state) return { view: { ...view, empty: { icon: 'Receipt', title: data.words.inside_unread, description: answer.error ?? '' } }, items: [], read_at };
+      const times = inside.times ?? line.reading.times ?? 1;
+      const pieces = valuesAt(answer, inside.rows).map(row => ({ row, amount: (Number(valuesAt(row, inside.amount)[0]) || 0) * times }));
+      // Each piece's share is of the line's whole amount today, so a reading that answers only the largest pieces never
+      // inflates them; pieces alone are the base only when the line itself could not be read.
+      const sum = Number(entry?.amounts.today) || pieces.reduce((total, piece) => total + piece.amount, 0);
+      const dollars = entry?.dollars.today ?? null;
+      const items = pieces.map(({ row, amount }) => {
+        const values = Object.fromEntries(dimensions.map(dimension => {
+          const value = valuesAt(row, dimension.path)[0];
+          return [dimension.id, (AS_WORDS[dimension.as] ?? (one => String(one ?? '')))(value)];
+        }));
+        return {
+          id: dimensions.map(dimension => String(valuesAt(row, dimension.path)[0] ?? '')).join(' '),
+          ...values, amount, dollars: dollars === null || !sum ? null : (dollars * amount) / sum, read_at,
+        };
+      });
+      return { view, items, read_at };
+    },
+    async history({ kept = {}, counted = [] } = {}) {
+      const at = now();
+      const cycle = cycleDay();
+      const all = historyDaysAt(at, cycle, data);
+      const countedNow = new Set(counted);
+      const stale = all.filter(day => !kept[day]?.final || (kept[day].missing ?? []).some(id => countedNow.has(id)));
+      if (!stale.length) return [];
+      // Each stale day is priced inside its billing month, so every day of the months they fall in is read.
+      const monthOf = day => periodsAt(Date.parse(day), cycle).month.since;
+      const months = new Set(stale.map(monthOf));
+      const days = all.filter(day => months.has(monthOf(day)));
+      const settle = (data.history_settle_hours ?? 0) * 3_600_000;
+      const today = Date.parse(dayOf(at));
+      const shared = new Map();
+      const historic = data.lines.filter(line => !(line.reading.from && data.readings[line.reading.from]?.snapshot));
+      const read = await Promise.all(days.map(async day => {
+        const period = { id: 'day', since: day, until: day, days: 1, back_days: Math.round((today - Date.parse(day)) / DAY_MS) + 1 };
+        const answers = await Promise.all(historic.map(line => readLine(line, period, shared, `day:${day}`)));
+        return { day, answers };
+      }));
+      // The month so far of each line on each day: its amount added up from the month's first day (split rows by key).
+      const add = (sum, answer) => {
+        if (answer.state) return sum;
+        if (!sum || sum.state) return answer.rows ? { rows: answer.rows.map(row => ({ ...row })) } : { amount: answer.amount };
+        if (!answer.rows) return { amount: sum.amount + answer.amount };
+        const byKey = new Map(sum.rows.map(row => [row.key, { ...row }]));
+        for (const row of answer.rows) { const one = byKey.get(row.key); byKey.set(row.key, one ? { ...one, amount: (Number(one.amount) || 0) + (Number(row.amount) || 0) } : { ...row }); }
+        return { rows: [...byKey.values()] };
+      };
+      const sums = new Map();
+      const rows = [];
+      for (const { day, answers } of read) {
+        const periods = periodsAt(Date.parse(day), cycle);
+        const month = monthOf(day);
+        const totals = { today: 0 };
+        const groups = {};
+        const missing = new Set();
+        let settled = Date.parse(day) + DAY_MS + settle <= at;
+        historic.forEach((line, index) => {
+          const answer = answers[index];
+          const key = `${month}\u0000${line.id}`;
+          if (!answer.state) sums.set(key, add(sums.get(key), answer));
+          const readSettled = !answer.read_at || Date.parse(answer.read_at) >= Date.parse(day) + DAY_MS + settle;
+          // A day the source could not answer after it settled (beyond how far back it keeps) is settled without it.
+          if (answer.state === 'not-connected' || (answer.state && answer.read_at && readSettled)) { missing.add(line.id); return; }
+          if (answer.state) { settled = false; return; }
+          if (!readSettled) settled = false;
+          // Something kept (a size) costs its day's share of the month at what was kept that day.
+          const monthAnswer = line.reading.per_month ? answer : sums.get(key);
+          for (const entry of entriesOf(line, { ...answer, read_at: null }, { ...monthAnswer, read_at: null }, periods)) {
+            if (!entry.line.in_total || entry.dollars.today === null) continue;
+            totals.today += entry.dollars.today;
+            groups[line.group] = (groups[line.group] ?? 0) + entry.dollars.today;
+          }
+        });
+        if (!stale.includes(day)) continue;
+        rows.push({ ...spendDayOf({ today: day, total: totals, groups: Object.entries(groups).map(([group, today_dollars]) => ({ group, today_dollars })) }), final: settled, missing: [...missing].sort() });
+      }
+      return rows;
+    },
+    // The budget rows that cap one piece of work on one line, for whatever checks before the work starts (an API send,
+    // src/api-spend.mjs): every row covering the line's facts whose stop covers the work's facts.
+    async capsFor(lineFacts, workFacts) {
+      const found = [];
+      for (const budget of budgetRows()) {
+        if (!budget.stop || !(await covers(budget, lineFacts)) || !(await matches(budget.stop, data.work_facts, workFacts))) continue;
+        found.push({ id: budget.each ? `${budget.id}:${lineFacts.key ?? lineFacts.line}` : budget.id, label: budget.label, most_dollars: budget.most_dollars, alert_at: budget.alert_at, period: budget.period });
+      }
+      return found;
+    },
+  };
+}
+
+// Cents are what a day row keeps: a reading that moved by less than a cent is the same day and writes nothing.
+const cents = dollars => Math.round((Number(dollars) || 0) * 100) / 100;
+
+/** The day row the store keeps for the day an answer was read on: what each service (a line group) cost that day so
+ *  far, and the total. Kept once per day under spend-day:<YYYY-MM-DD>, rewritten only when a cent changed. */
+export function spendDayOf(answer) {
+  return { day: answer.today, total: cents(answer.total?.today), groups: Object.fromEntries((answer.groups ?? []).map(row => [row.group, cents(row.today_dollars)])) };
+}
+
+/** The kept day rows as the records Spend's charts read (view.charts over `days`): one per service per day, newest
+ *  last, at most `keep_days` days (spend-meter.json). */
+export function spendDays(kept, { data = defaults } = {}) {
+  const rows = kept.filter(row => row && /^\d{4}-\d{2}-\d{2}$/.test(String(row.day))).sort((a, b) => a.day.localeCompare(b.day)).slice(-data.keep_days);
+  return rows.flatMap(row => Object.entries(row.groups ?? {}).map(([group, dollars]) => ({ id: `${row.day}:${group}`, day: row.day, group, dollars })));
+}
+
+/** A person's own budget row, checked against the shape the meter reads; throws in plain words when it is not one. */
+export function spendBudgetRow(input, { data = defaults } = {}) {
+  const row = input && typeof input === 'object' ? input : {};
+  const id = String(row.id ?? '').trim();
+  if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(id)) throw new Error('A budget needs an id: lower-case words joined by dashes.');
+  const most = Number(row.most_dollars);
+  if (!Number.isFinite(most) || most <= 0) throw new Error('most_dollars is how much the period may cost, a number above 0.');
+  const alertAt = row.alert_at === undefined ? 0.5 : Number(row.alert_at);
+  if (!(alertAt > 0 && alertAt <= 1)) throw new Error('alert_at is a share of most_dollars between 0 and 1.');
+  const tree = value => value === undefined || value === null || (typeof value === 'object' && value.kind === 'group');
+  if (!tree(row.when)) throw new Error('when is a rule group { kind: "group", combinator, negate, rules } over line facts, or null for every line.');
+  if (!tree(row.stop)) throw new Error('stop is a rule group over the facts of a piece of work, or null to only tell.');
+  const ceiling = row.ai_ceiling_dollars === undefined || row.ai_ceiling_dollars === null ? null : Number(row.ai_ceiling_dollars);
+  if (ceiling !== null && !(Number.isFinite(ceiling) && ceiling > 0)) throw new Error('ai_ceiling_dollars is the most an AI may raise this budget to, a number above 0, or null for none.');
+  const starting = data.budgets.find(budget => budget.id === id);
+  return {
+    id, label: String(row.label ?? starting?.label ?? id).slice(0, 120), scope: starting?.scope ?? 'person',
+    when: row.when ?? starting?.when ?? null, period: row.period === 'month' ? 'month' : 'day', most_dollars: most, alert_at: alertAt,
+    stop: row.stop === undefined ? starting?.stop ?? null : row.stop, ...(row.each ?? starting?.each ? { each: true } : {}),
+    ...(ceiling === null ? {} : { ai_ceiling_dollars: ceiling }),
+    ...raiseAsked(row),
+  };
+}

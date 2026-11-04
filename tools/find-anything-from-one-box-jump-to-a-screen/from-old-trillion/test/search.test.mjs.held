@@ -1,0 +1,1293 @@
+// The one search (src/search.mjs): every result is one thing with the places it matched; words, meaning, names,
+// records and a connected service each answer from what is kept; places and sources filter; a picture encoder still
+// starting is pending, never guessed; a changed result is derived again; one file under two identities is one result.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { makeSearch, searchOptions } from '../src/search.mjs';
+import { searchCandidatePages } from '../../../answer-one-search-over-my-results-by-matching-words/src/search-candidate-pages.mjs';
+import { searchCleanupPage, searchCleanupPageQuery } from '../../../keep-my-search-index-beside-a-copy-of-my-results/from-old-trillion/src/search-cleanup-pages.mjs';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+import { nativeNamespaceEvidence } from '../src/native-namespace-evidence.mjs';
+
+const hex = (digit, index) => (digit + index.toString(16)).padEnd(64, digit);
+const drive = index => `12:${hex('b', index)}`, own = index => `1f:${hex('a', index)}`;
+const half = values => {
+  const bits = new Uint16Array(values.map(value => {
+    const f = new Float32Array([value]), i = new Uint32Array(f.buffer)[0];
+    const sign = (i >>> 16) & 0x8000, exponent = ((i >>> 23) & 0xff) - 127 + 15, fraction = (i >>> 13) & 0x3ff;
+    return value === 0 ? sign : sign | (exponent << 10) | fraction;
+  }));
+  return Buffer.from(bits.buffer).toString('base64');
+};
+
+function person() {
+  const { sql } = sqliteHost(':memory:');
+  const files = namespaceStore(sql);
+  const results = resultsStore(sql, identity => files.identitiesOf(identity));
+  const store = (index, name) => {
+    sql.exec("INSERT INTO namespace_files (identity, byte_length, media_type, origin, key, part_bytes, stored_at, checked_at) VALUES (?, 10, 'video/mp4', 'small', 'k', 10, 'now', 'now')", own(index));
+    files.addAliases(own(index), [drive(index)]);
+    sql.exec("INSERT INTO namespace_names (name, collection, identity, byte_length, modified_at_ms, named_at) VALUES (?, '/Pottery', ?, 10, 5, 'now')", `/Pottery/${name}`, own(index));
+  };
+  const { eeaf } = decisionStore(sql);
+  return { sql, results, store, eeaf };
+}
+
+async function finishIndexing(search) {
+  for (let wake = 0; wake < 40 && (await search.stale()); wake += 1) await search.catchUp(10);
+  assert.equal((await search.stale()), 0, 'the account alarm finishes the queued index work');
+}
+
+// A search response can name unfinished vector or set walks in `pending`. The consumer repeats the same request;
+// the durable cursor resumes and the completed response carries the full ranked answer.
+async function finishPendingSearch(search, question, options = {}, first = null) {
+  let answer = first ?? await search.search(question, options);
+  for (let page = 0; page < 2048 && answer.pending?.length; page += 1) answer = await search.search(question, options);
+  assert.deepEqual(answer.pending, [], 'the repeated search request finishes its declared pending walk');
+  return answer;
+}
+
+async function finishPendingIndexSearch(search, question, options = {}, first = null) {
+  let answer = first ?? await search.indexSearch(question, options);
+  for (let page = 0; page < 2048 && answer.pending?.length; page += 1) answer = await search.indexSearch(question, options);
+  assert.deepEqual(answer.pending, [], 'the repeated index request finishes its declared pending walk');
+  return answer;
+}
+
+test('each thing says where it matched, a thing found in several places ranks first, and places filter', async () => {
+  const { sql, results, store, eeaf } = person();
+  store(1, 'forehand.mp4');
+  store(2, 'pottery serve.mp4');
+  store(3, 'beach.mp4');
+  results.put([
+    { identity: drive(1), kind: 'transcript', value: { text: 'first the grip. now pottery footwork', segments: [{ start: 0, end: 3, text: 'first the grip.' }, { start: 41, end: 44, text: 'now pottery footwork' }] } },
+    { identity: drive(2), kind: 'transcript', value: { text: 'we play pottery every day' } },
+    { identity: drive(1), kind: 'picture-vectors', value: { frames: [{ t: 6, v: half([0, 1, 0]) }, { t: 12, v: half([1, 0, 0]) }] } },
+    { identity: drive(3), kind: 'picture-vectors', value: { frames: [{ t: 2, v: half([0, 0, 1]) }] } },
+    { identity: drive(3), kind: 'note', value: { text: 'no ball games here' } },
+  ]);
+  const runTool = async ({ tool_id }) => (tool_id === 'tool:words-as-picture-vector' ? { state: 'completed', output: { model: { name: 'ViT-B-32', pretrained: 'openai' }, vectors: [[1, 0, 0]] } } : { state: 'failed', error: 'not connected' });
+  const search = makeSearch({ sql, eeaf, embed: null, runTool });
+  await finishIndexing(search);
+  const found = await search.search('pottery');
+  const byName = Object.fromEntries(found.results.map(result => [result.name, result]));
+  assert.deepEqual(byName['forehand.mp4'].found_in.sort(), ['said', 'seen']);
+  assert.equal(byName['forehand.mp4'].places.find(place => place.place === 'said').start, 41);
+  assert.equal(byName['forehand.mp4'].places.find(place => place.place === 'seen').start, 12, 'the best frame is found for a result kept as an average');
+  assert.deepEqual(byName['pottery serve.mp4'].found_in.sort(), ['name', 'said']);
+  assert.equal(byName['beach.mp4'], undefined, 'a picture under the floor and a note without the word are not matches');
+  assert.equal(found.results.filter(result => result.source === 'files').length, 2, 'each file is one result, whichever identity its results were kept under');
+  assert.ok(found.unavailable.some(item => item.source === 'github' && item.reason === 'Connect GitHub in Connections to search it.'));
+  assert.deepEqual(byName['forehand.mp4'].bytes, `/work/api/namespace/bytes/${encodeURIComponent(own(1))}`);
+
+  const saidOnly = await search.search('pottery', { places: ['said'] });
+  assert.deepEqual(saidOnly.results.map(result => result.found_in), [['said'], ['said']]);
+  const namesOnly = await search.search('pottery', { places: ['name'] });
+  assert.deepEqual(namesOnly.results.map(result => result.name), ['pottery serve.mp4']);
+});
+
+test('a note kept only as text is called by its first line, never by its identity', async () => {
+  const { sql, results, eeaf } = person();
+  results.put([{ identity: drive(9), kind: 'note', value: { text: '\n# Ideas for the pottery camp\n- book the studio' } }]);
+  const search = makeSearch({ sql, eeaf, embed: null, runTool: async () => ({ state: 'failed', error: 'not connected' }) });
+  await finishIndexing(search);
+  const found = await search.search('pottery', { places: ['written'], sources: ['files'] });
+  assert.deepEqual(found.results.map(result => [result.title, result.name, result.found_in]), [['Ideas for the pottery camp', 'Ideas for the pottery camp', ['written']]]);
+});
+
+test('result-word search reads indexed identities rather than scanning every result JSON value', async () => {
+  const { sql, results, store } = person();
+  for (let index = 1; index <= 12; index += 1) {
+    store(index, `clip ${index}.mp4`);
+    results.put([{ identity: drive(index), kind: 'transcript', value: {
+      text: index === 11 ? 'violet locomotive arriving' : `ordinary conversation ${index}`,
+      segments: index === 11 ? [{ start: 14, end: 19, text: 'violet locomotive arriving' }] : [],
+    } }]);
+  }
+  const note = drive(13);
+  results.put([{ identity: note, kind: 'note', value: { text: 'violet locomotive checklist' } }]);
+  const queries = [];
+  const measured = { exec(query, ...values) { queries.push({ query, values }); return sql.exec(query, ...values); } };
+  const search = makeSearch({ sql: measured, embed: null });
+  for (let wake = 0; wake < 30 && (await search.stale()); wake += 1) await search.catchUp(10);
+  assert.equal((await search.stale()), 0);
+  queries.length = 0;
+  const found = await search.search('violet locomotive', { places: ['said', 'written'], sources: ['files'] });
+  assert.deepEqual(found.results.map(result => result.identity).sort(), [own(11), note].sort());
+  assert.equal(found.results.find(result => result.identity === own(11)).start, 14);
+  assert.ok(queries.some(({ query }) => /FROM search_words WHERE search_words MATCH/.test(query)));
+  assert.equal(queries.some(({ query }) => /instr\(lower\(json_extract\(value/.test(query)), false,
+    'matching never scans every JSON value of a result kind');
+  assert.ok(queries.filter(({ query }) => /SELECT json_extract\(value/.test(query))
+    .every(({ query }) => /identity = \?|identity IN/.test(query)),
+  'a value is read only after its identity was selected');
+  results.put([{ identity: note, kind: 'note', value: { text: 'another checklist' } }]);
+  const changed = await search.search('violet locomotive', { places: ['written'], sources: ['files'] });
+  assert.deepEqual(changed.results, [], 'a changed value leaves the word index');
+});
+
+test('a foreground word search reports pending indexing without deriving unrelated source values', async () => {
+  const { sql, results } = person();
+  const queries = [];
+  const measured = { exec(query, ...values) { queries.push(query); return sql.exec(query, ...values); } };
+  const search = makeSearch({ sql: measured });
+  results.put([
+    { identity: drive(17), kind: 'note', value: { text: 'orchid garden' } },
+    { identity: drive(18), kind: 'speech-vectors', value: { chunks: [{ start: 1, end: 2, text: 'orchid', v: half([1, 0, 0]) }] } },
+  ]);
+  const before = (await search.stale());
+  queries.length = 0;
+  const early = await search.search('orchid', { matches: ['words-in-results'], sources: ['files'] });
+  assert.deepEqual(early.results, []);
+  assert.equal(early.still_reading.notes, 1);
+  assert.equal((await search.stale()), before, 'a read leaves index work for the account alarm');
+  assert.equal(queries.some(query => /(?:INSERT|UPDATE|DELETE) (?:INTO |FROM )?(?:search_changed|search_marks|search_vectors|search_words)/.test(query)), false,
+    'a word-only read writes no index, including meaning vectors it did not ask for');
+  await finishIndexing(search);
+  const ready = await search.search('orchid', { matches: ['words-in-results'], sources: ['files'] });
+  assert.deepEqual(ready.results.map(result => result.identity), [drive(17)]);
+  assert.deepEqual(ready.still_reading, {});
+});
+
+// A lane still reading is a search still working, never an empty answer: every screen (Files, Media, the layers panel) and
+// the search tool an AI calls read `pending` to say "still looking" and ask again, so a lane still reading is named there
+// (a follower rebuilding its lanes after the account's results moved, src/search-follower.mjs resultsMoved).
+test('an answer with no results and one lane still reading names it pending, never a final empty answer', async () => {
+  const { sql } = person();
+  const search = makeSearch({ sql, index: false });
+  const options = { matches: ['words-in-results'], sources: ['files'] };
+  const lane = settings.lanes.find(item => item.match === 'words-in-results' && item.source === 'files');
+  const answer = await search.finish('orchid', options, { answered: [], unavailable: [], pending: [], still_reading: { [lane.id]: 1 } });
+  assert.deepEqual(answer.results, []);
+  assert.deepEqual(answer.pending.filter(item => item.lane === lane.id), [{ lane: lane.id, place: lane.place, source: lane.source }]);
+  assert.ok(answer.places.some(place => place.id === lane.place), 'the screen names the place it is still looking in');
+  const whole = await search.finish('orchid', options, { answered: [], unavailable: [], pending: [], still_reading: {} });
+  assert.deepEqual(whole.pending, [], 'an answer with every lane read is final');
+});
+
+test('speech meaning counts above its floor, or lower when the passage holds every word; no model means unavailable', async () => {
+  const { sql, results, store } = person();
+  store(1, 'a.mp4');
+  store(2, 'b.mp4');
+  results.put([
+    { identity: drive(1), kind: 'speech-vectors', value: { chunks: [{ start: 30, end: 34, text: 'lift it up above your head', v: half([1, 0, 0]) }] } },
+    { identity: drive(2), kind: 'speech-vectors', value: { chunks: [{ start: 5, end: 9, text: 'the toss goes up', v: half([0.5, 0.866, 0]) }] } },
+  ]);
+  const embed = async (model, texts) => { assert.equal(model, '@cf/baai/bge-small-en-v1.5'); assert.ok(texts[0].endsWith('toss')); return [[1, 0, 0]]; };
+  const search = makeSearch({ sql, embed });
+  await finishIndexing(search);
+  const found = await finishPendingSearch(search, 'toss', { sources: ['files'] });
+  assert.deepEqual(found.results.map(result => [result.name, result.start, result.said]), [['a.mp4', 30, 'lift it up above your head'], ['b.mp4', 5, 'the toss goes up']]);
+  const without = await makeSearch({ sql, embed: null }).search('toss', { places: ['said'] });
+  assert.ok(without.unavailable.some(item => item.lane === 'speech-meaning'));
+  // A quick answer names only the word mechanisms: no model is asked, and what the words find still answers.
+  const asked = [];
+  const quick = await makeSearch({ sql, embed: async () => { asked.push('model'); return [[1, 0, 0]]; } }).search('toss', { sources: ['files'], matches: ['words-in-results', 'words-in-names'] });
+  assert.deepEqual(asked, [], 'no model asked for a words-only answer');
+  assert.ok(quick.results.every(result => result.name !== 'a.mp4'), 'the meaning-only match is not found by words');
+});
+
+test('meaning search yields between complete vector pages without losing moments at an identity boundary', async () => {
+  const { sql } = person();
+  const lane = settings.lanes.find(item => item.id === 'speech-meaning');
+  const config = { ...settings, lanes: [lane], vector_scan_page_size: 2 };
+  let timerFired = false;
+  const search = makeSearch({ sql, config, embed: async () => {
+    setTimeout(() => { timerFired = true; }, 0);
+    return [[1, 0, 0]];
+  } });
+  for (const [identity, n, start] of [[drive(1), 0, 1], [drive(1), 1, 10], [drive(1), 2, 20], [drive(2), 0, 30]]) {
+    sql.exec('INSERT INTO search_vectors (lane, identity, n, start, finish, said, vector) VALUES (?, ?, ?, ?, ?, ?, ?)', lane.id, identity, n, start, start + 2, 'toss', new Uint8Array([127, 0, 0]));
+  }
+  const found = await finishPendingSearch(search, 'toss', { sources: ['files'], places: ['said'] });
+  assert.equal(timerFired, true, 'another event runs while the vector scan continues');
+  assert.deepEqual(found.results.find(item => item.identity === drive(1)).moments.map(moment => moment.start), [1, 10, 20]);
+  assert.deepEqual(found.results.find(item => item.identity === drive(2)).moments.map(moment => moment.start), [30]);
+});
+
+test('expired nearest candidate cleanup remains fenced until its saved rows drain', async () => {
+  const { sql } = person();
+  const lane = settings.lanes.find(item => item.id === 'speech-meaning');
+  const search = makeSearch({ sql, config: { ...settings, lanes: [lane] }, embed: async () => [[1, 0, 0]] });
+  sql.exec('INSERT INTO search_vectors (lane, identity, n, start, finish, said, vector) VALUES (?, ?, 0, 1, 2, ?, ?)',
+    lane.id, own(1), 'old hit', new Uint8Array([127, 0, 0]));
+  const first = await search.indexSearch('toss', { places: ['said'] });
+  const key = sql.exec('SELECT question FROM search_nearest_walks WHERE lane = ? LIMIT 1', lane.id).one().question;
+  assert.equal(first.candidate_refs.length, 1);
+  const candidates = searchCandidatePages(sql);
+  candidates.putPage('nearest', lane.id, key, [{ identity: own(2), score: 0.99 }]);
+  sql.exec("INSERT INTO search_candidate_cleanup (kind, lane, question, after_seq) VALUES ('nearest', ?, ?, 0)", lane.id, key);
+  const queuedRows = sql.exec('SELECT identity FROM search_candidate_hits WHERE kind = ? AND lane = ? AND question = ? ORDER BY identity', 'nearest', lane.id, key).toArray();
+  assert.deepEqual(queuedRows.map(row => row.identity), [own(1), own(2)].sort(), 'both the original match and injected stale candidate are retained');
+
+  const waiting = await search.indexSearch('toss', { places: ['said'] });
+  assert.ok(waiting.pending.some(item => item.lane === lane.id));
+  assert.deepEqual(waiting.candidate_refs, [], 'a new transfer cannot include rows queued for cleanup');
+  assert.equal(sql.exec('SELECT COUNT(*) AS n FROM search_candidate_cleanup WHERE lane = ? AND question = ?', lane.id, key).one().n, 1,
+    'the bounded alarm cleanup keeps ownership of the cursor');
+  assert.deepEqual(sql.exec('SELECT identity FROM search_candidate_hits WHERE kind = ? AND lane = ? AND question = ? ORDER BY identity', 'nearest', lane.id, key).toArray(), queuedRows,
+    'the search does not restart into or replace the still-present stale candidates');
+});
+
+test('average-lane refinement reads only its configured strongest candidate page', async () => {
+  const { sql } = person();
+  const queries = [];
+  const measured = { exec(query, ...values) { queries.push({ query, values }); return sql.exec(query, ...values); } };
+  const base = settings.lanes.find(item => item.id === 'picture-meaning');
+  const lane = { ...base, encoder: { via: 'workers-ai', model: 'fixture' }, floor: 0, rank: 1 };
+  const config = { ...settings, lanes: [lane], refine_top: 3, vector_scan_page_size: 400 };
+  const search = makeSearch({ sql: measured, config, embed: async () => [[1, 0, 0]] });
+  for (let at = 0; at < 300; at += 1) sql.exec(
+    'INSERT INTO search_vectors (lane, identity, n, start, finish, said, vector) VALUES (?, ?, 0, ?, ?, ?, ?)',
+    lane.id, own(1000 + at), at, at + 1, `frame ${at}`, new Uint8Array([127 - (at % 2), 1, 0]));
+
+  const answer = await search.indexSearch('studio', { places: ['seen'] });
+  assert.equal(answer.answered[0].length, 3, 'only the strongest configured results are refined');
+  const rankedReads = queries.filter(({ query }) => /FROM search_candidate_hits[\s\S]*ORDER BY score DESC, seq ASC LIMIT \?/.test(query));
+  assert.equal(rankedReads.length, 1);
+  assert.equal(rankedReads[0].values.at(-1), 4, 'the source read is refine_top plus one lookahead row');
+});
+
+test('a picture encoder still starting is pending, and a changed result is derived again', async () => {
+  const { sql, results, store } = person();
+  store(1, 'a.mp4');
+  results.put([{ identity: drive(1), kind: 'picture-vectors', value: { frames: [{ t: 1, v: half([0, 1, 0]) }] } }]);
+  let state = 'working';
+  const runTool = async () => (state === 'working' ? { state } : { state, output: { model: { name: 'ViT-B-32', pretrained: 'openai' }, vectors: [[1, 0, 0]] } });
+  const search = makeSearch({ sql, runTool });
+  await finishIndexing(search);
+  const waiting = await search.search('studio', { places: ['seen'] });
+  assert.deepEqual(waiting.pending.map(item => item.place), ['seen']);
+  assert.deepEqual(waiting.results, []);
+  state = 'completed';
+  assert.deepEqual((await search.search('studio', { places: ['seen'] })).results, [], 'the frame does not look like it');
+  results.put([{ identity: drive(1), kind: 'picture-vectors', value: { frames: [{ t: 7, v: half([1, 0, 0]) }] } }]);
+  assert.equal((await search.stale()), 1);
+  await finishIndexing(search);
+  const seen = await search.search('studio', { places: ['seen'] });
+  assert.deepEqual(seen.results.map(result => [result.name, result.start]), [['a.mp4', 7]]);
+  assert.equal((await search.stale()), 0);
+});
+
+test('scheduler checks a settled search without scanning every result again', async () => {
+  const { sql, results } = person();
+  const queries = [];
+  const measured = { exec(query, ...values) { queries.push(query); return sql.exec(query, ...values); } };
+  const search = makeSearch({ sql: measured });
+  const fullCounts = () => queries.filter(query => /FROM namespace_results r LEFT JOIN search_marks m/.test(query)).length;
+  assert.equal((await search.stale()), 0);
+  const firstCounts = fullCounts();
+  assert.equal(firstCounts, 0, 'an empty store needs no whole-result migration scan');
+  assert.equal((await search.stale()), 0);
+  assert.equal(fullCounts(), firstCounts, 'an unchanged store uses its revision');
+  results.put([{ identity: own(2), kind: 'note', value: { text: 'unindexed note' } }]);
+  assert.equal(sql.exec("SELECT COUNT(*) AS n FROM search_changed WHERE identity = ?", own(2)).toArray()[0].n, 1,
+    'notes now enter their indexed words lane');
+  const reopened = makeSearch({ sql: measured });
+  assert.equal((await reopened.stale()), 1, 'the note still needs its indexed words');
+  assert.equal(fullCounts(), firstCounts, 'a new Durable Object instance reuses the saved check');
+  results.put([{ identity: own(1), kind: 'contents', value: { text: 'new words' } }]);
+  assert.equal((await search.stale()), 2, 'the note and new document both need catch-up');
+  assert.equal(fullCounts(), firstCounts, 'a changed revision does not scan the result table');
+  assert.deepEqual(await search.catchUp(10), {});
+  const caughtUpCounts = fullCounts();
+  assert.equal((await search.stale()), 0);
+  assert.equal(fullCounts(), caughtUpCounts);
+  const settledQueries = queries.length;
+  assert.deepEqual(await search.catchUp(10), {});
+  assert.equal(queries.slice(settledQueries).filter(query => /namespace_results r LEFT JOIN search_marks m|DELETE FROM search_marks|DELETE FROM search_vectors|DELETE FROM search_words/.test(query)).length, 0,
+    'another search skips result scans and cleanup when those kinds did not change');
+  assert.equal(results.remove(own(1), 'contents').removed, 1);
+  assert.equal((await search.stale()), 1, 'removing a value also schedules index cleanup');
+  assert.deepEqual(await search.catchUp(10), {});
+  assert.equal((await search.stale()), 0);
+});
+
+test('records and a connected service are sources; the service reads its account once and fills its question', async () => {
+  const { sql, eeaf } = person();
+  eeaf.write([
+    { id: 'case-1', type: 'decision', value: { input: { goal: 'Which pottery racket to buy' } } },
+    { id: 'case-2', type: 'decision', value: { input: { goal: 'Where to live' } } },
+    { id: 'note-1', type: 'pursuit', value: { title: 'Play pottery weekly' } },
+  ], { actor: { by: 'test' } });
+  const asked = [];
+  const runTool = async ({ tool_id, input }) => {
+    asked.push([tool_id, input]);
+    if (tool_id === 'tool:github-find_my_account') return { state: 'completed', output: { login: 'someone' } };
+    const url = tool_id === 'tool:github-search_code' ? 'https://github.com/someone/studio/blob/main/README.md' : `https://github.com/someone/studio/${tool_id}`;
+    return { state: 'completed', output: { total_count: 1, items: [{ path: 'README.md', html_url: url, repository: { full_name: 'someone/studio' }, full_name: 'someone/studio', title: 'Studio booking', text_matches: [{ fragment: 'a pottery studio finder' }] }] } };
+  };
+  const search = makeSearch({ sql, eeaf, runTool });
+  await finishIndexing(search);
+  const found = await search.search('pottery', { sources: ['trillion', 'github'] });
+  const decision = found.results.find(result => result.source === 'trillion');
+  assert.deepEqual([decision.title, decision.kind_label, decision.open], ['Which pottery racket to buy', 'Decision', { id: 'trillion.decision', title: 'Which pottery racket to buy', surfaceInput: { screen: 'decision', id: 'case-1' } }]);
+  const code = found.results.find(result => result.kind_label === 'Code');
+  assert.deepEqual([code.title, code.url, code.said, code.found_in], ['README.md', 'https://github.com/someone/studio/blob/main/README.md', 'a pottery studio finder', ['written']]);
+  assert.deepEqual(asked.filter(([tool]) => tool === 'tool:github-search_code').map(([, input]) => input), [{ query: 'pottery user:someone' }]);
+  assert.equal(asked.filter(([tool]) => tool === 'tool:github-find_my_account').length, 1);
+});
+
+test('record text searches use the alarm-fed index and validate edits and removals before catch-up', async () => {
+  const { sql, eeaf } = person();
+  for (let n = 0; n < 500; n += 1) eeaf.write([{ id: `message:${String(n).padStart(4, '0')}`, type: 'message', value: { text: n === 2 ? 'rare violet locomotive' : `ordinary message ${n}` } }]);
+  const indexed = { ...eeaf, find() { throw new Error('a signed-in search must not walk the record log'); } };
+  const search = makeSearch({ sql, eeaf: indexed });
+  const before = await search.search('violet locomotive', { places: ['written'], sources: ['trillion'] });
+  assert.deepEqual(before.results, []);
+  assert.equal(before.still_reading.messages, 1);
+  for (let wake = 0; wake < 40 && (await search.stale()); wake += 1) await search.catchUp(50);
+  assert.equal((await search.stale()), 0, 'the bounded alarm eventually admits old records');
+  assert.deepEqual((await search.search('violet locomotive', { places: ['written'], sources: ['trillion'] })).results.map(row => row.id), ['record:message:0002']);
+
+  eeaf.write([{ id: 'message:0002', type: 'message', value: { text: 'ordinary replacement' } }]);
+  const changed = await search.search('violet locomotive', { places: ['written'], sources: ['trillion'] });
+  assert.deepEqual(changed.results, [], 'a stale FTS row cannot return edited text');
+  assert.equal(changed.still_reading.messages, 1);
+  await search.catchUp(50);
+  assert.equal((await search.stale()), 0);
+  eeaf.write([{ id: 'message:0002', type: 'message', value: { text: 'violet locomotive again' } }]);
+  await search.catchUp(50);
+  assert.deepEqual((await search.search('violet locomotive', { places: ['written'], sources: ['trillion'] })).results.map(row => row.id), ['record:message:0002']);
+  eeaf.write([{ id: 'message:0002', type: 'message', value: null }]);
+  assert.deepEqual((await search.search('violet locomotive', { places: ['written'], sources: ['trillion'] })).results, [], 'a removed record is refused immediately');
+  await search.catchUp(50);
+  assert.equal((await search.stale()), 0);
+  assert.deepEqual((await search.search('violet locomotive', { places: ['written'], sources: ['trillion'] })).results, []);
+});
+
+test('a service still working is pending and never holds back what is found; the same run answers the next ask', async () => {
+  const { sql, store, eeaf } = person();
+  store(1, 'pottery serve.mp4');
+  let state = 'working';
+  const waits = new Set();
+  const runTool = async ({ tool_id, wait_seconds }) => {
+    waits.add(wait_seconds);
+    if (state === 'working') return { state };
+    return tool_id === 'tool:github-find_my_account' ? { state, output: { login: 'someone' } } : { state, output: { items: [{ full_name: 'someone/pottery', html_url: 'https://github.com/someone/pottery' }] } };
+  };
+  const search = makeSearch({ sql, eeaf, runTool });
+  const first = await search.search('pottery', { sources: ['files', 'github'], places: ['name'] });
+  assert.deepEqual([first.results.map(result => result.name), first.pending.map(item => item.lane)], [['pottery serve.mp4'], ['github-repositories']]);
+  assert.deepEqual([...waits], [settings.tool_wait_seconds]);
+  state = 'completed';
+  const next = await search.search('pottery', { sources: ['github'], places: ['name'] });
+  assert.deepEqual([next.results.map(result => result.title), next.pending], [['someone/pottery'], []]);
+});
+
+test('search names no place, source or kind in its code: every lane is DATA', async () => {
+  const { readFileSync } = await import('node:fs');
+  const code = readFileSync(new URL('../src/search.mjs', import.meta.url), 'utf8').replace(/^\s*\/\/.*$/gm, '');
+  for (const word of [...settings.places.map(place => place.id), ...settings.sources.map(source => source.id), ...settings.lanes.map(lane => lane.kind).filter(Boolean)]) {
+    assert.equal(new RegExp(`['"\`]${word}['"\`]`).test(code), false, `${word} is named in search.mjs`);
+  }
+  assert.deepEqual(searchOptions(new URLSearchParams('places=said,seen&limit=5')), { places: ['said', 'seen'], sources: null, matches: null, limit: 5 });
+  assert.deepEqual(searchOptions(new URLSearchParams('matches=words-in-names')).matches, ['words-in-names']);
+});
+
+test('catching up reads one stored value at a time, so a store full of large results never holds a step of them at once', async () => {
+  const { sql, results, store } = person();
+  for (let index = 1; index <= 5; index += 1) {
+    store(index, `clip ${index}.mp4`);
+    results.put([{ identity: drive(index), kind: 'speech-vectors', value: { chunks: [{ start: 0, end: 2, text: `words ${index}`, v: half([1, 0, 0]) }] } }]);
+  }
+  let mostValuesAtOnce = 0;
+  const counting = { exec: (query, ...values) => {
+    const cursor = sql.exec(query, ...values);
+    if (!/namespace_results/.test(query) || !/\bvalue\b/.test(query.replace(/value_identity|json_each\(\?\)|SELECT value FROM json_each/g, ''))) return cursor;
+    const rows = cursor.toArray();
+    mostValuesAtOnce = Math.max(mostValuesAtOnce, rows.filter(row => typeof row.value === 'string').length);
+    return { toArray: () => rows };
+  } };
+  const search = makeSearch({ sql: counting });
+  assert.deepEqual(await search.catchUp(2), { 'speech-meaning': 1 }, 'a wake derives only as many results as it is given, then checks for more with an indexed seek');
+  assert.ok(sql.exec("SELECT count(*) AS n FROM search_changed WHERE lane = 'speech-meaning'").toArray()[0].n <= 2,
+    'old results enter the queue a bounded page at a time');
+  for (let wake = 0; wake < 10 && (await search.stale()); wake += 1) await search.catchUp(10);
+  assert.equal((await search.stale()), 0, 'repeated bounded wakes fill the earlier results');
+  assert.equal(mostValuesAtOnce, 1, 'no read brought more than one stored value into memory');
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_marks WHERE lane = 'speech-meaning'").toArray()[0].n, 5);
+});
+
+test('a settled search uses indexed queue seeks, while changed and deleted results update one identity', async () => {
+  const { sql, results } = person();
+  const search = makeSearch({ sql });
+  const speech = (identity, start) => ({ identity, kind: 'speech-vectors', value: { chunks: [{ start, end: start + 2, text: 'serve', v: half([1, 0, 0]) }] } });
+  results.put([speech(drive(1), 1), speech(drive(2), 2)]);
+  assert.equal((await search.stale()), 1);
+  assert.deepEqual(await search.catchUp(10), {});
+  const queries = [];
+  const measured = { exec(query, ...values) { queries.push(query); return sql.exec(query, ...values); } };
+  const reopened = makeSearch({ sql: measured });
+  queries.length = 0;
+  assert.equal((await reopened.stale()), 0);
+  assert.deepEqual(await reopened.catchUp(50), {});
+  assert.equal(queries.some(query => /FROM namespace_results|DELETE FROM search_vectors|DELETE FROM search_marks/.test(query)), false,
+    'a clean alarm reads the queue, not the result or vector tables');
+  results.put([speech(drive(1), 4), speech(drive(1), 7)]);
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_changed WHERE lane = 'speech-meaning'").toArray()[0].n, 1,
+    'several writes before catch-up collapse to one identity');
+  assert.equal((await reopened.stale()), 1);
+  assert.deepEqual(await reopened.catchUp(10), {});
+  assert.equal(sql.exec("SELECT start FROM search_vectors WHERE lane = 'speech-meaning' AND identity = ?", drive(1)).toArray()[0].start, 7);
+  sql.exec("DELETE FROM namespace_results WHERE identity = ? AND kind = 'speech-vectors'", drive(1));
+  assert.equal((await reopened.stale()), 1, 'direct source deletion also queues index cleanup');
+  assert.deepEqual(await reopened.catchUp(10), {});
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_vectors WHERE lane = 'speech-meaning' AND identity = ?", drive(1)).toArray()[0].n, 0);
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_marks WHERE lane = 'speech-meaning' AND identity = ?", drive(1)).toArray()[0].n, 0);
+  results.put([{ identity: drive(3), kind: 'note', value: { text: 'unwatched' } }]);
+  assert.equal((await reopened.stale()), 1, 'notes now have a watched words lane');
+});
+
+test('the same change queue updates and removes indexed document words', async () => {
+  const { sql, results } = person();
+  const identity = drive(8);
+  const search = makeSearch({ sql });
+  const hits = word => sql.exec('SELECT COUNT(*) AS n FROM search_words WHERE search_words MATCH ? AND lane = ?', word, 'contents-words').toArray()[0].n;
+  results.put([{ identity, kind: 'contents', value: { text: 'blue orchid' } }]);
+  assert.equal((await search.stale()), 1);
+  assert.deepEqual(await search.catchUp(1), {});
+  assert.equal(hits('orchid'), 1);
+  results.put([{ identity, kind: 'contents', value: { text: 'red dune' } }]);
+  assert.equal((await search.stale()), 1);
+  assert.deepEqual(await search.catchUp(1), {});
+  assert.equal(hits('orchid'), 0);
+  assert.equal(hits('dune'), 1);
+  results.remove(identity, 'contents');
+  assert.equal((await search.stale()), 1);
+  assert.deepEqual(await search.catchUp(1), {});
+  assert.equal(hits('dune'), 0);
+  assert.equal((await search.stale()), 0);
+});
+
+test('first queue admission preserves vectors already derived by an earlier release', async () => {
+  const { sql, results } = person();
+  const one = drive(1), two = drive(2), removed = drive(3);
+  const value = { chunks: [{ start: 1, end: 2, text: 'serve', v: half([1, 0, 0]) }] };
+  results.put([{ identity: one, kind: 'speech-vectors', value }, { identity: two, kind: 'speech-vectors', value }]);
+  sql.exec('CREATE TABLE search_marks (lane TEXT NOT NULL, identity TEXT NOT NULL, value_identity TEXT NOT NULL, PRIMARY KEY (lane, identity))');
+  sql.exec('CREATE TABLE search_vectors (lane TEXT NOT NULL, identity TEXT NOT NULL, n INTEGER NOT NULL, start REAL, finish REAL, said TEXT, vector BLOB NOT NULL, PRIMARY KEY (lane, identity, n))');
+  const valueIdentity = sql.exec("SELECT value_identity FROM namespace_results WHERE identity = ? AND kind = 'speech-vectors'", one).toArray()[0].value_identity;
+  sql.exec("INSERT INTO search_marks (lane, identity, value_identity) VALUES ('speech-meaning', ?, ?)", one, valueIdentity);
+  sql.exec("INSERT INTO search_vectors (lane, identity, n, start, finish, said, vector) VALUES ('speech-meaning', ?, 0, 1, 2, 'serve', ?)", one, new Uint8Array([127, 0, 0]));
+  sql.exec("INSERT INTO search_marks (lane, identity, value_identity) VALUES ('speech-meaning', ?, ?)", removed, valueIdentity);
+  sql.exec("INSERT INTO search_vectors (lane, identity, n, start, finish, said, vector) VALUES ('speech-meaning', ?, 0, 1, 2, 'serve', ?)", removed, new Uint8Array([127, 0, 0]));
+  const search = makeSearch({ sql });
+  assert.equal((await search.stale()), 1, 'old results are admitted through bounded wakes');
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_vectors WHERE lane = 'speech-meaning' AND identity = ?", one).toArray()[0].n, 1);
+  for (let wake = 0; wake < 10 && (await search.stale()); wake += 1) await search.catchUp(10);
+  assert.equal((await search.stale()), 0);
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_vectors WHERE lane = 'speech-meaning'").toArray()[0].n, 2);
+});
+
+test('a large first admission stays paged and changes behind its cursor still reach the index', async () => {
+  const { sql, results } = person();
+  const total = 120;
+  const identity = index => `12:${index.toString(16).padStart(4, '0').padEnd(64, 'b')}`;
+  results.put(Array.from({ length: total }, (_, index) => ({ identity: identity(index + 1), kind: 'contents', value: { text: `old word ${index + 1}` } })));
+  assert.equal(sql.exec("SELECT count(*) AS n FROM namespace_results WHERE kind = 'contents'").toArray()[0].n, total);
+  const calls = [];
+  const measured = { exec(query, ...values) {
+    calls.push({ query, values });
+    return sql.exec(query, ...values);
+  } };
+  const search = makeSearch({ sql: measured });
+  assert.equal((await search.stale()), 1);
+  assert.equal(calls.some(({ query }) => /^INSERT(?: OR IGNORE)? INTO search_changed[^]*SELECT/.test(query)), false,
+    'lane registration never inserts an entire source scan');
+  const first = identity(1);
+  results.put([{ identity: first, kind: 'contents', value: { text: 'fresh orchid' } }]);
+  for (let wake = 0; wake < 40 && (await search.stale()); wake += 1) await search.catchUp(10);
+  assert.equal((await search.stale()), 0, 'all old results eventually become searchable');
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_marks WHERE lane = 'contents-words'").toArray()[0].n, total);
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_words WHERE search_words MATCH 'orchid' AND lane = 'contents-words'").toArray()[0].n, 1,
+    'a changed identity already passed by the migration cursor is not missed');
+  const admissions = calls.filter(({ query }) => /SELECT identity, value_identity FROM namespace_results WHERE kind = \? AND identity > \?/.test(query));
+  assert.ok(admissions.length > 1);
+  assert.ok(admissions.every(({ values }) => values.at(-1) <= 50), 'each source walk is bounded to one small page');
+});
+
+test('removing a meaning lane also removes its trigger subscription and derived data', async () => {
+  const { sql, results } = person();
+  const identity = drive(1);
+  const value = { chunks: [{ start: 1, end: 2, text: 'serve', v: half([1, 0, 0]) }] };
+  const search = makeSearch({ sql });
+  results.put([{ identity, kind: 'speech-vectors', value }]);
+  await search.catchUp(10);
+  const withoutSpeech = { ...settings, lanes: settings.lanes.filter(lane => lane.id !== 'speech-meaning') };
+  const retired = makeSearch({ sql, config: withoutSpeech });
+  await finishIndexing(retired);
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_result_lanes WHERE lane = 'speech-meaning'").toArray()[0].n, 0);
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_vectors WHERE lane = 'speech-meaning'").toArray()[0].n, 0);
+  results.put([{ identity, kind: 'speech-vectors', value: { ...value, updated: true } }]);
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_changed WHERE lane = 'speech-meaning'").toArray()[0].n, 0);
+});
+
+// 'what is my EIN' read 508,000 rows a search on one owner's store (2026-10-06): the word index walked and scored every
+// document holding 'what' and 'is' to rank by a word only one document holds. A word held by over common_ratio times as
+// many documents as the rarest asked word is left out of the index query; every word is still checked where it must be.
+test('a word nearly every document holds is left out of the word index query, and the rare word still finds its file', async () => {
+  const { sql, results } = person();
+  const docs = settings.common_ratio + 20;
+  results.put(Array.from({ length: docs }, (_, n) => ({ identity: own(n + 1), kind: 'contents', value: { text: n === 7 ? 'what is the ein of the club' : `what is on the studio today ${n}` } })));
+  const matched = [];
+  const measured = { exec(query, ...args) { if (/search_words MATCH/.test(query)) matched.push(args[0]); return sql.exec(query, ...args); } };
+  const search = makeSearch({ sql: measured, embed: null });
+  while ((await search.stale())) await search.catchUp(100);
+  const found = await search.search('what is the ein', { matches: ['words-in-index'] });
+  assert.deepEqual(found.results.map(result => result.identity), [own(8)]);
+  assert.ok(matched.length > 0 && matched.every(query => query === '"ein"*'), 'each result word lane drops the common words');
+  matched.length = 0;
+  const every = await search.search('what is', { matches: ['words-in-index'] });
+  assert.ok(every.results.length > 0, 'words that are all common are all asked');
+  assert.ok(matched.length > 0 && matched.every(query => query === '"what"* OR "is"*'), 'each result word lane asks both common words');
+});
+
+test('a question a Marketplace tool encodes is encoded once where tools run, and an index that cannot run tools answers with that vector', async () => {
+  const { sql, results, store } = person();
+  store(1, 'a.mp4');
+  results.put([{ identity: drive(1), kind: 'picture-vectors', value: { frames: [{ t: 7, v: half([1, 0, 0]) }] } }]);
+  let state = 'working', runs = 0;
+  const runTool = async () => { runs += 1; return state === 'working' ? { state } : { state, output: { model: { name: 'ViT-B-32', pretrained: 'openai' }, vectors: [[1, 0, 0]] } }; };
+  // As in the store: the index is kept by an owner with no Marketplace tools (the follower, the frozen index) and the
+  // answer is finished by the owner that can run them.
+  const indexOwner = makeSearch({ sql });
+  const finisher = makeSearch({ sql, runTool, index: false });
+  await finishIndexing(indexOwner);
+  const options = { places: ['seen'] };
+  const unaided = await indexOwner.indexSearch('studio', options);
+  assert.deepEqual(unaided.unavailable.map(item => item.reason), ['no Marketplace tools here'], 'the index alone cannot encode the question');
+  const working = await finisher.encodeQuestion('studio', options);
+  const waiting = await finisher.finish('studio', options, await indexOwner.indexSearch('studio', { ...options, encoded: working }));
+  assert.deepEqual(waiting.pending.map(item => item.place), ['seen'], 'an encoder still starting is pending, never unavailable');
+  assert.deepEqual(waiting.unavailable, []);
+  state = 'completed';
+  const encoded = await finisher.encodeQuestion('studio', options);
+  assert.ok(Object.values(encoded).every(item => Array.isArray(item.vector)), 'the vector travels as plain numbers');
+  const found = await finisher.finish('studio', options, await indexOwner.indexSearch('studio', { ...options, encoded }));
+  assert.deepEqual(found.results.map(result => [result.name, result.start]), [['a.mp4', 7]]);
+  assert.deepEqual(found.unavailable, []);
+  assert.equal(runs, 2, 'each question is encoded by the finisher only, once per ask');
+  const words = await finisher.encodeQuestion('studio', { matches: ['words-in-results'] });
+  assert.deepEqual(words, {}, 'a question that asks no meaning lane runs no encoder');
+});
+
+test('the device evidence search asks the said-words lane, so a spoken word is found', async () => {
+  const { sql, results, store } = person();
+  store(1, 'a.mp4');
+  results.put([{ identity: drive(1), kind: 'transcript', value: { text: 'the kiln is hot today' } }]);
+  const evidence = nativeNamespaceEvidence({ sql, transaction: fn => fn() });
+  for (let wake = 0; wake < 40 && (await evidence.nextAt()) !== null; wake += 1) await evidence.advance();
+  const found = await evidence.search('kiln');
+  assert.deepEqual(found.results.map(result => result.name), ['a.mp4']);
+  assert.deepEqual(found.unavailable, []);
+});
+
+test('an installed encoder adds a searched space with no search.json edit, and uninstalling it stops it', async () => {
+  const { spaceOf } = await import('../src/meaning-spaces.mjs');
+  const { sql, results, store } = person();
+  store(1, 'kiln talk.mp4');
+  store(2, 'beach.mp4');
+  const encoder = { id: 'tool:encode-example', serves: ['encode'], encodes: { accepts: ['text'], space: { model: 'example/model', dim: 3, query_prompt: 'q: ' }, reads: [{ result_kind: 'transcript', place: 'said', pieces_path: '$.segments', text_field: 'text' }] } };
+  const other = { ...encoder, id: 'tool:encode-other', encodes: { ...encoder.encodes, space: { model: 'other/model', dim: 3 } } };
+  const space = spaceOf(encoder);
+  results.put([
+    { identity: drive(1), kind: 'meaning', value: { sets: [{ space, place: 'said', tool_id: encoder.id, items: [{ v: half([1, 0, 0]), start: 30, end: 33, said: 'the kiln gets hot' }] }] } },
+    { identity: drive(2), kind: 'meaning', value: { sets: [{ space, place: 'said', tool_id: encoder.id, items: [{ v: half([0, 1, 0]), start: 1, end: 2, said: 'waves' }] }] } },
+  ]);
+  const asked = [];
+  const runTool = async ({ tool_id, input }) => { asked.push([tool_id, input.texts[0]]); return { state: 'completed', output: { model: { name: tool_id === encoder.id ? 'example/model' : 'other/model' }, vectors: [[1, 0, 0]] } }; };
+  let installed = [encoder];
+  const lane = { id: 'meaning', source: 'files', match: 'meaning-in-results', kind: 'meaning', sets_path: '$.sets', time_fields: { start: 'start', end: 'end', said: 'said' }, floor: 0.5, rank: 1 };
+  const config = { ...settings, lanes: [...settings.lanes.filter(row => row.match !== 'meaning-in-results'), lane] };
+  let catalogRevision = 1;
+  const encoders = async ({ revision = null } = {}) => {
+    const current = String(catalogRevision);
+    if (revision !== null && String(revision) !== current) {
+      return { tools: [], cursor: { after: null, revision: current }, complete: false, restart: true };
+    }
+    return { tools: installed, cursor: { after: null, revision: current }, complete: true, restart: false };
+  };
+  const search = makeSearch({ sql, runTool, encoders, config });
+  await finishIndexing(search);
+  const found = await finishPendingSearch(search, 'ceramics oven', { places: ['said'] });
+  assert.deepEqual(found.results.map(result => [result.name, result.start, result.said]), [['kiln talk.mp4', 30, 'the kiln gets hot']], 'found by meaning in the installed space, at its moment');
+  assert.deepEqual(asked, [[encoder.id, 'q: ceramics oven']], 'the question is encoded once, with the space\'s own query prompt');
+  assert.deepEqual((await finishPendingSearch(search, 'ceramics oven', { places: ['seen'] })).results, [], 'a place the space holds no vectors for finds nothing');
+  installed = [encoder, other];
+  catalogRevision += 1;
+  const both = await finishPendingSearch(search, 'ceramics oven', { places: ['said'] });
+  assert.deepEqual(both.results.map(result => result.name), ['kiln talk.mp4'], 'a second space with no vectors yet adds nothing and breaks nothing');
+  installed = [];
+  catalogRevision += 1;
+  assert.deepEqual((await finishPendingSearch(search, 'ceramics oven', { places: ['said'] })).results, [], 'uninstalled: the space is no longer searched');
+  installed = [{ ...encoder, id: 'tool:liar' }];
+  catalogRevision += 1;
+  const lied = await finishPendingSearch(search, 'ceramics oven', { places: ['said'] });
+  assert.deepEqual(lied.results, []);
+  assert.match(lied.unavailable[0].reason, /another model/, 'an answer from another model than the space declares is refused, never compared');
+});
+
+test('encoder-space answers page past forty spaces and search resumes through the last one', async () => {
+  const { spaceOf } = await import('../src/meaning-spaces.mjs');
+  const { sql, results, store } = person();
+  store(1, 'last-space.mp4');
+  const lane = { id: 'meaning', source: 'files', match: 'meaning-in-results', kind: 'meaning', sets_path: '$.sets', time_fields: { start: 'start', end: 'end' }, floor: 0.5, rank: 1 };
+  const config = { ...settings, lanes: [lane] };
+  const tools = Array.from({ length: 41 }, (_, at) => ({
+    id: `tool:encoder-${String(at).padStart(2, '0')}`, serves: ['encode'],
+    encodes: { accepts: ['text'], space: { model: `example/model-${at}`, dim: 3 }, reads: [] },
+  }));
+  const lastSpace = spaceOf(tools.at(-1));
+  results.put([{ identity: drive(1), kind: 'meaning', value: { sets: [
+    { space: lastSpace, place: 'said', tool_id: tools.at(-1).id, items: [{ v: half([1, 0, 0]), start: 19, end: 22, said: 'the kiln fires' }] },
+  ] } }]);
+  let catalogCalls = 0, encoderCalls = 0;
+  const encoders = async ({ after = null, revision = null, limit }) => {
+    catalogCalls += 1;
+    if (revision !== null && revision !== 'r1') return { tools: [], cursor: { after: null, revision: 'r1' }, complete: false, restart: true };
+    const start = after ? tools.findIndex(tool => tool.id === after) + 1 : 0;
+    const page = tools.slice(start, start + limit);
+    const cursor = page.at(-1)?.id ?? after;
+    return { tools: page, cursor: { after: cursor, revision: 'r1' }, complete: start + page.length >= tools.length };
+  };
+  const runTool = async ({ tool_id }) => {
+    encoderCalls += 1;
+    const tool = tools.find(item => item.id === tool_id);
+    return { state: 'completed', output: { model: { name: tool.encodes.space.model }, vectors: [[1, 0, 0]] } };
+  };
+  const search = makeSearch({ sql, runTool, encoders, config });
+  await finishIndexing(search);
+  const found = await finishPendingSearch(search, 'ceramics kiln', { places: ['said'] });
+  assert.ok(catalogCalls >= 2, 'the catalog and its persisted space pages resume under one revision');
+  assert.equal(encoderCalls, tools.length, 'each declared space is encoded once');
+  assert.deepEqual(found.results.map(result => [result.name, result.start]), [['last-space.mp4', 19]], 'the last space survives result paging');
+});
+
+test('backlog reports a cold changed queue past one bounded wake', async () => {
+  const { sql } = person();
+  const config = { ...settings, catch_up: { ...settings.catch_up, values_per_wake: 2 } };
+  const search = makeSearch({ sql, config });
+  sql.exec("INSERT INTO search_changed (lane, identity) VALUES ('transcript-words', 'a'), ('transcript-words', 'b'), ('transcript-words', 'c')");
+  assert.deepEqual(await search.backlog(2), { changed_past_a_wake: 'transcript-words' });
+});
+
+test('a vector scan resumes after its bounded page and reports pending until complete', async () => {
+  const { sql, results, store } = person();
+  store(1, 'paged.mp4');
+  const lane = { id: 'meaning', source: 'files', place: 'seen', match: 'meaning-in-results', kind: 'meaning', items_path: 'items', keep: 'each', floor: 0.5, rank: 1 };
+  const config = { ...settings, vector_scan_page_size: 1, lanes: [lane] };
+  results.put([{ identity: drive(1), kind: 'meaning', value: { items: [
+    { v: half([0, 1, 0]) }, { v: half([1, 0, 0]) }, { v: half([0, 0, 1]) },
+  ] } }]);
+  const search = makeSearch({ sql, config });
+  await finishIndexing(search);
+  const encoded = { meaning: { vector: [1, 0, 0] } };
+  const first = await search.indexSearch('ceramics', { encoded });
+  assert.ok(first.pending.some(item => item.lane === lane.id));
+  const answer = await finishPendingIndexSearch(search, 'ceramics', { encoded }, first);
+  assert.deepEqual(answer.answered[0], [], 'large exact candidate sets stay in the durable candidate store');
+  assert.equal(answer.candidate_refs.length, 1);
+  assert.equal(sql.exec("SELECT best FROM search_nearest_walks WHERE lane = 'meaning' LIMIT 1").one().best, '[]', 'the durable walk row holds only its cursor, not a candidate array');
+  assert.equal(sql.exec("SELECT COUNT(*) AS n FROM search_candidate_hits WHERE kind = 'nearest'").one().n, 1, 'the exact candidate is kept as its own row');
+  const found = await finishPendingSearch(search, 'ceramics', { encoded });
+  assert.deepEqual(found.results.map(result => result.name), ['paged.mp4']);
+  assert.equal(found.results[0].score, 0.01639, 'the completed public result uses the lane contribution');
+});
+
+test('ranked candidate pages keep equal-score cursors stable across the indexed tie boundary', () => {
+  const { sql } = person();
+  const reads = [];
+  const observed = {exec(query, ...args) {
+    if (/^SELECT seq, set_lane/.test(query)) reads.push([query, args]);
+    return sql.exec(query, ...args);
+  }};
+  const candidates = searchCandidatePages(observed, { pageSize: 3 });
+  const hits = Array.from({ length: 8 }, (_, index) => ({
+    identity: own(800 + index), n: 0, start: index, end: index + 1, timed: true, score: index < 5 ? 1 : 0.5,
+  }));
+  candidates.putPage('nearest', 'ranked', 'question', hits.slice(0, 3));
+  candidates.putPage('nearest', 'ranked', 'question', hits.slice(3, 6));
+  candidates.putPage('nearest', 'ranked', 'question', hits.slice(6));
+  const first = candidates.readRankedPage('nearest', 'ranked', 'question', null, 0, 3);
+  const second = candidates.readRankedPage('nearest', 'ranked', 'question', first.afterScore, first.afterSeq, 3);
+  const third = candidates.readRankedPage('nearest', 'ranked', 'question', second.afterScore, second.afterSeq, 3);
+  assert.deepEqual([first, second, third].map(page => page.rows.map(row => row.identity)), [
+    hits.slice(0, 3).map(hit => hit.identity), hits.slice(3, 6).map(hit => hit.identity), hits.slice(6).map(hit => hit.identity),
+  ]);
+  assert.deepEqual([first.more, second.more, third.more], [true, true, false]);
+  assert.ok(reads.length >= 4, 'the actual owner exercised the initial, tie and lower-score reads');
+  for (const [query, args] of reads) {
+    const plan = sql.exec(`EXPLAIN QUERY PLAN ${query}`, ...args).toArray().map(row => row.detail).join('\n');
+    assert.match(plan, /SEARCH search_candidate_hits USING INDEX search_candidate_hits_ranked/);
+    assert.doesNotMatch(plan, /SCAN search_candidate_hits|TEMP B-TREE/);
+  }
+});
+
+test('detail hydration uses indexed seeks through equal and lower priorities after reopening', () => {
+  const {sql} = person(), reads = [];
+  const observed = {exec(query, ...args) {
+    if (/^SELECT lane, n, start/.test(query)) reads.push([query, args]);
+    return sql.exec(query, ...args);
+  }};
+  let candidates = searchCandidatePages(observed, {pageSize: 3});
+  for (let n = 0; n < 8; n++) sql.exec(`INSERT INTO search_fusion_candidate_details
+    (session,lane,identity,n,start,end,timed,said,score,source_seq,priority,lane_order)
+    VALUES ('session','lane','identity',?,?,?,1,'words',1,?,?,0)`, n, n * 20, n * 20 + 10, n + 1, n < 5 ? 1 : 0.5);
+  const first = candidates.hydrationPage('session', 'identity', null, 3);
+  candidates = searchCandidatePages(observed, {pageSize: 3});
+  const second = candidates.hydrationPage('session', 'identity', first.rows.at(-1), 3);
+  const third = candidates.hydrationPage('session', 'identity', second.rows.at(-1), 3);
+  assert.deepEqual([first, second, third].flatMap(page => page.rows.map(row => row.n)), [0,1,2,3,4,5,6,7]);
+  assert.deepEqual([first.more, second.more, third.more], [true,true,false]);
+  for (const [query,args] of reads) {
+    const plan = sql.exec(`EXPLAIN QUERY PLAN ${query}`, ...args).toArray().map(row => row.detail).join('\n');
+    assert.match(plan, /SEARCH search_fusion_candidate_details USING INDEX search_fusion_candidate_details_identity_v2/);
+    assert.doesNotMatch(plan, /SCAN search_fusion_candidate_details|TEMP B-TREE/);
+  }
+});
+
+test('rank fusion keeps a lower raw-score candidate that wins across meaning lanes', async () => {
+  const { sql, results, store } = person();
+  store(1, 'x.mp4');
+  store(2, 'y.mp4');
+  const lane = (id, kind) => ({ id, source: 'files', place: 'seen', match: 'meaning-in-results', kind, items_path: 'items', keep: 'each', floor: -1, rank: 1, encoder: { via: 'workers-ai', model: 'example' } });
+  const lanes = [lane('model-a', 'model-a'), lane('model-b', 'model-b')];
+  const config = { ...settings, limit: 1, vector_scan_page_size: 16, lanes };
+  const vector = score => half([score, Math.sqrt(1 - score * score)]);
+  const distractors = config.lanes.length + 2;
+  const values = [
+    { identity: drive(1), kind: 'model-a', value: { items: [{ v: vector(0.999) }] } },
+    ...Array.from({ length: distractors }, (_, index) => {
+      const id = index + 3;
+      store(id, `candidate-${id}.mp4`);
+      return { identity: drive(id), kind: 'model-a', value: { items: [{ v: vector(0.98 - index * 0.001) }] } };
+    }),
+    { identity: drive(2), kind: 'model-a', value: { items: [{ v: vector(0.2) }] } },
+    { identity: drive(2), kind: 'model-b', value: { items: [{ v: vector(0.1) }] } },
+  ];
+  results.put(values);
+  const search = makeSearch({ sql, config, embed: async () => [[1, 0]] });
+  await finishIndexing(search);
+  const found = await finishPendingSearch(search, 'ceramics', { places: ['seen'], sources: ['files'], matches: ['meaning-in-results'] });
+  assert.deepEqual(found.results.map(result => result.name), ['y.mp4'], 'a deep candidate can win through consensus despite lower raw scores');
+});
+
+test('public finish resumes bounded detail hydration and keeps the strongest spaced moments', async () => {
+  const { sql, results, store } = person();
+  store(1, 'many-moments.mp4');
+  const lane = { id: 'speech', source: 'files', place: 'said', match: 'meaning-in-results', kind: 'speech', items_path: 'items', time_fields: { start: 'start', end: 'end', said: 'text' }, keep: 'each', floor: 0.5, rank: 1, encoder: { via: 'workers-ai', model: 'example' } };
+  const config = { ...settings, limit: 1, vector_scan_page_size: 256, lanes: [lane] };
+  results.put([{ identity: drive(1), kind: 'speech', value: { items: Array.from({ length: 130 }, (_, index) => ({
+    v: half([1, 0]), start: index * 20, end: index * 20 + 10, text: `moment ${index}`,
+  })) } }]);
+  const search = makeSearch({ sql, config, embed: async () => [[1, 0]] });
+  await finishIndexing(search);
+  const found = await finishPendingSearch(search, 'ceramics');
+  assert.deepEqual(found.results[0].moments.map(moment => moment.start), [0, 20, 40]);
+  const progress = sql.exec('SELECT processed, done FROM search_fusion_hydration_progress WHERE session = ? LIMIT 1', found.fusion_session ?? search.fusionSession('ceramics')).one();
+  assert.deepEqual({ ...progress }, { processed: 130, done: 1 });
+});
+
+test('saved result projection pages survive reopen without rewriting the accumulated output', async t => {
+  const { mkdtempSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const folder = mkdtempSync(join(tmpdir(), 'search-projection-pages-')), file = join(folder, 'search.sqlite');
+  let host = sqliteHost(file);
+  t.after(() => { host.db.close(); rmSync(folder, { recursive: true, force: true }); });
+  namespaceStore(host.sql); resultsStore(host.sql);
+  host.sql.exec("INSERT INTO namespace_files (identity,byte_length,media_type,origin,key,part_bytes,stored_at,checked_at) VALUES (?,10,'video/mp4','small','k',10,'now','now')", own(1));
+  host.sql.exec("INSERT INTO namespace_names (name,collection,identity,byte_length,modified_at_ms,named_at) VALUES ('/Pottery/all-models.mp4','/Pottery',?,10,5,'now')", own(1));
+  const lane = { id:'meaning', source:'files', match:'meaning-in-results', kind:'meaning', sets_path:'$.sets', rank:1 };
+  const config = { ...settings, lanes:[lane], limit:1 };
+  const queries = [];
+  const mount = () => makeSearch({sql:{exec(query,...args){queries.push(query);return host.sql.exec(query,...args);}},index:false,config,transaction:host.transaction});
+  let search = mount();
+  const refs = [{kind:'sets',lane:lane.id,question:'projection-source',revision:0,max_hits:null,transferred:true}];
+  const question = 'all models', session = search.fusionSession(question), fingerprint = search.candidateFusionFingerprint(refs);
+  search.ensureCandidateFusion(session, fingerprint);
+  const count = 270;
+  for(let at=0;at<count;at+=128) search.acceptCandidatePage(session,lane.id,Array.from({length:Math.min(128,count-at)},(_,offset)=>({
+    identity:own(1),set_lane:`meaning@space-${String(at+offset).padStart(3,'0')}@said`,score:1,n:at+offset,start:5,end:8,timed:true,said:'the kiln',seq:at+offset,
+  })));
+  let answer, reopened=false;
+  for(let step=0;step<100;step++) {
+    const partial={answered:[[]],unavailable:[],pending:[],still_reading:{},candidate_refs:refs.map(row=>({...row})),fusion_session:session};
+    answer=await search.finish(question,{},partial);
+    const pages=host.sql.exec('SELECT seq,phase,payload FROM search_fusion_projection_pages WHERE session=? AND identity=? ORDER BY seq LIMIT 100',session,own(1)).toArray();
+    assert.ok(pages.every(page=>JSON.parse(page.payload).length<=128),'every saved projection is one bounded source page');
+    if(!reopened && pages.length>=2){host.db.close();host=sqliteHost(file);search=mount();reopened=true;}
+    if(!answer.pending.length)break;
+  }
+  assert.equal(reopened,true,'the real SQLite store reopens midway through projection');
+  assert.deepEqual(answer.pending,[]);
+  assert.deepEqual(answer.results.map(row=>[row.name,row.start]),[['all-models.mp4',5]]);
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_fusion_seen WHERE session=?',session).one().n,count,'all selected model ranks survive');
+  const places=host.sql.exec("SELECT payload FROM search_fusion_projection_pages WHERE session=? AND identity=? AND phase='places' ORDER BY seq LIMIT 100",session,own(1)).toArray();
+  assert.equal(places.reduce((n,page)=>n+JSON.parse(page.payload).length,0),count,'no selected lane is truncated');
+  assert.equal(queries.some(query=>/UPDATE search_fusion_hydration_projection SET payload/.test(query)),false,'continuations never rewrite the growing aggregate');
+});
+
+test('durable candidate fusion lets deep agreement win without a candidate cap', () => {
+  const { sql } = person();
+  const lane = id => ({ id, source: 'files', place: 'seen', match: 'meaning-in-results', kind: id, items_path: 'items', keep: 'each', floor: -1, rank: 1 });
+  const search = makeSearch({ sql, index: false, config: { ...settings, lanes: [lane('deep-a'), lane('deep-b')] } });
+  const fusion = 'deep-agreement';
+  search.ensureCandidateFusion(fusion, 'deep-agreement-inputs');
+  sql.exec(`CREATE TABLE IF NOT EXISTS search_candidate_transfers (
+    session TEXT PRIMARY KEY, lane TEXT NOT NULL, kind TEXT NOT NULL, source_question TEXT NOT NULL,
+    after_score REAL, after_seq INTEGER NOT NULL DEFAULT 0, count INTEGER NOT NULL DEFAULT 0, done INTEGER NOT NULL DEFAULT 0,
+    fusion_session TEXT, source_revision TEXT, cursor_json TEXT
+  )`);
+  const transfer = (laneId, rows) => {
+    const session = `${fusion}:${laneId}`;
+    sql.exec('INSERT OR REPLACE INTO search_candidate_transfers (session, lane, kind, source_question, fusion_session) VALUES (?, ?, ?, ?, ?)', session, laneId, 'nearest', 'q', fusion);
+    search.acceptCandidatePage(fusion, laneId, rows.map((identity, index) => ({ identity, n: 0, start: 0, end: 0, timed: false, score: 1 - index / 100, seq: index + 1 })), {
+      transfer: { session, afterScore: 0.9, afterSeq: rows.length, count: rows.length, done: true, sourceRevision: 1 },
+    });
+  };
+  const a = Array.from({ length: 5 }, (_, at) => own(300 + at));
+  const b = Array.from({ length: 5 }, (_, at) => own(400 + at));
+  const consensus = own(500);
+  transfer('deep-a', [...a, consensus]);
+  transfer('deep-b', [...b, consensus]);
+  const top = sql.exec('SELECT identity, score FROM search_fusion_totals WHERE session = ? ORDER BY score DESC LIMIT 1', fusion).one();
+  assert.equal(top.identity, consensus);
+  assert.equal(top.score, 2 / 66, 'both rank-six lane contributions are kept exactly');
+  assert.ok(top.score > 1 / 61, 'agreement outranks a candidate first in only one lane');
+});
+
+test('fusion reset is fenced and drains candidates, projections, and transfer receipts in bounded pages', () => {
+  const { sql } = person();
+  const candidates = searchCandidatePages(sql, { pageSize: 2 });
+  assert.equal(candidates.ensureFusionFingerprint('reset-session', 'old', 'r1'), true);
+  assert.equal(candidates.fusionReady('reset-session', 'old', 'r1'), true);
+  for (let at = 0; at < 5; at += 1) {
+    const identity = own(900 + at);
+    sql.exec(`INSERT INTO search_fusion_candidates (session,lane,set_lane,identity,n,start,end,timed,score)
+      VALUES ('reset-session','lane','',?,0,0,0,0,1)`, identity);
+    sql.exec(`INSERT INTO search_fusion_totals (session,identity,score) VALUES ('reset-session',?,1)`, identity);
+    sql.exec(`INSERT INTO search_fusion_hydration_projection (session,identity,payload) VALUES ('reset-session',?,'{}')`, identity);
+    sql.exec(`INSERT INTO search_candidate_transfers (session,lane,kind,source_question,fusion_session)
+      VALUES (?,?, 'nearest','q','reset-session')`, `transfer-${at}`, 'lane');
+  }
+  const count = () => ['search_fusion_candidates', 'search_fusion_totals', 'search_fusion_hydration_projection', 'search_candidate_transfers']
+    .reduce((sum, table) => sum + sql.exec(`SELECT COUNT(*) AS n FROM ${table} WHERE ${table === 'search_candidate_transfers' ? 'fusion_session' : 'session'} = ?`, 'reset-session').one().n, 0);
+  let before = count(), ready = false, fingerprint = 'new', revision = 'r2';
+  for (let step = 0; step < 64 && !ready; step += 1) {
+    if (step === 3) {
+      fingerprint = 'newest';
+      revision = 'r3';
+    }
+    candidates.ensureFusionFingerprint('reset-session', fingerprint, revision);
+    const after = count();
+    assert.ok(before - after <= 2, 'one reset step deletes at most its configured page');
+    before = after;
+    ready = candidates.fusionReady('reset-session', fingerprint, revision);
+    if (!ready) assert.equal(candidates.fusionReady('reset-session', fingerprint, revision), false, 'new fusion input remains fenced while cleanup is pending');
+  }
+  assert.equal(ready, true, 'the bounded cleanup cursor eventually admits the latest replacement session');
+  assert.equal(candidates.fusionReady('reset-session', 'new', 'r2'), false, 'an interrupted cleanup cannot admit its superseded target');
+  assert.equal(count(), 0, 'the replaced session has no candidate, total, or transfer rows');
+});
+
+test('retired base and model-set lane indexes clean in durable pages before a lane can be re-added', async t => {
+  const { mkdtempSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const directory = mkdtempSync(join(tmpdir(), 'search-retired-lane-'));
+  const path = join(directory, 'search.sqlite');
+  let host = sqliteHost(path);
+  t.after(() => { host.db.close(); rmSync(directory, { recursive: true, force: true }); });
+  resultsStore(host.sql,identity=>[identity]);
+  const lane = settings.lanes.find(item => item.id === 'meaning');
+  const active = { ...settings, lanes: [lane] };
+  makeSearch({ sql: host.sql, config: active });
+  const setLane = `${lane.id}@space@place`;
+  for (let at = 0; at < 5; at += 1) {
+    const identity = own(1200 + at);
+    sqlInsertVector(host.sql, lane.id, identity, at);
+    sqlInsertVector(host.sql, setLane, identity, at);
+    host.sql.exec('INSERT INTO search_marks (lane, identity, value_identity) VALUES (?, ?, ?)', lane.id, identity, `v${at}`);
+    host.sql.exec('INSERT INTO search_set_lanes (lane, identity, set_lane) VALUES (?, ?, ?)', lane.id, identity, setLane);
+  }
+  host.sql.exec('INSERT INTO search_set_lane_names (lane, set_lane) VALUES (?, ?)', lane.id, setLane);
+  host.sql.exec('INSERT INTO search_vector_counts (lane, n) VALUES (?, 5), (?, 5)', lane.id, setLane);
+  host.sql.exec('INSERT INTO search_vector_trained (lane, vectors, buckets) VALUES (?, 5, 1), (?, 5, 1)', lane.id, setLane);
+  host.sql.exec('INSERT INTO search_vector_centroids (lane, bucket, vector) VALUES (?, 0, ?), (?, 0, ?)', lane.id, new Uint8Array([127, 0, 0]), setLane, new Uint8Array([127, 0, 0]));
+  const wordRow = host.sql.exec('INSERT INTO search_word_rows (lane, identity) VALUES (?, ?) RETURNING word_row', lane.id, own(1200)).one().word_row;
+  host.sql.exec('INSERT INTO search_words (rowid, lane, identity, text) VALUES (?, ?, ?, ?)', wordRow, lane.id, own(1200), 'retired words');
+  const retired = { ...settings, lanes: [] };
+  const retiredSearch = makeSearch({ sql: host.sql, config: retired });
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_vectors WHERE lane IN (?, ?)', lane.id, setLane).one().n, 10,
+    'construction queues retirement without deleting a lane-sized index');
+  await retiredSearch.catchUp(2);
+  host.sql.exec("UPDATE search_retired_lane_cleanup SET phase = 15, after_rowid = 999, row_key = '[999]', version = 1 WHERE lane = ?", lane.id);
+  host.sql.exec("UPDATE search_set_cleanup SET phase = 5, row_cursor = 999, row_key = '[999]', active_set = ?, version = 1 WHERE lane = ?", setLane, lane.id);
+
+  let search;
+  for (let step = 0; step < 180; step += 1) {
+    host.db.close();
+    host = sqliteHost(path);
+    search = makeSearch({ sql: host.sql, config: active });
+    const baseBefore = host.sql.exec('SELECT COUNT(*) AS n FROM search_vectors WHERE lane = ?', lane.id).one().n;
+    const setBefore = host.sql.exec('SELECT COUNT(*) AS n FROM search_vectors WHERE lane = ?', setLane).one().n;
+    const refsBefore = host.sql.exec('SELECT COUNT(*) AS n FROM search_set_lanes WHERE lane = ?', lane.id).one().n;
+    await search.catchUp(2);
+    const baseAfter = host.sql.exec('SELECT COUNT(*) AS n FROM search_vectors WHERE lane = ?', lane.id).one().n;
+    const setAfter = host.sql.exec('SELECT COUNT(*) AS n FROM search_vectors WHERE lane = ?', setLane).one().n;
+    const refsAfter = host.sql.exec('SELECT COUNT(*) AS n FROM search_set_lanes WHERE lane = ?', lane.id).one().n;
+    assert.ok(baseBefore - baseAfter <= 2, 'base vectors are removed by one configured page');
+    assert.ok(setBefore - setAfter <= 2, 'derived vectors are removed by one configured page');
+    assert.ok(refsBefore - refsAfter <= 2, 'set-to-file references are removed by one configured page');
+    if (!host.sql.exec('SELECT 1 FROM search_retired_lane_cleanup WHERE lane = ? UNION ALL SELECT 1 FROM search_set_cleanup WHERE lane = ? LIMIT 1', lane.id, lane.id).toArray().length) break;
+    assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_result_lanes WHERE lane = ?', lane.id).one().n, 0,
+      'a returning lane stays unsubscribed while old rows are still being deleted');
+  }
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_retired_lane_cleanup WHERE lane = ?', lane.id).one().n, 0);
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_set_cleanup WHERE lane = ?', lane.id).one().n, 0);
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_vectors WHERE lane IN (?, ?)', lane.id, setLane).one().n, 0);
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_words WHERE lane = ?', lane.id).one().n, 0);
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_result_lanes WHERE lane = ?', lane.id).one().n, 1,
+    'the lane is re-subscribed only after cleanup, so normal backfill can safely rebuild it');
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_backfill WHERE lane = ?', lane.id).one().n, 1);
+});
+
+function sqlInsertVector(sql, lane, identity, n) {
+  sql.exec('INSERT INTO search_vectors (lane, identity, n, start, finish, said, vector) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    lane, identity, n, n, n + 1, 'kept', new Uint8Array([127, 0, 0]));
+}
+
+test('candidate fusion canonicalizes aliases across pages, restarts on alias revisions, and replays atomically', () => {
+  const { sql, store } = person();
+  store(1, 'aliases.mp4');
+  const lane = { id: 'alias-meaning', source: 'files', place: 'seen', match: 'meaning-in-results', kind: 'alias-meaning', items_path: 'items', keep: 'each', floor: -1, rank: 1 };
+  const search = makeSearch({ sql, index: false, config: { ...settings, lanes: [lane] } });
+  const fusion = 'alias-boundary';
+  const fingerprint = 'alias-boundary-inputs';
+  const hidden = own(2);
+  sql.exec("INSERT INTO namespace_set_aside_names (id, ordinal, name, collection, identity) VALUES ('deleted', 0, NULL, NULL, ?)", hidden);
+  assert.equal(search.ensureCandidateFusion(fusion, fingerprint), true);
+  sql.exec(`CREATE TABLE IF NOT EXISTS search_candidate_transfers (
+    session TEXT PRIMARY KEY, lane TEXT NOT NULL, kind TEXT NOT NULL, source_question TEXT NOT NULL,
+    after_score REAL, after_seq INTEGER NOT NULL DEFAULT 0, count INTEGER NOT NULL DEFAULT 0, done INTEGER NOT NULL DEFAULT 0,
+    fusion_session TEXT, source_revision TEXT, cursor_json TEXT
+  )`);
+  const aliasOne = drive(601), aliasTwo = drive(602), canonical = own(1);
+  const page = (sourceSession, alias, seq, score) => {
+    sql.exec('INSERT OR REPLACE INTO search_candidate_transfers (session, lane, kind, source_question, fusion_session) VALUES (?, ?, ?, ?, ?)', sourceSession, lane.id, 'nearest', 'q', fusion);
+    search.acceptCandidatePage(fusion, lane.id, [{ identity: alias, n: 0, start: seq, end: seq + 1, timed: true, score, seq }], {
+      transfer: { session: sourceSession, afterScore: score, afterSeq: seq, count: seq, done: false, sourceRevision: 1 },
+    });
+  };
+  sql.exec("INSERT INTO namespace_aliases (alias, identity, grade, added_at) VALUES (?, ?, 'checked', 'now')", aliasOne, canonical);
+  page('alias-page-1', aliasOne, 1, 0.9);
+  sql.exec("INSERT INTO namespace_aliases (alias, identity, grade, added_at) VALUES (?, ?, 'checked', 'now')", aliasTwo, canonical);
+  assert.equal(search.ensureCandidateFusion(fusion, fingerprint), true, 'the alias revision invalidates the staged rank');
+  assert.equal(search.candidateFusionReady(fusion, fingerprint), false, 'the old alias ranks stay fenced while bounded cleanup is pending');
+  for (let step = 0; step < 100 && !search.candidateFusionReady(fusion, fingerprint); step++) search.ensureCandidateFusion(fusion, fingerprint);
+  assert.equal(search.candidateFusionReady(fusion, fingerprint), true, 'the exact current alias revision becomes ready after cleanup');
+  assert.equal(sql.exec('SELECT COUNT(*) AS n FROM search_fusion_totals WHERE session = ?', fusion).one().n, 0);
+  page('alias-page-1', aliasOne, 1, 0.9);
+  page('alias-page-2', aliasTwo, 2, 0.8);
+  page('hidden-page', hidden, 3, 0.7);
+  const seen = sql.exec('SELECT rank FROM search_fusion_seen WHERE session = ? AND lane = ? AND identity = ?', fusion, lane.id, canonical).one();
+  assert.equal(seen.rank, 1, 'aliases on separate pages share one canonical lane rank');
+  const before = sql.exec('SELECT score FROM search_fusion_totals WHERE session = ? AND identity = ?', fusion, canonical).one().score;
+  page('alias-page-1', aliasOne, 1, 0.9);
+  assert.equal(sql.exec('SELECT score FROM search_fusion_totals WHERE session = ? AND identity = ?', fusion, canonical).one().score, before, 'replaying a page does not add a second contribution');
+  assert.equal(sql.exec('SELECT COUNT(*) AS n FROM search_fusion_candidate_details WHERE session = ? AND identity = ?', fusion, canonical).one().n, 2);
+  assert.equal(sql.exec('SELECT COUNT(*) AS n FROM search_fusion_totals WHERE session = ? AND identity = ?', fusion, hidden).one().n, 0, 'a file set aside without a remaining name is excluded');
+  assert.equal(sql.exec('SELECT after_seq FROM search_candidate_transfers WHERE session = ?', 'alias-page-2').one().after_seq, 2, 'the page cursor commits with its rank update');
+  assert.throws(() => search.acceptCandidatePage(fusion, lane.id, Array.from({ length: 129 }, (_, seq) => ({ identity: own(700 + seq), score: 1, seq }))), /exceeds 128/);
+});
+
+test('a sets lane keyset walk visits more than 256 sets, including empty and supplementary-Unicode places', async () => {
+  const { sql, results, store } = person();
+  store(1, 'paged.mp4');
+  const lane = { id: 'meaning', source: 'files', match: 'meaning-in-results', kind: 'meaning', sets_path: '$.sets', floor: 0.5, rank: 1 };
+  const config = { ...settings, lanes: [lane] };
+  const places = ['', 'place-000', ...Array.from({ length: 255 }, (_, at) => `place-${String(at + 1).padStart(3, '0')}`), '🧭'];
+  const sets = places.map(place => ({ space: 'space', place, items: [{ v: half([1, 0, 0]) }] }));
+  results.put([{ identity: drive(1), kind: 'meaning', value: { sets } }]);
+  const search = makeSearch({ sql, config });
+  await finishIndexing(search);
+  const encoded = { meaning: { spaces: { space: { vector: [1, 0, 0] } }, encoder_page: { complete: true } } };
+  const indexed = await finishPendingIndexSearch(search, 'ceramics', { encoded });
+  assert.equal(indexed.candidate_refs.length, 1, 'the index half returns a durable reference for the completed sets walk');
+  const answer = await finishPendingSearch(search, 'ceramics', { encoded });
+  assert.deepEqual(answer.results[0].found_in.sort(), [...places].sort());
+  assert.deepEqual(answer.results[0].places.map(place => place.place).sort(), [...places].sort());
+});
+
+test('a sets lane has no 1024-name ceiling', async () => {
+  const { sql, results, store } = person();
+  store(1, 'paged.mp4');
+  const lane = { id: 'meaning', source: 'files', match: 'meaning-in-results', kind: 'meaning', sets_path: '$.sets', floor: 0.5, rank: 1 };
+  const config = { ...settings, lanes: [lane] };
+  const places = Array.from({ length: 1025 }, (_, at) => `place-${String(at).padStart(4, '0')}`);
+  const sets = places.map(place => ({ space: 'space', place, items: [{ v: half([1, 0, 0]) }] }));
+  results.put([{ identity: drive(1), kind: 'meaning', value: { sets } }]);
+  const search = makeSearch({ sql, config });
+  await finishIndexing(search);
+  const encoded = { meaning: { spaces: { space: { vector: [1, 0, 0] } }, encoder_page: { complete: true } } };
+  const indexed = await finishPendingIndexSearch(search, 'ceramics', { encoded });
+  assert.equal(indexed.candidate_refs.length, 1);
+  const answer = await finishPendingSearch(search, 'ceramics', { encoded });
+  assert.equal(new Set(answer.results[0].found_in).size, places.length, 'the completed public result preserves every set lane');
+  assert.equal(answer.results[0].places.length, places.length);
+  assert.equal(sql.exec("SELECT COUNT(*) AS n FROM search_candidate_hits WHERE kind = 'sets'").one().n, places.length, 'every place candidate is stored as a durable row');
+  assert.equal(sql.exec('SELECT COUNT(*) AS n FROM search_set_results').one().n, 0, 'no growing JSON hit accumulator remains after the walk');
+});
+
+test('replacement and deletion remove every old model set beyond the former 256-row cutoff', async () => {
+  for (const remove of [false, true]) {
+    const { sql, results, store } = person();
+    store(1, 'all model sets.mp4');
+    const sets = Array.from({ length: 257 }, (_, at) => ({ space: `space-${String(at).padStart(4, '0')}`, place: 'said',
+      items: [{ v: half([1, 0, 0]), start: at, end: at + 1, said: 'kept original passage' }] }));
+    results.put([{ identity: drive(1), kind: 'meaning', value: { sets } }]);
+    const search = makeSearch({ sql });
+    await finishIndexing(search);
+    assert.equal(sql.exec('SELECT COUNT(*) AS n FROM search_vectors').one().n, 257);
+    if (remove) results.remove(drive(1), 'meaning');
+    else results.put([{ identity: drive(1), kind: 'meaning', value: { sets: [] } }]);
+    await finishIndexing(search);
+    assert.equal(sql.exec('SELECT COUNT(*) AS n FROM search_vectors').one().n, 0, remove ? 'no erased set leaves orphan vectors' : 'no replaced set leaves orphan vectors');
+    assert.equal(sql.exec('SELECT COUNT(*) AS n FROM search_set_lanes').one().n, 0);
+  }
+});
+
+test('an installed model remains searchable without reading unrelated historical model-place names', async () => {
+  const { spaceOf } = await import('../src/meaning-spaces.mjs');
+  const { sql, results, store } = person();
+  store(1, 'last model.mp4');
+  const encoder = { id: 'tool:last-space', serves: ['encode'], encodes: { accepts: ['text'], space: { model: 'last/model', dim: 3 }, reads: [] } };
+  const space = spaceOf(encoder), reads = [];
+  const measured = { exec(query, ...values) { const cursor = sql.exec(query, ...values); if (/SELECT set_lane FROM search_set_lane_names/.test(query)) reads.push({ query, values, rows: cursor.toArray().length }); return cursor; } };
+  results.put([{ identity: drive(1), kind: 'meaning', value: { sets: [{ space, place: 'said', items: [{ v: half([1, 0, 0]), start: 7, end: 8, said: 'found after all old names' }] }] } }]);
+  const search = makeSearch({ sql: measured, encoders: async () => [encoder], runTool: async () => ({ state: 'completed', output: { model: { name: 'last/model' }, vectors: [[1, 0, 0]] } }) });
+  await finishIndexing(search);
+  const measurements = [];
+  let seeded = 0;
+  for (const total of [1025, 4100]) {
+    for (; seeded < total; seeded += 1) sql.exec('INSERT INTO search_set_lane_names (lane, set_lane) VALUES (?, ?)', 'meaning', `meaning@0${String(seeded).padStart(4, '0')}@said`);
+    reads.length = 0;
+    const answer = await finishPendingSearch(search, `different words ${total}`, { places: ['said'], matches: ['meaning-in-results'] });
+    assert.deepEqual(answer.results.map(row => [row.name, row.start]), [['last model.mp4', 7]]);
+    assert.equal(reads.length, 1);
+    assert.equal(reads[0].rows, 1, 'only the selected installed model/place is materialized');
+    const read = reads[0];
+    const plan = sql.exec(`EXPLAIN QUERY PLAN ${read.query}`, ...read.values).toArray();
+    assert.ok(plan.some(row => /SEARCH search_set_lane_names/.test(row.detail)), JSON.stringify(plan));
+    assert.ok(plan.every(row => !/SCAN search_set_lane_names|TEMP B-TREE/.test(row.detail)), JSON.stringify(plan));
+    measurements.push(reads.map(row => ({ rows: row.rows, values: row.values })));
+  }
+  assert.deepEqual(measurements[0], measurements[1], 'unrelated history growing fourfold adds no selected SQL work');
+});
+
+test('dropping a model-set lane cleans its final vector and index state after 1024 names', async () => {
+  const { sql } = person();
+  makeSearch({ sql });
+  for (let at = 0; at < 1025; at += 1) sql.exec('INSERT INTO search_set_lane_names (lane, set_lane) VALUES (?, ?)', 'meaning', `meaning@space-${String(at).padStart(4, '0')}@said`);
+  const last = 'meaning@space-1024@said';
+  sql.exec('INSERT INTO search_vectors (lane, identity, n, vector) VALUES (?, ?, 0, ?)', last, drive(1), new Uint8Array([127, 0, 0]));
+  sql.exec('INSERT INTO search_vector_counts (lane, n) VALUES (?, 1)', last);
+  sql.exec('INSERT INTO search_vector_trained (lane, vectors, buckets) VALUES (?, 1, 1)', last);
+  sql.exec('INSERT INTO search_vector_centroids (lane, bucket, vector) VALUES (?, 0, ?)', last, new Uint8Array(new Float32Array([1, 0, 0]).buffer));
+  const retired = makeSearch({ sql, config: { ...settings, lanes: settings.lanes.filter(lane => lane.id !== 'meaning') } });
+  for (let step = 0; step < 100 && await retired.stale(); step += 1) await retired.catchUp(128);
+  assert.equal((await retired.stale()), 0, 'the bounded retirement walk finishes across repeated wakes');
+  for (const table of ['search_vectors', 'search_vector_counts', 'search_vector_trained', 'search_vector_centroids']) {
+    assert.equal(sql.exec(`SELECT COUNT(*) AS n FROM ${table} WHERE lane = ?`, last).one().n, 0, `${table} has no orphaned final model set`);
+  }
+});
+
+test('candidate pages retain answered-empty lanes across a real SQLite reopen and bounded cleanup', async t => {
+  const { mkdtempSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const directory = mkdtempSync(join(tmpdir(), 'search-participation-'));
+  const path = join(directory, 'search.sqlite');
+  let host = sqliteHost(path);
+  t.after(() => { host.db.close(); rmSync(directory, { recursive: true, force: true }); });
+  let candidates = searchCandidatePages(host.sql, { pageSize: 2, transaction: host.transaction });
+  const identities = Array.from({ length: 5 }, (_, at) => own(800 + at));
+  for (let at = 0; at < identities.length; at += 2) candidates.putPage('sets', 'parent', 'question',
+    identities.slice(at, at + 2).map((identity, index) => ({ identity, score: 1 - (at + index) / 10 })));
+  const lanes = ['parent@a@said', 'parent@b@said', 'parent@c@said', 'parent@d@said'];
+  for (const lane of lanes) host.sql.exec('INSERT INTO search_candidate_participation VALUES (?, ?, ?, ?)', 'sets', 'parent', 'question', lane);
+  const sourceRevision = candidates.sourceRevision('sets', 'parent', 'question');
+  const ref = { kind: 'sets', lane: 'parent', question: 'question', max_hits: null };
+  let page = candidates.candidatePage(ref);
+  const hits = page.rows.map(row => row.identity), participated = [...page.participated];
+  assert.equal(page.more, true);
+  assert.equal(page.rows.length, 2);
+  assert.equal(page.participated.length, 2);
+  host.db.close();
+  host = sqliteHost(path);
+  candidates = searchCandidatePages(host.sql, { pageSize: 2, transaction: host.transaction });
+  for (let steps = 0; page.more; steps += 1) {
+    assert.ok(steps < 8, 'the durable cursor makes forward progress');
+    page = candidates.candidatePage(ref, page.cursor);
+    assert.ok(page.rows.length <= 2 && page.participated.length <= 2);
+    hits.push(...page.rows.map(row => row.identity));
+    participated.push(...page.participated);
+  }
+  assert.deepEqual(hits, identities);
+  assert.deepEqual(participated, lanes, 'lanes with no candidate hit remain present exactly once');
+  let after = 0, more = true;
+  for (let steps = 0; more; steps += 1) {
+    assert.ok(steps < 8);
+    const cleaned = candidates.deletePage('sets', 'parent', 'question', after);
+    assert.ok(cleaned.deleted <= 2);
+    after = cleaned.after; more = cleaned.more;
+  }
+  assert.deepEqual(candidates.candidatePage(ref).rows, []);
+  assert.deepEqual(candidates.candidatePage(ref).participated, []);
+  assert.ok(candidates.sourceRevision('sets', 'parent', 'question') > sourceRevision,
+    'candidate and answered-empty changes leave a durable revision so a same-key re-add resets old fusion receipts');
+});
+
+test('retired lane discovery resumes past 128 subscriptions across SQLite reopen and fences same-ID re-add', async t => {
+  const { mkdtempSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const directory = mkdtempSync(join(tmpdir(), 'search-retired-discovery-'));
+  const path = join(directory, 'search.sqlite');
+  let host = sqliteHost(path);
+  t.after(() => { host.db.close(); rmSync(directory, { recursive: true, force: true }); });
+  resultsStore(host.sql,identity=>[identity]);
+  makeSearch({ sql: host.sql, config: { ...settings, lanes: [] } });
+  const lanes = ['meaning', ...Array.from({ length: 259 }, (_, at) => `retired-${String(at).padStart(3, '0')}`)].sort();
+  for (const lane of lanes) host.sql.exec('INSERT INTO search_result_lanes (lane, kind, definition) VALUES (?, ?, ?)', lane, lane, `def-${lane}`);
+
+  host.sql.exec('DELETE FROM search_retired_lane_discovery');
+  let search;
+  for (let page = 0; page < 9; page += 1) {
+    if (page > 0) host.db.close();
+    if (page > 0) host = sqliteHost(path);
+    search = makeSearch({ sql: host.sql, config: { ...settings, lanes: [] } });
+    const before = host.sql.exec('SELECT COUNT(*) AS n FROM search_result_lanes').one().n;
+    await search.catchUp(32);
+    const after = host.sql.exec('SELECT COUNT(*) AS n FROM search_result_lanes').one().n;
+    assert.ok(before - after <= 32, 'one alarm queues and removes at most its configured discovery page');
+    assert.ok(after < before || after === 0, 'discovery advances while subscriptions remain');
+  }
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_result_lanes').one().n, 0,
+    'more than 128 removed subscriptions are all discovered without another configuration change');
+  assert.equal(host.sql.exec('SELECT complete FROM search_retired_lane_discovery WHERE singleton = 1').one().complete, 1);
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_retired_lane_cleanup').one().n, lanes.length);
+
+  host.db.close();
+  host = sqliteHost(path);
+  const active = settings.lanes.find(lane => lane.id === 'meaning');
+  search = makeSearch({ sql: host.sql, config: { ...settings, lanes: [active] } });
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_result_lanes WHERE lane = ?', active.id).one().n, 0,
+    'a returning lane waits while its queued cleanup is pending');
+  for (let step = 0; step < 120; step += 1) {
+    const pending = host.sql.exec('SELECT 1 FROM search_retired_lane_cleanup WHERE lane = ? UNION ALL SELECT 1 FROM search_set_cleanup WHERE lane = ? LIMIT 1', active.id, active.id).toArray().length;
+    const subscribed = host.sql.exec('SELECT 1 FROM search_result_lanes WHERE lane = ? LIMIT 1', active.id).toArray().length;
+    if (!pending && subscribed) break;
+    await search.catchUp(32);
+  }
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_retired_lane_cleanup WHERE lane = ?', active.id).one().n, 0);
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_set_cleanup WHERE lane = ?', active.id).one().n, 0);
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_result_lanes WHERE lane = ?', active.id).one().n, 1,
+    'same-ID re-add subscribes only after both durable cleanup walks finish');
+});
+
+test('retirement discovery pages current subscriptions before searching later retired rows',async t=>{
+  const host=sqliteHost(':memory:');t.after(()=>host.db.close());
+  const original=settings.lanes.find(lane=>lane.id==='meaning');
+  const lanes=Array.from({length:12},(_,at)=>({...original,id:`active-${String(at).padStart(3,'0')}`}));
+  const config={...settings,lanes};
+  resultsStore(host.sql,identity=>[identity]);
+  let search=makeSearch({sql:host.sql,config});
+  host.sql.exec('INSERT INTO search_result_lanes(lane,kind,definition) VALUES (?,?,?)','z-retired','old','old-definition');
+  host.sql.exec("UPDATE search_retired_lane_discovery SET complete=0,cursor='' WHERE singleton=1");
+  await search.catchUp(4);
+  const first=host.sql.exec('SELECT cursor,complete FROM search_retired_lane_discovery WHERE singleton=1').one();
+  assert.equal(first.cursor,'active-003','one wake examines four subscriptions, including current ones');
+  assert.equal(first.complete,0,'a current-only page still leaves discovery due');
+  assert.equal(host.sql.exec('SELECT 1 FROM search_retired_lane_cleanup LIMIT 1').toArray().length,0);
+  assert.ok(await search.stale());
+  search=makeSearch({sql:host.sql,config});
+  for(let wake=0;wake<3;wake++)await search.catchUp(4);
+  assert.equal(host.sql.exec('SELECT complete FROM search_retired_lane_discovery WHERE singleton=1').one().complete,1);
+  assert.equal(host.sql.exec('SELECT 1 FROM search_result_lanes WHERE lane=? LIMIT 1','z-retired').toArray().length,0);
+  assert.equal(host.sql.exec('SELECT COUNT(*) AS n FROM search_result_lanes').one().n,lanes.length,'current subscriptions survive retirement discovery');
+});
+
+test('retirement cleanup pages use composite indexed seeks and return only the requested SQLite page', () => {
+  const { sql } = person();
+  makeSearch({ sql, config: { ...settings, lanes: [] } });
+  const nearest = ['nearest', 'lane'];
+  const specs = [
+    { name: 'search_changed', where: 'lane = ?', values: ['lane'], columns: ['identity'] },
+    { name: 'search_vectors', where: 'lane = ?', values: ['lane'], columns: ['identity', 'n'] },
+    { name: 'search_word_rows', where: 'lane = ?', values: ['lane'], columns: ['identity', 'word_row'] },
+    { name: 'search_marks', where: 'lane = ?', values: ['lane'], columns: ['identity'] },
+    { name: 'search_set_lanes', where: 'lane = ?', values: ['lane'], columns: ['identity', 'set_lane'] },
+    { name: 'search_nearest_walks', where: 'lane = ?', values: ['lane'], columns: ['question'] },
+    { name: 'search_set_walks', where: 'lane = ?', values: ['lane'], columns: ['question', 'space'] },
+    { name: 'search_set_results', where: 'lane = ?', values: ['lane'], columns: ['question'] },
+    { name: 'search_walk_activity', where: 'kind = ? AND lane = ?', values: nearest, columns: ['question'] },
+    { name: 'search_walk_cleanup', where: 'kind = ? AND lane = ?', values: ['sets', 'lane'], columns: ['question'] },
+    { name: 'search_candidate_cleanup', where: 'kind = ? AND lane = ?', values: nearest, columns: ['question'] },
+    { name: 'search_candidate_hits', where: 'kind = ? AND lane = ?', values: nearest, columns: ['question', 'seq'] },
+    { name: 'search_candidate_participation', where: 'kind = ? AND lane = ?', values: nearest, columns: ['question', 'actual_lane'] },
+    { name: 'search_candidate_revision', where: 'kind = ? AND lane = ?', values: nearest, columns: ['question'] },
+    { name: 'search_encoder_walks', where: 'lane = ?', values: ['lane'], columns: ['question'] },
+    { name: 'search_encoder_space_rows', where: 'lane = ?', values: ['lane'], columns: ['question', 'revision', 'space'] },
+    { name: 'search_encoder_cleanup', where: 'lane = ?', values: ['lane'], columns: ['question', 'revision'] },
+    { name: 'search_vector_centroids', where: 'lane = ?', values: ['lane'], columns: ['bucket'] },
+    { name: 'search_vector_trained', where: 'lane = ?', values: ['lane'], columns: [] },
+    { name: 'search_vector_counts', where: 'lane = ?', values: ['lane'], columns: [] },
+    { name: 'search_vector_generation', where: 'lane = ?', values: ['lane'], columns: [] },
+  ];
+  for (const kind of ['encoder', 'nearest', 'sets']) specs.push({ name: 'search_walk_activity', where: 'kind = ? AND lane = ?', values: [kind, 'lane'], columns: ['question'] });
+  for (const kind of ['nearest', 'sets']) {
+    specs.push({ name: 'search_walk_cleanup', where: 'kind = ? AND lane = ?', values: [kind, 'lane'], columns: ['question'] });
+    specs.push({ name: 'search_candidate_cleanup', where: 'kind = ? AND lane = ?', values: [kind, 'lane'], columns: ['question'] });
+    specs.push({ name: 'search_candidate_hits', where: 'kind = ? AND lane = ?', values: [kind, 'lane'], columns: ['question', 'seq'] });
+    specs.push({ name: 'search_candidate_participation', where: 'kind = ? AND lane = ?', values: [kind, 'lane'], columns: ['question', 'actual_lane'] });
+    specs.push({ name: 'search_candidate_revision', where: 'kind = ? AND lane = ?', values: [kind, 'lane'], columns: ['question'] });
+  }
+  for (const spec of specs) {
+    const cursor = spec.columns.map(column => /^(n|seq|bucket|word_row)$/.test(column) ? 0 : '');
+    const plan = sql.exec(`EXPLAIN QUERY PLAN ${searchCleanupPageQuery({ ...spec, cursor })}`,
+      ...spec.values, ...cursor, 4).toArray().map(row => row.detail).join(' | ');
+    assert.match(plan, /SEARCH/i, `${spec.name} cleanup must use an indexed search: ${plan}`);
+    assert.doesNotMatch(plan, /SCAN\s+\w+/i, `${spec.name} cleanup must not scan a table prefix: ${plan}`);
+    assert.doesNotMatch(plan, /USE TEMP B-TREE/i, `${spec.name} cleanup order must come from the index: ${plan}`);
+  }
+
+  for (let at = 0; at < 600; at += 1) {
+    sql.exec('INSERT INTO search_vectors (lane, identity, n, vector) VALUES (?, ?, 0, ?)',
+      'target', `target-${String(at).padStart(4, '0')}`, new Uint8Array([127, 0, 0]));
+  }
+  const spec = { name: 'search_vectors', where: 'lane = ?', values: ['target'], columns: ['identity', 'n'] };
+  const first = searchCleanupPage(sql, spec, [], 5, ...spec.values);
+  const second = searchCleanupPage(sql, spec, first.cursor, 5, ...spec.values);
+  assert.equal(first.rowids.length, 5);
+  assert.equal(second.rowids.length, 5);
+  assert.ok(second.rows[0].identity > first.rows.at(-1).identity, 'the persisted composite cursor seeks past the previous page');
+  assert.equal(new Set([...first.rowids, ...second.rowids]).size, 10, 'adjacent cleanup pages never replay a row');
+});
+
+test('a meaning lane that cannot embed the question says why: the failure the meter wrapped, not only its wrapper', async () => {
+  const { sql } = person();
+  const lane = settings.lanes.find(item => item.id === 'speech-meaning');
+  const refused = Object.assign(new Error('Resource quota: measurement_or_receipt_uncertain'), { cause: Object.assign(new Error('The model road refused: no admission'), { cause: new Error('quota object busy') }) });
+  const search = makeSearch({ sql, config: { ...settings, lanes: [lane] }, embed: async () => { throw refused; } });
+  const found = await finishPendingSearch(search, 'toss', { sources: ['files'], places: ['said'] });
+  const said = found.unavailable.find(item => item.lane === lane.id);
+  assert.ok(said, `the lane is named unavailable: ${JSON.stringify(found.unavailable)}`);
+  assert.match(said.reason, /measurement_or_receipt_uncertain: The model road refused: no admission: quota object busy/);
+});

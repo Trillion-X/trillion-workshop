@@ -95,3 +95,15 @@ test('a check is asked of its own method and the methods extending it, never of 
   assert.deepEqual(asked('quick'), ['outcome-before-after'], 'an extending method asks its parent\'s checks');
   assert.deepEqual(asked('other'), ['other-outcome']);
 });
+
+test('a part_of kept as a one-element list builds the method from its parent and asks its parent\'s checks; two parents are refused', () => {
+  const quick = { id: 'quick', name: 'Quick', part_of: ['plain'] };
+  const other = { ...plainMethod(), id: 'other', default_for: [] };
+  const listedChecks = [...plainChecks(), { id: 'other-outcome', part_of: 'other', step: 'outcome', check: 'A check only the other method asks', good_answer: 'Anything' }]
+    .map(row => (typeof row.part_of === 'string' ? { ...row, part_of: [row.part_of] } : row));
+  const cat = methodCatalogue([plainMethod(), quick, other], listedChecks);
+  const record = opened(cat.snapshotMethod('quick'));
+  record.guidance.push({ step_id: 'scope', answer: { decision_context: { worth_weighing: true, compare_existing: true }, evidence_refs: ['e1'] } });
+  assert.deepEqual(cat.checklistFor(record, cat.stepsFor(record).find(step => step.id === 'outcome')).map(row => row.id), ['outcome-before-after']);
+  assert.throws(() => methodCatalogue([plainMethod(), other, { id: 'both', part_of: ['plain', 'other'] }], plainChecks()), /plain and other/);
+});

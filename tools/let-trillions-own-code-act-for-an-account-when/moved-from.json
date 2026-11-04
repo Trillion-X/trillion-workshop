@@ -1,0 +1,40 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/service-actor.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/let-trillions-own-code-act-for-an-account-when/from-old-trillion/src/service-actor.mjs.held",
+      "source_identity": "1f:f253ab8f25ff874e869f323f25116951f09fc2add517f5d00fbf153b32fd7014",
+      "identity": "1f:284b391edc1a0a4c06df8fa1a1b3a252051ba1e0f6b89dc7f6309ace1382ec05",
+      "held": true
+    },
+    {
+      "from": "test/service-actor-derived-key.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/let-trillions-own-code-act-for-an-account-when/from-old-trillion/test/service-actor-derived-key.test.mjs.held",
+      "source_identity": "1f:e2f4534243e2e27571da4cc827ac6f5d2bfe0f4208570bb16906c79c2926b5fd",
+      "identity": "1f:7ba1733f43a1e6a07fc599120d4c51181ba850d28cc24b27b6b525d52df99174",
+      "held": true
+    },
+    {
+      "from": "test/service-actor-operation-gate.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/let-trillions-own-code-act-for-an-account-when/from-old-trillion/test/service-actor-operation-gate.test.mjs.held",
+      "source_identity": "1f:39eda35d407424267eef7066995cbf5ef1ddde0f6d4fcbbdcbe86b9b8d6301b2",
+      "identity": "1f:39eda35d407424267eef7066995cbf5ef1ddde0f6d4fcbbdcbe86b9b8d6301b2",
+      "held": true
+    },
+    {
+      "from": "test/service-actor.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/let-trillions-own-code-act-for-an-account-when/from-old-trillion/test/service-actor.test.mjs.held",
+      "source_identity": "1f:b3169160b99fabca3f4ac74c4e38a08ce2c5425c55efcb39bdd2786cf246c027",
+      "identity": "1f:7ae71da54efc3938ad98b8a9ab0d569feb3cccafa093d4203aa5763ca9d387a4",
+      "held": true
+    }
+  ]
+}

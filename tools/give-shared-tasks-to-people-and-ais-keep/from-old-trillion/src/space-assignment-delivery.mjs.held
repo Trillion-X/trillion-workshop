@@ -1,0 +1,108 @@
+// Shared assignments have a delivery obligation, not an assumption that their recipient opened the space.
+// One durable row per item records the current assignment revision. Its source remains the space item; no task
+// content or contact address is copied here. The Network's existing alarm handles bounded retries, including a
+// restart before the recipient store answered. It never treats saving a notice as proof the person saw it.
+//
+// Invariants:
+// 1. A replay of the same assignment keeps its revision and notice key. Reassignment or reopening starts a revision.
+// 2. Every attempt rechecks the current item, current membership, a unique recipient and the recipient's permission
+//    to read the item. Done, withdrawn, reassigned and inaccessible items never produce a new send.
+// 3. Recipient channel choices and show rules are enforced by tell-the-person. Accepted channels are not resent;
+//    an uncertain attempt is held for reconciliation, never blindly repeated. A read receipt is not task completion.
+// 4. The shared owner keeps only delivery status. An error leaves a durable bounded retry or a visible held reason.
+// 5. A space in transfer or already moved is not dispatched from its old owner. The delivery rows move with it.
+import settings from './space-assignment-delivery.json' with { type: 'json' };
+import waiting from '../../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json' with { type: 'json' };
+import { doneByFacts } from '../../../browse-inspiration-clips/card-sections.mjs';
+
+const name = value => String(value ?? '').trim().replace(/\s+/g, ' ').toLowerCase();
+const active = facts => Boolean(name(facts?.[settings.assignee_field])) && !doneByFacts({ facts }, waiting.sources.assigned.done_facts);
+const text = value => String(value ?? '').slice(0, 300);
+
+/** An exact member id wins; a display name must identify exactly one current member. */
+export function assignmentRecipient(assignee, members) {
+  const wanted = name(assignee);
+  const byId = members.filter(member => name(member.relay) === wanted);
+  const found = byId.length ? byId : members.filter(member => name(member.name) === wanted);
+  return found.length === 1 && found[0].person_ref ? { recipient: found[0] }
+    : { blocked: true, reason: found.length > 1 ? 'The assignee name identifies more than one current member. Use the member id.' : 'The assignee does not identify one reachable current member. Use the member id.' };
+}
+
+export function initSpaceAssignmentDeliveries(sql) {
+  sql.exec('CREATE TABLE IF NOT EXISTS space_assignment_deliveries (space_id TEXT NOT NULL, item_id TEXT NOT NULL, revision INTEGER NOT NULL, assignee TEXT NOT NULL, state TEXT NOT NULL, attempts INTEGER NOT NULL, next_at_ms INTEGER, last_error TEXT, provider_accepted INTEGER NOT NULL DEFAULT 0, awareness TEXT NOT NULL DEFAULT \'unknown\', updated_at_ms INTEGER NOT NULL, PRIMARY KEY (space_id, item_id))');
+  sql.exec("CREATE INDEX IF NOT EXISTS space_assignment_delivery_due ON space_assignment_deliveries (next_at_ms) WHERE state = 'pending'");
+}
+
+export function assignmentNotice(item, revision, config = settings) {
+  const card = `assigned:${item.space_id}:${item.item_id}`;
+  const open = config.open.replace(/\{(space_id|item_id)\}/g, (_, field) => encodeURIComponent(item[field]));
+  return { key: `${config.key_prefix}:${item.space_id}:${item.item_id}:${revision}`, kind: config.notice_kind,
+    title: item.title || 'A task needs you', body: typeof item.body?.text === 'string' ? item.body.text : '',
+    open, refs: { card, open, space_id: item.space_id, item_id: item.item_id } };
+}
+
+/** sql is this Space owner's SQL. resolve rechecks the source; deliver uses the recipient's own notification owner. */
+export function makeSpaceAssignmentDeliveries({ sql, resolve, deliver, config = settings, now = () => Date.now() }) {
+  const read = (spaceId, itemId) => sql.exec('SELECT * FROM space_assignment_deliveries WHERE space_id = ? AND item_id = ?', spaceId, itemId).toArray()[0] ?? null;
+  const usableOwner = "r.state IS NOT 'active' AND r.state IS NOT 'copying'";
+  let running = null;
+  const status = row => row ? { state: row.state, revision: row.revision, attempts: row.attempts,
+    delivery_accepted: row.provider_accepted === 1,
+    awareness: row.awareness,
+    ...(row.last_error ? { reason: row.last_error } : {}), ...(row.next_at_ms == null ? {} : { next_at: new Date(row.next_at_ms).toISOString() }) } : null;
+  function cancel(spaceId, itemId, reason = 'The assignment no longer needs delivery.') {
+    sql.exec("UPDATE space_assignment_deliveries SET state = 'cancelled', next_at_ms = NULL, last_error = ?, updated_at_ms = ? WHERE space_id = ? AND item_id = ? AND state IN ('pending', 'held', 'uncertain')", reason, now(), spaceId, itemId);
+  }
+  function queue({ space_id: spaceId, item_id: itemId, before = {}, facts = {}, changed = {} }) {
+    const earlier = read(spaceId, itemId);
+    if (!active(facts)) { cancel(spaceId, itemId); return status(read(spaceId, itemId)); }
+    const assignee = name(facts[config.assignee_field]);
+    // Installing this owner does not contact everyone who already had a task. An unrelated edit to an existing
+    // assignment is not a new request. New assignments, reassignment, reopening and an explicit assignment command
+    // are the bounded trigger; the last also provides recovery for an old assignment with no delivery receipt.
+    if (!earlier && active(before) && name(before[config.assignee_field]) === assignee && !Object.hasOwn(changed, config.assignee_field)) return null;
+    if (earlier && earlier.assignee === assignee && active(before)) {
+      // Explicitly filing the same assignment can retry a held delivery after its underlying setup was fixed.
+      // The notice key is unchanged, so the recipient owner still suppresses accepted or uncertain channels.
+      if (earlier.state === 'held' && Object.hasOwn(changed, config.assignee_field)) sql.exec("UPDATE space_assignment_deliveries SET state = 'pending', attempts = 0, next_at_ms = ?, updated_at_ms = ? WHERE space_id = ? AND item_id = ? AND state = 'held'", now(), now(), spaceId, itemId);
+      return status(read(spaceId, itemId));
+    }
+    const revision = (earlier?.revision ?? 0) + 1;
+    sql.exec("INSERT INTO space_assignment_deliveries (space_id, item_id, revision, assignee, state, attempts, next_at_ms, last_error, updated_at_ms) VALUES (?, ?, ?, ?, 'pending', 0, ?, NULL, ?) ON CONFLICT (space_id, item_id) DO UPDATE SET revision = excluded.revision, assignee = excluded.assignee, state = excluded.state, attempts = 0, next_at_ms = excluded.next_at_ms, last_error = NULL, provider_accepted = 0, awareness = 'unknown', updated_at_ms = excluded.updated_at_ms", spaceId, itemId, revision, assignee, now(), now());
+    return status(read(spaceId, itemId));
+  }
+  async function attempt(row) {
+    // The revision may have changed while a previous member's delivery was in flight.
+    const current = () => { const value = read(row.space_id, row.item_id); return value?.revision === row.revision && value.state === 'pending'; };
+    if (!current()) return;
+    let receipt;
+    try {
+      const target = await resolve(row);
+      if (!current()) return;
+      receipt = target.inactive || target.blocked ? target : await deliver(target.recipient, row);
+    } catch (error) { receipt = { reason: text(error?.message ?? error) }; }
+    if (!current()) return;
+    const attempts = row.attempts + 1;
+    const accepted = receipt?.delivery_accepted === true;
+    const readReceipt = receipt?.awareness === 'read-receipt';
+    const state = receipt?.inactive ? 'cancelled' : readReceipt ? 'acknowledged' : accepted ? 'accepted'
+      : receipt?.uncertain ? 'uncertain' : receipt?.blocked || attempts >= config.attempts ? 'held' : 'pending';
+    const delay = config.retry_seconds[Math.min(attempts - 1, config.retry_seconds.length - 1)];
+    const reason = state === 'accepted' || state === 'acknowledged' ? null
+      : text(receipt?.reason || (state === 'held' ? 'No confirmed delivery; the bounded attempts are held for review.' : 'No channel has confirmed delivery.'));
+    sql.exec("UPDATE space_assignment_deliveries SET state = ?, attempts = ?, next_at_ms = ?, last_error = ?, provider_accepted = ?, awareness = ?, updated_at_ms = ? WHERE space_id = ? AND item_id = ? AND revision = ? AND state = 'pending'", state, attempts, state === 'pending' ? now() + delay * 1000 : null, reason, accepted ? 1 : 0, readReceipt ? 'read-receipt' : 'unknown', now(), row.space_id, row.item_id, row.revision);
+  }
+  async function runDue() {
+    const rows = sql.exec(`SELECT d.* FROM space_assignment_deliveries d LEFT JOIN space_partition_routes r ON r.space_id = d.space_id WHERE d.state = 'pending' AND d.next_at_ms <= ? AND ${usableOwner} ORDER BY d.next_at_ms LIMIT ?`, now(), config.batch).toArray();
+    for (const row of rows) await attempt(row);
+    return { checked: rows.length };
+  }
+  return {
+    queue, cancel, read,
+    status: (spaceId, itemId) => status(read(spaceId, itemId)),
+    nextAt: () => sql.exec(`SELECT MIN(d.next_at_ms) AS at FROM space_assignment_deliveries d LEFT JOIN space_partition_routes r ON r.space_id = d.space_id WHERE d.state = 'pending' AND ${usableOwner}`).toArray()[0]?.at ?? null,
+    runDue() { running ??= runDue().finally(() => { running = null; }); return running; },
+  };
+}
+
+export const isActiveAssignment = active;

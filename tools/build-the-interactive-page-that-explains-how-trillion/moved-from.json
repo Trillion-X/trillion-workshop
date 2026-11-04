@@ -1,0 +1,90 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/anatomy/explainer-page.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/parts/ui/show/anatomy/explainer-page.mjs",
+      "source_identity": "1f:b2aa75508cd6f95bddca46e094e30e801a6bc32906f2a53278621c5a0124c2fc",
+      "identity": "1f:f736801a66b2dde0a166e90daa02a4067f7b6845c762f8ecad407a448ad68c4f"
+    },
+    {
+      "from": "parts/ui/show/anatomy/explainer-page.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/parts/ui/show/anatomy/explainer-page.mjs",
+      "source_identity": "1f:b2aa75508cd6f95bddca46e094e30e801a6bc32906f2a53278621c5a0124c2fc",
+      "identity": "1f:f736801a66b2dde0a166e90daa02a4067f7b6845c762f8ecad407a448ad68c4f",
+      "reused": true
+    },
+    {
+      "from": "parts/ui/show/anatomy/iso-kit.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/parts/ui/show/anatomy/iso-kit.mjs",
+      "source_identity": "1f:efe21634b38ea63c6ab38534118b621812d2c477208011de4123ac3c4a0bac2f",
+      "identity": "1f:69af63a0ee4eb23a0e8459cefc1eabe472a272e5c744621e08b57bde8334bc50"
+    },
+    {
+      "from": "parts/ui/show/anatomy/iso-kit.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/parts/ui/show/anatomy/iso-kit.mjs",
+      "source_identity": "1f:efe21634b38ea63c6ab38534118b621812d2c477208011de4123ac3c4a0bac2f",
+      "identity": "1f:69af63a0ee4eb23a0e8459cefc1eabe472a272e5c744621e08b57bde8334bc50",
+      "reused": true
+    },
+    {
+      "from": "parts/ui/show/anatomy/selector-machine.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/parts/ui/show/anatomy/selector-machine.mjs",
+      "source_identity": "1f:164caae23149a465561723bd8100962f7219b67ae7dd65134de0a965f6b6bcf0",
+      "identity": "1f:164caae23149a465561723bd8100962f7219b67ae7dd65134de0a965f6b6bcf0"
+    },
+    {
+      "from": "parts/ui/show/anatomy/selector-machine.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/parts/ui/show/anatomy/selector-machine.mjs",
+      "source_identity": "1f:164caae23149a465561723bd8100962f7219b67ae7dd65134de0a965f6b6bcf0",
+      "identity": "1f:164caae23149a465561723bd8100962f7219b67ae7dd65134de0a965f6b6bcf0",
+      "reused": true
+    },
+    {
+      "from": "records/trillion-anatomy-explainer.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/records/trillion-anatomy-explainer.json",
+      "source_identity": "1f:12807ac8e5b9e561c4f517c2127c9817acfa0b161f32fe7eff48d2be27c1b732",
+      "identity": "1f:12807ac8e5b9e561c4f517c2127c9817acfa0b161f32fe7eff48d2be27c1b732"
+    },
+    {
+      "from": "records/trillion-anatomy-explainer.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/records/trillion-anatomy-explainer.json",
+      "source_identity": "1f:12807ac8e5b9e561c4f517c2127c9817acfa0b161f32fe7eff48d2be27c1b732",
+      "identity": "1f:12807ac8e5b9e561c4f517c2127c9817acfa0b161f32fe7eff48d2be27c1b732",
+      "reused": true
+    },
+    {
+      "from": "scripts/build-anatomy-explainer.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/scripts/build-anatomy-explainer.mjs",
+      "source_identity": "1f:7b415d5f9cc3b2e6183c5e55b904959ff0a230332d11c39401a9401bebb06fab",
+      "identity": "1f:7b415d5f9cc3b2e6183c5e55b904959ff0a230332d11c39401a9401bebb06fab"
+    },
+    {
+      "from": "test/anatomy-structure.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/test/anatomy-structure.test.mjs",
+      "source_identity": "1f:9fb15ff7d80df4d019b2f647244fd9fcbf707463a137925160d070ad8e87d484",
+      "identity": "1f:9fb15ff7d80df4d019b2f647244fd9fcbf707463a137925160d070ad8e87d484"
+    },
+    {
+      "from": "parts/ui/show/server-rendered-page/escape-html.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/write-a-post-for-each-place/read-data/escape-html.mjs",
+      "source_identity": "1f:7735e3da0d51b4971f1f8ba7f7577d8b7de56bcf651941546e4e978636b4e144",
+      "identity": "1f:7735e3da0d51b4971f1f8ba7f7577d8b7de56bcf651941546e4e978636b4e144",
+      "reused": true
+    }
+  ]
+}

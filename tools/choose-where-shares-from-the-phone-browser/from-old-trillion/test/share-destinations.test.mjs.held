@@ -1,0 +1,820 @@
+// Where shares go and what the AI does with them: one list over the person's pursuits (each with its room) and saved
+// instructions, read and changed through the REST route and the two MCP tools, with saved_instructions reading the same
+// actions.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { handleAgentsRequest, handoffIdFor, instructionsInTreeOrder, makeAgents, startersFrom } from '../../../shared-code/src/agents.mjs';
+import { agentStoreForTests } from './agent-store-for-tests.mjs';
+import inboundWords from '../../../keep-and-wake-ai-sessions-on-this-computer/src/inbound-words.json' with { type: 'json' };
+import { executionModeRecipes } from '../src/execution-modes.mjs';
+import { connectedTo, filesPrivatelyOf, handleShareDestinationsRequest, isPersonShareHandOff, isShareDestinationsPath, makeShareDestinations, memoryShareHistory, personShareHandOff, shareDestinationTools } from '../src/share-destinations.mjs';
+import { actionForAddress, startingAction } from '../src/share-starting-action.mjs';
+import { handleMcpMessage, makeTools } from '../../../list-and-run-trillions-tools-for-any-ai/from-old-trillion/src/tools.mjs.held';
+import starterRows from '../records/saved-instruction-starters.json' with { type: 'json' };
+
+// The workflows this person's AI can find, as /workflows/describe answers them: shaped like the shipped rows.
+const workflows = {
+  'workflow:research-brief-and-study': { id: 'workflow:research-brief-and-study', label: 'Research brief and study', input_schema: { type: 'object', required: ['subject'], properties: { subject: { type: 'string', minLength: 3 } } } },
+  'workflow:l078-research-to-plan': { id: 'workflow:l078-research-to-plan', label: 'Research to plan', input_schema: { type: 'object', required: ['capability'], properties: { capability: { type: 'string', minLength: 3 } } } },
+  'workflow:skill-article-prompts-to-skills': { id: 'workflow:skill-article-prompts-to-skills', label: 'Article prompts to skills', input_schema: { type: 'object', properties: { request: { type: 'string' } } } },
+  // The real Trillion X mode workflow, so what a share starts is checked against its real input shape.
+  'workflow:trillion-x-mode': executionModeRecipes().find(recipe => recipe.id === 'workflow:trillion-x-mode'),
+};
+
+// One person: their saved instructions (the agents owner), their pursuits as GET /pursuits answers them (tree order,
+// depth, each room's space_id and the other people in it), and the kept arrangement.
+// The Workshop's tools: one takes what is shared (a tool place), one does not.
+const tellTheMakers = { tool_id: 'tool:tell-the-makers', label: 'Tell the people who make it', job: 'Tell the people who make it about anything', input_schema: { type: 'object', properties: { things: { type: 'array' }, note: { type: 'string' }, picture: { type: 'string' }, browser: { type: 'string' } } } };
+const countWords = { tool_id: 'tool:count-words', label: 'Count words', job: 'Count the words', input_schema: { type: 'object', properties: { text: { type: 'string' } } } };
+const community = { id: 'pursuit:community', title: 'Trillion community', depth: 0, space_id: 'space-community', others: ['Ana', 'Bo', 'Cy'], people_count: 4 };
+const pottery = { id: 'pursuit:pottery', title: 'Pottery group', depth: 0, space_id: 'space-pottery', others: ['Sam'], people_count: 2 };
+
+function person(pursuits = [community, pottery], refuses = null, tools = [countWords], hooks = {}) {
+  const agents = makeAgents({ store: agentStoreForTests(), starters: hooks.starters ?? startersFrom(starterRows) });
+  let kept = null;
+  const listed = [...pursuits];
+  // What a delivery sent to this person's own routes, in order; a path matching `refuses` is refused as a route would.
+  const sent = [];
+  const send = async (path, body) => {
+    if (refuses?.test(path)) throw new Error('That space is closed.');
+    sent.push({ path, body });
+    if (path === '/workflows/describe') {
+      const workflow = workflows[body.workflow_id];
+      if (!workflow) throw new Error(`There is no workflow ${body.workflow_id}.`);
+      return { workflow };
+    }
+    if (path === '/workflows/start') return { run_id: `run:${body.request_key}`, workflow_id: body.workflow_id, state: 'working' };
+    if (path === '/tools/run') return hooks.toolReply ? hooks.toolReply(body) : { task_id: `task:${body.request_key}`, state: 'completed', output: { said: 'Sent.' } };
+    const reply = hooks.send?.(path, body);
+    if (reply !== undefined) return reply;
+    return path === '/saved-examples' ? { id: `example:${sent.length}` } : path === '/handoffs' ? { handoff: { handoff_id: `h_${sent.length}` } } : {};
+  };
+  const shares = makeShareDestinations({ store: { choices: () => structuredClone(kept), putChoices: value => { kept = structuredClone(value); } }, history: memoryShareHistory(), instructions: agents, pursuits: async () => listed, focus: async () => hooks.focus ?? null, filesPrivately: hooks.filesPrivately ?? true, tools: async () => tools, send, readLink: hooks.readLink ?? (async () => null), later: hooks.later ?? (() => {}), connect: hooks.connect ?? null, aiWorkOf: hooks.aiWorkOf ?? (() => null), standing: hooks.standing ?? (() => null) });
+  const route = async (method, body) => {
+    const response = await handleShareDestinationsRequest(shares, new Request('https://person/share-destinations', { method, ...(body === undefined ? {} : { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }) }));
+    return { status: response.status, body: await response.json() };
+  };
+  const deliver = async body => {
+    const response = await handleShareDestinationsRequest(shares, new Request('https://person/share-destinations/deliver', { method: 'POST', body: JSON.stringify(body) }));
+    return { status: response.status, body: await response.json() };
+  };
+  return { agents, shares, route, listed, sent, deliver };
+}
+
+test('share destination reads and edits await the same current Marketplace starter provider as saved instructions',async()=>{
+  let rows=[{id:'published',label:'Published action',words:'Use the published action.'}];
+  const p=person([],null,[],{starters:async()=>rows});
+  assert.deepEqual((await p.route('GET')).body.actions.map(row=>row.id),['published']);
+  const edited=await p.route('POST',{actions:[{id:'mine',label:'Private action',words:'Use my edited action.'}],folders:[]});
+  assert.equal(edited.status,200);assert.deepEqual(edited.body.actions.map(row=>row.id),['mine']);
+  rows=[{id:'updated',label:'Updated default',words:'Use the updated default.'}];
+  assert.deepEqual((await p.route('GET')).body.actions.map(row=>row.id),['mine']);
+  assert.deepEqual((await p.route('POST',{actions:[],folders:[]})).body.actions,[]);
+  await p.agents.instructions({instructions:null});
+  assert.deepEqual((await p.route('GET')).body.actions.map(row=>row.id),['updated']);
+  rows=[];
+  assert.deepEqual((await p.route('GET')).body.actions,[],'withdrawn starter sections remain empty in the sibling sharing consumer');
+});
+
+test('a new person reads their own Trillion first and on, each pursuit with its room folded in, shown and off, and the starter actions', async () => {
+  const { route } = person();
+  const { status, body } = await route('GET');
+  assert.equal(status, 200);
+  assert.deepEqual(body.destinations, [
+    { id: 'private', label: 'My Trillion', description: 'Only you and your AIs', depth: 0, to: { private: true }, others_count: 0, on_by_default: true },
+    // More people than names_shown read as the first names and how many more.
+    { id: 'pursuit:community', label: 'Trillion community', description: 'Ana, Bo and 1 more', depth: 0, to: { pursuit_id: 'pursuit:community', space_id: 'space-community' }, others_count: 3, on_by_default: false },
+    { id: 'pursuit:pottery', label: 'Pottery group', description: 'With Sam', depth: 0, to: { pursuit_id: 'pursuit:pottery', space_id: 'space-pottery' }, others_count: 1, on_by_default: false },
+  ]);
+  assert.deepEqual(body.actions.map(action => action.id), instructionsInTreeOrder(startersFrom(starterRows)).map(action => action.id));
+  assert.ok(body.actions.some(action => action.id === 'why-was-this-posted' && action.label === 'Why was this posted?'));
+  assert.deepEqual(body.default_action_by_site, [{ host_suffix: 'instagram.com', action_id: 'study-content-format' }, { host_suffix: 'gettrillion.ai', action_id: 'make-it-mine' }]);
+  assert.equal(body.all_destinations.length, 3);
+});
+
+test('the places come in the pursuits owner order with its depth, each pursuit once; a private pursuit has no room and no people line', async () => {
+  const { route } = person([
+    { id: 'pursuit:life', title: 'A meaningful life', depth: 0 },
+    { id: 'pursuit:build', title: 'Build it', depth: 1, space_id: 'space-build', others: [], people_count: 1 },
+    { id: 'pursuit:customers', title: 'Paying customers', depth: 2 },
+    { id: 'pursuit:books', title: 'Books', depth: 1 },
+    { id: 'pursuit:bakery', title: 'Bakery company', depth: 0, space_id: 'space-bakery', others: ['Casey', 'Jordan'], people_count: 3 },
+    { id: 'pursuit:old', title: 'Put away', depth: 0, status: 'archived' },
+  ]);
+  const { body } = await route('GET');
+  assert.deepEqual(body.destinations.map(place => [place.id, place.depth, place.description, place.to]), [
+    ['private', 0, 'Only you and your AIs', { private: true }],
+    ['pursuit:life', 0, null, { pursuit_id: 'pursuit:life' }],
+    ['pursuit:build', 1, null, { pursuit_id: 'pursuit:build', space_id: 'space-build' }],
+    ['pursuit:customers', 2, null, { pursuit_id: 'pursuit:customers' }],
+    ['pursuit:books', 1, null, { pursuit_id: 'pursuit:books' }],
+    ['pursuit:bakery', 0, 'With Casey and Jordan', { pursuit_id: 'pursuit:bakery', space_id: 'space-bakery' }],
+  ]);
+});
+
+test('the pursuit the workspace is focused on comes first with what is under it and starts picked; else the last share\'s pursuit comes first', async () => {
+  const tree = [
+    { id: 'pursuit:life', title: 'A meaningful life', depth: 0 },
+    { id: 'pursuit:build', title: 'Build it', depth: 1, space_id: 'space-build' },
+    { id: 'pursuit:customers', title: 'Paying customers', depth: 2 },
+    { id: 'pursuit:books', title: 'Books', depth: 1 },
+  ];
+  const focused = person(tree, null, [countWords], { focus: 'space-build' });
+  const { body } = await focused.route('GET');
+  assert.deepEqual(body.destinations.map(place => [place.id, place.depth, place.on_by_default]), [
+    ['private', 0, true], ['pursuit:build', 0, true], ['pursuit:customers', 1, false], ['pursuit:life', 0, false], ['pursuit:books', 1, false],
+  ]);
+  const unfocused = person(tree);
+  await unfocused.deliver({ to: ['pursuit:books'], items: [{ kind: 'record', record: 'decision:1' }], request_key: 'last' });
+  const after = (await unfocused.route('GET')).body.destinations;
+  assert.deepEqual(after.map(place => [place.id, place.on_by_default]).slice(0, 2), [['private', true], ['pursuit:books', false]]);
+});
+
+test('hiding and switching on are kept by pursuit; the order stays the owner\'s; a choice saved by a room id belongs to its pursuit', async () => {
+  const { route } = person();
+  const { body } = await route('POST', { destinations: [{ id: 'pursuit:pottery', shown: true, on_by_default: true }, { id: 'private', shown: true, on_by_default: false }, { id: 'space-community', shown: false, on_by_default: false }] });
+  assert.deepEqual(body.destinations.map(place => [place.id, place.on_by_default]), [['private', false], ['pursuit:pottery', true]]);
+  assert.deepEqual(body.all_destinations.map(place => [place.id, place.shown]), [['private', true], ['pursuit:community', false], ['pursuit:pottery', true]]);
+  assert.deepEqual((await route('GET')).body.destinations.map(place => place.id), ['private', 'pursuit:pottery']);
+});
+
+test('a place left out keeps what it has; a pursuit made later appears in its place, shown and off; one that ended is gone', async () => {
+  const { route, listed } = person();
+  await route('POST', { destinations: [{ id: 'pursuit:pottery', shown: true, on_by_default: true }] });
+  listed.unshift({ id: 'pursuit:new', title: 'New project', depth: 0 });
+  listed.splice(listed.findIndex(pursuit => pursuit.id === 'pursuit:community'), 1);
+  const { body } = await route('GET');
+  assert.deepEqual(body.destinations.map(place => [place.id, place.on_by_default]), [['private', true], ['pursuit:new', false], ['pursuit:pottery', true]]);
+});
+
+test('their own Trillion can never be hidden, and a refused save changes nothing', async () => {
+  const { route } = person();
+  const before = (await route('GET')).body;
+  const refused = await route('POST', { destinations: [{ id: 'private', shown: false }], actions: [{ label: 'Only', words: 'Only this' }] });
+  assert.equal(refused.status, 400);
+  assert.match(refused.body.error, /always offered/);
+  assert.deepEqual((await route('GET')).body, before);
+  const unknownAction = await route('POST', { actions: [{ id: 'mine', label: 'Mine', words: 'Do mine' }], default_action_by_site: [{ host_suffix: 'x.com', action_id: 'study-content-format' }] });
+  assert.equal(unknownAction.status, 400);
+  assert.deepEqual((await route('GET')).body, before);
+  assert.equal((await route('POST', {})).status, 400);
+  assert.equal((await route('POST', { default_action_by_site: [{ host_suffix: 'not a site', action_id: 'no-clue' }] })).status, 400);
+});
+
+test('actions are the saved instructions: edited here, saved_instructions reads them, and the other way round', async () => {
+  const { route, agents } = person();
+  const { body } = await route('POST', {
+    actions: [{ id: 'why-was-this-posted', label: 'Why was this posted?', words: 'Find out why this was posted.' }, { label: 'Summarise it', words: 'Summarise it in three lines.' }],
+    default_action_by_site: [{ host_suffix: 'www.YouTube.com', action_id: 'why-was-this-posted' }],
+  });
+  assert.deepEqual(body.actions.map(action => action.label), ['Why was this posted?', 'Summarise it']);
+  // The folders kept from the starters stay, since the save left folders out.
+  assert.deepEqual(agents.instructions({}).instructions.filter(row => row.kind !== 'folder'), body.actions.map(({ folder, ...action }) => action));
+  assert.deepEqual(body.default_action_by_site, [{ host_suffix: 'youtube.com', action_id: 'why-was-this-posted' }]);
+
+  agents.instructions({ instructions: [{ label: 'Summarise it', words: 'Summarise it in three lines.' }] });
+  const after = (await route('GET')).body;
+  assert.deepEqual(after.actions.map(action => action.label), ['Summarise it']);
+  // The site default whose action was removed is left out.
+  assert.deepEqual(after.default_action_by_site, []);
+});
+
+test('actions are one list the person arranges: a folder holds actions, the order given is kept, and the tree is read actions first, then folders', async () => {
+  const { route, agents } = person();
+  const { body } = await route('POST', {
+    folders: [{ id: 'work', label: 'Work' }, { id: 'product', label: 'Product', folder: 'work' }],
+    actions: [
+      { id: 'later', label: 'Read later', words: 'Keep it for later.' },
+      { id: 'direction', label: 'Product direction', words: 'Say what this means for where the product is going.', folder: 'product' },
+      { id: 'summary', label: 'Summarise it', words: 'Summarise it in three lines.', folder: 'work' },
+    ],
+  });
+  // Within a folder its actions come first, then the folders inside it, so the first action is the first at the top.
+  assert.deepEqual(body.actions.map(action => [action.id, action.folder]), [['later', null], ['summary', 'work'], ['direction', 'product']]);
+  assert.deepEqual(body.folders, [{ id: 'work', label: 'Work', folder: null }, { id: 'product', label: 'Product', folder: 'work' }]);
+  // saved_instructions reads the same rows, folders included.
+  assert.deepEqual(agents.instructions({}).instructions.filter(row => row.kind === 'folder').map(row => row.id), ['work', 'product']);
+
+  // A place that saves the actions without knowing folders (an older app) moves nothing; folder: null moves to the top.
+  const resaved = (await route('POST', { actions: [...body.actions.map(({ id, label, words }) => ({ id, label, words })), { label: 'New one', words: 'Do the new thing.' }] })).body;
+  assert.deepEqual(resaved.actions.map(action => [action.label, action.folder]), [['Read later', null], ['New one', null], ['Summarise it', 'work'], ['Product direction', 'product']]);
+  assert.equal(resaved.folders.length, 2);
+  const moved = (await route('POST', { actions: resaved.actions.map(action => (action.id === 'direction' ? { ...action, folder: null, label: 'Where the product goes' } : action)) })).body;
+  assert.deepEqual(moved.actions.map(action => [action.label, action.folder]), [['Read later', null], ['New one', null], ['Where the product goes', null], ['Summarise it', 'work']]);
+
+  // A folder that is not in the list, or one inside itself, is refused and nothing changes.
+  const before = (await route('GET')).body;
+  assert.equal((await route('POST', { actions: [{ label: 'Lost', words: 'x', folder: 'nowhere' }] })).status, 400);
+  assert.equal((await route('POST', { folders: [{ id: 'a', label: 'A', folder: 'b' }, { id: 'b', label: 'B', folder: 'a' }] })).status, 400);
+  assert.deepEqual((await route('GET')).body, before);
+
+  // A folder that still holds an action cannot go until the action moves; an empty folder can.
+  assert.equal((await route('POST', { folders: [{ id: 'product', label: 'Product' }] })).status, 400);
+  const removed = (await route('POST', { folders: [{ id: 'work', label: 'Work' }] })).body;
+  assert.deepEqual(removed.folders.map(folder => folder.id), ['work']);
+  assert.deepEqual(removed.actions.map(action => action.label), ['Read later', 'New one', 'Where the product goes', 'Summarise it']);
+});
+
+test('a share address picks the longest matching site', () => {
+  const defaults = [{ host_suffix: 'instagram.com', action_id: 'study' }, { host_suffix: 'help.instagram.com', action_id: 'why' }];
+  assert.equal(actionForAddress(defaults, 'https://www.instagram.com/reel/abc'), 'study');
+  assert.equal(actionForAddress(defaults, 'https://help.instagram.com/x'), 'why');
+  assert.equal(actionForAddress(defaults, 'https://notinstagram.com/x'), null);
+  assert.equal(actionForAddress(defaults, 'not an address'), null);
+});
+
+test('the MCP tools share_destinations and save_share_destinations reach the same route', async () => {
+  const { shares } = person();
+  assert.equal(isShareDestinationsPath('/share-destinations'), true);
+  const call = async (path, body, method = body === undefined ? 'GET' : 'POST') => {
+    assert.equal(isShareDestinationsPath(path), true);
+    const response = await handleShareDestinationsRequest(shares, new Request(`https://person${path}`, { method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }));
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    return result;
+  };
+  const tools = makeTools({ call, askPerson: async () => null });
+  const listed = (await handleMcpMessage({ jsonrpc: '2.0', id: 1, method: 'tools/list' }, tools)).result.tools;
+  const read = listed.find(tool => tool.name === 'share_destinations');
+  assert.equal(read.annotations.readOnlyHint, true);
+  assert.equal(listed.find(tool => tool.name === 'save_share_destinations').annotations.readOnlyHint, false);
+  assert.deepEqual(shareDestinationTools(call).map(tool => tool.name), ['share_destinations', 'save_share_destinations', 'shares_sent', 'deliver_share']);
+  assert.deepEqual(listed.find(tool => tool.name === 'deliver_share').inputSchema.required, ['items', 'request_key']);
+
+  const first = await handleMcpMessage({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'share_destinations', arguments: {} } }, tools);
+  assert.notEqual(first.result.isError, true);
+  assert.equal(first.result.structuredContent.destinations[0].id, 'private');
+
+  const saved = await handleMcpMessage({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'save_share_destinations', arguments: { destinations: [{ id: 'pursuit:community', shown: true, on_by_default: true }] } } }, tools);
+  assert.deepEqual(saved.result.structuredContent.destinations.map(place => [place.id, place.on_by_default]), [['private', true], ['pursuit:community', true], ['pursuit:pottery', false]]);
+
+  const refused = await handleMcpMessage({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'save_share_destinations', arguments: { destinations: [{ id: 'private', shown: false }] } } }, tools);
+  assert.equal(refused.result.isError, true);
+});
+
+const shared = [
+  { kind: 'page', url: 'https://www.instagram.com/p/abc/', title: 'A post' },
+  { kind: 'selection', text: 'chosen words' },
+  { kind: 'video', name: 'clip.mp4', file: '1f:abc' },
+];
+
+test('deliver_share hands a share to their own Trillion with the action its site starts on and their words', async () => {
+  const { deliver, sent } = person();
+  const { status, body } = await deliver({ to: ['private'], items: shared, own_words: ' my note ', request_key: 'k1', from_agent: 'send-to-trillion', to_agent: 'agent-1', input: { sent_from: 'browser', items: 'not these' } });
+  assert.equal(status, 200);
+  // The job handed on is named back, so the box it was sent from can show it being done.
+  assert.deepEqual(body, { delivered: [{ id: 'private', label: 'My Trillion' }], stopped_at: null, handoff_ids: ['h_2'], workflow_runs: [] });
+  // Studying a format keeps the shared link as a saved example first, with the words shared beside it.
+  assert.deepEqual(sent.map(call => call.path), ['/saved-examples', '/handoffs']);
+  assert.deepEqual(sent[0].body, { url: 'https://www.instagram.com/p/abc/', title: 'A post', words: 'chosen words', added_from: 'share' });
+  const study = startersFrom(starterRows).find(action => action.id === 'study-content-format');
+  assert.deepEqual(sent[1].body, {
+    job: `${study.words}\n\nmy note`, request_key: 'k1', from_agent: 'send-to-trillion', to_agent: 'agent-1',
+    input: { sent_from: 'browser', saved_instructions: ['study-content-format'], own_words: 'my note', items: shared, saved_examples: ['example:1'] },
+    // A share is the person speaking: their own words' priority, and their words as what they see of the job.
+    priority: inboundWords.priority.from_person, said: 'my note',
+  });
+});
+
+test('deliver_share hands their AI chat instructions with the share, and nothing when that scope is off', async () => {
+  const { withMeetingSettings } = await import('../parts/record-audio/read-data/meeting-settings.mjs');
+  const on = person(undefined, null, undefined, { standing: () => withMeetingSettings({}, { instructionText: 'Answer in French.' }) });
+  await on.deliver({ to: ['private'], items: shared, request_key: 'k-on' });
+  assert.equal(on.sent.find(call => call.path === '/handoffs').body.input.standing_instructions, 'Answer in French.');
+  const off = person(undefined, null, undefined, { standing: () => withMeetingSettings({}, { instructionText: 'Answer in French.', instructionScopes: ['drafts'] }) });
+  await off.deliver({ to: ['private'], items: shared, request_key: 'k-off' });
+  assert.equal('standing_instructions' in off.sent.find(call => call.path === '/handoffs').body.input, false);
+});
+
+test('a share the person\'s own share sheet hands off itself speaks with their voice, at the hand-off route', async () => {
+  const store = agentStoreForTests();
+  const agents = makeAgents({ store });
+  // The job as the store keeps it (its priority is how every AI and the person's own AIs order what they take).
+  const handOff = async body => {
+    const { handoff } = await (await handleAgentsRequest(agents, new Request('https://person/handoffs', { method: 'POST', body: JSON.stringify(body) }),
+      { shapeHandOff: input => (isPersonShareHandOff(input) ? personShareHandOff(input) : input) })).json();
+    return store.openHandoffs().find(item => item.handoff_id === handoff.handoff_id);
+  };
+  const screenshot = { kind: 'image', name: 'Screenshot 2026-10-03 at 10.22.20.png', file: '1f:aa' };
+  const words = await handOff({ job: 'two things the share sheet should remember', request_key: 'phone-1', from_agent: 'send-to-trillion-ios',
+    input: { sent_from: 'ios-share-sheet', own_words: 'two things the share sheet should remember', items: [screenshot] } });
+  assert.equal(words.priority, inboundWords.priority.from_person);
+  assert.equal(words.said, 'two things the share sheet should remember');
+  const picture = await handOff({ job: 'Keep this in my Trillion and work out whether it helps a pursuit.', request_key: 'phone-2', from_agent: 'send-to-trillion-ios',
+    input: { sent_from: 'ios-share-sheet', own_words: null, items: [screenshot, { kind: 'link', url: 'https://www.instagram.com/reel/x/' }] } });
+  assert.equal(picture.said, 'Shared Screenshot 2026-10-03 at 10.22.20.png, https://www.instagram.com/reel/x/');
+  assert.equal(picture.priority, inboundWords.priority.from_person);
+  const other = await handOff({ job: 'Summarize this mail', request_key: 'mail-1', input: { sent_from: 'somewhere else' } });
+  assert.equal(other.priority, 0, 'work that did not come from the person\'s share sheet keeps its own priority');
+  assert.equal(other.said, 'Summarize this mail', 'work handed off without words for the person keeps a short title from its job');
+});
+
+test('deliver_share files each shared record under each chosen pursuit and gives its room one mixed selection without copying files', async () => {
+  const { deliver, sent } = person();
+  const { body } = await deliver({ to: ['pursuit:community', 'pursuit:pottery'], items: shared, own_words: 'my note', action: 'why-was-this-posted', request_key: 'k2' });
+  assert.deepEqual(body.delivered.map(place => place.id), ['pursuit:community', 'pursuit:pottery']);
+  const added = [{ kind: 'link', title: 'A post', url: 'https://www.instagram.com/p/abc/' }, { kind: 'text', text: 'chosen words' }, { kind: 'file', file: '1f:abc' }, { kind: 'text', text: 'my note' }];
+  assert.deepEqual(sent, [
+    { path: '/scope/record', body: { record: 'file:1f:abc', add: { pursuits: ['pursuit:community'] } } },
+    { path: '/spaces/space-community/share', body: { items: added, request_key: 'k2' } },
+    { path: '/scope/record', body: { record: 'file:1f:abc', add: { pursuits: ['pursuit:pottery'] } } },
+    { path: '/spaces/space-pottery/share', body: { items: added, request_key: 'k2' } },
+  ]);
+});
+
+test('deliver_share sends hundreds of mixed references and one sender note through the same Space route', async () => {
+  const { deliver, sent } = person();
+  const items = Array.from({ length: 240 }, (_, index) => index % 3 === 0
+    ? { kind: 'file', file: `1f:clip-${index}` }
+    : index % 3 === 1 ? { kind: 'workflow', workflow_id: `workflow:review-${index}` }
+      : { kind: 'text', text: `Note ${index}` });
+  const answer = await deliver({ to: ['pursuit:community'], items, own_words: 'Review all of these', request_key: 'many-mixed' });
+  assert.equal(answer.status, 200);
+  // Every shared file is filed under the pursuit; the room gets the whole selection in one request.
+  assert.equal(sent.filter(call => call.path === '/scope/record').length, 80);
+  const rooms = sent.filter(call => call.path === '/spaces/space-community/share');
+  assert.equal(rooms.length, 1);
+  assert.equal(rooms[0].body.request_key, 'many-mixed');
+  assert.equal(rooms[0].body.items.length, 241);
+  assert.deepEqual(rooms[0].body.items.slice(0, 3), items.slice(0, 3));
+  assert.deepEqual(rooms[0].body.items.at(-1), { kind: 'text', text: 'Review all of these' });
+  assert.equal((await deliver({ to: ['pursuit:community'], items: Array(1001).fill({ kind: 'text', text: 'too many' }), request_key: 'too-many' })).status, 400);
+  assert.equal(sent.length, 81, 'the over-limit request reaches no Space');
+});
+
+test('the generic sender stops a multibyte share at the wire-byte limit before any delivery', async () => {
+  const { shares, sent } = person();
+  const oversized = JSON.stringify({ to: ['pursuit:community'], items: [{ kind: 'text', text: '界'.repeat(700_000) }], request_key: 'unicode-large' });
+  assert.ok(oversized.length < 2_000_000, 'character counting alone would admit this body');
+  assert.ok(new TextEncoder().encode(oversized).byteLength > 2_000_000);
+  const rejected = await handleShareDestinationsRequest(shares, new Request('https://person/share-destinations/deliver', { method: 'POST', body: oversized }));
+  assert.equal(rejected.status, 400);
+  assert.match((await rejected.json()).error, /Request too large/);
+  assert.equal(sent.length, 0);
+
+  const accepted = await handleShareDestinationsRequest(shares, new Request('https://person/share-destinations/deliver', {
+    method: 'POST', body: JSON.stringify({ to: ['pursuit:community'], items: [{ kind: 'text', text: 'Look at the clip 😀' }], request_key: 'unicode-small' }),
+  }));
+  assert.equal(accepted.status, 200);
+  assert.equal(sent[0].path, '/spaces/space-community/share');
+  assert.deepEqual(sent[0].body.items, [{ kind: 'text', text: 'Look at the clip 😀' }]);
+});
+
+test('delayed link cards fill the exact picked Space items across interleaved private records', async () => {
+  const pending = [];
+  const selected = [
+    { kind: 'link', url: 'https://example.com/first' },
+    { kind: 'record', record: 'pursuit:launch' },
+    { kind: 'link', url: 'https://example.com/second' },
+    { kind: 'file', file: '1f:video' },
+    { kind: 'link', url: 'https://example.com/third' },
+  ];
+  const ids = ['first-link', 'private-pursuit', 'second-link', 'private-file', 'third-link'];
+  const { deliver, sent } = person(undefined, null, [countWords], {
+    send: path => path === '/spaces/space-community/share'
+      ? { placed: ids.map(item_id => ({ item_id })), shared: [{ ids: ['third-link'] }] }
+      : undefined,
+    readLink: async url => ({ url, host: 'example.com', title: url.split('/').at(-1), images: [], videos: [] }),
+    later: work => pending.push(work),
+  });
+  const answer = await deliver({ to: ['pursuit:community'], items: selected, request_key: 'interleaved-cards' });
+  assert.equal(answer.status, 200);
+  await Promise.all(pending);
+  assert.deepEqual(sent.find(call => call.path === '/spaces/space-community/share'), { path: '/spaces/space-community/share', body: { items: selected, request_key: 'interleaved-cards' } });
+  assert.deepEqual(sent.filter(call => call.path.endsWith('/fill')).map(call => [call.body.item_id, call.body.body.url]), [
+    ['first-link', 'https://example.com/first'],
+    ['second-link', 'https://example.com/second'],
+    ['third-link', 'https://example.com/third'],
+  ]);
+});
+
+test('a large link selection is delivered whole while automatic page reads stay bounded', async () => {
+  const pending = [];
+  const fetched = [];
+  const items = Array.from({ length: 20 }, (_, index) => ({ kind: 'link', url: `https://example.com/${index}` }));
+  const { deliver, sent } = person(undefined, null, [countWords], {
+    send: path => path === '/spaces/space-community/share'
+      ? { placed: items.map((_, index) => ({ item_id: `link-${index}` })) }
+      : undefined,
+    readLink: async url => { fetched.push(url); return { url, host: 'example.com', title: url, images: [], videos: [] }; },
+    later: work => pending.push(work),
+  });
+  const answer = await deliver({ to: ['pursuit:community'], items, request_key: 'bounded-cards' });
+  assert.equal(answer.status, 200);
+  assert.equal(sent[0].body.items.length, 20, 'links alone file nothing privately');
+  await Promise.all(pending);
+  assert.deepEqual(fetched, items.slice(0, 4).map(item => item.url));
+  assert.equal(sent.filter(call => call.path.endsWith('/fill')).length, 4);
+});
+
+test('a mixed tray sends source records to a Space under their own grants', async () => {
+  const { deliver, sent } = person();
+  const items = [
+    { kind: 'selection', title: 'Footage', record: 'file:original-video' },
+    { kind: 'selection', title: 'Review footage', record: 'workflow:review-footage' },
+    { kind: 'selection', title: 'Launch', record: 'pursuit:launch' },
+  ];
+  const answer = await deliver({ to: ['pursuit:community'], items, request_key: 'mixed-records' });
+  assert.equal(answer.status, 200);
+  assert.deepEqual(answer.body.delivered.map(place => place.id), ['pursuit:community']);
+  assert.deepEqual(sent, [
+    { path: '/scope/record', body: { record: 'file:original-video', add: { pursuits: ['pursuit:community'] } } },
+    { path: '/scope/record', body: { record: 'workflow:review-footage', add: { pursuits: ['pursuit:community'] } } },
+    { path: '/scope/record', body: { record: 'pursuit:launch', add: { pursuits: ['pursuit:community'] } } },
+    { path: '/spaces/space-community/share', body: { items: items.map(item => ({ kind: 'record', record: item.record })), request_key: 'mixed-records' } },
+  ]);
+});
+
+test('a mixed tray keeps workflow and tool references in one Space request', async () => {
+  const { deliver, sent } = person();
+  const items = [
+    { kind: 'file', file: '1f:footage' },
+    { kind: 'workflow', workflow_id: 'workflow:review-footage' },
+    { kind: 'tool', tool_id: 'tool:caption-reader' },
+    { kind: 'text', text: 'Review these together' },
+  ];
+  const answer = await deliver({ to: ['pursuit:community'], items, request_key: 'mixed-workflow-tool' });
+  assert.equal(answer.status, 200);
+  assert.deepEqual(sent, [
+    { path: '/scope/record', body: { record: 'file:1f:footage', add: { pursuits: ['pursuit:community'] } } },
+    { path: '/scope/record', body: { record: 'tool:tool:caption-reader', add: { pursuits: ['pursuit:community'] } } },
+    { path: '/spaces/space-community/share', body: { items, request_key: 'mixed-workflow-tool' } },
+  ]);
+});
+
+test('nested and external share links use the mixed Space request', async () => {
+  const { deliver, sent } = person();
+  const answer = await deliver({ to: ['pursuit:community'], items: [
+    { kind: 'share', code: 'nested-grant', title: 'More footage' },
+    { kind: 'share', url: 'https://another.example/share/remote', title: 'From another place' },
+    { kind: 'link', url: '/share/root-link', title: 'A prior share' },
+  ], request_key: 'nested-space-share' });
+  assert.deepEqual(answer.body.delivered, [{ id: 'pursuit:community', label: 'Trillion community' }]);
+  assert.deepEqual(sent, [{ path: '/spaces/space-community/share', body: { items: [
+    { kind: 'share', code: 'nested-grant', title: 'More footage' },
+    { kind: 'link', url: 'https://another.example/share/remote', title: 'From another place' },
+    { kind: 'share', code: 'root-link', title: 'A prior share' },
+  ], request_key: 'nested-space-share' } }]);
+});
+
+test('deliver_share refuses an unknown place, an unknown action or a malformed share before sending anything', async () => {
+  const { deliver, sent, route } = person();
+  await route('POST', { destinations: [{ id: 'pursuit:pottery', shown: false }] });
+  for (const [given, error] of [
+    [{ to: ['private', 'space-gone'], items: shared, request_key: 'k' }, /space-gone.*not one of the places/],
+    [{ to: ['pursuit:pottery'], items: shared, request_key: 'k' }, /pursuit:pottery.*not one of the places/],
+    [{ to: ['private'], items: shared, action: 'removed', request_key: 'k' }, /No action removed/],
+    [{ to: ['private', 'pursuit:community'], items: [{ kind: 'share' }], own_words: 'Send this', request_key: 'bad-link' }, /shared link needs its link code/],
+    [{ to: ['pursuit:community'], items: [{ kind: 'workflow' }], request_key: 'bad-workflow' }, /shared workflow needs its id/],
+    [{ to: ['pursuit:community'], items: [{ kind: 'tool' }], request_key: 'bad-tool' }, /shared tool needs its id/],
+    [{ to: ['pursuit:community'], items: [{ kind: 'text', text: '' }], request_key: 'empty-words' }, /Shared words cannot be empty/],
+    [{ to: ['pursuit:community'], items: [{ kind: 'mystery', title: 'Never silently omit me' }], request_key: 'unknown-kind' }, /pursuit share item must name/],
+    [{ to: ['pursuit:community'], items: [{ kind: 'link', url: 'file:///private/clip' }], request_key: 'bad-url' }, /http or https/],
+    [{ to: ['pursuit:community'], items: [{ kind: 'text', text: 'Last', title: 'x'.repeat(301) }], request_key: 'long-title' }, /title holds at most 300/],
+    [{ to: 'private', items: shared, request_key: 'k' }, /to is a list/],
+    [{ to: ['private'], items: [], request_key: 'k' }, /items is a list/],
+    [{ to: ['private'], items: shared }, /request_key/],
+  ]) {
+    const { status, body } = await deliver(given);
+    assert.equal(status, 400, JSON.stringify(given));
+    assert.match(body.error, error);
+  }
+  assert.deepEqual(sent, []);
+});
+
+test('deliver_share stops at a place that refuses and names it, the places before it keep what they got', async () => {
+  const { deliver, sent } = person(undefined, /space-pottery/);
+  const { status, body } = await deliver({ to: ['private', 'pursuit:pottery', 'pursuit:community'], items: shared, request_key: 'k3' });
+  assert.equal(status, 200);
+  assert.deepEqual(body.delivered, [{ id: 'private', label: 'My Trillion' }]);
+  assert.deepEqual(body.stopped_at, { id: 'pursuit:pottery', label: 'Pottery group', error: 'That space is closed.' });
+  assert.deepEqual(sent.map(call => call.path), ['/saved-examples', '/handoffs', '/scope/record']);
+});
+
+test('a withdrawn Space retry is reported as stopped and fetches no link card', async () => {
+  const scheduled = [];
+  const { deliver, sent, shares } = person(undefined, null, [countWords], {
+    send: path => path.endsWith('/share') ? { placed: [{ item_id: 'item-old', withdrawn: true }] } : undefined,
+    later: task => scheduled.push(task),
+  });
+  const { status, body } = await deliver({
+    to: ['pursuit:community', 'pursuit:pottery'], items: [{ kind: 'link', url: 'https://example.com/once' }], request_key: 'withdrawn-old-key',
+  });
+  assert.equal(status, 200);
+  assert.deepEqual(body.delivered, []);
+  assert.equal(body.stopped_at.id, 'pursuit:community');
+  assert.match(body.stopped_at.error, /taken back.*new share/i);
+  assert.deepEqual(sent.map(call => call.path), ['/spaces/space-community/share']);
+  assert.equal(scheduled.length, 0);
+  assert.deepEqual(shares.shares({}).shares[0].sent_to, []);
+});
+
+test('the action a share starts on is the first address with a site default, else the first action', () => {
+  const actions = [{ id: 'next-move', words: 'w1' }, { id: 'study', words: 'w2' }];
+  const bySite = [{ host_suffix: 'instagram.com', action_id: 'study' }];
+  assert.equal(startingAction(['https://example.com/', 'https://www.instagram.com/reel/x/'], actions, bySite).id, 'study');
+  assert.equal(startingAction(['https://notinstagram.com/p/x/'], actions, bySite).id, 'next-move');
+  assert.equal(startingAction([], [], bySite), null);
+});
+
+test('a share\'s sender is where it was shared from, else the sending app\'s registered name, never its agent id', async () => {
+  const { shares } = person();
+  const send = async (body, app) => {
+    const response = await handleShareDestinationsRequest(shares, new Request('https://person/share-destinations/deliver', { method: 'POST', headers: app ? { 'x-trillion-app': app } : {}, body: JSON.stringify(body) }));
+    assert.equal(response.status, 200);
+  };
+  const items = [{ kind: 'selection', text: 'chosen words', url: 'https://example.com/a' }, { kind: 'post', text: 'A post', pictures: ['https://example.com/p.jpg'] }, { kind: 'picture', file: '1f:abc', name: 'Picture of the page.jpg' }];
+  await send({ to: ['private'], items, own_words: 'look', request_key: 'named-by-app', from_agent: 'send-to-trillion' }, 'Send to Trillion');
+  await send({ to: ['private'], items, own_words: 'look', request_key: 'named-by-device', from_agent: 'send-to-trillion', from: 'Chrome' }, 'Send to Trillion');
+  await send({ to: ['private'], items, own_words: 'look', request_key: 'unnamed', from_agent: 'send-to-trillion' });
+  const byId = Object.fromEntries(shares.shares({}).shares.map(row => [row.share_id, row]));
+  assert.equal(byId['named-by-app'].from, 'Send to Trillion');
+  assert.equal(byId['named-by-device'].from, 'Chrome');
+  assert.equal(byId.unnamed.from, null);
+  // Every thing sent is kept in the row, in order, for Shared before to draw.
+  assert.deepEqual(byId['named-by-app'].items, items);
+});
+
+test('a workflow action starts its workflow on the share, filled from the share and checked first, and hands the AI the run', async () => {
+  const { deliver, sent, route } = person();
+  const research = startersFrom(starterRows).find(action => action.id === 'research-this');
+  assert.equal(research.workflow.workflow_id, 'workflow:research-brief-and-study');
+  // The starter workflow actions sit in their own folder, offered with every other action.
+  const listed = (await route('GET')).body;
+  assert.deepEqual(listed.actions.filter(action => action.workflow).map(action => [action.id, action.folder]), [['research-this', 'workflows'], ['test-this', 'workflows'], ['plan-to-build-this', 'workflows'], ['turn-into-skills', 'workflows']]);
+  assert.ok(listed.folders.some(folder => folder.id === 'workflows'));
+
+  const { status, body } = await deliver({ to: ['private'], items: shared, action: 'research-this', own_words: 'who made this?', request_key: 'w1' });
+  assert.equal(status, 200, JSON.stringify(body));
+  assert.deepEqual(body, { delivered: [{ id: 'private', label: 'My Trillion' }], stopped_at: null, handoff_ids: ['h_3'], workflow_runs: ['run:w1'] });
+  assert.deepEqual(sent.map(call => call.path), ['/workflows/describe', '/workflows/start', '/handoffs']);
+  assert.deepEqual(sent[1].body, { workflow_id: 'workflow:research-brief-and-study', input: { subject: 'who made this?\n\nA post\n\nchosen words\n\nhttps://www.instagram.com/p/abc/' }, request_key: 'w1' });
+  assert.match(sent[2].body.job, /^Research what I sent/);
+  assert.match(sent[2].body.job, /started the workflow Research brief and study as run run:w1/);
+  assert.deepEqual(sent[2].body.input.workflow_runs, [{ workflow_id: 'workflow:research-brief-and-study', run_id: 'run:w1' }]);
+});
+
+test('a workflow action that cannot start on a share refuses it before anything is sent, and a space alone starts none', async () => {
+  const { deliver, sent, route } = person();
+  const current = (await route('GET')).body;
+  await route('POST', { actions: [...current.actions, { id: 'gone', label: 'Gone', words: 'Run the gone one.', workflow: { workflow_id: 'workflow:gone' } }, { id: 'empty', label: 'Empty', words: 'Plan it.', workflow: { workflow_id: 'workflow:l078-research-to-plan', input: { capability: { fill: { from: 'share', field: 'own_words' } } } } }] });
+  for (const [action, error] of [['gone', /Gone starts workflow:gone, which cannot be started: There is no workflow workflow:gone/], ['empty', /Empty cannot start Research to plan with this share: .*capability/]]) {
+    const { status, body } = await deliver({ to: ['private', 'pursuit:community'], items: shared, action, request_key: `r-${action}` });
+    assert.equal(status, 400, action);
+    assert.match(body.error, error);
+  }
+  assert.deepEqual(sent.map(call => call.path), ['/workflows/describe', '/workflows/describe']);
+  sent.length = 0;
+  const { body } = await deliver({ to: ['pursuit:community'], items: shared, action: 'gone', request_key: 'space-only' });
+  assert.deepEqual(body.workflow_runs, []);
+  assert.ok(!sent.some(call => call.path.startsWith('/workflows')));
+});
+
+test('an action keeps the workflow it starts when a place saves only its name and words; null takes it off', async () => {
+  const { route, agents } = person();
+  const current = (await route('GET')).body;
+  const renamed = current.actions.map(({ id, label, words, folder }) => ({ id, label: id === 'research-this' ? 'Look into this' : label, words, folder }));
+  const after = (await route('POST', { actions: renamed })).body;
+  const research = after.actions.find(action => action.id === 'research-this');
+  assert.equal(research.label, 'Look into this');
+  assert.deepEqual(research.workflow, { workflow_id: 'workflow:research-brief-and-study', input: { subject: { fill: { from: 'share', field: 'words' } } } });
+  // saved_instructions reads the same row, workflow and all.
+  assert.deepEqual(agents.instructions({}).instructions.find(row => row.id === 'research-this').workflow, research.workflow);
+  const off = (await route('POST', { actions: after.actions.map(action => (action.id === 'research-this' ? { ...action, workflow: null } : action)) })).body;
+  assert.equal(off.actions.find(action => action.id === 'research-this').workflow, undefined);
+  const refused = await route('POST', { actions: [{ label: 'Bad', words: 'Bad.', workflow: { input: {} } }] });
+  assert.equal(refused.status, 400);
+  assert.match(refused.body.error, /workflow is \{ workflow_id, input \}/);
+});
+
+test('deliver_share hands one share to each chosen AI once, asking each to do every chosen action', async () => {
+  const { deliver, sent, shares } = person();
+  const { status, body } = await deliver({ to: ['private'], items: shared, action: ['why-was-this-posted', 'which-pursuit'], to_agent: ['agent-a', 'agent-b', 'agent-a'], own_words: 'both of you', request_key: 'many' });
+  assert.equal(status, 200, JSON.stringify(body));
+  const handed = sent.filter(call => call.path === '/handoffs');
+  assert.deepEqual(handed.map(call => [call.body.to_agent, call.body.request_key]), [['agent-a', 'many:agent-a'], ['agent-b', 'many:agent-b']]);
+  const [why, which] = ['why-was-this-posted', 'which-pursuit'].map(id => startersFrom(starterRows).find(action => action.id === id));
+  assert.equal(handed[0].body.job, `${why.label}: ${why.words}\n\n${which.label}: ${which.words}\n\nboth of you`);
+  assert.deepEqual(handed[0].body.input.saved_instructions, ['why-was-this-posted', 'which-pursuit']);
+  assert.deepEqual(body.handoff_ids, handed.map((_, index) => `h_${sent.indexOf(handed[index]) + 1}`));
+  // The share list names every action it asked for.
+  assert.deepEqual(shares.shares({}).shares[0].actions.map(action => action.id), ['why-was-this-posted', 'which-pursuit']);
+  // One AI and one action are as before: the share's own key, and the action's words alone.
+  sent.length = 0;
+  await deliver({ to: ['private'], items: shared, action: 'which-pursuit', to_agent: 'agent-a', request_key: 'one' });
+  assert.deepEqual([sent[0].body.request_key, sent[0].body.to_agent, sent[0].body.job], ['one', 'agent-a', which.words]);
+  const refused = await deliver({ to: ['private'], items: shared, action: ['which-pursuit', 'gone'], request_key: 'bad' });
+  assert.equal(refused.status, 400);
+  assert.match(refused.body.error, /No action gone/);
+  assert.match((await deliver({ to: ['private'], items: shared, to_agent: [3], request_key: 'bad-agent' })).body.error, /to_agent is one id or a list/);
+});
+
+test('a tool that takes what is shared is a place: listed with its job, and sent the share in the fields it takes', async () => {
+  const needsAnotherInput = { ...tellTheMakers, tool_id: 'tool:needs-a-secret-extra', input_schema: { type: 'object', required: ['things', 'choice'], properties: { things: { type: 'array' }, choice: { type: 'string' } } } };
+  const { route, deliver, sent } = person(undefined, null, [countWords, tellTheMakers, needsAnotherInput]);
+  const listed = (await route('GET')).body.destinations;
+  assert.deepEqual(listed.at(-1), { id: 'tool-place:tool:tell-the-makers', label: 'Tell the people who make it', description: 'Tell the people who make it about anything', depth: 0, to: { tool_id: 'tool:tell-the-makers' }, others_count: 0, on_by_default: false });
+  assert.ok(!listed.some(place => place.to.tool_id === 'tool:count-words'));
+  assert.ok(!listed.some(place => place.to.tool_id === needsAnotherInput.tool_id), 'a share cannot fill the extra required field');
+  const items = [{ kind: 'image', name: 'Screen.png', file: '1f:screen' }, { kind: 'link', url: 'https://example.com/a', title: 'A page' }];
+  const { body } = await deliver({ to: ['tool-place:tool:tell-the-makers', 'private'], items, own_words: 'the caret jumps', action: 'which-pursuit', request_key: 'report', from: 'iPhone', input: { screen: 'https://app.example/x', where: 'Home' } });
+  assert.deepEqual(body.delivered.map(place => place.id), ['tool-place:tool:tell-the-makers', 'private']);
+  assert.deepEqual(sent[0], { path: '/tools/run', body: { tool_id: 'tool:tell-the-makers', request_key: 'report', wait_seconds: 20, input: {
+    things: [{ kind: 'image', label: 'Screen.png', id: '1f:screen' }, { kind: 'link', label: 'A page', address: 'https://example.com/a' }],
+    note: 'the caret jumps', picture: '1f:screen', browser: 'iPhone',
+  } } });
+  // A tool place a plan without the Workshop cannot list is simply not offered.
+  const bare = person(undefined, null, []);
+  assert.ok(!(await bare.route('GET')).body.destinations.some(place => place.to.tool_id));
+});
+
+test('a completed tool delivery retains its exact source and work receipt without copying private output', async () => {
+  const h = person([], null, [tellTheMakers], { toolReply: body => ({ task_id: `task:${body.request_key}`, state: 'completed', execution_ref: 'execution:one',
+    output: { said: 'Received.', source_ref: 'record:report:one', work_ref: 'work:one', handoff_id: 'work:one', list_id: 'reports', row_id: 'one', origin: 'synthetic', intake_state: 'work_created', private_notes: 'do-not-copy', token: 'do-not-copy' } }) });
+  const { body } = await h.deliver({ to: ['tool-place:tool:tell-the-makers'], items: [{ kind: 'words', text: 'A report' }], request_key: 'receipt' });
+  assert.equal(body.stopped_at, null);
+  assert.equal(body.delivered[0].receipt.task_id, 'task:receipt');
+  assert.equal(body.delivered[0].receipt.work_ref, 'work:one');
+  assert.equal(body.delivered[0].receipt.source_ref, 'record:report:one');
+  const kept = await h.shares.shares({});
+  assert.deepEqual(kept.shares[0].sent_to[0].receipt, body.delivered[0].receipt);
+  assert.ok(!JSON.stringify(body).includes('do-not-copy'));
+  assert.ok(!JSON.stringify(kept).includes('do-not-copy'));
+});
+
+test('a pending tool task is not a delivered report and its receipt survives until the same share completes', async () => {
+  let state = 'working';
+  const keys = [];
+  const h = person([], null, [tellTheMakers], { toolReply: body => { keys.push(body.request_key); return { task_id: 'task:pending', state, output: state === 'completed' ? { source_ref: 'record:report:done' } : null }; } });
+  const input = { to: ['tool-place:tool:tell-the-makers'], items: [{ kind: 'words', text: 'A report' }], request_key: 'same-report' };
+  const first = (await h.deliver(input)).body;
+  assert.deepEqual(first.delivered, []);
+  assert.equal(first.stopped_at.receipt.task_id, 'task:pending');
+  assert.match(first.stopped_at.error, /still unconfirmed/);
+  assert.equal((await h.shares.shares({})).shares[0].stopped_at.receipt.state, 'working');
+  state = 'completed';
+  const second = (await h.deliver(input)).body;
+  assert.equal(second.stopped_at, null);
+  assert.equal(second.delivered[0].receipt.source_ref, 'record:report:done');
+  assert.equal((await h.shares.shares({})).shares[0].stopped_at, undefined);
+  assert.deepEqual(keys, ['same-report', 'same-report']);
+});
+
+test('a share kept before actions and runs were lists reads back as lists', async () => {
+  const history = memoryShareHistory();
+  history.keep({ share_id: 'old', at: '2026-10-01T00:00:00.000Z', items: [{ kind: 'link', url: 'https://example.com/' }], action: { id: 'which-pursuit', label: 'Which pursuit is this for?' }, workflow_run: { workflow_id: 'workflow:x', run_id: 'run:1' }, sent_to: [] });
+  const agents = makeAgents({ store: agentStoreForTests(), starters: startersFrom(starterRows) });
+  const shares = makeShareDestinations({ store: { choices: () => null, putChoices: () => {} }, history, instructions: agents, pursuits: async () => [], send: async () => ({}), readLink: async () => null, later: () => {} });
+  const [row] = shares.shares({}).shares;
+  assert.deepEqual(row.actions, [{ id: 'which-pursuit', label: 'Which pursuit is this for?' }]);
+  assert.deepEqual(row.workflow_runs, [{ workflow_id: 'workflow:x', run_id: 'run:1' }]);
+  assert.equal(row.action, undefined);
+});
+
+test('a share handed to several AIs lists each AI job it became (finding 24)', async () => {
+  const jobs = new Map();
+  const { deliver, shares } = person(undefined, null, undefined, { aiWorkOf: id => jobs.get(id) ?? null });
+  const { body } = await deliver({ to: ['private'], items: shared, action: 'which-pursuit', to_agent: ['agent-a', 'agent-b'], request_key: 'several' });
+  assert.equal(body.handoff_ids.length, 2);
+  body.handoff_ids.forEach((id, index) => jobs.set(id, { handoff_id: id, state: index ? 'waiting' : 'finished', taken_by: index ? null : 'agent-a', finished_at: null, outcome: null }));
+  const [row] = shares.shares({}).shares;
+  assert.deepEqual(row.ai_works.map(work => [work.handoff_id, work.state]), [[body.handoff_ids[0], 'finished'], [body.handoff_ids[1], 'waiting']]);
+  assert.equal(row.ai_work.handoff_id, body.handoff_ids[0]);
+});
+
+test('each listed share says what AI work it became, read by the request key its kept folder is named by', async () => {
+  const history = memoryShareHistory();
+  history.keep({ share_id: 'kept:/Shared from iPhone/KEY-1', at: '2026-10-03T19:00:00.000Z', items: [{ kind: 'file', name: 'IMG_1627.jpeg' }], sent_to: [], kept_in: '/Shared from iPhone/KEY-1' });
+  history.keep({ share_id: 'kept:/Shared from iPhone/KEY-2', at: '2026-10-03T18:00:00.000Z', items: [{ kind: 'text', text: 'note' }], sent_to: [], kept_in: '/Shared from iPhone/KEY-2' });
+  const agents = makeAgents({ store: agentStoreForTests(), starters: startersFrom(starterRows) });
+  const done = { handoff_id: handoffIdFor('KEY-1'), state: 'finished', taken_by: 'agent-retired-trillion', finished_at: '2026-10-03T20:00:00.000Z', outcome: 'Kept and filed.' };
+  const shares = makeShareDestinations({ store: { choices: () => null, putChoices: () => {} }, history, instructions: agents, pursuits: async () => [], send: async () => ({}), readLink: async () => null, later: () => {}, aiWorkOf: id => (id === done.handoff_id ? done : null) });
+  const [taken, waiting] = shares.shares({}).shares;
+  assert.deepEqual(taken.ai_work, done);
+  assert.equal(waiting.ai_work, undefined);
+});
+
+test('a pursuit with nobody else files records privately and is given its room by the first share of links or words (the space routes take its id); a room id still finds its pursuit', async () => {
+  const books = { id: 'pursuit:books', title: 'Books', depth: 0 };
+  const { deliver, sent } = person([books, pottery], null, [countWords]);
+  const records = await deliver({ to: ['pursuit:books'], items: [{ kind: 'file', file: '1f:draft' }], request_key: 'only-records' });
+  assert.deepEqual(records.body.delivered, [{ id: 'pursuit:books', label: 'Books' }]);
+  assert.deepEqual(sent, [{ path: '/scope/record', body: { record: 'file:1f:draft', add: { pursuits: ['pursuit:books'] } } }]);
+  sent.length = 0;
+  const words = await deliver({ to: ['pursuit:books'], items: [{ kind: 'link', url: 'https://example.com/a' }], own_words: 'for chapter two', request_key: 'with-words' });
+  assert.equal(words.body.stopped_at, null);
+  assert.deepEqual(sent.map(call => call.path), ['/spaces/pursuit%3Abooks/share']);
+  sent.length = 0;
+  const byRoom = await deliver({ to: ['space-pottery'], items: [{ kind: 'text', text: 'see you at six' }], request_key: 'old-app' });
+  assert.deepEqual(byRoom.body.delivered, [{ id: 'pursuit:pottery', label: 'Pottery group' }]);
+  assert.deepEqual(sent.map(call => call.path), ['/spaces/space-pottery/share']);
+});
+
+test('a sign-in held to some rooms shares into them and files nothing privately', async () => {
+  const { deliver, sent } = person(undefined, null, [countWords], { filesPrivately: false });
+  await deliver({ to: ['pursuit:community'], items: [{ kind: 'file', file: '1f:clip' }], request_key: 'room-key' });
+  assert.deepEqual(sent.map(call => call.path), ['/spaces/space-community/share']);
+});
+
+// ---- Trillion routes a share itself: no place picked ----
+
+const pages = [{ kind: 'page', url: 'https://example.com/post/1', title: 'Pickleball serve drill' }, { kind: 'selection', text: 'keep the serve low' }];
+const pickleball = { id: 'pursuit:pickleball', title: 'Pickleball club', depth: 0, now: 'Plan the serve drill night', others: ['Sam'], people_count: 2 };
+const connections = { search: async () => ({ results: [{ id: 'record:note-1', title: 'Serve notes' }, { id: 'person:ana', title: 'Ana' }] }), scope: async ref => (ref === 'note-1' ? { pursuits: [{ id: 'pursuit:pickleball', title: 'Pickleball club' }] } : { pursuits: [] }) };
+
+test('deliver_share with no place routes itself: their own Trillion, the route-it-yourself job on Trillion X mode, and what it connects to', async () => {
+  const { deliver, sent } = person([pickleball], null, [countWords], { connect: connections });
+  const { status, body } = await deliver({ items: pages, request_key: 'route-1', own_words: 'worth a try?' });
+  assert.equal(status, 200);
+  assert.deepEqual(body.delivered, [{ id: 'private', label: 'My Trillion' }]);
+  assert.equal(body.stopped_at, null);
+  assert.deepEqual(body.workflow_runs, ['run:route-1']);
+  assert.deepEqual(body.connected.pursuits, [{ id: 'pursuit:pickleball', title: 'Pickleball club' }]);
+  assert.deepEqual(body.connected.people, [{ id: 'person:ana', name: 'Ana' }, { name: 'Sam' }]);
+  assert.deepEqual(body.connected.records, [{ id: 'note-1', title: 'Serve notes' }]);
+  assert.deepEqual(sent.map(call => call.path), ['/workflows/describe', '/workflows/start', '/handoffs']);
+  const start = sent[1].body;
+  assert.equal(start.workflow_id, 'workflow:trillion-x-mode');
+  assert.match(start.input.request, /worth a try\?/);
+  assert.match(start.input.request, /keep the serve low/);
+  assert.match(start.input.scope, /Pickleball club \(pursuit:pickleball\)/);
+  assert.ok(start.input.constraints.length > 0);
+  const handoff = sent[2].body;
+  assert.match(handoff.job, /routing this share itself/);
+  assert.deepEqual(handoff.input.connected, body.connected);
+  assert.equal(handoff.input.routed_by_trillion, true);
+  assert.deepEqual(handoff.input.saved_instructions, ['route-it-yourself']);
+});
+
+test('an empty to routes itself the same as a left out one, and a to that is not a list is still refused', async () => {
+  const { deliver } = person([pickleball], null, [countWords], { connect: connections });
+  const empty = await deliver({ to: [], items: pages, request_key: 'route-2' });
+  assert.equal(empty.status, 200);
+  assert.deepEqual(empty.body.workflow_runs, ['run:route-2']);
+  const wrong = await deliver({ to: 'private', items: pages, request_key: 'route-3' });
+  assert.equal(wrong.status, 400);
+  assert.match(wrong.body.error, /to is a list of place ids/);
+});
+
+test('routing itself never throws for nothing to do: a file alone still starts Trillion X mode, and the same key is the same delivery', async () => {
+  const { deliver, sent } = person([], null, [countWords]);
+  const file = [{ kind: 'video', name: 'clip.mp4', file: '1f:abc' }];
+  const first = await deliver({ items: file, request_key: 'route-4' });
+  assert.equal(first.status, 200);
+  assert.match(sent.find(call => call.path === '/workflows/start').body.input.request, /clip\.mp4/);
+  assert.deepEqual(first.body.connected, { pursuits: [], people: [], records: [] });
+  assert.match(sent.find(call => call.path === '/workflows/start').body.input.scope, /Nothing is connected/);
+  const again = await deliver({ items: file, request_key: 'route-4' });
+  assert.equal(again.status, 200);
+  // The owner keeps one hand-off and one run per key; every send of the same share names the same keys.
+  assert.deepEqual([...new Set(sent.filter(call => call.path === '/handoffs' || call.path === '/workflows/start').map(call => call.body.request_key))], ['route-4']);
+  assert.equal(sent.filter(call => call.path === '/workflows/start').every(call => call.body.request_key === 'route-4'), true);
+});
+
+test('routing itself yields to a site default, to a named action, to the person\'s edit of it and to turning it off', async () => {
+  const site = person([], null, [countWords], { connect: connections });
+  await site.deliver({ items: [{ kind: 'page', url: 'https://www.instagram.com/p/abc/', title: 'A post' }], request_key: 'route-5' });
+  assert.ok(site.sent.some(call => call.path === '/saved-examples'), 'instagram still studies the format');
+  assert.ok(!site.sent.some(call => call.path === '/workflows/start'));
+
+  const named = person([], null, [countWords]);
+  await named.deliver({ items: pages, action: 'why-was-this-posted', request_key: 'route-6' });
+  assert.ok(!named.sent.some(call => call.body?.workflow_id === 'workflow:trillion-x-mode'));
+  assert.deepEqual(named.sent.find(call => call.path === '/handoffs').body.input.saved_instructions, ['why-was-this-posted']);
+
+  const edited = person([], null, [countWords]);
+  const listed = (await edited.route('GET')).body;
+  assert.deepEqual([listed.route_itself.on, listed.route_itself.edited, listed.route_itself.action.id], [true, false, 'route-it-yourself']);
+  await edited.route('POST', { actions: [...listed.actions, { ...listed.route_itself.action, words: 'Only file this, nothing else.' }] });
+  assert.equal((await edited.route('GET')).body.route_itself.edited, true);
+  await edited.deliver({ items: pages, request_key: 'route-7' });
+  assert.match(edited.sent.find(call => call.path === '/handoffs').body.job, /Only file this, nothing else\./);
+
+  const off = person([], null, [countWords]);
+  await off.route('POST', { route_itself: false });
+  assert.equal((await off.route('GET')).body.route_itself.on, false);
+  await off.deliver({ items: pages, request_key: 'route-8' });
+  assert.ok(!off.sent.some(call => call.body?.workflow_id === 'workflow:trillion-x-mode'));
+});
+
+test('connectedTo is bounded and never throws: a search that fails or hangs leaves what the pursuits list found', async () => {
+  const pursuits = [pickleball, { id: 'pursuit:other', title: 'Taxes', now: 'File them' }];
+  const failing = await connectedTo(pages, '', { pursuits, search: async () => { throw new Error('exceeded its memory limit'); }, scope: async () => { throw new Error('no'); } });
+  assert.deepEqual(failing.pursuits, [{ id: 'pursuit:pickleball', title: 'Pickleball club' }]);
+  const hanging = await connectedTo(pages, '', { pursuits, search: () => new Promise(() => {}), scope: null });
+  assert.deepEqual(hanging.pursuits.map(pursuit => pursuit.id), ['pursuit:pickleball']);
+  const many = Array.from({ length: 40 }, (_, index) => ({ id: `record:r${index}`, title: `Serve ${index}` }));
+  const asked = [];
+  const bounded = await connectedTo(pages, '', { pursuits, search: async () => ({ results: many }), scope: async ref => { asked.push(ref); return { pursuits: [] }; } });
+  assert.ok(bounded.records.length <= 6 && asked.length <= 3);
+  assert.deepEqual(await connectedTo([{ kind: 'text', text: 'hi' }], '', {}), { pursuits: [], people: [], records: [] });
+});
+
+// A delivery files privately only for a sign-in whose reach includes the private Trillion: a pursuit-limited sign-in (the
+// PersonStore owner read its reach from the request headers) files nothing privately, and so does a sign-in with no reach.
+test('a delivering sign-in files privately only when its reach includes the private Trillion', () => {
+  assert.equal(filesPrivatelyOf({ made: { private: true, spaces: 'all' } }), true);
+  assert.equal(filesPrivatelyOf({ made: { private: false, spaces: ['pursuit:books'] } }), false, 'a pursuit-limited sign-in files nothing privately');
+  assert.equal(filesPrivatelyOf({ made: null }), false);
+  assert.equal(filesPrivatelyOf(null), false, 'no claims files nothing privately');
+});

@@ -1,0 +1,530 @@
+// The account's setup reads the owners of its work, never a list of boxes an AI said it checked.
+// Defaults are supplied by the same shipped record overlay as Automations. This owner does not copy them,
+// reset an edit or removal, choose a model, run a schedule early, or import somebody else's account.
+// POST prepares that existing overlay, resumes authorized event setup and arms the one scheduler. Each result
+// is read back independently; a provider task starting or an alarm being armed is not an observed finished job.
+// Concurrent POSTs share one preparation; a failed preparation is retried by a later POST. Reads do no preparation.
+// Rules, schedules, listeners and providers retain their existing create/edit/remove/stop/reset management owners.
+// The loop's input is a message kept in this account, or, for work handed through Trillion with no message behind it,
+// that work's own kept job: an AI is never asked to invent a person's message to have something to answer.
+import { withoutSecrets } from '../../../learn-a-workflow-from-a-job/src/scheduler.mjs';
+import { workResultWords } from './work-results.mjs';
+import { nativeSourceReturn, setupCapabilityEvidence } from '../../../show-each-setup-step-with-the-real-things-found/from-old-trillion/src/setup-capability-evidence.mjs.held';
+
+export const SETUP_RUNTIME_PATH = '/setup/runtime';
+const toolCall = (tool, args = {}, reason = null) => ({ tool, arguments: args, ...(reason ? { reason } : {}) });
+const finiteTime = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
+const active = value => value !== false && value !== 'off';
+const list = value => Array.isArray(value) ? value : [];
+const component = (id, state, evidence, next_calls = []) => ({ id, state, ready: state === 'ready', evidence, next_calls });
+const uniqueCalls = calls => [...new Map(calls.map(call => [JSON.stringify([call.tool, call.arguments]), call])).values()];
+const unavailable = error => ({ unavailable: withoutSecrets(error) });
+const readProblem = value => value?.unavailable ?? null;
+const nonempty = value => typeof value === 'string' && value.trim().length > 0;
+const exactList = value => Array.isArray(value) && value.every(nonempty) && new Set(value).size === value.length;
+const sameIds = (left, right) => left.length === right.length && left.every(id => right.includes(id));
+const boundedScope = value => Array.isArray(value) && value.length <= 64 ? value : [];
+const exactScope = value => Array.isArray(value) && value.length <= 64 && exactList(value);
+const harnessKey = pair => `${pair?.scope_id}\n${pair?.harness}`;
+const exactHarnesses = value => Array.isArray(value) && value.length <= 64
+  && value.every(pair => nonempty(pair?.scope_id) && nonempty(pair?.harness)) && exactList(value.map(harnessKey));
+
+export const SETUP_EVIDENCE_PROTOCOL = {
+  input_ref: 'The exact message:<id> of the harmless authorized input kept in this account. When no such message exists, give the same h_<id> as work_ref: work handed through Trillion with no message behind it is its own kept input. Never invent a person message for this.',
+  work_ref: 'The h_<id> from read_handoff, actually taken and finished with a concrete result: its input.arrived.message_id is input_ref, or, when input_ref is this same h_<id>, it came from no message.',
+  result_ref: 'The exact message:<id> automatically kept for that finished work: source_ref is handoff:<work_ref>, in the input conversation and about input_ref. When input_ref is the work itself, the same h_<id>: its kept finished result.',
+  resumed_ref: 'After finishing, make a separate read_handoff call for work_ref. Then use trace_item on work_ref to find its successful finished read and keep activity:<seq>. Wait for the activity row to be persisted if necessary.',
+  continuity: 'This proves a subsequent read of a persisted result, not a new host session or an executed native hook. Applicable native hook execution needs its own evidence.',
+  evidence_refs: 'Use exact account-owned record IDs, h_<id>, task_<id> (or task:task_<id>), run:<id>, workflow-output:run:<id>:<step>, connection:<connection_id>, agent:<agent_id>, file identities, or activity:<seq>. A tool name, URL, path, proposed call, copied prompt, or invented receipt is not a stored reference.',
+  scope_ids: 'Preserve discovery and its original requirement IDs and applicability. When the policy names configuration_step, its admitted results may add computers actually enrolled during configuration: each new computer-sources:<computer_id> must be current and owned by this account. Only originally applicable requirements can gain scope; additions under not-applicable require applicability review. Never remove or retarget discovered scopes or harness pairs. Final proof must exactly match the admitted configuration and cover every current computer for each scope_from requirement. A genuinely web-only account can have an empty computer scope; unknown or planned native setup is pending, not not-applicable. Policies without configuration_step retain exact discovery-to-final scope.',
+  local_harness: 'For each settled harness_scopes pair {scope_id,harness} in admitted configuration and final proof, keep the exact inspector JSON as an AI-attributed message in a separate stable setup-evidence conversation: {schema:"trillion.setup-local-evidence/v1",capability:"harness",scope_id,report}. All discovered pairs remain included; newly observed pairs can be added during configuration without rewriting discovery. Preserve its original at on retries. Require the current configuration and every actual ran-* observation; an original request or a configuration-only report is insufficient. The local report is agent-kept, not a signed OS attestation. Where an AI cannot keep that message (its own transcript hook records its chat), cite instead what the transcript hook kept by itself: a message:<id> of the person’s words it kept through the carrier door in that harness’s <harness>:<session> conversation, and an execution:<id> host_transcript receipt it kept for the same session with the same sign-in (read_messages and read_execution find both). That proves the transcript hook ran; the other hooks leave no account record and stay unobserved.',
+  owner_refs: 'Identity uses setting:owner_user_id and setting:network_profile with provenance; pursuits use current pursuit IDs; source intake uses a message:<id> of the person’s words kept through the carrier door (what read_setup counts as arrived), or an arrival:<id> and its linked message; connections use connection:<connection_id>; pickup uses h_<id> plus agent:<agent_id> and observed delivery. Keep missing or externally attested facts distinct from owner observations.',
+  external_host: {
+    schema: 'trillion.setup-host-evidence/v1',
+    storage: 'Keep selected non-secret fields from an actual permitted external host tool result as JSON text in an AI-attributed message in the stable setup-evidence conversation. Preserve original at on retry. Maximum 16000 characters; no extra keys, raw credentials, tokens, request headers, full source content or arbitrary tool output.',
+    common: { schema: 'trillion.setup-host-evidence/v1', operation: 'connector or scheduled-pickup', host: 'actual host name', tool: 'actual tool name',
+      tool_result_id: 'actual result or task ID returned by that host', observed_at: 'ISO time of that tool observation', account_ref: 'setting:owner_user_id' },
+    connector: { connection_id: 'actual host connection ID', service: 'service name', authorized: true, source_id: 'owned arrival source_id',
+      arrival_ref: 'arrival:<id>', source_item_ref: 'exact source_ref of the arrival’s owned message' },
+    scheduled_pickup: { agent_id: 'actual registered agent ID', schedule: { id: 'actual host schedule ID', enabled: true, next_run_at: 'ISO next run after observed_at' },
+      execution: { id: 'actual host execution ID', state: 'completed', trigger: 'scheduled', started_at: 'ISO execution start', finished_at: 'ISO execution finish before observed_at',
+        handoff_ref: 'h_<id> actually finished during that execution by agent_id', result_ref: 'message:<id> automatically kept for that work' } },
+    linkage: 'Include exactly the operation’s connector or scheduled_pickup object, never both. List the evidence message and all linked own references in this capability’s final evidence_refs: account record plus arrival and source message for connector; account record plus agent:<id>, handoff, original input message and automatic result message for scheduled-pickup. Mere configuration, a planned timer, a manual pickup or prose cannot pass.',
+    verification_basis: 'agent_kept_external_tool_evidence',
+    boundary: 'The account checks the owned downstream arrival or finished work and result. The external tool observation is kept by the AI; Trillion cannot independently query that host’s current authorization or schedule.',
+  },
+  native_return: 'handoff.source_return is separately checked against its actual own transcript message. A signed source return proves that native result return, not every local hook event.',
+  receipt: 'After the final output is admitted, call start_setup once more to save the owner verification. That bounded receipt survives ordinary rolling activity cleanup; it cannot replace a first successful check or a current owner failure.',
+};
+
+/** The public reference forms above resolve only through this account's supplied owners.
+ *  The trusted inspection caller may read an admitted output after withdrawal;
+ *  proof readers keep the default exclusion. No caller input selects this mode. */
+export function readSetupReference(ref, owners, { inspection = false } = {}) {
+  const activity = /^activity:([1-9][0-9]*)$/.exec(ref);
+  if (activity) { const found = owners.activity(Number(activity[1])); return { kind: 'activity', value: found.row, expired: found.expired }; }
+  if (ref.startsWith('h_')) return { kind: 'handoff', value: owners.handoff(ref) };
+  if (ref.startsWith('connection:')) return { kind: 'connection', value: owners.connection(ref.slice('connection:'.length)) };
+  if (ref.startsWith('agent:')) return { kind: 'agent', value: owners.agent(ref.slice('agent:'.length)) };
+  const taskId = ref.startsWith('task:task_') ? ref.slice(5) : ref.startsWith('task_') ? ref : null;
+  if (taskId) return { kind: 'task', value: owners.task(taskId) };
+  if (ref.startsWith('run:')) return { kind: 'workflow-run', value: owners.run(ref) };
+  const stepOutput = /^workflow-output:(run:[^:]+):(.+)$/.exec(ref);
+  if (stepOutput) {
+    const run = owners.run(stepOutput[1]), admitted = run?.done?.[stepOutput[2]];
+    return { kind: 'workflow-output', value: run && (inspection || !run.withdrawal) && admitted ? owners.output(ref) : null, expected_identity: admitted?.output_identity,
+      ...(inspection && admitted?.admitted_at ? { admitted_at: admitted.admitted_at } : {}) };
+  }
+  const fileId = ref.startsWith('file:') ? ref.slice(5) : ref;
+  if (/^(?:1f|12):[0-9a-f]{64}$/.test(fileId)) return { kind: 'file', value: owners.file(fileId) };
+  return owners.record(ref);
+}
+
+/** The setup workflow's proof, checked against exact records in this account. No lookup follows a URL or executes work. */
+export function verifySetupEvidence({ inventory, configuration, output, definitions = [], required = [], readReference, readScope, identity, receipt = null }) {
+  const problems = [];
+  const discovered = list(inventory?.requirements), verified = list(output?.verified);
+  const hasConfiguration = configuration !== undefined, configuredInput = list(configuration?.results), configured = configuredInput.slice(0, 128);
+  const inventoryIds = discovered.map(row => row?.id), finalIds = verified.map(row => row?.id);
+  if (!discovered.length || discovered.length > 128 || !exactList(inventoryIds)) problems.push('The saved discovery must name each requirement exactly once.');
+  if (!verified.length || verified.length > 128 || !exactList(finalIds) || !sameIds(inventoryIds, finalIds)) problems.push('The final proof must cover exactly the saved inventory.');
+  if (required.some(id => !inventoryIds.includes(id))) problems.push('The saved inventory does not cover the current setup policy.');
+  if (!Array.isArray(output?.remaining) || output.remaining.length) problems.push('Setup still has remaining work.');
+  if (hasConfiguration) {
+    const ids = configured.map(row => row?.id);
+    if (!configured.length || configuredInput.length > 128 || !exactList(ids) || !sameIds(inventoryIds, ids)) problems.push('The admitted configuration must cover exactly the saved requirements.');
+    if (!Array.isArray(configuration?.remaining) || configuration.remaining.length) problems.push('Configuration still has remaining work.');
+  }
+  const requested = [];
+  const collect = (refs, label, needed = true) => {
+    if (!exactScope(refs) || (needed && !refs.length)) { problems.push(`${label} needs bounded, distinct stored evidence references.`); return []; }
+    requested.push(...refs); return refs;
+  };
+  for (const row of discovered.slice(0, 128)) { collect(row?.evidence_refs, `Discovery for ${row?.id}`); if (row?.scope_ids !== undefined) collect(row.scope_ids, `Scope for ${row.id}`, false); }
+  for (const row of configured.slice(0, 128)) { collect(row?.evidence_refs, `Configuration for ${row?.id}`); collect(row?.scope_ids, `Configured scope for ${row?.id}`, false); }
+  for (const row of verified.slice(0, 128)) { collect(row?.evidence_refs, `Verification for ${row?.id}`); if (row?.scope_ids !== undefined) collect(row.scope_ids, `Final scope for ${row.id}`, false); }
+  for (const field of ['input_ref', 'work_ref', 'result_ref', 'resumed_ref']) {
+    if (nonempty(output?.loop?.[field])) requested.push(output.loop[field]);
+    else problems.push(`The loop is missing ${field}.`);
+  }
+  const references = new Map();
+  const allRefs = [...new Set(requested)];
+  if (allRefs.length > 512) problems.push('The saved proof has too many references for a bounded setup check.');
+  for (const ref of allRefs.slice(0, 512)) {
+    let found;
+    try {
+      if (!nonempty(ref) || ref.length > 300 || ref !== ref.trim() || /[\r\n\t]/.test(ref)) throw new Error('Use one exact stored reference.');
+      if (typeof readReference !== 'function') throw new Error('The account evidence reader is unavailable.');
+      found = readReference(ref);
+      if (found?.then) throw new Error('The account evidence reader did not return a stored record.');
+      const previous = receipt?.references?.find(row => row.ref === ref && row.kind === 'activity');
+      if (!found?.value && found?.expired === true && previous?.activity && previous.identity) {
+        found = { kind: 'activity', value: previous.activity, identity: previous.identity, expired: true };
+      }
+      if (!found?.value) { references.set(ref, { ref, state: 'missing', problem: 'This reference is not available in this account.' }); continue; }
+      const value = found.value;
+      if (found.unavailable || value.withdrawal || value.deleted_at || value.removed_at || ['deleted', 'removed', 'withdrawn'].includes(value.state)) {
+        references.set(ref, { ref, kind: found.kind, state: 'unavailable', problem: 'The referenced item is no longer available.' }); continue;
+      }
+      if ((['task', 'handoff', 'workflow-run'].includes(found.kind) && ['failed', 'stuck', 'blocked'].includes(value.state))
+        || (found.kind === 'activity' && value.ok === false)) {
+        references.set(ref, { ref, kind: found.kind, state: 'failed', problem: 'The referenced owner currently reports a failure.' }); continue;
+      }
+      const proofIdentity = found.expired ? found.identity : identity(value);
+      if (found.expected_identity && found.expected_identity !== proofIdentity) {
+        references.set(ref, { ref, kind: found.kind, state: 'changed', problem: 'The stored output differs from the identity admitted by its workflow.' }); continue;
+      }
+      if (found.kind === 'activity' && previous && previous.identity !== proofIdentity) {
+        references.set(ref, { ref, kind: found.kind, state: 'changed', problem: 'This activity identity differs from the call previously verified.' }); continue;
+      }
+      references.set(ref, { ref, kind: found.kind, state: found.expired ? 'verified_before_expiry' : 'resolved', identity: proofIdentity, value });
+    } catch (error) { references.set(ref, { ref, state: 'unknown', problem: withoutSecrets(error) }); }
+  }
+  const resolves = ref => ['resolved', 'verified_before_expiry'].includes(references.get(ref)?.state);
+  let scopes = {};
+  try { if (definitions.some(row => row.scope_from)) { if (!readScope) throw new Error('The current device scope cannot be read.'); scopes = readScope(); } }
+  catch (error) { problems.push(withoutSecrets(error)); scopes = null; }
+  const capabilities = verified.slice(0, 128).map(item => {
+    const row = item && typeof item === 'object' ? item : {};
+    const original = discovered.find(item => item?.id === row.id), definition = definitions.find(item => item.id === row.id);
+    const settled = hasConfiguration ? configured.find(item => item?.id === row.id) : original;
+    const faults = [];
+    if (!original || !['applicable', 'not-applicable'].includes(original.applicability)) faults.push('Its original applicability is missing.');
+    if (!['verified', 'not-applicable'].includes(row.state) || !nonempty(row.observed)) faults.push('Its checked outcome is missing.');
+    if (definition?.applicability === 'required' && (row.state === 'not-applicable' || original?.applicability === 'not-applicable')) faults.push('This core requirement cannot be marked not applicable.');
+    if (original && (original.applicability === 'not-applicable') !== (row.state === 'not-applicable')) faults.push('Final applicability differs from the saved discovery.');
+    if (original?.applicability === 'not-applicable' && !nonempty(original.reason)) faults.push('The applicability decision needs its actual reason.');
+    if (!exactList(row.evidence_refs) || !row.evidence_refs.length || !exactList(original?.evidence_refs) || !original.evidence_refs.length) faults.push('Stored evidence is missing.');
+    const refs = [...new Set([...list(original?.evidence_refs), ...boundedScope(settled?.evidence_refs), ...list(row.evidence_refs), ...list(original?.scope_ids), ...boundedScope(settled?.scope_ids), ...list(row.scope_ids)])];
+    if (refs.some(ref => !resolves(ref))) faults.push('Some evidence cannot be resolved in this account.');
+    if (hasConfiguration) {
+      if (!settled || !['verified', 'not-applicable'].includes(settled.state) || !nonempty(settled.observed)) faults.push('Its admitted configuration outcome is missing.');
+      if (settled?.state !== row.state || (original?.applicability === 'not-applicable') !== (settled?.state === 'not-applicable')) faults.push('Configuration applicability differs from discovery or final verification.');
+      if (!exactScope(settled?.evidence_refs) || !settled.evidence_refs.length) faults.push('Configuration evidence is missing.');
+      const before = boundedScope(original?.scope_ids), during = boundedScope(settled?.scope_ids), after = boundedScope(row.scope_ids);
+      if (!exactScope(original?.scope_ids) || !exactScope(settled?.scope_ids) || !exactScope(row.scope_ids)
+        || before.some(id => !during.includes(id)) || !sameIds(during, after)) faults.push('Configured scope must retain discovery and exactly match final verification.');
+      const currentComputer = ref => {
+        const found = references.get(ref);
+        return list(scopes?.computers).includes(ref) && found?.kind === 'computer-sources' && ref === `computer-sources:${found?.value?.computer_id}`;
+      };
+      if (during.some(ref => !before.includes(ref) && !currentComputer(ref))) faults.push('A configured scope addition must be an exact current account-owned computer.');
+      const beforePairs = boundedScope(original?.harness_scopes).map(harnessKey), duringPairs = boundedScope(settled?.harness_scopes).map(harnessKey), afterPairs = boundedScope(row.harness_scopes).map(harnessKey);
+      if (!exactHarnesses(original?.harness_scopes) || !exactHarnesses(settled?.harness_scopes) || !exactHarnesses(row.harness_scopes)
+        || beforePairs.some(key => !duringPairs.includes(key)) || !sameIds(duringPairs, afterPairs)
+        || boundedScope(settled?.harness_scopes).some(pair => !during.includes(pair.scope_id))) faults.push('Configured harness pairs must retain discovery and exactly match final scoped pairs.');
+      if (original?.applicability === 'not-applicable' && (during.some(ref => !before.includes(ref)) || duringPairs.some(key => !beforePairs.includes(key))))
+        faults.push('Adding scope to a not-applicable requirement requires applicability review.');
+      if (definition?.evidence?.kind !== 'local-harness-report' && duringPairs.some(key => !beforePairs.includes(key)))
+        faults.push('New harness pairs require the local harness evidence owner, not another capability’s metadata.');
+      if (boundedScope(settled?.harness_scopes).some(pair => !beforePairs.includes(harnessKey(pair)) && !currentComputer(pair.scope_id)))
+        faults.push('A new harness pair must name an exact current account-owned computer.');
+    }
+    if (definition?.scope_from) {
+      const current = scopes?.[definition.scope_from];
+      if (!exactList(current)) faults.push('The current scope could not be checked.');
+      const before = hasConfiguration ? boundedScope(settled?.scope_ids) : list(original?.scope_ids), after = list(row.scope_ids);
+      if (!sameIds(before, after)) faults.push('The final scope differs from the saved scope.');
+      if (list(current).some(id => !before.includes(id) || !after.includes(id))) faults.push('A current device is missing from this capability’s saved scope.');
+    }
+    const scopeInventory = hasConfiguration ? { harness_scopes: boundedScope(settled?.harness_scopes) } : undefined;
+    if (hasConfiguration && settled && exactScope(settled.evidence_refs) && exactScope(settled.scope_ids) && exactHarnesses(settled.harness_scopes)) {
+      const configuredProof = setupCapabilityEvidence({ definition, original, scopeInventory, row: settled, references, readReference, identity });
+      faults.push(...configuredProof.problems.map(problem => `Configuration: ${problem}`));
+    }
+    const ownerProof = setupCapabilityEvidence({ definition, original, scopeInventory, row, references, readReference, identity });
+    faults.push(...ownerProof.problems);
+    return { id: row.id, title: original?.title ?? definition?.title ?? row.id, applicability: original?.applicability ?? 'unknown',
+      state: faults.length ? 'unknown' : row.state, verified: !faults.length, evidence_refs: list(row.evidence_refs), scope_ids: list(row.scope_ids),
+      harness_scopes: list(row.harness_scopes), verification_basis: ownerProof.basis, facts: ownerProof.facts,
+      ...(faults.length ? { problems: faults } : {}) };
+  });
+
+  const loop = output?.loop ?? {};
+  // Work handed through Trillion with no message behind it is its own input, and its kept result is its result.
+  const ownJob = nonempty(loop.work_ref) && loop.input_ref === loop.work_ref;
+  const input = references.get(loop.input_ref), work = references.get(loop.work_ref), result = references.get(loop.result_ref), resumed = references.get(loop.resumed_ref);
+  const held = work?.value, answer = result?.value, source = input?.value, read = resumed?.value;
+  const finishedAt = held?.finished_at, resumedAt = read?.at;
+  const resultValue = held?.result;
+  const concrete = nonempty(resultValue) || (resultValue && typeof resultValue === 'object' && !Array.isArray(resultValue) && Object.keys(resultValue).length > 0);
+  const waitingResult = /(?:^|[ _-])(?:blocked|unverified|incomplete|pending|queued|waiting|working|running|delegated|withdrawn|failed)(?:$|[ _-])/i;
+  const checks = {
+    input: ownJob ? work?.kind === 'handoff' && resolves(loop.work_ref) && nonempty(held?.job) && !held.input?.arrived?.message_id
+      : input?.kind === 'message' && resolves(loop.input_ref) && nonempty(source?.conversation_id),
+    finished_work: work?.kind === 'handoff' && resolves(loop.work_ref) && held?.handoff_id === loop.work_ref
+      && held.state === 'finished' && nonempty(held.taken_by) && finiteTime(held.taken_at) && finiteTime(finishedAt)
+      && Date.parse(held.taken_at) <= Date.parse(finishedAt) && (ownJob ? !held.input?.arrived?.message_id : held.input?.arrived?.message_id === loop.input_ref)
+      && Boolean(concrete) && ![resultValue?.state, resultValue?.status].some(value => waitingResult.test(String(value ?? '')))
+      && !['duplicate', 'source_provenance_correction'].includes(resultValue?.kind),
+    result: ownJob ? loop.result_ref === loop.work_ref && held?.result != null && nonempty(workResultWords(held))
+      : result?.kind === 'message' && resolves(loop.result_ref) && loop.result_ref !== loop.input_ref
+      && answer?.source_ref === `handoff:${loop.work_ref}` && nonempty(source?.conversation_id) && answer.conversation_id === source.conversation_id
+      && list(answer.about).some(about => about?.kind === 'message' && about.id === loop.input_ref)
+      && answer.speaker === held?.taken_by && nonempty(answer.text) && held?.result != null
+      && answer.text === workResultWords(held).slice(0, 100_000) && finiteTime(answer.at) && finiteTime(finishedAt) && Date.parse(answer.at) >= Date.parse(finishedAt),
+    subsequent_read: resumed?.kind === 'activity' && resolves(loop.resumed_ref) && read?.tool === 'read_handoff' && read.ok === true
+      && read.item === loop.work_ref && read.facts?.state === 'finished' && read.facts?.finished_at === finishedAt
+      && finiteTime(resumedAt) && finiteTime(finishedAt) && (ownJob || finiteTime(answer?.at))
+      && Date.parse(resumedAt) > Math.max(Date.parse(finishedAt), ownJob ? 0 : Date.parse(answer.at)),
+  };
+  if (!Object.values(checks).every(Boolean)) problems.push('The owned input, finished work, linked result and subsequent persisted read have not all been verified.');
+  if ([...references.values()].some(row => !resolves(row.ref))) problems.push('Some saved evidence is missing, changed or unavailable in this account.');
+  if (!capabilities.length || capabilities.some(row => !row.verified)) problems.push('Some capability evidence is incomplete.');
+  const projectedRefs = [...references.values()].map(({ value, ...row }) => row);
+  const receiptRefs = [...references.values()].filter(row => resolves(row.ref)).map(({ value, ...row }) => ({ ...row,
+    ...(row.kind === 'activity' ? { activity: { seq: value.seq, at: value.at, tool: value.tool, item: value.item, ok: value.ok,
+      ...(value.facts ? { facts: { state: value.facts.state ?? null, finished_at: value.facts.finished_at ?? null } } : {}) } } : {}) }));
+  return { verified: !problems.length, capabilities, references: projectedRefs, problems: [...new Set(problems)],
+    loop: { checks: Object.fromEntries(Object.entries(checks).map(([key, value]) => [key, Boolean(value)])),
+      input_ref: loop.input_ref ?? null, work_ref: loop.work_ref ?? null, result_ref: loop.result_ref ?? null, resumed_ref: loop.resumed_ref ?? null,
+      input_kind: ownJob ? 'handed_work' : 'kept_message',
+      finished_at: finishedAt ?? null, resumed_at: resumedAt ?? null, proves: 'subsequent_read_of_persisted_result',
+      native_source_return: nativeSourceReturn(held, { readReference, identity }) },
+    receipt_references: receiptRefs };
+}
+
+/** One durable workflow in this account. The key is policy DATA; the workflow owner supplies its normal identity. */
+export function makeSetupWorkflow({ policy, definitions = [], identity, readRun, readOutput, readReference, readScope, readReceipt, writeReceipt, readSession, writeSession, owner, now = () => new Date() }) {
+  const runFor = request_key => `run:${identity({ workflow_id: policy.id, request_key }).slice(3, 27)}`;
+  const base_run_id = runFor(policy.request_key), session_id = `setup-session:${base_run_id}`;
+  const current = () => {
+    const saved = readSession?.(session_id);
+    if (!saved) return { run_id: base_run_id, request_key: policy.request_key };
+    if (saved.workflow_id !== policy.id || !nonempty(saved.request_key) || saved.run_id !== runFor(saved.request_key)
+      || !(saved.request_key === policy.request_key || (policy.recheck_request_prefix && saved.request_key.startsWith(`${policy.recheck_request_prefix}:`))))
+      throw new Error('The saved setup session does not name a run of this account setup policy.');
+    return saved;
+  };
+  const inspect = (keepReceipt = false) => {
+    const session = current(), { run_id } = session;
+    const receipt_id = `setup-verification:${run_id}`;
+    const run = readRun(run_id);
+    const proof = step => {
+      const admitted = step ? run?.done?.[step] : null;
+      const output = admitted ? readOutput(run_id, step) : null;
+      return { admitted, output, intact: Boolean(output && admitted.output_identity === identity(output)) };
+    };
+    const final = proof(policy.verification_step), inventory = proof(policy.inventory_step), configuration = proof(policy.configuration_step);
+    const configurationIntact = Boolean(configuration.intact && configuration.admitted?.admitted_at);
+    const { admitted, output, intact: proofIntact } = final;
+    const binding = { workflow_id: policy.id, run_id, verification_identity: admitted?.output_identity ?? null, inventory_identity: inventory.admitted?.output_identity ?? null,
+      ...(policy.configuration_step ? { configuration_identity: configuration.admitted?.output_identity ?? null } : {}) };
+    const prior = readReceipt?.(receipt_id);
+    let receipt = prior?.schema === 'trillion.setup-verification/v1' && Object.entries(binding).every(([key, value]) => prior[key] === value) ? prior : null;
+    const intact = run?.state === 'finished' && !run?.withdrawal && Boolean(admitted?.admitted_at && proofIntact)
+      && (!policy.inventory_step || inventory.intact) && (!policy.configuration_step || configurationIntact);
+    const evidence = intact ? verifySetupEvidence({ inventory: inventory.output, output, definitions, required: policy.input?.required_components ?? [],
+      ...(policy.configuration_step ? { configuration: configuration.output } : {}),
+      readReference, readScope, identity, receipt }) : null;
+    if (keepReceipt && evidence?.verified && writeReceipt) {
+      const saved = { schema: 'trillion.setup-verification/v1', ...binding, verified_at: receipt?.verified_at ?? now().toISOString(),
+        references: evidence.receipt_references, loop: evidence.loop };
+      if (!receipt || identity({ references: receipt.references, loop: receipt.loop }) !== identity({ references: saved.references, loop: saved.loop })) writeReceipt(receipt_id, saved);
+      receipt = saved;
+    }
+    return {
+      workflow_id: policy.id, run_id, exists: Boolean(run), session_ref: session_id,
+      ...(session.previous_run_id ? { previous_run_id: session.previous_run_id, recheck_reason: session.recheck_reason,
+        previous_evidence: { inventory_ref: `workflow-output:${session.previous_run_id}:${policy.inventory_step}`, verification_ref: `workflow-output:${session.previous_run_id}:${policy.verification_step}`,
+          ...(policy.configuration_step ? { configuration_ref: `workflow-output:${session.previous_run_id}:${policy.configuration_step}` } : {}) } } : {}),
+      state: run?.state ?? (run?.finished_at ? 'finished' : run ? 'working' : 'not_started'),
+      withdrawn: Boolean(run?.withdrawal), started_at: run?.started_at ?? null, finished_at: run?.finished_at ?? null,
+      step_now: run?.waiting?.[0]?.step_id ?? null, verification_step: policy.verification_step,
+      verification_admitted_at: admitted?.admitted_at ?? null,
+      verified: Boolean(intact && evidence?.verified && receipt),
+      evidence_protocol: SETUP_EVIDENCE_PROTOCOL,
+      ...(evidence ? { evidence: { ready: evidence.verified, capabilities: evidence.capabilities, references: evidence.references, problems: evidence.problems, loop: evidence.loop } } : {}),
+      ...(receipt ? { receipt: { ref: receipt_id, verified_at: receipt.verified_at } } : {}),
+      ...(output && proofIntact ? { verification: output } : {}),
+      ...(inventory.intact ? { inventory: inventory.output, inventory_admitted_at: inventory.admitted.admitted_at } : {}),
+      ...(policy.configuration_step && configurationIntact ? { configuration: configuration.output, configuration_admitted_at: configuration.admitted.admitted_at } : {}),
+      ...(policy.configuration_step && !configurationIntact && (configuration.admitted || admitted) ? { configuration_problem: 'The admitted setup configuration is missing or differs from its recorded identity.' } : {}),
+      ...(inventory.admitted && !inventory.intact ? { inventory_problem: 'The admitted setup inventory is missing or differs from its recorded identity.' } : {}),
+      ...(admitted && !proofIntact ? { verification_problem: 'The admitted verification output is missing or differs from its recorded identity.' } : {}),
+      ...(run?.error ? { problem: withoutSecrets(run.error) } : {}),
+    };
+  };
+  return { read: () => inspect(), async ensure({ restart = false } = {}) {
+    const session = current(), run = readRun(session.run_id);
+    if (run?.withdrawal && !restart) return inspect();
+    const checked = inspect(!run?.withdrawal);
+    if (checked.verified) return checked;
+    if ((run?.withdrawal && restart) || run?.state === 'finished') {
+      // A finished workflow does not accept edited outputs. Rechecking is new work through that same owner,
+      // with a key derived from the prior finished proof and the current scope. Reads never take this step.
+      // Transient reader failure is retried without making another workflow or discarding its evidence.
+      if (!policy.recheck_request_prefix || !writeSession || checked.evidence?.ready || checked.evidence?.references?.some(row => row.state === 'unknown')) return checked;
+      let scope;
+      try { scope = readScope?.() ?? {}; } catch { return checked; }
+      const reason = run.withdrawal ? 'The person explicitly restarted stopped setup.'
+        : [...(checked.evidence?.problems ?? []), ...(checked.evidence?.capabilities ?? []).flatMap(row => (row.problems ?? []).map(problem => `${row.id}: ${problem}`))].join(' ').slice(0, 2000)
+          || checked.inventory_problem || checked.configuration_problem || checked.verification_problem || 'The finished run does not yet have verified setup evidence.';
+      const request_key = `${policy.recheck_request_prefix}:${identity({ previous_run_id: session.run_id, final: run.done?.[policy.verification_step]?.output_identity ?? null,
+        inventory: run.done?.[policy.inventory_step]?.output_identity ?? null,
+        ...(policy.configuration_step ? { configuration: run.done?.[policy.configuration_step]?.output_identity ?? null } : {}), withdrawal: run.withdrawal ?? null, scope }).slice(3)}`;
+      const next_run_id = runFor(request_key);
+      const next = readRun(next_run_id);
+      if (!next) await owner().start({ workflow_id: policy.id, request_key,
+        input: { ...(policy.input ?? {}), previous_run_id: session.run_id, recheck_reason: reason } });
+      if (!readRun(next_run_id)) throw new Error('The setup recheck did not leave its owned workflow run.');
+      writeSession(session_id, { workflow_id: policy.id, run_id: next_run_id, request_key, previous_run_id: session.run_id,
+        recheck_reason: reason, updated_at: now().toISOString() });
+      return inspect();
+    }
+    const result = run ? await owner().read({ run_id: session.run_id, ...(run.state === 'stuck' || run.state === 'failed' ? { resume: true } : {}) })
+      : await owner().start({ workflow_id: policy.id, request_key: session.request_key, input: policy.input ?? {} });
+    inspect(true);
+    return result;
+  } };
+}
+
+export function setupDefaultRows(rows) {
+  return rows.map(({ id, kind, desired, current, changed = false, last_run = null }) => {
+    const enabled = current ? active(current.enabled) : false;
+    const wanted = active(desired.enabled);
+    const state = !current ? changed ? 'removed' : 'missing'
+      : !enabled ? !wanted && !changed ? 'default_off' : 'off'
+      : changed ? 'customized' : 'active';
+    return {
+      id, kind, label: current?.label ?? desired.label ?? id, state, enabled, wanted_enabled: wanted,
+      changed, preserved: changed, matches_default: Boolean(current) && !changed,
+      then: current?.then ?? null, wanted_then: desired.then ?? null,
+      ...(kind === 'schedule' ? { every: current?.every ?? null, next_run_is_owned_by: 'timed_work', last_run } : {}),
+      manage: { tool: 'run_tool', arguments: { tool_id: kind === 'schedule' ? 'tool:run-at-a-time' : 'tool:run-when-something-happens', input: { operation: 'list' } } },
+    };
+  });
+}
+
+/** Each reader is an owner's bounded snapshot, not its history or a model call. */
+export function setupRuntimeReport(snapshot, { now = () => Date.now(), alarmGraceMs = 300_000, provisioned = null } = {}) {
+  const at = now();
+  const components = [];
+  const defaults = snapshot.defaults;
+  const rows = !readProblem(defaults) && Array.isArray(defaults?.rows) ? setupDefaultRows(defaults.rows) : [];
+  const missing = rows.filter(row => row.state === 'missing');
+  const changed = rows.filter(row => row.changed);
+  const halted = rows.filter(row => row.wanted_enabled && ['off', 'removed'].includes(row.state));
+  const defaultsProblem = readProblem(defaults) || (provisioned?.defaults?.state === 'failed' ? provisioned.defaults.problem : null)
+    || (!Array.isArray(defaults?.rows) ? 'Default records could not be read.' : null);
+  components.push(component('defaults', defaultsProblem ? 'unknown' : missing.length ? 'pending' : halted.length ? 'blocked' : 'ready', {
+    ...(defaultsProblem ? { problem: defaultsProblem } : {}), initialized: defaults?.initialized === true,
+    rows, active: rows.filter(row => row.enabled).length, changes_preserved: changed.length,
+    missing: missing.map(row => row.id), stopped_by_choice: halted.map(row => row.id),
+    ...(halted.length ? { note: 'Existing choices stay as they are. Review why these defaults were stopped before changing them.' } : {}),
+  }, defaultsProblem || missing.length || halted.length ? [toolCall('list_rules'), toolCall('list_schedules')] : []));
+
+  const timed = snapshot.timed_work;
+  const timedProblem = readProblem(timed) || (!Array.isArray(timed?.failed) || !Array.isArray(timed?.running) ? 'The scheduler state could not be read.' : null);
+  const failed = Array.isArray(timed?.failed) ? timed.failed.map(item => ({ ...item, ...(item.error ? { error: withoutSecrets(item.error) } : {}) })) : [];
+  const alarmAt = finiteTime(timed?.alarm_at) ? timed.alarm_at : null;
+  const alarmOwed = rows.some(row => row.kind === 'schedule' && row.enabled);
+  const overdue = Boolean(alarmAt && Date.parse(alarmAt) < at - alarmGraceMs);
+  const armProblem = provisioned?.timed_work?.state === 'failed' ? provisioned.timed_work.problem : null;
+  const timedState = timedProblem || armProblem ? 'unknown' : failed.length || overdue ? 'blocked' : alarmOwed && !alarmAt ? 'pending' : 'ready';
+  components.push(component('timed_work', timedState, {
+    ...(timedProblem || armProblem ? { problem: timedProblem ?? armProblem } : {}),
+    alarm_at: alarmAt, alarm_expected: alarmOwed, overdue,
+    worker_version: timed?.worker_version ?? null, last_wake: timed?.last_wake ?? null,
+    wake_started: timed?.wake_started ?? null, alarm_entered: timed?.alarm_entered ?? null,
+    running: timed?.running ?? [], failed,
+    observed_wake: finiteTime(timed?.last_wake?.at),
+    keep_running: timed?.keep_running ?? null,
+  }, timedState === 'ready' ? [] : [toolCall('timed_work', {}, 'Read the actual clock, held work and retry times.')]));
+
+  const intake = snapshot.event_intake;
+  const intakeProblem = readProblem(intake) || (provisioned?.event_intake?.state === 'failed' ? provisioned.event_intake.problem : null)
+    || (!Array.isArray(intake?.sources) || !Array.isArray(intake?.listening) || !Array.isArray(intake?.stopped) || !Array.isArray(intake?.attempts) ? 'Connected source setup could not be read.' : null);
+  const listening = new Map(list(intake?.listening).map(item => [typeof item === 'string' ? item : item.source_id, item]));
+  const stopped = new Set(list(intake?.stopped).map(item => typeof item === 'string' ? item : item.source_id));
+  const intakeRows = list(intake?.sources).map(source => {
+    const attempts = list(intake.attempts).filter(item => item.source_id === source.source_id).map(item => ({ ...item, ...(item.problem ? { problem: withoutSecrets(item.problem) } : {}) }));
+    const problems = list(intake.problems).filter(item => item.source_id === source.source_id).map(item => ({ ...item, ...(item.problem ? { problem: withoutSecrets(item.problem) } : {}) }));
+    const state = stopped.has(source.source_id) ? 'stopped' : listening.has(source.source_id) ? 'listening' : 'pending';
+    return { ...source, state, since: listening.get(source.source_id)?.since ?? null, attempts, problems,
+      ...(state === 'stopped' ? { preserved: true } : {}) };
+  });
+  // The event owner only reports an explicit account stop here. It is a configured choice from the first setup,
+  // not unfinished listening; the workflow still has to prove an actual authorized arrival and useful result.
+  const intakeUnready = intakeRows.some(row => !['listening', 'stopped'].includes(row.state));
+  const intakeFailed = intakeRows.some(row => [...row.attempts, ...row.problems].some(problem => problem.retryable === false));
+  components.push(component('event_intake', intakeProblem ? 'unknown' : intakeFailed ? 'blocked' : intakeUnready || (intake?.running?.length ?? 0) > 0 ? 'pending' : 'ready', {
+    ...(intakeProblem ? { problem: intakeProblem } : {}), sources: intakeRows, running: intake?.running ?? [],
+    note: 'Listening proves the subscription is configured. source_health verifies actual arrivals and the work they started.',
+  }, intakeProblem || intakeUnready ? [toolCall('source_health'), toolCall('list_connections')] : []));
+
+  const own = snapshot.own_ais;
+  const ownProblem = readProblem(own) || (!Array.isArray(own?.rows) ? 'Your AIs could not be read.' : null);
+  // Each of the person's own AIs and computers: whether it is live now, and any trouble it has (a refused key, out of credit).
+  const ownRows = list(own?.rows).map(row => ({ id: row.id, label: row.label ?? row.agent_id, kind: row.kind, live: row.live_now === true,
+    ...(row.connected === false ? { connected: false } : {}), ...(row.problem ? { problem: withoutSecrets(String(row.problem)) } : {}) }));
+  const usable = ownRows.filter(row => row.live);
+  const wakeFailure = own?.wake_failure ? { ...own.wake_failure, error: withoutSecrets(own.wake_failure.error) } : null;
+  const lastWork = own?.last ? { ...own.last, ...(own.last.why ? { why: withoutSecrets(own.last.why) } : {}) } : null;
+  const ownState = ownProblem ? 'unknown' : !ownRows.length ? 'pending' : wakeFailure ? 'blocked' : usable.length ? 'ready' : 'blocked';
+  components.push(component('own_ais', ownState, {
+    ...(ownProblem ? { problem: ownProblem } : {}), rows: ownRows,
+    selection_required: false, selection_required_if_using_this_worker: !ownRows.length, last: lastWork, wake_failure: wakeFailure,
+    observed_finished_job: own?.last?.finished === true,
+    note: 'Your own AIs and computers are one background path. A verified host schedule or live agent delivery can do that job instead. Trillion never pays for an AI: only your own connections and computers run.',
+  }, ownState === 'ready' ? [] : [toolCall('list_your_ais', {}, 'Read your AIs and computers before ordering them; keep an existing verified host delivery or pickup path.')]));
+
+  const aware = snapshot.awareness;
+  const awareProblem = readProblem(aware) || (typeof aware?.allowed !== 'boolean' ? 'Awareness state could not be read.' : null);
+  const observed = (Number(aware?.read_count) || 0) > 0 && finiteTime(aware?.last_read_at);
+  components.push(component('awareness', awareProblem ? 'unknown' : aware?.allowed === false ? 'blocked' : observed ? 'ready' : 'pending', {
+    ...(awareProblem ? { problem: awareProblem } : {}), allowed: aware?.allowed ?? null,
+    last_read_at: aware?.last_read_at ?? null, read_count: aware?.read_count ?? 0, history_done: aware?.history_done === true,
+    note: 'An installed reader is separate from data it has actually read. Earlier history can still be importing after the first successful reading.',
+  }, observed && !awareProblem ? [] : [toolCall('read_awareness'), toolCall('source_health', {}, 'Check that the person’s own sources are supplying data.')]));
+
+  const agents = snapshot.agents;
+  const agentsProblem = readProblem(agents) || (!Array.isArray(agents?.agents) ? 'Agent readiness could not be read.' : null);
+  const agentRows = list(agents?.agents).map(agent => ({ agent_id: agent.agent_id, name: agent.name, source_id: agent.source_id ?? null,
+    takes_work: agent.takes_work === true, capacity: agent.capacity ?? null, reach: agent.reach ?? null,
+    ready_now: agent.ready_now === true }));
+  const presentAgents = agentRows.filter(agent => agent.takes_work && finiteTime(agent.capacity?.expires_at)
+    && Date.parse(agent.capacity.expires_at) > at && agent.capacity.max_concurrent > 0
+    && (agent.ready_now || agent.capacity.status === 'full'));
+  components.push(component('agents', agentsProblem ? 'unknown' : presentAgents.length ? 'ready' : 'pending', {
+    ...(agentsProblem ? { problem: agentsProblem } : {}), agents: agentRows,
+    available_now: agentRows.filter(agent => agent.ready_now).length,
+    live_delivery: agentRows.filter(agent => agent.takes_work && agent.reach?.live === true).length,
+    note: 'A published name alone does not prove that an AI is present or can wake after this chat ends.',
+  }, agentsProblem || !presentAgents.length ? [toolCall('find_agents', {}, 'Inspect the current agent and its capacity before publishing or resuming it.')] : []));
+
+  const workflow = snapshot.workflow;
+  if (workflow !== undefined) {
+    const problem = readProblem(workflow) || (provisioned?.workflow?.state === 'failed' ? provisioned.workflow.problem : null);
+    const workflowState = problem ? 'unknown' : workflow?.withdrawn || workflow?.state === 'failed' ? 'blocked' : workflow?.verified === true ? 'ready' : 'pending';
+    const next = workflow?.run_id && workflow?.exists && !workflow?.withdrawn && workflow?.state !== 'finished'
+      ? [toolCall('read_workflow_run', { run_id: workflow.run_id, ...(workflow.state === 'stuck' ? { resume: true } : {}) })]
+      : workflow?.exists && !workflow.withdrawn && !workflow.verified && !problem
+        ? [toolCall('start_setup', {}, workflow.evidence?.ready ? 'Save the successful owner verification for this account.' : 'Continue setup with a saved recheck of the unresolved evidence; reuse the earlier inventory.')]
+        : workflow?.exists || problem ? [] : [toolCall('start_setup', {}, 'Start the saved setup workflow for this account.')];
+    components.push(component('workflow', workflowState, { ...workflow, ...(problem ? { problem } : {}) }, next));
+  }
+
+  // These are observations of alternative workers and optional background readers. The saved workflow verifies
+  // which path this person actually uses; an idle agent or an unused model provider must not force paid setup.
+  for (const row of components) row.required = !['own_ais', 'awareness', 'agents'].includes(row.id);
+
+  return {
+    schema: 'trillion.setup-runtime/v1', checked_at: new Date(at).toISOString(),
+    ready: components.every(row => !row.required || row.ready), components,
+    next_calls: uniqueCalls(components.flatMap(row => row.next_calls)),
+    ...(workflow !== undefined ? { workflow } : {}),
+    ...(provisioned ? { provisioned } : {}),
+  };
+}
+
+export function makeSetupRuntime({ read, prepare, now = () => Date.now(), alarmGraceMs } = {}) {
+  const names = ['defaults', 'timed_work', 'event_intake', 'own_ais', 'awareness', 'agents', ...(read?.workflow ? ['workflow'] : [])];
+  let preparing = null, restarting = false;
+  const snapshot = async provisioned => {
+    const values = await Promise.all(names.map(async name => {
+      try {
+        if (typeof read?.[name] !== 'function') throw new Error(`${name} has no setup reader.`);
+        return [name, await read[name]()];
+      } catch (error) { return [name, unavailable(error)]; }
+    }));
+    return setupRuntimeReport(Object.fromEntries(values), { now, alarmGraceMs, provisioned });
+  };
+  return {
+    read: () => snapshot(),
+    ensure({ restart = false } = {}) {
+      if (preparing && restart && !restarting) return preparing.then(() => this.ensure({ restart: true }));
+      if (!preparing) preparing = (async () => {
+        restarting = restart;
+        const provisioned = {};
+        // Preparation is sequential: the clock must see the final current defaults and listener tasks.
+        for (const name of ['defaults', 'event_intake', ...(read?.workflow ? ['workflow'] : []), 'timed_work']) {
+          try {
+            if (typeof prepare?.[name] !== 'function') throw new Error(`${name} has no setup action.`);
+            const result = await prepare[name](name === 'workflow' ? { restart } : undefined);
+            provisioned[name] = { state: 'prepared', ...(result === undefined ? {} : { result }) };
+          } catch (error) { provisioned[name] = { state: 'failed', problem: withoutSecrets(error) }; }
+        }
+        return snapshot(provisioned);
+      })().finally(() => { preparing = null; restarting = false; });
+      return preparing;
+    },
+  };
+}
+
+/** The shared HTTP boundary checks reach and the existing automation entitlement before constructing an owner. */
+export async function handleSetupRuntimeRequest(request, { privateReach, authorize, owner }) {
+  if (!['GET', 'POST'].includes(request.method)) return Response.json({ error: 'Use GET to read setup or POST to prepare it.' }, { status: 405, headers: { allow: 'GET, POST' } });
+  if (!privateReach) return Response.json({ error: 'Account setup is private.' }, { status: 403 });
+  const withheld = await authorize();
+  if (withheld) return Response.json(withheld, { status: 402 });
+  let input = {};
+  if (request.method === 'POST') {
+    const body = await request.text();
+    try { input = body.trim() ? JSON.parse(body) : {}; } catch { return Response.json({ error: 'Setup input must be JSON.' }, { status: 400 }); }
+    if (!input || typeof input !== 'object' || Array.isArray(input) || (input.restart !== undefined && typeof input.restart !== 'boolean'))
+      return Response.json({ error: 'restart, when supplied, must be true or false.' }, { status: 400 });
+  }
+  const runtime = await owner();
+  return Response.json(await (request.method === 'POST' ? runtime.ensure({ restart: input.restart === true }) : runtime.read()));
+}

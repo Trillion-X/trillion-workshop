@@ -111,13 +111,6 @@
     },
     {
       "from": "src/local-store.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs",
-      "source_identity": "1f:21752f055744801d826d637b90d965fdeb65f7c4840bf15b347a583d8545f710",
-      "identity": "1f:21752f055744801d826d637b90d965fdeb65f7c4840bf15b347a583d8545f710"
-    },
-    {
-      "from": "src/local-store.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs",
       "source_identity": "1f:21752f055744801d826d637b90d965fdeb65f7c4840bf15b347a583d8545f710",
@@ -282,6 +275,30 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs",
       "source_identity": "1f:172fc5ddc10f4c05d04ea73375a4daadc2c7c29db6ceed3b769499b9703fa787",
       "identity": "1f:66e5565912e2d04d87e5a58bb4d708eb042430e6ae377db0615832aa86ac81e7",
+      "reused": true
+    },
+    {
+      "from": "src/namespace-preview.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/namespace-preview.mjs",
+      "source_identity": "1f:c4519cf7e6db4093f7db62ccee5218e66ed19c08730fd61e546b637b5192359c",
+      "identity": "1f:c4519cf7e6db4093f7db62ccee5218e66ed19c08730fd61e546b637b5192359c",
+      "reused": true
+    },
+    {
+      "from": "src/responses.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/responses.mjs",
+      "source_identity": "1f:1a7792f82e5d8c69d2200d3618d71eb075aaea1a18b9b78899a9af4cb08b85e6",
+      "identity": "1f:1a7792f82e5d8c69d2200d3618d71eb075aaea1a18b9b78899a9af4cb08b85e6",
+      "reused": true
+    },
+    {
+      "from": "src/scheduler.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/scheduler.mjs",
+      "source_identity": "1f:976ce6ee48681a97096cfb7a850a26372716586bfd3bcfb0470afc442780748a",
+      "identity": "1f:976ce6ee48681a97096cfb7a850a26372716586bfd3bcfb0470afc442780748a",
       "reused": true
     }
   ]

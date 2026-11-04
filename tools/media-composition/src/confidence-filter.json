@@ -1,0 +1,6 @@
+{
+  "_what": "Defaults for src/confidence-filter.mjs. `act_at`: at or above this probability the action layer acts. `ask_at`: from here up to act_at it asks the person; below it, it abstains. A per-context second-stage model is a row the caller passes: { context, bias, weights: { <feature>: <number> }, keep_above } where the probability is the logistic of bias plus each weight times its feature. A new context is a new row.",
+  "act_at": 0.8,
+  "ask_at": 0.5,
+  "default_keep_above": 0.5
+}

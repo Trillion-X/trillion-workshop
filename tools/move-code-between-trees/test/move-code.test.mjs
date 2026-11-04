@@ -325,6 +325,63 @@ test('a test whose code an earlier move carried elsewhere lands beside it and im
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
 
+test('a module the runtime provides (node:, cloudflare:), or a request a template fills at run time, is no package to declare and holds nothing', () => {
+  const source = repository({
+    'package.json': json({ name: 'old-app', type: 'module' }),
+    'src/probe.mjs': "export const probeSource = `import { DurableObject } from 'cloudflare:workers';\\nexport class Probe extends DurableObject {}`;\nexport const pageSource = root => `import look from '${root}parts/look.mjs';`;\n",
+    'test/probe.test.mjs': "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { probeSource } from '../src/probe.mjs';\ntest('probe', () => { assert.ok(probeSource.includes('Probe')); });\n",
+  });
+  const destination = repository({ 'package.json': json({ name: 'tool-box', type: 'module' }), 'tools/probe/tool-rows.json': json({ rows: [] }) });
+  const row = { id: 'move:old-app-probe', source: { name: 'old-app', test_folders: ['test'] }, destination: { name: 'tool-box', package: 'tool-box', shared_folder: 'tools/shared-code' },
+    groups: [{ id: 'probe', owner: ['src/probe.mjs'], to: 'tools/probe', joins_tool: 'the probe it holds' }] };
+  try {
+    const plan = moveCode({ step: 'plan', row, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups[0].held, []);
+    assert.deepEqual(plan.packages_to_add, {});
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
+
+test('a file its row names as an adapted copy is home there: the test lands beside it, imports it, and its receipt says adapted', () => {
+  const source = repository({
+    'package.json': json({ name: 'old-app', type: 'module' }),
+    'src/sum.mjs': "// the old sum\nexport const sum = (a, b) => a + b;\n",
+    'test/sum.test.mjs': "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { sum } from '../src/sum.mjs';\ntest('sum', () => { assert.equal(sum(2, 3), 5); });\n",
+  });
+  const destination = repository({
+    'package.json': json({ name: 'tool-box', type: 'module' }),
+    'tools/add-numbers/tool-rows.json': json({ rows: [] }),
+    'tools/add-numbers/do-work/add.mjs': "// adds two numbers, in this tool's own shape\nexport function sum(a, b) { return [a, b].reduce((x, y) => x + y, 0); }\n",
+  });
+  const row = { id: 'move:old-app-adapted', source: { name: 'old-app', test_folders: ['test'] }, destination: { name: 'tool-box', package: 'tool-box', shared_folder: 'tools/shared-code' },
+    groups: [{ id: 'sum-tests', owner: ['test/sum.test.mjs'], to: 'tools/add-numbers', joins_tool: 'the tests of the code it holds' }] };
+  try {
+    const held = moveCode({ step: 'plan', row, source_folder: source, destination_folder: destination });
+    assert.equal(held.files.find(file => file.from === 'src/sum.mjs').reused, false, 'with no row, the adapted copy is not the same bytes and is no home');
+    const adapted = { ...row, adapted_homes: [{ from: 'src/sum.mjs', home: 'tools/add-numbers/do-work/add.mjs', why: 'the tool adds in its own shape' }] };
+    assert.throws(() => moveCode({ step: 'plan', row: { ...row, adapted_homes: [{ from: 'src/sum.mjs', home: 'tools/add-numbers/nowhere.mjs', why: 'x' }] }, source_folder: source, destination_folder: destination }), /does not hold/);
+    const plan = moveCode({ step: 'plan', row: adapted, source_folder: source, destination_folder: destination });
+    const to = Object.fromEntries(plan.files.map(file => [file.from, file]));
+    assert.equal(to['src/sum.mjs'].to, 'tools/add-numbers/do-work/add.mjs');
+    assert.equal(to['src/sum.mjs'].adapted, 'the tool adds in its own shape');
+    assert.deepEqual(to['test/sum.test.mjs'].import_changes.map(change => change.specifier), ['../do-work/add.mjs']);
+    moveCode({ step: 'apply', row: adapted, source_folder: source, destination_folder: destination });
+    const receipt = JSON.parse(readFileSync(join(destination, 'tools/add-numbers/moved-from.json'), 'utf8'));
+    assert.equal(receipt.files.find(file => file.from === 'src/sum.mjs').adapted, 'the tool adds in its own shape');
+    git(destination, 'add', '-A'); git(destination, 'commit', '-q', '-m', 'tests');
+    const checked = moveCode({ step: 'check', row: adapted, source_folder: source, destination_folder: destination, folders: ['tools/add-numbers'] });
+    assert.deepEqual(checked.folders[0].problems, []);
+    assert.equal(checked.folders[0].tests.pass, 1);
+    // An adapted copy at the very place the file would land is its home too, not a path taken.
+    const atPlace = repository({ 'package.json': json({ name: 'tool-box', type: 'module' }), 'tools/add-numbers/tool-rows.json': json({ rows: [] }),
+      'tools/add-numbers/src/sum.mjs': "export function sum(a, b) { return [a, b].reduce((x, y) => x + y, 0); }\n" });
+    try {
+      const there = moveCode({ step: 'plan', row: { ...row, adapted_homes: [{ from: 'src/sum.mjs', home: 'tools/add-numbers/src/sum.mjs', why: 'adapted in place' }] }, source_folder: source, destination_folder: atPlace });
+      assert.deepEqual(there.groups[0].held, []);
+      assert.equal(there.files.find(file => file.from === 'src/sum.mjs').adapted, 'adapted in place');
+    } finally { rmSync(atPlace, { recursive: true, force: true }); }
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
+
 test('a test rides with the group it reaches when what else it imports is home already in the destination', () => {
   const source = repository({
     'package.json': json({ name: 'old-app', type: 'module' }),
@@ -403,4 +460,36 @@ test('check with no source judges every receipt from the checkout alone: shape, 
   git(folder, 'commit', '-q', '-m', 'only whole receipts');
   assert.equal(cli(folder).code, 0);
   rmSync(folder, { recursive: true, force: true });
+});
+test('a kept file with a home in a package the destination depends on holds nothing: the moved file imports it there', () => {
+  const source = repository(sourceFiles());
+  const destination = repository(destinationFiles());
+  try {
+    const lockIdentity = makeHashCodeHexFromBytes(new Uint8Array(Buffer.from(sourceFiles()['src/lock.mjs'])));
+    const homed = { ...row, groups_from: undefined, groups: [{ id: 'guard-door', owner: ['src/door-guard.mjs'], to: 'tools/guard-door' }], homes_in_packages: [{ from: 'src/lock.mjs', home: 'lock-box/src/lock.mjs', source_identity: lockIdentity }] };
+    const plan = moveCode({ step: 'plan', row: homed, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups[0].held, [], 'the keep row no longer holds it');
+    assert.deepEqual(plan.files.map(file => file.from), ['src/door-guard.mjs'], 'the homed file is not moved');
+    assert.deepEqual(plan.files[0].homes, { 'src/lock.mjs': 'lock-box/src/lock.mjs' });
+    moveCode({ step: 'apply', row: homed, source_folder: source, destination_folder: destination });
+    assert.match(readFileSync(join(destination, 'tools/guard-door/src/door-guard.mjs'), 'utf8'), /from 'lock-box\/src\/lock\.mjs'/);
+    assert.ok(existsSync(join(source, 'src/lock.mjs')), 'the kept file stays in the source');
+    const receipt = JSON.parse(readFileSync(join(destination, 'tools/guard-door/moved-from.json'), 'utf8'));
+    assert.deepEqual(receipt.files[0].homes, { 'src/lock.mjs': 'lock-box/src/lock.mjs' });
+    git(destination, 'add', '-A'); git(destination, 'commit', '-q', '-m', 'moved');
+
+    const missing = moveCode({ step: 'check', row: homed, source_folder: source, destination_folder: destination, folders: ['tools/guard-door'], run: false });
+    assert.ok(missing.folders[0].problems.some(problem => /lock-box\/src\/lock\.mjs \(home of src\/lock\.mjs\) does not resolve from here/.test(problem)));
+    const installed = join(destination, 'node_modules/lock-box');
+    mkdirSync(join(installed, 'src'), { recursive: true });
+    writeFileSync(join(installed, 'package.json'), json({ name: 'lock-box', type: 'module', exports: { './src/*': './src/*' } }));
+    writeFileSync(join(installed, 'src/lock.mjs'), sourceFiles()['src/lock.mjs']);
+    const proof = moveCode({ step: 'check', row: homed, source_folder: source, destination_folder: destination, folders: ['tools/guard-door'], source_after_folder: source });
+    assert.equal(proof.ok, true, JSON.stringify(proof.folders, null, 2));
+    writeFileSync(join(installed, 'src/lock.mjs'), 'export const lock = false;\n');
+    const caught = moveCode({ step: 'check', row: homed, source_folder: source, destination_folder: destination, folders: ['tools/guard-door'], run: false });
+    assert.ok(caught.folders[0].problems.some(problem => /lock-box\/src\/lock\.mjs is not src\/lock\.mjs at .* beyond its import paths/.test(problem)));
+
+    assert.throws(() => moveCode({ step: 'plan', row: { ...homed, homes_in_packages: [{ ...homed.homes_in_packages[0], source_identity: '1f:00' }] }, source_folder: source, destination_folder: destination }), /homes_in_packages says lock-box\/src\/lock\.mjs holds src\/lock\.mjs as 1f:00/);
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });

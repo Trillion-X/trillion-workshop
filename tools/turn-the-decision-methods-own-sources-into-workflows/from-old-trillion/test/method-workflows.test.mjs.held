@@ -1,0 +1,86 @@
+// The decision method's sources as workflows every account can run (records/method-workflows.json, written by
+// scripts/method-workflows.mjs into records/workflow-recipe-records.json), and the decision questions that name them.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import { methodWorkflowRecords, shelfWith } from '../scripts/method-workflows.mjs';
+import { recipeProblems } from '../../../write-a-job-done-in-several-steps-have/from-old-trillion/src/workflows.mjs.held';
+import { DecisionEngine } from '../src/engine.mjs';
+import { localStore } from '../src/local-store.mjs';
+
+const read = path => JSON.parse(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'));
+const shelf = read('records/workflow-recipe-records.json');
+const settings = read('records/method-workflows.json');
+const methods = read('methods/methods.json');
+const checks = read('methods/checks.json');
+
+test('the shipped method workflows are what the method checks build now', () => {
+  assert.deepEqual(shelf, shelfWith(methodWorkflowRecords(), shelf), 'run node scripts/method-workflows.mjs --write after changing the checks or records/method-workflows.json');
+});
+
+test('each source workflow asks every check written from its files, in valid steps, and each variant runs only rows that exist', () => {
+  const rows = new Map(shelf.records.map(record => [record.payload.id, record.payload]));
+  for (const row of settings.workflows) {
+    const recipe = rows.get(row.id);
+    assert.ok(recipe, `${row.id} is on the shelf`);
+    assert.deepEqual(recipeProblems(recipe), [], row.id);
+    if (row.sources) {
+      const asked = new Set(recipe.steps.flatMap(step => step.submit.properties.checks.required));
+      // A row naming a method walks that method's own steps, so it asks every check its files wrote for those steps.
+      const own = row.method ? new Set(methods.find(method => method.id === row.method).steps.filter(step => step.kind !== 'scope').map(step => step.id)) : null;
+      for (const check of checks.filter(item => row.sources.includes(item.source?.file) && (!own || own.has(item.step)))) assert.ok(asked.has(check.id), `${row.id} asks ${check.id}`);
+    } else for (const id of row.runs) assert.ok(rows.has(id), `${row.id} runs ${id}`);
+  }
+});
+
+test('every workflow a method names is on the shelf, and a decision question names the ones whose switch is on', async () => {
+  const ids = new Set(shelf.records.map(record => record.payload.id));
+  for (const method of methods) for (const row of method.workflows ?? []) assert.ok(ids.has(row.workflow_id), `${method.id} names ${row.workflow_id}`);
+  const engine = new DecisionEngine(localStore(':memory:'));
+  const evidence = [{ ref: 'person:words', claim: 'Wants a way to tag files by client.' }];
+  const options = [{ id: 'generic', label: 'Tags as a generic field' }, { id: 'clients', label: 'A client-only field' }];
+  const focused = await engine.admit({ source_id: 'tags-focused', goal: 'Add a way to tag files by client', evidence, options, method: 'focused' });
+  const first = (await engine.guide(focused.id)).question;
+  assert.deepEqual(first.workflows.map(row => row.workflow_id), methods.find(method => method.id === 'focused').workflows.map(row => row.workflow_id));
+  assert.equal(first.workflows[0].if_distinct_run_needed.tool, 'start_workflow');
+  const full = await engine.admit({ source_id: 'tags-full', goal: 'Add a way to tag files by client', evidence, options });
+  assert.equal((await engine.guide(full.id)).question.workflows, undefined, 'the scope question comes before any switch is set');
+});
+
+test('the start_workflow input a decision question suggests is one each named workflow accepts', () => {
+  const recipes = new Map(shelf.records.map(record => [record.payload.id, record.payload]));
+  for (const method of methods) for (const row of method.workflows ?? []) {
+    const schema = recipes.get(row.workflow_id).input_schema ?? {};
+    const keys = Object.keys(row.input ?? { request: '' });
+    for (const key of keys) assert.ok(key in (schema.properties ?? {}), `${row.workflow_id} takes ${key}`);
+    for (const key of schema.required ?? []) assert.ok(keys.includes(key), `${method.id} gives ${row.workflow_id} its required ${key}`);
+  }
+});
+
+test('a question that names workflows requires cited applicability and refuses fabricated completion during planning', async () => {
+  const engine = new DecisionEngine(localStore(':memory:'));
+  const evidence = [{ ref: 'person:words', claim: 'Wants a way to tag files by client.' }];
+  const options = [{ id: 'generic', label: 'Tags as a generic field' }, { id: 'clients', label: 'A client-only field' }];
+  const record = await engine.admit({ source_id: 'tags-runs', goal: 'Add a way to tag files by client', evidence, options, method: 'focused' });
+  const question = (await engine.guide(record.id)).question;
+  assert.deepEqual(question.answer_schema.properties.workflow_runs.required, question.workflows.map(row => row.workflow_id));
+  assert.ok(question.answer_schema.required.includes('workflow_runs'));
+  const answer = { evidence_refs: ['person:words'], ...Object.fromEntries(question.fields.filter(name => name !== 'checklist').map(name => [name, 'Files carry tags from the existing field list.'])),
+    checklist: {
+      'baseline-search-by-job-not-words': { handled: true, how: 'Searched reusable labels and per-file fields rather than only client tags.', evidence_refs: ['person:words'] },
+      'baseline-search-before-claiming-absence': { handled: true, how: 'The fixture field list already contains a generic tagging capability; no absence is claimed.', evidence_refs: ['person:words'] },
+      'baseline-read-current-way': { handled: true, how: 'Inspected the fixture owner that keeps files and their fields, and reused its tag behavior.', evidence_refs: ['person:words'] },
+    },
+  };
+  await assert.rejects(engine.guide(record.id, { step_id: question.step_id, answer }), /workflow_runs/);
+  const wrong = {
+    'workflow:method-design-a-feature': { applicable: true, required_phase: 'execution', plan: 'Check the generic field design while making the change.', because: 'The request changes reusable tagging behavior.', evidence_refs: ['person:words'], state: 'finished' },
+    'workflow:method-change-code': { applicable: false, because: 'No code changes yet in this choice.', evidence_refs: ['person:words'] },
+  };
+  await assert.rejects(engine.guide(record.id, { step_id: question.step_id, answer: { ...answer, workflow_runs: wrong } }), /completion is checked by the service/);
+  const { state, ...planned } = wrong['workflow:method-design-a-feature'];
+  const accepted = await engine.guide(record.id, { step_id: question.step_id, answer: { ...answer,
+    workflow_runs: { ...wrong, 'workflow:method-design-a-feature': planned },
+  } });
+  assert.notEqual(accepted.question.step_id, question.step_id, 'an evidenced plan advances without pretending execution already finished');
+});

@@ -1,0 +1,11 @@
+# tools/decide-who-may-do-what-in-a-space/from-old-trillion/
+
+Files of old trillion whose job is this tool's (decide who may do what in a space by each member's kind and the space's own rules, and open or close a space to everyone). They are the bytes of tag `old-trillion-before-worker-retire` (b6ae0ebf81), moved here unchanged under their old paths, so they import each other as they did; only import paths differ, where a file they import is already in this repository. `../moved-from.json` names each file's source path and commit and the BLAKE3 identity of its bytes there and here. Nothing here is wired into `tool-rows.json` yet: wiring a file is adapting it into this tool's own folders and rows, in a commit that names this receipt. A file that cannot load or pass here is held: its name ends in `.held` (the same bytes), and it runs again when what it imports is here.
+
+| Old path | Here | Status |
+|---|---|---|
+| `src/space-member-types.mjs` | `src/space-member-types.mjs` | loads here |
+| `src/space-membership-kinds.mjs` | `src/space-membership-kinds.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/community.mjs (at the tag, not moved here yet), src/plan-comparison.mjs (at the tag, not moved here yet), src/account-policy-name.mjs (at the tag, not moved here yet) |
+| `src/space-permissions.mjs` | `src/space-permissions.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/shared-native-execution-context.mjs (at the tag, not moved here yet), parts/formula-engine/rules/rule-operators.json (already gone at the tag), parts/formula-engine/rules/compile-rules.mjs (already gone at the tag), src/record-sharing.json (at the tag, not moved here yet) and 2 more |
+| `test/space-member-types-read-through.test.mjs` | `test/space-member-types-read-through.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/workspace/show-rules.mjs (at the tag, not moved here yet) |
+| `test/space-member-types.test.mjs` | `test/space-member-types.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/local-store.mjs (at the tag, not moved here yet), test/source-imports-for-tests.mjs (at the tag, not moved here yet), src/person-spaces.mjs (at the tag, not moved here yet), test/import-source-for-tests.mjs (at the tag, not moved here yet) and 4 more |

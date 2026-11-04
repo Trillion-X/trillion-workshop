@@ -1,0 +1,361 @@
+// src/starting-rules.mjs
+//
+// Purpose
+//   Trillion's defaults: what every account does by itself until the person changes it, as ordinary rules and
+//   schedules on their Automations screen, each made by Trillion, with its own switch, words to edit, Run now, Delete
+//   and Put Trillion's version back. They come from one records file, records/starting-rules.json, and ship with the
+//   deploy: the ones every account has (`every_account`: rules, like handing what arrives to one of their AIs or telling
+//   their other AIs about a decision, and schedules, like checking whether decisions worked on the day they said to
+//   look), and, for every account they connect, one rule per event that account can send (a new comment, a new
+//   message), with Trillion listening for them. What each kind of account can send is its event source row
+//   (records/workshop-event-source-records.json, `connects_with.vendor` names the connection it belongs to), so a new
+//   service is one DATA row and nothing here changes. What a default runs is a Workshop tool or workflow like any
+//   other; Trillion's own behaviors are tools on placement:this-account (records/workshop-account-tool-records.json).
+//   Every default names in `backs` the settings it stands behind ([{ screen, item }]), so a screen finds the automations
+//   behind its settings by reading that field.
+//
+// Non-negotiable invariants
+//   1. Nothing lives in both: the defaults are read from the deploy (shippedAutomations, shippedEventRules) through
+//      src/shipped-defaults.mjs, and a person's store keeps only what they changed. A default edited in the records
+//      file reaches every account that never touched it on the next deploy, with no row written.
+//   2. The person decides: a default they turned off stays off, one they edited keeps their words, and one they removed
+//      stays removed (src/shipped-defaults.mjs keeps each of those as their change).
+//   3. Every default carries `default: true`, which every edit keeps; the person's own rules and schedules never do.
+//   4. Nothing here names a service, an event, a route, a tool or a time: they come from the rows. A row with a
+//      schedule_id is a schedule; any other row is a rule, the same two kinds set_schedule and set_rule take.
+//   5. Listening is the one thing a default needs set up per account: ensure() listens to each connected source a
+//      default rule reads. A connection that cannot be listened to yet (the service refused, the account could not be
+//      read) never stops the others; its problem is returned so the rules screen can say it.
+//      Temporary failures retry at the bounded delay in `listen_retry`; concurrent checks share one setup attempt,
+//      and kept event setup tasks retain their retry time and reason across restarts. nextRetry() brings that due
+//      setup to the store's existing alarm, so it needs no new request. An explicit stop stays stopped.
+//      The alarm asks nextRetry() every time it arms, so it answers from the last answer while nothing it rests on has
+//      moved: the host's `version` token (the listeners and their setup tasks), this instance's own setup state, and
+//      a short recheck time for what has no token (the connections). Without a `version`, every ask is worked out.
+//      A host may track runDue() separately with keepAlive: it starts one owned batch and returns, so slow provider
+//      setup does not hold the alarm or a person's read request. running() shows the actual unfinished setup, and
+//      a future recovery wake remains due until that work settles; the event owner's durable task resumes it.
+//   6. A noisy source quiets its own defaults: its row's `default_rule` ({ skip, batch }) becomes the rule's skip tests
+//      and batch (src/events.mjs), and a batching default gets `batch_label` and `batch_job` in place of the per-event
+//      words.
+//   7. Accounts set up before the defaults shipped kept copies of them. keptAsChanges() turns such an account into one
+//      that keeps only changes, once: a copy still holding Trillion's words (the current ones, or ones a row lists in
+//      `earlier_then`, or an event rule's words from before its source quieted itself) is deleted; a copy the person
+//      changed stays as their change, marked `default: true`; a removed default leaves its removal; a schedule's run
+//      state moves to its own record; the old made-by-trillion marks and removed marks go.
+//
+
+import { defaultAutomationOf } from './automations.mjs';
+import { eventFieldNames, eventRuleOf } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/events.mjs';
+import { sameValue } from './shipped-defaults.mjs';
+import { withoutSecrets } from '../../../learn-a-workflow-from-a-job/src/scheduler.mjs';
+import bootstrapStartingRules from '../records/starting-rules.json' with { type: 'json' };
+import { resolveMarketplaceContentSource } from './marketplace-content-sources.mjs';
+
+/** Current Marketplace definitions, with listener retry protocol retained by its engine owner. */
+export async function startingRuleData(env, { read, current } = {}) {
+  if (!env) return bootstrapStartingRules;
+  const [every, events] = await Promise.all(['every_account', 'each_connected_event'].map(key =>
+    resolveMarketplaceContentSource(env, { file: 'records/starting-rules.json', pointer: `/${key}` }, bootstrapStartingRules[key], { read, current })));
+  const every_account = every.found ? every.value : [];
+  if (!Array.isArray(every_account)) throw new TypeError('Starting rules every_account must be a list.');
+  const ids = new Set();
+  for (const row of every_account) {
+    const checked = defaultAutomationOf(row);
+    if (ids.has(checked.id)) throw new TypeError('A starting rule is included twice.');
+    ids.add(checked.id);
+  }
+  const each_connected_event = events.found ? events.value : null;
+  if (each_connected_event !== null) {
+    if (!each_connected_event || typeof each_connected_event !== 'object' || Array.isArray(each_connected_event)) throw new TypeError('The connected event default must be an object.');
+    for (const key of ['rule_id','label','batch_label','batch_job','workflow_id','job'])
+      if (typeof each_connected_event[key] !== 'string' || !each_connected_event[key].trim()) throw new TypeError(`The connected event default needs ${key}.`);
+  }
+  return { ...bootstrapStartingRules, every_account, each_connected_event };
+}
+
+// How long a nextRetry() answer stands when nothing it rests on has a token to say it moved (the connections).
+const RECHECK_MS = 120_000;
+const fillIn = (text, values) => text.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+
+/** Every `every_account` default as the record it reads as: Map id → { type, value } (src/automations.mjs). */
+export function shippedAutomations(data) {
+  return new Map(data.every_account.map(defaultAutomationOf).map(({ id, type, value }) => [id, { type, value }]));
+}
+
+// Each event default an account's connections bring: { name, rule, plain }, where plain is the words Trillion set for
+// every event before a source could quiet itself (keptAsChanges reads a copy holding them as Trillion's).
+function eventDefaultsOf(data, connected, rows) {
+  const vendors = new Set(connected.filter(item => (item.status ?? 'connected') === 'connected').map(item => item.vendor));
+  const shape = data.each_connected_event;
+  const defaults = [];
+  if (shape === null) return defaults;
+  for (const source of rows) {
+    if (!vendors.has(source.connects_with?.vendor)) continue;
+    for (const event of source.events) {
+      const quiet = source.default_rule ?? {};
+      const values = { source_id: source.id, source_label: source.label, event: event.name, hours: quiet.batch ? String(Math.round(quiet.batch.every_minutes / 60)) : '' };
+      const then = {
+        workflow_id: shape.workflow_id,
+        input: {
+          job: fillIn(shape.job, values),
+          arrived: { source: source.label, event: event.name, ...Object.fromEntries(eventFieldNames(source, event.name).map(field => [field, { fill: { from: 'event', field } }])) },
+        },
+      };
+      const batch = quiet.batch ? {
+        every_minutes: quiet.batch.every_minutes,
+        input: {
+          job: fillIn(shape.batch_job, values),
+          arrived: { source: source.label, count: { fill: { from: 'event', field: 'count' } }, first_at: { fill: { from: 'event', field: 'first_at' } }, last_at: { fill: { from: 'event', field: 'last_at' } }, events: { fill: { from: 'event', field: 'events' } } },
+        },
+      } : undefined;
+      const rule_id = fillIn(shape.rule_id, values);
+      const rule = eventRuleOf(source, { rule_id, event: event.name, then, skip: quiet.skip, batch, label: batch ? fillIn(shape.batch_label, values) : fillIn(shape.label, values), backs: shape.backs }, { earlier: { default: true } });
+      defaults.push({ name: `event-rule:${rule_id}`, source_id: source.id, rule, plain: { label: fillIn(shape.label, values), then } });
+    }
+  }
+  return defaults;
+}
+
+/** The event rules an account's connections bring, as they read: Map `event-rule:<rule_id>` → rule (src/events.mjs). */
+export function shippedEventRules(data, connected, rows) {
+  return new Map(eventDefaultsOf(data, connected, rows).map(({ name, rule }) => [name, rule]));
+}
+
+/**
+ * data:        records/starting-rules.json
+ * connections: async () → [{ vendor, status }] (this account's connections now)
+ * sources:     async () → event source rows ({ id, label, events: [{ name, fields }], connects_with?: { vendor } })
+ * listening:   async () → eventRules.listenerState() ({ listening, stopped, attempts }); source-id arrays remain supported
+ * listen:      async (source_id) → starts listening; throws with the reason or returns { listening: false, problem }
+ * version:     optional async () → a token that changes when a listener or its setup task is written (see nextRetry)
+ * now:         this account's clock, in milliseconds
+ * keepAlive:  optional host ownership of a promise; runDue awaits its work when no host can retain it
+ * onSettled:   called after a tracked setup batch settles so the host can arm the existing scheduler again
+ */
+export function startingRules({ data, definitions = async () => data, connections, sources, listening, listen, version = null, now = () => Date.now(), keepAlive = null, onSettled = async () => {} }) {
+  const retry = data.listen_retry;
+  if (!retry || !Number.isFinite(retry.first_after_seconds) || retry.first_after_seconds <= 0
+    || !Number.isFinite(retry.factor) || retry.factor < 1
+    || !Number.isFinite(retry.longest_after_seconds) || retry.longest_after_seconds < retry.first_after_seconds) {
+    throw new RangeError('starting-rules.listen_retry needs positive first_after_seconds, factor at least 1, and longest_after_seconds at least the first delay.');
+  }
+  const waitAfter = failures => Math.min(retry.first_after_seconds * retry.factor ** (failures - 1), retry.longest_after_seconds) * 1000;
+  const milliseconds = value => Number.isFinite(value) ? value : typeof value === 'string' ? Date.parse(value) : NaN;
+  const idOf = item => typeof item === 'string' ? item : item.source_id;
+  const failures = new Map();
+  let inFlight = null;
+  let startedAt = null;
+  let background = null;
+  let backgroundStartedAt = null;
+  let lastResult = { problems: [] };
+  // The last nextRetry() answer (before the in-flight wait) and what it was worked out from: the host's token, how many
+  // setup checks this instance has made, and when. Connections have no token, so it is worked out again after a while.
+  let asked = null;
+  let checks = 0;
+  const runningSources = new Map();
+  const shown = held => ({ source_id: held.source_id, problem: held.problem,
+    ...(held.retryable === false ? { retryable: false } : Number.isFinite(held.retry_at) ? { retry_at: held.retry_at } : {}),
+    ...(held.task_id ? { task_id: held.task_id } : {}) });
+
+  // The event owner keeps provider task identities and deadlines. Reusing that state prevents a new worker instance
+  // from turning a still-running identity/subscription request into another task. Local failures remain visible even
+  // when the next check has no new error; confirmed listening or an explicit stop is what clears them.
+  function keptAttempt(source_id, attempts) {
+    let held = failures.get(source_id);
+    for (const attempt of attempts.filter(item => item.source_id === source_id)) {
+      const retry_at = milliseconds(attempt.retry_at);
+      if (!held) held = { source_id, failures: 1, problem: attempt.problem ?? `Event setup is ${attempt.state ?? 'pending'}.`,
+        retryable: attempt.retryable !== false, retry_at: Number.isFinite(retry_at) ? retry_at : now() + waitAfter(1),
+        ...(attempt.task_id ? { task_id: attempt.task_id } : {}) };
+      else {
+        if (Number.isFinite(retry_at) && retry_at > (held.retry_at ?? 0)) held = { ...held, retry_at, problem: attempt.problem ?? held.problem };
+        if (attempt.retryable === false) held = { ...held, retryable: false };
+        if (attempt.task_id) held = { ...held, task_id: attempt.task_id };
+      }
+    }
+    if (held) failures.set(source_id, held);
+    return held;
+  }
+
+  async function current() {
+    // An unreadable connection or listener list is not evidence of an unused source or a cleared stop.
+    const [connected, rows, currentData] = await Promise.all([connections(), sources(), definitions()]);
+    const needed = new Set(eventDefaultsOf(currentData, connected, rows).map(item => item.source_id));
+    if (!needed.size) return { needed, active: new Set(), stopped: new Set(), attempts: [] };
+    const read = await listening();
+    const state = Array.isArray(read) ? { listening: read } : read;
+    if (!Array.isArray(state?.listening)) throw new TypeError('The current event listener state could not be read.');
+    const active = new Set(state.listening.map(idOf));
+    const stopped = new Set((state.stopped ?? []).map(idOf));
+    return { needed, active, stopped, attempts: state.attempts ?? [] };
+  }
+
+  async function ensure() {
+    const problems = [];
+    let state = await current();
+    const needed = state.needed;
+    let checkedAfterAttempt = true;
+    for (const source_id of needed) {
+      // An earlier source may have waited for a provider while the person stopped another or lost its connection.
+      // Refresh before starting the next source; the event owner also checks automatic setup against current intent.
+      if (!checkedAfterAttempt) { state = await current(); checkedAfterAttempt = true; }
+      const { active, stopped, attempts } = state;
+      if (!state.needed.has(source_id)) continue;
+      if (active.has(source_id) || stopped.has(source_id)) { failures.delete(source_id); continue; }
+      const before = keptAttempt(source_id, attempts);
+      if (before && (before.retryable === false || before.retry_at > now())) { problems.push(shown(before)); continue; }
+      runningSources.set(source_id, { source_id, started_at: new Date(now()).toISOString() });
+      checkedAfterAttempt = false;
+      try {
+        const result = await listen(source_id);
+        if (result?.stopped === true) { failures.delete(source_id); continue; }
+        if (result?.listening === false) throw Object.assign(new Error(result.problem ?? 'Event setup has not finished.'), result);
+        failures.delete(source_id);
+      } catch (error) {
+        const count = (before?.failures ?? 0) + 1;
+        const at = now();
+        const askedAt = milliseconds(error?.retry_at);
+        const askedAfter = Number.isFinite(error?.retry_after_seconds) ? error.retry_after_seconds * 1000 : 0;
+        const held = { source_id, failures: count, problem: withoutSecrets(error?.message ?? error?.problem ?? error),
+          retryable: error?.retryable !== false,
+          retry_at: Math.max(at + waitAfter(count), Number.isFinite(askedAt) ? askedAt : 0, at + askedAfter),
+          ...((error?.task_id ?? before?.task_id) ? { task_id: error?.task_id ?? before.task_id } : {}) };
+        failures.set(source_id, held);
+        problems.push(shown(held));
+      } finally {
+        runningSources.delete(source_id);
+        checks += 1;
+      }
+    }
+    return { problems };
+  }
+
+  const api = {
+    // Listens to each connected source a default rule reads. → { problems: [{ source_id, problem, retry_at? }] }
+    ensure() {
+      if (!inFlight) {
+        startedAt = new Date(now()).toISOString();
+        inFlight = ensure().then(result => { lastResult = result; return result; }, error => {
+          lastResult = { ...lastResult, error: withoutSecrets(error) };
+          throw error;
+        }).finally(() => { inFlight = null; startedAt = null; });
+      }
+      return inFlight;
+    },
+    running() {
+      const rows = [...runningSources.values()];
+      return rows.length ? rows : inFlight || background ? [{ source_id: null, started_at: startedAt ?? backgroundStartedAt }] : [];
+    },
+    status() { return { ...lastResult, running: api.running() }; },
+    // Register with the host before a provider starts. An alarm dispatch starts this tracked work; it does not
+    // await several provider timeouts. Only one batch runs here, and the event owner keeps its recoverable tasks.
+    async runDue() {
+      if (background) return { ...api.status(), started: false };
+      // A setup check that has no eligible source changes nothing. Do not start a host-owned batch (and arm the
+      // scheduler on its start and settlement) for an empty, already listening, stopped or backoff-held account.
+      // Request demand must read fresh connection state: the timing memo may still predate a new connection.
+      // Unreadable state is not proof of no work; retain the tracked ensure/error/recovery path below in that case.
+      let due;
+      try { due = await api.nextRetry({ refresh: true }); } catch { /* ensure records and reports the unreadable state */ }
+      if (background || due === null || Number.isFinite(due) && due > now()) return { ...api.status(), started: false };
+      backgroundStartedAt = new Date(now()).toISOString();
+      const work = Promise.resolve().then(() => api.ensure()).finally(async () => {
+        background = null;
+        backgroundStartedAt = null;
+        await onSettled();
+      });
+      background = work;
+      if (keepAlive) {
+        try { keepAlive(work); }
+        catch { return await work; }
+        return { ...api.status(), started: true };
+      }
+      return await work;
+    },
+    // The same source/account/stop check as ensure(), without starting anything. Durable attempts remain due after
+    // a restart; an as-yet unlistened connected source is due now. The existing scheduler owns all alarm writes.
+    async nextRetry({ refresh = false } = {}) {
+      const stamp = version ? await version() : null;
+      let soonest;
+      if (!refresh && asked && stamp !== null && asked.stamp === stamp && asked.checks === checks && now() - asked.at < RECHECK_MS) soonest = asked.soonest;
+      else {
+        const before = checks;
+        const { needed, active, stopped, attempts } = await current();
+        const times = [];
+        const problems = [];
+        for (const source_id of needed) {
+          if (active.has(source_id) || stopped.has(source_id)) { failures.delete(source_id); continue; }
+          const held = keptAttempt(source_id, attempts);
+          if (held) problems.push(shown(held));
+          if (held?.retryable === false) continue;
+          times.push(held?.retry_at ?? now());
+        }
+        soonest = times.length ? Math.min(...times) : null;
+        // A fresh no-op demand still confirms listening/stops and clears an earlier state-read error, as ensure
+        // did before the eligibility gate. Do not replace a concurrent completed attempt's newer result.
+        if (refresh && before === checks) lastResult = { problems };
+        asked = stamp === null || before !== checks ? null : { stamp, checks, at: now(), soonest };
+      }
+      // Do not wake once a second against a setup already running in this instance. Keep a future recovery wake
+      // instead: an instance reset loses these promises, but its event task identity and deadline remain durable.
+      return soonest === null ? null : Math.max(soonest, inFlight || background ? now() + waitAfter(1) : 0);
+    },
+  };
+  return api;
+}
+
+// Fields a copy holds that say when or where it ran, never what it is.
+export const KEPT_ONLY = ['set_at', 'revision', 'starts_on', 'scan_from', 'last_run', 'default'];
+const RULE_KIND = 'trigger-rule';
+const SCHEDULE_KIND = 'schedule';
+const STATE_KIND = 'schedule-state';
+const REMOVED_KINDS = { [RULE_KIND]: 'trigger-rule-removed', [SCHEDULE_KIND]: 'schedule-removed' };
+const MADE_BY_KIND = 'made-by-trillion';
+
+/**
+ * Invariant 7, once per account. records: this person's records as they are kept (never through the shipped layer);
+ * facts: { read(name), list(prefix), write(name, value), reset(name) } as they are kept; connected/rows as for ensure.
+ * → { deleted, kept, removed } counts.
+ */
+export async function keptAsChanges({ data, records, facts, connected, rows, now = () => Date.now() }) {
+  const at = new Date(now()).toISOString();
+  const counts = { deleted: 0, kept: 0, removed: 0 };
+  const writes = [];
+  const marked = new Set(records.ids(MADE_BY_KIND));
+  const byId = new Map(data.every_account.map(row => [row.schedule_id !== undefined ? `${SCHEDULE_KIND}:${row.schedule_id}` : `${RULE_KIND}:${row.rule_id}`, row]));
+  for (const [id, { type, value: shipped }] of shippedAutomations(data)) {
+    const kept = records.read(id);
+    const ownId = id.slice(type.length + 1);
+    const removedMark = `${REMOVED_KINDS[type]}:${ownId}`;
+    if (!kept) {
+      if (records.read(removedMark)) { writes.push({ id: `default-change:${id}`, type: 'default-change', value: { id, removed: true, at } }); counts.removed += 1; }
+      continue;
+    }
+    if (type === SCHEDULE_KIND && (kept.scan_from || kept.last_run)) writes.push({ id: `${STATE_KIND}:${ownId}`, type: STATE_KIND, value: { schedule_id: ownId, ...(kept.scan_from ? { scan_from: kept.scan_from } : {}), ...(kept.last_run ? { last_run: kept.last_run } : {}) } });
+    const row = byId.get(id);
+    const trillions = kept.enabled !== false && (sameValue(kept, shipped, KEPT_ONLY)
+      || (row.earlier_then && row.earlier_then.some(then =>
+        sameValue(kept, { ...shipped, then }, KEPT_ONLY)
+        || sameValue(kept, defaultAutomationOf({ ...row, then }).value, KEPT_ONLY))));
+    if (trillions) { writes.push({ id, type, value: null }); counts.deleted += 1; continue; }
+    const { scan_from, last_run, ...definition } = kept;
+    writes.push({ id, type, value: { ...definition, default: true } });
+    counts.kept += 1;
+  }
+  for (const type of Object.values(REMOVED_KINDS)) for (const id of records.ids(type)) writes.push({ id, type, value: null });
+  for (const id of marked) writes.push({ id, type: MADE_BY_KIND, value: null });
+  if (writes.length) records.write(writes, { actor: { by: 'trillion' }, unwatched: true });
+
+  const shippedEvents = new Map(eventDefaultsOf(data, connected, rows).map(item => [item.name, item]));
+  for (const kept of (await facts.list('event-rule:')).filter(Boolean)) {
+    const name = `event-rule:${kept.rule_id}`;
+    if (!marked.has(`${MADE_BY_KIND}:rule:${kept.rule_id}`) || kept.removed) continue;
+    const shipped = shippedEvents.get(name);
+    const untouched = kept.enabled !== false && (kept.match?.kind ?? 'every') === 'every' && !kept.once_per;
+    if (shipped && untouched && (sameValue(kept, shipped.rule, KEPT_ONLY) || (kept.label === shipped.plain.label && sameValue(kept.then, shipped.plain.then)))) { await facts.reset(name); counts.deleted += 1; continue; }
+    await facts.write(name, { ...kept, default: true });
+    counts.kept += 1;
+  }
+  return counts;
+}

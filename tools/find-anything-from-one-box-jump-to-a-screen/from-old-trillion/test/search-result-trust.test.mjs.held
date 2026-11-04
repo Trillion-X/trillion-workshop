@@ -1,0 +1,29 @@
+// test/search-result-trust.test.mjs
+//
+// Every search result and source says where its words come from (src/search.json `trust`), so a reader that must not
+// mix the person's own data with other people's words reads one field.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { makeSearch } from '../src/search.mjs';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+
+test('a file result is own, the sources list names each source\'s class, and a source with no class is unclassified', async () => {
+  const { sql } = sqliteHost(':memory:');
+  const files = namespaceStore(sql);
+  const results = resultsStore(sql, identity => files.identitiesOf(identity));
+  const identity = `1f:${'a1'.padEnd(64, 'a')}`;
+  sql.exec("INSERT INTO namespace_files (identity, byte_length, media_type, origin, key, part_bytes, stored_at, checked_at) VALUES (?, 10, 'text/plain', 'small', 'k', 10, 'now', 'now')", identity);
+  sql.exec("INSERT INTO namespace_names (name, collection, identity, byte_length, modified_at_ms, named_at) VALUES ('/Notes/kiln.txt', '/Notes', ?, 10, 5, 'now')", identity);
+  results.put([{ identity, kind: 'note', value: { text: 'firing the kiln slowly' } }]);
+  const withClasslessSource = { ...settings, sources: [...settings.sources, { id: 'extra', label: 'Extra' }] };
+  const search = makeSearch({ sql, config: withClasslessSource });
+  for (let wake = 0; wake < 40 && (await search.stale()); wake += 1) await search.catchUp(10);
+  const answer = await search.search('kiln', { places: ['written'], sources: ['files'] });
+  assert.equal(answer.results.length, 1);
+  assert.equal(answer.results[0].trust, 'own');
+  assert.deepEqual(answer.sources.map(source => [source.id, source.trust]), [['files', 'own'], ['trillion', 'own'], ['sent-in', 'connected'], ['github', 'connected'], ['extra', 'unclassified']]);
+  console.log('readback trust:', JSON.stringify({ result: answer.results[0].trust, sources: answer.sources }));
+});

@@ -1,0 +1,125 @@
+// The person's screen is built from their own records through the shared page renderer: decisions with a plain
+// status label, pursuits, a question waiting for their answer beside a box to answer it, and a decision screen with
+// its notes, results and walkthrough, where every step is named by its question and no method source appears.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { DecisionEngine } from '../src/engine.mjs';
+import { localStore } from '../src/local-store.mjs';
+import { decisionScreen, progressFacts } from '../src/screen.mjs';
+import { outwardRecord } from '../src/private-method.mjs';
+import { answerRows } from '../src/answer-words.mjs';
+import { fillAnswer } from '../scripts/fill-answer.mjs';
+
+const refs = ['coach:notes'];
+// Every answer is its own ordinary sentence, so nothing on the page is a field name unless the page printed one.
+let said = 0;
+const say = () => `The coach and player agreed on point ${(said += 1)} after practice`;
+async function decided() {
+  const engine = new DecisionEngine(localStore(':memory:'));
+  const record = await engine.admit({ source_id: 'serve', goal: 'Serve more first serves in', evidence: [{ ref: 'coach:notes', claim: 'First serve lands 40% of the time.' }], options: [{ id: 'toss', label: 'Fix the toss' }, { id: 'power', label: 'Hit harder' }] });
+  for (let guide = await engine.guide(record.id); guide.question; guide = await engine.guide(record.id)) {
+    const answer = { ...fillAnswer(guide.question, { refs, say }), evidence_refs: refs };
+    if (guide.question.step_id === 'proof') Object.assign(answer, { check_by: { kind: 'person', question: 'How many first serves went in last match?' } });
+    if (guide.question.step_id === 'question') Object.assign(answer, { requirements: [{ requirement: 'Play the club final in June', set_by: 'the club', keep: 'keep', because: 'the date is fixed and cannot move' }] });
+    await engine.guide(record.id, { step_id: guide.question.step_id, answer });
+  }
+  await engine.decideGuided(record.id, { option_id: 'toss', reason: 'The toss drifts right.', evidence_refs: refs, next_action: 'Toss drill daily', success_measure: 'First serve in 60% over a match' });
+  await engine.addNote(record.id, { text: 'Coach saw the toss drift again on Tuesday.' });
+  await engine.askPerson(record.id, 'How many first serves went in last match?');
+  await engine.recordPursuits([{ title: 'Win the club final', now: 'Quarter-finals last year', after: 'Champion in June' }]);
+  return { engine, id: record.id };
+}
+const access = { offers: [{ label: 'Trillion', held: true }], active_offers: [], capabilities: [], episodes: [] };
+
+test('Progress\'s facts list what waits for the person\'s answer, and what they are working toward', async () => {
+  const { engine } = await decided();
+  const facts = progressFacts({ origin: 'https://example.com', screen: { summaries: await engine.summaries(), pursuits: await engine.pursuits(), access } });
+  assert.deepEqual([facts.waiting[0].goal, facts.waiting[0].question], ['Serve more first serves in', 'How many first serves went in last match?']);
+  assert.match(facts.waiting[0].href, /^\/decisions\//, 'the answer is given on the decision\'s own page');
+  assert.ok(!JSON.stringify(facts).includes('needs_outcome'), 'a status never reads as its saved name');
+  assert.deepEqual(facts.pursuits[0].facts, { title: 'Win the club final', now: 'Quarter-finals last year', after: 'Champion in June', why: '', under: [], status: 'Active' });
+});
+
+test('Progress\'s facts link a pursuit made with others to where it was written, apart from the private pursuits', () => {
+  const shared = [{ space_id: 'membership_project', item_id: 'item_goal', title: 'Launch together', body: { now: 'Planning', after: 'First sale' } }];
+  for (const free of [false, true]) {
+    const facts = progressFacts({ origin: 'https://example.com', screen: { free, summaries: [], pursuits: [], space_pursuits: shared, allowance: { count: 1, used: 0 } } });
+    assert.deepEqual(facts.space_pursuits, [{ id: 'membership_project:item_goal', title: 'Launch together', now: 'Planning', after: 'First sale', open: '/spaces/membership_project' }]);
+    if (!free) assert.deepEqual(facts.pursuits, []);
+  }
+  const empty = progressFacts({ origin: 'https://example.com', screen: { summaries: [], pursuits: [], space_pursuits: [] } });
+  assert.match(empty.invite, /Nothing yet/);
+});
+
+test('a decision screen shows what was decided, its notes and its walkthrough by question, never a method source', async () => {
+  const { engine, id } = await decided();
+  const record = outwardRecord(await engine.get(id));
+  const screen = decisionScreen({ record });
+  const rows = screen.sections.flatMap(section => section.rows ?? []);
+  const html = [...screen.sections.map(section => section.heading ?? ''), ...rows.flatMap(row => [row.title, row.detail ?? ''])].join('\n');
+  for (const text of ['Fix the toss', 'Why: The toss drifts right.', 'How you will know: First serve in 60% over a match', 'Coach saw the toss drift again on Tuesday.', 'How it was worked through']) assert.ok(html.includes(text), text);
+  const worked = record.method.steps.find(step => step.id === 'outcome');
+  assert.ok(html.includes(worked.question.slice(0, 40)), 'each step is named by its question');
+  // Every answer reads under its plain label from the method DATA, and a list or check reads as a sentence.
+  for (const text of ['Where you want it: ', 'Why it is worth your time: ', 'Demand: Play the club final in June, set by the club. Kept, because the date is fixed and cannot move', 'How it will be checked: You are asked: How many first serves went in last match?', 'Checked again on: ']) assert.ok(html.includes(text), text);
+  // No field name, no "name: value; name: value" run, no empty answer, and no internal evidence ref reaches the page.
+  const names = new Set();
+  const collect = specs => { for (const spec of specs ?? []) { names.add(spec.name); collect(spec.item_fields); } };
+  for (const step of record.method.steps) collect(step.fields);
+  for (const row of record.method.observers) collect(row.fields);
+  for (const name of [...names].filter(name => name.includes('_'))) assert.ok(!html.includes(name) && !html.includes('>' + name.replace(/_/g, ' ') + ':'), `field name ${name} is not shown`);
+  assert.ok(!/\w: [^\n]*; \w+: /.test(html), 'no "a: b; c: d" runs');
+  // A decision saved before an answer was required (the live stop reasons of September 2026) leaves the empty one out.
+  const answered = answerRows(record.method.steps.find(step => step.id === 'alignment').fields, { truth_aligned: 'The serve numbers are from match footage', stop_reason: '' }, record.method);
+  assert.deepEqual(answered, [{ label: 'Why it is true to the facts', text: 'The serve numbers are from match footage' }]);
+  assert.ok(!html.includes('coach:notes'), 'the evidence ref is not shown');
+  assert.ok(html.includes('First serve lands 40% of the time.'), 'the evidence reads by what it says');
+  const visual = decisionScreen({ record: {
+    ...record,
+    cited_pursuits: { 'pursuit:club': 'Win the club final: now Quarter-finals last year; should be Champion in June' },
+    input: { ...record.input, evidence: [{ ...record.input.evidence[0], ref: 'https://example.com/match-notes' }] },
+    observations: [{ result: 'met', summary: 'Match footage shows 60% first serves in.', source_ref: 'https://example.com/match-footage', observed_at: '2026-09-29T12:00:00Z' }],
+  } });
+  assert.deepEqual(visual.sections.find(section => section.heading === 'Where this decision aims to take you').cards.map(card => card.title), ['At the start', 'Working toward']);
+  assert.deepEqual(visual.sections.find(section => section.heading === 'Options considered').rows.map(row => row.status.label), ['Chosen', 'Also considered']);
+  assert.equal(visual.sections.find(section => section.heading === 'What it rested on').rows[0].actions[0].href, 'https://example.com/match-notes');
+  assert.equal(visual.sections.find(section => section.heading === 'Results').rows.at(-1).actions[0].href, 'https://example.com/match-footage');
+  const actions = screen.sections.flatMap(section => [...(section.actions ?? []), ...(section.rows ?? []).flatMap(row => row.actions ?? [])]);
+  assert.deepEqual(actions.find(action => action.label === 'Remove').send.body, { case_id: record.id }, 'the decision can be removed from its screen');
+  assert.match(actions.find(action => action.label === 'Copy a summary').copy, /Decision: Fix the toss[\s\S]*How you will know: First serve in 60% over a match/, 'the person can copy a readable decision outcome');
+  assert.equal(actions.find(action => action.label === 'Save my answer').send.path, '/work/api/decisions/answer', 'the waiting answer is saved from its screen');
+  assert.equal(JSON.stringify(screen).includes('<'), false, 'the screen carries words, never markup');
+  const raw = await engine.get(id);
+  const source = raw.method.steps.find(step => step.source)?.source;
+  if (source) assert.ok(!JSON.stringify(screen).includes(JSON.stringify(source).slice(1, 40)), 'the method source never reaches the screen');
+});
+
+test('removing a decision retracts it: it no longer reads back or lists', async () => {
+  const { engine, id } = await decided();
+  assert.deepEqual(await engine.remove(id), { case_id: id, removed: true });
+  assert.equal(await engine.get(id), null);
+  assert.ok(!(await engine.summaries()).some(item => item.case_id === id));
+  await assert.rejects(engine.remove(id), /not found/);
+});
+
+test('a decision shows the action beside the outcome observed for its key', async () => {
+  const { engine, id } = await decided();
+  const record = outwardRecord(await engine.get(id));
+  record.actions = [
+    { key: 'serve-practice', request: { operation: 'tool:practice', description: 'Practice the new toss' }, owner_result: { ref: 'practice:1', status: 'completed' }, recorded_at: '2026-09-29T09:00:00Z' },
+    { key: 'other-step', request: { operation: 'Review the video' }, owner_result: { ref: 'review:1', status: 'completed' }, recorded_at: '2026-09-29T10:00:00Z' },
+  ];
+  record.observations = [{ action_key: 'serve-practice', source_ref: 'page:https://example.com/match-footage@2026-09-30T10:00:00Z', result: 'met', summary: 'First serve reached 60%.', observed_at: '2026-09-30T10:00:00Z' }];
+  record.reports = [{ action_ref: 'review:1', result: 'failed', summary: 'The video could not be opened.', reported_at: '2026-09-30T11:00:00Z' }];
+  record.carried_out = [{ state: 'done', what_happened: 'Practised the toss before the match.', at: '2026-09-29T11:00:00Z' }];
+  const section = decisionScreen({ record }).sections.find(item => item.heading === 'Actions taken');
+  assert.equal(section.rows[0].title, 'Practice the new toss');
+  assert.match(section.rows[0].detail, /Outcome:.*First serve reached 60%/);
+  assert.equal(section.rows[0].actions[0].href, 'https://example.com/match-footage');
+  assert.equal(section.rows[0].actions[0].label, 'Open page checked');
+  assert.ok(!section.rows[0].detail.includes('page:https://'), 'internal source references do not appear in the decision copy');
+  assert.equal(section.rows[1].title, 'Review the video');
+  assert.ok(!section.rows[1].detail?.includes('First serve reached 60%'), 'an outcome cannot appear under a different action');
+  assert.match(section.rows[1].detail, /You reported:.*video could not be opened/);
+  assert.equal(section.rows[2].detail, 'Practised the toss before the match.');
+});

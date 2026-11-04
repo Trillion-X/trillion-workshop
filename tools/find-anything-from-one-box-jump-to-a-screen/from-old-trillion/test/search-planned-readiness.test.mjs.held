@@ -1,0 +1,92 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { sqliteHost } from '../src/local-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { makeSearch } from '../src/search.mjs';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+
+const voice = { sources: ['files'], places: ['said'], matches: ['words-in-results'] };
+const identity = '1f:' + 'a'.repeat(64);
+async function fixture() {
+  const host = sqliteHost(':memory:');
+  namespaceStore(host.sql);
+  const results = resultsStore(host.sql);
+  results.put([{ identity, kind: 'transcript', value: { text: 'violet locomotive arrives', segments: [{ start: 3, end: 5, text: 'violet locomotive arrives' }] } }]);
+  const seed = makeSearch({ sql: host.sql, transaction: host.transaction });
+  for (let wake = 0; await seed.stale(); wake++) { assert.ok(wake < 100); await seed.catchUp(50); }
+  const expected = await seed.indexSearch('violet locomotive', voice);
+  const queries = [], calls = [];
+  let fail = false;
+  const sql = { exec(query, ...params) { queries.push({ query, params }); return host.sql.exec(query, ...params); } };
+  const records = { available: true, lastLogId() { calls.push('lastLogId'); if (fail) throw Error('record source unavailable'); return 'log:one'; },
+    logAfter() { calls.push('logAfter'); return { ids: [], count: 0, oldest: null, last: 'log:one' }; },
+    types() { calls.push('types'); return []; }, read() { calls.push('read'); return { found: [], unread: [] }; },
+    ids() { calls.push('ids'); return []; } };
+  const index = makeSearch({ sql, records, transaction: host.transaction });
+  queries.length = 0;
+  return { host, results, index, queries, calls, expected, fail: value => { fail = value; } };
+}
+
+test('a normal voice-only index query checks only its requested lane and cannot call or seed an unrelated record source', async () => {
+  const f = await fixture();
+  try {
+    f.fail(true);
+    assert.deepEqual(await f.index.indexSearch('violet locomotive', voice), f.expected, 'same timed result and requested readiness despite unrelated source failure');
+    assert.deepEqual(f.calls, []);
+    assert.ok(!f.queries.some(row => /search_record_(log|state|changed)/.test(row.query)), 'no unrelated record readiness SQL');
+    assert.ok(!f.queries.some(row => /^(INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\b/.test(row.query)), 'foreground planned readiness is read-only');
+    const probes = f.queries.filter(row => row.query.includes('json_each'));
+    assert.ok(probes.length > 0);
+    assert.ok(probes.every(row => JSON.parse(row.params[0]).every(lane => lane === 'transcript-words')));
+  } finally { f.host.db.close(); }
+});
+
+test('current changed-source rejection and required pending markers survive normal filtered queries', async () => {
+  const f = await fixture();
+  try {
+    f.results.put([{ identity, kind: 'transcript', value: { text: 'new unrelated words' } }]);
+    f.fail(true);
+    const found = await f.index.indexSearch('violet locomotive', voice);
+    assert.deepEqual(found.answered, [[]]);
+    assert.equal(found.still_reading['transcript-words'], 1);
+    assert.ok(found.pending.some(row => row.lane === 'transcript-words'));
+    assert.deepEqual(found.unavailable, []);
+    assert.deepEqual(f.calls, []);
+  } finally { f.host.db.close(); }
+});
+
+test('a requested record lane retains its source readiness, seeded cursor and unavailable-source behavior', async () => {
+  const f = await fixture();
+  try {
+    const lane = settings.lanes.find(row => row.match === 'words-in-records');
+    assert.ok(lane);
+    const options = { places: [lane.place], sources: [lane.source], matches: [lane.match] };
+    const planned = settings.lanes.filter(row => row.place === lane.place && row.source === lane.source && row.match === lane.match);
+    const found = await f.index.indexSearch('violet locomotive', options);
+    assert.ok(f.calls.includes('lastLogId'), 'required source readiness is still read');
+    assert.ok(f.queries.some(row => row.query.startsWith('INSERT INTO search_record_log')), 'required first record check initializes the existing position');
+    for (const wanted of planned) assert.equal(found.still_reading[wanted.id], 1);
+    assert.deepEqual(Object.keys(found.still_reading).sort(), planned.map(row => row.id).sort());
+    f.fail(true);
+    await assert.rejects(f.index.indexSearch('violet locomotive', options), /record source unavailable/);
+    f.fail(false);
+    assert.deepEqual(await f.index.indexSearch('violet locomotive', options), found, 'retry stays truthful and does not persist a failed negative');
+  } finally { f.host.db.close(); }
+});
+
+test('full index and maintenance readiness still request every source while empty public plans do no readiness work', async () => {
+  const f = await fixture();
+  try {
+    const empty = await f.index.indexSearch('violet locomotive', { sources: ['no-such-source'] });
+    assert.deepEqual(empty.answered, []);
+    assert.deepEqual(empty.still_reading, {});
+    assert.deepEqual(f.queries, []);
+    assert.deepEqual(f.calls, []);
+    await f.index.indexSearch('violet locomotive');
+    assert.ok(f.calls.includes('lastLogId'));
+    f.calls.length = 0;
+    assert.ok((await f.index.stale()) > 0);
+    assert.ok(f.calls.includes('lastLogId'), 'alarm/maintenance stale remains whole-owner readiness');
+  } finally { f.host.db.close(); }
+});

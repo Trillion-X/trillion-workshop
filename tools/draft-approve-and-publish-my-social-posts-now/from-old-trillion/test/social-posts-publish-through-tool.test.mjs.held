@@ -1,0 +1,66 @@
+// A press of Publish (and an AI's publish_post) reaches the same Marketplace tool a scheduled send names
+// (src/social-posts.json publish_tool_id), run through the account's Workshop, never the posts owner's own publish. The
+// person's voice is the Workshop's too (voice_tools): its routes run those tools and a person's edit of a draft is handed over.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { handlePostsRequest, voiceThroughTools } from '../src/social-posts.mjs';
+import { PERSON_APP } from '../src/activity.mjs';
+import { posts as postsOwner } from './social-posts-for-tests.mjs';
+import settings from '../src/social-posts.json' with { type: 'json' };
+
+const ask = (posts, body, options) => handlePostsRequest(posts, new Request('https://person/posts/publish', { method: 'POST', body: JSON.stringify(body) }), options)
+  .then(async response => ({ status: response.status, body: await response.json() }));
+
+test('the posts route publishes through the publisher it is given, not the posts owner directly', async () => {
+  const posts = { publish: async () => { throw new Error('the built-in owner was called directly'); } };
+  const sent = [];
+  const answer = await ask(posts, { post_id: 'post:one' }, { publish: async input => { sent.push(input); return { post: { post_id: input.post_id, status: 'sent' } }; } });
+  assert.equal(answer.status, 200, JSON.stringify(answer.body));
+  assert.deepEqual(sent, [{ post_id: 'post:one' }]);
+});
+
+test('publishing through the tool runs the account\'s publish tool and says its refusal plainly', async () => {
+  const { publishThroughTool } = await import('../src/social-posts.mjs');
+  const runs = [];
+  const workshop = { run: async request => { runs.push(request); return request.input.post_id === 'post:ok' ? { state: 'completed', output: { said: 'Sent.' } } : { state: 'failed', task_id: 'task_x', error: 'post:no is not approved yet.' }; } };
+  const publish = publishThroughTool(workshop, settings.publish_tool_id, { newId: () => 'n1' });
+  assert.deepEqual(await publish({ post_id: 'post:ok' }), { said: 'Sent.' });
+  assert.equal(runs[0].tool_id, settings.publish_tool_id, 'the same tool a schedule names');
+  assert.equal(runs[0].request_key, 'publish:post:ok:n1');
+  const refused = await ask({ publish: async () => ({}) }, { post_id: 'post:no' }, { publish });
+  assert.equal(refused.status, 400);
+  assert.match(refused.body.error, /not approved yet/);
+});
+
+test('the voice routes run the Workshop voice tools, and a save is the person\'s only from their own page', async () => {
+  const runs = [];
+  const workshop = { run: async request => { runs.push(request); return request.tool_id === 'tool:forget-voice' ? { state: 'failed', task_id: 'task_v', error: 'Name what to forget: profile_id, edit_id, or all_edits true.' } : { state: 'completed', output: { said: 'ok' } }; } };
+  const { routes } = voiceThroughTools(workshop, settings.voice_tools, { newId: () => 'n1' });
+  const call = (path, body, app) => handlePostsRequest({}, new Request(`https://person${path}`, { method: 'POST', headers: { 'x-trillion-app': app }, body: JSON.stringify(body) }), { voice: routes })
+    .then(async response => ({ status: response.status, body: await response.json() }));
+  assert.equal((await call('/posts/voice/read', { kind: 'post' }, 'Claude')).status, 200);
+  await call('/posts/voice/save', { fields: { how_they_write: 'brief' }, by: 'person' }, 'Claude');
+  await call('/posts/voice/save', { fields: { how_they_write: 'brief' } }, PERSON_APP);
+  const refused = await call('/posts/voice/forget', {}, 'Claude');
+  assert.deepEqual(runs.map(({ tool_id, input }) => [tool_id, input]), [
+    ['tool:read-voice', { kind: 'post' }],
+    ['tool:save-voice', { fields: { how_they_write: 'brief' }, by: 'ai' }],
+    ['tool:save-voice', { fields: { how_they_write: 'brief' }, by: 'person' }],
+    ['tool:forget-voice', {}],
+  ], 'an AI cannot save as the person');
+  assert.equal(refused.status, 400);
+  assert.match(refused.body.error, /Name what to forget/);
+});
+
+test('the person changing an AI draft\'s words hands the edit to the Workshop; an AI\'s change or a new time does not', async () => {
+  const runs = [];
+  const { keepEdit } = voiceThroughTools({ run: async request => { runs.push(request); return { state: 'queued', task_id: 'task_e' }; } }, settings.voice_tools, { newId: () => 'n1' });
+  const { owner } = postsOwner({ keepEdit });
+  const { post } = await owner.draft({ caption: 'Excited to announce our synergistic launch!', destinations: ['first-vendor'] }, { app: 'Claude' });
+  await owner.draft({ post_id: post.post_id, caption: 'Excited to announce our synergistic launch! Version 2' }, { app: 'Claude' });
+  assert.equal(runs.length, 0, 'an AI revising its own draft says nothing about the person');
+  await owner.draft({ post_id: post.post_id, caption: 'We launched today.' }, { app: PERSON_APP });
+  await owner.draft({ post_id: post.post_id, scheduled_for: '2030-01-01T10:00:00Z' }, { app: PERSON_APP });
+  assert.deepEqual(runs.map(({ tool_id, input, wait_seconds }) => ({ tool_id, input, wait_seconds })), [{ tool_id: settings.voice_tools.edit_tool_id, wait_seconds: 0,
+    input: { kind: 'post', subject_id: post.post_id, before: 'Excited to announce our synergistic launch! Version 2', after: 'We launched today.', before_by: 'Claude' } }]);
+});

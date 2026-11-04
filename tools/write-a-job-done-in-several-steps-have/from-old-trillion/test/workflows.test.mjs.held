@@ -1,0 +1,874 @@
+// Workflows through the MCP tools: find the L078 research workflow, run it step by step, and see each check refuse
+// the output it exists to refuse; save, publish and run an account's own workflow from a second account.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { inProcessMcp } from './in-process-mcp.mjs';
+import { makeEventRules } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/events.mjs';
+import { readToolData } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
+import { sharedWorkshopPayloads } from '../scripts/workshop-rows.mjs';
+import { makeWorkflows, recipeProblems, workflowRecipeIdentity } from '../src/workflows.mjs';
+import workflowRecipes from '../records/workflow-recipe-records.json' with { type: 'json' };
+import { OUTPUTS, finding, research } from './l078-example-run.mjs';
+
+const L078 = 'workflow:l078-research-to-plan';
+test('the shipped L078 workflow is a valid recipe', () => {
+  for (const record of workflowRecipes.records) assert.deepEqual(recipeProblems(record.payload), [], record.id);
+});
+
+test('an AI finds the L078 workflow, runs every step, and each check refuses what it exists to refuse', async () => {
+  const { request, tool } = inProcessMcp();
+  const listed = (await request('tools/list')).result.tools.map(item => item.name);
+  for (const name of ['find_workflow', 'describe_workflow', 'start_workflow', 'submit_workflow_step', 'read_workflow_run', 'save_workflow', 'publish_workflow', 'unpublish_workflow']) assert.ok(listed.includes(name), name);
+
+  const found = await tool('find_workflow', { job: 'research the industry and write a plan' });
+  assert.equal(found.data.workflows[0].workflow_id, L078);
+  assert.equal(found.data.workflows[0].made_by, 'Trillion');
+
+  const started = await tool('start_workflow', { workflow_id: L078, input: { capability: 'checked multi-step workflows' }, request_key: 'k1' });
+  assert.equal(started.data.step.step_id, 'scope');
+  assert.match(started.data.who_does_the_work, /no step is done until its output passes/);
+  const run_id = started.data.run_id;
+  assert.equal((await tool('start_workflow', { workflow_id: L078, input: { capability: 'checked multi-step workflows' }, request_key: 'k1' })).data.run_id, run_id, 'the same key returns the same run');
+  assert.ok((await tool('start_workflow', { workflow_id: L078, input: {}, request_key: 'k2' })).error, 'input must fit the input schema');
+
+  const submit = (step_id, output) => tool('submit_workflow_step', { run_id, step_id, output });
+  const refused = async (step_id, output, pattern) => { const reply = await submit(step_id, output); assert.ok(reply.error, `${step_id} should be refused`); assert.match(reply.text, pattern); };
+
+  await refused('current_state', OUTPUTS.current_state, /The step now is scope/);
+  await refused('scope', { capability: 'x' }, /constraints/);
+  assert.equal((await submit('scope', OUTPUTS.scope)).data.step.step_id, 'current_state');
+  assert.equal((await submit('scope', OUTPUTS.scope)).data.step.step_id, 'current_state', 'resending an admitted output changes nothing');
+  await refused('current_state', { ...OUTPUTS.current_state, exists: [{ ...OUTPUTS.current_state.exists[0], claim: 'This probably exists somewhere' }] }, /never what probably exists/);
+  await submit('current_state', OUTPUTS.current_state);
+
+  await refused('research', { lanes: research.lanes.map(lane => (lane.id === 'domain-b' ? { ...lane, id: 'domain-a' } : lane)) }, /domain-b" is missing/);
+  await refused('research', { lanes: research.lanes.map(lane => ({ ...lane, findings: lane.findings.map(item => ({ ...item, source: 'https://example.org/same' })) })) }, /At least 12 different sources/);
+  await refused('research', { lanes: research.lanes.map((lane, index) => (index ? lane : { ...lane, findings: [{ ...lane.findings[0], fact: 'Ledgerline is the best option and we should copy it outright.' }, ...lane.findings.slice(1)] })) }, /never advice or judgement/);
+  await submit('research', research);
+
+  await refused('per_system', { systems: [...OUTPUTS.per_system.systems, { ...OUTPUTS.per_system.systems[0], system: 'Favourite Engine' }] }, /Favourite Engine" is not mentioned/);
+  await submit('per_system', OUTPUTS.per_system);
+  await refused('root_cause', { ...OUTPUTS.root_cause, chain: [...OUTPUTS.root_cause.chain, { why: 'Why is that?', because: 'Something nobody found', cites: ['invented-9'] }] }, /invented-9/);
+  await submit('root_cause', OUTPUTS.root_cause);
+  await refused('constraint_stack', { ...OUTPUTS.constraint_stack, rows: OUTPUTS.constraint_stack.rows.slice(0, 1) }, /c2" is missing/);
+  await submit('constraint_stack', OUTPUTS.constraint_stack);
+  await refused('plan', { ...OUTPUTS.plan, what_they_all_get_wrong: [...OUTPUTS.plan.what_they_all_get_wrong, { gap: 'Nobody checks what we never read about', cites: ['made-up'] }] }, /made-up/);
+  await refused('plan', { ...OUTPUTS.plan, sections: [{ title: 'Advice', claims: [{ text: 'We should adopt Ledgerline now.', cites: ['discovery-1'] }] }, ...OUTPUTS.plan.sections] }, /no solutions or recommendations/);
+  await submit('plan', OUTPUTS.plan);
+  const finished = await submit('audit', OUTPUTS.audit);
+
+  assert.equal(finished.data.state, 'finished');
+  assert.deepEqual(finished.data.result, OUTPUTS, 'every step\'s evidence is kept exactly as admitted');
+  const read = await tool('read_workflow_run', { run_id });
+  assert.equal(read.data.state, 'finished');
+  assert.equal((await tool('read_workflow_run', {})).data.runs.length, 1);
+  await refused('audit', OUTPUTS.audit, /This run is finished/);
+});
+
+test('an account saves a workflow from its own process, publishes it, and another account runs it; runs keep their version', async () => {
+  const market = new Map();
+  const mine = inProcessMcp({ market, maker: 'maker:mine' });
+  const theirs = inProcessMcp({ market, maker: 'maker:theirs' });
+  const workflow = {
+    id: 'workflow:weekly-review', label: 'Weekly review', job: 'Review the week: list what shipped, then name the one next move tied to it',
+    steps: [
+      { id: 'shipped', title: 'What shipped', do: 'List what shipped this week with where each can be seen.', submit: { type: 'object', required: ['items'], properties: { items: { type: 'array', minItems: 1, items: { type: 'object', required: ['id', 'where'], properties: { id: { type: 'string' }, where: { type: 'string', format: 'uri' } } } } } } },
+      { id: 'next', title: 'Next move', do: 'Name the one next move and which shipped item it builds on.', submit: { type: 'object', required: ['move', 'builds_on'], properties: { move: { type: 'string', minLength: 5 }, builds_on: { type: 'string' } } }, checks: [{ kind: 'subset-of', path: ['this', 'builds_on'], of: ['steps', 'shipped', 'items', '*', 'id'], says: 'The next move builds on something that shipped' }] },
+    ],
+  };
+  const bad = await mine.tool('save_workflow', { workflow: { ...workflow, id: 'weekly', steps: [{ ...workflow.steps[1], checks: [{ ...workflow.steps[1].checks[0], of: ['steps', 'later', 'x'] }] }] } });
+  assert.ok(bad.error);
+  assert.match(bad.text, /id must be "workflow:" followed by/);
+  assert.match(bad.text, /not an earlier step/);
+  assert.ok((await mine.tool('save_workflow', { workflow: { ...workflow, id: L078 } })).error, 'Trillion\'s own ids cannot be taken');
+  assert.equal((await mine.tool('save_workflow', { workflow })).data.saved, true);
+  const weekly = async () => (await theirs.tool('find_workflow', { job: 'weekly review' })).data.workflows.filter(item => item.workflow_id === workflow.id);
+  assert.equal((await weekly()).length, 0, 'not visible to others before publishing');
+  assert.equal((await mine.tool('publish_workflow', { workflow_id: workflow.id })).data.published, true);
+
+  const [seen] = await weekly();
+  assert.equal(seen.made_by, 'another account');
+  const run = (await theirs.tool('start_workflow', { workflow_id: workflow.id, request_key: 'w1' })).data;
+  await theirs.tool('submit_workflow_step', { run_id: run.run_id, step_id: 'shipped', output: { items: [{ id: 'extension', where: 'https://example.org/extension' }] } });
+  const off = await theirs.tool('submit_workflow_step', { run_id: run.run_id, step_id: 'next', output: { move: 'Ship the share sheet', builds_on: 'share-sheet' } });
+  assert.match(off.text, /builds on something that shipped/);
+
+  // The maker changes the workflow; the run already under way keeps the version it started with.
+  await mine.tool('save_workflow', { workflow: { ...workflow, steps: [workflow.steps[0]] } });
+  const done = await theirs.tool('submit_workflow_step', { run_id: run.run_id, step_id: 'next', output: { move: 'Ship the share sheet', builds_on: 'extension' } });
+  assert.equal(done.data.state, 'finished');
+  assert.equal(done.data.result.next.builds_on, 'extension');
+
+  assert.equal((await mine.tool('unpublish_workflow', { workflow_id: workflow.id })).data.published, false);
+  assert.equal((await weekly()).length, 0);
+  assert.ok((await theirs.tool('unpublish_workflow', { workflow_id: workflow.id })).error, 'only the maker withdraws it');
+});
+
+test('adopting a shipped workflow preserves existing account work, run snapshots and the verified published recipe', async () => {
+  const workflow = { id: 'workflow:adoptable', label: 'Shipped label', job: 'Keep a reusable checked workflow',
+    steps: [{ id: 'answer', title: 'Answer', do: 'Keep the result.', submit: { type: 'object' } }] };
+  const market = new Map();
+  const mine = inProcessMcp({ market, maker: 'maker:operator', shared: async () => [workflow] });
+  const theirs = inProcessMcp({ market, maker: 'maker:other', shared: async () => [workflow] });
+  const tools = (await mine.request('tools/list')).result.tools.map(item => item.name);
+  assert.ok(tools.includes('adopt_workflow'));
+
+  const originalRun = await mine.tool('start_workflow', { workflow_id: workflow.id, request_key: 'before-adoption' });
+  assert.equal(originalRun.data.step.step_id, 'answer');
+  const adoption = await mine.tool('adopt_workflow', { workflow_id: workflow.id });
+  assert.equal(adoption.data.adopted, true);
+  assert.equal(adoption.data.published, true);
+  assert.equal(adoption.data.recipe_identity, market.get(workflow.id).row && workflowRecipeIdentity(market.get(workflow.id).row));
+  const own = await mine.tool('describe_workflow', { workflow_id: workflow.id });
+  assert.equal(own.data.made_by, 'this account');
+  assert.equal(own.data.recipe_identity, adoption.data.recipe_identity);
+  const snapshot = await mine.tool('snapshot_workflow_run', { run_id: originalRun.data.run_id });
+  assert.equal(snapshot.data.recipe_identity, originalRun.data.recipe_identity, 'an already-started run retains its original recipe');
+  const otherAccountCopy = await theirs.tool('describe_workflow', { workflow_id: workflow.id });
+  assert.equal(otherAccountCopy.data.recipe_identity, adoption.data.recipe_identity,
+    'a published adoption takes precedence over the same still-shipped recipe in another account');
+  assert.equal(otherAccountCopy.data.made_by, 'another account');
+
+  const edited = await mine.tool('save_workflow', { workflow: { ...workflow, label: 'Account-edited label' } });
+  assert.equal(edited.data.saved, true, 'the account can edit its adopted recipe under the same id');
+  const repeated = await mine.tool('adopt_workflow', { workflow_id: workflow.id });
+  assert.equal(repeated.data.recipe_identity, (await mine.tool('describe_workflow', { workflow_id: workflow.id })).data.recipe_identity,
+    're-adoption publishes the current account row rather than restoring the shipped definition');
+  assert.equal((await theirs.tool('describe_workflow', { workflow_id: workflow.id })).data.workflow.label, 'Account-edited label');
+  assert.equal((await mine.tool('snapshot_workflow_run', { run_id: originalRun.data.run_id })).data.recipe_identity,
+    originalRun.data.recipe_identity, 'editing and republishing the adopted recipe keeps the existing run version');
+
+  const existing = { ...workflow, label: 'Existing account work', kind: 'workflow-recipe', saved_at: '2026-10-13T00:00:00.000Z' };
+  const protectedAccount = inProcessMcp({ market: new Map(), maker: 'maker:protected', shared: async () => [workflow], initialRecipes: [existing] });
+  const refused = await protectedAccount.tool('adopt_workflow', { workflow_id: workflow.id });
+  assert.ok(refused.error);
+  assert.equal(protectedAccount.facts.get(`recipe:${workflow.id}`).label, 'Existing account work', 'adoption leaves an existing account-authored row untouched');
+  const forged = { ...workflow, id: 'workflow:caller-forged', adopted_from: { kind: 'shipped-workflow', workflow_id: workflow.id } };
+  assert.equal((await protectedAccount.tool('save_workflow', { workflow: forged })).data.saved, true);
+  assert.equal(Object.hasOwn(protectedAccount.facts.get(`recipe:${forged.id}`), 'adopted_from'), false,
+    'callers cannot forge the adoption marker through save_workflow');
+});
+
+test('adoption detects an overlapping account edit and an explicit publish verifies the current row', async () => {
+  const workflow = { id: 'workflow:adoption-race', label: 'Original label', job: 'Keep the current reusable answer',
+    steps: [{ id: 'answer', do: 'Keep the result.', submit: { type: 'object' } }] };
+  const market = new Map();
+  let releaseFirst;
+  let enteredFirst;
+  const firstEntered = new Promise(resolve => { enteredFirst = resolve; });
+  const firstRelease = new Promise(resolve => { releaseFirst = resolve; });
+  let first = true;
+  const account = inProcessMcp({ market, maker: 'maker:race', shared: async () => [workflow], beforePublish: async () => {
+    if (!first) return;
+    first = false;
+    enteredFirst();
+    await firstRelease;
+  } });
+  const adopting = account.tool('adopt_workflow', { workflow_id: workflow.id });
+  await firstEntered;
+  assert.equal((await account.tool('save_workflow', { workflow: { ...workflow, label: 'Concurrent account edit' } })).data.saved, true);
+  releaseFirst();
+  const adopted = await adopting;
+  assert.equal(adopted.error, true);
+  assert.match(adopted.text, /changed in this account while it was being published/);
+  assert.equal(account.facts.get(`recipe:${workflow.id}`).label, 'Concurrent account edit', 'publication leaves the newer account recipe untouched');
+  const published = await account.tool('publish_workflow', { workflow_id: workflow.id });
+  assert.equal(published.data.recipe_identity, workflowRecipeIdentity(market.get(workflow.id).row));
+  assert.equal(market.get(workflow.id).row.label, 'Concurrent account edit');
+});
+
+test('adoption refuses a deleted adopted row and never reports a mismatched Marketplace readback as published', async () => {
+  const workflow = { id: 'workflow:adoption-readback', label: 'Shipped label', job: 'Keep a reusable checked workflow',
+    steps: [{ id: 'answer', do: 'Keep the result.', submit: { type: 'object' } }] };
+  const deleted = { ...workflow, kind: 'workflow-recipe', status: 'deleted', adopted_from: {
+    kind: 'shipped-workflow', workflow_id: workflow.id, recipe_identity: workflowRecipeIdentity(workflow),
+  } };
+  const deletedAccount = inProcessMcp({ shared: async () => [workflow], initialRecipes: [deleted] });
+  const refusal = await deletedAccount.tool('adopt_workflow', { workflow_id: workflow.id });
+  assert.equal(refusal.error, true);
+  assert.equal(deletedAccount.facts.get(`recipe:${workflow.id}`).status, 'deleted', 'adoption does not revive an explicitly deleted account row');
+
+  let publications = 0;
+  const market = new Map();
+  const noReadback = inProcessMcp({ market, shared: async () => [workflow], beforePublish: async () => { publications += 1; },
+    publishedReadback: async () => [] });
+  const mismatch = await noReadback.tool('adopt_workflow', { workflow_id: workflow.id });
+  assert.equal(mismatch.error, true);
+  assert.match(mismatch.text, /published row did not read back as the saved recipe/);
+  assert.equal(publications, 1, 'a permanent readback mismatch gets one publication attempt, with no blind retry');
+});
+
+test('an account edit while Marketplace readback waits prevents stale publication success', async () => {
+  const workflow = { id: 'workflow:readback-race', label: 'Original label', job: 'Keep the current reusable answer',
+    steps: [{ id: 'answer', do: 'Keep the result.', submit: { type: 'object' } }] };
+  const market = new Map();
+  let entered;
+  let release;
+  const reading = new Promise(resolve => { entered = resolve; });
+  const released = new Promise(resolve => { release = resolve; });
+  let publications = 0;
+  const account = inProcessMcp({ market, shared: async () => [workflow], beforePublish: async () => { publications++; },
+    publishedReadback: async ({ selection }) => {
+      if (selection.workflow_id === workflow.id) { entered(); await released; }
+      return [...market.values()];
+    } });
+  const adopting = account.tool('adopt_workflow', { workflow_id: workflow.id });
+  await reading;
+  assert.equal((await account.tool('save_workflow', { workflow: { ...workflow, label: 'Edited during readback' } })).data.saved, true);
+  release();
+  const result = await adopting;
+  assert.equal(result.error, true);
+  assert.match(result.text, /changed in this account while it was being published/);
+  assert.equal(account.facts.get(`recipe:${workflow.id}`).label, 'Edited during readback');
+  assert.equal(market.get(workflow.id).row.label, 'Original label');
+  assert.equal(publications, 1, 'the conflicting edit does not trigger an automatic republish');
+});
+
+test('a variation names the workflow it was made from: the origin counts it, and both accounts see the link', async () => {
+  const market = new Map();
+  const sam = inProcessMcp({ market, maker: 'maker:sam' });
+  const morgan = inProcessMcp({ market, maker: 'maker:morgan' });
+  const step = { id: 'list', title: 'List the clips', do: 'List the clips to post this week.', submit: { type: 'object', required: ['clips'], properties: { clips: { type: 'array' } } } };
+  const origin = { id: 'workflow:weekly-clips', label: 'Weekly clips', job: 'Pick the week\'s clips to post', steps: [step] };
+  await sam.tool('save_workflow', { workflow: origin });
+  await sam.tool('publish_workflow', { workflow_id: origin.id });
+
+  const variation = { id: 'workflow:weekly-pottery-clips', label: 'Weekly pottery clips', job: 'Pick the week\'s pottery lesson clips to post, one per student', steps: [step], made_from: [origin.id] };
+  assert.match((await morgan.tool('save_workflow', { workflow: { ...variation, made_from: ['workflow:nowhere'] } })).text, /not a workflow this account can find/);
+  assert.match((await morgan.tool('save_workflow', { workflow: { ...variation, made_from: [variation.id] } })).text, /never its own id/);
+  assert.equal((await morgan.tool('save_workflow', { workflow: variation })).data.saved, true);
+  const own = (await morgan.tool('describe_workflow', { workflow_id: variation.id })).data;
+  assert.deepEqual(own.made_from, [{ workflow_id: origin.id, label: 'Weekly clips', made_by: 'another account' }]);
+
+  // Unpublished, the variation is Morgan's alone; published, Sam's workflow counts it.
+  const originSeen = async () => (await sam.tool('find_workflow', { job: 'weekly clips' })).data.workflows.find(item => item.workflow_id === origin.id);
+  assert.equal((await originSeen()).variation_count, undefined);
+  await morgan.tool('publish_workflow', { workflow_id: variation.id });
+  assert.equal((await originSeen()).variation_count, 1);
+  const seen = (await sam.tool('find_workflow', { job: 'pottery clips' })).data.workflows.find(item => item.workflow_id === variation.id);
+  assert.deepEqual(seen.made_from_labels, ['Weekly clips']);
+  assert.deepEqual((await sam.tool('describe_workflow', { workflow_id: origin.id })).data.variations.map(item => item.workflow_id), [variation.id]);
+});
+
+// A Workshop that answers like the real one: a run starts a task, which may finish now, stay working until the tool
+// answers, or fail. `answer(task_id, output)` is the tool answering later.
+function fakeWorkshop(plan) {
+  const tasks = new Map();
+  const started = [];
+  return {
+    started,
+    answer: (task_id, output) => tasks.set(task_id, { ...tasks.get(task_id), state: 'completed', output }),
+    describe: async ({ tool_id }) => { if (!plan[tool_id]) throw new Error(`no ${tool_id}`); return { tool: { id: tool_id } }; },
+    run: async ({ tool_id, input, request_key }) => {
+      const task_id = `task_${request_key}`;
+      if (!tasks.has(task_id)) { started.push({ tool_id, input, request_key }); tasks.set(task_id, { task_id, tool_id, ...plan[tool_id](input) }); }
+      return tasks.get(task_id);
+    },
+    read: async ({ task_id }) => tasks.get(task_id),
+  };
+}
+
+test('a step can run a Workshop tool: its input comes from earlier steps, a working run is waited on, a failed one can run again', async () => {
+  let fails = 1;
+  const tools = fakeWorkshop({
+    'tool:count-words': input => ({ state: 'completed', output: { words: String(input.text).split(/\s+/).length, sources: input.sources } }),
+    'tool:long-render': () => ({ state: 'working', runs_on: 'a private container while it works' }),
+    'tool:flaky': () => (fails-- > 0 ? { state: 'failed', error: 'the service was busy' } : { state: 'completed', output: { ok: true } }),
+  });
+  const { tool } = inProcessMcp({ workshop: tools });
+  const workflow = {
+    id: 'workflow:draft-and-measure', job: 'Write a draft, count its words with a tool, have a slow tool review it, then a flaky one',
+    steps: [
+      { id: 'draft', do: 'Write the draft and list its sources.', submit: { type: 'object', required: ['text', 'sources'], properties: { text: { type: 'string' }, sources: { type: 'array', items: { type: 'object', properties: { url: { type: 'string' } } } } } } },
+      { id: 'count', do: 'Trillion counts the words.', run_tool: { tool_id: 'tool:count-words', input: { text: { from: ['steps', 'draft', 'text'] }, sources: { all_from: ['steps', 'draft', 'sources', '*', 'url'] } } }, submit: { type: 'object', required: ['words'], properties: { words: { type: 'integer', minimum: 3 } } } },
+      { id: 'review', do: 'A slow tool reviews it.', run_tool: { tool_id: 'tool:long-render', input: {} }, submit: { type: 'object', required: ['verdict'], properties: { verdict: { type: 'string' } } } },
+      { id: 'flaky', do: 'A tool that fails once.', run_tool: { tool_id: 'tool:flaky' }, submit: { type: 'object', required: ['ok'], properties: { ok: { const: true } } } },
+    ],
+  };
+  assert.match((await tool('save_workflow', { workflow: { ...workflow, id: 'workflow:bad-tool', steps: [{ ...workflow.steps[1], run_tool: { tool_id: 'tool:nobody-has' } }] } })).text, /not a tool this account can find/);
+  assert.equal((await tool('save_workflow', { workflow })).data.saved, true);
+  const run = (await tool('start_workflow', { workflow_id: workflow.id, request_key: 'r1' })).data;
+  const afterDraft = (await tool('submit_workflow_step', { run_id: run.run_id, step_id: 'draft', output: { text: 'one two three four', sources: [{ url: 'https://a.example' }, { url: 'https://b.example' }] } })).data;
+  assert.deepEqual(tools.started[0].input, { text: 'one two three four', sources: ['https://a.example', 'https://b.example'] }, 'the tool input is filled from the earlier step');
+  assert.equal(afterDraft.step.step_id, 'review', 'the counting step ran and was admitted with no AI turn');
+  assert.equal(afterDraft.done.find(item => item.step_id === 'count').tool_id, 'tool:count-words');
+  assert.equal(afterDraft.step.tool_run.state, 'working');
+  assert.match(afterDraft.next_call.note, /Working is waiting, not failure/);
+  assert.equal((await tool('read_workflow_run', { run_id: run.run_id })).data.step.step_id, 'review', 'still waiting, never failed');
+  tools.answer(afterDraft.step.tool_run.task_id, { verdict: 'clear and sourced' });
+  const afterReview = (await tool('read_workflow_run', { run_id: run.run_id })).data;
+  assert.equal(afterReview.step.step_id, 'flaky', 'reading the run after the tool answered admits the review');
+  assert.equal(afterReview.step.tool_run.state, 'failed');
+  assert.match(afterReview.step.tool_run.error, /busy/);
+  const done = (await tool('submit_workflow_step', { run_id: run.run_id, step_id: 'flaky', run_again: true })).data;
+  assert.equal(done.state, 'finished');
+  assert.deepEqual(done.result.count, { words: 4, sources: ['https://a.example', 'https://b.example'] });
+  assert.equal(tools.started.filter(item => item.tool_id === 'tool:flaky').length, 2, 'run_again starts a second attempt under a new key');
+  assert.equal(tools.started.filter(item => item.tool_id === 'tool:count-words').length, 1, 'reading and resending never start a tool twice');
+});
+
+test('a cut-off Workshop step resumes with its original request key', async () => {
+  const sent = [];
+  const tools = {
+    describe: async ({ tool_id }) => ({ tool: { id: tool_id } }),
+    run: async ({ tool_id, request_key }) => {
+      sent.push(request_key);
+      return sent.length === 1
+        ? { task_id: `task_${request_key}`, tool_id, state: 'failed', error: 'The service restarted.', cut_off: true }
+        : { task_id: `task_${request_key}`, tool_id, state: 'completed', output: { ok: true } };
+    },
+    read: async () => { throw new Error('A failed step must run again, not reread the failed task.'); },
+  };
+  const { tool } = inProcessMcp({ workshop: tools });
+  const workflow = { id: 'workflow:resume-cut-off', job: 'Resume a cut-off tool run', steps: [
+    { id: 'do', do: 'Run the checked tool.', run_tool: { tool_id: 'tool:recover' }, submit: { type: 'object', required: ['ok'], properties: { ok: { const: true } } } },
+  ] };
+  assert.equal((await tool('save_workflow', { workflow })).data.saved, true);
+  const started = (await tool('start_workflow', { workflow_id: workflow.id, request_key: 'restart-proof' })).data;
+  assert.equal(started.step.tool_run.cut_off, true);
+  const finished = (await tool('submit_workflow_step', { run_id: started.run_id, step_id: 'do', run_again: true })).data;
+  assert.equal(finished.state, 'finished');
+  assert.equal(sent.length, 2);
+  assert.equal(sent[0], sent[1], 'the cut-off attempt retains Workshop idempotency');
+});
+
+test('saving a workflow names the ones that already do that job, and an exists check holds ids to real workflows and tools', async () => {
+  const tools = fakeWorkshop({ 'tool:real': () => ({ state: 'completed', output: {} }) });
+  const { tool } = inProcessMcp({ workshop: tools });
+  const copy = { id: 'workflow:my-research-plan', job: 'Research a missing capability across the whole industry and turn it into a facts-only plan document', steps: [{ id: 'only', do: 'Do it.', submit: { type: 'object' } }] };
+  const saved = (await tool('save_workflow', { workflow: copy })).data;
+  assert.equal(saved.similar_workflows?.[0]?.workflow_id, L078, 'the near copy of L078 is named');
+  const distinct = (await tool('save_workflow', { workflow: { ...copy, id: 'workflow:bake-bread', job: 'Bake sourdough bread from starter to loaf' } })).data;
+  assert.equal(distinct.similar_workflows, undefined, 'an unrelated job names nothing');
+
+  const ledger = { id: 'workflow:ledger', job: 'List what was brought in', steps: [{ id: 'list', do: 'Name each workflow and tool.', submit: { type: 'object', required: ['workflows', 'tools'], properties: { workflows: { type: 'array' }, tools: { type: 'array' } } }, checks: [
+    { kind: 'exists', catalog: 'workflow', path: ['this', 'workflows', '*'], says: 'Every workflow named exists' },
+    { kind: 'exists', catalog: 'tool', path: ['this', 'tools', '*'], says: 'Every tool named exists' },
+  ] }] };
+  await tool('save_workflow', { workflow: ledger });
+  const run = (await tool('start_workflow', { workflow_id: ledger.id, request_key: 'l' })).data;
+  const refused = await tool('submit_workflow_step', { run_id: run.run_id, step_id: 'list', output: { workflows: ['workflow:bake-bread', 'workflow:ghost'], tools: ['tool:real', 'tool:ghost'] } });
+  assert.match(refused.text, /"workflow:ghost" is not a workflow this account can find/);
+  assert.match(refused.text, /"tool:ghost" is not a tool this account can find/);
+  assert.doesNotMatch(refused.text, /bake-bread"|tool:real"/);
+  assert.equal((await tool('submit_workflow_step', { run_id: run.run_id, step_id: 'list', output: { workflows: ['workflow:bake-bread', L078], tools: ['tool:real'] } })).data.state, 'finished');
+});
+
+test('an exists check with catalog list-row holds a step to rows that are really in the person\'s list', async () => {
+  const listId = 'content-drafts';
+  const { tool } = inProcessMcp({ listRows: new Map([[`${listId}/serve-post`, { id: 'serve-post', values: { piece: 'Serve with your legs', status: 'Draft' } }]]) });
+  const workflow = { id: 'workflow:keep-drafts-as-rows', job: 'Keep each draft as a row', steps: [{ id: 'keep', do: 'Keep each draft as a row.', submit: { type: 'object', required: ['rows'], properties: { rows: { type: 'array' } } }, checks: [
+    { kind: 'exists', catalog: 'list-row', path: ['this', 'rows', '*'], says: 'Every draft is a row in the person\'s content list' },
+  ] }] };
+  assert.equal((await tool('save_workflow', { workflow })).data.saved, true);
+  const run = (await tool('start_workflow', { workflow_id: workflow.id, request_key: 'rows' })).data;
+  const refused = await tool('submit_workflow_step', { run_id: run.run_id, step_id: 'keep', output: { rows: [`${listId}/serve-post`, `${listId}/ghost`, 'no-slash'] } });
+  assert.match(refused.text, new RegExp(`"${listId}/ghost" is not a list-row this account can find`));
+  assert.match(refused.text, /"no-slash" is not a list-row/);
+  assert.doesNotMatch(refused.text, /serve-post" is not/);
+  assert.equal((await tool('submit_workflow_step', { run_id: run.run_id, step_id: 'keep', output: { rows: [`${listId}/serve-post`] } })).data.state, 'finished');
+});
+
+test('a workflow written as an engine definition runs its graph: parallel asks, a tool fed from an earlier answer, checks, and an agent', async () => {
+  const tools = fakeWorkshop({ 'tool:count-words': input => ({ state: 'completed', output: { words: String(input.text).split(/\s+/).length, longest: String(input.text).split(/\s+/).sort((a, b) => b.length - a.length)[0] } }) });
+  const handed = new Map();
+  const agents = {
+    handOff: async ({ to_agent, input, request_key }) => { handed.set(request_key, { handoff_id: `h-${handed.size + 1}`, to_agent, input, state: 'waiting' }); return { handoff_id: handed.get(request_key).handoff_id }; },
+    read: async ({ handoff_id }) => [...handed.values()].find(item => item.handoff_id === handoff_id),
+  };
+  const { tool } = inProcessMcp({ workshop: tools, agents });
+  const workflow = {
+    id: 'workflow:draft-count-and-review', job: 'Draft a line, count it with a tool, and have my reviewer agent read it, at the same time',
+    definition: {
+      steps: [
+        { id: 'draft', kind: 'ask', config: { name: 'ai', input: { do: 'Write one line.', submit: { type: 'object', required: ['text'], properties: { text: { type: 'string' } } } } } },
+        { id: 'count', kind: 'ask', config: { name: 'tool:count-words', input: { text: { $kind: 'binding', values: ['steps', 'draft', 'text'] } }, context: { submit: { type: 'object', required: ['words'], properties: { words: { type: 'integer' } } } } } },
+        { id: 'count#checks', kind: 'check', config: { subject: 'count', rules: [{ kind: 'mentioned-in', path: ['this', 'longest'], in: ['steps', 'draft', 'text'], says: 'The longest word is from the draft' }] } },
+        { id: 'review', kind: 'ask', config: { name: 'agent:reviewer', input: { text: { $kind: 'binding', values: ['steps', 'draft', 'text'] } }, context: { do: 'Read the line and say whether it is clear.', submit: { type: 'object', required: ['clear'], properties: { clear: { type: 'boolean' } } } } } },
+      ],
+      edges: [{ from: 'draft', to: 'count', kind: 'always' }, { from: 'count', to: 'count#checks', kind: 'always' }, { from: 'draft', to: 'review', kind: 'always' }],
+    },
+  };
+  assert.match((await tool('save_workflow', { workflow: { ...workflow, id: 'workflow:bad-graph', definition: { steps: [workflow.definition.steps[0]], edges: [{ from: 'draft', to: 'nowhere' }] } } })).text, /must join two steps/);
+  assert.equal((await tool('save_workflow', { workflow })).data.saved, true);
+  const run = (await tool('start_workflow', { workflow_id: workflow.id, request_key: 'g1' })).data;
+  assert.equal(run.step.step_id, 'draft');
+  const after = (await tool('submit_workflow_step', { run_id: run.run_id, step_id: 'draft', output: { text: 'ask not what your country can do' } })).data;
+  assert.deepEqual(tools.started[0].input, { text: 'ask not what your country can do' }, 'the tool input is the earlier answer, read by the engine');
+  assert.deepEqual(after.done.map(item => item.step_id), ['draft', 'count'], 'the tool step ran and passed its check in the same pass');
+  assert.equal(after.step.step_id, 'review');
+  assert.equal(after.step.handed_to, 'reviewer');
+  assert.equal([...handed.values()][0].input.text, 'ask not what your country can do');
+  assert.equal((await tool('read_workflow_run', { run_id: run.run_id })).data.state, 'working', 'an agent still at work is waiting, never failed');
+  assert.equal(handed.size, 1, 'reading again hands nothing over twice');
+  Object.assign([...handed.values()][0], { state: 'finished', result: { clear: true } });
+  const done = (await tool('read_workflow_run', { run_id: run.run_id })).data;
+  assert.equal(done.state, 'finished');
+  assert.deepEqual(done.result, { draft: { text: 'ask not what your country can do' }, count: { words: 7, longest: 'country' }, review: { clear: true } });
+});
+
+test('a tool output its checks refuse is not kept: the step waits to run the tool again, or for output sent instead', async () => {
+  const tools = fakeWorkshop({ 'tool:echo': input => ({ state: 'completed', output: { said: input.said } }) });
+  const { tool } = inProcessMcp({ workshop: tools });
+  const workflow = { id: 'workflow:echo-checked', job: 'Echo a word through a tool and hold it to a list', steps: [
+    { id: 'echo', do: 'The tool echoes the word.', run_tool: { tool_id: 'tool:echo', input: { said: { from: ['input', 'word'] } } }, submit: { type: 'object', required: ['said'], properties: { said: { type: 'string' } } }, checks: [{ kind: 'subset-of', path: ['this', 'said'], of: ['input', 'allowed', '*'], says: 'The word is one of the allowed ones' }] },
+  ] };
+  await tool('save_workflow', { workflow });
+  const run = (await tool('start_workflow', { workflow_id: workflow.id, input: { word: 'banana', allowed: ['apple'] }, request_key: 'e1' })).data;
+  assert.equal(run.state, 'working');
+  assert.match(run.step.tool_run.problems.join(' '), /"banana" is not one of them/);
+  assert.equal(run.next_call.arguments.run_again, true);
+  assert.equal(run.done.length, 0, 'the refused output is not kept');
+  const fixed = (await tool('submit_workflow_step', { run_id: run.run_id, step_id: 'echo', output: { said: 'apple' } })).data;
+  assert.equal(fixed.state, 'finished');
+  assert.deepEqual(fixed.result.echo, { said: 'apple' });
+});
+
+test('a run started by the old step runner goes on on the engine with its admitted outputs', async () => {
+  const facts = new Map();
+  const { makeWorkflows } = await import('../src/workflows.mjs');
+  const { builtInToolsForTests } = await import('./engine-tools-for-tests.mjs');
+  const recipe = workflowRecipes.records.find(record => record.payload.id === 'workflow:l078-research-to-plan').payload;
+  facts.set('run:run:old', { run_id: 'run:old', request_key: 'old', recipe, recipe_identity: 'kept', input: { capability: 'x' }, done: { scope: { admitted_at: '2026-09-20T00:00:00.000Z', output_identity: 'kept' } }, started_at: '2026-09-20T00:00:00.000Z' });
+  facts.set('output:run:old:scope', OUTPUTS.scope);
+  const workflows = makeWorkflows({
+    shared: async () => [], builtIn: builtInToolsForTests,
+    store: { savedRecipes: async () => [], putRecipe: async () => {}, run: async id => facts.get(`run:${id}`) ?? null, putRun: async run => { facts.set(`run:${run.run_id}`, run); }, runs: async () => [], output: async (runId, key) => facts.get(`output:${runId}:${key}`), putOutput: async (runId, key, output) => { facts.set(`output:${runId}:${key}`, output); } },
+  });
+  const read = await workflows.read({ run_id: 'run:old' });
+  assert.equal(read.step.step_id, 'current_state');
+  const submission = { run_id: 'run:old', step_id: 'current_state', output: OUTPUTS.current_state };
+  assert.deepEqual(await workflows.submitOutcome(submission), { state: 'aborted' }, 'a lost submission never admitted');
+  const submitted = await workflows.submit(submission);
+  assert.equal(submitted.step.step_id, 'research');
+  assert.deepEqual(await workflows.submitOutcome(submission), { state: 'committed', result: await workflows.snapshot({ run_id: 'run:old' }) }, 'read from the admitted step');
+  assert.deepEqual(await workflows.submitOutcome({ ...submission, output: { other: true } }), { state: 'unknown' });
+});
+
+test('snapshot_workflow_run inspects kept output without admitting a tool answer or advancing the run', async () => {
+  let taskReads = 0;
+  const workshop = fakeWorkshop({ 'tool:delayed-check': () => ({ state: 'working' }) });
+  const originalRead = workshop.read;
+  workshop.read = async args => { taskReads += 1; return originalRead(args); };
+  const { request, tool } = inProcessMcp({ workshop });
+  const listed = (await request('tools/list')).result.tools.find(row => row.name === 'snapshot_workflow_run');
+  assert.equal(listed.annotations.readOnlyHint, true);
+  const workflow = {
+    id: 'workflow:inspect-without-continuing', job: 'Keep a draft, then wait for a checked tool answer',
+    steps: [
+      { id: 'draft', do: 'Keep the draft.', submit: { type: 'object', required: ['text'], properties: { text: { type: 'string' } } } },
+      { id: 'check', do: 'Wait for the checker.', run_tool: { tool_id: 'tool:delayed-check' },
+        submit: { type: 'object', required: ['ok'], properties: { ok: { const: true } } } },
+    ],
+  };
+  assert.equal((await tool('save_workflow', { workflow })).data.saved, true);
+  const started = (await tool('start_workflow', { workflow_id: workflow.id, request_key: 'inspect' })).data;
+  const waiting = (await tool('submit_workflow_step', { run_id: started.run_id, step_id: 'draft', output: { text: 'Original kept draft' } })).data;
+  workshop.answer(waiting.step.tool_run.task_id, { ok: true });
+  taskReads = 0;
+  for (let index = 0; index < 2; index += 1) {
+    const snapshot = (await tool('snapshot_workflow_run', { run_id: started.run_id })).data;
+    assert.equal(snapshot.state, 'working');
+    assert.deepEqual(snapshot.done.map(row => row.step_id), ['draft']);
+    assert.deepEqual(snapshot.done[0].output, { text: 'Original kept draft' });
+    assert.equal(snapshot.step.tool_run.state, 'working');
+  }
+  assert.equal(taskReads, 0, 'inspection never reads or admits the newer tool answer');
+  assert.equal(workshop.started.length, 1, 'inspection never dispatches another tool');
+  const otherAccount = inProcessMcp();
+  assert.match((await otherAccount.tool('snapshot_workflow_run', { run_id: started.run_id })).text, /There is no run/);
+  const finished = (await tool('read_workflow_run', { run_id: started.run_id })).data;
+  assert.equal(finished.state, 'finished', 'the existing continuation still admits the ready tool output');
+  const snapshot = (await tool('snapshot_workflow_run', { run_id: started.run_id })).data;
+  assert.deepEqual(snapshot.result, { draft: { text: 'Original kept draft' }, check: { ok: true } });
+});
+
+// Generate stored outputs only when read, as the hosted exact-row reader does. Holding every output in a fixture map
+// would hide whether the display itself starts parallel reads, retains large values, or fetches finished evidence twice.
+async function outputDisplayFixture({ count, finished = true, outputFor }) {
+  const { makeWorkflows } = await import('../src/workflows.mjs');
+  const steps = Array.from({ length: count }, (_, index) => ({ id: `step-${index}`, title: `Step ${index}`,
+    do: 'Keep the checked answer.', submit: { type: 'object' } }));
+  const waiting = { step_id: 'waiting', title: 'Wait for the answer', do: 'Keep the answer.', submit: { type: 'object' }, checks: [], asks: 'ai' };
+  const run = { run_id: 'run:output-display', recipe_identity: 'kept', recipe: { id: 'workflow:output-display',
+    job: 'Keep each checked answer.', steps: finished ? steps : [...steps, { id: waiting.step_id, do: waiting.do, submit: waiting.submit }] },
+    input: {}, state: finished ? 'finished' : 'working', waiting: finished ? [] : [waiting],
+    done: Object.fromEntries(steps.map(step => [step.id, { admitted_at: '2026-10-11T00:00:00.000Z' }])),
+    ...(finished ? { finished_at: '2026-10-11T01:00:00.000Z' } : {}) };
+  const reads = new Map();
+  let active = 0;
+  let mostActive = 0;
+  const workflows = makeWorkflows({ shared: async () => [],
+    builtIn: { run: () => { throw new Error('Snapshot and exact output inspection must not run the engine.'); } },
+    store: { run: async id => id === run.run_id ? run : null, output: async (runId, stepId) => {
+      assert.equal(runId, run.run_id);
+      reads.set(stepId, (reads.get(stepId) ?? 0) + 1);
+      active += 1;
+      mostActive = Math.max(mostActive, active);
+      await new Promise(resolve => setImmediate(resolve));
+      active -= 1;
+      return outputFor(Number(stepId.slice('step-'.length)));
+    } } });
+  return { run, workflows, reads, mostActive: () => mostActive };
+}
+
+test('a finished run displays large admitted outputs serially under one budget and exact reads retain the evidence', async () => {
+  const outputFor = index => ({ index, text: String(index % 10).repeat(1_450_000) });
+  const fixture = await outputDisplayFixture({ count: 40, outputFor });
+  const shown = await fixture.workflows.snapshot({ run_id: fixture.run.run_id });
+  assert.equal(fixture.mostActive(), 1, 'only one full stored value enters the display at a time');
+  assert.equal(shown.state, 'finished');
+  assert.deepEqual(shown.done.map(row => row.step_id), Array.from({ length: 40 }, (_, index) => `step-${index}`));
+  assert.equal(shown.result_is_partial, true);
+  assert.deepEqual(shown.result, {}, 'the finished result cannot reintroduce the large values omitted from done');
+  assert.equal(shown.read_whole_outputs.length, 40);
+  assert.equal(shown.done.reduce((count, row) => count + (row.output_preview?.length ?? 0), 0), 128_000);
+  assert.equal(fixture.reads.size, 32, 'a spent display budget starts no more full stored-value reads');
+  assert.ok([...fixture.reads.values()].every(count => count === 1), 'finished output is fetched at most once');
+  assert.equal(shown.done[0].output_preview, JSON.stringify(outputFor(0)).slice(0, 4000));
+  assert.equal(shown.done[39].output_preview, undefined);
+  assert.deepEqual(shown.done[39].read_whole_output, { tool: 'read_workflow_run', arguments: { run_id: fixture.run.run_id, step_id: 'step-39' } });
+  const exact = await fixture.workflows.read(shown.done[39].read_whole_output.arguments);
+  assert.deepEqual(exact.output, outputFor(39), 'explicitly reading one omitted step returns its entire unchanged value');
+  assert.equal(fixture.reads.get('step-39'), 1);
+});
+
+test('many individually small outputs also share the run display budget without losing exact stored values', async () => {
+  const outputFor = index => ({ index, text: 'x'.repeat(12_000) });
+  const fixture = await outputDisplayFixture({ count: 40, outputFor });
+  const shown = await fixture.workflows.snapshot({ run_id: fixture.run.run_id });
+  assert.equal(fixture.mostActive(), 1);
+  const displayed = shown.done.reduce((chars, row) => chars + (Object.hasOwn(row, 'output') ? JSON.stringify(row.output).length : row.output_preview?.length ?? 0), 0);
+  assert.equal(displayed, 128_000);
+  assert.equal(shown.result_is_partial, true);
+  assert.ok(Object.keys(shown.result).length < 40);
+  assert.deepEqual(Object.keys(shown.result), shown.done.filter(row => Object.hasOwn(row, 'output')).map(row => row.step_id));
+  assert.ok([...fixture.reads.values()].every(count => count === 1));
+  for (const row of shown.done) {
+    if (Object.hasOwn(row, 'output')) assert.deepEqual(shown.result[row.step_id], row.output);
+    else assert.ok(row.read_whole_output, 'each omitted whole value has its existing exact read call');
+  }
+  const exact = await fixture.workflows.read(shown.done.at(-1).read_whole_output.arguments);
+  assert.deepEqual(exact.output, outputFor(39));
+});
+
+test('small finished results keep their existing exact shape and fetch each value once', async () => {
+  const outputFor = index => ({ index, checked: true });
+  const fixture = await outputDisplayFixture({ count: 3, outputFor });
+  const shown = await fixture.workflows.snapshot({ run_id: fixture.run.run_id });
+  assert.equal(fixture.mostActive(), 1);
+  assert.deepEqual(shown.result, Object.fromEntries(Array.from({ length: 3 }, (_, index) => [`step-${index}`, outputFor(index)])));
+  assert.equal(shown.result_is_partial, undefined);
+  assert.equal(shown.read_whole_outputs, undefined);
+  assert.deepEqual([...fixture.reads.values()], [1, 1, 1]);
+});
+
+test('working run inspection applies the same output limits and preserves its waiting step', async () => {
+  const fixture = await outputDisplayFixture({ count: 40, finished: false, outputFor: index => ({ index, text: 'x'.repeat(20_000) }) });
+  const shown = await fixture.workflows.snapshot({ run_id: fixture.run.run_id });
+  assert.equal(shown.state, 'working');
+  assert.equal(shown.step.step_id, 'waiting');
+  assert.equal(shown.steps_left, 1);
+  assert.equal(shown.result, undefined);
+  assert.equal(shown.done.length, 40);
+  assert.equal(fixture.mostActive(), 1);
+  assert.equal(fixture.reads.size, 32);
+  assert.ok(shown.done.every(row => row.read_whole_output));
+});
+
+test('detached previews preserve exact JSON text when the display boundary splits a Unicode pair', async () => {
+  const output = { text: 'x'.repeat(3990) + '😀'.repeat(7000) };
+  const fixture = await outputDisplayFixture({ count: 1, outputFor: () => output });
+  const shown = await fixture.workflows.snapshot({ run_id: fixture.run.run_id });
+  const preview = shown.done[0].output_preview;
+  assert.equal(preview, JSON.stringify(output).slice(0, 4000));
+  assert.equal(preview.length, 4000);
+  assert.equal(preview.charCodeAt(preview.length - 1), 0xd83d);
+  assert.deepEqual((await fixture.workflows.read(shown.done[0].read_whole_output.arguments)).output, output);
+});
+
+const lookupRecipe = (id, fields = {}) => ({ id, label: id, job: 'Read the selected workflow.',
+  steps: [{ id: 'answer', do: 'Keep the answer.', submit: { type: 'object' } }], ...fields });
+
+// Readers accept an ID or lineage selection like the hosted storage owners. The legacy case intentionally ignores
+// it: the workflow owner must still avoid touching unrelated bodies and enforce validity and source precedence.
+function workflowLookupFixture({ shipped = [], sourced = [], saved = [], published = [], spaces = [], legacy = false, builtIn, beforeRead = null, pause } = {}) {
+  const calls = [];
+  const runs = new Map();
+  const outputs = new Map();
+  const select = (kind, rows, selection, body = row => row) => {
+    assert.ok(selection && (selection.workflow_id !== undefined || selection.made_from !== undefined), `${kind} must select before reading bodies`);
+    calls.push({ kind, ...selection });
+    beforeRead?.(kind, selection);
+    return legacy ? rows : rows.filter(item => {
+      const row = body(item);
+      return selection.workflow_id !== undefined ? row.id === selection.workflow_id
+        : Array.isArray(row.made_from) && row.made_from.includes(selection.made_from);
+    });
+  };
+  const workflows = makeWorkflows({
+    shared: async () => shipped,
+    sourced: async (_own, selection) => select('sourced', sourced, selection),
+    spaced: async selection => select('spaces', spaces, selection, item => item.row),
+    store: {
+      savedSources: async () => [], savedRecipes: async selection => select('saved', saved, selection),
+      run: async id => runs.get(id) ?? null, putRun: async row => { runs.set(row.run_id, row); },
+      output: async (id, step) => outputs.get(`${id}/${step}`),
+      putOutput: async (id, step, value) => { outputs.set(`${id}/${step}`, value); },
+    },
+    market: { published: async selection => select('published', published, selection, item => item.row) },
+    maker: 'maker:mine', pause, builtIn: builtIn ?? { run: () => { throw new Error('A description must not execute a workflow.'); } },
+  });
+  return { workflows, calls, runs, outputs };
+}
+
+test('describing one workflow skips unrelated bodies even when legacy readers ignore selection', async () => {
+  const irrelevant = { id: 'workflow:irrelevant', made_from: [] };
+  Object.defineProperty(irrelevant, 'steps', { enumerable: true, get() { throw new Error('An unrelated large body was inspected.'); } });
+  const target = lookupRecipe('workflow:chosen');
+  const fixture = workflowLookupFixture({ legacy: true, shipped: [irrelevant], sourced: [irrelevant],
+    saved: [irrelevant, target, { id: 'workflow:malformed-lineage', made_from: {} }],
+    published: [{ maker: 'maker:other', row: irrelevant }] });
+  const shown = await fixture.workflows.describe({ workflow_id: target.id });
+  assert.deepEqual(shown.workflow, target);
+  assert.equal(shown.recipe_identity, workflowRecipeIdentity(target));
+  assert.deepEqual(shown.made_from, []);
+  assert.deepEqual(shown.variations, []);
+  assert.ok(fixture.calls.every(call => call.workflow_id === target.id || call.made_from === target.id));
+  fixture.calls.length = 0;
+  await assert.rejects(fixture.workflows.describe({ workflow_id: '' }), /There is no workflow/);
+  assert.equal(fixture.calls.length, 0, 'an absent ID cannot become a whole-catalog request');
+});
+
+test('reading only a workflow\'s recipe never searches lineage, so no repository is read for a shipped workflow', async () => {
+  const target = lookupRecipe('workflow:chosen', { default_for: ['chosen-purpose'] });
+  const fixture = workflowLookupFixture({ shipped: [target] });
+  assert.deepEqual(await fixture.workflows.recipeOf({ workflow_id: target.id }), target);
+  assert.deepEqual(await fixture.workflows.recipeOf({ purpose: 'chosen-purpose' }), target);
+  assert.deepEqual(fixture.calls.filter(call => call.kind === 'sourced' || call.made_from !== undefined), [], 'only describe searches lineage');
+  await fixture.workflows.describe({ workflow_id: target.id });
+  assert.ok(fixture.calls.some(call => call.kind === 'sourced' && call.made_from === target.id), 'describe still reads lineage');
+});
+
+test('setting an event rule that starts a workflow checks the workflow without reading any repository', async () => {
+  const sources = readToolData((await sharedWorkshopPayloads()).payloads.map(payload => ({ payload }))).event_sources;
+  const target = lookupRecipe('workflow:chosen');
+  const fixture = workflowLookupFixture({ shipped: [target] });
+  const facts = new Map();
+  const rules = makeEventRules({
+    workshop: {}, workflows: fixture.workflows, routes: {}, sources: async () => sources, now: () => new Date('2026-09-30T10:00:00Z'),
+    facts: {
+      read: async name => structuredClone(facts.get(name) ?? null),
+      list: async prefix => [...facts].filter(([name]) => name.startsWith(prefix)).map(([, value]) => structuredClone(value)),
+      write: async (name, value) => { facts.set(name, structuredClone(value)); },
+      reset: async name => { facts.delete(name); },
+    },
+  });
+  await rules.set({ rule_id: 'starts-chosen', source_id: 'events:stripe', event: 'paid', then: { workflow_id: target.id, input: {} } });
+  assert.deepEqual(fixture.calls.filter(call => call.kind === 'sourced'), [], 'setting a rule must not read the public skill repositories');
+  await assert.rejects(rules.set({ rule_id: 'starts-missing', source_id: 'events:stripe', event: 'paid', then: { workflow_id: 'workflow:absent', input: {} } }), /There is no workflow/);
+});
+
+test('exact lookup retains shipped, repository, saved, published and Space precedence and invalid-row refusal', async () => {
+  const id = 'workflow:precedence';
+  const shipped = lookupRecipe(id, { label: 'Shipped' });
+  const sourced = lookupRecipe(id, { label: 'Repository' });
+  const saved = lookupRecipe(id, { label: 'Saved' });
+  const published = { maker: 'maker:other', row: lookupRecipe(id, { label: 'Published' }) };
+  const space = { row: lookupRecipe(id, { label: 'Space' }), space_id: 'space:allowed', space_title: 'Allowed Space' };
+  const cases = [
+    { shipped: [shipped], sourced: [sourced], saved: [saved], published: [published], spaces: [space], expected: shipped, from: 'Trillion' },
+    { shipped: [shipped], saved: [{ ...saved, steps: [], adopted_from: { kind: 'shipped-workflow', workflow_id: id } }],
+      published: [{ ...published, row: { ...published.row, steps: [], adopted_from: { kind: 'shipped-workflow', workflow_id: id } } }],
+      expected: shipped, from: 'Trillion' },
+    { shipped: [{ ...shipped, steps: [] }], sourced: [sourced], saved: [saved], expected: sourced, from: 'a public repository' },
+    { sourced: [{ ...sourced, steps: [] }], saved: [saved], published: [published], expected: saved, from: 'this account' },
+    { saved: [{ ...saved, status: 'deleted' }], published: [published], spaces: [space], expected: published.row, from: 'another account' },
+    { saved: [{ ...saved, steps: [] }], published: [published], expected: published.row, from: 'another account' },
+    { spaces: [space], expected: space.row, from: 'a space' },
+  ];
+  for (const { expected, from, ...rows } of cases) {
+    const fixture = workflowLookupFixture(rows);
+    const shown = await fixture.workflows.describe({ workflow_id: id });
+    assert.equal(shown.workflow.label, expected.label);
+    assert.equal(shown.made_by, from);
+    assert.equal(shown.recipe_identity, workflowRecipeIdentity(expected));
+    if (from !== 'a space') assert.equal(fixture.calls.filter(call => call.kind === 'spaces').length, 0, 'Space lookup remains a fallback');
+  }
+});
+
+test('selected lineage preserves parent order, removes shadowed variations and excludes deleted definitions', async () => {
+  const parent = lookupRecipe('workflow:parent', { label: 'Parent' });
+  const origin = lookupRecipe('workflow:origin', { made_from: [parent.id] });
+  const variation = lookupRecipe('workflow:variation', { made_from: [origin.id] });
+  const shadowed = lookupRecipe('workflow:shadowed');
+  const fixture = workflowLookupFixture({ sourced: [parent], shipped: [shadowed], saved: [origin, variation,
+    lookupRecipe('workflow:deleted-variation', { made_from: [origin.id], status: 'deleted' })],
+    published: [{ maker: 'maker:other', row: { ...shadowed, made_from: [origin.id] } }] });
+  const shown = await fixture.workflows.describe({ workflow_id: origin.id });
+  assert.deepEqual(shown.made_from, [{ workflow_id: parent.id, label: 'Parent', made_by: 'a public repository' }]);
+  assert.deepEqual(shown.variations, [{ workflow_id: variation.id, label: variation.id, made_by: 'this account' }]);
+  assert.ok(!shown.variations.some(item => item.workflow_id === shadowed.id), 'a lower-priority lineage edge cannot replace the shipped definition');
+  assert.deepEqual(fixture.calls.filter(call => call.workflow_id === shadowed.id).map(call => call.kind), ['saved', 'published'],
+    'a shipped exact hit reads only targeted adoption overrides, never repository or Space fallback copies');
+  assert.ok(fixture.calls.every(call => call.workflow_id !== undefined || call.made_from === origin.id));
+});
+
+test('describing a Space workflow retains Space lineage precedence and membership-filtered input', async () => {
+  const parent = lookupRecipe('workflow:space-parent', { label: 'Space parent' });
+  const origin = lookupRecipe('workflow:space-origin', { made_from: [parent.id] });
+  const variation = lookupRecipe('workflow:space-variation', { made_from: [origin.id] });
+  const fixture = workflowLookupFixture({ spaces: [parent, origin, variation].map(row => ({ row, space_id: 'space:allowed', space_title: 'Allowed Space' })),
+    published: [{ maker: 'maker:other', row: { ...parent, label: 'Published parent' } },
+      { maker: 'maker:other', row: { ...variation, made_from: [] } }] });
+  const shown = await fixture.workflows.describe({ workflow_id: origin.id });
+  assert.equal(shown.made_by, 'a space');
+  assert.deepEqual(shown.made_from, [{ workflow_id: parent.id, label: 'Space parent', made_by: 'a space' }]);
+  assert.deepEqual(shown.variations, [{ workflow_id: variation.id, label: variation.id, made_by: 'a space' }]);
+  await assert.rejects(fixture.workflows.describe({ workflow_id: 'workflow:unjoined-space' }), /There is no workflow/);
+});
+
+test('exact description preserves identity and shows source credits without another maker’s private notes', async () => {
+  const row = lookupRecipe('workflow:credited', { source: { licence: 'MIT', author: 'Maker', url: 'https://example.org/skill', why: 'Private maker notes' } });
+  const other = workflowLookupFixture({ published: [{ maker: 'maker:other', row }] });
+  const shown = await other.workflows.describe({ workflow_id: row.id });
+  assert.deepEqual(shown.workflow.source, { licence: 'MIT', author: 'Maker', url: 'https://example.org/skill' });
+  assert.equal(shown.recipe_identity, workflowRecipeIdentity(row), 'identity describes the actual selected recipe, not the redacted display');
+  const mine = workflowLookupFixture({ saved: [row] });
+  assert.equal((await mine.workflows.describe({ workflow_id: row.id })).workflow.source.why, 'Private maker notes');
+});
+
+test('resume replays workflow exists checks through exact lookup and keeps the run’s admitted recipe and output', async () => {
+  const { builtInToolsForTests } = await import('./engine-tools-for-tests.mjs');
+  const target = lookupRecipe('workflow:exists-target');
+  const runner = lookupRecipe('workflow:exists-resume', { steps: [
+    { id: 'list', do: 'Name a real workflow.', submit: { type: 'object', required: ['workflows'], properties: { workflows: { type: 'array' } } },
+      checks: [{ kind: 'exists', catalog: 'workflow', path: ['this', 'workflows', '*'], says: 'Every named workflow exists' }] },
+    { id: 'finish', do: 'Keep the final answer.', submit: { type: 'object' } },
+  ] });
+  const saved = [runner, target];
+  const fixture = workflowLookupFixture({ saved, builtIn: builtInToolsForTests });
+  const started = await fixture.workflows.start({ workflow_id: runner.id, request_key: 'exact-exists' });
+  const output = { workflows: [target.id] };
+  const waiting = await fixture.workflows.submit({ run_id: started.run_id, step_id: 'list', output });
+  assert.equal(waiting.step.step_id, 'finish');
+  const recipeIdentity = fixture.runs.get(started.run_id).recipe_identity;
+  saved[0] = { ...runner, steps: [runner.steps[0]] };
+  Object.assign(fixture.runs.get(started.run_id), { state: 'stuck', error: 'An earlier service interruption.' });
+  fixture.calls.length = 0;
+  const resumed = await fixture.workflows.read({ run_id: started.run_id, resume: true });
+  assert.equal(resumed.step.step_id, 'finish', 'the newly saved recipe does not replace the frozen recipe');
+  assert.equal(resumed.recipe_identity, recipeIdentity);
+  assert.deepEqual(resumed.done[0].output, output);
+  assert.ok(fixture.calls.some(call => call.workflow_id === target.id), 'the engine’s exists callback uses the selected catalog reader on replay');
+  assert.ok(fixture.calls.every(call => call.workflow_id === target.id), 'resume does not reload or search for the run’s frozen recipe');
+  saved[1] = { ...target, status: 'deleted' };
+  const refused = await fixture.workflows.read({ run_id: started.run_id, resume: true });
+  assert.equal(refused.state, 'failed', 'a deleted workflow still fails the existence check');
+  assert.deepEqual((await fixture.workflows.read({ run_id: started.run_id, step_id: 'list' })).output, output, 'a failed replay leaves admitted evidence unchanged');
+});
+
+test('exact account lookup cannot describe another account’s private recipe or private repository', async () => {
+  const row = lookupRecipe('workflow:private-account-recipe');
+  const mine = inProcessMcp();
+  const other = inProcessMcp();
+  assert.equal((await mine.tool('save_workflow', { workflow: row })).data.saved, true);
+  assert.equal((await mine.tool('describe_workflow', { workflow_id: row.id })).data.workflow.id, row.id);
+  assert.match((await other.tool('describe_workflow', { workflow_id: row.id })).text, /There is no workflow/);
+  const repositoryRow = { ...row, id: 'workflow:private-repository-recipe' };
+  const sourceReader = async own => own.length ? [repositoryRow] : [];
+  const mineWithSource = inProcessMcp({ skillSourceRows: sourceReader });
+  const otherWithSource = inProcessMcp({ skillSourceRows: sourceReader });
+  const added = await mineWithSource.tool('skill_repositories', { add: { owner: 'someone', repository: 'their-skills' } });
+  assert.ok(!added.error);
+  assert.ok(added.data.yours.some(item => item.id === 'someone-their-skills'), 'the account actually kept its own source');
+  assert.equal((await mineWithSource.tool('describe_workflow', { workflow_id: repositoryRow.id })).data.workflow.id, repositoryRow.id);
+  assert.match((await otherWithSource.tool('describe_workflow', { workflow_id: repositoryRow.id })).text, /There is no workflow/);
+});
+
+test('catalog callback failures keep their actual cause, retry policy and admitted evidence across the service binding', async () => {
+  const { runEngineForTests } = await import('./engine-tools-for-tests.mjs');
+  for (const retryable of [false, true]) {
+    const target = lookupRecipe('workflow:callback-target');
+    const runner = lookupRecipe(`workflow:callback-${retryable ? 'interrupted' : 'failed'}`, { steps: [
+      { id: 'list', do: 'Name a real workflow.', submit: { type: 'object', required: ['workflows'], properties: { workflows: { type: 'array' } } },
+        checks: [{ kind: 'exists', catalog: 'workflow', path: ['this', 'workflows', '*'], says: 'Every named workflow exists' }] },
+      { id: 'finish', do: 'Keep the final answer.', submit: { type: 'object' } },
+    ] });
+    const saved = [runner, target];
+    const reach = { inEngine: false, error: null };
+    const waits = [];
+    const fixture = workflowLookupFixture({ saved, pause: async ms => { waits.push(ms); },
+      beforeRead: (kind, selection) => {
+        if (reach.inEngine && reach.error && kind === 'saved' && selection.workflow_id === target.id) throw reach.error;
+      },
+      builtIn: { run: async (tool_id, input, host) => {
+        assert.equal(tool_id, 'tool:run-workflow-definition');
+        reach.inEngine = true;
+        try { return await runEngineForTests('workflow-engine', 'runWorkflowDefinition', input, host); }
+        finally { reach.inEngine = false; }
+      } },
+    });
+    const started = await fixture.workflows.start({ workflow_id: runner.id, request_key: 'callback-failure' });
+    const output = { workflows: [target.id] };
+    await fixture.workflows.submit({ run_id: started.run_id, step_id: 'list', output });
+    const originalIdentity = fixture.runs.get(started.run_id).recipe_identity;
+    saved[0] = { ...runner, steps: [runner.steps[0]] };
+    const cause = retryable ? 'Durable Object reset because its code was updated.' : 'Catalog callback context was released; api_key=fake_credential_value_123456789.';
+    reach.error = new Error(cause);
+    assert.equal((await fixture.workflows.describe({ workflow_id: target.id })).workflow.id, target.id,
+      'the exact description still succeeds outside the failed engine callback');
+    const interrupted = await fixture.workflows.read({ run_id: started.run_id, resume: true });
+    const diagnostic = retryable ? interrupted.step.interrupted.error : interrupted.error;
+    assert.match(diagnostic, /Could not read workflow "workflow:callback-target"/);
+    assert.match(diagnostic, retryable ? /Durable Object reset because its code was updated/ : /Catalog callback context was released/);
+    assert.doesNotMatch(diagnostic, /not a workflow this account can find|fake_credential_value/);
+    assert.equal(interrupted.state, retryable ? 'working' : 'failed');
+    if (retryable) {
+      assert.deepEqual(waits, [500, 2000, 5000], 'an interrupted catalog read uses the existing bounded retry policy');
+      assert.equal(interrupted.step.step_id, 'finish');
+      assert.equal(fixture.runs.get(started.run_id).interrupted.error, diagnostic, 'the actual cause survives the stored run');
+    } else {
+      assert.match(diagnostic, /api_key=\[hidden\]/);
+      assert.deepEqual(waits, [], 'a nonretryable callback failure is not retried');
+      assert.equal(fixture.runs.get(started.run_id).error, diagnostic, 'failed-run evidence preserves the actual sanitized cause');
+    }
+    assert.equal(interrupted.recipe_identity, originalIdentity);
+    assert.deepEqual((await fixture.workflows.read({ run_id: started.run_id, step_id: 'list' })).output, output);
+    reach.error = null;
+    const recovered = await fixture.workflows.read({ run_id: started.run_id, resume: true });
+    assert.equal(recovered.step.step_id, 'finish', 'the failure neither changes the frozen recipe nor admits its unfinished step');
+    assert.equal(recovered.error, undefined);
+    assert.equal(recovered.recipe_identity, originalIdentity);
+    const finished = await fixture.workflows.submit({ run_id: started.run_id, step_id: 'finish', output: { answer: 'Checked' } });
+    assert.equal(finished.state, 'finished');
+    assert.deepEqual(finished.result.list, output);
+  }
+});
+
+// A lost save keeps its reply with the recipe (onCommit); a lost publish or adopt is read from this maker's Marketplace
+// row, never sent again.
+test('a lost workflow save, publish or adopt is read back from what it kept', async () => {
+  const shipped = { id: 'workflow:adoptable', label: 'Shipped label', job: 'Keep a reusable checked workflow',
+    steps: [{ id: 'answer', title: 'Answer', do: 'Keep the result.', submit: { type: 'object' } }] };
+  const mine = { ...shipped, id: 'workflow:mine', label: 'Mine', job: 'Keep my own checked result' };
+  const recipes = new Map(), market = new Map();
+  const workflows = makeWorkflows({ shared: async () => [shipped], builtIn: { run: async () => ({}) }, maker: 'maker:mine',
+    store: { savedRecipes: async ({ workflow_id } = {}) => [...recipes.values()].filter(row => !workflow_id || row.id === workflow_id),
+      putRecipe: async (row, { onCommit } = {}) => { recipes.set(row.id, row); onCommit?.(row); return row; },
+      putRecipeIfAbsent: async row => recipes.has(row.id) ? { inserted: false, row: recipes.get(row.id) } : (recipes.set(row.id, row), { inserted: true, row }),
+      run: async () => null, putRun: async () => {}, runs: async () => [] },
+    market: { published: async ({ workflow_id } = {}) => [...market.values()].filter(item => !workflow_id || item.row.id === workflow_id),
+      publish: async item => { market.set(item.row.id, item); }, unpublish: async ({ id }) => market.delete(id) } });
+  let kept = null;
+  const saved = await workflows.save({ workflow: mine }, { onCommit: (_row, reply) => { kept = reply; } });
+  assert.deepEqual(kept, saved, 'the reply is kept with the recipe');
+  assert.deepEqual(await workflows.publishOutcome({ workflow_id: mine.id }), { state: 'aborted' }, 'nothing published');
+  const published = await workflows.publish({ workflow_id: mine.id });
+  assert.deepEqual(await workflows.publishOutcome({ workflow_id: mine.id }), { state: 'committed', result: published });
+  await workflows.save({ workflow: { ...mine, label: 'Mine, changed' } });
+  assert.deepEqual(await workflows.publishOutcome({ workflow_id: mine.id }), { state: 'unknown' }, 'the row is not the saved recipe any more');
+  assert.deepEqual(await workflows.adoptOutcome({ workflow_id: shipped.id }), { state: 'aborted' }, 'nothing adopted');
+  const adopted = await workflows.adopt({ workflow_id: shipped.id });
+  assert.deepEqual(await workflows.adoptOutcome({ workflow_id: shipped.id }), { state: 'committed', result: adopted });
+});

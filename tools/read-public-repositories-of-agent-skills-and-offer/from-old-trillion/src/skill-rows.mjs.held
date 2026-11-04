@@ -1,0 +1,168 @@
+// src/skill-rows.mjs
+//
+// Purpose
+//   One agent skill (a SKILL.md with a `name` and a `description` in its front matter, and the text files beside it) as
+//   one workflow-recipe row every Trillion account's AI can find with find_workflow, read with describe_workflow and run
+//   with start_workflow, or the reasons it stays home. Shared by the two places skills come from: folders on the
+//   publisher's computer (scripts/skills-to-workflows.mjs, rows shipped with the deploy) and public repositories read
+//   from their source (src/skill-sources.mjs, rows read by the shared pool and refreshed when the repository changes).
+//
+// Non-negotiable invariants
+//   1. A skill becomes a row only when its maker may share it: the publisher wrote it (`madeHere`), or its own folder,
+//      else its repository, declares an open licence (records/skill-import-rules.json open_licences). An unknown licence
+//      stays home; nothing is guessed. A known licence that does not allow sharing, on a skill read from its public
+//      home, is a reference row: its name, description, licence, author and a link, and a step that sends the AI to
+//      read it there (rules.reference_only); none of its instructions are copied.
+//   2. The text screened (never_share patterns, private words) is exactly the text that ships.
+//   3. Where the skill came from rides on the row (`source`: licence, author, the repository and commit it was read at,
+//      its page), so every place that shows a workflow can say whose it is and link to the original.
+//   4. Nothing here touches the file system, names a skill, an author or a host: it is pure and runs in the Worker and
+//      in node alike. Screens, budgets, file types and how an author is read from a licence are rows in
+//      records/skill-import-rules.json.
+//
+import { recipeProblems } from '../../../write-a-job-done-in-several-steps-have/from-old-trillion/src/workflows.mjs.held';
+
+/** The front matter of a SKILL.md as flat fields (name, description, license, ...), and the text after it. */
+export function frontMatterOf(text) {
+  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(text);
+  if (!match) return { fields: {}, body: text };
+  const fields = {};
+  const lines = match[1].split(/\r?\n/);
+  for (let at = 0; at < lines.length; at += 1) {
+    const line = /^([A-Za-z_][\w-]*):\s*(.*)$/.exec(lines[at]);
+    if (!line) continue;
+    let value = line[2].trim();
+    if (/^[>|][+-]?$/.test(value)) {
+      const folded = [];
+      while (at + 1 < lines.length && (/^\s+\S/.test(lines[at + 1]) || lines[at + 1].trim() === '')) folded.push(lines[(at += 1)].trim());
+      value = folded.join(value.startsWith('>') ? ' ' : '\n').trim();
+    } else if (/^["']/.test(value) && value.endsWith(value[0]) && value.length > 1) {
+      value = value.slice(1, -1).replace(/\\"/g, '"');
+    }
+    fields[line[1]] = value;
+  }
+  return { fields, body: text.slice(match[0].length) };
+}
+
+/** The licence a skill's own folder declares (front matter, then a LICENSE file), as an SPDX id, or null. */
+export function licenceOf(fields, licenceText, rules) {
+  const declared = String(fields.license ?? fields.licence ?? '').trim();
+  const spdx = declared.replace(/\s+license$/i, '').trim();
+  if (spdx && !/^see |terms in/i.test(spdx)) return spdx;
+  if (licenceText) for (const row of rules.licence_words) if (licenceText.includes(row.words)) return row.licence;
+  return declared || null;
+}
+
+
+/** Who a licence names as its holder (records/skill-import-rules.json author_words), or null. */
+export function authorOf(licenceText, rules) {
+  if (!licenceText) return null;
+  for (const row of rules.author_words ?? []) {
+    const match = new RegExp(row.pattern, 'm').exec(licenceText);
+    const name = match?.[row.group ?? 1]?.trim().replace(/[.,;]+$/, '');
+    if (name) return name;
+  }
+  return null;
+}
+
+const wordsOf = name => name.replace(/[-_]+/g, ' ').replace(/^\w/, letter => letter.toUpperCase());
+
+/** Every problem that keeps a skill's shipped text home: a never_share match or a private word, each named once. */
+export function screenProblems(texts, rules, privateWords) {
+  const patterns = [
+    ...rules.never_share.map(row => ({ says: row.says, test: new RegExp(row.pattern) })),
+    ...(privateWords.length ? [{ says: 'names one of the publisher\'s private people, businesses or systems', test: new RegExp(`(?<![\\w-])(?:${privateWords.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})(?![\\w-])`, 'i') }] : []),
+  ];
+  const problems = [];
+  for (const { says, test } of patterns) {
+    const hit = Object.entries(texts).find(([, text]) => test.test(text));
+    if (hit) problems.push(`${hit[0]} ${says}`);
+  }
+  return problems;
+}
+
+/** A skill whose licence does not let its text travel, as a row that names it, credits it and sends the AI to the original. */
+function referenceRow({ skill, folder, job, fields, licence, licenceText, origin, rules, privateWords, id }) {
+  const reasons = [];
+  if (!job) reasons.push('SKILL.md has no description to find it by');
+  reasons.push(...screenProblems({ 'SKILL.md': job }, rules, privateWords));
+  if (reasons.length) return { skill, folder, reasons };
+  const title = String(fields.title || wordsOf(skill));
+  const author = fields.author || authorOf(licenceText, rules) || origin.author;
+  const row = {
+    kind: 'workflow-recipe', id, label: title, job,
+    source: {
+      from: 'agent skill', name: skill, licence, use: rules.reference_only.says,
+      ...(author ? { author: String(author) } : {}),
+      ...Object.fromEntries(Object.entries(origin).filter(([key, value]) => key !== 'author' && value !== null && value !== undefined)),
+    },
+    input_schema: { type: 'object', properties: { request: { type: 'string', description: 'What you want done with this skill, in plain words.' } } },
+    steps: [{
+      id: 'read-the-original', title,
+      do: rules.reference_only.do.replaceAll('{skill}', skill).replaceAll('{licence}', licence).replaceAll('{url}', origin.url),
+      submit: { type: 'object', required: ['result'], properties: { result: { type: 'string', description: 'What was done, within the licence, in plain words.' } } },
+    }],
+  };
+  const problems = recipeProblems(row);
+  return problems.length ? { skill, folder, reasons: problems } : { skill, folder, row };
+}
+
+/** One skill folder as a workflow-recipe row and the files that did not fit, or the reasons it stays home. */
+export function skillRow({ folder, name, skillText, files, licenceText, madeHere, rules, openLicences, privateWords, origin = null }) {
+  const { fields, body } = frontMatterOf(skillText);
+  const skill = String(fields.name || name).trim();
+  const job = String(fields.description ?? '').trim();
+  const id = `${rules.id_prefix}${skill.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`;
+  const reasons = [];
+  if (!job) reasons.push('SKILL.md has no description to find it by');
+  if (!body.trim()) reasons.push('SKILL.md has no instructions');
+  const licence = licenceOf(fields, licenceText, rules);
+  const open = licence && openLicences.has(licence);
+  // A known licence that does not let its text be shared still lets Trillion point at it: read from its home, it is a
+  // reference row that links to the original and copies none of its instructions.
+  if (!madeHere && !open && licence && origin?.url) return referenceRow({ skill, folder, job, fields, licence, licenceText, origin, rules, privateWords, id });
+  if (!madeHere && !open) reasons.push(licence ? `its licence (${licence}) does not let others share it` : 'it names no licence and the publisher did not write it');
+  // The files that ride along: text only, smallest first, while the row stays inside its budget.
+  const kept = {};
+  const left_out = [];
+  let size = skillText.length + job.length + 2000;
+  for (const file of [...files].sort((a, b) => (a.text?.length ?? Infinity) - (b.text?.length ?? Infinity) || a.path.localeCompare(b.path))) {
+    if (file.text === null || file.text.length > rules.budget.max_file_characters || size + file.text.length > rules.budget.max_row_characters) { left_out.push(file.path); continue; }
+    kept[file.path] = file.text;
+    size += file.text.length;
+  }
+  if (skillText.length > rules.budget.max_row_characters) reasons.push(`SKILL.md is ${skillText.length} characters; a workflow holds at most ${rules.budget.max_row_characters}`);
+  reasons.push(...screenProblems({ 'SKILL.md': skillText, ...kept }, rules, privateWords));
+  if (reasons.length) return { skill, folder, reasons };
+  const listed = Object.keys(kept);
+  const title = String(fields.title || wordsOf(skill));
+  const row = {
+    kind: 'workflow-recipe',
+    id,
+    label: title,
+    job,
+    source: {
+      from: 'agent skill', name: skill, ...(open ? { licence } : {}),
+      ...((fields.author || authorOf(licenceText, rules) || origin?.author) ? { author: String(fields.author || authorOf(licenceText, rules) || origin.author) } : {}),
+      ...(origin ? Object.fromEntries(Object.entries(origin).filter(([key, value]) => key !== 'author' && value !== null && value !== undefined)) : {}),
+    },
+    input_schema: { type: 'object', properties: { request: { type: 'string', description: 'What you want done with this skill, in plain words.' } } },
+    steps: [{
+      id: 'follow-the-skill',
+      title,
+      do: [
+        `Do the request in this run's input by following the ${skill} skill below exactly.`,
+        listed.length ? `It comes with ${listed.length} file${listed.length === 1 ? '' : 's'} (${listed.join(', ')}); describe_workflow returns each under files.` : null,
+        left_out.length ? `Files it names that are not included here: ${left_out.join(', ')}.` : null,
+        left_out.length && origin?.url ? `Read any needed file not included here from the skill's original folder at ${origin.url}. Use that pinned revision so its instructions and support files agree.` : null,
+        '',
+        body.trim(),
+      ].filter(line => line !== null).join('\n'),
+      submit: { type: 'object', required: ['result'], properties: { result: { type: 'string', description: 'What was done or made, in plain words.' }, files: { type: 'array', items: { type: 'string' }, description: 'Files made, by name.' } } },
+    }],
+    ...(listed.length ? { files: kept } : {}),
+    ...(left_out.length ? { files_left_out: left_out } : {}),
+  };
+  const problems = recipeProblems(row);
+  return problems.length ? { skill, folder, reasons: problems } : { skill, folder, row };
+}

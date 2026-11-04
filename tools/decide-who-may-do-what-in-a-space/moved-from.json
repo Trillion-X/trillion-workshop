@@ -1,0 +1,47 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/space-member-types.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-who-may-do-what-in-a-space/from-old-trillion/src/space-member-types.mjs",
+      "source_identity": "1f:79eb72be769e2af98e130727cc2b37d607f942bf13f50b63421ef8d442d5a55c",
+      "identity": "1f:d1baba27ea223a8b6630d28ad23654fec670da38c12614ebadd7795e097550e1"
+    },
+    {
+      "from": "src/space-membership-kinds.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-who-may-do-what-in-a-space/from-old-trillion/src/space-membership-kinds.mjs.held",
+      "source_identity": "1f:7937451ee2bb17c64ff8144ea880cadc4e8e6a92442aca5920d455190791408a",
+      "identity": "1f:d73ebd467bfd86e2f472d77936a28bfb167add051f41fc38d7d6f3327edb2a49",
+      "held": true
+    },
+    {
+      "from": "src/space-permissions.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-who-may-do-what-in-a-space/from-old-trillion/src/space-permissions.mjs.held",
+      "source_identity": "1f:b717754ce7c245e8b806870f2d1b48a41d01e02b7cf5b440df8e77883011d865",
+      "identity": "1f:05299115a6dc85bb03b676a8ddf55534d4d157a0f483df4ec20bf831be79eab7",
+      "held": true
+    },
+    {
+      "from": "test/space-member-types-read-through.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-who-may-do-what-in-a-space/from-old-trillion/test/space-member-types-read-through.test.mjs.held",
+      "source_identity": "1f:49998479b88fe87f1d4724d0724d82f5e82b63bec7b17422c279166bb6040037",
+      "identity": "1f:5a2711994c91a204305a4618e6d9a1333936039ab7453652602291a320c34a82",
+      "held": true
+    },
+    {
+      "from": "test/space-member-types.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-who-may-do-what-in-a-space/from-old-trillion/test/space-member-types.test.mjs.held",
+      "source_identity": "1f:9f4af4dee43ff6871d1481a2fc21669b854d5f0c218df38b195fd1f35e52cc89",
+      "identity": "1f:4cd7417e6f0b0c4797eae6c143e591e7dcc2a7d052b41b9c0793712af653a415",
+      "held": true
+    }
+  ]
+}

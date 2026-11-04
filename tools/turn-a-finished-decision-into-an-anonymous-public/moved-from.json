@@ -1,0 +1,54 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt. A redaction replaces a name or address that could be a real person with a made-up one; each is listed on its file by the identity of the words replaced.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/stories.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/turn-a-finished-decision-into-an-anonymous-public/from-old-trillion/src/stories.mjs.held",
+      "source_identity": "1f:09b6a0d7af0f051e0c101823bb0bc72bb25e1a1a7be1921c7a4da656f340826e",
+      "identity": "1f:069b918285594e464944aadb78e6f548b6d09c91889c118d801ca8eac636707e",
+      "held": true
+    },
+    {
+      "from": "test/stories.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/turn-a-finished-decision-into-an-anonymous-public/from-old-trillion/test/stories.test.mjs.held",
+      "source_identity": "1f:a37471b758add98c6837e824139b59b31fcc4e7178ddc5355c0c1c3fbf200672",
+      "identity": "1f:757f78801655b10388b6ec49c804168fdd70688fcc130e5fe985ab1c33936a36",
+      "held": true,
+      "redactions": [
+        {
+          "replaced": "1f:3a5540531b00ff163db7d9e9486bd7b066f80c77eedc18dd0f4535b1da3e8616",
+          "with": "robin@quillfield-coaching.example"
+        },
+        {
+          "replaced": "1f:e6703dddf3f5c0d83f8487c543830bdfb68c62c3a7f45f508cad813b342a47d0",
+          "with": "Robin"
+        },
+        {
+          "replaced": "1f:8901e3fb006b2c82c5ab0c18a073113eeab73bcc3dd0a1252786303e45ac0a33",
+          "with": "robin"
+        },
+        {
+          "replaced": "1f:d1756dd8c2f77036c623a41de5b92518682efe877665ed6cf1c2f7858616ebc4",
+          "with": "QUILLFIELD"
+        },
+        {
+          "replaced": "1f:9d6181cb2c67ee9199c79a11ae1d35e58b264afb9d1929be33d8e77b0a709d01",
+          "with": "Quillfield"
+        },
+        {
+          "replaced": "1f:44baf414538f75acb23289da4b4f27cd6ef3cbafa0f3e7ca819a5b8d68405362",
+          "with": "quillfield"
+        },
+        {
+          "replaced": "a made-up Stripe live key the test plants (2 places)",
+          "with": "the same text split as 'sk_' + 'live_...' so push protection does not take it for a key; the string the test builds is unchanged"
+        }
+      ]
+    }
+  ]
+}
