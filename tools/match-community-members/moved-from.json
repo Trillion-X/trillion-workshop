@@ -26,11 +26,27 @@
       "identity": "1f:6142c2b1e7c57cf07575ffc7aa6139a7c710fd796cb6b180dd3cc19ee2fee38a"
     },
     {
+      "from": "src/community-logic/match/match-intake-contract.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/match-community-members/src/community-logic/match/match-intake-contract.json",
+      "source_identity": "1f:6142c2b1e7c57cf07575ffc7aa6139a7c710fd796cb6b180dd3cc19ee2fee38a",
+      "identity": "1f:6142c2b1e7c57cf07575ffc7aa6139a7c710fd796cb6b180dd3cc19ee2fee38a",
+      "reused": true
+    },
+    {
       "from": "src/community-logic/match/match-intake-evidence.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/match-community-members/src/community-logic/match/match-intake-evidence.mjs",
       "source_identity": "1f:8a3d06d57fbba500bbdb56de4a8cab1e73b52ebb2a7dbab90df9f2c6ba839c3c",
       "identity": "1f:8a3d06d57fbba500bbdb56de4a8cab1e73b52ebb2a7dbab90df9f2c6ba839c3c"
+    },
+    {
+      "from": "src/community-logic/match/match-intake-evidence.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/match-community-members/src/community-logic/match/match-intake-evidence.mjs",
+      "source_identity": "1f:8a3d06d57fbba500bbdb56de4a8cab1e73b52ebb2a7dbab90df9f2c6ba839c3c",
+      "identity": "1f:8a3d06d57fbba500bbdb56de4a8cab1e73b52ebb2a7dbab90df9f2c6ba839c3c",
+      "reused": true
     },
     {
       "from": "test/community-logic/get-path.test.ts",
@@ -40,11 +56,26 @@
       "identity": "1f:e4765dca653130af2174404b9defc484c6746ffb396070ddad5c7e3a2e59f4cb"
     },
     {
+      "from": "test/community-logic/match/match-intake-evidence.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/match-community-members/test/community-logic/match/match-intake-evidence.test.mjs",
+      "source_identity": "1f:b8c8b1fda06890d96a4ba39c982349eee96ea37dbee3bbdabad7c27fcc86d74b",
+      "identity": "1f:b8c8b1fda06890d96a4ba39c982349eee96ea37dbee3bbdabad7c27fcc86d74b"
+    },
+    {
       "from": "test/vitest-shim.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/match-community-members/test/vitest-shim.mjs",
       "source_identity": "1f:e933ecab66b125e347584f7c5c6a35c0cb3a892337e393ecac26b41ff842b7a1",
       "identity": "1f:e933ecab66b125e347584f7c5c6a35c0cb3a892337e393ecac26b41ff842b7a1"
+    },
+    {
+      "from": "test/vitest-shim.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/match-community-members/test/vitest-shim.mjs",
+      "source_identity": "1f:e933ecab66b125e347584f7c5c6a35c0cb3a892337e393ecac26b41ff842b7a1",
+      "identity": "1f:e933ecab66b125e347584f7c5c6a35c0cb3a892337e393ecac26b41ff842b7a1",
+      "reused": true
     }
   ]
 }

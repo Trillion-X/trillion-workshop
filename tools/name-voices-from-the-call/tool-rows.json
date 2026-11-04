@@ -127,7 +127,45 @@
           }
         },
         "result_selector": "$.result",
-        "verify": [{"kind": "sample-run", "input": {"turns": [{"start": 0, "end": 10, "who": "Someone (voice-1)"}], "samples": [{"at": 600, "names": ["Ada Example"]}, {"at": 1600, "names": ["Ada Example"]}, {"at": 2600, "names": ["Ada Example"]}, {"at": 3600, "names": ["Ada Example"]}, {"at": 4600, "names": ["Ada Example"]}, {"at": 5600, "names": ["Ada Example"]}, {"at": 6600, "names": ["Ada Example"]}, {"at": 7600, "names": ["Ada Example"]}, {"at": 8600, "names": ["Ada Example"]}, {"at": 9600, "names": ["Ada Example"]}]}}]
+        "verify": [{"kind": "sample-run", "input": {"turns": [{"start": 0, "end": 10, "who": "Someone (voice-1)"}], "samples": [{"at": 600, "names": ["Ada Example"]}, {"at": 1600, "names": ["Ada Example"]}, {"at": 2600, "names": ["Ada Example"]}, {"at": 3600, "names": ["Ada Example"]}, {"at": 4600, "names": ["Ada Example"]}, {"at": 5600, "names": ["Ada Example"]}, {"at": 6600, "names": ["Ada Example"]}, {"at": 7600, "names": ["Ada Example"]}, {"at": 8600, "names": ["Ada Example"]}, {"at": 9600, "names": ["Ada Example"]}]}}],
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "message-speaker-naming",
+              "guard_properties": {
+                "app": "text",
+                "evidence": "text",
+                "message_ids": "texts",
+                "name": "text",
+                "named_at": "text",
+                "since": "text",
+                "speaker": "text",
+                "until": "text",
+                "active": "boolean",
+                "previous_name": "text",
+                "correction_evidence": "text",
+                "corrected_at": "text",
+                "correction_history": "objects",
+                "removed_name": "text",
+                "removal_evidence": "text",
+                "removed_at": "text"
+              }
+            },
+            {
+              "type": "message-speaker-unconfirmed",
+              "guard_properties": {
+                "app": "text",
+                "as": "text",
+                "evidence": "text",
+                "message_ids": "texts",
+                "since": "text",
+                "unconfirmed_at": "text",
+                "until": "text"
+              }
+            }
+          ]
+        }
       }
     }
   ]

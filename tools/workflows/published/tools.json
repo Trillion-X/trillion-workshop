@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:9a5866e91c09399499fe77f8c76a289522250a80b65c91c5ba060b10a975babd"
+  "blake3": "1f:31e858661300237124e191a769930d25f63272ba3767c98e52bc582ae61f6eaf"
  },
  "fields": [
   {
@@ -585,6 +585,23 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:attach_domain",
+   "values": {
+    "title": "Put my own domain on a site",
+    "job": "Put a domain name I own in front of my published website",
+    "description": "Makes your own domain (domain, like shop.example.com) show the site (installation). Give your account's address (account, the 64 characters after /a/ in your Trillion address): the TXT record names it, so only you can attach your domain. Returns the two DNS records to add at your domain's DNS host; the address answers once the TXT record is visible.",
+    "status": "active",
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-04T12:00:00Z",
+    "folder": "publish-a-site-at-its-own-address"
    }
   },
   {
@@ -2086,6 +2103,21 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:count-my-ai-conversations-per-app",
+   "values": {
+    "title": "Count my AI conversations per app",
+    "job": "Count the AI conversations in my records per app, and how many messages each app's conversations hold",
+    "description": "Reads the rows of the person's AI conversations list (record:ai-conversation) through the records door, only their app and messages fields, and answers the number of conversations and messages per app, most first. Reads nothing else.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
    }
   },
   {
@@ -4189,6 +4221,21 @@
    }
   },
   {
+   "id": "tool:import-my-conversations-from-a-source",
+   "values": {
+    "title": "Import my conversations from one source",
+    "job": "Bring every conversation of one app (an AI chat export, Google Takeout activity, or a local AI app's sessions) from this computer into my records completely, one row per conversation and every message, continuing where an earlier run stopped",
+    "description": "Runs on the person's computer over the folder they granted (their home folder). source is one id tool:list-the-conversation-sources-on-this-computer gives; files, when given, names the files (paths in the folder) instead of looking for them. Each conversation is kept as the person's messages (record message, with its source key, so bringing it in again adds nothing twice) and one row of their AI conversations list (record:ai-conversation: title, app, conversation, started, last, messages, models, original_file; labels, people, pursuits and follow-ups they set are never touched). Writes go through the records door in batches; a busy (503) or slow door is asked again after a growing wait with the same request key. Each file has a cursor row (conversation-import-cursor) that moves only past what was kept, so a run that stops, or reaches time_box_seconds, answers more: true and the next run goes on from there; a file already done and unchanged is skipped. Files the messages carried are copied into the person's files through the files door under /messages: an export's file (ChatGPT's file-XXXX, Grok's asset) found beside the export as /messages/<app>/<name>, an image pasted into a session as /messages/<conversation>/<message>-<n>; a file already there with the same bytes is not written again, and a file not found beside the export is counted (attachments_not_kept), never an error.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
+   }
+  },
+  {
    "id": "tool:install-an-engine-builder",
    "values": {
     "title": "Install an engine builder",
@@ -4605,6 +4652,23 @@
    }
   },
   {
+   "id": "tool:let_go_of_site_address",
+   "values": {
+    "title": "Let go of a site address",
+    "job": "Stop a website answering at one of its addresses",
+    "description": "The site stops answering at host (a name or your own domain), and every earlier name that sent visitors to it goes too. Another account may take a name once it has been let go.",
+    "status": "active",
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-04T12:00:00Z",
+    "folder": "publish-a-site-at-its-own-address"
+   }
+  },
+  {
    "id": "tool:line-up-two-movements",
    "values": {
     "title": "Line up two movements by their phase, whatever their speed (runs on your computer)",
@@ -4922,6 +4986,21 @@
      "placement:deployed-container"
     ],
     "folder": "work-breakdown"
+   }
+  },
+  {
+   "id": "tool:list-the-conversation-sources-on-this-computer",
+   "values": {
+    "title": "List the conversation sources on this computer",
+    "job": "Find every app's conversations on this computer (AI chat exports, Google Takeout activity, and the sessions local AI apps keep) and say how many files of each there are",
+    "description": "Runs on the person's computer over the folder they granted it to read (their home folder), and reads only inside it. For each kind of source (read-data/conversation-sources-on-this-computer.json: ChatGPT, Claude.ai and Grok account exports, Google Takeout activity for Gemini Apps, Assistant and AI Mode, and the sessions of Claude Code, Codex, Gemini CLI and Hermes) it answers how many files are here, their bytes and the first of them. more_places adds folders to look for exports in. Keeps nothing and reaches no records.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
    }
   },
   {
@@ -5821,6 +5900,23 @@
      "placement:your-computer"
     ],
     "folder": "connected-drives"
+   }
+  },
+  {
+   "id": "tool:name_site",
+   "values": {
+    "title": "Name a site",
+    "job": "Give a published website its own readable address, or rename it so old links still work",
+    "description": "Gives the site (installation) the address https://<name>.trillion.run/: name, or one made from title. A site renamed keeps its earlier names, which send visitors on to the new one. A name is 3 to 40 lowercase letters, numbers and hyphens; reserved words and code-like names are refused. Your computer hands the address to the forwarder and the site answers there while your computer is on.",
+    "status": "active",
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-04T12:00:00Z",
+    "folder": "publish-a-site-at-its-own-address"
    }
   },
   {
@@ -6752,6 +6848,23 @@
      "placement:your-computer"
     ],
     "folder": "publish-an-engine-release"
+   }
+  },
+  {
+   "id": "tool:publish_site",
+   "values": {
+    "title": "Publish a site",
+    "job": "Publish a website's pages and files so it can be given its own address",
+    "description": "Keeps a site's files (files by path, index.html first, text or data: URLs; or site, the name of a site.json in your files such as copy_a_site leaves) under a new installation in your files, or a new version of one already published (installation). Returns the installation id, how many files and bytes, and a name its page title suggests. Give it an address with name_site or attach_domain. A site that already has an address also gets llms.txt, the list of its pages AI apps read, unless it ships its own.",
+    "status": "active",
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-04T12:00:00Z",
+    "folder": "publish-a-site-at-its-own-address"
    }
   },
   {
@@ -8791,6 +8904,21 @@
    }
   },
   {
+   "id": "tool:resume-importing-my-conversations",
+   "values": {
+    "title": "Resume importing all my conversations",
+    "job": "Bring in every conversation from every app found on this computer, continuing each source from where its last run stopped, until all of them are in my records",
+    "description": "Runs on the person's computer over the folder they granted (their home folder). Every source tool:list-the-conversation-sources-on-this-computer finds here (or the ones sources names) is imported in turn the way tool:import-my-conversations-from-a-source imports one, each file from its cursor row. A run stops at time_box_seconds, or when the records door stays busy past its retries, and answers more: true; run it again until more is false.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
+   }
+  },
+  {
    "id": "tool:review-rows-of-a-list",
    "values": {
     "title": "Review the rows of a list",
@@ -10190,6 +10318,21 @@
    }
   },
   {
+   "id": "tool:show-how-far-my-conversation-import-is",
+   "values": {
+    "title": "Show how far my conversation import is",
+    "job": "Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped",
+    "description": "Reads the import's cursor rows (conversation-import-cursor) through the records door and answers, per source, the files seen and done, conversations kept, messages added and already kept, files the messages carried that were not copied, its state (done, more, stopped) and when it last moved. Reads nothing else.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
+   }
+  },
+  {
    "id": "tool:show-what-a-tool-would-give-members",
    "values": {
     "title": "Show what a tool would give members",
@@ -10247,6 +10390,23 @@
      "placement:your-computer"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:site_addresses",
+   "values": {
+    "title": "My site addresses",
+    "job": "List the addresses my published websites answer at",
+    "description": "Every address your sites answer at: each host, its https address, the installation it shows, and for an earlier name the address it sends visitors on to. told says what the forwarder last answered: answering, or refused and why.",
+    "status": "active",
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-04T12:00:00Z",
+    "folder": "publish-a-site-at-its-own-address"
    }
   },
   {

@@ -118,8 +118,18 @@
                 "unsure": "texts"
               },
               "_read_by": "tools/listen-for-a-while writes a heard row for each turn of a listening; the hold-to-it presence check reads them"
+            },
+            {
+              "type": "voice-session",
+              "guard_properties": {
+                "app": "text",
+                "first_at": "text",
+                "labels": "texts",
+                "labels_over": "boolean"
+              }
             }
-          ]
+          ],
+          "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
         },
         "verify": [{"kind": "sample-run", "input": {"until": "2026-11-03T15:30:00-07:00", "model_path": "/models/sample-whisper.bin", "listening": "sample-meeting", "finish_seconds": 0}, "stand_in_programs": {"ffmpeg": "exit 0"}}]
       }

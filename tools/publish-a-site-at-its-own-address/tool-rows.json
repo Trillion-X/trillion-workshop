@@ -1,0 +1,959 @@
+{
+ "kind": "tool-rows",
+ "record_set": "publish-a-site-at-its-own-address-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/publish-a-site-at-its-own-address: publish a site's files, name it, attach a domain, let an address go, list the addresses.",
+ "records": [
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:publish_site",
+    "listed_on": "2026-11-04T12:00:00Z",
+    "label": "Publish a site",
+    "status": "active",
+    "job": "Publish a website's pages and files so it can be given its own address",
+    "description": "Keeps a site's files (files by path, index.html first, text or data: URLs; or site, the name of a site.json in your files such as copy_a_site leaves) under a new installation in your files, or a new version of one already published (installation). Returns the installation id, how many files and bytes, and a name its page title suggests. Give it an address with name_site or attach_domain. A site that already has an address also gets llms.txt, the list of its pages AI apps read, unless it ships its own.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "files": {
+       "type": "object",
+       "description": "The site's files by path, like {\"index.html\": \"<h1>Hi</h1>\"}"
+      },
+      "site": {
+       "type": "string",
+       "description": "The name of a site.json in your files"
+      },
+      "installation": {
+       "type": "string",
+       "pattern": "^[0-9a-f]{32}$",
+       "description": "The site's installation id, as publish_site answered it"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "installation",
+      "files",
+      "bytes"
+     ],
+     "properties": {
+      "installation": {
+       "type": "string"
+      },
+      "files": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "bytes": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "suggested_name": {
+       "type": "string"
+      },
+      "llms": {
+       "type": "boolean"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "workdir": "/opt/publish-a-site-at-its-own-address",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
+      "publishSite"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "publish-a-site-at-its-own-address",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/publish-a-site-at-its-own-address"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/public-app-files.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "choose-which-site-pages-ai-may-show",
+        "paths": [
+         "src/public-app-ai-pages.mjs",
+         "src/public-app-ai-app.json"
+        ],
+        "at": "/opt/choose-which-site-pages-ai-may-show"
+       },
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/page-facts.mjs",
+         "do-work/page-conventions.json"
+        ],
+        "at": "/opt/browse-public-page"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "files": "/",
+        "operations": [
+         "find_file",
+         "read_file"
+        ]
+       },
+       {
+        "files": "/installations/",
+        "operations": [
+         "list_files",
+         "find_file",
+         "read_file",
+         "write_file_start",
+         "write_file_piece",
+         "write_file_finish"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "files": {
+        "index.html": "<title>Field Notes</title><h1>made up</h1>",
+        "style.css": "h1{color:teal}"
+       },
+       "installation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "door_files": {
+       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.trillion.run\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:name_site",
+    "listed_on": "2026-11-04T12:00:00Z",
+    "label": "Name a site",
+    "status": "active",
+    "job": "Give a published website its own readable address, or rename it so old links still work",
+    "description": "Gives the site (installation) the address https://<name>.trillion.run/: name, or one made from title. A site renamed keeps its earlier names, which send visitors on to the new one. A name is 3 to 40 lowercase letters, numbers and hyphens; reserved words and code-like names are refused. Your computer hands the address to the forwarder and the site answers there while your computer is on.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "installation"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "installation": {
+       "type": "string",
+       "pattern": "^[0-9a-f]{32}$",
+       "description": "The site's installation id, as publish_site answered it"
+      },
+      "name": {
+       "type": "string"
+      },
+      "title": {
+       "type": "string",
+       "description": "Words to make a name from, like the site's title"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "address",
+      "name",
+      "installation",
+      "origins",
+      "said"
+     ],
+     "properties": {
+      "address": {
+       "type": "string"
+      },
+      "name": {
+       "type": "string"
+      },
+      "installation": {
+       "type": "string"
+      },
+      "renamed_from": {
+       "type": "array"
+      },
+      "origins": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "host",
+         "address",
+         "installation"
+        ],
+        "properties": {
+         "host": {
+          "type": "string"
+         },
+         "address": {
+          "type": "string"
+         },
+         "installation": {
+          "type": "string"
+         },
+         "moved_to": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "workdir": "/opt/publish-a-site-at-its-own-address",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
+      "nameSite"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "publish-a-site-at-its-own-address",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/publish-a-site-at-its-own-address"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/public-app-files.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "choose-which-site-pages-ai-may-show",
+        "paths": [
+         "src/public-app-ai-pages.mjs",
+         "src/public-app-ai-app.json"
+        ],
+        "at": "/opt/choose-which-site-pages-ai-may-show"
+       },
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/page-facts.mjs",
+         "do-work/page-conventions.json"
+        ],
+        "at": "/opt/browse-public-page"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "files": "/installations/",
+        "operations": [
+         "list_files",
+         "find_file",
+         "read_file",
+         "write_file_start",
+         "write_file_piece",
+         "write_file_finish"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "installation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "name": "field-notes"
+      },
+      "door_files": {
+       "/installations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/index.html": "<title>Field Notes</title><h1>made up</h1>"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:attach_domain",
+    "listed_on": "2026-11-04T12:00:00Z",
+    "label": "Put my own domain on a site",
+    "status": "active",
+    "job": "Put a domain name I own in front of my published website",
+    "description": "Makes your own domain (domain, like shop.example.com) show the site (installation). Give your account's address (account, the 64 characters after /a/ in your Trillion address): the TXT record names it, so only you can attach your domain. Returns the two DNS records to add at your domain's DNS host; the address answers once the TXT record is visible.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "installation",
+      "domain",
+      "account"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "installation": {
+       "type": "string",
+       "pattern": "^[0-9a-f]{32}$",
+       "description": "The site's installation id, as publish_site answered it"
+      },
+      "domain": {
+       "type": "string"
+      },
+      "account": {
+       "type": "string",
+       "pattern": "^[0-9a-f]{64}$"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "address",
+      "installation",
+      "records",
+      "origins",
+      "said"
+     ],
+     "properties": {
+      "address": {
+       "type": "string"
+      },
+      "installation": {
+       "type": "string"
+      },
+      "records": {
+       "type": "array",
+       "minItems": 2
+      },
+      "origins": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "host",
+         "address",
+         "installation"
+        ],
+        "properties": {
+         "host": {
+          "type": "string"
+         },
+         "address": {
+          "type": "string"
+         },
+         "installation": {
+          "type": "string"
+         },
+         "moved_to": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "workdir": "/opt/publish-a-site-at-its-own-address",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
+      "attachDomain"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "publish-a-site-at-its-own-address",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/publish-a-site-at-its-own-address"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/public-app-files.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "choose-which-site-pages-ai-may-show",
+        "paths": [
+         "src/public-app-ai-pages.mjs",
+         "src/public-app-ai-app.json"
+        ],
+        "at": "/opt/choose-which-site-pages-ai-may-show"
+       },
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/page-facts.mjs",
+         "do-work/page-conventions.json"
+        ],
+        "at": "/opt/browse-public-page"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "files": "/installations/",
+        "operations": [
+         "list_files",
+         "find_file",
+         "read_file",
+         "write_file_start",
+         "write_file_piece",
+         "write_file_finish"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "installation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "domain": "shop.example.com",
+       "account": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "door_files": {
+       "/installations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/index.html": "<title>Field Notes</title><h1>made up</h1>"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:let_go_of_site_address",
+    "listed_on": "2026-11-04T12:00:00Z",
+    "label": "Let go of a site address",
+    "status": "active",
+    "job": "Stop a website answering at one of its addresses",
+    "description": "The site stops answering at host (a name or your own domain), and every earlier name that sent visitors to it goes too. Another account may take a name once it has been let go.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "host"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "host": {
+       "type": "string"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "let_go",
+      "origins"
+     ],
+     "properties": {
+      "let_go": {
+       "type": "string"
+      },
+      "origins": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "host",
+         "address",
+         "installation"
+        ],
+        "properties": {
+         "host": {
+          "type": "string"
+         },
+         "address": {
+          "type": "string"
+         },
+         "installation": {
+          "type": "string"
+         },
+         "moved_to": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "workdir": "/opt/publish-a-site-at-its-own-address",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
+      "letGo"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "publish-a-site-at-its-own-address",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/publish-a-site-at-its-own-address"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/public-app-files.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "choose-which-site-pages-ai-may-show",
+        "paths": [
+         "src/public-app-ai-pages.mjs",
+         "src/public-app-ai-app.json"
+        ],
+        "at": "/opt/choose-which-site-pages-ai-may-show"
+       },
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/page-facts.mjs",
+         "do-work/page-conventions.json"
+        ],
+        "at": "/opt/browse-public-page"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "files": "/installations/",
+        "operations": [
+         "list_files",
+         "find_file",
+         "read_file",
+         "write_file_start",
+         "write_file_piece",
+         "write_file_finish"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "host": "field-notes.trillion.run"
+      },
+      "door_files": {
+       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.trillion.run\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:site_addresses",
+    "listed_on": "2026-11-04T12:00:00Z",
+    "label": "My site addresses",
+    "status": "active",
+    "job": "List the addresses my published websites answer at",
+    "description": "Every address your sites answer at: each host, its https address, the installation it shows, and for an earlier name the address it sends visitors on to. told says what the forwarder last answered: answering, or refused and why.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "origins"
+     ],
+     "properties": {
+      "origins": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "host",
+         "address",
+         "installation"
+        ],
+        "properties": {
+         "host": {
+          "type": "string"
+         },
+         "address": {
+          "type": "string"
+         },
+         "installation": {
+          "type": "string"
+         },
+         "moved_to": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "told": {
+       "type": [
+        "object",
+        "null"
+       ],
+       "properties": {
+        "state": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "told_at": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "why": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "workdir": "/opt/publish-a-site-at-its-own-address",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
+      "siteAddresses"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "publish-a-site-at-its-own-address",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/publish-a-site-at-its-own-address"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/public-app-files.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "choose-which-site-pages-ai-may-show",
+        "paths": [
+         "src/public-app-ai-pages.mjs",
+         "src/public-app-ai-app.json"
+        ],
+        "at": "/opt/choose-which-site-pages-ai-may-show"
+       },
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/page-facts.mjs",
+         "do-work/page-conventions.json"
+        ],
+        "at": "/opt/browse-public-page"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "files": "/installations/",
+        "operations": [
+         "list_files",
+         "find_file",
+         "read_file"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "door_files": {
+       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.trillion.run\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+       "/installations/origins-told.json": "{\"state\": \"refused\", \"why\": \"host_taken\", \"told_at_ms\": 1762257600000}"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}
