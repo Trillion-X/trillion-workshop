@@ -1,0 +1,76 @@
+{
+  "comment": "The ways an account signs in besides its passkeys (src/sign-in-methods.mjs). fresh_minutes is how recently a browser must have signed in before it may add or change a way in. backup_codes shapes the one-time codes a person keeps for when every device is lost: how many, their groups of characters from alphabet, and how many tries one network address gets within window_minutes. return_paths are the pages a person comes back to after signing in again to add a way in. words are everything a person reads. authenticator shapes the authenticator app: the name apps show (issuer), how long a setup waits for its first code, and how many tries a network address, an email and one setup get within window_minutes.",
+  "fresh_minutes": 10,
+  "backup_codes": {
+    "count": 10,
+    "groups": 3,
+    "group_length": 4,
+    "alphabet": "abcdefghjkmnpqrstuvwxyz23456789",
+    "tries_per_address": 10,
+    "window_minutes": 15
+  },
+  "words": {
+    "sign_in_again": "For your safety, sign in again first. Opening sign-in…",
+    "backup_made": "Keep these somewhere safe, away from this device. Each works once.",
+    "backup_reveal": "Your {count} backup codes. Copy them now: they are shown only this once.",
+    "backup_removed": "Your backup codes are removed.",
+    "backup_wrong": "That backup code is not right, or it was already used. Check it, or try another way to sign in.",
+    "backup_too_many": "Too many tries. Wait {minutes} minutes, then try again.",
+    "backup_signed_in": "Signed in. You have {left} backup codes left.",
+    "backup_signed_in_last": "Signed in. That was your last backup code: make new ones on Account & security.",
+    "authenticator_on": "Your authenticator app is on. It shows a new Trillion code every 30 seconds.",
+    "authenticator_wrong": "That code is not right. Type the newest code your authenticator app shows for Trillion.",
+    "authenticator_setup_ended": "This setup ended. Open it again from Account & security.",
+    "authenticator_removed": "Your authenticator app is removed. Its codes no longer sign in.",
+    "authenticator_too_many": "Too many tries. Wait {minutes} minutes, then try again.",
+    "email_removed": "Your sign-in email is removed. Codes are no longer sent to it.",
+    "passkey_link_reveal": "Open this link on the other device within a day. It adds one passkey there, then stops working.",
+    "passkey_link_made": "Send it to yourself, or scan it from the other device's camera app."
+  },
+  "authenticator": {
+    "issuer": "Trillion",
+    "digits": 6,
+    "seconds": 30,
+    "setup_minutes": 15,
+    "tries_per_address": 10,
+    "tries_per_email": 5,
+    "tries_per_setup": 5,
+    "window_minutes": 15
+  },
+  "after_sign_in": {
+    "_what": "After signing in, the account is offered the first way in on this list it does not have yet (WAYS_IN_HELD in src/worker.mjs says which it has), other than the one it just signed in with, unless this device chose Skip for it. method names the way in, path the page that offers it (it is given ?next= for where the person was going), skip_cookie what Skip leaves on this device for skip_days.",
+    "offers": [
+      { "method": "passkey", "path": "/sign-in/new-device", "skip_cookie": "trillion_passkey_skipped" },
+      { "method": "password", "path": "/sign-in/set-password", "skip_cookie": "trillion_password_skipped" }
+    ],
+    "skip_days": 400,
+    "contact_step": { "_what": "An account that must add a recovery email before going on is sent here first (with ?next= and, for an app sign-in, &request=), before any offer.", "path": "/sign-in/add-email" }
+  },
+  "return_paths": [
+    "/sign-in/add-email",
+    "/sign-in/authenticator/setup",
+    "/sign-in/set-password"
+  ],
+  "work": {
+    "_what": "What a pressed sign-in button says in itself while its work runs (pending, with a spinner) and once it is done (with a check), by the work it starts (src/client/passkey.mjs, parts/ui/show/server-rendered-page/page-work.mjs). A page action's own pending and done words come first.",
+    "passkey_sign_in": { "pending": "Waiting for your passkey…", "done": "Signed in" },
+    "passkey_create": { "pending": "Creating your passkey…", "done": "Passkey added" },
+    "password_sign_in": { "pending": "Signing in…", "done": "Signed in" },
+    "password_set": { "pending": "Saving…", "done": "Saved" },
+    "sign_up_send": { "pending": "Sending your code…", "done": "Code sent" },
+    "sign_up_finish": { "pending": "Creating your account…", "done": "Account ready" },
+    "code_send": { "pending": "Sending…", "done": "Sent" },
+    "code_finish": { "pending": "Checking your code…", "done": "Done" },
+    "connect": { "pending": "Connecting…", "done": "Connected" },
+    "key": { "pending": "Checking your key…", "done": "Connected" }
+  },
+  "still_working": {
+    "_what": "What a pressed sign-in button says as its work runs long (parts/ui/show/still-working, chosen in src/client/passkey.mjs): the last step whose after_seconds has passed, with {label} the pending words and {seconds} how long it has run.",
+    "steps": [
+      { "after_seconds": 4, "words": "{label}" },
+      { "after_seconds": 12, "words": "Still working…" },
+      { "after_seconds": 30, "words": "Taking longer than usual…" }
+    ],
+    "again": "Trying again…"
+  }
+}
