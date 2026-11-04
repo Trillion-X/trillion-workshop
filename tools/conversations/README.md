@@ -62,8 +62,18 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
   - a file already there with the same identity is not written again, and a write sent again resumes under the same
     upload id, so a rerun copies nothing twice; a message of only files is kept once its file is;
   - a file not found, refused or over `most_attachment_bytes` is counted (`attachments_not_kept`,
-    `attachments_refused`, `attachments_too_large`), never an error. A zipped export's files are not read inside the
-    zip: unzip it first.
+    `attachments_refused`, `attachments_too_large`), never an error;
+  - a zipped ChatGPT export (named in the run's `files`) has its files found inside the zip the same way
+    (`exportFilesInZip`: by the id an entry's last name starts with, or the folder it sits in; an entry's name is never
+    read as a path, and archive litter and entries that expand too far are left out), each inflated only when a message
+    names it. A zip is read whole into memory and its conversations*.json are bounded by the archive reader's
+    `chat_export` profile (80 MB each): a larger export is unzipped first, and its conversations.json is then streamed;
+  - a message of only files (Grok's image sent without words) is kept with empty text: the canonical mapper keeps a
+    no-text utterance that names its `attachments`, and such an utterance never converges with another.
+- **A ChatGPT conversations.json of any size** is read one conversation at a time (`read-data/json-array-stream.mjs`),
+  never parsed whole (a JavaScript string stops at about 500 MB; a 700 MB made-up export streams in about 7 s in 60 MB).
+  Its cursor's `next` is `{ at, byte, bytes, changed_ms }`: a stopped run starts again at that byte when the file is
+  unchanged, and otherwise passes `at` conversations without parsing them.
 
 ## Files
 
@@ -81,6 +91,7 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
 | `read-data/snapshot_fold.py` | For connectors: folds a new snapshot into a thread and merges edited messages, keeping the newer by edit time. |
 | `read-data/sources.json` | One row for each kind of export: Discord, Slack, Telegram, Signal, Instagram, WhatsApp, the Messages database, mail, Gmail pages, assistant logs, captured web chats, Claude.ai and Grok account exports, Google Takeout activity. |
 | `read-data/chat-archives.mjs` | Moved from trillion `src/chat-archives.mjs`: a ChatGPT export's conversation tree, or a conversation read off its page, as messages; a long message in ordered parts (`most_text`). |
+| `read-data/json-array-stream.mjs` | The elements of a file's top-level JSON array, read a piece at a time, each with the byte offset just past it (`jsonArrayElements`, `firstByteOf`). No prior owner (`ports/json-array-stream.json`). |
 | `read-data/chat-import.mjs` | Moved from trillion `src/chat-import.mjs`: `importConversation` and `keepConversationRow` over the records door; `stagedRecords`, `patientDoor`; the five import tools' functions. |
 | `read-data/ai-conversations-list.json` | Moved from trillion `src/ai-conversations-list.json`: the list every imported AI conversation gets one row in. |
 | `read-data/conversation-sources-on-this-computer.json` | Where each app's conversations are, and the import's pacing. |
@@ -92,6 +103,7 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
 | `test/import-conversations.test.mjs` | The import over the fake records door, with a synthetic export or session folder for each source: what each keeps, a second run adding nothing, a grown session read on, a 503 spell midway then a resume with nothing kept twice, a short spell waited out, a write that timed out sent again with its key. |
 | `test/import-rows.test.mjs` | The import rows run the way the engine runs them (argv, `{ input, folder }`, the door with exactly their rights). |
 | `test/import-attachments.test.mjs` | The files messages carried, copied through the files door: where each source's file is found and kept, a rerun writing no file again, a 503 in the middle of a file's pieces then a resume keeping each file once and whole. |
+| `test/large-and-zipped-exports.test.mjs` | The JSON array reader at every piece size and resumed at an end; a ChatGPT export kept a conversation at a time, a 503 spell midway then a resume from the cursor's byte with nothing kept twice; a zipped export's files copied from inside it; a Grok image sent without words kept with its file. |
 | `test/chat-archive-parts.test.mjs`, `chat-export-zip.test.mjs`, `chat-history-identity.test.mjs`, `chat-source-time.test.mjs` | Moved from trillion `test/`, over the fake door where they used the Worker's store. |
 | `test/chat-attachments.test.mjs`, `native-chat-import.test.mjs` | Moved from trillion `test/`: the same made-up chat and assertions, over the namespace finder and the on-computer import instead of the Worker's PersonStore and Namespace routes. The two space tests of `chat-attachments` (a file item members of a space read from the importer's store) stay behind with the Worker's space owner. |
 

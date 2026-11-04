@@ -93,6 +93,71 @@
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "id": "tool:rent-a-machine",
+        "label": "Rent a machine",
+        "job": "Rent a machine (or take one I already run) with a public name pointed at it, for another tool to set up",
+        "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, waits until it answers SSH, and answers the lease, the public name, the machine's architecture and the monthly price. It sets nothing up on the machine: another tool (an engine builder, a place) does that. tool:give-back-a-place gives it back from the same lease file. Running it again resumes from the saved lease.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "request_file"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "request_file": {
+              "type": "string",
+              "description": "A request JSON (lease_file, machine, name, ssh); its paths are read relative to it."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "lease",
+            "arch",
+            "price"
+          ],
+          "properties": {
+            "lease": {
+              "type": "object"
+            },
+            "host_name": {
+              "type": "string"
+            },
+            "arch": {
+              "type": "string"
+            },
+            "price": {
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "node tools/start-a-place/do-work/start-a-place.mjs rent {request_file}",
+          "needs": [
+            "node",
+            "ssh"
+          ],
+          "say": "This runs on the person's computer from the root of the Workshop checkout. Hand the machine provider row's vault_key credential on descriptor 3 and the names row's on descriptor 4, read from the person's vault, never in argv or a file. Tell the person the machine's public name, address and monthly price."
+        },
+        "maker": "maker:start-a-place",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
         "id": "tool:read-a-place-price",
         "label": "Read a place's price",
         "job": "See what a machine for a place would cost each month before renting it",

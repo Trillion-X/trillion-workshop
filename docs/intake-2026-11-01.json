@@ -1,0 +1,79 @@
+{
+  "about": "The Nov 1 2026 intake items that were left open: what each was tied to, or why it is recorded as unreachable. tied_to names a tool id and the rows of its file the item became; test/intake-rows.test.mjs proves each one is there. may_concern names recipes that share an item's subject without naming it as their source: it is not a tie. An unreachable item says what was tried and what closes it. Read again 2026-11-04: x.com, its embed and syndication hosts and blog.google were refused by this environment's network policy (403 at CONNECT), and web search returned nothing from the posts themselves.",
+  "items": [
+    {
+      "item": "https://x.com/freddiexpott/status/2116691276863037673",
+      "reached": false,
+      "tied_to": null,
+      "may_concern": [],
+      "unreachable_because": "x.com is refused by this environment's network policy; web search found nothing from the post.",
+      "to_close": "Allow x.com in the environment's network settings, or paste the post text into the intake lane."
+    },
+    {
+      "item": "https://x.com/coldemailchris/status/2116592036300357934",
+      "reached": false,
+      "tied_to": null,
+      "may_concern": ["workflow:reach-companies-with-a-long-open-job-post", "workflow:reach-local-businesses-by-zip-code"],
+      "unreachable_because": "x.com is refused by this environment's network policy; web search found nothing from the post. The cold-outreach recipes record their source only as an outreach method people share, so they cannot be tied to this post.",
+      "to_close": "Allow x.com, or paste the post text; then name the post in the recipe's source if it is the one."
+    },
+    {
+      "item": "https://x.com/thebeautyofsaas/status/2116543544261230887",
+      "reached": false,
+      "tied_to": null,
+      "may_concern": ["workflow:reach-companies-with-a-long-open-job-post", "workflow:reach-local-businesses-by-zip-code"],
+      "unreachable_because": "x.com is refused by this environment's network policy; web search found nothing from the post.",
+      "to_close": "Allow x.com, or paste the post text."
+    },
+    {
+      "item": "https://x.com/VibeMarketer_/status/2116342894298853784",
+      "reached": false,
+      "tied_to": null,
+      "may_concern": ["workflow:run-a-linkedin-content-system"],
+      "unreachable_because": "x.com is refused by this environment's network policy. workflow:run-a-linkedin-content-system records its source only as a LinkedIn content system people share, so it cannot be tied to this post.",
+      "to_close": "Allow x.com, or paste the post text; then name the post in the recipe's source if it is the one."
+    },
+    {
+      "item": "https://x.com/elliot_garreffa/status/2116127839967645789",
+      "reached": false,
+      "tied_to": null,
+      "may_concern": [],
+      "unreachable_because": "x.com is refused by this environment's network policy.",
+      "to_close": "Allow x.com, or paste the post text."
+    },
+    {
+      "item": "https://x.com/paolo_scales/status/2116561137244282986",
+      "reached": false,
+      "tied_to": null,
+      "may_concern": [],
+      "unreachable_because": "x.com is refused by this environment's network policy.",
+      "to_close": "Allow x.com, or paste the post text."
+    },
+    {
+      "item": "https://x.com/paolo_scales/status/2116511723167289793",
+      "reached": false,
+      "tied_to": null,
+      "may_concern": [],
+      "unreachable_because": "x.com is refused by this environment's network policy.",
+      "to_close": "Allow x.com, or paste the post text."
+    },
+    {
+      "item": "https://x.com/emilkowalski/status/2116144374170235224",
+      "reached": "partly",
+      "read": "The post is refused by the network policy; the skill it points to was read on GitHub (emilkowalski/skills, mobile-native, MIT).",
+      "tied_to": { "tool": "tool:critique-a-public-page", "file": "tools/page-critic/read-data/page-craft-rules.json", "rows": ["input_zoom", "sticky_hover"] },
+      "may_concern": [],
+      "not_adopted": "100vh, tap highlight, laggy taps and safe areas: a rendered page cannot tell them from a deliberate choice.",
+      "to_close": "Nothing for the skill. The post's own words stay unread until x.com is allowed."
+    },
+    {
+      "item": "https://blog.google/innovation-and-ai/technology/developers-tools/connected-apps-one-place",
+      "reached": "partly",
+      "read": "The page is refused by the network policy. Secondary coverage (not the page) says it announces Google's Connected Apps platform: one place to build and manage apps for Search and Gemini, with tools reached through a remote MCP server.",
+      "tied_to": { "tool": "tool:see-what-is-left-to-set-up", "file": "tools/set-up-my-account/read-data/ai-clients.json", "rows": ["gemini"] },
+      "may_concern": [],
+      "not_adopted": "Nothing changed: the gemini client row already adds Trillion's MCP address as a custom app under Settings, Connected Apps. Whether the announcement changes those steps is unchecked until the page is read.",
+      "to_close": "Allow blog.google, read the page and re-check the gemini row's steps against it."
+    }
+  ]
+}

@@ -7,7 +7,7 @@
     {
       "from": "records/workshop-email-tool-records.json",
       "commit": "e6afde6183d39273f3a8b29a25f4b35f12ff1969",
-      "deleted_by": "27b458af26",
+      "deleted_by": "27b458af2635254d67845c9a1c9f995cce2edd58",
       "to": "tools/send-messages/from-old-trillion/records/workshop-email-tool-records.json",
       "source_identity": "1f:933bf0251c2777e6033ad9e010657d22bcf4b87ddca8356f7d57ace6d6d3beaf",
       "identity": "1f:933bf0251c2777e6033ad9e010657d22bcf4b87ddca8356f7d57ace6d6d3beaf"

@@ -1,7 +1,8 @@
 // tools/move-code-between-trees/read-data/check-move.mjs
 //
 // Prove a move from its receipts (moved-from.json) on a clean checkout of the destination:
-// - same bytes: each file's identity is the receipt's, and its bytes equal the source commit's bytes once the receipt's
+// - same bytes: each file's identity is the receipt's (for a file changed here after its byte copy, its bytes at
+//   byte_copy_commit are identity_at_move), and its bytes equal the source commit's bytes once the receipt's
 //   calls are swapped and every import path is set aside; every import still reaches the same file, at its new place;
 // - one copy: the source no longer holds the file;
 // - it loads: every moved module is imported in a fresh Node process (a .tsx or .jsx file is compiled, when a compiler is
@@ -14,6 +15,7 @@ import { join, posix, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { aliasesOf, isCode, isRelative, requestsIn, resolveRequest, targetOf } from './imports.mjs';
+import { bytesAt } from './check-receipts.mjs';
 import { swapCalls } from './swap-calls.mjs';
 
 const TEST_FILE = /\.test\.(?:mjs|cjs|js|ts|tsx|mts)$/;
@@ -74,8 +76,11 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
       const tree = sources(file.commit);
       const there = join(destinationFolder, file.to);
       if (!existsSync(there)) { problems.push(`${file.to} is missing`); continue; }
-      const now = readFileSync(there);
-      if (identity(now) !== file.identity) problems.push(`${file.to} is not the bytes its receipt names`);
+      // A file changed here after its byte copy is proved by its bytes at that copy (byte_copy_commit of this checkout).
+      const changedAfter = Boolean(file.identity_at_move && file.byte_copy_commit);
+      const now = changedAfter ? bytesAt(destinationFolder, file.byte_copy_commit, file.to) : readFileSync(there);
+      if (!now) { problems.push(`${file.to} is not in this checkout at byte_copy_commit ${file.byte_copy_commit.slice(0, 10)}`); continue; }
+      if (identity(now) !== (changedAfter ? file.identity_at_move : file.identity)) problems.push(`${file.to} is not the bytes its receipt names${changedAfter ? ' at its byte copy' : ''}`);
       const before = tree.read(file.from);
       if (identity(before) !== file.source_identity) problems.push(`${file.from} at ${file.commit.slice(0, 10)} is not the bytes the receipt names`);
       if (file.reused) { if (isCode(file.from) ? withoutRequests(now.toString('utf8')) !== withoutRequests(before.toString('utf8')) : !now.equals(before)) problems.push(`${file.to} was reused but differs from ${file.from}${isCode(file.from) ? ' beyond its import paths' : ''}`); }

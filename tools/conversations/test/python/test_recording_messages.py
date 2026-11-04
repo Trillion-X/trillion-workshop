@@ -71,3 +71,19 @@ def test_a_speaker_name_with_colons_is_kept_whole():
     conversations, _ = _recorded([{"session_id": "s", "messages": [
         {"index": 0, "speaker": "team:ops", "text": "deploying", "native_ref": "m"}]}], {"label": "Log"})
     assert conversations[0]["messages"][0]["speaker"] == "team:ops"
+
+
+def test_a_message_of_only_files_is_kept_with_empty_text_and_one_naming_no_file_is_not():
+    # Grok's image sent without words: the message names the asset it carried, so its file can be linked.
+    row = {"label": "Grok", "recording": {"app": "Grok", "person_speakers": ["human"], "ai_speakers": ["ASSISTANT"]}}
+    conversations, mapped = _recorded([{"session_id": "g", "messages": [
+        {"index": 0, "speaker": "human", "text": "", "native_ref": "a", "attachments": ["asset-1"]},
+        {"index": 1, "speaker": "human", "text": None, "native_ref": "b", "attachments": ["asset-2"]},
+        {"index": 2, "speaker": "human", "text": "", "native_ref": "c"},
+        {"index": 3, "speaker": "ASSISTANT", "text": "Nice crumb.", "native_ref": "d"}]}], row)
+    assert conversations[0]["messages"] == [
+        {"id": "a", "speaker": "person", "text": "", "attachments": ["asset-1"]},
+        {"id": "b", "speaker": "person", "text": "", "attachments": ["asset-2"]},
+        {"id": "d", "speaker": "ai", "text": "Nice crumb."}]
+    # Two photos without words from one person are two messages: they never converge into one.
+    assert len({tm.content_key(atom) for atom in mapped["atoms"]}) == 3

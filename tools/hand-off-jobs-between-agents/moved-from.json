@@ -108,14 +108,16 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-off-jobs-between-agents/test/carried-controls.test.mjs",
       "source_identity": "1f:f3745033d2af2d80d14cddff7ff06bc4b75a9708a4b361e5f118f2b92e842e25",
-      "identity": "1f:a2d7eca93fdb1d90f12e54e93932c5f82db67f6f4d07798fc1cded627fa27aef"
+      "identity_at_move": "1f:a2d7eca93fdb1d90f12e54e93932c5f82db67f6f4d07798fc1cded627fa27aef",
+      "byte_copy_commit": "9e78ed82186472220f5187eea71193cfe2dd8936"
     },
     {
       "from": "test/carried-recent-account-isolation.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-off-jobs-between-agents/test/carried-recent-account-isolation.test.mjs",
       "source_identity": "1f:6ba7fe79a216f81bff7cdf15fc0e9f6a213588d7375ef1e58ca34a077953b52c",
-      "identity": "1f:6c78fa60d31c13c7268112c920a8038df0104e524c3fca47c72c70adf60ec320"
+      "identity_at_move": "1f:6c78fa60d31c13c7268112c920a8038df0104e524c3fca47c72c70adf60ec320",
+      "byte_copy_commit": "9e78ed82186472220f5187eea71193cfe2dd8936"
     },
     {
       "from": "test/free-decision-links.test.mjs",

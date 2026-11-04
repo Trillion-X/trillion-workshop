@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/space-calendars.json",
+      "commit": "9bed45cbd854d06a953109d47b6da06fdc733431",
+      "to": "tools/find-when-a-space-is-free/src/space-calendars.json",
+      "source_identity": "1f:348b64eecdb84447f16e282da50e43055c88f8bfd3d9e6aa6698878d86637f82",
+      "identity": "1f:348b64eecdb84447f16e282da50e43055c88f8bfd3d9e6aa6698878d86637f82"
+    },
+    {
+      "from": "src/space-calendars.mjs",
+      "commit": "9bed45cbd854d06a953109d47b6da06fdc733431",
+      "to": "tools/find-when-a-space-is-free/src/space-calendars.mjs",
+      "source_identity": "1f:a24a8efeae73211860ba2bb4b6dd47d0ced2a866652bd089753e61cee9a8c996",
+      "identity": "1f:478eb35b380c84b2323b776f260ba9270915a462ead773f2f85ca9127d0a291a"
+    },
+    {
+      "from": "test/calendar-request-receipts.test.mjs",
+      "commit": "9bed45cbd854d06a953109d47b6da06fdc733431",
+      "to": "tools/find-when-a-space-is-free/test/calendar-request-receipts.test.mjs",
+      "source_identity": "1f:7920189cf695c2b516b90fe200467f31b66c05d33e6d2586e5fcb757675f3ad1",
+      "identity": "1f:7920189cf695c2b516b90fe200467f31b66c05d33e6d2586e5fcb757675f3ad1"
+    }
+  ]
+}
