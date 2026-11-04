@@ -1,0 +1,60 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on with no home and no backlog row, moved here byte for byte from the parent of the commit that deleted each (commit; deleted_by names the deleting commit). Nothing here is rewritten: a file waits here for its wiring, under its old path, so the files keep importing each other as they did. A redaction replaces a real person's name or address with a made-up one, and is listed on the file; source_identity is the BLAKE3 identity of the bytes at commit, identity of the bytes here.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "computer/device-stores.json",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/keep-my-records-on-this-device/from-old-trillion/computer/device-stores.json",
+      "source_identity": "1f:6ad391b55487a65435ef60e4e8fbaae012749dba0ca6f92acb1111c17bab8242",
+      "identity": "1f:6ad391b55487a65435ef60e4e8fbaae012749dba0ca6f92acb1111c17bab8242"
+    },
+    {
+      "from": "computer/device-stores.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/keep-my-records-on-this-device/from-old-trillion/computer/device-stores.mjs",
+      "source_identity": "1f:0757fd7c7ac9d0f573743c7a0532955d1dca41273ee412f416097da1a5e26199",
+      "identity": "1f:0757fd7c7ac9d0f573743c7a0532955d1dca41273ee412f416097da1a5e26199"
+    },
+    {
+      "from": "test/device-copy-merge.test.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/keep-my-records-on-this-device/from-old-trillion/test/device-copy-merge.test.mjs.held",
+      "source_identity": "1f:52ee57c3acc128fd99f420d7bd938b8d14bdb856736c6f9dc7d99c67957836d5",
+      "identity": "1f:52ee57c3acc128fd99f420d7bd938b8d14bdb856736c6f9dc7d99c67957836d5",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/device-copy-worker.test.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/keep-my-records-on-this-device/from-old-trillion/test/device-copy-worker.test.mjs.held",
+      "source_identity": "1f:14ab1df1f833797155aba9704491b8127848aaa22b868cb7b44cd8d403b30b15",
+      "identity": "1f:14ab1df1f833797155aba9704491b8127848aaa22b868cb7b44cd8d403b30b15",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/device-stores.test.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/keep-my-records-on-this-device/from-old-trillion/test/device-stores.test.mjs.held",
+      "source_identity": "1f:e70e1a801a4fdf80df75e195c3cf4b8dcd3873a5ef95fa41a1f4ffffa32cb069",
+      "identity": "1f:e70e1a801a4fdf80df75e195c3cf4b8dcd3873a5ef95fa41a1f4ffffa32cb069",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: Cannot find module '/workspace/trillion-workshop/tools/keep-my-records-on-this-device/from-old-trillion/computer/mac-tools.mjs'"
+    },
+    {
+      "from": "test/mac-copy-retry.test.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/keep-my-records-on-this-device/from-old-trillion/test/mac-copy-retry.test.mjs.held",
+      "source_identity": "1f:34485bdb0fcc2da3a1983e4fce5b3d4db06495fef348675add8c69ccc9bac6d2",
+      "identity": "1f:34485bdb0fcc2da3a1983e4fce5b3d4db06495fef348675add8c69ccc9bac6d2",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    }
+  ]
+}

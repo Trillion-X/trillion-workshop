@@ -1,0 +1,78 @@
+// A slow or refusing owner cannot starve the others: its links are asked until it first fails in a round, then skipped, and
+// they keep their last-known entries, while every other owner's links are listed (src/record-share-pages.mjs askListedOwners).
+import test from 'node:test';
+import { crawlerDocumentKey } from '../src/crawler-document-key.mjs';
+import assert from 'node:assert/strict';
+import { answerRecordShare } from '../src/record-share-pages.mjs';
+
+const origin = 'https://app.gettrillion.ai';
+const locations = body => [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
+
+function cache() {
+  const held = new Map();
+  return { held, delete: async request => held.delete(request.url), match: async request => held.get(request.url)?.clone(), put: async (request, response) => { held.set(request.url, response); } };
+}
+
+// owners: { ownerName: { names: [...], state: 'public' | 'slow' | 'refuse' } }; links are asked per name.
+function fixture(owners, documentCache = cache()) {
+  const personOf = new Map(), asked = [];
+  for (const [person, { names }] of Object.entries(owners)) for (const name of names) personOf.set(name, person);
+  const kv = {
+    list: async ({ prefix }) => ({ keys: [...personOf.keys()].sort().map(name => ({ name: prefix + name })), list_complete: true }),
+    get: async key => key.startsWith('record-share-link:') && personOf.has(key.slice(18)) ? { person_ref: personOf.get(key.slice(18)) } : null,
+  };
+  const shareOwnerFor = async ({ code }) => ({
+    listedShare: async name => {
+      asked.push(name);
+      const state = owners[personOf.get(code)].state;
+      if (state === 'slow') return new Promise(() => {});
+      if (state === 'refuse') throw Object.assign(new Error('Network connection lost.'), { status: 503 });
+      return { name, title: name, changed: '2026-10-05', copy: { title: name, preview: { fields: [] } } };
+    },
+  });
+  const waiting = [];
+  const ctx = { waitUntil: promise => waiting.push(promise) };
+  const open = (path = '/share/sitemap.xml') => answerRecordShare(new Request(origin + path), { env: {}, kv, origin, shareOwnerFor, documentCache, ctx });
+  return { open, asked, documentCache, settle: () => Promise.all(waiting.splice(0)) };
+}
+const range = (prefix, count) => Array.from({ length: count }, (_, index) => `${prefix}-${String(index).padStart(3, '0')}`);
+
+test('one owner with many slow links does not starve the owners after it', async () => {
+  const slow = range('a-slow', 24), fine = range('z-fine', 5);
+  const { open, asked } = fixture({ slow: { names: slow, state: 'slow' }, fine: { names: fine, state: 'public' } });
+  const started = Date.now();
+  const response = await open();
+  assert.ok(Date.now() - started < 5000, 'one owner deadline, not one per link');
+  assert.equal(response.status, 200);
+  assert.deepEqual(locations(await response.text()).sort(), fine.map(name => origin + '/share/' + name));
+  assert.ok(asked.filter(name => name.startsWith('a-slow')).length <= 8, 'the slow owner was asked only in its first batch');
+});
+
+test('a slow owner keeps its last-known links while the others are renewed, and answers are 200', async () => {
+  const slowNames = range('a-slow', 12), fine = range('z-fine', 3);
+  const owners = { slow: { names: slowNames, state: 'public' }, fine: { names: fine, state: 'public' } };
+  const { open, documentCache, settle } = fixture(owners);
+  const first = locations(await (await open()).text());
+  assert.equal(first.length, 15);
+  const key = crawlerDocumentKey('/share/sitemap.xml').url;
+  const kept = await documentCache.held.get(key).clone().json();
+  kept.built -= 3600_000; kept.attempted -= 3600_000;
+  for (const entry of Object.values(kept.shares)) entry.at -= 3600_000;
+  documentCache.held.set(key, new Response(JSON.stringify(kept)));
+  owners.slow.state = 'slow';
+  const stale = await open();
+  assert.equal(stale.status, 200);
+  assert.deepEqual(locations(await stale.text()).sort(), first.sort(), 'the stale copy answers whole at once');
+  await settle();
+  const after = await open();
+  assert.equal(after.status, 200);
+  assert.deepEqual(locations(await after.text()).sort(), first.sort(), 'the slow owner is listed from its last-known links, the fine owner from its renewed ones');
+});
+
+test('an owner that has never answered contributes nothing and the answer says to ask again', async () => {
+  const { open } = fixture({ never: { names: range('a-never', 4), state: 'slow' }, fine: { names: range('z-fine', 2), state: 'public' } });
+  const response = await open();
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('retry-after'), '60');
+  assert.equal(locations(await response.text()).length, 2);
+});

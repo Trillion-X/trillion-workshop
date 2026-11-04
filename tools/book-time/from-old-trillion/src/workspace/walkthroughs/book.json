@@ -1,0 +1,149 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "book",
+  "revision": 2,
+  "order": 33,
+  "title": "Book a session",
+  "summary": "You can pick a time for a session, pay for it and see every session you have booked.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "guide",
+          "screen": "book"
+        }
+      },
+      "once_key": "book",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "book"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Book a time that suits you",
+          "body": "Pick a time and pay, and your session is booked. Every session you have booked is listed here too."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.book"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"book\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "times",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pick a time",
+          "body": "Choose a session and a time that suits you, then pay to book it. Sessions you booked are listed here too."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.book"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"book\"] .guide-section"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find Book a session again",
+          "body": "Open Book a session from the menu whenever you need it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.book\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

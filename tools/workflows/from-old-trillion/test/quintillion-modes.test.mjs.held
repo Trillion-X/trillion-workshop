@@ -1,0 +1,65 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import modes from '../records/quintillion-mode-records.json' with { type: 'json' };
+import { readExecutionMode, executionModeRecipes } from '../src/execution-modes.mjs';
+import { recipeProblems } from '../src/workflows.mjs';
+import { inProcessMcp } from './in-process-mcp.mjs';
+
+const input = label => ({ mode: label, request_key: `mode-contract:${label}`,
+  request: 'Verify the named workflow admission contract in an isolated account.',
+  scope: 'Isolated workflow contract test; no real customer action.',
+  constraints: ['No network, publication or customer effects.'], authorized_actions: ['in-memory workflow execution'],
+  source_id: 'synthetic:mode-contract-test' });
+
+test('every additional mode is independently discoverable and starts on the existing engine', async () => {
+  const { tool } = inProcessMcp();
+  for (const mode of modes.records) {
+    for (const alias of mode.aliases) assert.equal(readExecutionMode(alias).id, mode.id);
+    const recipe = executionModeRecipes().find(row => row.id === mode.workflow_id);
+    assert.deepEqual(recipeProblems(recipe), [], mode.id);
+    for (const stage of mode.stages) {
+      const step = recipe.steps.find(row => row.id === stage.id);
+      const review = `capability-review-${stage.id}`;
+      assert.ok(step.submit.properties.requirements.required.includes(review), `${mode.id}/${stage.id} requires current capability review`);
+      assert.match(step.do, /REA, 21st\.dev and Mobbin/);
+    }
+    const description = await tool('describe_workflow', { workflow_id: mode.workflow_id });
+    assert.ok(!description.error, `${mode.id}: ${description.text}`);
+    const started = await tool('apply_execution_mode', input(mode.label));
+    assert.ok(!started.error, `${mode.id}: ${started.text}`);
+    assert.ok(started.data.run_id, `${mode.id} must produce an actual engine run`);
+    assert.equal(started.data.step.step_id, mode.stages[0].id);
+    const same = await tool('apply_execution_mode', { ...input(mode.label), mode: mode.aliases.at(-1) });
+    assert.equal(same.data.run_id, started.data.run_id, 'aliases must retain request idempotency');
+  }
+});
+
+test('an Infinity run refuses an omitted requirement, unsupported citation and blocked completion', async () => {
+  const { tool } = inProcessMcp();
+  const started = (await tool('apply_execution_mode', input('Infinity Mode'))).data;
+  const recipe = executionModeRecipes().find(row => row.id === 'workflow:infinity-mode');
+  const step = recipe.steps[0];
+  const output = { summary: 'Synthetic admission check; no real-world outcome is claimed.',
+    evidence: [{ id: 'fixture', source: 'Isolated test request', observed: 'This run checks admission only.' }],
+    requirements: Object.fromEntries(step.submit.properties.requirements.required.map(id => [id, {
+      state: 'completed', what_happened: 'Read the isolated contract-test request; no external work was done.', evidence_refs: ['fixture'],
+    }])) };
+  const submit = value => tool('submit_workflow_step', { run_id: started.run_id, step_id: step.id, output: value });
+  const id = Object.keys(output.requirements)[0];
+  const omitted = structuredClone(output); delete omitted.requirements[id];
+  assert.ok((await submit(omitted)).error);
+  const unsupported = structuredClone(output); unsupported.requirements[id].evidence_refs = ['unobserved'];
+  assert.ok((await submit(unsupported)).error);
+  const blocked = structuredClone(output); blocked.requirements[id].state = 'blocked';
+  assert.ok((await submit(blocked)).error);
+  const accepted = await submit(output);
+  assert.ok(!accepted.error, accepted.text);
+  assert.equal(accepted.data.step.step_id, recipe.steps[1].id);
+  const snapshot = await tool('snapshot_workflow_run', { run_id: started.run_id });
+  assert.ok(!snapshot.error, snapshot.text);
+});
+
+test('supplemental Hardcore names resolve to the original standard', () => {
+  assert.equal(readExecutionMode('Trillion X Hardcore Mode').id, readExecutionMode('Hardcore mode').id);
+  assert.equal(readExecutionMode('Hard-core Mode').id, readExecutionMode('Trillion X mode').id);
+});
