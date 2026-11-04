@@ -1,0 +1,14 @@
+{
+  "about": "Files copied here byte for byte from another code tree. store-size.json stays in Trillion-X/trillion too: trillion's own store code (src/store-size.mjs, src/store-health.mjs, src/record-book.mjs) reads it, so trillion owns it, and this copy is what do-work/kept-runs.mjs reads instead of a path into another repository. Change the numbers in trillion and copy them here in the same change.",
+  "source": "Trillion-X/trillion",
+  "files": [
+    {
+      "from": "src/store-size.json",
+      "commit": "a7f1f9a0a8",
+      "to": "tools/record-log/do-work/store-size.json",
+      "source_identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
+      "identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
+      "kept_in_source": true
+    }
+  ]
+}
