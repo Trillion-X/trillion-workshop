@@ -1,0 +1,13 @@
+{
+  "kind": "bitfield-entry-read-scope-packages",
+  "entries": [
+    {
+      "entry_name": "record-video",
+      "read_scope_package_data_packages": [
+        "addressed-marks",
+        "sidebar",
+        "screen-look"
+      ]
+    }
+  ]
+}

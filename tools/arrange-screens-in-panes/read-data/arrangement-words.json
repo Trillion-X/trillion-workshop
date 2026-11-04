@@ -1,0 +1,5 @@
+{
+  "_what": "Words the arrangement says about its own saving (parts/screen-arrangement/show/screen-arrangement-context.tsx). `stale` is shown when a drag was made from an older copy of an arrangement kept elsewhere since: nothing was replaced, and the screen now shows what is kept. `seconds_shown` is how long it stays.",
+  "stale": "This screen was arranged somewhere else, so your change was not kept. It now shows the arrangement kept there.",
+  "seconds_shown": 6
+}

@@ -1,0 +1,12 @@
+{
+  "_what": "The starting looks for anything that moves with sound (a background behind the panes, the Ambience screen, lights following along): each look's words, the motion it moves in (`motion`, a painter in parts/ui/show/sound-signal/sound-painters.ts), its colours in order (`palette`: the first is the main colour, lights take theirs from the same list), the ground it is painted on (`ground`, or null to let the screen's own look show through), how strongly it answers the sound (`strength`, 0 to 1) and how fast it drifts (`speed`). A person's own look is the same shape, kept with the layer or the screen that wears it. A new starting look is one row here.",
+  "default_look": "thread",
+  "looks": [
+    { "id": "popcorn", "label": "Popcorn", "about": "Kernels that pop on the beat, jump and pile up.", "motion": "popcorn", "palette": ["#fff4d6", "#ffc94a", "#b8621b"], "ground": "#120c07", "strength": 0.8, "speed": 0.6 },
+    { "id": "sparkles", "label": "Sparkles", "about": "Warm sparks that burst on every beat.", "motion": "sparkles", "palette": ["#ffd36b", "#ff1d1d", "#fff4d6", "#ff8a3d"], "ground": "#0d0d0d", "strength": 0.8, "speed": 0.6 },
+    { "id": "thread", "label": "Thread", "about": "Trillion's red, breathing behind your work.", "motion": "glow", "palette": ["#ff1d1d", "#ff6a4d", "#ffb4a3"], "ground": null, "strength": 0.55, "speed": 0.35 },
+    { "id": "aurora", "label": "Aurora", "about": "Soft northern lights that swell with the music.", "motion": "glow", "palette": ["#38e1c6", "#6b7cff", "#c56bff"], "ground": "#0b0f1a", "strength": 0.75, "speed": 0.45 },
+    { "id": "night-drive", "label": "Night drive", "about": "Lines of light that ripple like a car's dashboard at night.", "motion": "waves", "palette": ["#3aa0ff", "#00e0ff", "#ffffff"], "ground": "#05070d", "strength": 0.7, "speed": 0.55 },
+    { "id": "paper", "label": "Paper", "about": "A quiet ink wash for working in daylight.", "motion": "glow", "palette": ["#191919", "#ff1d1d"], "ground": null, "strength": 0.3, "speed": 0.25 }
+  ]
+}

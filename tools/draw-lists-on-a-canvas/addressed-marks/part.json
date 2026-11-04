@@ -1,0 +1,15 @@
+{
+  "public": [
+    "do-work/record-mark-operation.ts",
+    "read-data/addressed-marks.ts",
+    "show/AddressedMarkLayer.tsx",
+    "show/AddressedMarkOverlay.tsx",
+    "show/MarkInputLayer.tsx",
+    "show/MarkSessionContext.tsx",
+    "show/MarkToolbar.tsx",
+    "show/keep-marks.ts",
+    "show/shown-marks.ts",
+    "show/use-board-ink-svg.ts",
+    "starting-marks.json"
+  ]
+}

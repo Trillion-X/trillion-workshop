@@ -1,0 +1,166 @@
+{
+  "_what": "The props each shared part declares for a screen made of parts (src/screen-spec.mjs checks every element of a spec against its row; src/workspace/parts-screen.tsx draws it). A row's key is the part's export name in this library (index.ts). `props` is the subset of JSON Schema the checker reads (type, enum, minimum, maximum, maxLength, maxItems, items, properties); `required` lists props an element must carry; a prop's `default` is what the part is given when an element leaves that prop out (a prop the part itself needs but a screen may leave out); `text_prop` names a prop drawn as the part's own text (its children); `children: true` lets an element hold other elements; `events` maps an event name a spec binds in `on` to the part's handler prop and, with `from`, where the event's value is (a dotted path into the handler's first argument; none: the argument itself); `binds` maps a prop that may be bound to state ($bindState/$bindItem) to the handler that reports its new value. Every handler an `events` or `binds` row names is always given to the part (one that does nothing when the element binds nothing), so a part that needs its handler never draws without one. test/screen-spec.test.mjs reads each part's own props type and fails when a row names a prop the part does not take, or the part needs a prop its row neither requires, defaults nor handles. Adding a part to screens is one row here; nothing else changes.",
+  "parts": {
+    "Container": {
+      "about": "Lays out the elements it holds in a row, a column or a grid.",
+      "children": true,
+      "props": {
+        "layout": { "enum": ["horizontal", "vertical", "grid", "responsive-split", "flow"] },
+        "gap": { "enum": ["none", "xs", "sm", "md", "lg", "xl"] },
+        "padding": { "enum": ["none", "xs", "sm", "md", "lg", "xl"] },
+        "alignItems": { "enum": ["start", "center", "end", "stretch"] },
+        "justifyContent": { "enum": ["start", "center", "end", "between", "stretch"] },
+        "wrap": { "type": "boolean" }
+      }
+    },
+    "Card": {
+      "about": "A panel that holds a group of elements.",
+      "children": true,
+      "props": {
+        "variant": { "enum": ["surface", "outline", "solid", "nested", "panel", "ghost", "accent"] },
+        "padding": { "enum": ["none", "xs", "sm", "md", "lg"] },
+        "layout": { "enum": ["stack", "column", "row", "none"] }
+      }
+    },
+    "Text": {
+      "about": "Words: a heading, a line or a caption.",
+      "text_prop": "text",
+      "required": ["text"],
+      "props": {
+        "text": { "type": "string", "maxLength": 4000 },
+        "variant": { "enum": ["display", "heading-2xl", "heading-xl", "heading-lg", "heading", "title", "heading-xs", "body-lg", "body", "body-xs", "label", "caption"] },
+        "color": { "enum": ["default", "primary", "strong", "secondary", "muted", "subtle", "faint", "accent", "error", "warning", "success", "info"] },
+        "weight": { "enum": ["normal", "medium", "semibold", "bold"] },
+        "align": { "enum": ["left", "center", "right"] },
+        "truncate": { "type": "boolean" }
+      }
+    },
+    "Button": {
+      "about": "A button that does something when pressed. A press bound to a request shows its own pending, done and failed states.",
+      "text_prop": "label",
+      "required": ["label"],
+      "props": {
+        "label": { "type": "string", "maxLength": 120 },
+        "variant": { "enum": ["primary", "secondary", "ghost", "outline", "danger", "accent", "success"] },
+        "size": { "enum": ["xs", "sm", "md", "lg"] },
+        "disabled": { "type": "boolean" },
+        "active": { "type": "boolean" },
+        "pendingLabel": { "type": "string", "maxLength": 120 },
+        "doneLabel": { "type": "string", "maxLength": 120 },
+        "errorLabel": { "type": "string", "maxLength": 120 }
+      },
+      "events": { "press": { "prop": "onClick" } }
+    },
+    "Badge": {
+      "about": "A short label in a pill: a status, a count or a tag.",
+      "text_prop": "text",
+      "required": ["text"],
+      "props": {
+        "text": { "type": "string", "maxLength": 120 },
+        "variant": { "enum": ["success", "warning", "error", "info", "accent", "neutral", "secondary", "muted", "muted-outline"] },
+        "size": { "enum": ["sm", "md", "lg"] }
+      }
+    },
+    "Input": {
+      "about": "A one-line text box.",
+      "props": {
+        "label": { "type": "string", "maxLength": 200 },
+        "placeholder": { "type": "string", "maxLength": 200 },
+        "hint": { "type": "string", "maxLength": 400 },
+        "error": { "type": "string", "maxLength": 400 },
+        "value": { "type": "string", "maxLength": 20000 },
+        "type": { "enum": ["text", "email", "number", "search", "url", "tel", "date", "time"] },
+        "disabled": { "type": "boolean" }
+      },
+      "binds": { "value": { "prop": "onChange", "from": "currentTarget.value" } },
+      "events": { "change": { "prop": "onChange", "from": "currentTarget.value" }, "submit": { "prop": "onKeyDown", "key": "Enter", "from": "currentTarget.value" } }
+    },
+    "Textarea": {
+      "about": "A text box for several lines.",
+      "props": {
+        "label": { "type": "string", "maxLength": 200 },
+        "placeholder": { "type": "string", "maxLength": 200 },
+        "value": { "type": "string", "maxLength": 100000 },
+        "rows": { "type": "integer", "minimum": 1, "maximum": 40 },
+        "autoGrow": { "type": "boolean" },
+        "disabled": { "type": "boolean" }
+      },
+      "binds": { "value": { "prop": "onChange", "from": "currentTarget.value" } },
+      "events": { "change": { "prop": "onChange", "from": "currentTarget.value" } }
+    },
+    "Slider": {
+      "about": "Picks a number in a range by dragging.",
+      "required": ["label", "value"],
+      "props": {
+        "label": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 400 },
+        "value": { "type": "number" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "step": { "type": "number", "minimum": 0 },
+        "unit": { "type": "string", "maxLength": 12 },
+        "disabled": { "type": "boolean" }
+      },
+      "binds": { "value": { "prop": "onValueChange" } },
+      "events": { "change": { "prop": "onValueChange" } }
+    },
+    "Switch": {
+      "about": "Turns one thing on or off.",
+      "required": ["checked"],
+      "props": {
+        "checked": { "type": "boolean" },
+        "label": { "type": "string", "maxLength": 200 },
+        "size": { "enum": ["sm", "md"] },
+        "disabled": { "type": "boolean" }
+      },
+      "binds": { "checked": { "prop": "onCheckedChange" } },
+      "events": { "change": { "prop": "onCheckedChange" } }
+    },
+    "ChoiceTiles": {
+      "about": "A choice drawn as tiles; the chosen tile's id is its value.",
+      "required": ["tiles"],
+      "props": {
+        "tiles": { "type": "array", "maxItems": 24, "items": { "type": "object", "properties": { "id": { "type": "string", "maxLength": 200 }, "label": { "type": "string", "maxLength": 200 }, "description": { "type": "string", "maxLength": 400 }, "icon": { "type": "string", "maxLength": 60 } } } },
+        "chosen": { "type": "string", "maxLength": 200, "default": null },
+        "label": { "type": "string", "maxLength": 200 },
+        "kind": { "enum": ["buttons", "radio"] },
+        "disabled": { "type": "boolean" }
+      },
+      "binds": { "chosen": { "prop": "onPick", "from": "id" } },
+      "events": { "pick": { "prop": "onPick", "from": "id" } }
+    },
+    "CompletionRing": {
+      "about": "A round tick that marks one thing done or not done.",
+      "required": ["done"],
+      "props": {
+        "done": { "type": "boolean" },
+        "disabled": { "type": "boolean" },
+        "aria-label": { "type": "string", "maxLength": 200 }
+      },
+      "binds": { "done": { "prop": "onToggle" } },
+      "events": { "toggle": { "prop": "onToggle" } }
+    },
+    "ScoreRing": {
+      "about": "A ring that fills to show a score.",
+      "required": ["value"],
+      "props": {
+        "value": { "type": "number" },
+        "max": { "type": "number", "minimum": 0 },
+        "tone": { "enum": ["positive", "caution", "critical", "neutral"] },
+        "displayValue": { "type": "string", "maxLength": 40 },
+        "unit": { "type": "string", "maxLength": 20 },
+        "label": { "type": "string", "maxLength": 120 },
+        "band": { "type": "string", "maxLength": 120 },
+        "caption": { "type": "string", "maxLength": 400 },
+        "size": { "type": "integer", "minimum": 48, "maximum": 400 }
+      }
+    },
+    "Divider": {
+      "about": "A thin line between groups.",
+      "props": {
+        "orientation": { "enum": ["horizontal", "vertical"] },
+        "size": { "enum": ["xs", "sm", "md"] }
+      }
+    }
+  }
+}

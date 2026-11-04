@@ -1,0 +1,24 @@
+/* parts/screen-look/show/chat.css
+ *
+ * The look of the chat part (parts/chat, brought over from bitfield-packages packages/chat): its conversation list
+ * beside the open conversation. The chat draws with the shared ui and sidebar parts and their tokens; this file only
+ * decides how the two panes share a frame. Wide (the frame's own width from 40rem), the list and the conversation sit
+ * side by side, the list in a quiet column with a line between; narrow, they take turns: the list when the person
+ * goes back to it (data-pane="list"), the conversation otherwise, with a Conversations button back to the list
+ * (.chat-panes-back) shown only then. The frame is its own query container, so the same chat works in a full page,
+ * a split pane or a phone. Anatomy after 21st.dev 28186 "Chat" (joyco) and 29936 "Conversation List", and Mobbin's
+ * Delphi, Threads and Instagram messages screens. Colours come from the look's tokens only.
+ * Each selector repeats its first class once (.chat-x.chat-x) so it outranks the layout utilities the shared
+ * Container puts on the same element, whatever order the stylesheets load in.
+ */
+
+.chat-panes.chat-panes { container: chat-panes / inline-size; }
+.chat-panes-list.chat-panes-list { border-right: 1px solid var(--border-subtle, var(--line, var(--color-muted))); }
+.chat-panes-back.chat-panes-back { display: none; flex: none; }
+
+@container chat-panes (max-width: 40rem) {
+  .chat-panes-list.chat-panes-list { width: 100% !important; border-right: 0; }
+  .chat-panes-back.chat-panes-back { display: flex; }
+  .chat-panes.chat-panes[data-pane="detail"] > .chat-panes-list { display: none; }
+  .chat-panes.chat-panes[data-pane="list"] > :not(.chat-panes-list) { display: none; }
+}

@@ -1,0 +1,34 @@
+{
+  "_what": "Where a look applies, as DATA. The person's account wears one look (input `current-screen-look`); that is the last rule, everywhere else, and changing it in one place changes every screen. On top of it a person keeps an ordered list of look rules in the workspace record `record_key`: each { id, label?, when, look_id, time_zone?, on?, by?, made_at? }, where `when` is the formula engine's rule tree (parts/formula-engine/rules) over the facts below (null: always) and `look_id` is the look worn where it holds. The first rule that holds wins; when none does the account's look is worn. `facts` are what a rule can name: `host` is the app or place the screen is drawn in (`hosts`, found by `detect`: a page global, a user agent pattern, the page's protocol; the first row that matches, `web` last), `device` the kind of device (`devices`, by user agent), `device_id` and `place` (the screen or area of the app, such as get-started) are said by whoever draws the screen, `hour` (0-23) and `weekday` are read from the time in the rule's own `time_zone` (the device's own zone when the rule has none), and `now` is the moment itself. A new app, device kind or fact is a row here; nothing in code names one. A look the person no longer has lets the next rule, and then the account's look, through.",
+  "record_key": "where-looks-apply",
+  "most_rules": 50,
+  "default_rule": { "id": "everywhere", "label": "Everywhere else", "words": "The look you wear on every screen that no rule above picks." },
+  "words": {
+    "nothing_yet": "One look everywhere: {look}. Add a rule to wear another look in one app, on one device or at one time.",
+    "default": "everywhere else: {look}",
+    "rule": "{label}: {look}"
+  },
+  "hosts": [
+    { "id": "chatgpt", "label": "Inside ChatGPT", "detect": { "global": "openai" } },
+    { "id": "claude", "label": "Inside Claude", "detect": { "user_agent": "Claude" } },
+    { "id": "chrome-extension", "label": "Trillion for Chrome", "detect": { "protocol": "chrome-extension:" } },
+    { "id": "mac", "label": "Trillion for Mac", "detect": { "user_agent": "TrillionMac" } },
+    { "id": "iphone", "label": "Trillion for iPhone", "detect": { "user_agent": "TrillionPhone" } },
+    { "id": "web", "label": "app.gettrillion.ai in a browser", "detect": {} }
+  ],
+  "devices": [
+    { "id": "watch", "label": "watch", "user_agent": "Watch" },
+    { "id": "phone", "label": "phone", "user_agent": "iPhone|iPod|Android.+Mobile" },
+    { "id": "tablet", "label": "tablet", "user_agent": "iPad|Android" },
+    { "id": "computer", "label": "computer", "user_agent": "" }
+  ],
+  "facts": [
+    { "id": "host", "label": "App", "kind": "choice", "choices_from": "hosts" },
+    { "id": "device", "label": "Device", "kind": "choice", "choices_from": "devices" },
+    { "id": "device_id", "label": "This particular device", "kind": "choice" },
+    { "id": "place", "label": "Screen or area of the app", "kind": "choice" },
+    { "id": "hour", "label": "Hour of the day", "kind": "number", "from_time": "hour", "turns": "hour" },
+    { "id": "weekday", "label": "Day of the week", "kind": "choice", "from_time": "weekday", "turns": "hour", "choices": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] },
+    { "id": "now", "label": "Time", "kind": "date", "clock": true }
+  ]
+}

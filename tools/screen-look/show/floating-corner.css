@@ -1,0 +1,15 @@
+/* parts/screen-look/show/floating-corner.css
+   How the controls that float in a window corner line up (parts/ui/show/floating-occlusion/window-corner.tsx): one
+   group per corner, the same distance from the window's edges on every screen and every device, its controls side by
+   side with one gap, the first at the corner itself. Nothing in a corner positions itself. */
+.floating-corner-group {
+  position: fixed;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+.floating-corner-group[data-floating-corner="bottom-right"] { right: max(1rem, env(safe-area-inset-right)); flex-direction: row-reverse; }
+.floating-corner-group[data-floating-corner="bottom-left"] { left: max(1rem, env(safe-area-inset-left)); flex-direction: row; }
+.floating-corner-group > .floating-corner-item { pointer-events: auto; }
