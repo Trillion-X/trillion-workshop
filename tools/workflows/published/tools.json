@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b508cb11b6fe3d1eb55c1bdad2b94d6cb11de27dc1d95fbd15fb57bcc209a727"
+  "blake3": "1f:048a3e5f2115bfb3143c742f13ec659ac0ea8196719b834f6550bd3f2be79937"
  },
  "fields": [
   {
@@ -301,6 +301,21 @@
      "placement:small-container"
     ],
     "folder": "form-groups-and-matches"
+   }
+  },
+  {
+   "id": "tool:allow-my-ai-command-line-tools-in-a-folder",
+   "values": {
+    "title": "Allow my AI command line some tools in one folder (runs on your computer)",
+    "job": "Keep, read or clear the tools I allow my own AI command line in one workspace folder, passed as that command line's own allow-list flag",
+    "description": "Keeps the person's list of allowed tools for one existing folder in this computer's settings file (`workspace_tools`), reads one folder's list or all of them, and clears one. Nothing widens permissions by default: a folder with no list runs with the command line's own permission rules, and a command line with no allow-list flag (its row has no `allowed_tools`) is answered as not applying.",
+    "status": "active",
+    "maker": "maker:follow-my-ai-command-line-runs",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "follow-my-ai-command-line-runs"
    }
   },
   {
@@ -3811,6 +3826,21 @@
    }
   },
   {
+   "id": "tool:keep-trillion-in-your-instructions",
+   "values": {
+    "title": "Keep Trillion's standing instructions in my AI's own instruction file (runs on your computer)",
+    "job": "Put, check or take out Trillion's standing instructions as one marked block in my AI harness's own global instruction file, leaving every other line of it as it was",
+    "description": "Reads, writes or removes one marked block in a harness's own global instruction file (Claude Code's CLAUDE.md, Codex's AGENTS.md, Gemini CLI's GEMINI.md; where each is, and its home variable, is a row of read-data/harness-instruction-files.json). inspect answers absent, present, outdated or blocked (markers that are not one start followed by one end) and writes nothing; apply writes or replaces only the block and twice changes nothing; remove takes out only the block. Every byte outside the block is kept, a symbolic link is written through to its target, and the file keeps its mode. A hosted app with no file is answered with the control it has, never written. `text` is the current words; without it the copy in read-data/standing-instructions.json is used.",
+    "status": "active",
+    "maker": "maker:tell-ais-how-to-act",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "tell-ais-how-to-act"
+   }
+  },
+  {
    "id": "tool:keep-where-you-stand",
    "values": {
     "title": "Keep where you stand on something",
@@ -6100,6 +6130,21 @@
    }
   },
   {
+   "id": "tool:read-an-ai-command-line-run-as-events",
+   "values": {
+    "title": "Read a run of my AI command line as live events (runs on your computer)",
+    "job": "Turn the JSON event stream of my own AI command line's run into the same text, thinking, tool started, tool done and reply events, whichever command line it is",
+    "description": "Reads one run's JSON event stream (Claude Code's stream-json, Codex's --json) on standard input and prints one normalised event per line: { kind: text | thinking | tool_start | tool_done | reply, text?, name?, id? }. Which line is which event is a row of read-data/ai-command-lines.json per command line; a line that is not JSON or matches no row is ignored. Nothing is started or changed: it only reads what the run wrote.",
+    "status": "active",
+    "maker": "maker:follow-my-ai-command-line-runs",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "follow-my-ai-command-line-runs"
+   }
+  },
+  {
    "id": "tool:read-an-email-sending-domain",
    "values": {
     "title": "Read an email sending domain",
@@ -7036,6 +7081,21 @@
     ],
     "listed_on": "2026-10-31T00:00:00Z",
     "folder": "notifications"
+   }
+  },
+  {
+   "id": "tool:register-trillion-in-my-ai-apps",
+   "values": {
+    "title": "Put Trillion in my AI apps' MCP settings, or take it out (runs on your computer)",
+    "job": "Add Trillion's MCP server entry to the config file of each AI app I name, preview exactly what changes first, or take the entry out again",
+    "description": "mcp-inspect answers what each named app has now (absent, registered, outdated, custom, blocked or not_installed). mcp-preview writes nothing and answers each file's exact before/after lines and a review_hash of the whole plan; mcp-register with --reviewed <hash> refuses every write when the plan changed meanwhile. An entry under the same name that matches none of Trillion's signatures is the person's own and is never changed or removed; every other key in the file is kept. An app not on this computer is answered not_installed and nothing is created for it. Writes are locked, backed up beside the file, refused for a symbolic link or a file changed meanwhile, and read back. The address is https, or http at the literal loopback host only. An entry is not a signed-in connection: each result names the sign-in still to do in that app. Each app's file, format and entry is a row of read-data/mcp-registration.json.",
+    "status": "active",
+    "maker": "maker:register-trillion-in-my-ai-apps",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "register-trillion-in-my-ai-apps"
    }
   },
   {
@@ -9264,6 +9324,21 @@
    }
   },
   {
+   "id": "tool:use-trillion-from-a-shell",
+   "values": {
+    "title": "Use Trillion from any AI's shell: the trillion command (runs on your computer)",
+    "job": "Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own",
+    "description": "The `trillion` command. Every command is ONE call of the engine's one MCP tool (run_resource_operation) at the account's door: the Trillion Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `trillion` on the PATH and writes the skill for each AI app here; whoami, who, publish, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; tools and call list and run Workshop tools; op runs any engine operation. The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `trillion update` names who updates it: the command never updates itself.",
+    "status": "active",
+    "maker": "maker:use-trillion-from-a-shell",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "use-trillion-from-a-shell"
+   }
+  },
+  {
    "id": "tool:view-a-poker-table-for-a-player",
    "values": {
     "title": "See a poker table as one player may see it",
@@ -9644,6 +9719,21 @@
      "placement:deployed-container"
     ],
     "folder": "legal-document-builder"
+   }
+  },
+  {
+   "id": "tool:write-message-models-for-every-app",
+   "values": {
+    "title": "Write the message models every app reads from one list (runs on your computer)",
+    "job": "Write the Swift and TypeScript message models two apps and the web use to talk to each other, from one list of models",
+    "description": "Reads one models file (models, each with its fields and types, and targets naming the type name, protocols and output file each app uses) and writes a Swift file per Swift target and one TypeScript declaration, so the apps cannot read the same message two ways. --check exits 1 and names each file that is behind its models file; --write (the default) brings them up to date. Nothing about any model is built in: the models are the person's rows.",
+    "status": "active",
+    "maker": "maker:write-message-models-for-every-app",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "write-message-models-for-every-app"
    }
   },
   {
