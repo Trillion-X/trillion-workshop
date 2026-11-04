@@ -10,6 +10,7 @@
       "to": "tools/review-what-a-list-says/read-data/list-review.mjs",
       "source_identity": "1f:b0e991ab595ad5dcd2ec088bd80b985334f82a4d3430d50c7e8a39b9e2847030",
       "identity": "1f:b0e991ab595ad5dcd2ec088bd80b985334f82a4d3430d50c7e8a39b9e2847030",
+      "finding": "F-0066",
       "reused": true
     }
   ]

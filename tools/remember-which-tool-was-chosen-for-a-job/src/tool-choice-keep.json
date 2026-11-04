@@ -1,0 +1,8 @@
+{
+  "_what": "How long the choices kept when find_tool_for_job offers candidates are kept (src/tool-choice-keep.mjs), as DATA. A choice (`choice:tool:<32 hex>`, and `<that>:pool` between the find and the run) is dropped once it has not been offered or chosen from for `keep_days`. Offering or choosing again writes its time at most every `refresh_hours`, so a job asked for every turn does not write each turn. The sweep drops at most `page` choices a wake and rests `rest_seconds` before the next page; while the index it reads is still being built it looks again after `wait_for_index_seconds`.",
+  "keep_days": 30,
+  "refresh_hours": 24,
+  "page": 200,
+  "rest_seconds": 60,
+  "wait_for_index_seconds": 600
+}
