@@ -1,0 +1,16 @@
+{
+  "_what": "The one search's settings (do-work/search-everything.mjs). The numbers are old trillion's src/search.json at b6ae0ebf (limit, min_word_length, merge_seconds, moments_per_thing, fusion.k and fusion.word_confidence_floor; place labels for name and written). `lanes` are the engine's two storage reads this tool asks, each with its old lane's place, source and rank: `records` is records:search at @own-records (trillion-rust src/record_value/records-door.json `search`; each record kind it answers is its own lane, rank 1 as the old words-in-records lanes), and `files` is the files' name search at @namespace (src/account_files/account-files-door.json `search`, the old file-names lane, rank 0.8), asked only when no record type narrows the question.",
+  "limit": 60,
+  "min_word_length": 2,
+  "merge_seconds": 4,
+  "moments_per_thing": 3,
+  "fusion": { "k": 60, "word_confidence_floor": 0.15 },
+  "places": [
+    { "id": "name", "label": "Name" },
+    { "id": "written", "label": "Notes and text" }
+  ],
+  "lanes": [
+    { "id": "records", "match": "records", "operation": "records:search", "place": "written", "source": "trillion", "rank": 1 },
+    { "id": "file-names", "match": "files", "operation": "search", "place": "name", "source": "files", "rank": 0.8 }
+  ]
+}

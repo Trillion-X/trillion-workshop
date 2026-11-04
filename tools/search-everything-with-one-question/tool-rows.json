@@ -1,0 +1,93 @@
+{
+  "kind": "package-set-records",
+  "record_set": "search-everything-with-one-question-tool-rows",
+  "what_this_is": "The Workshop rows for the tool in tools/search-everything-with-one-question: one question over everything a person keeps (every list and record, and their files by name), merged into one ranked list, each hit with the address that opens it. The port of old trillion's `search` tool (src/file-tools.mjs:125, finished by src/search.mjs:1750 `finish`), moved here from the engine (trillion-rust's search_everything_at), which keeps only the two storage reads it calls.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:search-everything-with-one-question",
+        "label": "Search everything I keep with one question (runs on your computer)",
+        "status": "active",
+        "job": "Search everything I keep with one question: every list and record, and my files by name, best match first",
+        "description": "Searches everything this person keeps with one question: every list and record they keep (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first. Ask it the person's own question (\"what is my EIN\") or the words to find. Each result is one thing with found_in (the places it matched: written for a record's text, name for a file's name), said (the words around the match, which hold the answer), score, and address: the door call that opens it (records:read for a record, find_file for a file). type (optional) keeps only records of that kind and leaves the files out. unavailable names a place or source that could not answer and why (a file search the caller may not make is named here, never guessed); pending names one still working: ask again in a few seconds. It runs through the person's own MCP client, so it reaches every kind; a Workshop run can be granted one kind only (tool:search-one-of-my-lists).",
+        "input_schema": {
+          "type": "object",
+          "required": ["client", "input"],
+          "properties": {
+            "client": { "type": "string", "description": "The client file on the person's computer, put where {client} is in the command: { argv: the command that starts their Trillion MCP client on standard input and output, resource: \"@own-records\", files_resource: \"@namespace\", timeout_ms? }. It holds no credential: the client signs in itself." },
+            "input": { "type": "string", "description": "A JSON file holding { question, type?, limit? }, put where {input} is in the command. question is at most 500 characters; limit 1..200 (60 when left out)." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last JSON line: { result: { question, terms, results: [{ id, source, title, name, found_in, places, said, score, address: { resource, operation, input }, ... }], unavailable, pending }, started_at, finished_at }, or { error, code, outcome } when the records refused the search."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": ["git clone https://github.com/Trillion-X/trillion-workshop.git"],
+          "run": "node trillion-workshop/tools/records-door/do-work/run-with-stdio-mcp.mjs {client} trillion-workshop/tools/search-everything-with-one-question/do-work/search-everything.mjs searchEverything {input}",
+          "needs": ["node 22.6 or later", "the person's Trillion MCP client"],
+          "say": "This runs on the person's own computer through their own Trillion MCP client, so it searches every list, record and file name they keep and nothing leaves but the question. Write the input file with their question, run `run`, and answer from the results' said, citing each hit by its address; open a hit by calling its address. When unavailable names files, say the files could not be searched and why."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Trillion-X/trillion src/file-tools.mjs:125 `search` and src/search.mjs:1750 `finish`, as ported to trillion-rust src/native_boot/mcp_local.rs search_everything_at and src/record_value/search.rs merged, moved here one to one" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:search-one-of-my-lists",
+        "label": "Search one of my lists with one question",
+        "status": "active",
+        "job": "Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are",
+        "description": "Searches the records of one kind (one list) with one question through the records door's word index, which every write feeds: the rows holding every asked word, best first, each with said (the words around the match), score and address (the records:read that opens it). The whole list is searched in one call, never one page at a time. This run is granted that one kind only; to search every list and the files together, use tool:search-everything-with-one-question.",
+        "input_schema": {
+          "type": "object",
+          "required": ["question", "type"],
+          "additionalProperties": false,
+          "properties": {
+            "question": { "type": "string", "maxLength": 500, "description": "The person's question or the words to find" },
+            "type": { "type": "string", "minLength": 1, "description": "The kind of record (the list) to search; this run's right is filled from it" },
+            "limit": { "type": "integer", "minimum": 1, "maximum": 200, "description": "The most results (60 when left out)" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["question", "results", "unavailable", "pending"],
+          "properties": {
+            "question": { "type": "string" },
+            "terms": {},
+            "results": { "type": "array", "items": { "type": "object", "required": ["address"], "properties": { "address": { "type": "object" }, "score": { "type": "number" }, "said": {} } } },
+            "unavailable": { "type": "array" },
+            "pending": { "type": "array" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "search-everything-with-one-question", "paths": ["do-work", "read-data"], "at": "/opt/search-everything-with-one-question" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] },
+          "workdir": "/opt/search-everything-with-one-question",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/search-everything-with-one-question/do-work/search-everything.mjs", "searchEverything"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": { "fill": { "from": "input", "field": "type" } }, "operations": ["records:search"] }] }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:trillion",
+        "result_selector": "$.result",
+        "provenance": { "source": "Trillion-X/trillion src/search.mjs:1750 `finish` (its words-in-records lane), through trillion-rust records:search" }
+      }
+    }
+  ]
+}
