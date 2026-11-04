@@ -21,15 +21,15 @@ import { createWriteStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import { createSocket } from 'node:dgram';
 import { timingSafeEqual } from 'node:crypto';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
+import { hexToBytes, utf8ToBytes } from '@noble/hashes/utils.js';
+import { makeHashCodeHasher, makeHashCodeHexFromBytes, makeKeyedHashHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 export const IDENTITY = /^1f:[0-9a-f]{64}$/;
 const HEADER = { id: 'x-trillion-peer-id', time: 'x-trillion-peer-time', mac: 'x-trillion-peer-mac' };
 
 /** The key peers of this account share, derived so the account key itself is never sent or used as a MAC key. */
-export const peerKey = secret => blake3(utf8ToBytes(`trillion lan peer v1\0${secret}`));
-const macOf = (key, text) => bytesToHex(blake3(utf8ToBytes(text), { key }));
+export const peerKey = secret => hexToBytes(makeHashCodeHexFromBytes(utf8ToBytes(`trillion lan peer v1\0${secret}`)).slice(3));
+const macOf = (key, text) => makeKeyedHashHexFromBytes(key, utf8ToBytes(text));
 const sameHex = (a, b) => typeof a === 'string' && a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
 export function createPeers({ config, secret, selfId, now = Date.now, fetchImpl = fetch, log = () => {} }) {
@@ -99,7 +99,7 @@ export function createPeers({ config, secret, selfId, now = Date.now, fetchImpl 
         const answer = await fetchImpl(`${url}${target}`, { headers: signed('GET', target), signal: controller.signal, redirect: 'error' });
         if (answer.status === 404) { void answer.body?.cancel().catch(() => {}); continue; }
         if (!answer.ok || !answer.body) throw new Error(`The peer answered ${answer.status}.`);
-        const hasher = blake3.create();
+        const hasher = makeHashCodeHasher();
         let received = 0;
         const out = createWriteStream(dest);
         try {
@@ -110,7 +110,7 @@ export function createPeers({ config, secret, selfId, now = Date.now, fetchImpl 
             if (!out.write(piece)) await new Promise(resolve => out.once('drain', resolve));
           }
         } finally { await new Promise(resolve => out.end(resolve)); }
-        if (received !== length || `1f:${bytesToHex(hasher.digest())}` !== identity) throw Object.assign(new Error('The bytes are not the file named.'), { bad: true });
+        if (received !== length || hasher.identity() !== identity) throw Object.assign(new Error('The bytes are not the file named.'), { bad: true });
         accepted = true;
         return url;
       } catch (error) {
