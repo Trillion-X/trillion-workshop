@@ -15,7 +15,7 @@
 # is the message's place in the conversation it came from (the source's own id, else the atom's), so
 # bringing the same export in again adds nothing twice; and `at` is the time the source gave, left out when it gave
 # none (a time is never invented). Only what was SAID is a message: a reaction, a tool call, a thought, a status or an
-# error is not, and a message with no words is not.
+# error is not, and a message with no words is not, unless it names files it carried (then its text is empty).
 #
 # This file keeps nothing and writes nothing. It turns the one canonical contract of the mapper (threads and atoms)
 # into the contract of the owner that keeps messages; that owner alone splits a very long message into parts and
@@ -53,8 +53,11 @@ def conversations_for_recording(threads, atoms, row, descriptor=None):
     said = {}
     for atom in atoms:
         text = (atom.get("content") or {}).get("text")
-        if atom.get("kind") != "utterance" or not isinstance(text, str) or not text.strip():
+        files = atom.get("attachments") if isinstance(atom.get("attachments"), list) and atom["attachments"] else None
+        # A message of only files (a photo sent without words) is kept with empty text, so its files are linked.
+        if atom.get("kind") != "utterance" or ((not isinstance(text, str) or not text.strip()) and not files):
             continue
+        text = text if isinstance(text, str) else ""
         message = {"id": atom.get("native_ref") or atom["atom_ref"],
                    "speaker": _spoken_as(_speaker_of(atom), recording), "text": text}
         if atom.get("at"):
