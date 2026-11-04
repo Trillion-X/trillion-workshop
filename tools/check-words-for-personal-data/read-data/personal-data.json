@@ -1,0 +1,65 @@
+{
+  "_what": "What read-data/personal-data.mjs looks for in words before they go to a model that is not on this Mac (tool:check-personal-data). `patterns` are shapes found by rule (regular expressions; `luhn` also requires a valid card checksum). `model_questions` are yes-or-no questions put to a model on this Mac (tools/ask-a-small-model-for-a-verdict answer-state-questions.mjs, at the `model` the input names) about the whole text; one at or above `threshold` counts. `choices` are what the person is offered when something is found: send it as it is, do the job on this Mac only (tool:ask-a-model, the Mac app's own tool in Trillion computer/local-models.mjs), or keep it back. Nothing leaves this Mac to run this check.",
+  "patterns": [
+    {
+      "kind": "email-address",
+      "regex": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
+      "flags": "g"
+    },
+    {
+      "kind": "phone-number",
+      "regex": "(?<![\\d])(?:\\+?\\d{1,3}[ .-]?)?(?:\\(\\d{2,4}\\)|\\d{2,4})[ .-]?\\d{3}[ .-]?\\d{3,4}(?![\\d])",
+      "flags": "g"
+    },
+    {
+      "kind": "payment-card",
+      "regex": "(?<![\\d])(?:\\d[ -]?){13,19}(?![\\d])",
+      "flags": "g",
+      "luhn": true
+    },
+    {
+      "kind": "iban",
+      "regex": "\\b[A-Z]{2}\\d{2}[ ]?(?:[A-Z0-9]{4}[ ]?){2,7}[A-Z0-9]{1,4}\\b",
+      "flags": "g"
+    },
+    {
+      "kind": "us-social-security-number",
+      "regex": "(?<![\\d])\\d{3}-\\d{2}-\\d{4}(?![\\d])",
+      "flags": "g"
+    }
+  ],
+  "model_questions": [
+    {
+      "kind": "name-with-address",
+      "instructions": "Does this text contain a real person's full name together with their home address?"
+    },
+    {
+      "kind": "health-details",
+      "instructions": "Does this text contain a real person's medical or health details?"
+    }
+  ],
+  "use_model": true,
+  "threshold": 0.7,
+  "sample_chars": 20000,
+  "choices": [
+    {
+      "id": "share",
+      "label": "Send it as it is"
+    },
+    {
+      "id": "local",
+      "label": "Do it on this Mac only",
+      "tool": "tool:ask-a-model"
+    },
+    {
+      "id": "keep",
+      "label": "Do not send it"
+    }
+  ],
+  "words": {
+    "needs_text": "Give the words to check as text.",
+    "model_unchecked": "The model on this Mac did not answer, so only the shapes found by rule were checked: {why}",
+    "clean": "Nothing that looks like personal data was found.",
+    "no_model": "no model on this computer was named"
+  }
+}
