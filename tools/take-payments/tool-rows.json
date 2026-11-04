@@ -600,7 +600,84 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider_session_id": "cs_test_sample0001"
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/checkout/sessions/cs_test_sample0001"
+                },
+                "status": 200,
+                "body": {
+                  "id": "cs_test_sample0001",
+                  "object": "checkout.session",
+                  "status": "complete",
+                  "payment_status": "paid",
+                  "mode": "subscription",
+                  "created": 1793750400,
+                  "amount_total": 1200,
+                  "currency": "usd",
+                  "url": null,
+                  "client_reference_id": "buyer-sample-1",
+                  "customer_details": {
+                    "email": "buyer@example.test",
+                    "name": "Sample Buyer"
+                  },
+                  "metadata": {
+                    "offer_id": "offer:bread-box",
+                    "price_option_id": "price:box:monthly",
+                    "validated_amount_cents": "1200",
+                    "cadence": "month"
+                  },
+                  "subscription": "sub_sample0001"
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0001"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sample0001",
+                  "object": "subscription",
+                  "status": "active",
+                  "currency": "usd",
+                  "cancel_at_period_end": false,
+                  "metadata": {},
+                  "items": {
+                    "object": "list",
+                    "data": [
+                      {
+                        "id": "si_sample0001",
+                        "object": "subscription_item",
+                        "quantity": 1,
+                        "price": {
+                          "id": "price_sample0001",
+                          "object": "price",
+                          "currency": "usd",
+                          "unit_amount": 1200,
+                          "recurring": {
+                            "interval": "month",
+                            "interval_count": 1
+                          }
+                        }
+                      }
+                    ],
+                    "has_more": false
+                  }
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -704,7 +781,56 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "customer_email": "buyer@example.test",
+              "offer_id": "offer:bread-box"
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/checkout/sessions"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "url": "/v1/checkout/sessions",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "cs_test_sample0001",
+                      "object": "checkout.session",
+                      "status": "complete",
+                      "payment_status": "paid",
+                      "mode": "subscription",
+                      "created": 1793750400,
+                      "amount_total": 1200,
+                      "currency": "usd",
+                      "url": null,
+                      "client_reference_id": "buyer-sample-1",
+                      "customer_details": {
+                        "email": "buyer@example.test",
+                        "name": "Sample Buyer"
+                      },
+                      "metadata": {
+                        "offer_id": "offer:bread-box",
+                        "price_option_id": "price:box:monthly",
+                        "validated_amount_cents": "1200",
+                        "cadence": "month"
+                      },
+                      "subscription": null
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -815,7 +941,55 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "created_after_unix": 1793664000
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/checkout/sessions"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "url": "/v1/checkout/sessions",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "cs_test_sample0001",
+                      "object": "checkout.session",
+                      "status": "complete",
+                      "payment_status": "paid",
+                      "mode": "subscription",
+                      "created": 1793750400,
+                      "amount_total": 1200,
+                      "currency": "usd",
+                      "url": null,
+                      "client_reference_id": "buyer-sample-1",
+                      "customer_details": {
+                        "email": "buyer@example.test",
+                        "name": "Sample Buyer"
+                      },
+                      "metadata": {
+                        "offer_id": "offer:bread-box",
+                        "price_option_id": "price:box:monthly",
+                        "validated_amount_cents": "1200",
+                        "cadence": "month"
+                      },
+                      "subscription": "sub_sample0001"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -920,7 +1094,64 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "ended_after_unix": 1793664000
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/subscriptions"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "url": "/v1/subscriptions",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "sub_sample0002",
+                      "object": "subscription",
+                      "status": "canceled",
+                      "currency": "usd",
+                      "cancel_at_period_end": false,
+                      "metadata": {
+                        "offer_id": "offer:bread-box"
+                      },
+                      "items": {
+                        "object": "list",
+                        "data": [
+                          {
+                            "id": "si_sample0001",
+                            "object": "subscription_item",
+                            "quantity": 1,
+                            "price": {
+                              "id": "price_sample0001",
+                              "object": "price",
+                              "currency": "usd",
+                              "unit_amount": 1200,
+                              "recurring": {
+                                "interval": "month",
+                                "interval_count": 1
+                              }
+                            }
+                          }
+                        ],
+                        "has_more": false
+                      },
+                      "ended_at": 1793750400
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -1149,7 +1380,101 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "subscription_id": "sub_sample0003",
+              "invoice_id": "in_sample0002"
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0003"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sample0003",
+                  "object": "subscription",
+                  "status": "active",
+                  "currency": "usd",
+                  "cancel_at_period_end": false,
+                  "metadata": {
+                    "offer_id": "offer:bread-box",
+                    "installment_count": "3",
+                    "installments_paid": "1",
+                    "last_installment_invoice_id": "in_sample0001"
+                  },
+                  "items": {
+                    "object": "list",
+                    "data": [
+                      {
+                        "id": "si_sample0001",
+                        "object": "subscription_item",
+                        "quantity": 1,
+                        "price": {
+                          "id": "price_sample0001",
+                          "object": "price",
+                          "currency": "usd",
+                          "unit_amount": 1200,
+                          "recurring": {
+                            "interval": "month",
+                            "interval_count": 1
+                          }
+                        }
+                      }
+                    ],
+                    "has_more": false
+                  }
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0003"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sample0003",
+                  "object": "subscription",
+                  "status": "active",
+                  "currency": "usd",
+                  "cancel_at_period_end": false,
+                  "metadata": {
+                    "offer_id": "offer:bread-box",
+                    "installment_count": "3",
+                    "installments_paid": "2",
+                    "last_installment_invoice_id": "in_sample0002"
+                  },
+                  "items": {
+                    "object": "list",
+                    "data": [
+                      {
+                        "id": "si_sample0001",
+                        "object": "subscription_item",
+                        "quantity": 1,
+                        "price": {
+                          "id": "price_sample0001",
+                          "object": "price",
+                          "currency": "usd",
+                          "unit_amount": 1200,
+                          "recurring": {
+                            "interval": "month",
+                            "interval_count": 1
+                          }
+                        }
+                      }
+                    ],
+                    "has_more": false
+                  }
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -1256,7 +1581,56 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "subscription_id": "sub_sample0001"
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "DELETE",
+                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0001"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sample0001",
+                  "object": "subscription",
+                  "status": "canceled",
+                  "currency": "usd",
+                  "cancel_at_period_end": false,
+                  "metadata": {},
+                  "items": {
+                    "object": "list",
+                    "data": [
+                      {
+                        "id": "si_sample0001",
+                        "object": "subscription_item",
+                        "quantity": 1,
+                        "price": {
+                          "id": "price_sample0001",
+                          "object": "price",
+                          "currency": "usd",
+                          "unit_amount": 1200,
+                          "recurring": {
+                            "interval": "month",
+                            "interval_count": 1
+                          }
+                        }
+                      }
+                    ],
+                    "has_more": false
+                  },
+                  "ended_at": 1793750400,
+                  "canceled_at": 1793750400
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -1362,7 +1736,98 @@
         ],
         "provenance": {
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "subscription_id": "sub_sample0001",
+              "metadata": {
+                "follow_up": "sent"
+              }
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0001"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sample0001",
+                  "object": "subscription",
+                  "status": "active",
+                  "currency": "usd",
+                  "cancel_at_period_end": false,
+                  "metadata": {
+                    "offer_id": "offer:bread-box"
+                  },
+                  "items": {
+                    "object": "list",
+                    "data": [
+                      {
+                        "id": "si_sample0001",
+                        "object": "subscription_item",
+                        "quantity": 1,
+                        "price": {
+                          "id": "price_sample0001",
+                          "object": "price",
+                          "currency": "usd",
+                          "unit_amount": 1200,
+                          "recurring": {
+                            "interval": "month",
+                            "interval_count": 1
+                          }
+                        }
+                      }
+                    ],
+                    "has_more": false
+                  }
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0001"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sample0001",
+                  "object": "subscription",
+                  "status": "active",
+                  "currency": "usd",
+                  "cancel_at_period_end": false,
+                  "metadata": {
+                    "offer_id": "offer:bread-box",
+                    "follow_up": "sent"
+                  },
+                  "items": {
+                    "object": "list",
+                    "data": [
+                      {
+                        "id": "si_sample0001",
+                        "object": "subscription_item",
+                        "quantity": 1,
+                        "price": {
+                          "id": "price_sample0001",
+                          "object": "price",
+                          "currency": "usd",
+                          "unit_amount": 1200,
+                          "recurring": {
+                            "interval": "month",
+                            "interval_count": 1
+                          }
+                        }
+                      }
+                    ],
+                    "has_more": false
+                  }
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
