@@ -1,4 +1,4 @@
-// src/sales-contract-builder.mjs
+// tools/build-and-send-a-sales-contract/do-work/sales-contract-builder.mjs (moved from Trillion-X/trillion src/sales-contract-builder.mjs)
 //
 // PURPOSE
 //   What the sales contract builder reads from the person's own business, and what it sets up after a deal is sent.
@@ -18,31 +18,14 @@
 //      {contract_id}, {address}); a brace that names anything else stays as written.
 //   4. A paid follow-up's rule always carries the deal's own id, so one deal's payment never runs another's steps.
 //
-import builder from './sales-contract-builder.json' with { type: 'json' };
-import {resolveMarketplaceContentDocument} from './marketplace-content-document.mjs';
+import builder from '../sales-contract-builder.json' with { type: 'json' };
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const text = value => typeof value === 'string' && value.trim().length > 0;
 const MAX_ITEMS = 200;
 
-/** Runtime consumers select current inert content; the engine still owns the
- * reader vocabulary, source result mapping and follow-up admission. */
-export async function readSalesContractBuilder(env,options={}){
-  const current=await resolveMarketplaceContentDocument(env,'src/sales-contract-builder.json',builder,['/sources','/after_payment','/words_for','/screens'],options);
-  if(!Array.isArray(current.sources)||current.sources.some(row=>!object(row)||!text(row.id)||!text(row.group)||!text(row.label)||!object(row.read)||!Array.isArray(row.items)||!object(row.each))||!object(current.after_payment)||!object(current.words_for)||!object(current.screens)||!Object.values(current.screens).every(text))throw new TypeError('The current sales builder content has invalid sources or presentation sections.');
-  for(const key of ['metrics','events','conditions']){
-    const rows=current.words_for[key]??[];
-    if(!Array.isArray(rows)||rows.some(row=>!object(row)||!text(row.id)||!text(row.label)))throw new TypeError('Sales builder choices need named rows.');
-    current.words_for[key]=rows;
-  }
-  const after=current.after_payment;
-  if(after.steps!==undefined&&!Array.isArray(after.steps))throw new TypeError('Sales builder follow-up choices need a list.');
-  after.steps??=[];
-  for(const row of after.steps)if(!object(row)||!text(row.id)||!text(row.label)||!text(row.icon)||!object(row.then)||!(text(row.then.tool_id)||text(row.then.workflow_id))||!(row.on==='paid'||object(row.on)&&Number.isFinite(row.on.after_days)&&row.on.after_days>=0&&/^\d{2}:\d{2}$/.test(row.on.at)))throw new TypeError('Sales builder follow-up choices need valid actions and timing.');
-  if(after.trigger!==undefined&&!object(after.trigger))throw new TypeError('A paid follow-up needs its event condition.');
-  if(after.workflow_step!==undefined&&(!object(after.workflow_step)||!text(after.workflow_step.label)||!text(after.workflow_step.icon)||after.workflow_step.on!=='paid'))throw new TypeError('A workflow follow-up choice needs valid words and timing.');
-  return current;
-}
+// readSalesContractBuilder (the hosted builder's current content, read through the Worker's marketplace content
+// documents) stays with the hosted service: this folder reads its own sales-contract-builder.json.
 
 /** The value at a path of keys and list positions, or undefined. */
 export function valueAt(value, path) {

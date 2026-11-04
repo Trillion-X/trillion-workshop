@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here from another code tree: each names its source path and commit and the identity of its source bytes, which its first commit here held byte for byte (its port contract in ports/ names any later change).",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/sales-contract-builder.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/build-and-send-a-sales-contract/do-work/sales-contract-builder.mjs",
+      "source_identity": "1f:f8507ab7d6d0b3271a31f6732cf276fd8278d41c9ff9db193730bc3c52d80763",
+      "identity_at_move": "1f:f8507ab7d6d0b3271a31f6732cf276fd8278d41c9ff9db193730bc3c52d80763"
+    }
+  ]
+}
