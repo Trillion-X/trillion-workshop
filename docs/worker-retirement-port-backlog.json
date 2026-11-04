@@ -2691,15 +2691,15 @@
   },
   {
    "path": "src/account-action-domain.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools (messages, notices, decisions, payment, client programs, practice, boards)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Facade that assembles account actions for PersonStore/native owners: messages, notices, decision outcome checks, payment/plan, client programs, space mail, subject boards; reads env.APP_KV."
   },
   {
    "path": "src/account-app-erasure.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-app-erasure.mjs",
+   "why": "a file of the retired Worker host: Evidence: runs on the RecordBook Durable Object's sql/transaction; tables exist only in the Worker's book."
   },
   {
    "path": "src/account-app-grants.mjs",
@@ -2709,75 +2709,75 @@
   },
   {
    "path": "src/account-app-original-state.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-app-original-state.mjs",
+   "why": "a file of the retired Worker host: Evidence: carry of KV key families (public-app-site-worker: etc.) into DO tables; no consumer after retirement."
   },
   {
    "path": "src/account-app-originals.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-app-originals.mjs",
+   "why": "a file of the retired Worker host: Evidence: DO SQLite tables under RecordBook transaction; serves the KV public copy only."
   },
   {
    "path": "src/account-app-public-copy.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-app-public-copy.mjs",
+   "why": "a file of the retired Worker host: Evidence: exists to keep Workers KV public copy in step with the DO; hosted Sites retired with the Worker."
   },
   {
    "path": "src/account-app-reference-recovery.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-app-reference-recovery.mjs",
+   "why": "a file of the retired Worker host: Evidence: DO-table recovery of cross-object reservations (native-account-app-peer); no Rust consumer."
   },
   {
    "path": "src/account-app-state-erasure.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-app-state-erasure.mjs",
+   "why": "a file of the retired Worker host: Evidence: hostOf(policy.env,{kind:'record-book'}) and send(...'public-app-installation') DO calls."
   },
   {
    "path": "src/account-app-state.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-app-state.mjs",
+   "why": "a file of the retired Worker host: Evidence: env.POOL Durable Object stub, APP_KV route lookup, /mcp/api/public-app/installations dispatch. Hosted Sites themselves are a product feature (apps), not engine."
   },
   {
    "path": "src/account-control-metadata.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-control-metadata.mjs",
+   "why": "a file of the retired Worker host: Evidence: physical hosting split of PersonStore settings into the AccountControl DO; most named settings are product (plan, stories, budgets). Rust keeps rights in src/account_rights.rs."
   },
   {
    "path": "src/account-control-state.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-control-state.mjs",
+   "why": "a file of the retired Worker host: Evidence: SQL state of the AccountControl/gate DOs for cross-object fencing. Idle-lifetime check it calls is covered in src/account.rs SignInRules::days_for."
   },
   {
    "path": "src/account-control.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-control.mjs",
+   "why": "a file of the retired Worker host: Mixes jobs; main class worker-host. The rights-in-one-place job is covered by src/account_rights.rs (update, catch_up) and src/mcp_current_policy.rs; the cross-DO gate fan-out has no counterpart because Rust has no gates."
   },
   {
    "path": "src/account-deletion-pace.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-deletion-pace.json",
+   "why": "a file of the retired Worker host: Evidence: transient_messages are Cloudflare DO errors; pacing would be rewritten with the erasure port, not carried."
   },
   {
    "path": "src/account-erasure-command.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-erasure-command.mjs",
+   "why": "a file of the retired Worker host: Evidence: cursors over shared-network Durable Objects and native command journals; those shared objects do not exist in Rust."
   },
   {
    "path": "src/account-erasure-identity.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-erasure-identity.mjs",
+   "why": "a file of the retired Worker host: Evidence: all reads/writes are APP_KV and pool DO. The job itself (delete the account's sign-ins) is the gap named on src/account-erasure-policy.mjs."
   },
   {
    "path": "src/account-erasure-policy.mjs",
@@ -2787,99 +2787,99 @@
   },
   {
    "path": "src/account-move-resource-name.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-move-resource-name.mjs",
+   "why": "a file of the retired Worker host: Evidence: 5-line helper for DO resource addresses used only by account-native-move.mjs."
   },
   {
    "path": "src/account-move-shared-network.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-move-shared-network.mjs",
+   "why": "a file of the retired Worker host: Evidence: shim between Worker objects (network DO, PersonStore stubs); importer src/worker.mjs only."
   },
   {
    "path": "src/account-move.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-move.mjs",
+   "why": "a file of the retired Worker host: Evidence: the table lists are the Worker stores' tables. Rust has no merge-two-accounts job; account_files/moves.rs moves bytes between origins of one account, src/account/computers moves an account between computers. A merge would be a new design, not this file."
   },
   {
    "path": "src/account-native-external-carry.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-native-external-carry.mjs",
+   "why": "a file of the retired Worker host: Evidence: transfer between the Worker's root-keyed held-values boxes; Rust secrets live in src/secrets.rs per account with no cross-account carry."
   },
   {
    "path": "src/account-native-move.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-native-move.mjs",
+   "why": "a file of the retired Worker host: Evidence: entirely DO stubs (binding.get(binding.idFromName(name)))."
   },
   {
    "path": "src/account-owner-binding.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-owner-binding.mjs",
+   "why": "a file of the retired Worker host: Evidence: RecordBook DO call and per-isolate cache. In Rust an account's records are opened under the account by construction (src/local_account), so there is nothing to bind."
   },
   {
    "path": "src/account-plan-usage.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/paid-access (or a billing tool)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Counts usage-billed plan meters per subscription and day, funded spots, Namespace bytes via a plan-usage service actor."
   },
   {
    "path": "src/account-policy-fanout.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-policy-fanout.json",
+   "why": "a file of the retired Worker host: Evidence: sized after DO storage resets on 2026-10-19 (6,429 gates); Rust has no gates."
   },
   {
    "path": "src/account-policy-integration.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-policy-integration.mjs",
+   "why": "a file of the retired Worker host: Evidence: wraps PersonStore DO entries (deleteEverything, eraseRetired...) and calls the AccountControl DO."
   },
   {
    "path": "src/account-policy-name.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-policy-name.mjs",
+   "why": "a file of the retired Worker host: Evidence: Durable Object naming and stub proxy only."
   },
   {
    "path": "src/account-policy-quota-drain.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-policy-quota-drain.json",
+   "why": "a file of the retired Worker host: Evidence: tunes the AccountControl DO alarm; no Rust consumer."
   },
   {
    "path": "src/account-policy-source.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-policy-source.mjs",
+   "why": "a file of the retired Worker host: Evidence: the source-switch between two Worker objects; Rust rights are read from src/account_rights.rs and src/mcp_current_policy.rs."
   },
   {
    "path": "src/account-policy-update-recovery.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-policy-update-recovery.mjs",
+   "why": "a file of the retired Worker host: Evidence: DO alarm continuation; a cut-off writer across DOs has no Rust counterpart."
   },
   {
    "path": "src/account-routes.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-apps web screens + Workshop tools (plan, business, connections, decisions, stories, webhooks, looking)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Worker side of the signed-in guide screens: GET /work/api/screens/<name> and ~50 button actions (plan checkout, business, connections, decisions, stories, webhooks, looking, sign-in ways), plus KV lists of passkeys and sessions."
   },
   {
    "path": "src/account-screens.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-apps screens / Workshop (tools/set-up-my-account already took getStartedFacts)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Words and steps of the signed-in guide screens as data: Get started, Use Trillion in your AI, Connections, Account & security, Plan, Look, Invites."
   },
   {
    "path": "src/account-share-index-erasure.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/account-share-index-erasure.mjs",
+   "why": "a file of the retired Worker host: Evidence: APP_KV binding only ('APP_KV binding missing' branch)."
   },
   {
    "path": "src/action-completeness.mjs",
@@ -3061,9 +3061,9 @@
   },
   {
    "path": "src/allowance.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop take-payments tool / apps account+billing screen",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Free-decision allowance periods, plan-upgrade pitch and refusal words, free-allowance experiment state for /billing/plan."
   },
   {
    "path": "src/answer-lists.json",
@@ -3326,9 +3326,9 @@
   },
   {
    "path": "src/born-account-erasure.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/born-account-erasure.mjs",
+   "why": "a file of the retired Worker host: Evidence: born accounts exist only because of the PersonStore/AccountControl split; throwaway showcase is product."
   },
   {
    "path": "src/born-account.mjs",
@@ -3780,9 +3780,9 @@
   },
   {
    "path": "src/connect-with-a-key.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-apps Connections screen; engine side already exists: runtime/workshop connect run + src/secrets.rs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): POST /work/connections/<service>: typed API-key values sent to one signed-in run of the connect tool row, which checks and seals them."
   },
   {
    "path": "src/connect.mjs",
@@ -3883,9 +3883,9 @@
   },
   {
    "path": "src/consent-fingerprint.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop community/network introduction tools",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): BLAKE3 consent of an introduction shown (text, recipients, shared, expires_at, optional action binding); refuses a yes given for a changed introduction."
   },
   {
    "path": "src/consequence-classes.json",
@@ -4000,27 +4000,27 @@
   },
   {
    "path": "src/customer-database-catalogue.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: a Workshop tool over records (e.g. tools/records-door clients)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Discovery index of a person's named databases (create, rename, archive, delete, restore, list, search, view across databases) in a RecordBook DO."
   },
   {
    "path": "src/customer-database-records.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/records.rs, trillion-rust:src/record_log, trillion-rust:src/record_model_policy, trillion-rust:src/record_indexes",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Per-database 'find' over every property and 'backfill' tables are not checked one to one."
   },
   {
    "path": "src/customer-database-resource.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: Workshop databases tool",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A database's identity metadata (name, archived_at, deleted_at, history) and command commitments in its RecordBook, forwarding record actions."
   },
   {
    "path": "src/customer-databases.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: Workshop tool (manage_databases, read_databases, database_records, search_databases)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tool definitions and the /databases HTTP adapter for customer databases."
   },
   {
    "path": "src/customers-hq.mjs",
@@ -4050,27 +4050,27 @@
   },
   {
    "path": "src/database-list-calls.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/keep-lists-of-rows; trillion-workshop tools/records-door/read-data/lists-door.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Operation table mapping lists:* calls (rows, views, filters, proposals, snapshots) to the list owner when a list is placed in a customer database DO (customer-database-resource.mjs)."
   },
   {
    "path": "src/database-resource-composition.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/database-resource-composition.mjs",
+   "why": "a file of the retired Worker host: Evidence: env.RECORD_BOOK.idFromName, env.ACCOUNT_CONTROL gate stubs, book.executeDatabaseCommand RPC."
   },
   {
    "path": "src/database-supply.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: a Workshop tool that runs its own customer database (e.g. PGlite) under trillion-workshop tools/",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Runs a customer PostgreSQL database (PGlite) for customer work: SQL guard against batched COMMIT, snapshot commit, database tool descriptors."
   },
   {
    "path": "src/database-workshop-provider.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/ (a database-attach tool)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Attaches an outside database through a chosen Workshop tool, keeping only tool/connection pins and the opaque remote id; MCP tool descriptors."
   },
   {
    "path": "src/date-shift.json",
@@ -4126,15 +4126,15 @@
   },
   {
    "path": "src/delegation-ceilings.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/hand-work-to-ais",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Words and fields of an AI's delegation ceiling ({deny, allow})."
   },
   {
    "path": "src/delegation-ceilings.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/hand-work-to-ais (take/canTake)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Settles and tightens an AI's ceiling and refuses a job whose needs it does not permit."
   },
   {
    "path": "src/delivery-words.json",
@@ -4198,15 +4198,15 @@
   },
   {
    "path": "src/direct-own-resource-mcp.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/mcp.rs, trillion-rust:tools/call, trillion-rust:src/native_boot/mcp_local.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust has no params.calls batch of several calls in one tools/call, no fallback to other owners and no 'unseen notices' add-on to replies (the notices part is a feature)."
   },
   {
    "path": "src/direct-resource-routing.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: Workshop tool over the records door (database catalogue tools)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Customer database tools (manage_databases, read_databases, database_records, search_databases) and /api/databases, sent to executeNativeDatabaseResource with idempotency-key request keys; checks env.ACCOUNT_CONTROL."
   },
   {
    "path": "src/directory-listing.json",
@@ -4217,9 +4217,9 @@
   },
   {
    "path": "src/downloads.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/downloads.mjs",
+   "why": "a file of the retired Worker host: Pure Worker R2 serving and bundled-asset routes; no running consumer. (Hook/helper files themselves belong to Workshop/apps distribution.)"
   },
   {
    "path": "src/drives-screen.json",
@@ -4273,9 +4273,9 @@
   },
   {
    "path": "src/engine-tools.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/engine-tools.mjs",
+   "why": "a file of the retired Worker host: Shim between the main Worker and the engines Worker (service-binding stubs). Rust runs the engines natively via crates/trigger-engine, workflow-engine, formula-core; the other tools are Workshop tools."
   },
   {
    "path": "src/engine.mjs",
@@ -4299,9 +4299,9 @@
   },
   {
    "path": "src/erasure-state.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/erasure-state.mjs",
+   "why": "a file of the retired Worker host: Built on DO ids, APP_KV and lazy-durable-object scheduler reads. Note: Rust has no account deletion at all (engine-port-report row 417), tracked separately."
   },
   {
    "path": "src/error-page-lines.json",
@@ -4346,21 +4346,21 @@
   },
   {
    "path": "src/execution-mode-tools.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/workflows; trillion-workshop tools/tell-ais-how-to-act",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tools list/read/apply_execution_mode over execution-modes.mjs and /workflows/start."
   },
   {
    "path": "src/execution-modes.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/workflows/recipes/workflows.json; trillion-workshop tools/tell-ais-how-to-act/rows.json",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Named execution standards (Trillion X / Hardcore mode) as versioned DATA compiled into workflow recipes."
   },
   {
    "path": "src/execution-tools.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/see-what-my-ais-did",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tools record_execution / read_execution: durable source receipts of actions done outside Trillion, over the /executions route."
   },
   {
    "path": "src/export-inventory.mjs",
@@ -4620,9 +4620,9 @@
   },
   {
    "path": "src/held-values-rotation.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/secrets/secrets_key.rs, trillion-rust:src/secrets.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No walk that wakes every account to reseal ahead of time: Rust reseals at the next change/open, so a key can only be dropped once each account has been opened."
   },
   {
    "path": "src/held-values.mjs",
@@ -4638,9 +4638,9 @@
   },
   {
    "path": "src/host-resource-account-erasure.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/host-resource-account-erasure.mjs",
+   "why": "a file of the retired Worker host: DO-to-DO erasure shim; availability links are a Workshop feature. Account deletion itself is unported in Rust (separate gap)."
   },
   {
    "path": "src/hosted-mcp-apps.mjs",
@@ -4700,27 +4700,27 @@
   },
   {
    "path": "src/hosts/http/mcp-public-ingress.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/hosts/http/mcp-public-ingress.mjs",
+   "why": "a file of the retired Worker host: Only a Worker-to-receptionist relay; the Rust forwarder/receptionist is the public door now."
   },
   {
    "path": "src/hosts/local/local-resource-host.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/sqlite.rs, trillion-rust:src/storage/record_store/mod.rs, trillion-rust:src/store.rs, trillion-rust:src/runtime/workshop.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust has no per-resource PGlite/PostgreSQL arbitrary-SQL tool supply and no OS-user (uid) policy row; under the rules a SQL tool would be a Workshop tool and authority comes from the door's sign-in."
   },
   {
    "path": "src/hosts/local/sqlite-host.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/hosts/local/sqlite-host.mjs",
+   "why": "a file of the retired Worker host: Its only point is to look like a Durable Object; Rust storage/sqlite.rs is the native SQLite owner."
   },
   {
    "path": "src/hosts/local/stored-object-host.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/hosts/local/stored-object-host.mjs",
+   "why": "a file of the retired Worker host: A Durable Object stand-in; no consumer once the Worker is gone."
   },
   {
    "path": "src/how-to-start-for-reviewers.json",
@@ -4855,15 +4855,15 @@
   },
   {
    "path": "src/interaction-log.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/interaction-log.mjs",
+   "why": "a file of the retired Worker host: Evidence: extends StoredObject DO, env.RECORD_BOOK, alarms per shard. Visitor analytics is a feature, not engine."
   },
   {
    "path": "src/interaction-routes.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/interaction-routes.mjs",
+   "why": "a file of the retired Worker host: Evidence: env.APP_KV, env.INTERACTION_LOG, env.OPERATOR_ACCOUNT_ID; imported only by worker.mjs."
   },
   {
    "path": "src/interactions.mjs",
@@ -4887,9 +4887,9 @@
   },
   {
    "path": "src/invite-routes.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-apps space invitation pages; Workshop spaces tool",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): /invite page, join, welcome, naming, link-preview card PNG (KV-kept) and space picture routes."
   },
   {
    "path": "src/invites-on-arrival.mjs",
@@ -4913,15 +4913,15 @@
   },
   {
    "path": "src/job-run.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-apps Work screen; trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Words and person card for the person taking a job themselves (person-store personWork): \"You\" card, finished/withdrawn words, follow-up wait."
   },
   {
    "path": "src/job-slots.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/describe-the-workshop (find_tool_for_job)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Picks the tool serving a job: account choice fact job_slot:<job>, else best rank, else refusal naming what to install; job_tools index tables in the person store."
   },
   {
    "path": "src/journey.mjs",
@@ -5000,15 +5000,15 @@
   },
   {
    "path": "src/limits.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools owning pursuit-plan / work-for-ais caps",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Explained caps (pursuit chars, work-for-ais job sizes) with refusal words."
   },
   {
    "path": "src/limits.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop (with limits.json)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): limitSaid sentences for cap refusals and unregisteredLimits audit over limits blocks."
   },
   {
    "path": "src/link-page-pages.mjs",
@@ -5188,15 +5188,15 @@
   },
   {
    "path": "src/list-store-implementations.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/list-store-implementations.mjs",
+   "why": "a file of the retired Worker host: Worker DO database catalogue only; Rust keeps a placed list in @list/<name> state-folder SQLite (storage/record_store_resources/lists.rs)."
   },
   {
    "path": "src/list-store-provisioning.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store_resources/lists.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust takes the home the list names; no rule-based choice among storage places and no placement-intent reconcile (and lists.rs notes own_records writes do not yet route to the home)."
   },
   {
    "path": "src/list-tool-actions.mjs",
@@ -5248,9 +5248,9 @@
   },
   {
    "path": "src/live-resource.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/native_entry/live.rs, trillion-rust:src/records/changes.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust tells the page which ids changed and the page reads them again with its own rights; there is no server-side read-on-change iterator or before-and-after authorize wrapper around invoke (each message is admitted again instead)."
   },
   {
    "path": "src/live-resume.json",
@@ -5261,9 +5261,9 @@
   },
   {
    "path": "src/live-scopes.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/native_entry/live.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Numbered scopes and windowed lists are deliberately not offered (docs/live-protocol-port.md:22-23); Rust gives catch-up by epoch/after instead. spacesBundle is a Spaces feature."
   },
   {
    "path": "src/live-screen.mjs",
@@ -5332,15 +5332,15 @@
   },
   {
    "path": "src/local-resource-cli.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/local-resource-cli.mjs",
+   "why": "no running consumer: Nothing imports it and no package.json bin names it (only capabilities.json lists it)."
   },
   {
    "path": "src/local-resource-interface.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/native_boot/mcp_local.rs, trillion-rust:src/mcp.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No stdio transport and no OS-identity authority in Rust; the local door asks for the door's sign-in by design."
   },
   {
    "path": "src/local-store.mjs",
@@ -5397,9 +5397,9 @@
   },
   {
    "path": "src/marketplace-configuration-routes.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-apps Marketplace screens; Workshop marketplace tools",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Marketplace listing preview pages, install/uninstall of published configurations and public apps, /work/api/marketplace/configurations."
   },
   {
    "path": "src/marketplace-configuration-tools.mjs",
@@ -5459,9 +5459,9 @@
   },
   {
    "path": "src/mcp-client-identity.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/door.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust keeps only sign_in + OAuth client_id, which is empty for a personal key; it does not keep the initialize clientInfo or the user-agent split, so two apps sharing one key look the same. keyAppNames is a screen read through a DO."
   },
   {
    "path": "src/mcp-continuation.mjs",
@@ -5489,15 +5489,15 @@
   },
   {
    "path": "src/mcp-oauth-local-bridge.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/mcp-oauth-local-bridge.mjs",
+   "why": "a file of the retired Worker host: The Mac's own door now does the OAuth issuing and checking (account/sign_in/oauth.rs); the cloud issuer it answered for is gone."
   },
   {
    "path": "src/mcp-public-ingress.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/mcp-public-ingress.json",
+   "why": "a file of the retired Worker host: Settings for the Worker relay only."
   },
   {
    "path": "src/meaning-or-words.mjs",
@@ -5622,15 +5622,15 @@
   },
   {
    "path": "src/model-routes.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs; trillion-workshop tools/run-on-a-persons-computer/local-models.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): DATA: order of model routes per job (your-ais, device, picked), priorities, hedges, loadouts naming vendor models."
   },
   {
    "path": "src/model-routes.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Resolves model routes from model-routes.json: routesFor, modelsFor, askDevice, hedgedRoads."
   },
   {
    "path": "src/moments.json",
@@ -5722,9 +5722,9 @@
   },
   {
    "path": "src/namespace-carry-out-tables.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/namespace-carry-out-tables.json",
+   "why": "a file of the retired Worker host: DO-to-DO table carry; Rust migrates a Worker RecordBook clone once in account_files/migrate.rs, and PRINCIPLES rule 1 forbids further compatibility."
   },
   {
    "path": "src/namespace-carry-source.mjs",
@@ -5734,15 +5734,15 @@
   },
   {
    "path": "src/namespace-chunk-cache.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/namespace-chunk-cache.json",
+   "why": "a file of the retired Worker host: Settings for the Workers Cache API copy only."
   },
   {
    "path": "src/namespace-chunk-cache.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/namespace-chunk-cache.mjs",
+   "why": "a file of the retired Worker host: Cloudflare edge Cache API; Rust reads ranged GETs directly from the account's own stores."
   },
   {
    "path": "src/namespace-cloud-supplies.mjs",
@@ -5764,9 +5764,9 @@
   },
   {
    "path": "src/namespace-edge-cache.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/namespace-edge-cache.mjs",
+   "why": "a file of the retired Worker host: Edge cache only; no consumer after retirement (charset helper is trivial)."
   },
   {
    "path": "src/namespace-file-lookup.mjs",
@@ -5800,9 +5800,9 @@
   },
   {
    "path": "src/namespace-kept-answers.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/namespace-kept-answers.json",
+   "why": "a file of the retired Worker host: Lost-reply keeping for the Namespace Durable Object; Rust record store keeps request receipts in its own ring (storage/record_store/ring.rs)."
   },
   {
    "path": "src/namespace-lease-principal.mjs",
@@ -5824,9 +5824,9 @@
   },
   {
    "path": "src/namespace-moves.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/ring.rs, trillion-rust:src/account_files/names.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No explicit \"never evict an unacknowledged move receipt\" cap; Rust receipts are a bounded ring by window."
   },
   {
    "path": "src/namespace-name-counts.mjs",
@@ -5866,9 +5866,9 @@
   },
   {
    "path": "src/namespace-opening-schema.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/namespace-opening-schema.json",
+   "why": "a file of the retired Worker host: Durable Object SQLite schema budget."
   },
   {
    "path": "src/namespace-preview.mjs",
@@ -5885,15 +5885,15 @@
   },
   {
    "path": "src/namespace-release-rules.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tool (storage rules) + apps storage screen; calls engine release op",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Person-set rules (formula rule tree over item facts, after_days, storage_above_bytes, order) planning which deleted items leave when, with a forecast."
   },
   {
    "path": "src/namespace-request-body.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/namespace-request-body.json",
+   "why": "a file of the retired Worker host: Sized for the Worker; Rust bounds pieces in write_file_piece and server body limits."
   },
   {
    "path": "src/namespace-resource-erasure.mjs",
@@ -5984,27 +5984,27 @@
   },
   {
    "path": "src/native-account-action-mount.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: Workshop tools / trillion-apps screens",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Puts account actions (looks, tours, layouts, sidebar, saved links/examples, controls, voices, billing reads, etc.) on top of native owners via hostOf(book.env,...)."
   },
   {
    "path": "src/native-account-app-inventory.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-account-app-inventory.mjs",
+   "why": "no running consumer: No src importer (tests only); it is also a Sites feature."
   },
   {
    "path": "src/native-account-app-peer.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-account-app-peer.mjs",
+   "why": "no running consumer: No src importer (tests only); it was also a Durable Object shim for a Sites feature."
   },
   {
    "path": "src/native-account-apps.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "app-screen",
+   "destination": "not moved yet: trillion-apps (Sites / public apps / source projects)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Native mount of the public-app and source-project state owner (accountAppState), with a pending public KV copy (env.APP_KV) and pinned site Worker bundles."
   },
   {
    "path": "src/native-account-key-issuance.mjs",
@@ -6014,9 +6014,9 @@
   },
   {
    "path": "src/native-account-key.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/door.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust keeps the held host key and issues a new one otherwise, so no reveal window is needed; legacy_scrub was for old records (ruled out by no-compat)."
   },
   {
    "path": "src/native-account-key.mjs",
@@ -6026,15 +6026,15 @@
   },
   {
    "path": "src/native-account-peer-actions.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-account-peer-actions.mjs",
+   "why": "a file of the retired Worker host: Calls between Durable Objects; the payloads (payments, Spaces, network) are features."
   },
   {
    "path": "src/native-account-shared-network.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: Workshop tools (Spaces, invitations, community, network offers)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A Proxy that sends Spaces/invitations/community/network-offer operations to their shared-resource owners."
   },
   {
    "path": "src/native-addressed-resource-command.mjs",
@@ -6268,9 +6268,9 @@
   },
   {
    "path": "src/native-identity-owner.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-identity-owner.mjs",
+   "why": "a file of the retired Worker host: Only serves the Worker OAuth bridge."
   },
   {
    "path": "src/native-installed-site-sharing.mjs",
@@ -6391,9 +6391,9 @@
   },
   {
    "path": "src/native-namespace-evidence.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: Workshop search tool",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Transcript-source index and words-in-results search over the files namespace, with paced catch-up and logs of the cost of each step."
   },
   {
    "path": "src/native-network-membership-drain.mjs",
@@ -6561,9 +6561,9 @@
   },
   {
    "path": "src/native-owner-routes.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/server/owner-routes.json, trillion-rust:src/workspace_domain.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: The method is ported, with 4 families; the other 38 families are product features (Workshop/apps), not engine routes."
   },
   {
    "path": "src/native-owner-routes.mjs",
@@ -6645,9 +6645,9 @@
   },
   {
    "path": "src/native-recovery-owner.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/computers/copies.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: The queue:press AI job queue (waiting for a connected AI) has no Rust part; it is a feature (Workshop)."
   },
   {
    "path": "src/native-resource-command.mjs",
@@ -6657,9 +6657,9 @@
   },
   {
    "path": "src/native-resource-erasure.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/mod.rs, trillion-rust:src/eeaf_store.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust erases the value from the record store and its history; there are no R2 archive chains or search-follower DO to clear (Worker-only)."
   },
   {
    "path": "src/native-resource-event-target.mjs",
@@ -6681,9 +6681,9 @@
   },
   {
    "path": "src/native-resource-meter.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/sqlite_work.rs, trillion-rust:src/store.rs, trillion-rust:src/storage/record_store/settings.json",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust meters each run against its own ceiling; it has no shared credit leases from a quota DO, no dollar price lines and no drain/settle of leases (Cloudflare rows-read billing, Worker-only)."
   },
   {
    "path": "src/native-resource-policy-view.mjs",
@@ -6693,15 +6693,15 @@
   },
   {
    "path": "src/native-resource-profile.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: Workshop tool (network profile)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Network profile fill and publication (names from signup/purchase, embeddings, shared directory), reads env.APP_KV."
   },
   {
    "path": "src/native-resource-quota.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-resource-quota.mjs",
+   "why": "a file of the retired Worker host: Lives on a Durable Object (AccountControl quota:<owner>) and meters Cloudflare rows read/written; spend caps are a billing feature, and an always-on refusal is ruled out (PRINCIPLES 4)."
   },
   {
    "path": "src/native-resource-scheduling.mjs",
@@ -6711,45 +6711,45 @@
   },
   {
    "path": "src/native-resource-screen-behavior.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-apps screens / Workshop tools",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Browser account screens (activity, new work, notifications, job run, message task canvas, responses, sent, spend)."
   },
   {
    "path": "src/native-resource-screen-consumers.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-resource-screen-consumers.mjs",
+   "why": "no running consumer: No src importer (tests only); it was also a screen feature."
   },
   {
    "path": "src/native-resource-sign-in.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-resource-sign-in.mjs",
+   "why": "no running consumer: No src importer. Separate gap: Rust has no OAuth sign-in to third-party tool servers (secrets.rs connect-service takes a pasted/file value only)."
   },
   {
    "path": "src/native-resource-source.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: Workshop tools (messages, attention, decisions)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Message decision, attention classification by rules and the chosen AI, notices, said-done."
   },
   {
    "path": "src/native-resource-spend.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: Workshop tool (spend / money sources)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Spend reading, money sources from mail/bank, budgets and cap changes, pool spend stops."
   },
   {
    "path": "src/native-resource-tell.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: Workshop tool (tell the person: web push, APNs, mail)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Notification senders (web push, APNs, mail) with device routes and quiet minutes; secrets via worker-secrets."
   },
   {
    "path": "src/native-resource-tool-billing-intents.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: Workshop billing tool",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Keeps and scrubs a tool run's monetary recovery material (billing intents) by charge identity."
   },
   {
    "path": "src/native-resource-work.mjs",
@@ -7123,15 +7123,15 @@
   },
   {
    "path": "src/optional-read.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "app-screen",
+   "destination": "not moved yet: trillion-apps screens",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A supporting screen read that answers a fallback when it fails or exceeds 8 s."
   },
   {
    "path": "src/original-private-work-erasure.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/original-private-work-erasure.mjs",
+   "why": "a file of the retired Worker host: DO-sharded erasure. Rust has no account deletion (separate gap; would be one record-store erase per account store)."
   },
   {
    "path": "src/original-work-collection-held.json",
@@ -7178,9 +7178,9 @@
   },
   {
    "path": "src/outbound-recipient.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop messages/send tools",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Guards an outbound send: checks a claimed recipient against the person's contact list rows (email/phone matching)."
   },
   {
    "path": "src/outcome-checks.mjs",
@@ -7247,15 +7247,15 @@
   },
   {
    "path": "src/own-record-volume.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/settings.json, trillion-rust:src/storage/record_store_resources/books.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: none found (ported one to one, cited as own-record-volume.json 46485cba04)."
   },
   {
    "path": "src/own-records-pursuits.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop decisions/pursuits tool",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Gives an independent work:… book its pursuits from the account own records while keeping its own decisions for the decision engine."
   },
   {
    "path": "src/own-resource-command-quota.json",
@@ -7359,9 +7359,9 @@
   },
   {
    "path": "src/passkey-challenges.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/passkeys.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: none found (the pool DO placement was a Workers KV consistency workaround)."
   },
   {
    "path": "src/passkey-list.mjs",
@@ -7371,15 +7371,15 @@
   },
   {
    "path": "src/passkey-options.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/passkeys.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust sends no hints ['client-device','hybrid'], names rp by its host not a service name, and has no WebAuthn Signal API step."
   },
   {
    "path": "src/passkey-provenance-migration.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/passkey-provenance-migration.mjs",
+   "why": "no running consumer: One-time data migration of old KV records; PRINCIPLES rule 1 (no carry from the old JS) and rule 9."
   },
   {
    "path": "src/password-strength.mjs",
@@ -7395,9 +7395,9 @@
   },
   {
    "path": "src/passwords.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/ways.rs, trillion-rust:src/account/credential_verification.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Uniqueness of one email across accounts (passwords.email_hash) has no meaning per-account; none found otherwise."
   },
   {
    "path": "src/payers.mjs",
@@ -7520,15 +7520,15 @@
   },
   {
    "path": "src/personal-keys.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/keys.rs, trillion-rust:src/account/sign_in/settings.json",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No purpose_max/expiry_choices: Rust keys have no purpose and no change of expiry."
   },
   {
    "path": "src/personal-keys.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/keys.rs, trillion-rust:src/account/door.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No rename, purpose or change of expiry (port report gap 33); a cap of a key's expiry at the caller's own was not found."
   },
   {
    "path": "src/phone-share.mjs",
@@ -7960,9 +7960,9 @@
   },
   {
    "path": "src/published-account-erasure.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/published-account-erasure.mjs",
+   "why": "a file of the retired Worker host: Shared pool DO; PRINCIPLES 3 rules out central shared storage."
   },
   {
    "path": "src/published-file-keys.mjs",
@@ -8066,9 +8066,9 @@
   },
   {
    "path": "src/raw-export-account-erasure.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/raw-export-account-erasure.mjs",
+   "why": "a file of the retired Worker host: R2 prefixes of DO raw exports."
   },
   {
    "path": "src/raw-export.mjs",
@@ -8124,15 +8124,15 @@
   },
   {
    "path": "src/readable-names.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop share/publish tools",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): BIP39-derived word list, secret_bits and pattern for word-named links."
   },
   {
    "path": "src/readable-names.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop share/publish tools",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Secret word names for share/invite/meeting links and claimPublicName for published addresses."
   },
   {
    "path": "src/receipt-owner.mjs",
@@ -8174,9 +8174,9 @@
   },
   {
    "path": "src/record-book-public-app-installation.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/record-book-public-app-installation.mjs",
+   "why": "a file of the retired Worker host: DO mount shim."
   },
   {
    "path": "src/record-book-tool-run.mjs",
@@ -8217,9 +8217,9 @@
   },
   {
    "path": "src/record-history.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/store_size.rs, trillion-rust:src/storage/record_store/settings.json",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Old moved history to chained files; Rust drops it from the store (settings.json says the file mover is not ported)."
   },
   {
    "path": "src/record-history.mjs",
@@ -8275,9 +8275,9 @@
   },
   {
    "path": "src/record-replicas.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/record-replicas.json",
+   "why": "a file of the retired Worker host: Worker region placement; Rust copies are computers rows (account/computers/copies.rs), a different design."
   },
   {
    "path": "src/record-scope.json",
@@ -8288,15 +8288,15 @@
   },
   {
    "path": "src/record-scope.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop pursuits tool",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Which pursuits each record belongs to: scope_links index, scope values, saved views, /scope routes."
   },
   {
    "path": "src/record-search-index.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/segments.rs, trillion-rust:src/storage/record_store/search.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust indexes inside writes via segments; no separate rows_of lane over list rows found."
   },
   {
    "path": "src/record-sharing.json",
@@ -8356,9 +8356,9 @@
   },
   {
    "path": "src/reliability-ceilings.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/reliability-ceilings.json",
+   "why": "no running consumer: Test thresholds for the retired JS store."
   },
   {
    "path": "src/renamed-tools.json",
@@ -8388,141 +8388,141 @@
   },
   {
    "path": "src/resource-activity-projection.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/see-what-my-ais-did",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Projects committed resource commands into the shared Activity feed through a DO SQL outbox, once per permit, with erase."
   },
   {
    "path": "src/resource-admission-runtime.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/resource-admission-runtime.mjs",
+   "why": "a file of the retired Worker host: Evidence: gates are independent Durable Objects (ACCOUNT_CONTROL gate:<…>), \"finished by the directory alarm\"; Rust has one in-process rights gate with signed fence/update events and finite holds."
   },
   {
    "path": "src/resource-behavior-commands.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/local_account/command_journal.rs, trillion-rust:src/storage/old_engine.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust journal is synchronous-only: no pending/preparation-due async rows, no reconcile of unknown outcomes, no workspace-erasure fence table, no used/said meter columns."
   },
   {
    "path": "src/resource-budget-owner.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/resource-budget-owner.mjs",
+   "why": "a file of the retired Worker host: Evidence: metered-use.json is \"what a Durable Object's work uses\" (rows read/written per purpose) and plan caps are hosted billing; port report row 420 says plan/budgets are product rights, Rust keeps scopes only."
   },
   {
    "path": "src/resource-commitment-supplies.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/resource-commitment-supplies.mjs",
+   "why": "a file of the retired Worker host: Evidence: header \"Native Cloudflare composition only\"; env.RECORD_BOOK x8, env.NETWORK, idFromName."
   },
   {
    "path": "src/resource-container-executor.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/resource-container-executor.mjs",
+   "why": "a file of the retired Worker host: Evidence: env[placement.settings.binding].idFromName(...) sandbox stubs (TOOL_CONTAINER / SMALL_TOOL_CONTAINER)."
   },
   {
    "path": "src/resource-execution-host.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime/workshop.rs, trillion-rust:src/account_rights/run_capability.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust runs tools per account, not per addressed resource; no binding list/save/restore/resolve management API."
   },
   {
    "path": "src/resource-host.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/resource-host.mjs",
+   "why": "a file of the retired Worker host: Evidence: installs cloudflareHost (src/hosts/cloudflare/resource-host.mjs), resolves Worker bindings by kind."
   },
   {
    "path": "src/resource-inbound.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/send-messages; trillion-workshop tools/messages-screen",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Inbound messages at a resource: keep raw source and provenance, then attention/interpretation once, answer notices and decisions."
   },
   {
    "path": "src/resource-input-capture.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/send-messages; trillion-workshop tools/admit-attachments-to-a-message",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Raw input capture and resumable interpretation claims for inbound messages (resource-input-interpretation / -erasure records)."
   },
   {
    "path": "src/resource-invalidations.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/native_entry/live.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust tells pages the account moved; no per-address/generation subscription and no explicit end-on-access-revoked signal to open subscribers."
   },
   {
    "path": "src/resource-model-road.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Chosen-AI routing and paid-model spending at a work resource: asks for your AIs, device asks, hedged roads, budget matching."
   },
   {
    "path": "src/resource-operation-owner.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime/workshop.rs, trillion-rust:src/runtime.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No synchronous in-transaction (atomic:true) entrypoints over the resource store; no assertCurrent route-generation recheck per commit."
   },
   {
    "path": "src/resource-original-state-preparation.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/resource-original-state-preparation.mjs",
+   "why": "no running consumer: No importer at the tag (tests only)."
   },
   {
    "path": "src/resource-placement-mount.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/resource-placement-mount.mjs",
+   "why": "no running consumer: No importer at the tag (only test/resource-placement-mount.test.mjs)."
   },
   {
    "path": "src/resource-placement.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/resource-placement.json",
+   "why": "a file of the retired Worker host: Evidence: bindings ACCOUNT_CONTROL, NETWORK, PERSON, RECORD_BOOK, POOL, BOARD_ROOM, INTERACTION_LOG, TOOL_CONTAINER ..."
   },
   {
    "path": "src/resource-presentation-mount.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/workspace_domain.rs, trillion-rust:src/server/owner-routes.json, trillion-rust:src/runtime/workshop.rs, trillion-rust:src/native_entry/live.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No refusal (409) when a screen binding address/generation changed; no per-resource live socket."
   },
   {
    "path": "src/resource-projection-outbox.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/resource-projection-outbox.mjs",
+   "why": "a file of the retired Worker host: Exists to deliver between Durable Objects (source DO -> Activity/Workshop projection DOs); all importers are DOs. One local record store has no cross-object projection."
   },
   {
    "path": "src/resource-query-continuation.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/record_value/list.rs, trillion-rust:src/runtime/workshop/pages.rs, trillion-rust:src/resource_result_fragments.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust continues with caller-held cursors/byte offsets; no server-kept continuation that dies with its sources erasure key."
   },
   {
    "path": "src/resource-quota-grants.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/resource-quota-grants.mjs",
+   "why": "a file of the retired Worker host: Evidence: built around DO isolate memory (WeakMap over the storage handle), \"A Durable Object runs one instance\", metered-use.json DO counts."
   },
   {
    "path": "src/resource-result-fragments.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/resource_result_fragments.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: The Rust port is not mounted (not in lib.rs; only tests/drafts use it) and engine-feature-boundary.json lists it for a generic rewrite into src/records/."
   },
   {
    "path": "src/resource-state-carry.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/storage/record_store/carry.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Rust carries records, not SQL tables; no source write fence (resourceSourceWriteFence) or carry note; bounds ported one to one."
   },
   {
    "path": "src/resource-tell-activities.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/notifications",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: none found (feature, already a Workshop tool)."
   },
   {
    "path": "src/responses.mjs",
@@ -8533,9 +8533,9 @@
   },
   {
    "path": "src/restartable-engine.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/restartable-engine.mjs",
+   "why": "a file of the retired Worker host: Isolate/wasm-only; Rust calls engine crates natively."
   },
   {
    "path": "src/retirable-census-classes.json",
@@ -9022,15 +9022,15 @@
   },
   {
    "path": "src/session-cookie.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/sessions.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: none found"
   },
   {
    "path": "src/settle-wait.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/settle-wait.mjs",
+   "why": "a file of the retired Worker host: Front-of-DO shield."
   },
   {
    "path": "src/setup-access-records.mjs",
@@ -9192,15 +9192,15 @@
   },
   {
    "path": "src/shared-account-identity-contract.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-account-identity-contract.json",
+   "why": "a file of the retired Worker host: Only reader is shared-account-identity.mjs, which rewrites Durable Object SQL tables of NETWORK spaces. Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-account-identity.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-account-identity.mjs",
+   "why": "a file of the retired Worker host: Evidence: hostOf(network) stubs, raw sql.exec PRAGMA over shared DO storage; importers are DOs (network.mjs, shared-native-command-owner). Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-command-effects.mjs",
@@ -9255,27 +9255,27 @@
   },
   {
    "path": "src/shared-native-command-owner.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-native-command-owner.mjs",
+   "why": "a file of the retired Worker host: Evidence: env.ACCOUNT_CONTROL, env.ENGINES, idFromName x6, sql.exec x64; imported by board-room.mjs and network.mjs DOs. Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-native-dependency-command.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-native-dependency-command.mjs",
+   "why": "a file of the retired Worker host: Evidence: hostOf/isAt network stubs, answeredAcrossBuilds, idFromName; a shim between Space Durable Objects. Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-native-execution-context.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-native-execution-context.mjs",
+   "why": "a file of the retired Worker host: Evidence: per-DO-host AsyncLocalStorage shim between Worker objects; no non-Worker consumer. Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-native-value-codec.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-native-value-codec.mjs",
+   "why": "a file of the retired Worker host: Evidence: exists for DO RPC JSON receipts of D1/DO SQL blobs; all importers are network DO modules. Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-policy-maintenance.mjs",
@@ -9310,51 +9310,51 @@
   },
   {
    "path": "src/shared-resource-argument-contracts.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-resource-argument-contracts.json",
+   "why": "a file of the retired Worker host: Read only by shared-resource-routing.mjs (NETWORK stub routing). Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-resource-auxiliary-operation-declarations.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-resource-auxiliary-operation-declarations.mjs",
+   "why": "a file of the retired Worker host: Imported only by network.mjs (NETWORK Durable Object). Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-resource-auxiliary-operations.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-resource-auxiliary-operations.json",
+   "why": "a file of the retired Worker host: Read only by shared-resource-routing.mjs and its re-export for network.mjs. Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-resource-command-budgets.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-resource-command-budgets.json",
+   "why": "a file of the retired Worker host: Estimates DO statement/rows_read/rows_written for metered DO commands; read by shared-resource-composition.mjs. Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-resource-compatibility.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "not moved yet: a Spaces Workshop tool / trillion-apps Space screens (none exists yet)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Space HTTP/tool routes (withdraw, fill, facts, board, rules, members, member-types, agents, handoffs) projected onto the shared resource owner."
   },
   {
    "path": "src/shared-resource-composition.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-resource-composition.mjs",
+   "why": "a file of the retired Worker host: Evidence: env.ACCOUNT_CONTROL, env.NETWORK, idFromName, trailedStub. Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-resource-lifecycle.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-resource-lifecycle.mjs",
+   "why": "a file of the retired Worker host: Evidence: hostOf(env,{kind:network}) stubs, executeNativeResourceCommand gates. Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-resource-routing.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/shared-resource-routing.mjs",
+   "why": "a file of the retired Worker host: Evidence: env.NETWORK required (\"The shared resource transport is unavailable\"), hostOf network stubs. Spaces themselves are a product feature not yet in the Workshop or apps."
   },
   {
    "path": "src/shared-source-custody.mjs",
@@ -9459,9 +9459,9 @@
   },
   {
    "path": "src/sign-in-again.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/routes.rs, trillion-rust:src/account/sign_in/ways.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: none found (Rust /sign-in always draws the form, so no 'again' mark is needed)."
   },
   {
    "path": "src/sign-in-calls.json",
@@ -9477,27 +9477,27 @@
   },
   {
    "path": "src/sign-in-email.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/ways.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: Send limits are per account and way in Rust, not per network address."
   },
   {
    "path": "src/sign-in-email.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/ways.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No per-network-address send limit; sending is a Workshop tool by Deliver rather than one mail sender."
   },
   {
    "path": "src/sign-in-lifetimes.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/lists.rs, trillion-rust:src/account.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: choices_days, use_noted_every_seconds and the words are not in Rust."
   },
   {
    "path": "src/sign-in-lifetimes.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account.rs, trillion-rust:src/account/sign_in.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No per-AI chosen lifetime the person sets (choices_days) and no use-noting interval found."
   },
   {
    "path": "src/sign-in-methods.json",
@@ -9507,15 +9507,15 @@
   },
   {
    "path": "src/sign-in-methods.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/ways.rs, trillion-rust:src/account/sign_in/routes.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No after-sign-in offers of a missing way with Skip remembered (port report gap 44); no required contact step."
   },
   {
    "path": "src/sign-in-phone.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/ways.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: The Twilio env bindings (SMS_TWILIO_*) are worker-host; a texted code counting as never fresh is not checked."
   },
   {
    "path": "src/sign-in-vouch.mjs",
@@ -10143,9 +10143,9 @@
   },
   {
    "path": "src/throwaway-limits.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/throwaway-limits.mjs",
+   "why": "a file of the retired Worker host: Mixed: Worker env-binding proxy for a showcase feature; no engine job."
   },
   {
    "path": "src/time-cursor.mjs",
@@ -10249,9 +10249,9 @@
   },
   {
    "path": "src/tool-run-owner.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/runtime/workshop/tool-runs.json, trillion-rust:src/runtime/workshop.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: No erase operation on a run and no claim/take/answer operations; the per-run DO address and placement are Worker-only."
   },
   {
    "path": "src/tool-run-owner.mjs",
@@ -10331,9 +10331,9 @@
   },
   {
    "path": "src/totp.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "home-exists",
+   "destination": "trillion-rust:src/account/sign_in/ways.rs",
+   "why": "adapted port (rust-engine slice triage, trillion-rust docs/worker-retirement-rust-engine-slice.md); gap: none found"
   },
   {
    "path": "src/tour-word-content.mjs",
