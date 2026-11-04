@@ -1,6 +1,6 @@
 // What a list keeps about its past (src/lists.mjs): a removed row is listed as recently removed and put back exactly as it
 // was, from the log; a row merged away leaves a tombstone, so reading its old id answers where it went and a link written
-// later to the old id lands on the row it became; one field of many rows is read as it was at a moment; and a list that
+// later to the old id lands on the row it became; and a list that
 // keeps stamps says who wrote each value and which values a machine wrote. Runs against the real record store.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -63,40 +63,8 @@ test('a row merged away leaves a tombstone: its old id answers where it went, an
   assert.deepEqual(deal.kept[0].values.company, ['c'], 'a link written to the old id is written to the row it became');
 });
 
-test('one field of many rows is read as it was at a moment, from the log', async t => {
-  const { lists, ask } = fresh(t);
-  lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'stage', label: 'Stage' }] });
-  lists.putRows('deals', { rows: [{ id: 'd1', values: { name: 'One', stage: 'Lead' } }, { id: 'd2', values: { name: 'Two', stage: 'Lead' } }] });
-  await pause();
-  const at = new Date().toISOString();
-  await pause();
-  lists.putRows('deals', { rows: [{ id: 'd1', values: { stage: 'Won' } }, { id: 'd3', values: { name: 'Three', stage: 'Lead' } }] });
-  lists.putRows('deals', { remove: ['d2'] });
-  const then = (await ask(`/lists/deals/field-at?field_id=stage&at=${encodeURIComponent(at)}&row_ids=${encodeURIComponent(JSON.stringify(['d1', 'd2', 'd3']))}`)).body;
-  assert.deepEqual(then.values.map(row => [row.row_id, row.value, row.existed, row.complete]), [['d1', 'Lead', true, true], ['d2', 'Lead', true, true], ['d3', null, false, true]]);
-  assert.equal((await ask('/lists/deals/field-at?field_id=nope&at=x&row_ids=%5B%5D')).body.refused.code, 'bad_field_at');
-  assert.equal((await ask(`/lists/deals/field-at?field_id=stage&at=yesterday&row_ids=${encodeURIComponent('["d1"]')}`)).body.refused.code, 'bad_field_at');
-});
-
-test('a whole column is read as it was at a moment, a page at a time, with no ids named', async t => {
-  const { lists, ask } = fresh(t);
-  lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'stage', label: 'Stage' }] });
-  lists.putRows('deals', { rows: ['d1', 'd2', 'd3', 'd4', 'd5'].map(id => ({ id, values: { name: id, stage: 'Lead' } })) });
-  await pause();
-  const at = new Date().toISOString();
-  await pause();
-  lists.putRows('deals', { rows: [{ id: 'd2', values: { stage: 'Won' } }, { id: 'd6', values: { name: 'd6', stage: 'Lead' } }] });
-  const seen = [];
-  let cursor = null;
-  do {
-    const page = (await ask(`/lists/deals/field-at?field_id=stage&at=${encodeURIComponent(at)}&limit=2${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`)).body;
-    assert.ok(page.values.length <= 2);
-    seen.push(...page.values.map(row => [row.row_id, row.value, row.existed]));
-    cursor = page.next_cursor ?? null;
-  } while (cursor);
-  assert.deepEqual(seen.filter(([id]) => id !== 'd6').sort().map(row => row.join()), ['d1,Lead,true', 'd2,Lead,true', 'd3,Lead,true', 'd4,Lead,true', 'd5,Lead,true'], 'each row held what it held at that moment');
-  assert.deepEqual(seen.find(([id]) => id === 'd6'), ['d6', null, false], 'a row added since did not exist then');
-});
+// One field of many rows (or a whole column) as it was at a moment now runs on the records the door gives:
+// tools/keep-lists-of-rows/test/field-at-on-records.test.mjs.
 
 test('a list that keeps stamps says who wrote each value and which values a machine wrote; a list without them is unchanged', async t => {
   const { lists, ask } = fresh(t);
