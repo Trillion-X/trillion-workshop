@@ -61,6 +61,14 @@
       "identity": "1f:5cdf4b02124d5151e3aeafb4c4ba44f0510642c39389a86726b4034dc0337101"
     },
     {
+      "from": "src/live-work.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/hand-off-jobs-between-agents/src/live-work.mjs",
+      "source_identity": "1f:e217f8bbe7f8b82c9407d29687a4bfd0706c1783f141fe2547a7ce9c15083219",
+      "identity": "1f:5cdf4b02124d5151e3aeafb4c4ba44f0510642c39389a86726b4034dc0337101",
+      "reused": true
+    },
+    {
       "from": "src/notices.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-off-jobs-between-agents/src/notices.json",
@@ -115,6 +123,13 @@
       "to": "tools/hand-off-jobs-between-agents/test/free-decision-links.test.mjs",
       "source_identity": "1f:f9fb73b84ada647ebfddc271e8ae70521df3b1a35e69f23b2db2b5e9a919a7e8",
       "identity": "1f:f9fb73b84ada647ebfddc271e8ae70521df3b1a35e69f23b2db2b5e9a919a7e8"
+    },
+    {
+      "from": "test/live-work-output-limit.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/hand-off-jobs-between-agents/test/live-work-output-limit.test.mjs",
+      "source_identity": "1f:ac501e66696bc1c1dc9ff817bc38bb3e91559342d0e00ebf835602472984d4e7",
+      "identity": "1f:9ea7b11b3d83834e9ff3321259b82aa218b005aa74c0fb1d12d94e83477870b3"
     },
     {
       "from": "test/quoted-words.test.mjs",

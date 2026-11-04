@@ -57,6 +57,7 @@
           ]
         },
         "result_selector": "$",
+        "verify": [{ "kind": "needs-a-machine", "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)", "proved_on": null }],
         "needs": { "expected_seconds": 90, "network_egress": true },
         "maker": "maker:renew-a-tls-certificate",
         "licence_class": "licence:maker-own",
@@ -107,6 +108,7 @@
           ]
         },
         "result_selector": "$",
+        "verify": [{ "kind": "needs-a-machine", "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)", "proved_on": null }],
         "needs": { "expected_seconds": 120, "network_egress": true },
         "maker": "maker:renew-a-tls-certificate",
         "licence_class": "licence:maker-own",
@@ -152,6 +154,7 @@
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
+        "verify": [{ "kind": "needs-a-machine", "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)", "proved_on": null }],
         "needs": { "expected_seconds": 5, "network_egress": true },
         "maker": "maker:renew-a-tls-certificate",
         "licence_class": "licence:maker-own",
@@ -198,6 +201,7 @@
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
+        "verify": [{ "kind": "needs-a-machine", "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)", "proved_on": null }],
         "needs": { "expected_seconds": 180, "network_egress": true },
         "maker": "maker:renew-a-tls-certificate",
         "licence_class": "licence:maker-own",
@@ -243,6 +247,7 @@
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
+        "verify": [{ "kind": "needs-a-machine", "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)", "proved_on": null }],
         "needs": { "expected_seconds": 5, "network_egress": true },
         "maker": "maker:renew-a-tls-certificate",
         "licence_class": "licence:maker-own",
@@ -288,6 +293,7 @@
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
+        "verify": [{ "kind": "needs-a-machine", "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)", "proved_on": null }],
         "needs": { "expected_seconds": 10, "network_egress": true },
         "maker": "maker:renew-a-tls-certificate",
         "licence_class": "licence:maker-own",
@@ -333,6 +339,7 @@
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
+        "verify": [{ "kind": "needs-a-machine", "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)", "proved_on": null }],
         "needs": { "expected_seconds": 15, "network_egress": true },
         "maker": "maker:renew-a-tls-certificate",
         "licence_class": "licence:maker-own",
@@ -378,6 +385,7 @@
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
+        "verify": [{ "kind": "needs-a-machine", "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)", "proved_on": null }],
         "needs": { "expected_seconds": 10, "network_egress": true },
         "maker": "maker:renew-a-tls-certificate",
         "licence_class": "licence:maker-own",

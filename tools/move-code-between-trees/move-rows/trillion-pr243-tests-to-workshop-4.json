@@ -1,0 +1,47 @@
+{
+  "id": "move:trillion-pr243-tests-to-workshop-4",
+  "about": "A fourth round of the tests Trillion-X/trillion PR #243 (4ffa1dc4a2) deleted with no home and no port-backlog row (its backlog listed only source and data), carried byte for byte from 1e886c3f68 (the parent of 7fd8838475, which moved 1,028 of the files they import into this repository; each test there has the same bytes as at the tag old-trillion-before-worker-retire, and its imports still name a file) into the Workshop tool that now holds the code each one tests. Each group is one tool and the tests whose subject it holds; every file they import is already home in this repository (an earlier lane moved it), so only the tests and their test help move. the first rounds are trillion-pr243-tests-to-workshop.json, -2 and -3; these are the tests the slices merged since gave every file they reach a home; docs/pr243-deleted-tests.json lists every such test and where it went. Test help a test reads by its address (a fixture page) is named as an owner of its group, since the import closure does not follow a path read.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "groups": [
+    {
+      "id": "tests-of-find-the-slot-a-job-fills",
+      "owner": [
+        "test/job-slots.test.mjs",
+        "test/tool-listing.test.mjs"
+      ],
+      "to": "tools/find-the-slot-a-job-fills"
+    },
+    {
+      "id": "tests-of-keep-and-wake-ai-sessions-on-this-computer",
+      "owner": [
+        "test/model-fallback-work.test.mjs"
+      ],
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer"
+    }
+  ],
+  "calls": [
+    {
+      "id": "made-up-owner-name",
+      "means": "This repository is public and holds made-up data only: a real person's first name used as a test's sample owner becomes a made-up one. Nothing else in the file changes.",
+      "find": "'Jibran'",
+      "replace": "'Sam Example'"
+    },
+    {
+      "id": "made-up-owner-name-in-notes",
+      "means": "This repository is public and holds made-up data only: a real person's first name in a test's note about whose store a measure came from becomes a made-up one. Nothing else in the file changes.",
+      "find": "Jibran's",
+      "replace": "Sam Example's"
+    }
+  ]
+}
