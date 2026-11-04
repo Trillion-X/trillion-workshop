@@ -18,6 +18,7 @@ Every choice is data in a move row (`move-rows/<pair>.json`):
 | `provider_calls` | Patterns that must not be left in a moved file. A group with one left is held, with file and line. |
 | `not_provider_calls` | `{ file, id, found, why }`: a detector match that is no provider call (a parameter named `env` that holds the process environment, say), by the source file, the detector and the exact matched text. That match holds nothing; every other match still does. |
 | `calls` | `{ id, find, replace, means }`: a provider call swapped for the call the records door offers. |
+| `leave_tests` | `{ path, why }`: a test that moves with no group although it reaches one (a test of another tree's screens, a test that reads the source tree's own import text). |
 
 `move-rows/trillion-to-workshop.json` moves the old Trillion app's features into this repository. Groups come from the
 rows of its `capabilities.json` that name `moves_to`; sign-in, the stores and the Worker entry stay (they are engine

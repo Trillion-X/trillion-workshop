@@ -1,0 +1,10 @@
+{
+  "_what": "Rules that send something out into the world must not be set off by words anyone can forge (src/automations.mjs). A row names a kind of record whose sender is claimed, not proved (`recorded`), and the test on a proved field every such rule must also hold (`authenticated`): for arrivals, `from_person` is true only when the carrier proved the words are the person's own (for mail: the From is on their list and passed DMARC, src/inbound-mail.mjs). A rule whose tool sends outward (its row has invoke.external_effect) and that watches one of these kinds is set only with that test among its where tests; otherwise the refusal says what to add. Adding a kind is a row.",
+  "outward_rules": [
+    {
+      "recorded": "arrival",
+      "authenticated": { "field": "from_person", "equals": true },
+      "words": "This rule sends something out, and an arrival's sender can be forged by anyone who writes to the person. Add where { \"field\": \"from_person\", \"equals\": true } so only words proved to be the person's own can set it off."
+    }
+  ]
+}

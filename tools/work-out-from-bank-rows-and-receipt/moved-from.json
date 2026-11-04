@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/money-out.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/work-out-from-bank-rows-and-receipt/src/money-out.mjs",
+      "source_identity": "1f:a03a7e6d6a85c39e8e50415f4d01b8e92cdbc8cc3aa0cb316d6370224b466050",
+      "identity": "1f:04b8d0575a08d11173d3cf488fd9b06eb0840d6839c4cda3b585f07ac5b1d041"
+    },
+    {
+      "from": "test/money-out.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/work-out-from-bank-rows-and-receipt/test/money-out.test.mjs",
+      "source_identity": "1f:e2ab01634d656320cdd2ea85bb9c9f997155957393a602b93d343c4735c7da16",
+      "identity": "1f:e2ab01634d656320cdd2ea85bb9c9f997155957393a602b93d343c4735c7da16"
+    }
+  ]
+}

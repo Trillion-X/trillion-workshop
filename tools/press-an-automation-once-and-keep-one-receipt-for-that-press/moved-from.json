@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-automation-command-receipts.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/press-an-automation-once-and-keep-one-receipt-for-that-press/src/native-automation-command-receipts.mjs",
+      "source_identity": "1f:e8e7a6150bb6fc055da66a34c98bfa032f48fa69757590712f6cc127527b865e",
+      "identity": "1f:90dd1e6b702c06581e27f99b4fd571bb16c6dc87f37c7993515f80c3e2a8cebb"
+    },
+    {
+      "from": "src/native-automation-run-receipts.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/press-an-automation-once-and-keep-one-receipt-for-that-press/src/native-automation-run-receipts.mjs",
+      "source_identity": "1f:161c68a5c06e7faced26a28df2a8334d0acf2d16ae9946bdf971d6dd4042f425",
+      "identity": "1f:e51e6422cd10487596772169b445b496c8dc13332bee86725eb97050188bdaea"
+    }
+  ]
+}

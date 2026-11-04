@@ -1,6 +1,6 @@
 {
   "id": "move:trillion-computer-places-to-workshop",
-  "about": "The computer's own places (every folder, sqlite store, notes store and recordings folder a row of computer-sources.json describes), the two carried conversations (iMessage, WhatsApp) and Mac Contacts move from Trillion-X/trillion's computer/ into one Workshop tool, and every connected service's descriptors with the connect, rename, disconnect and grant code move into tools/pull-from-connected-accounts, so the Connections list reads computer places and connected services from one tool tree. Byte for byte: the next commits adapt them. The helper's main loop (computer/read-this-computer.mjs), always-on listening (computer/listen.mjs, another lane) and every other computer/ file stay and import what moved from the trillion-workshop package.",
+  "about": "The computer's own places (every folder, sqlite store, notes store and recordings folder a row of computer-sources.json describes), the two carried conversations (iMessage, WhatsApp) and Mac Contacts move from Trillion-X/trillion's computer/ into one Workshop tool,. Every connected service's descriptors with the connect, rename, disconnect and grant code (parts/service-connections) were moved by the whole-tree move a9ee258 (Trillion-X/trillion 5cd0dc3) into tools/connect-a-service-and-seal-its-key, so this row no longer holds that group; that folder's tool:list-every-connection reads its service rows and this tool's place rows into the one Connections list. Byte for byte: the next commits adapt them. The helper's main loop (computer/read-this-computer.mjs), always-on listening (computer/listen.mjs, another lane) and every other computer/ file stay and import what moved from the trillion-workshop package.",
   "source": {
     "name": "Trillion-X/trillion",
     "commit": "b92aa549f2",
@@ -58,16 +58,6 @@
       ],
       "to": "tools/bring-in-new-items-from-this-computer",
       "capability": "the picture with words in it that the photo readers' tests read (by path, so the import closure does not follow it)"
-    },
-    {
-      "id": "service-connections",
-      "owner": [
-        "parts/service-connections/**"
-      ],
-      "to": "tools/pull-from-connected-accounts",
-      "capability": "connect, rename and disconnect a service account and say what each operation's grants need, every service a descriptor row",
-      "joins_tool": "tools/pull-from-connected-accounts pulls from accounts already connected; it has no way to connect, rename or disconnect an account, no service descriptors and no grant check. This group brings those, so one tool lists and manages every connection.",
-      "held_until": "Node does not strip TypeScript types from files under node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), and Trillion-X/trillion's .mjs files (src/held-values.mjs and 15 others) import these .ts files under Node. Apply this group once those importers reach them through a build, or once the .ts files are JavaScript."
     }
   ]
 }

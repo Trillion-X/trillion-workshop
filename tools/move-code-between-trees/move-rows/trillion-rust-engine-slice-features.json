@@ -1,0 +1,446 @@
+{
+ "id": "move:trillion-rust-engine-slice-features",
+ "about": "The 49 rows of the rust-engine slice that trillion-workshop PR #133 found to be product features (workshop-tool or app-screen), not engine. Three already have a home byte for byte (src/delegation-ceilings.json and .mjs in tools/shared-code, src/optional-read.mjs in tools/find-and-keep-my-connections). Thirteen move here byte for byte, grouped by job folder. The rest are held: their import closures reach the Worker's engine owners (decision store, EEAF store, record log, sign-in, record-model tools) or call KV, which stays; each held group says so in held_until. src/resource-activity-projection.mjs is retired (it imports ./activity.mjs, absent at the tag), listed under retired.",
+ "source": {
+  "name": "Trillion-X/trillion",
+  "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+  "test_folders": [
+   "test"
+  ]
+ },
+ "destination": {
+  "name": "Trillion-X/trillion-workshop",
+  "package": "trillion-workshop",
+  "shared_folder": "tools/shared-code"
+ },
+ "keep": [
+  "cases/",
+  "communities/",
+  "computer/",
+  "extension/",
+  "harness/",
+  "ios/",
+  "macos/",
+  "methods/",
+  "native-apps/",
+  "parts/eeaf/",
+  "parts/record-log/",
+  "records/action-completeness.json",
+  "records/commercial-offer-records.json",
+  "records/content-format-starters.json",
+  "records/copy-rules.json",
+  "records/delight-moments.json",
+  "records/execution-mode-records.json",
+  "records/feel-moments.json",
+  "records/starting-rules.json",
+  "records/workflow-recipe-records.json",
+  "src/action-completeness.mjs",
+  "src/ai-conversations-list.json",
+  "src/attention.json",
+  "src/awareness.json",
+  "src/catch-up.mjs",
+  "src/chat-archives.mjs",
+  "src/chat-import.mjs",
+  "src/decision-store.mjs",
+  "src/error-page-lines.json",
+  "src/life-map.json",
+  "src/local-store.mjs",
+  "src/namespace-store.mjs",
+  "src/native-resource-sign-in.mjs",
+  "src/operator-import-targets.json",
+  "src/operator-import.mjs",
+  "src/passkey-*",
+  "src/passwords.*",
+  "src/person-store-purpose.mjs",
+  "src/person-store.mjs",
+  "src/proof-account-names.json",
+  "src/public-app-file-store.mjs",
+  "src/public-app-orphan-retirement.mjs",
+  "src/public-app-rows-import.mjs",
+  "src/pursuit-plan.json",
+  "src/raw-export.mjs",
+  "src/record-model-tools.mjs",
+  "src/records-import.mjs",
+  "src/retirable-census-classes.json",
+  "src/session-cookie.mjs",
+  "src/session-pairing.mjs",
+  "src/share-collection-store.mjs",
+  "src/shared-content-retirement.mjs",
+  "src/show-rules-store.mjs",
+  "src/sign-in-*",
+  "src/space-partition-inventory.mjs",
+  "src/story-settings.json",
+  "src/web-sign-in.mjs",
+  "src/worker.mjs",
+  "src/workspace-records-import.mjs",
+  "src/workspace/walkthroughs/"
+ ],
+ "provider_calls": [
+  {
+   "id": "durable-object",
+   "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+  },
+  {
+   "id": "durable-object-storage",
+   "find": "\\b(?:ctx|state|this)\\.storage\\b|\\bstorage\\.sql\\b"
+  },
+  {
+   "id": "kv",
+   "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+  },
+  {
+   "id": "env-binding",
+   "find": "(?<![.\\w$])env\\.[A-Z][A-Z0-9_]+\\b"
+  }
+ ],
+ "calls": [],
+ "read_as_rows": [
+  "methods/",
+  "records/workflow-recipe-records.json",
+  "records/execution-mode-records.json",
+  "records/starting-rules.json",
+  "records/copy-rules.json",
+  "records/commercial-offer-records.json",
+  "records/content-format-starters.json",
+  "records/feel-moments.json",
+  "records/delight-moments.json",
+  "communities/",
+  "cases/",
+  "src/awareness.json",
+  "src/life-map.json",
+  "src/pursuit-plan.json",
+  "src/story-settings.json",
+  "src/attention.json",
+  "src/workspace/walkthroughs/",
+  "src/error-page-lines.json"
+ ],
+ "not_provider_calls": [
+  {
+   "file": "parts/process-session/do-work/place-cache-folder.mjs",
+   "id": "env-binding",
+   "found": "env.XDG_CACHE_HOME",
+   "why": "placeCacheFolder(env = process.env) reads the cache folder a computer names in its process environment; it is no Worker binding."
+  }
+ ],
+ "groups": [
+  {
+   "id": "run-my-own-customer-databases",
+   "owner": [
+    "src/customer-databases.mjs",
+    "src/database-list-calls.mjs",
+    "src/database-supply.mjs",
+    "src/database-workshop-provider.mjs"
+   ],
+   "to": "tools/run-my-own-customer-databases",
+   "capability": "run a customer database the account owns (PGlite), list its tables and attach it as a Workshop provider"
+  },
+  {
+   "id": "check-consent-to-an-introduction",
+   "owner": [
+    "src/consent-fingerprint.mjs"
+   ],
+   "to": "tools/check-consent-to-an-introduction",
+   "capability": "fingerprint what a person consented to before an introduction, so a changed request is asked again"
+  },
+  {
+   "id": "find-the-slot-a-job-fills",
+   "owner": [
+    "src/job-slots.mjs"
+   ],
+   "to": "tools/find-the-slot-a-job-fills",
+   "capability": "name the job slots a tool can fill, for finding the tool for a job"
+  },
+  {
+   "id": "keep-work-within-limits",
+   "owner": [
+    "src/limits.json",
+    "src/limits.mjs"
+   ],
+   "to": "tools/keep-work-within-limits",
+   "capability": "the caps on pursuit plans and work for AIs, and reading them"
+  },
+  {
+   "id": "route-model-calls",
+   "owner": [
+    "src/model-routes.json"
+   ],
+   "to": "tools/route-model-calls",
+   "capability": "which model route each kind of call takes (its reader src/model-routes.mjs is held)"
+  },
+  {
+   "id": "set-storage-release-rules",
+   "owner": [
+    "src/namespace-release-rules.mjs"
+   ],
+   "to": "tools/set-storage-release-rules",
+   "capability": "the rules a person sets for when stored bytes are released"
+  },
+  {
+   "id": "held-outbound-recipient",
+   "owner": [
+    "src/outbound-recipient.mjs"
+   ],
+   "to": "tools/held-outbound-recipient",
+   "held_until": "its own test at the tag (test/outbound-recipient.test.mjs) fails 3 of 5 against the code at the tag, and its fixtures carry phone numbers outside the 555 range that may be a real person's; the Workshop is public, so it waits for a synthetic test that passes"
+  },
+  {
+   "id": "scope-records-to-a-pursuit",
+   "owner": [
+    "src/own-records-pursuits.mjs"
+   ],
+   "to": "tools/scope-records-to-a-pursuit",
+   "capability": "the own-records rows a pursuit reads (src/record-scope.mjs, its larger scope reader, is held)"
+  },
+  {
+   "id": "give-shared-things-readable-names",
+   "owner": [
+    "src/readable-names.json",
+    "src/readable-names.mjs"
+   ],
+   "to": "tools/give-shared-things-readable-names",
+   "capability": "readable names for shared and published things"
+  },
+  {
+   "id": "held-account-action-domain",
+   "owner": [
+    "src/account-action-domain.mjs"
+   ],
+   "to": "tools/held-account-action-domain",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-account-plan-usage",
+   "owner": [
+    "src/account-plan-usage.mjs"
+   ],
+   "to": "tools/held-account-plan-usage",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-account-routes",
+   "owner": [
+    "src/account-routes.mjs"
+   ],
+   "to": "tools/held-account-routes",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-account-screens",
+   "owner": [
+    "src/account-screens.mjs"
+   ],
+   "to": "tools/held-account-screens",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-allowance",
+   "owner": [
+    "src/allowance.mjs"
+   ],
+   "to": "tools/held-allowance",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-connect-with-a-key",
+   "owner": [
+    "src/connect-with-a-key.mjs"
+   ],
+   "to": "tools/held-connect-with-a-key",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-customer-database-catalogue",
+   "owner": [
+    "src/customer-database-catalogue.mjs"
+   ],
+   "to": "tools/held-customer-database-catalogue",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-customer-database-resource",
+   "owner": [
+    "src/customer-database-resource.mjs"
+   ],
+   "to": "tools/held-customer-database-resource",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-direct-resource-routing",
+   "owner": [
+    "src/direct-resource-routing.mjs"
+   ],
+   "to": "tools/held-direct-resource-routing",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-execution-mode-tools",
+   "owner": [
+    "src/execution-mode-tools.mjs"
+   ],
+   "to": "tools/held-execution-mode-tools",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/action-completeness.mjs, which stays in the source (keep row src/action-completeness.mjs); it imports records/action-completeness.json, which stays in the source (keep row records/action-completeness.json)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-execution-modes",
+   "owner": [
+    "src/execution-modes.mjs"
+   ],
+   "to": "tools/held-execution-modes",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/action-completeness.mjs, which stays in the source (keep row src/action-completeness.mjs); it imports records/action-completeness.json, which stays in the source (keep row records/action-completeness.json)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-execution-tools",
+   "owner": [
+    "src/execution-tools.mjs"
+   ],
+   "to": "tools/held-execution-tools",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-invite-routes",
+   "owner": [
+    "src/invite-routes.mjs"
+   ],
+   "to": "tools/held-invite-routes",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-marketplace-configuration-routes",
+   "owner": [
+    "src/marketplace-configuration-routes.mjs"
+   ],
+   "to": "tools/held-marketplace-configuration-routes",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-model-routes",
+   "owner": [
+    "src/model-routes.mjs"
+   ],
+   "to": "tools/held-model-routes",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-native-account-action-mount",
+   "owner": [
+    "src/native-account-action-mount.mjs"
+   ],
+   "to": "tools/held-native-account-action-mount",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-native-account-shared-network",
+   "owner": [
+    "src/native-account-shared-network.mjs"
+   ],
+   "to": "tools/held-native-account-shared-network",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/share-collection-store.mjs, which stays in the source (keep row src/share-collection-store.mjs); it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-native-namespace-evidence",
+   "owner": [
+    "src/native-namespace-evidence.mjs"
+   ],
+   "to": "tools/held-native-namespace-evidence",
+   "held_until": "its import closure carries src/device-rows.mjs, which calls KV (env.APP_KV, lines 59 and 63); swapping those calls is a code change, not a byte-for-byte move, so it waits for an adapted port"
+  },
+  {
+   "id": "held-native-resource-profile",
+   "owner": [
+    "src/native-resource-profile.mjs"
+   ],
+   "to": "tools/held-native-resource-profile",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-native-resource-screen-behavior",
+   "owner": [
+    "src/native-resource-screen-behavior.mjs"
+   ],
+   "to": "tools/held-native-resource-screen-behavior",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-native-resource-source",
+   "owner": [
+    "src/native-resource-source.mjs"
+   ],
+   "to": "tools/held-native-resource-source",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports harness/record-every-message.json, which stays in the source (keep row harness/); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-native-resource-spend",
+   "owner": [
+    "src/native-resource-spend.mjs"
+   ],
+   "to": "tools/held-native-resource-spend",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-native-resource-tell",
+   "owner": [
+    "src/native-resource-tell.mjs"
+   ],
+   "to": "tools/held-native-resource-tell",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-native-resource-tool-billing-intents",
+   "owner": [
+    "src/native-resource-tool-billing-intents.mjs"
+   ],
+   "to": "tools/held-native-resource-tool-billing-intents",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-record-scope",
+   "owner": [
+    "src/record-scope.mjs"
+   ],
+   "to": "tools/held-record-scope",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-resource-inbound",
+   "owner": [
+    "src/resource-inbound.mjs"
+   ],
+   "to": "tools/held-resource-inbound",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-resource-input-capture",
+   "owner": [
+    "src/resource-input-capture.mjs"
+   ],
+   "to": "tools/held-resource-input-capture",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-resource-model-road",
+   "owner": [
+    "src/resource-model-road.mjs"
+   ],
+   "to": "tools/held-resource-model-road",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  },
+  {
+   "id": "held-shared-resource-compatibility",
+   "owner": [
+    "src/shared-resource-compatibility.mjs"
+   ],
+   "to": "tools/held-shared-resource-compatibility",
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+  }
+ ],
+ "retired": [
+  {
+   "path": "src/resource-activity-projection.mjs",
+   "why": "imports ./activity.mjs, which is not in the tree at the tag, so it cannot load: no running consumer"
+  },
+  {
+   "path": "src/resource-projection-outbox.mjs",
+   "why": "reached only through src/resource-activity-projection.mjs (retired) and Worker hosts; class retired in the backlog"
+  }
+ ]
+}

@@ -68,6 +68,14 @@
       "identity": "1f:3bc6a6f04ac8c2f0276a1857d65491ae0cb6a5e754d61de6e607378b092a3127"
     },
     {
+      "from": "src/tool-sources.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/find-and-keep-my-connections/src/tool-sources.mjs",
+      "source_identity": "1f:3bc6a6f04ac8c2f0276a1857d65491ae0cb6a5e754d61de6e607378b092a3127",
+      "identity": "1f:3bc6a6f04ac8c2f0276a1857d65491ae0cb6a5e754d61de6e607378b092a3127",
+      "reused": true
+    },
+    {
       "from": "test/connection-links.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/find-and-keep-my-connections/test/connection-links.test.mjs",
@@ -80,6 +88,13 @@
       "to": "tools/find-and-keep-my-connections/test/connection-records.test.mjs",
       "source_identity": "1f:fab5d76203f590e20840271795bc6cef9ac6eb997b33cd184d02702dd9af4c26",
       "identity": "1f:fab5d76203f590e20840271795bc6cef9ac6eb997b33cd184d02702dd9af4c26"
+    },
+    {
+      "from": "test/tool-effect-signals.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/find-and-keep-my-connections/test/tool-effect-signals.test.mjs",
+      "source_identity": "1f:12b44d933eb107508cdd04337011f6efb54406b0a0a170db4109f63c1fcef31e",
+      "identity": "1f:12b44d933eb107508cdd04337011f6efb54406b0a0a170db4109f63c1fcef31e"
     }
   ]
 }

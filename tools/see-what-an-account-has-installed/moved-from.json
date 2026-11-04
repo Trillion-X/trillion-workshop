@@ -19,11 +19,34 @@
       "identity": "1f:b7b73102ddd68e06de9900a4d4241145400c06444b24077a2b0ec517c196ff71"
     },
     {
+      "from": "src/marketplace-configurations.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/see-what-an-account-has-installed/src/marketplace-configurations.mjs",
+      "source_identity": "1f:b7b73102ddd68e06de9900a4d4241145400c06444b24077a2b0ec517c196ff71",
+      "identity": "1f:b7b73102ddd68e06de9900a4d4241145400c06444b24077a2b0ec517c196ff71",
+      "reused": true
+    },
+    {
       "from": "src/marketplace-trust.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/see-what-an-account-has-installed/src/marketplace-trust.json",
       "source_identity": "1f:0fd271274668b624a260abf67aac0d3374378ea46d871cd045b1e6237c89c635",
       "identity": "1f:0fd271274668b624a260abf67aac0d3374378ea46d871cd045b1e6237c89c635"
+    },
+    {
+      "from": "src/marketplace-trust.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/see-what-an-account-has-installed/src/marketplace-trust.json",
+      "source_identity": "1f:0fd271274668b624a260abf67aac0d3374378ea46d871cd045b1e6237c89c635",
+      "identity": "1f:0fd271274668b624a260abf67aac0d3374378ea46d871cd045b1e6237c89c635",
+      "reused": true
+    },
+    {
+      "from": "test/marketplace-trust.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/see-what-an-account-has-installed/test/marketplace-trust.test.mjs",
+      "source_identity": "1f:a6ca6e2afe6bd242792196be436e10783258b6e8ee7dc9ecfe433d07bd306df9",
+      "identity": "1f:a6ca6e2afe6bd242792196be436e10783258b6e8ee7dc9ecfe433d07bd306df9"
     }
   ]
 }

@@ -5,11 +5,34 @@
   "calls": [],
   "files": [
     {
+      "from": "test/work-examples.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/suggest-what-to-ask-on-a-screen/test/work-examples.test.mjs",
+      "source_identity": "1f:31a1538ceb104ce881d150a66c885e5a994f99abf1b6d5bbc216fc791a426d99",
+      "identity": "1f:9bcf5d011bfd6779ed0ab05ce73eeff6062e9c90c9093e6f23975b5a55dc1166"
+    },
+    {
+      "from": "src/work-examples.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/suggest-what-to-ask-on-a-screen/work-examples.mjs",
+      "source_identity": "1f:69bedd566ed2ac6aa6ba6a64b976fb95553f932b6c134382dfc50b986c95a083",
+      "identity": "1f:69bedd566ed2ac6aa6ba6a64b976fb95553f932b6c134382dfc50b986c95a083",
+      "reused": true
+    },
+    {
       "from": "src/workspace/examples.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/suggest-what-to-ask-on-a-screen/workspace/examples.json",
       "source_identity": "1f:032cf0cb97eedebd2f8c6cc88c7ac3d43ca52754aa35b1caf69359570b538164",
       "identity": "1f:032cf0cb97eedebd2f8c6cc88c7ac3d43ca52754aa35b1caf69359570b538164"
+    },
+    {
+      "from": "src/workspace/examples.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/suggest-what-to-ask-on-a-screen/workspace/examples.json",
+      "source_identity": "1f:032cf0cb97eedebd2f8c6cc88c7ac3d43ca52754aa35b1caf69359570b538164",
+      "identity": "1f:032cf0cb97eedebd2f8c6cc88c7ac3d43ca52754aa35b1caf69359570b538164",
+      "reused": true
     }
   ]
 }

@@ -29,7 +29,9 @@
 //   6. A model's answer is the caller's: `check` returns the questions it needs ({ id, rule, question, options, fail,
 //      text, context?, adapter?, model?, examples? }) and takes answers by question id. With no answer a question is
 //      unknown, never a pass. A row's `ask.adapter`, `ask.model` and `ask.examples` go with its questions, and a finding
-//      from a row with an adapter names the adapter's `blake3`, so an answer is always tied to what gave it.
+//      from a row with an adapter names the adapter's `blake3`, so an answer is always tied to what gave it. A row is
+//      asked once a sentence of each unit, or once of each whole unit when its `ask.per` is "unit" (a person's reading
+//      rows: hundreds of rows asked once a sentence would be thousands of questions a paragraph).
 //   7. Only the person's own agree on one exact line, naming one rule (a stand with `rule`), waives that rule on that line
 //      (`waived`). Nothing else waives anything: not a stand by anyone else, not disagree or partly, not a stand without
 //      a rule, not another line, however close. A stand that names a rule is never a verdict on the whole thing.
@@ -44,6 +46,8 @@ const IDS = WORDS.rule_ids;
 const STAGES = ['review', 'final'];
 // What a model row's `ask` carries into each of its questions besides the question itself.
 const ASK_CARRIES = ['adapter', 'model', 'examples'];
+// The `per` of an ask that is asked once of the whole unit; any other ask is asked once a sentence.
+const ASK_PER_UNIT = 'unit';
 
 export class CheckRefusal extends Error {}
 
@@ -184,6 +188,8 @@ export function waivers(stands, { by = ['person'] } = {}) {
 }
 
 const sentencesOf = text => text.match(/[^.!?]+(?:[.!?]+["'”)]*|$)/g)?.map(sentence => sentence.trim()).filter(Boolean) ?? [text];
+// What a model row asks about: each sentence of a unit, or the whole unit once when its ask says `per: "unit"`.
+const piecesAsked = (rule, text) => (rule.ask.per === ASK_PER_UNIT ? [text] : sentencesOf(text));
 
 /** The facts of a text unit that a rule's `when` and `held_when` read (any JSON the caller gives, such as where its words came from). */
 const factsOf = unit => (unit.facts && typeof unit.facts === 'object' ? unit.facts : {});
@@ -252,7 +258,7 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
   const questions = [], refs = [];
   results.forEach((result, at) => {
     for (const rule of [...asking.filter(rule => ruleApplies(rule, itemOf(result))), ...readingOf.get(at)]) {
-      sentencesOf(textOf(result)).forEach((sentence, index) => {
+      piecesAsked(rule, textOf(result)).forEach((sentence, index) => {
         questions.push({ id: `${at}:${rule.id}:${index}`, rule: rule.id, question: rule.ask.question, options: rule.ask.options, fail: rule.ask.fail,
           text: sentence, ...Object.fromEntries(ASK_CARRIES.filter(key => rule.ask[key] !== undefined).map(key => [key, rule.ask[key]])),
           ...(result.context ? { context: result.context } : {}) });

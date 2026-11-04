@@ -2692,8 +2692,8 @@
   {
    "path": "src/account-action-domain.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools (messages, notices, decisions, payment, client programs, practice, boards)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Facade that assembles account actions for PersonStore/native owners: messages, notices, decision outcome checks, payment/plan, client programs, space mail, subject boards; reads env.APP_KV."
+   "destination": "not moved yet (held): trillion-workshop tools (messages, notices, decisions, payment, client programs, practice, boards)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Facade that assembles account actions for PersonStore/native owners: messages, notices, decision outcome checks, payment/plan, client programs, space mail, subject boards; reads env.APP_KV. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/account-app-erasure.mjs",
@@ -2825,8 +2825,8 @@
   {
    "path": "src/account-plan-usage.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/paid-access (or a billing tool)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Counts usage-billed plan meters per subscription and day, funded spots, Namespace bytes via a plan-usage service actor."
+   "destination": "not moved yet (held): trillion-workshop tools/paid-access (or a billing tool)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Counts usage-billed plan meters per subscription and day, funded spots, Namespace bytes via a plan-usage service actor. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/account-policy-fanout.json",
@@ -2867,14 +2867,14 @@
   {
    "path": "src/account-routes.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-apps web screens + Workshop tools (plan, business, connections, decisions, stories, webhooks, looking)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Worker side of the signed-in guide screens: GET /work/api/screens/<name> and ~50 button actions (plan checkout, business, connections, decisions, stories, webhooks, looking, sign-in ways), plus KV lists of passkeys and sessions."
+   "destination": "not moved yet (held): trillion-apps web screens + Workshop tools (plan, business, connections, decisions, stories, webhooks, looking)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Worker side of the signed-in guide screens: GET /work/api/screens/<name> and ~50 button actions (plan checkout, business, connections, decisions, stories, webhooks, looking, sign-in ways), plus KV lists of passkeys and sessions. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/account-screens.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-apps screens / Workshop (tools/set-up-my-account already took getStartedFacts)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Words and steps of the signed-in guide screens as data: Get started, Use Trillion in your AI, Connections, Account & security, Plan, Look, Invites."
+   "destination": "not moved yet (held): trillion-apps screens / Workshop (tools/set-up-my-account already took getStartedFacts)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Words and steps of the signed-in guide screens as data: Get started, Use Trillion in your AI, Connections, Account & security, Plan, Look, Invites. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/account-share-index-erasure.mjs",
@@ -2885,8 +2885,9 @@
   {
    "path": "src/action-completeness.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: keep-action-surfaces-complete: it imports opinion content that is read_as_rows (records/execution-mode-records.json): the file loads only once it takes those rows from its caller, which is an adaptation, not a byte-for-byte move",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/action-folders.mjs",
@@ -3013,14 +3014,16 @@
   {
    "path": "src/ai-reach-words.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/ai-reach-words.json",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/ai-reach.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/ai-reach.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/ai-setup-prompt.json",
@@ -3045,8 +3048,9 @@
   {
    "path": "src/ais-of-account.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: see-and-limit-what-each-ai-can-reach: it imports src/account-app-grants.mjs, src/account-erasure-policy.mjs, src/admitted-commands.mjs and 44 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/ais.json",
@@ -3058,14 +3062,15 @@
   {
    "path": "src/ais.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/ais.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/allowance.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop take-payments tool / apps account+billing screen",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Free-decision allowance periods, plan-upgrade pitch and refusal words, free-allowance experiment state for /billing/plan."
+   "destination": "not moved yet (held): trillion-workshop take-payments tool / apps account+billing screen",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Free-decision allowance periods, plan-upgrade pitch and refusal words, free-allowance experiment state for /billing/plan. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/answer-lists.json",
@@ -3084,14 +3089,16 @@
   {
    "path": "src/answer-words.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: run-a-decision-through-its-method: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/app-places.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/app-places.json",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/app-project-assembly.mjs",
@@ -3170,38 +3177,44 @@
   {
    "path": "src/asks-for-your-ais.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/asks-for-your-ais.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/attention.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: notice-what-needs-attention: it imports opinion content that is read_as_rows (src/attention.json): the file loads only once it takes those rows from its caller, which is an adaptation, not a byte-for-byte move",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/audience-question-admission.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/gather-audience-questions/src/audience-question-admission.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/audience-question-sources.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/gather-audience-questions/src/audience-question-sources.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/audience-send-content.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: send-one-thing-to-an-audience: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/audience-sends.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: send-one-thing-to-an-audience: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/authorization-timing.mjs",
@@ -3212,62 +3225,72 @@
   {
    "path": "src/automation-guards.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/run-rules-and-schedules-by-themselves/src/automation-guards.json",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/automation-health-looks.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/run-rules-and-schedules-by-themselves/src/automation-health-looks.json",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/automation-health.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/automation-health.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/automation-open-id.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-apps:web/src/automation-open-id.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153): already had a home, found by content"
   },
   {
    "path": "src/automation-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/run-rules-and-schedules-by-themselves/src/automation-tools.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/automations.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: run-rules-and-schedules-by-themselves: it imports PERSON_APP from src/activity.mjs, whose home tools/see-what-my-ais-did/activity.mjs loads only inside its own row's packed run (that row lays src/execution-context.mjs beside it): src/automations.mjs moves once a row packs it, or activity.mjs loads where it is",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/awareness-owner.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: keep-a-continuous-awareness-reading: it imports src/mcp-continuation.mjs, src/namespace-results.mjs, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/awareness.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: src/awareness.json: opinion content, read_as_rows: it becomes rows of the account owner's lists through the content import, which lives outside this repository (as tools/place-pursuits-on-a-life-map says of the starter map), so no copy is kept here",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/awareness.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: keep-a-continuous-awareness-reading: it imports src/mcp-continuation.mjs, src/namespace-results.mjs, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/backing-automations.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-apps:web/src/backing-automations.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153): already had a home, found by content"
   },
   {
    "path": "src/behavior-routing.mjs",
@@ -3279,8 +3302,9 @@
   {
    "path": "src/billing-pricing-controls.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: let-billing-read-service-pricing: it imports src/account-app-grants.mjs, src/account-erasure-policy.mjs, src/admitted-commands.mjs and 54 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/billing-screen.json",
@@ -3304,8 +3328,9 @@
   {
    "path": "src/board-members.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: keep-a-spaces-board-live: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/board-record-values.mjs",
@@ -3317,14 +3342,16 @@
   {
    "path": "src/board-room.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: keep-a-spaces-board-live: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 37 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/book-handlers.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: keep-record-books-by-kind: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 38 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/born-account-erasure.mjs",
@@ -3347,8 +3374,9 @@
   {
    "path": "src/brand-assets.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: draw-the-brand-from-its-asset-list: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/brand-static-assets.mjs",
@@ -3360,14 +3388,16 @@
   {
    "path": "src/brought-in.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/brought-in.json",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/brought-in.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/notice-what-needs-attention/src/brought-in.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/browser-pages.mjs",
@@ -3378,14 +3408,16 @@
   {
    "path": "src/browser-record-copy.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/copy-records-into-this-browser/src/browser-record-copy.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/browser-session-recorder.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/copy-records-into-this-browser/src/browser-session-recorder.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/built-in-tools.mjs",
@@ -3409,8 +3441,9 @@
   {
    "path": "src/camera-live.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: receive-network-cameras-live: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/byte-range.mjs and 42 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/camera-tools.mjs",
@@ -3422,14 +3455,16 @@
   {
    "path": "src/cap-change.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/cap-change.json",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/cap-change.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/decide-who-may-change-a-cap/src/cap-change.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/capability-checks.json",
@@ -3461,33 +3496,38 @@
   },
   {
    "path": "src/carried-rows-prune.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/carried-rows-prune.mjs",
+   "why": "Cloudflare cutover machinery: removed the dead copies a fenced Durable Object store kept after its carry; its consumers were the carry and src/hosts/cloudflare/resource-host.mjs, gone with the Worker",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/carry-forward.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/carry-an-account-into-its-own-records/src/carry-forward.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/carry-out.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/carry-out.mjs",
+   "why": "Cloudflare cutover machinery: carried an account's records out of its fenced Durable Object store into its book (operator route /mcp/api/storage/carry-out); every consumer (src/export-inventory.mjs, src/hosts/cloudflare/*, src/namespace-*carry*) went with the Worker",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/carry-tables-into-records.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/recently-deleted-and-storage/carry-tables-into-records.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153): already had a home, found by content"
   },
   {
    "path": "src/catch-up-content.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: present-catch-up-content: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/change-from-elsewhere.mjs",
@@ -3541,8 +3581,9 @@
   {
    "path": "src/checkout-return.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: welcome-a-buyer-back-after-checkout: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/checkout-welcome.json",
@@ -3568,8 +3609,9 @@
   {
    "path": "src/client-health.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: keep-record-books-by-kind: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/client-program.json",
@@ -3580,8 +3622,9 @@
   {
    "path": "src/client-program.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: run-a-program-people-apply-to: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/client-version.json",
@@ -3619,8 +3662,9 @@
   {
    "path": "src/community-activity.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: run-a-community: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/community-logic/band-membership.ts",
@@ -3734,14 +3778,16 @@
   {
    "path": "src/community-matching.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/run-a-community/src/community-matching.json",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/community-matching.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: run-a-community: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/community-screen.mjs",
@@ -3760,20 +3806,23 @@
   {
    "path": "src/community.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: run-a-community: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/compare-readings.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/run-rules-and-schedules-by-themselves/src/compare-readings.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/computer-sources.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/computer-sources.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/configurations.mjs",
@@ -3785,20 +3834,22 @@
   {
    "path": "src/connect-with-a-key.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-apps Connections screen; engine side already exists: runtime/workshop connect run + src/secrets.rs",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): POST /work/connections/<service>: typed API-key values sent to one signed-in run of the connect tool row, which checks and seals them."
+   "destination": "not moved yet (held): trillion-apps Connections screen; engine side already exists: runtime/workshop connect run + src/secrets.rs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): POST /work/connections/<service>: typed API-key values sent to one signed-in run of the connect tool row, which checks and seals them. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/connect.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: connect-an-account-by-signing-in-to-the-service: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/connected-ais.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: see-and-limit-what-each-ai-can-reach: it imports src/account-app-grants.mjs, src/account-erasure-policy.mjs, src/admitted-commands.mjs and 42 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/connecting-without-the-store.json",
@@ -3875,8 +3926,9 @@
   {
    "path": "src/connector-finds.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: connect-an-account-by-signing-in-to-the-service: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/connector-screen.mjs",
@@ -3888,8 +3940,9 @@
   {
    "path": "src/consent-fingerprint.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop community/network introduction tools",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): BLAKE3 consent of an introduction shown (text, recipients, shared, expires_at, optional action binding); refuses a yes given for a changed introduction."
+   "destination": "trillion-workshop:tools/check-consent-to-an-introduction/src/consent-fingerprint.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): BLAKE3 consent of an introduction shown (text, recipients, shared, expires_at, optional action binding); refuses a yes given for a changed introduction.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/consequence-classes.json",
@@ -3908,8 +3961,9 @@
   {
    "path": "src/content-formats.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: write-in-my-content-formats: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/content-tags.json",
@@ -4005,8 +4059,8 @@
   {
    "path": "src/customer-database-catalogue.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: a Workshop tool over records (e.g. tools/records-door clients)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Discovery index of a person's named databases (create, rename, archive, delete, restore, list, search, view across databases) in a RecordBook DO."
+   "destination": "not moved yet (held): a Workshop tool over records (e.g. tools/records-door clients)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Discovery index of a person's named databases (create, rename, archive, delete, restore, list, search, view across databases) in a RecordBook DO. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/customer-database-records.mjs",
@@ -4017,20 +4071,22 @@
   {
    "path": "src/customer-database-resource.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: Workshop databases tool",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A database's identity metadata (name, archived_at, deleted_at, history) and command commitments in its RecordBook, forwarding record actions."
+   "destination": "not moved yet (held): Workshop databases tool",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A database's identity metadata (name, archived_at, deleted_at, history) and command commitments in its RecordBook, forwarding record actions. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/customer-databases.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: Workshop tool (manage_databases, read_databases, database_records, search_databases)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tool definitions and the /databases HTTP adapter for customer databases."
+   "destination": "trillion-workshop:tools/run-my-own-customer-databases/src/customer-databases.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tool definitions and the /databases HTTP adapter for customer databases.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/customers-hq.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: see-customers-and-their-journeys: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/cut-off.mjs",
@@ -4055,8 +4111,9 @@
   {
    "path": "src/database-list-calls.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/keep-lists-of-rows; trillion-workshop tools/records-door/read-data/lists-door.mjs",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Operation table mapping lists:* calls (rows, views, filters, proposals, snapshots) to the list owner when a list is placed in a customer database DO (customer-database-resource.mjs)."
+   "destination": "trillion-workshop:tools/run-my-own-customer-databases/src/database-list-calls.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Operation table mapping lists:* calls (rows, views, filters, proposals, snapshots) to the list owner when a list is placed in a customer database DO (customer-database-resource.mjs).",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/database-resource-composition.mjs",
@@ -4067,14 +4124,16 @@
   {
    "path": "src/database-supply.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: a Workshop tool that runs its own customer database (e.g. PGlite) under trillion-workshop tools/",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Runs a customer PostgreSQL database (PGlite) for customer work: SQL guard against batched COMMIT, snapshot commit, database tool descriptors."
+   "destination": "trillion-workshop:tools/run-my-own-customer-databases/src/database-supply.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Runs a customer PostgreSQL database (PGlite) for customer work: SQL guard against batched COMMIT, snapshot commit, database tool descriptors.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/database-workshop-provider.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/ (a database-attach tool)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Attaches an outside database through a chosen Workshop tool, keeping only tool/connection pins and the opaque remote id; MCP tool descriptors."
+   "destination": "trillion-workshop:tools/run-my-own-customer-databases/src/database-workshop-provider.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Attaches an outside database through a chosen Workshop tool, keeping only tool/connection pins and the opaque remote id; MCP tool descriptors.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/date-shift.json",
@@ -4100,8 +4159,9 @@
   {
    "path": "src/decision-notice.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: run-a-decision-through-its-method: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/decision-progress.json",
@@ -4126,20 +4186,21 @@
   {
    "path": "src/default-workflows.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: find-the-default-workflows: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/delegation-ceilings.json",
-   "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/hand-work-to-ais",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Words and fields of an AI's delegation ceiling ({deny, allow})."
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/shared-code/src/delegation-ceilings.json",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Words and fields of an AI's delegation ceiling ({deny, allow}). Home found by content: the same bytes are on trillion-workshop main."
   },
   {
    "path": "src/delegation-ceilings.mjs",
-   "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/hand-work-to-ais (take/canTake)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Settles and tightens an AI's ceiling and refuses a job whose needs it does not permit."
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/shared-code/src/delegation-ceilings.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Settles and tightens an AI's ceiling and refuses a job whose needs it does not permit. Home found by content: the same bytes are on trillion-workshop main."
   },
   {
    "path": "src/delivery-words.json",
@@ -4157,8 +4218,9 @@
   {
    "path": "src/design-library.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: share-design-libraries: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/byte-range.mjs and 42 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/device-distribution.mjs",
@@ -4177,8 +4239,9 @@
   {
    "path": "src/device-rows.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: leave-out-steps-for-devices-i-do-not-own: it imports src/held-values-rotation.mjs, src/root-keys.mjs, src/service-signing.mjs, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/devices.json",
@@ -4210,8 +4273,8 @@
   {
    "path": "src/direct-resource-routing.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: Workshop tool over the records door (database catalogue tools)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Customer database tools (manage_databases, read_databases, database_records, search_databases) and /api/databases, sent to executeNativeDatabaseResource with idempotency-key request keys; checks env.ACCOUNT_CONTROL."
+   "destination": "not moved yet (held): Workshop tool over the records door (database catalogue tools)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Customer database tools (manage_databases, read_databases, database_records, search_databases) and /api/databases, sent to executeNativeDatabaseResource with idempotency-key request keys; checks env.ACCOUNT_CONTROL. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/directory-listing.json",
@@ -4240,21 +4303,24 @@
   },
   {
    "path": "src/duplicate-work-fold.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/duplicate-work-fold.mjs",
+   "why": "PersonStore Durable Object alarm fold of handoffs made before item identity was enforced; its one consumer was src/person-store.mjs, gone with the Worker",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/editor-handoff.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-apps:web/src/editor-handoff.json",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153): already had a home, found by content"
   },
   {
    "path": "src/editor-handoff.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/send-an-edit-to-my-video-editor/src/editor-handoff.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/effect-outcomes.json",
@@ -4285,8 +4351,9 @@
   {
    "path": "src/engine.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: run-a-decision-through-its-method: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/entry-points.json",
@@ -4325,8 +4392,9 @@
   {
    "path": "src/event-inbox.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: keep-outside-notices-in-an-event-inbox: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 37 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/event-route-listeners.mjs",
@@ -4352,26 +4420,27 @@
   {
    "path": "src/execution-mode-tools.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/workflows; trillion-workshop tools/tell-ais-how-to-act",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tools list/read/apply_execution_mode over execution-modes.mjs and /workflows/start."
+   "destination": "not moved yet (held): trillion-workshop tools/workflows; trillion-workshop tools/tell-ais-how-to-act",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tools list/read/apply_execution_mode over execution-modes.mjs and /workflows/start. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/action-completeness.mjs, which stays in the source (keep row src/action-completeness.mjs); it imports records/action-completeness.json, which stays in the source (keep row records/action-completeness.json)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/execution-modes.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/workflows/recipes/workflows.json; trillion-workshop tools/tell-ais-how-to-act/rows.json",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Named execution standards (Trillion X / Hardcore mode) as versioned DATA compiled into workflow recipes."
+   "destination": "not moved yet (held): trillion-workshop tools/workflows/recipes/workflows.json; trillion-workshop tools/tell-ais-how-to-act/rows.json",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Named execution standards (Trillion X / Hardcore mode) as versioned DATA compiled into workflow recipes. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/action-completeness.mjs, which stays in the source (keep row src/action-completeness.mjs); it imports records/action-completeness.json, which stays in the source (keep row records/action-completeness.json)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/execution-tools.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/see-what-my-ais-did",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tools record_execution / read_execution: durable source receipts of actions done outside Trillion, over the /executions route."
+   "destination": "not moved yet (held): trillion-workshop tools/see-what-my-ais-did",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tools record_execution / read_execution: durable source receipts of actions done outside Trillion, over the /executions route. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/export-inventory.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/export-inventory.mjs",
+   "why": "Cloudflare cutover machinery: the operator's export inventory, fence and retire routes over Durable Object stores (src/worker.mjs /mcp/api/storage/*); no consumer outside the retired Worker",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/failure-codes.json",
@@ -4382,8 +4451,9 @@
   {
    "path": "src/failure-reason.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/say-why-a-call-failed/src/failure-reason.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/failure.mjs",
@@ -4394,8 +4464,9 @@
   {
    "path": "src/file-local-choice.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: choose-with-my-own-local-model: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/file-organization.json",
@@ -4455,8 +4526,9 @@
   {
    "path": "src/files-by-identity.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: read-files-by-their-identity: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/byte-range.mjs and 42 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/first-answers-copy.mjs",
@@ -4482,26 +4554,30 @@
   {
    "path": "src/follow-up-emails.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/send-follow-up-emails-after-sign-up/src/follow-up-emails.json",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/follow-up-emails.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: send-follow-up-emails-after-sign-up: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/former-names-count.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: see-customers-and-their-journeys: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/free-run.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: run-a-decision-through-its-method: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 37 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/free-store-space.mjs",
@@ -4512,14 +4588,16 @@
   {
    "path": "src/friend-invites.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/invite-friends-by-email/src/friend-invites.json",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/friend-invites.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: invite-friends-by-email: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/full-store-recovery.mjs",
@@ -4542,9 +4620,10 @@
   },
   {
    "path": "src/gate-permit-sweep.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/gate-permit-sweep.mjs",
+   "why": "AccountControl Durable Object alarm upkeep (dated 2026-10-20: pending commands a gate held in memory); its one consumer was src/account-control.mjs, gone with the Worker",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/geometric-pricing.json",
@@ -4577,14 +4656,16 @@
   {
    "path": "src/growth-admission.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: carry-an-account-into-its-own-records: it imports src/store-size.mjs, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/hand-to-an-account.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: see-customers-and-their-journeys: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/handoff-notice.mjs",
@@ -4615,8 +4696,9 @@
   {
    "path": "src/heard-echo.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: tell-our-own-voice-from-what-was-heard: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/held-values-modules.mjs",
@@ -4638,9 +4720,10 @@
   },
   {
    "path": "src/history-continuation.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/history-continuation.mjs",
+   "why": "continuation state beside the R2 history owner of a PersonStore Durable Object; its one consumer was src/person-store.mjs, gone with the Worker",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/host-resource-account-erasure.mjs",
@@ -4657,15 +4740,17 @@
   },
   {
    "path": "src/hosted-resource-presentation.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/hosted-resource-presentation.mjs",
+   "why": "Cloudflare native realization of resource presentation over Durable Object RPC; its one consumer was src/worker.mjs, gone with the Worker",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/hosted-service.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: run-a-hosted-service: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 37 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/hosted-sites.mjs",
@@ -4738,8 +4823,9 @@
   {
    "path": "src/hq-sharing.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: see-customers-and-their-journeys: its import closure still makes a provider call (kv): a KV read of the retired Worker",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/html-page.mjs",
@@ -4758,8 +4844,9 @@
   {
    "path": "src/imported-history-receipt.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: carry-an-account-into-its-own-records: it imports src/record-history.json, src/record-history.mjs, src/store-size.mjs, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/inbound-address-words.json",
@@ -4785,14 +4872,16 @@
   {
    "path": "src/inbound-mail.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: bring-in-what-i-write-elsewhere: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/byte-range.mjs and 42 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/inbound-own-records.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: bring-in-what-i-write-elsewhere: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/inbound-words.json",
@@ -4804,20 +4893,23 @@
   {
    "path": "src/inbound.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: bring-in-what-i-write-elsewhere: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/inbox-handlers.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: keep-outside-notices-in-an-event-inbox: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/incoming-files.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: bring-in-what-i-write-elsewhere: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/ingest-normalization.json",
@@ -4874,8 +4966,9 @@
   {
    "path": "src/interactions.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: see-customers-and-their-journeys: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/introduction-states.json",
@@ -4894,14 +4987,15 @@
   {
    "path": "src/invite-routes.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-apps space invitation pages; Workshop spaces tool",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): /invite page, join, welcome, naming, link-preview card PNG (KV-kept) and space picture routes."
+   "destination": "not moved yet (held): trillion-apps space invitation pages; Workshop spaces tool",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): /invite page, join, welcome, naming, link-preview card PNG (KV-kept) and space picture routes. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/invites-on-arrival.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: invite-friends-by-email: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/item-links.json",
@@ -4920,20 +5014,22 @@
   {
    "path": "src/job-run.json",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-apps Work screen; trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Words and person card for the person taking a job themselves (person-store personWork): \"You\" card, finished/withdrawn words, follow-up wait."
+   "destination": "not moved yet (held): trillion-apps Work screen; trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Words and person card for the person taking a job themselves (person-store personWork): \"You\" card, finished/withdrawn words, follow-up wait. Held: its readers are src/person-store.mjs, which stays as an engine owner (move-rows keep), and src/native-resource-screen-behavior.mjs (held); a file of the same name in trillion-apps web/src/workspace/job-run.json is a different file (the job view words), not its home."
   },
   {
    "path": "src/job-slots.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/describe-the-workshop (find_tool_for_job)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Picks the tool serving a job: account choice fact job_slot:<job>, else best rank, else refusal naming what to install; job_tools index tables in the person store."
+   "destination": "trillion-workshop:tools/find-the-slot-a-job-fills/src/job-slots.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Picks the tool serving a job: account choice fact job_slot:<job>, else best rank, else refusal naming what to install; job_tools index tables in the person store.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/journey.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: see-customers-and-their-journeys: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/kept-answers.mjs",
@@ -5000,21 +5096,23 @@
   {
    "path": "src/life-map.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/place-pursuits-on-a-life-map/ (read as rows of the person's own life map list; named in its moved-from.json)",
+   "destination": "held: src/life-map.json: opinion content, read_as_rows: it becomes rows of the account owner's lists through the content import, which lives outside this repository (as tools/place-pursuits-on-a-life-map says of the starter map), so no copy is kept here",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l (trillion-workshop PR #124): already had a home, found by content"
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/limits.json",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools owning pursuit-plan / work-for-ais caps",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Explained caps (pursuit chars, work-for-ais job sizes) with refusal words."
+   "destination": "trillion-workshop:tools/keep-work-within-limits/src/limits.json",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Explained caps (pursuit chars, work-for-ais job sizes) with refusal words.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/limits.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop (with limits.json)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): limitSaid sentences for cap refusals and unregisteredLimits audit over limits blocks."
+   "destination": "trillion-workshop:tools/keep-work-within-limits/src/limits.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): limitSaid sentences for cap refusals and unregisteredLimits audit over limits blocks.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/link-page-pages.mjs",
@@ -5039,14 +5137,16 @@
   {
    "path": "src/link-page.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-apps:web/src/link-page.json",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153): already had a home, found by content"
   },
   {
    "path": "src/link-page.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: keep-a-link-in-bio-page: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/link-previews.mjs",
@@ -5072,8 +5172,9 @@
   {
    "path": "src/list-feed.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: fill-a-list-from-a-feed: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/byte-range.mjs and 42 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/list-filters.mjs",
@@ -5281,8 +5382,9 @@
   {
    "path": "src/live-tool-source-config.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: configure-live-tool-sources: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/live-tool-sources.mjs",
@@ -5314,14 +5416,16 @@
   {
    "path": "src/local-choice-observations.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/choose-with-my-own-local-model/src/local-choice-observations.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/local-choice-route.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: choose-with-my-own-local-model: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/local-choice-tasks.json",
@@ -5333,8 +5437,9 @@
   {
    "path": "src/local-choice.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "held: choose-with-my-own-local-model: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine",
+   "why": "a feature a person or AI uses",
+   "batch": "slice src/ a-l round 3 (trillion-workshop PR #152)"
   },
   {
    "path": "src/local-resource-cli.mjs",
@@ -5376,9 +5481,9 @@
   },
   {
    "path": "src/mail-sender.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/send-messages/do-work/mail-sender.mjs",
+   "why": "found by content on main: an adapted port (tools/send-messages/ports/mail-sender.json names this file as its source)"
   },
   {
    "path": "src/mail-settings.json",
@@ -5404,8 +5509,8 @@
   {
    "path": "src/marketplace-configuration-routes.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-apps Marketplace screens; Workshop marketplace tools",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Marketplace listing preview pages, install/uninstall of published configurations and public apps, /work/api/marketplace/configurations."
+   "destination": "not moved yet (held): trillion-apps Marketplace screens; Workshop marketplace tools",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Marketplace listing preview pages, install/uninstall of published configurations and public apps, /work/api/marketplace/configurations. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/marketplace-configuration-tools.mjs",
@@ -5435,8 +5540,9 @@
   {
    "path": "src/marketplace-content-source-id.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/publish-each-shipped-json-section-on-its-own-in-the-marketplace/src/marketplace-content-source-id.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/marketplace-content-sources.mjs",
@@ -5515,14 +5621,16 @@
   {
    "path": "src/meaning-sets.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/search-my-kept-results-by-meaning-with-each-installed-meaning/src/meaning-sets.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/meaning-spaces.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/search-my-kept-results-by-meaning-with-each-installed-meaning/src/meaning-spaces.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/meaning.mjs",
@@ -5551,8 +5659,9 @@
   {
    "path": "src/media-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/browse-the-recordings-in-my-media-library-in-a-stable-order/src/media-tools.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/mention-sources.json",
@@ -5629,14 +5738,15 @@
   {
    "path": "src/model-routes.json",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs; trillion-workshop tools/run-on-a-persons-computer/local-models.mjs",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): DATA: order of model routes per job (your-ais, device, picked), priorities, hedges, loadouts naming vendor models."
+   "destination": "trillion-workshop:tools/route-model-calls/src/model-routes.json",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): DATA: order of model routes per job (your-ais, device, picked), priorities, hedges, loadouts naming vendor models.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/model-routes.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Resolves model routes from model-routes.json: routesFor, modelsFor, askDevice, hedgedRoads."
+   "destination": "not moved yet (held): trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Resolves model routes from model-routes.json: routesFor, modelsFor, askDevice, hedgedRoads. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/moments.json",
@@ -5662,8 +5772,9 @@
   {
    "path": "src/money-out.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/work-out-from-bank-rows-and-receipt/src/money-out.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/money-reads.json",
@@ -5896,8 +6007,9 @@
   {
    "path": "src/namespace-release-rules.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tool (storage rules) + apps storage screen; calls engine release op",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Person-set rules (formula rule tree over item facts, after_days, storage_above_bytes, order) planning which deleted items leave when, with a forecast."
+   "destination": "trillion-workshop:tools/set-storage-release-rules/src/namespace-release-rules.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Person-set rules (formula rule tree over item facts, after_days, storage_above_bytes, order) planning which deleted items leave when, with a forecast.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/namespace-request-body.json",
@@ -5996,8 +6108,8 @@
   {
    "path": "src/native-account-action-mount.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: Workshop tools / trillion-apps screens",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Puts account actions (looks, tours, layouts, sidebar, saved links/examples, controls, voices, billing reads, etc.) on top of native owners via hostOf(book.env,...)."
+   "destination": "not moved yet (held): Workshop tools / trillion-apps screens",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Puts account actions (looks, tours, layouts, sidebar, saved links/examples, controls, voices, billing reads, etc.) on top of native owners via hostOf(book.env,...). Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-account-app-inventory.mjs",
@@ -6014,8 +6126,8 @@
   {
    "path": "src/native-account-apps.mjs",
    "class": "app-screen",
-   "destination": "not moved yet: trillion-apps (Sites / public apps / source projects)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Native mount of the public-app and source-project state owner (accountAppState), with a pending public KV copy (env.APP_KV) and pinned site Worker bundles."
+   "destination": "not moved yet (held): trillion-apps (Sites / public apps / source projects)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Native mount of the public-app and source-project state owner (accountAppState), with a pending public KV copy (env.APP_KV) and pinned site Worker bundles. Held by tools/move-code-between-trees (move-rows/trillion-app-screens-to-apps.json pair): its import closure (730 files) reaches parts/eeaf/do-work/eeaf-sqlite-store.mjs and parts/record-log/do-work/record-log-store.mjs, which stay (the EEAF job); it moves once those reads go through the records door."
   },
   {
    "path": "src/native-account-key-issuance.mjs",
@@ -6044,8 +6156,8 @@
   {
    "path": "src/native-account-shared-network.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: Workshop tools (Spaces, invitations, community, network offers)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A Proxy that sends Spaces/invitations/community/network-offer operations to their shared-resource owners."
+   "destination": "not moved yet (held): Workshop tools (Spaces, invitations, community, network offers)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A Proxy that sends Spaces/invitations/community/network-offer operations to their shared-resource owners. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/share-collection-store.mjs, which stays in the source (keep row src/share-collection-store.mjs); it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-addressed-resource-command.mjs",
@@ -6086,14 +6198,16 @@
   {
    "path": "src/native-automation-command-receipts.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/press-an-automation-once-and-keep-one-receipt-for-that-press/src/native-automation-command-receipts.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-automation-run-receipts.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/press-an-automation-once-and-keep-one-receipt-for-that-press/src/native-automation-run-receipts.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-availability-owner.mjs",
@@ -6122,8 +6236,9 @@
   {
    "path": "src/native-board-live.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-a-shared-board-live-for-several-people/src/native-board-live.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-browser-commercial.mjs",
@@ -6171,8 +6286,9 @@
   {
    "path": "src/native-calendar-owner.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/native-calendar-owner.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-carried-automation-owner.mjs",
@@ -6208,8 +6324,9 @@
   {
    "path": "src/native-configuration-command-receipts.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/read-and-edit-the-saved-configurations-others-shared/src/native-configuration-command-receipts.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-configurations.mjs",
@@ -6220,8 +6337,9 @@
   {
    "path": "src/native-connection-list.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/list-the-accounts-i-have-connected-the-ones/src/native-connection-list.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-contract-stripe.mjs",
@@ -6273,9 +6391,9 @@
   },
   {
    "path": "src/native-historical-site-inventory.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-historical-site-inventory.mjs",
+   "why": "a bounded carry of the sites that predate native source reservations: no running consumer once the Worker retired"
   },
   {
    "path": "src/native-identity-owner.mjs",
@@ -6304,8 +6422,9 @@
   {
    "path": "src/native-local-command-receipts.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/native-local-command-receipts.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-look-authorization.mjs",
@@ -6316,8 +6435,9 @@
   {
    "path": "src/native-look-command-receipts.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-the-exact-first-answer-to-each-change-i/src/native-look-command-receipts.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-look-read-operations.json",
@@ -6403,8 +6523,8 @@
   {
    "path": "src/native-namespace-evidence.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: Workshop search tool",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Transcript-source index and words-in-results search over the files namespace, with paced catch-up and logs of the cost of each step."
+   "destination": "not moved yet (held): Workshop search tool",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Transcript-source index and words-in-results search over the files namespace, with paced catch-up and logs of the cost of each step. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure carries src/device-rows.mjs, which calls KV (env.APP_KV, lines 59 and 63); swapping those calls is a code change, not a byte-for-byte move, so it waits for an adapted port."
   },
   {
    "path": "src/native-network-membership-drain.mjs",
@@ -6420,9 +6540,9 @@
   },
   {
    "path": "src/native-network-moderation-carry.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-network-moderation-carry.mjs",
+   "why": "a one-time carry of the old store into the native records (cold source, copied and read back once, then retired): no running consumer once the Worker retired"
   },
   {
    "path": "src/native-network-moderation-resource.mjs",
@@ -6433,8 +6553,9 @@
   {
    "path": "src/native-network-moderation.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-the-labels-people-give-each-other-in-the-network/src/native-network-moderation.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-network-offers.json",
@@ -6452,8 +6573,9 @@
   {
    "path": "src/native-network-owner.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/publish-what-i-offer-and-seek-in-the-network/src/native-network-owner.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-network-resource.mjs",
@@ -6469,9 +6591,9 @@
   },
   {
    "path": "src/native-network-stay-carry.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-network-stay-carry.mjs",
+   "why": "a one-time carry of the old store into the native records (cold source, copied and read back once, then retired): no running consumer once the Worker retired"
   },
   {
    "path": "src/native-network-stay-host.mjs",
@@ -6487,9 +6609,9 @@
   },
   {
    "path": "src/native-network-trust-carry.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/native-network-trust-carry.mjs",
+   "why": "a one-time carry of the old store into the native records (cold source, copied and read back once, then retired): no running consumer once the Worker retired"
   },
   {
    "path": "src/native-network-trust-resource.mjs",
@@ -6627,8 +6749,9 @@
   {
    "path": "src/native-published-placement.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/publish-change-or-take-down-a-public-item/src/native-published-placement.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-pursuit-owner.mjs",
@@ -6639,14 +6762,16 @@
   {
    "path": "src/native-record-consumers.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/read-add-and-change-lists-decisions-and-work/src/native-record-consumers.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-record-inspection.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/read-a-saved-record-and-show-its-value-the-same/src/native-record-inspection.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-record-sharing.mjs",
@@ -6705,8 +6830,8 @@
   {
    "path": "src/native-resource-profile.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: Workshop tool (network profile)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Network profile fill and publication (names from signup/purchase, embeddings, shared directory), reads env.APP_KV."
+   "destination": "not moved yet (held): Workshop tool (network profile)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Network profile fill and publication (names from signup/purchase, embeddings, shared directory), reads env.APP_KV. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-quota.mjs",
@@ -6723,8 +6848,8 @@
   {
    "path": "src/native-resource-screen-behavior.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-apps screens / Workshop tools",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Browser account screens (activity, new work, notifications, job run, message task canvas, responses, sent, spend)."
+   "destination": "not moved yet (held): trillion-apps screens / Workshop tools",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Browser account screens (activity, new work, notifications, job run, message task canvas, responses, sent, spend). Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-screen-consumers.mjs",
@@ -6741,26 +6866,26 @@
   {
    "path": "src/native-resource-source.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: Workshop tools (messages, attention, decisions)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Message decision, attention classification by rules and the chosen AI, notices, said-done."
+   "destination": "not moved yet (held): Workshop tools (messages, attention, decisions)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Message decision, attention classification by rules and the chosen AI, notices, said-done. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports harness/record-every-message.json, which stays in the source (keep row harness/); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-spend.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: Workshop tool (spend / money sources)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Spend reading, money sources from mail/bank, budgets and cap changes, pool spend stops."
+   "destination": "not moved yet (held): Workshop tool (spend / money sources)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Spend reading, money sources from mail/bank, budgets and cap changes, pool spend stops. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-tell.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: Workshop tool (tell the person: web push, APNs, mail)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Notification senders (web push, APNs, mail) with device routes and quiet minutes; secrets via worker-secrets."
+   "destination": "not moved yet (held): Workshop tool (tell the person: web push, APNs, mail)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Notification senders (web push, APNs, mail) with device routes and quiet minutes; secrets via worker-secrets. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-tool-billing-intents.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: Workshop billing tool",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Keeps and scrubs a tool run's monetary recovery material (billing intents) by charge identity."
+   "destination": "not moved yet (held): Workshop billing tool",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Keeps and scrubs a tool run's monetary recovery material (billing intents) by charge identity. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-work.mjs",
@@ -6906,8 +7031,9 @@
   {
    "path": "src/native-tool-command-receipts.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/run-each-command-once-on-the-accounts-records-keep/src/native-tool-command-receipts.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-waiting-account-owner.mjs",
@@ -6972,20 +7098,23 @@
   {
    "path": "src/native-workspace-record-reader.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/read-one-workspace-record-by-its-label-and-save-a-change/src/native-workspace-record-reader.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-workspace-records.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/read-one-workspace-record-by-its-label-and-save-a-change/src/native-workspace-records.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/native-xcode-source.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/prepare-an-app-project-from-a-github-commit/src/native-xcode-source.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/negotiated-offers.mjs",
@@ -7016,14 +7145,16 @@
   {
    "path": "src/network-introduction-expiry.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/send-invitations-and-introductions-to-people-in-the-network-and/src/network-introduction-expiry.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/network-publication-shape.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/publish-what-i-offer-and-seek-in-the-network/src/network-publication-shape.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/network-request-credit.mjs",
@@ -7058,14 +7189,16 @@
   {
    "path": "src/new-work.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/new-work.json",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/new-work.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/new-work.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/note-text-index.json",
@@ -7103,8 +7236,9 @@
   {
    "path": "src/offer-rows.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/offer-rows.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/old-tab-repaint.mjs",
@@ -7134,9 +7268,9 @@
   },
   {
    "path": "src/optional-read.mjs",
-   "class": "app-screen",
-   "destination": "not moved yet: trillion-apps screens",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A supporting screen read that answers a fallback when it fails or exceeds 8 s."
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/find-and-keep-my-connections/src/optional-read.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A supporting screen read that answers a fallback when it fails or exceeds 8 s. Home found by content: the same bytes are on trillion-workshop main."
   },
   {
    "path": "src/original-private-work-erasure.mjs",
@@ -7154,8 +7288,9 @@
   {
    "path": "src/original-work-installation-shard.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-each-task-input-and-list-on-the-one-record-book/src/original-work-installation-shard.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/original-work-list-owner.mjs",
@@ -7166,20 +7301,23 @@
   {
    "path": "src/original-work-resource-affinity.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-each-task-input-and-list-on-the-one-record-book/src/original-work-resource-affinity.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/original-work-resource-catalogue.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-each-task-input-and-list-on-the-one-record-book/src/original-work-resource-catalogue.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/original-work-resource-selection.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-each-task-input-and-list-on-the-one-record-book/src/original-work-resource-selection.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/original-work-result-identities.mjs",
@@ -7190,8 +7328,8 @@
   {
    "path": "src/outbound-recipient.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop messages/send tools",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Guards an outbound send: checks a claimed recipient against the person's contact list rows (email/phone matching)."
+   "destination": "not moved yet (held): trillion-workshop messages/send tools",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Guards an outbound send: checks a claimed recipient against the person's contact list rows (email/phone matching). Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its own test at the tag (test/outbound-recipient.test.mjs) fails 3 of 5 against the code at the tag, and its fixtures carry phone numbers outside the 555 range that may be a real person's; the Workshop is public, so it waits for a synthetic test that passes."
   },
   {
    "path": "src/outcome-checks.mjs",
@@ -7265,8 +7403,9 @@
   {
    "path": "src/own-records-pursuits.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop decisions/pursuits tool",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Gives an independent work:… book its pursuits from the account own records while keeping its own decisions for the decision engine."
+   "destination": "trillion-workshop:tools/scope-records-to-a-pursuit/src/own-records-pursuits.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Gives an independent work:… book its pursuits from the account own records while keeping its own decisions for the decision engine.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/own-resource-command-quota.json",
@@ -7346,9 +7485,9 @@
   },
   {
    "path": "src/pages-domain-provider.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/pages-domain-provider.mjs",
+   "why": "a file of the retired Worker host: a separate Cloudflare Worker with no public route, called only by the old app's service binding"
   },
   {
    "path": "src/pages.mjs",
@@ -7415,8 +7554,9 @@
   {
    "path": "src/payers.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/work-out-who-pays-for-a-tool-call/src/payers.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/payment-operations.mjs",
@@ -7427,14 +7567,16 @@
   {
    "path": "src/payment-platform.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/payment-platform.json",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/payment-platform.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/shared-code/src/payment-platform.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/payment.mjs",
@@ -7470,8 +7612,9 @@
   {
    "path": "src/person-network.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/list-the-person-for-others-to-find-ask-the-network/src/person-network.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/person-notifications.json",
@@ -7559,14 +7702,16 @@
   {
    "path": "src/placed-lists.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/src/placed-lists.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/placement.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/pick-where-one-piece-of-work-runs-the-device/src/placement.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/plan-cards.mjs",
@@ -7583,8 +7728,9 @@
   {
    "path": "src/plan-comparison.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/compare-plans-side-by-side-and-tell-a-person/src/plan-comparison.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/plan-needs.mjs",
@@ -7595,8 +7741,9 @@
   {
    "path": "src/plan-records.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-a-task-plan-as-one-editable-record/src/plan-records.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/plan-usage.mjs",
@@ -7639,8 +7786,9 @@
   {
    "path": "src/pool-embedding.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/share-decisions-anonymously-with-other-people-by-choice/src/pool-embedding.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/pool-settings.json",
@@ -7713,9 +7861,9 @@
   },
   {
    "path": "src/private-method.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/decide-with-a-method/read-data/method.mjs",
+   "why": "found by content on main: an adapted port (its header: ported from the old app's src/private-method.mjs)"
   },
   {
    "path": "src/private-responses.mjs",
@@ -7726,9 +7874,9 @@
   },
   {
    "path": "src/private-rewrite.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/learn-from-everyones-results/read-data/plain-privacy-pass.mjs",
+   "why": "found by content on main: an adapted port of its plain half (its header: ported from the old app's src/private-rewrite.mjs; the model rewrite is the caller's)"
   },
   {
    "path": "src/private-sites.mjs",
@@ -7791,15 +7939,16 @@
   },
   {
    "path": "src/public-app-domain-provider.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/public-app-domain-provider.mjs",
+   "why": "a file of the retired Worker host: the Cloudflare hosting-provider Worker behind a service binding, with no public route"
   },
   {
    "path": "src/public-app-domains.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/put-a-site-on-the-persons-own-web-address-through/src/public-app-domains.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/public-app-error-words.json",
@@ -7866,15 +8015,15 @@
   },
   {
    "path": "src/public-app-name-carry.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/public-app-name-carry.mjs",
+   "why": "the operator carry of the retired name-claim stores (scripts/carry-public-app-name-claims.mjs, the raw export of 2026-10-17): no running consumer"
   },
   {
    "path": "src/public-app-name-claim.mjs",
-   "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/public-app-name-claim.mjs",
+   "why": "the retired one-object-per-name claim store, with no caller since dde82f553 (src/public-app-name-carry.mjs header)"
   },
   {
    "path": "src/public-app-names.json",
@@ -7917,8 +8066,9 @@
   {
    "path": "src/public-app-route-refresh.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/refresh-one-page-of-a-copied-site-from-its-original/src/public-app-route-refresh.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/public-app-rows-import.mjs",
@@ -7955,8 +8105,9 @@
   {
    "path": "src/public-app-visitor-view.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/place-a-sign-up-form-or-a-published-recipe-on-a-site/src/public-app-visitor-view.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/public-site-pages.mjs",
@@ -7968,8 +8119,9 @@
   {
    "path": "src/public-tool-catalog.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/browse-and-search-every-marketplace-listing-without-signing/src/public-tool-catalog.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/published-account-erasure.mjs",
@@ -8000,14 +8152,16 @@
   {
    "path": "src/purchase-billing.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/open-the-billing-page-for-one-purchase-and-show-the-card/src/purchase-billing.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/purchase-cards.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/open-the-billing-page-for-one-purchase-and-show-the-card/src/purchase-cards.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/purchase-name-fill.mjs",
@@ -8018,8 +8172,9 @@
   {
    "path": "src/pursuit-consolidate.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-a-persons-pursuits-tidy-by-merging-duplicates/src/pursuit-consolidate.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/pursuit-detail-screen.mjs",
@@ -8132,20 +8287,23 @@
   {
    "path": "src/read-link.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/read-a-public-web-link-whole-its-card/src/read-link.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/readable-names.json",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop share/publish tools",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): BIP39-derived word list, secret_bits and pattern for word-named links."
+   "destination": "trillion-workshop:tools/give-shared-things-readable-names/src/readable-names.json",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): BIP39-derived word list, secret_bits and pattern for word-named links.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/readable-names.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop share/publish tools",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Secret word names for share/invite/meeting links and claimPublicName for published addresses."
+   "destination": "trillion-workshop:tools/give-shared-things-readable-names/src/readable-names.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Secret word names for share/invite/meeting links and claimPublicName for published addresses.",
+   "batch": "rust-engine slice features (trillion-workshop PR, this branch)"
   },
   {
    "path": "src/receipt-owner.mjs",
@@ -8302,8 +8460,8 @@
   {
    "path": "src/record-scope.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop pursuits tool",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Which pursuits each record belongs to: scope_links index, scope values, saved views, /scope routes."
+   "destination": "not moved yet (held): trillion-workshop pursuits tool",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Which pursuits each record belongs to: scope_links index, scope values, saved views, /scope routes. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/record-search-index.mjs",
@@ -8358,8 +8516,9 @@
   {
    "path": "src/referrals.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/referrals/src/referrals.json",
+   "why": "a feature a person or AI uses",
+   "batch": "move:trillion-workshop-tools-src-m-r-round-2"
   },
   {
    "path": "src/refresh-once.mjs",
@@ -8401,9 +8560,9 @@
   },
   {
    "path": "src/resource-activity-projection.mjs",
-   "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/see-what-my-ais-did",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Projects committed resource commands into the shared Activity feed through a DO SQL outbox, once per permit, with erase."
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/resource-activity-projection.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Projects committed resource commands into the shared Activity feed through a DO SQL outbox, once per permit, with erase. Retired: it imports ./activity.mjs, which is not in the tree at the tag, so it cannot load and has no running consumer."
   },
   {
    "path": "src/resource-admission-runtime.mjs",
@@ -8450,14 +8609,14 @@
   {
    "path": "src/resource-inbound.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/send-messages; trillion-workshop tools/messages-screen",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Inbound messages at a resource: keep raw source and provenance, then attention/interpretation once, answer notices and decisions."
+   "destination": "not moved yet (held): trillion-workshop tools/send-messages; trillion-workshop tools/messages-screen",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Inbound messages at a resource: keep raw source and provenance, then attention/interpretation once, answer notices and decisions. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/resource-input-capture.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/send-messages; trillion-workshop tools/admit-attachments-to-a-message",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Raw input capture and resumable interpretation claims for inbound messages (resource-input-interpretation / -erasure records)."
+   "destination": "not moved yet (held): trillion-workshop tools/send-messages; trillion-workshop tools/admit-attachments-to-a-message",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Raw input capture and resumable interpretation claims for inbound messages (resource-input-interpretation / -erasure records). Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/resource-invalidations.mjs",
@@ -8468,8 +8627,8 @@
   {
    "path": "src/resource-model-road.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Chosen-AI routing and paid-model spending at a work resource: asks for your AIs, device asks, hedged roads, budget matching."
+   "destination": "not moved yet (held): trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Chosen-AI routing and paid-model spending at a work resource: asks for your AIs, device asks, hedged roads, budget matching. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/resource-operation-owner.mjs",
@@ -9348,8 +9507,8 @@
   {
    "path": "src/shared-resource-compatibility.mjs",
    "class": "workshop-tool",
-   "destination": "not moved yet: a Spaces Workshop tool / trillion-apps Space screens (none exists yet)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Space HTTP/tool routes (withdraw, fill, facts, board, rules, members, member-types, agents, handoffs) projected onto the shared resource owner."
+   "destination": "not moved yet (held): a Spaces Workshop tool / trillion-apps Space screens (none exists yet)",
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Space HTTP/tool routes (withdraw, fill, facts, board, rules, members, member-types, agents, handoffs) projected onto the shared resource owner. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/shared-resource-composition.mjs",

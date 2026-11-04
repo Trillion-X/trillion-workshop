@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/plan-records.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-task-plan-as-one-editable-record/src/plan-records.mjs",
+      "source_identity": "1f:a155a39a628e0d5f76d29bb87ef2f4aa701d7280c50f2e03ed22f61702e3c2c3",
+      "identity": "1f:c92e063bfa0d021bf95a79c8a12c70b7db7e96fcb47e1ed3a0c9028d5712c38e"
+    },
+    {
+      "from": "test/plan-records.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-task-plan-as-one-editable-record/test/plan-records.test.mjs",
+      "source_identity": "1f:31770b4f8af32e18543496e49d424f530eaa0522b241ad3bdc9f1cb9ed66f0ee",
+      "identity": "1f:31770b4f8af32e18543496e49d424f530eaa0522b241ad3bdc9f1cb9ed66f0ee"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "_what": "Invite friends by name and email (the Invite friends screen). `fact_prefix` is where each invite is kept (one row per invited email); `page` how many the table shows at a time; `max` how many a person may keep; `name_max` how long a name may be; `kind` names the email for the per-person sending limits (src/mail-settings.json). The email's words are `email`, the screen's words are `words`. A status is the first of `statuses` whose `when` is true, reading the invite's own facts.",
+  "fact_prefix": "friend-invite:",
+  "page": 20,
+  "max": 500,
+  "name_max": 80,
+  "kind": "friend-invite",
+  "email": {
+    "subject": "{inviter} thinks Trillion could help you",
+    "markdown": "Hi {name},\n\n{inviter} invited you to Trillion, where your AI helps you make better decisions and get them done.\n\n{reward}",
+    "reward": "Your link gives you {theirs} off your first payment.",
+    "reward_none": "Open the link to see what it does.",
+    "action": "See Trillion",
+    "footer": "You got this because {inviter} typed your address. Nothing else is sent unless you join."
+  },
+  "words": {
+    "heading": "Send an invite",
+    "body": "Type a friend's name and email. Trillion emails them your link and shows here whether they joined.",
+    "name_label": "Name",
+    "name_placeholder": "Their first name",
+    "email_label": "Email",
+    "email_placeholder": "friend@example.com",
+    "send": "Send invite",
+    "busy": "Sending…",
+    "table_heading": "Invites",
+    "empty": "You have not invited anyone by email yet.",
+    "unreadable": "Your invites could not be read just now. Try again in a moment.",
+    "sent_on": "Sent {day}",
+    "resend": "Send again",
+    "remove": "Remove",
+    "remove_confirm": "Remove this invite from the list? The email already sent stays sent.",
+    "next": "Next invites",
+    "first": "First invites",
+    "need_name": "Type your friend's name.",
+    "need_email": "Type a real email address.",
+    "yourself": "That is your own email address.",
+    "full": "You already have {max} invites. Remove some to invite more.",
+    "not_sent": "The email could not be sent: {why}",
+    "sent": "Invite sent to {name}.",
+    "resent": "Invite sent to {name} again.",
+    "removed": "Removed.",
+    "gone": "That invite is already gone.",
+    "no_link": "Your link could not be made just now. Try again in a moment.",
+    "inviter_fallback": "A friend of yours"
+  },
+  "statuses": [
+    {
+      "id": "paying",
+      "label": "Paying",
+      "tone": "good",
+      "when": "paid"
+    },
+    {
+      "id": "joined",
+      "label": "Joined",
+      "tone": "good",
+      "when": "joined"
+    },
+    {
+      "id": "sent",
+      "label": "Invited",
+      "tone": "quiet",
+      "when": "always"
+    }
+  ]
+}

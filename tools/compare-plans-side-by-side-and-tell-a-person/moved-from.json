@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/plan-comparison.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/compare-plans-side-by-side-and-tell-a-person/src/plan-comparison.json",
+      "source_identity": "1f:6e15a8aeec0a1ec38734862cdcf8b43345f3d15f270424a5424babb68e0a92cd",
+      "identity": "1f:6e15a8aeec0a1ec38734862cdcf8b43345f3d15f270424a5424babb68e0a92cd"
+    },
+    {
+      "from": "src/plan-comparison.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/compare-plans-side-by-side-and-tell-a-person/src/plan-comparison.mjs",
+      "source_identity": "1f:5dc4589f6d750e2c346058a38cb5ea464621b0b5c18166088cc76d9df4289795",
+      "identity": "1f:7243aa19301f719dc7c02fa8cd9aa867f0bd782b6fe0c563200b7e58f29e167d"
+    },
+    {
+      "from": "src/screen-words.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/compare-plans-side-by-side-and-tell-a-person/src/screen-words.json",
+      "source_identity": "1f:9f08f41967ab5be90776685ccdb324e9fb5a9ee3dac5fe82af359e1953b919d3",
+      "identity": "1f:9f08f41967ab5be90776685ccdb324e9fb5a9ee3dac5fe82af359e1953b919d3"
+    }
+  ]
+}

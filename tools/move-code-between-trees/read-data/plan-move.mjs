@@ -52,6 +52,11 @@ export function planMove(row, source, destination) {
   if (!shared) throw new MoveRefusal('row_incomplete', 'The move row names no destination.shared_folder: say which folder holds files more than one group imports.');
   const packageName = row.destination?.package;
   const testFolders = row.source?.test_folders ?? [];
+  // Tests the row leaves where they are, each with why (a test of another tree's screens, a test that reads the source
+  // tree's own import text): they move with no group.
+  const leaveTests = row.leave_tests ?? [];
+  for (const item of leaveTests) if (!item?.path || !item?.why) throw new MoveRefusal('row_incomplete', 'Each leave_tests row names path (the test file in the source) and why it does not move with its group.');
+  const leftTest = path => leaveTests.some(item => item.path === path);
 
   source.readMany([...source.files].filter(isCode));
   const text = path => source.read(path).toString('utf8');
@@ -132,7 +137,7 @@ export function planMove(row, source, destination) {
     return found;
   };
   for (const path of [...source.files].filter(file => TEST_FILE.test(file) && inTestFolder(file)).sort()) {
-    if (movingFiles.has(path)) continue;
+    if (movingFiles.has(path) || leftTest(path)) continue;
     const reach = reachOf(path);
     const owner = moving().find(group => group.roots.some(root => reach.has(root)));
     if (!owner) continue;

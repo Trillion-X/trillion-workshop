@@ -1,0 +1,35 @@
+{
+  "what_this_is": "How the reach of each of a person's AIs reads on Account & security and inside a pursuit (src/ai-reach.mjs), and the choices offered there after an AI has connected. The consent page's own choices (src/reach-choices.json) come first in the same order; `more_choices` adds the shapes a reach can also have once an AI was added to a pursuit or a key was made with less. `{spaces}` is the names of the pursuits, joined by `joiner` with `last_joiner` before the last.",
+  "more_choices": [
+    { "id": "private-and-spaces", "label": "My private Trillion and pursuits I pick", "private": true, "spaces": "picked" },
+    { "id": "every-space", "label": "Every pursuit shared with others, nothing else", "private": false, "spaces": "all" }
+  ],
+  "reads": {
+    "line": "Can reach: {reach}",
+    "everything": "Everything",
+    "private_only": "Only my private Trillion",
+    "every_space": "Every pursuit shared with others, nothing else",
+    "spaces_only": "Only {spaces}",
+    "private_and_spaces": "My private Trillion and {spaces}",
+    "unknown": "Shown after it is next used",
+    "differs": "Set differently on each of its sign-ins",
+    "left_space": "a pursuit you have left"
+  },
+  "joiner": ", ",
+  "last_joiner": " and ",
+  "fields": {
+    "choice": "What it can reach",
+    "spaces": "Pursuits",
+    "add_space": "Add a pursuit",
+    "save": "Save",
+    "open": "Change what it reaches",
+    "unknown_note": "Use this app with Trillion once, then you can change what it reaches here."
+  },
+  "said": {
+    "saved": "{name} now reaches: {reach}. This takes effect on its next request.",
+    "added": "{name} can now read and add to this pursuit."
+  },
+  "in_space": {
+    "description": "{name}, one of its member's AIs, reads and adds to this pursuit."
+  }
+}

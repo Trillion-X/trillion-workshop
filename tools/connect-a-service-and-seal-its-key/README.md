@@ -2,11 +2,21 @@
 
 Every service a person can connect to Trillion as DATA (one descriptor per service in `records.json`), plus the connect, rename and disconnect request builders and the connect dialog that read those descriptors.
 
+## Tools
+
+| Tool | What it does | Runs |
+|------|--------------|------|
+| `tool:list-every-connection` | The one Connections list: every service in `records.json` (how it connects: key, sign-in, or carried by the person's computer, with its steps) and every place on the person's computer in `tools/bring-in-new-items-from-this-computer/computer/computer-sources.json` (what it arrives as, its switch), in one set of category words (`do-work/connection-categories.json`), sorted by category; given `tool:look-for-the-places-on-this-computer`'s answer, each place says whether it is there | in a small container, no internet |
+
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `records.json` | `{ package, things: [...] }`: one published record per service (`package::service-connections::published-record::<vendor>`) whose `payload` names the service, its capabilities, `credentialFields`, `helperLinks` (each `{ id, label, url, description?, tone? }`: a button on Connections, `tone` its look such as `primary`, a `description` a step above it), `domain`, `category`, `verifyRequest`, an `acquire` flow when it signs in by its own flow, `carriedBy` when only the person's own computer can reach it, and `sendsFrom` when the service refuses requests from servers' addresses. `scripts/workshop-rows.mjs` turns each into a Workshop connect row through the row source `source:service-connection-descriptors` in `records/workshop-tool-records.json`. |
+| `do-work/list-every-connection.mjs` | The run of `tool:list-every-connection`: reads both owners' rows as they are, names no service or place. |
+| `do-work/connection-categories.json` | Which service category is which list category (`Messaging` is `Messages`...), so both kinds group together. |
+| `tool-rows.json` | That row. |
+| `test/list-every-connection.test.mjs` | Made-up rows of both owners, and the row run over the real ones. |
 | `work-contract.json` | The owner record work contract the readers interpret: record kinds, columns, facts, actions and secrets. |
 | `part.json` | The files other parts and `src/` may import (`public`). |
 | `do-work/connect-service.ts` | The connect write path: raw credential bytes go to the host's value store first, connection metadata to the owner action with only the handle. |
