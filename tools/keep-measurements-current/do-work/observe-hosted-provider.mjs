@@ -91,14 +91,55 @@ function inventoryIdentity(name) {
   } catch { return null; }
 }
 
-export async function vaultInventory(vault) {
-  const names = await vault.namesHeldByTheVault();
-  const wanted = names.filter(name => name.startsWith('cloudflare-') || name.startsWith('backblaze-b2-') || inventoryIdentity(name) === 'supabase');
-  return wanted.map(name => {
-    const provider = name.startsWith('cloudflare-') ? 'cloudflare' : name.startsWith('backblaze-b2-') ? 'backblaze-b2' : 'supabase';
-    const shape = vault.shapeHeldByTheVault(name);
-    return { provider, holder_kind: shape?.fields ? 'structured' : shape, fields: Array.isArray(shape?.fields) ? [...shape.fields].sort() : [] };
+const HOLDER_ROLES = ['token', 'account_endpoint', 'key_id', 'key'];
+
+/**
+ * The person's credential rows say which vault holders belong to which provider. No holder name or
+ * vendor prefix lives in this code: a vault name not named by a row is never read or reported.
+ * `{ schema: 'hosted-provider-credentials/1', rows: [{ provider, holders?: { token, account_endpoint, ... }, service_connection? }] }`
+ */
+export function validateCredentialRows(credentials) {
+  if (!credentials || credentials.schema !== 'hosted-provider-credentials/1' || !Array.isArray(credentials.rows)) {
+    throw new TypeError('Give credential rows as hosted-provider-credentials/1: { schema, rows: [{ provider, holders, service_connection }] }.');
+  }
+  const seen = new Set();
+  return credentials.rows.map((row, index) => {
+    const where = `credential row ${index + 1}`;
+    if (typeof row?.provider !== 'string' || !/^[a-z0-9][a-z0-9-]{0,63}$/.test(row.provider)) throw new TypeError(`${where} needs a provider id.`);
+    if (seen.has(row.provider)) throw new TypeError(`${where} repeats provider ${row.provider}.`);
+    seen.add(row.provider);
+    const holders = row.holders ?? {};
+    if (typeof holders !== 'object' || Array.isArray(holders)) throw new TypeError(`${where} holders is an object of role to vault holder name.`);
+    for (const [role, name] of Object.entries(holders)) {
+      if (!HOLDER_ROLES.includes(role)) throw new TypeError(`${where} names unknown holder role ${role}; roles are ${HOLDER_ROLES.join(', ')}.`);
+      if (typeof name !== 'string' || !name) throw new TypeError(`${where} holder ${role} must be a vault holder name.`);
+    }
+    if (row.service_connection !== undefined && (typeof row.service_connection !== 'string' || !row.service_connection)) {
+      throw new TypeError(`${where} service_connection must be a nonempty name.`);
+    }
+    if (!Object.keys(holders).length && !row.service_connection) throw new TypeError(`${where} names no holder and no service connection.`);
+    return { provider: row.provider, holders: { ...holders }, ...(row.service_connection ? { service_connection: row.service_connection } : {}) };
   });
+}
+
+export async function vaultInventory(vault, credentials) {
+  const rows = validateCredentialRows(credentials);
+  const names = await vault.namesHeldByTheVault();
+  const held = new Set(names);
+  const out = [];
+  for (const row of rows) {
+    const wanted = [
+      ...Object.values(row.holders).filter(name => held.has(name)),
+      ...(row.service_connection ? names.filter(name => inventoryIdentity(name) === row.service_connection) : []),
+    ];
+    for (const name of wanted) {
+      const shape = vault.shapeHeldByTheVault(name);
+      out.push({ provider: row.provider, holder_kind: shape?.fields ? 'structured' : shape, fields: Array.isArray(shape?.fields) ? [...shape.fields].sort() : [] });
+    }
+    const missing = Object.entries(row.holders).filter(([, name]) => !held.has(name)).map(([role]) => role);
+    if (missing.length) out.push({ provider: row.provider, holder_kind: 'not_held', missing_roles: missing.sort() });
+  }
+  return out;
 }
 
 function cloudflareAccountId(endpoint) {
@@ -177,21 +218,27 @@ function gitRevision() {
   } catch { return null; }
 }
 
-export async function observeHostedProviders({ source = SOURCE, vault, fetchImpl = fetch, now = new Date() }) {
+export async function observeHostedProviders({ source = SOURCE, credentials, vault, fetchImpl = fetch, now = new Date() }) {
   if (source.schema !== 'hosted-provider-source/1' || !Array.isArray(source.providers)) throw new TypeError('Unsupported hosted-provider source DATA.');
+  const rows = new Map(validateCredentialRows(credentials).map(row => [row.provider, row]));
   const observations = [];
+  const unconfigured = [];
   for (const provider of source.providers) {
-    const tokenValue = await vault.heldByTheVault(provider.token_holder);
+    const row = rows.get(provider.id);
+    if (!row?.holders.token || !row.holders.account_endpoint) { unconfigured.push(provider.id); continue; }
+    const tokenValue = await vault.heldByTheVault(row.holders.token);
     const token = typeof tokenValue === 'string' ? tokenValue : tokenValue?.value;
-    if (typeof token !== 'string' || token.length < 16) throw new TypeError(`Vault holder ${provider.token_holder} did not yield a usable credential.`);
-    const endpointValue = await vault.heldByTheVault(provider.account_endpoint_holder);
+    if (typeof token !== 'string' || token.length < 16) throw new TypeError(`The token holder in the ${provider.id} credential row did not yield a usable credential.`);
+    const endpointValue = await vault.heldByTheVault(row.holders.account_endpoint);
     const accountEndpoint = typeof endpointValue === 'string' ? endpointValue : endpointValue?.[provider.account_endpoint_field];
     const accountId = cloudflareAccountId(accountEndpoint);
     for (const request of provider.requests) {
       observations.push(await callOne({ provider, request, token, accountId, now, fetchImpl }));
     }
   }
-  return { schema: 'hosted-provider-observations/1', observed_at: new Date().toISOString(), observation_count: observations.length, observations };
+  // A provider with no credential row is not observed, and says so: nothing is guessed from vault names.
+  return { schema: 'hosted-provider-observations/1', observed_at: new Date().toISOString(), observation_count: observations.length, observations,
+    ...(unconfigured.length ? { unconfigured_providers: unconfigured } : {}) };
 }
 
 async function loadVault() {
@@ -199,15 +246,23 @@ async function loadVault() {
   return import(moduleUrl.href);
 }
 
+const USAGE = 'Usage: node observe-hosted-provider.mjs [inventory|observe] --credentials FILE (hosted-provider-credentials/1 rows).';
+
 async function main() {
-  const mode = process.argv[2] ?? 'observe';
+  const args = process.argv.slice(2);
+  const at = args.indexOf('--credentials');
+  if (at < 0 || !args[at + 1]) throw new TypeError(USAGE);
+  const credentials = JSON.parse(await readFile(args[at + 1], 'utf8'));
+  args.splice(at, 2);
+  const mode = args[0] ?? 'observe';
+  if (mode !== 'inventory' && mode !== 'observe') throw new TypeError(USAGE);
+  validateCredentialRows(credentials);
   const vault = await loadVault();
   if (mode === 'inventory') {
-    process.stdout.write(JSON.stringify({ vault_metadata: await vaultInventory(vault) }, null, 2) + '\n');
+    process.stdout.write(JSON.stringify({ vault_metadata: await vaultInventory(vault, credentials) }, null, 2) + '\n');
     return;
   }
-  if (mode !== 'observe') throw new TypeError('Usage: node observe-hosted-provider.mjs [inventory|observe].');
-  const result = await observeHostedProviders({ vault });
+  const result = await observeHostedProviders({ credentials, vault });
   process.stdout.write(JSON.stringify(result, null, 2) + '\n');
 }
 
