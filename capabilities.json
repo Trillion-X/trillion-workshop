@@ -483,6 +483,17 @@
       "evidence": "README.md:3 which domains a person's email-sending account may send from, how each stands, and how many there are"
     },
     {
+      "capability": "make a machine into a place that keeps people's accounts: rent a server from a provider named by a row, or take a Linux machine someone already runs over SSH, install the account engine's release on it, start it serving and read back its sign-up page and monthly price",
+      "owner": ["tools/start-a-place/"],
+      "entry": "tools/start-a-place/tool-rows.json",
+      "evidence": "README.md:3 rent a server through a provider row, or take an existing Linux machine over SSH, install the engine release on it, start it serving and read back its sign-up page and monthly price",
+      "distinct_from": [
+        {"job": "keep one outbound tunnel from the rented server to a service on this Mac, with a pinned host key and the credential held in the vault", "why": "that job keeps a tunnel from a rented server back to one Mac; this one rents or takes a machine and makes it a place of its own that needs no Mac"},
+        {"job": "build the hosted service, its engines and the signed-in workspace page into the files a deploy uploads and serves", "why": "that job builds files to upload; this one installs an engine release that is already built onto a machine and starts it"},
+        {"job": "switch an installed site's serving on or off, with or without receiving email, keeping its existing files", "why": "that job turns one installed site's serving on or off; this one sets a machine up from nothing as a place that holds accounts"}
+      ]
+    },
+    {
       "capability": "turn records on disk (JSON, tab-separated files, markdown tables) into rows of a person's lists",
       "owner": ["tools/export-records-as-list-rows/"],
       "entry": "tools/export-records-as-list-rows/tool-rows.json",
