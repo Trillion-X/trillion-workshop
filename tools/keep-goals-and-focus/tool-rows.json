@@ -227,8 +227,8 @@
                 }
               ]
             },
-            "output_selector": "$.rows[1].shown_under",
-            "contains": "life"
+            "output_selector": "$.count",
+            "at_least": 3
           }
         ]
       }

@@ -164,6 +164,10 @@
                   }
                 }
               }
+            },
+            "changed": {
+              "type": "integer",
+              "description": "How many reports changed a device's facts."
             }
           }
         },
@@ -254,8 +258,8 @@
                 }
               ]
             },
-            "output_selector": "$.devices[1].identity",
-            "contains": "phone-1"
+            "output_selector": "$.changed",
+            "at_least": 2
           }
         ]
       }

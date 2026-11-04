@@ -180,8 +180,8 @@
                 }
               ]
             },
-            "output_selector": "$.messages[0].smart_list",
-            "contains": "calendar"
+            "output_selector": "$.counts.calendar",
+            "at_least": 1
           }
         ]
       }

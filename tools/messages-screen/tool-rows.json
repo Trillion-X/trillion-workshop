@@ -262,8 +262,8 @@
               ],
               "search": "garden"
             },
-            "output_selector": "$.groups[0].conversations[0].title",
-            "contains": "Garden plan"
+            "output_selector": "$.total",
+            "at_least": 2
           }
         ]
       }

@@ -265,8 +265,8 @@
                 }
               ]
             },
-            "output_selector": "$.document[0].text",
-            "contains": "Plan the spring garden today"
+            "output_selector": "$.orders_checked",
+            "at_least": 2
           }
         ]
       }
