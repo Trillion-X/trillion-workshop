@@ -1,0 +1,212 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:draw-lists-on-a-canvas",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:fade-live-ink-marks",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Fade live ink marks",
+        "job": "Work out how visible each ink mark drawn live on a canvas or screen is at a given instant, so live marks fade instead of piling up, and when each is gone",
+        "description": "Give now (the instant to look at, an ISO time or milliseconds since the epoch), fade ({ hold_ms, fade_ms }: how long a mark is fully seen, then how long it takes to go) and marks ([{ ref, created_at? }]). Answers marks, one per mark in the order given, each with opacity (1 until hold_ms has passed since created_at, falling in a straight line to 0 over fade_ms, 0 after), shown and gone_at (the ISO instant it goes, or null for a mark with no usable time, which never fades), and the counts shown and gone. It reads only what it is given: no clock is read, nothing is drawn, no mark is changed or deleted. Refuses an empty list, a mark without a ref, a now that is not a time and a hold_ms or fade_ms that is not a number of zero or more. The screen (show/GraphCanvas.tsx, show/AddressedMarkLayer.tsx and the mark toolbar) also lays a list out as linked cards, takes the pen and keeps each stroke; this run does none of that. Folding, shaping, erasing and exporting marks are the tool:see-the-ink-marks-on-a-space, tool:turn-a-drawn-stroke-into-a-mark-shape, tool:find-the-ink-mark-to-erase and tool:export-ink-marks-as-svg rows in tools/draw-ink-marks.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "now",
+            "fade",
+            "marks"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "now": {
+              "type": [
+                "string",
+                "number"
+              ]
+            },
+            "fade": {
+              "type": "object",
+              "required": [
+                "hold_ms",
+                "fade_ms"
+              ],
+              "properties": {
+                "hold_ms": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "fade_ms": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            },
+            "marks": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "ref"
+                ],
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "created_at": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "marks",
+            "shown",
+            "gone"
+          ],
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "ref",
+                  "opacity",
+                  "shown",
+                  "gone_at"
+                ],
+                "properties": {
+                  "ref": {
+                    "type": "string"
+                  },
+                  "opacity": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "shown": {
+                    "type": "boolean"
+                  },
+                  "gone_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "shown": {
+              "type": "integer"
+            },
+            "gone": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/draw-lists-on-a-canvas",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/draw-lists-on-a-canvas/do-work/fade-ink.mjs",
+            "fadeInk"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "draw-lists-on-a-canvas",
+                "paths": [
+                  "do-work/fade-ink.mjs",
+                  "read-data/ink-fade.ts"
+                ],
+                "at": "/opt/draw-lists-on-a-canvas"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/addressed-marks/read-data/ink-fade.ts at 5cd0dc3103e4f54b30b1784f0d77a67de0147064, moved byte for byte in a9ee258 (#76) to read-data/; old capability row capabilities.json:285 at 4ffa1dc4a2^ (lay a list out on a canvas as cards joined by links, draw on it, and point at anything); do-work/fade-ink.mjs written here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "now": "2026-01-05T10:00:06Z",
+              "fade": {
+                "hold_ms": 3000,
+                "fade_ms": 4000
+              },
+              "marks": [
+                {
+                  "ref": "mark:circle",
+                  "created_at": "2026-01-05T10:00:00Z"
+                },
+                {
+                  "ref": "mark:old",
+                  "created_at": "2026-01-05T09:59:00Z"
+                }
+              ]
+            },
+            "output_selector": "$.marks[0].opacity",
+            "at_least": 0.2
+          }
+        ]
+      }
+    }
+  ]
+}
