@@ -24,6 +24,11 @@
    "repository": "trillion-workshop",
    "path": "tools/slot-table/",
    "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs",
+   "why": "the record-log store calls slotTable (line 693) for its own cache; it uses the job's code, it does not own a second copy of it"
   }
  ],
  "proof": {

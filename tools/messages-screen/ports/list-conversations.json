@@ -29,6 +29,11 @@
    "repository": "trillion-workshop",
    "path": "tools/pull-from-connected-accounts/README.md",
    "why": "a README naming that tool's own listConversations, which lists a connected account's conversations from the service; this orders conversation rows the caller hands in"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs",
+   "why": "its listConversations (line 1121) pages a person's message threads from their store by app; this file sorts, filters and groups chat conversation rows handed in, as the Messages sidebar does"
   }
  ],
  "proof": {

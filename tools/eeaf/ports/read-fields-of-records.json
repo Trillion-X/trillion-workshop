@@ -29,6 +29,11 @@
    "repository": "trillion",
    "path": "test/eeaf-selected-fields-workerd.test.mjs",
    "why": "a test of the moved code this file runs, not a second owner of the job"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs",
+   "why": "the Mac engine's record engine calls the moved eeafFieldReads over its own store (line 447); it is a caller of the job's code, not a second owner of it"
   }
  ],
  "proof": {
