@@ -1,0 +1,84 @@
+{
+  "_what": "The hands-free voice loop (read-data/hands-free.mjs): the microphone is read as a stream, speech is cut out of it by loudness, each utterance is heard on this Mac, the words go through the voice session (read-data/voice-session.json: wake phrase, idle end, spoken dismissal), what the session hands on is answered by a model on this Mac (the `think.job` row of records/local-model-records.json) and the answer is said aloud in the person's voice (computer/speak.json). Every program, number and word is data. `capture.run` writes raw 16-bit little-endian mono sound of `sample_rate` to standard output; `{device}` and `{sample_rate}` are filled from the row, and `{input}` is replaced by a file path when a recording is fed in instead of a microphone. `vad`: a frame of `frame_ms` is speech when its loudness (0 to 1) is above the larger of `threshold` and `floor_multiple` times the quiet floor tracked from the frames heard so far; `start_frames` frames in a row open an utterance (the `preroll_ms` before them are kept); `hangover_ms` of quiet closes it; one shorter than `min_utterance_ms` is let go and one longer than `max_utterance_ms` is closed there. While the answer is being said the stream is let go, and for `say.mute_tail_ms` after, so the loop never answers its own voice. `think.history_turns` is how many earlier turns of the session the model is shown; the history ends with the session. `capture`, `hearing`, `think.job`, `think.max_tokens` and `say.play` are read by the parts on the Mac that are not moved yet (README.md, Not yet); they are kept as data.",
+  "capture": {
+    "device": "default",
+    "sample_rate": 16000,
+    "search_path": [
+      "/opt/homebrew/bin",
+      "/usr/local/bin"
+    ],
+    "check": [
+      "ffmpeg",
+      "-version"
+    ],
+    "run": [
+      "ffmpeg",
+      "-v",
+      "error",
+      "-nostdin",
+      "-f",
+      "avfoundation",
+      "-i",
+      ":{device}",
+      "-ac",
+      "1",
+      "-ar",
+      "{sample_rate}",
+      "-f",
+      "s16le",
+      "pipe:1"
+    ],
+    "run_from_file": [
+      "ffmpeg",
+      "-v",
+      "error",
+      "-nostdin",
+      "-i",
+      "{input}",
+      "-ac",
+      "1",
+      "-ar",
+      "{sample_rate}",
+      "-f",
+      "s16le",
+      "pipe:1"
+    ]
+  },
+  "vad": {
+    "frame_ms": 30,
+    "threshold": 0.012,
+    "floor_multiple": 3,
+    "start_frames": 3,
+    "preroll_ms": 300,
+    "hangover_ms": 700,
+    "min_utterance_ms": 350,
+    "max_utterance_ms": 20000
+  },
+  "hearing": {
+    "row": "mlx-whisper",
+    "language": ""
+  },
+  "think": {
+    "job": "hands-free",
+    "history_turns": 6,
+    "max_tokens": 300,
+    "system": "You are the person's voice assistant on their own computer. They are talking to you out loud and your answer will be spoken. Answer in one to three short plain sentences with no lists or formatting."
+  },
+  "say": {
+    "play": [
+      "afplay",
+      "{file}"
+    ],
+    "mute_tail_ms": 400
+  },
+  "words": {
+    "no_capture": "This Mac has no program that records the microphone (ffmpeg).",
+    "no_hearing": "This Mac has no program that hears speech.",
+    "not_running": "Hands-free listening is not on.",
+    "already": "Hands-free listening is already on.",
+    "on": "Hands-free listening is on. Say the wake phrase to start.",
+    "off": "Hands-free listening is off.",
+    "no_answer": "The model on this Mac did not answer.",
+    "no_voice": "The answer could not be said aloud: {why}"
+  }
+}

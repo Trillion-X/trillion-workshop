@@ -1,0 +1,51 @@
+/* Product placement only; component appearance is assistant-ui's source theme. */
+/* The navigation palette reads the worn look on the root itself, so the page's own ground (html) is the look's ground
+   too: a fixed light copy here painted a #fbfaf8 band above "Your workspace could not open" on every look. The look
+   alone decides light or dark (look-bridges.css). */
+:root{--bg:var(--bg-primary);--surface:var(--bg-surface);--surface-soft:var(--glass-bg-subtle);--surface-strong:var(--glass-bg-hover);--text:var(--text-primary);--muted:var(--text-secondary);--faint:var(--text-muted);--line:var(--border-primary);--line-strong:var(--border-secondary);--accent:#6c4cf4;--accent-soft:#eee9ff;--green:#2fb69b;--danger:#cc645e;--shadow:0 18px 55px rgba(66,57,44,.08);--rail:192px}
+*{box-sizing:border-box}
+html,body{min-height:100%;background:var(--bg);color:var(--text)}
+body{margin:0;min-height:100vh;min-height:100svh;font-family:var(--font-primary,"SF Pro Text",-apple-system,sans-serif);-webkit-font-smoothing:antialiased}
+.shell{min-height:100vh;min-height:100svh;margin-left:var(--rail)}
+.shell main{width:min(1400px,calc(100vw - var(--rail) - 48px));margin:0 auto;padding:24px 0 72px}
+.page{display:none}.page.active{display:block}
+.page-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 0 18px;border-bottom:1px solid var(--line)}
+.page-title{margin:0;font:600 24px/1.3 var(--font-display,"SF Pro Text",-apple-system,sans-serif)}
+.page-card{margin-top:20px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.connection{display:flex;align-items:center;gap:8px;margin-bottom:14px;color:var(--muted);font-size:12px}.connection-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}.connection[data-state=drive_disconnected] .connection-dot{background:var(--faint)}
+
+.app-navigation{position:fixed;inset:0 auto 0 0;z-index:40;width:var(--rail)}
+
+.app-navigation [data-slot=sidebar-wrapper]{min-height:100dvh}
+.app-navigation [data-slot=sidebar-container]{border:0}
+.app-navigation [data-sidebar-collection-branch]{margin-left:4px;padding-left:12px}
+
+.app-navigation .sidebar-add-list-trigger{display:flex;width:100%;justify-content:flex-start;gap:10px;min-height:36px;padding-inline:12px;border:0;background:transparent;color:var(--text-secondary);text-align:left;transition:background-color 120ms ease,color 120ms ease}
+.app-navigation .sidebar-add-list-trigger:hover,.app-navigation .sidebar-add-list-trigger:focus-visible{background:color-mix(in srgb,var(--text-primary) 8%,transparent);color:var(--text-primary)}
+.app-navigation .sidebar-add-list-trigger:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
+.sidebar-list-popover{width:min(340px,calc(100vw - 24px));max-height:min(70vh,560px);overflow:auto}
+/* The app shell and rail start below the traffic-light/titlebar hit area. */
+
+.source-conversation [data-slot=sidebar-content]{padding-top:var(--native-titlebar-inset,8px)}
+.source-conversation [data-slot=sidebar-group],.source-conversation [data-slot=sidebar-footer]{padding-inline:12px}
+.source-conversation [data-slot=sidebar-menu]{gap:4px}
+.source-conversation [data-slot=sidebar-menu-button]{min-height:36px;padding-inline:12px}
+
+/* Page transforms become containing blocks for fixed contextual tools even
+   after their animation finishes. Navigation must never pull actions into the
+   page scroller. */
+.page.active{animation:none!important;transform:none!important}
+@media(max-width:767px){
+ :root{--rail:0px}
+ .app-navigation{inset:8px auto auto 8px;width:auto}
+ 
+ .app-navigation [data-slot=sidebar-wrapper]{min-height:0}
+ 
+ 
+ .shell{margin-left:0;padding-bottom:0}
+ .shell main{width:calc(100% - 32px);padding-top:56px}
+}
+/* The embedded conversation shares the page canvas; only its input is a surface. */
+.source-conversation[data-layout=inline],
+.source-conversation[data-layout=inline] .aui-thread-root,
+.source-conversation[data-layout=inline] .aui-thread-viewport-footer {background:transparent}

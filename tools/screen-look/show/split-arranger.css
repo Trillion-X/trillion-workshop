@@ -1,0 +1,139 @@
+/* Geometry for the split arranger's resize gutters.
+ *
+ * Why this file exists
+ *   SplitTreeArranger sizes its gutter and grab area with Tailwind utilities
+ *   (w-3, h-full, -left-1.5). A host whose compiled CSS does not happen to
+ *   include those exact utilities gets a gutter that is present, focusable and
+ *   zero pixels wide. Measured in the Expansion app: the grab area reported
+ *   width 0, elementFromPoint at the boundary returned the flex row behind it,
+ *   and the panes could not be resized at all. The layout utilities on the same
+ *   element resolved fine, which is what made it look like a pointer-events
+ *   problem rather than a missing rule.
+ *
+ * Why it keys on the split container and cursor class
+ *   The arranger marks split containers with data-split-id and their direct
+ *   gutters with cursor-col-resize or cursor-row-resize. Scoping to direct
+ *   children keeps these geometry rules off table-column and sidebar handles.
+ *
+ * Why the grab area is wider than the rail
+ *   The rail is two pixels because a thicker one is visual noise between panes.
+ *   Two pixels is far below what anyone can reliably hit, so the transparent
+ *   grab area is twelve, centred on the rail. This is the standard split-pane
+ *   arrangement and the reason the arranger draws two elements rather than one.
+ */
+
+/* The gutter itself: a zero-size flex child that positions its own children. */
+[data-split-id] > [class*='cursor-col-resize'],
+[data-split-id] > [class*='cursor-row-resize'] {
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+[data-split-id] > [class*='cursor-col-resize'] { width: 0; cursor: col-resize; }
+[data-split-id] > [class*='cursor-row-resize'] { height: 0; cursor: row-resize; }
+
+/* First child: the transparent grab area, centred on the boundary. */
+[data-split-id] > [class*='cursor-col-resize'] > :first-child,
+[data-split-id] > [class*='cursor-row-resize'] > :first-child {
+  position: absolute;
+}
+
+[data-split-id] > [class*='cursor-col-resize'] > :first-child {
+  width: 12px;
+  height: 100%;
+  left: -6px;
+}
+
+[data-split-id] > [class*='cursor-row-resize'] > :first-child {
+  height: 12px;
+  width: 100%;
+  top: -6px;
+}
+
+/* Second child: the rail, shown only while the gutter is hovered or dragged.
+ * Opacity is animated by the component, so this rule only gives it a size and
+ * a position to animate. */
+[data-split-id] > [class*='cursor-col-resize'] > :nth-child(2) {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+}
+
+[data-split-id] > [class*='cursor-row-resize'] > :nth-child(2) {
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2px;
+}
+
+/* A pane's screen reflows to the pane's own width.
+ *
+ * Measured on a 390px phone (2026-09-30): with the list docked, a pane was left
+ * about 130px wide and its words broke one per line, some mid-word. Each pane's
+ * body is a size container, so a screen inside it reflows by the width it is
+ * actually given (a narrow pane on a desktop behaves the same as a phone), and
+ * its content lays out at the pane's own width, never cut: in a pane under
+ * 22rem headings step down a size, fields shrink, and text wraps between words.
+ */
+[data-screen-arrangement-tab-panel] {
+  container: pane / inline-size;
+  overflow-x: auto;
+}
+
+@container pane (max-width: 22rem) {
+  [data-screen-arrangement-tab-panel] > * {
+    --font-size-display: 1.5rem; --font-size-heading-2xl: 1.375rem; --font-size-heading-xl: 1.25rem; --font-size-heading-lg: 1.125rem;
+  }
+  [data-screen-arrangement-tab-panel] :is(p, li, span, h1, h2, h3, h4) { overflow-wrap: break-word; word-break: normal; hyphens: manual; }
+  [data-screen-arrangement-tab-panel] :is(input, textarea, select) { min-width: 0; max-width: 100%; }
+}
+
+/* Scrolling in any direction, handed outward.
+ *
+ * A list, a table or a document inside a pane scrolls first; at its end the move goes on to its pane, then to the
+ * window's arrangement, which keeps it (contain) so the page itself never bounces. Screens mark their own scrollers
+ * overscroll-behavior: contain to stop a page bounce; inside the arrangement that would stop a finger at the list's
+ * end instead of moving the arrangement, so inner scrollers chain here. The arrangement takes pinch itself
+ * (canvas-gestures.ts), so the browser's own page zoom does not start over it.
+ */
+[data-arranger='split-tree'] {
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
+}
+[data-arranger='split-tree'] * {
+  overscroll-behavior: auto !important;
+}
+
+/* A screen that draws at its own height (a card) marks its root data-fits-content; in a pane drawn at its content's
+ * length (a split size of 0, SplitTreeArranger FitsContentLength) it keeps that height instead of stretching to the
+ * pane, so the pane can be measured from it. */
+[data-fits-content] {
+  flex: none;
+  height: auto;
+  min-height: 0;
+}
+
+/* A screen with leads (src/workspace/screen-own-arrangement.ts invariant 6): the leads sit above its arrangement and
+   stay in view while the arrangement scrolls under them; a lead with nothing in it takes no room. */
+[data-has-leads] { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.screen-leads { flex: none; max-height: 55%; overflow-y: auto; overscroll-behavior: contain; }
+.screen-lead:not(:empty) { padding: 0.75rem 1rem 0.25rem; }
+.screen-leads-body { flex: 1 1 auto; min-height: 0; position: relative; }
+/* Arranged controls use the same pane engine, with space around each live piece. */
+.arranged-contents [data-arranged-content-piece]:not([hidden]) {
+  padding-block: var(--arranged-content-spacing, .375rem);
+}
+.arranged-contents [data-arranged-content-piece][hidden] { display: none !important; }
+
+/* A placement drag belongs to the pane's drop owner. Resize hit areas remain
+ * available for ordinary pointer/keyboard resizing and yield during placement. */
+[data-arranger='split-tree'][data-arrangement-placing='true'] [data-pane-cross-edge],
+[data-arranger='split-tree'][data-arrangement-placing='true'] [data-pane-cross-edge] *,
+[data-arranger='split-tree'][data-arrangement-placing='true'] [data-pane-resize-edge],
+[data-arranger='split-tree'][data-arrangement-placing='true'] [data-pane-resize-edge] * {
+  pointer-events: none;
+}

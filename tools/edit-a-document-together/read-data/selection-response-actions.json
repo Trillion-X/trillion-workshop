@@ -1,0 +1,10 @@
+[
+  {
+    "id": "selection-comment",
+    "label": "Comment",
+    "icon": "MessageSquarePlus",
+    "group": "Comment",
+    "event": "trillion:selection-comment",
+    "controls": ["comments", "selection.responses"]
+  }
+]

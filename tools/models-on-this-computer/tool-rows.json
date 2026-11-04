@@ -1,0 +1,258 @@
+{
+  "kind": "tool-rows",
+  "record_set": "models-on-this-computer-tool-rows",
+  "what_this_is": "The Workshop rows for the models served on the person's own computer: asking one a conversation or a yes-or-no question, and seeing which free models fit the computer and getting them onto its model server.",
+  "records": [
+    {
+      "id": "package::models-on-this-computer::tool::ask-a-model",
+      "address": "package::models-on-this-computer::tool::ask-a-model",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:ask-a-model",
+        "label": "Ask a model",
+        "status": "active",
+        "job": "Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word",
+        "description": "Runs on the person's computer with the models it serves (read-data/models-on-this-computer.json: Ollama for conversations, a small classifier for yes-or-no questions). messages asks a conversation and answers in the chat-completions shape; job picks a job row (which models, how many words, what answer format); tools optionally supplies the functions it may call, whose calls are returned for the caller to execute through its normal permissions; parts true also returns the answer as keyed parts. state and questions ask the classifier and answer its probabilities. Answers error in words, with each model tried and why it did not answer, when no model on the computer is running.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "job": {
+              "type": "string",
+              "description": "A job row of read-data/models-on-this-computer.json `jobs`; the default row is used when absent"
+            },
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "A conversation: [{ role, content }]"
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "OpenAI-style function definitions the local model may request; the caller executes and checks them."
+            },
+            "max_tokens": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "temperature": {
+              "type": "number"
+            },
+            "seed": {
+              "type": "integer"
+            },
+            "state": {
+              "type": "string",
+              "description": "The words a yes-or-no question is about"
+            },
+            "questions": {
+              "type": "object",
+              "description": "The classifier's questions by id: { verdict: { type: 'noul', instructions, criteria } }"
+            },
+            "parts": {
+              "type": "boolean",
+              "description": "true streams the answer and also returns it as keyed parts"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/models-on-this-computer",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/models-on-this-computer/read-data/models-on-this-computer.mjs",
+            "ask"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "models-on-this-computer",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/models-on-this-computer"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "max_run_ms": 1800000
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 8,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:models-on-this-computer",
+        "listed_on": "2026-10-05T05:00:00Z",
+        "provenance": {
+          "source": "old trillion computer/local-models.mjs localModelTools.ask, moved without the Mac runner's wiring (computer/mac-tools.mjs), the account read of the model rows, the managed-profile check, other computers' offered servers and the model-server installer"
+        }
+      }
+    },
+    {
+      "id": "package::models-on-this-computer::tool::get-free-models",
+      "address": "package::models-on-this-computer::tool::get-free-models",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:get-free-models",
+        "label": "Free AI models that fit my device",
+        "status": "active",
+        "job": "See which free AI models fit the person's computer (its chip, memory and free space) and which it already has, and have its model server download them",
+        "description": "Runs on the person's computer. Without input it answers the computer's chip, memory and free space, whether its model server runs, and each model offered for it (read-data/models-on-this-computer.json offer) with whether it fits and whether the computer has it. With get \"fitting\" it has the running model server download every model that fits and is missing; with get as a list of offer ids, those. A model got here answers tool:ask-a-model at once. When the model server is not running it says so in words; it does not install the server.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "get": {
+              "description": "\"fitting\" for every model that fits and is missing, or a list of offer ids",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "fitting"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/models-on-this-computer",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/models-on-this-computer/read-data/models-on-this-computer.mjs",
+            "fit"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "models-on-this-computer",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/models-on-this-computer"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "max_run_ms": 7200000
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:models-on-this-computer",
+        "listed_on": "2026-10-05T22:00:00Z",
+        "provenance": {
+          "source": "old trillion computer/local-models.mjs localModelTools.fit, moved without the Mac runner's wiring (computer/mac-tools.mjs), the account read of the model rows, the managed-profile check, other computers' offered servers and the model-server installer"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+[
+  { "targetFamily": "field", "valuePath": ["**", "field"] },
+  { "targetFamily": "field", "valuePath": ["**", "fieldId"] },
+  { "targetFamily": "field", "valuePath": ["**", "field_id"] },
+  { "targetFamily": "field", "valuePath": ["**", "fieldRef"] },
+  { "targetFamily": "field", "valuePath": ["**", "field_ref"] },
+  { "targetFamily": "field", "valuePath": ["**", "sourceFieldId"] },
+  { "targetFamily": "field", "valuePath": ["**", "source_field_id"] },
+  { "targetFamily": "field", "valuePath": ["**", "groupBy"] },
+  { "targetFamily": "field", "valuePath": ["**", "group_by"] },
+  { "targetFamily": "field", "valuePath": ["**", "dateField"] },
+  { "targetFamily": "field", "valuePath": ["**", "date_field"] },
+  { "targetFamily": "field", "valuePath": ["**", "fromField"] },
+  { "targetFamily": "field", "valuePath": ["**", "from_field"] },
+  { "targetFamily": "field", "valuePath": ["**", "contextFromFields", "*"] },
+  { "targetFamily": "field", "valuePath": ["**", "context_from_fields", "*"] }
+]

@@ -29,7 +29,7 @@ test('enrol-a-print refuses without consent words or a known kind, before it mea
 });
 
 test('every row that reads or keeps a print kind says in its description that the kind stays on the device it was made on', () => {
-  assert.deepEqual(rows.map(row => row.id).sort(), ['tool:enrol-a-voice-or-face', 'tool:find-faces', 'tool:who-is-in-this']);
+  assert.deepEqual(rows.map(row => row.id).sort(), ['tool:enrol-a-voice-or-face', 'tool:find-faces', 'tool:people-listening-can-name', 'tool:who-is-in-this']);
   for (const row of rows) {
     const text = JSON.stringify(row);
     for (const kind of ['voice-print', 'face-print', 'listening-voices']) {

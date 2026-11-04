@@ -1,0 +1,9 @@
+{
+  "_what": "How see-through the screen's surfaces become while something moves behind the whole page (Ambience's 'Put behind my screens', or any background the person puts behind their screens), as DATA. Each `grounds` variable (the page's and the panes' own colour; cards, fields and buttons keep theirs, so what moves never shows behind them) is shown just see-through enough that the look's `words` colour still stands out from it by at least `least_contrast` (the contrast ratio of their brightness) whatever is behind it, judged over pure black and pure white behind, the two extremes anything moving can show. `least_see_through` is the least let through even when the words would want more cover, so the moving look always shows a little; `step` is how finely the cover is tried. `behind_blur_px` softens what is behind the page into glows (the page backdrop's blur, read through the `--page-backdrop-blur` variable), so a shape behind it never reads as something lying over words. Worked out on the device (read-data/see-through.ts) for each look and each minute of a look plan, so a light look and a dark look each get their own blend.",
+  "grounds": ["--bg-primary", "--surface-base", "--glass-bg-primary"],
+  "words": "--text-primary",
+  "least_contrast": 4.5,
+  "least_see_through": 0.12,
+  "step": 0.02,
+  "behind_blur_px": 22
+}

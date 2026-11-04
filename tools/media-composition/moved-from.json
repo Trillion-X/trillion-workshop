@@ -1,0 +1,50 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/media-composition/do-work/__tests__/author-voice-script-producer.test.mjs",
+      "commit": "a7f1f9a0a84ea399d0b964d3e7a201609884648f",
+      "to": "tools/media-composition/do-work/__tests__/author-voice-script-producer.test.mjs",
+      "source_identity": "1f:de98a9401b34e474df2a993d0a723f5d5899c53eccc66a08e470fce3e20074f2",
+      "identity": "1f:de98a9401b34e474df2a993d0a723f5d5899c53eccc66a08e470fce3e20074f2"
+    },
+    {
+      "from": "parts/media-composition/do-work/author-effect-stack.mjs",
+      "commit": "a7f1f9a0a84ea399d0b964d3e7a201609884648f",
+      "to": "tools/media-composition/do-work/author-effect-stack.mjs",
+      "source_identity": "1f:df0d5e98e417ac4bcd6bc30ef134e27a72bd4607105f232607ca79cae885923b",
+      "identity": "1f:df0d5e98e417ac4bcd6bc30ef134e27a72bd4607105f232607ca79cae885923b"
+    },
+    {
+      "from": "parts/media-composition/do-work/narration/tests/test_asr_entry.py",
+      "commit": "a7f1f9a0a84ea399d0b964d3e7a201609884648f",
+      "to": "tools/media-composition/do-work/narration/tests/test_asr_entry.py",
+      "source_identity": "1f:9f492b74c3c0e2e4717761e44e741bdee84c5a020fc4e8915023a1c02b8875ab",
+      "identity": "1f:9f492b74c3c0e2e4717761e44e741bdee84c5a020fc4e8915023a1c02b8875ab"
+    },
+    {
+      "from": "parts/media-composition/do-work/narration/tests/test_readback.py",
+      "commit": "a7f1f9a0a84ea399d0b964d3e7a201609884648f",
+      "to": "tools/media-composition/do-work/narration/tests/test_readback.py",
+      "source_identity": "1f:1657edf7c9dd07f57443bc4fc2eb2b41919e81995bf7f9148ac257020cfc8a21",
+      "identity": "1f:1657edf7c9dd07f57443bc4fc2eb2b41919e81995bf7f9148ac257020cfc8a21"
+    },
+    {
+      "from": "parts/media-composition/do-work/narration/tests/test_source_boundary.py",
+      "commit": "a7f1f9a0a84ea399d0b964d3e7a201609884648f",
+      "to": "tools/media-composition/do-work/narration/tests/test_source_boundary.py",
+      "source_identity": "1f:6ef217b45355afd6b6e9d1bb3e2756e02fda3179e4cbe81025e7f19d82adc856",
+      "identity": "1f:6ef217b45355afd6b6e9d1bb3e2756e02fda3179e4cbe81025e7f19d82adc856"
+    },
+    {
+      "from": "parts/media-composition/do-work/video-pipeline.mjs",
+      "commit": "a7f1f9a0a84ea399d0b964d3e7a201609884648f",
+      "to": "tools/media-composition/do-work/video-pipeline.mjs",
+      "source_identity": "1f:b5395e1cd929d7670d04ef7d582347387d5f23ad17276438da5ca2d36efef92a",
+      "identity": "1f:b5395e1cd929d7670d04ef7d582347387d5f23ad17276438da5ca2d36efef92a"
+    }
+  ]
+}

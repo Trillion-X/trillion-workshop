@@ -1,0 +1,359 @@
+{
+  "kind": "tool-rows",
+  "record_set": "record-the-screen-tool-rows",
+  "what_this_is": "The Workshop rows for tools/record-the-screen: record one chosen display or window of the person's Mac as a movie, with the pointer noted beside it, and the categories of places left out of what is captured.",
+  "records": [
+    {
+      "id": "package::record-the-screen::tool::record-the-screen",
+      "address": "package::record-the-screen::tool::record-the-screen",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:record-the-screen",
+        "status": "active",
+        "label": "Record my screen",
+        "job": "Record one display or one window of the person's Mac as a movie the person chose, pause, resume and stop it, note the pointer (positions and presses, never keys) beside it, and save it only to a place the person's allow-list names",
+        "description": "Runs on the person's own Mac. action start needs a source ({ kind: display | window, id }) that is there now; the first capturer row that this Mac has, that can take that kind of source and that can leave out the apps and window titles the person listed records it (a ScreenCaptureKit helper, then the system's screencapture). pause and resume reach it as its row says, or are refused in words. The recording ends by itself, saying so, when its source goes away. It is written as a 0600 file in a fresh 0700 folder; save moves it, and the pointer sidecar, to a path under the allow-list, never through a link and never over a file. prefs and exclude edit the person's own settings and leave-out list. status says what is recording.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "start",
+                "pause",
+                "resume",
+                "stop",
+                "status",
+                "save",
+                "prefs",
+                "exclude"
+              ]
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "id"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "display",
+                    "window"
+                  ]
+                },
+                "id": {
+                  "type": [
+                    "string",
+                    "integer"
+                  ]
+                }
+              }
+            },
+            "capturer": {
+              "type": "string"
+            },
+            "fps": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 120
+            },
+            "destination": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "what": {
+              "type": "string",
+              "enum": [
+                "app",
+                "title"
+              ]
+            },
+            "value": {},
+            "on": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "capturer": {
+              "type": "string"
+            },
+            "source": {
+              "type": "object"
+            },
+            "file": {
+              "type": "string"
+            },
+            "reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "pointer_samples": {
+              "type": "integer"
+            },
+            "saved": {
+              "type": "string"
+            },
+            "pointer": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "bytes": {
+              "type": "integer"
+            },
+            "exclude": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "see-the-screen"
+          ],
+          "workdir": "/opt/record-the-screen",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/record-the-screen/do-work/capture-session.mjs",
+            "capture"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "record-the-screen",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/record-the-screen"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 15,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:record-the-screen",
+        "provenance": {
+          "source": "Trillion's Mac host computer/capture-session.mjs, capture-display.swift, list-capture-sources.swift and track-pointer.swift (Trillion-X/trillion before dc79bb0a8), learned from a desktop screen recorder's one-source capture and pointer sidecar"
+        }
+      }
+    },
+    {
+      "id": "package::record-the-screen::tool::places-left-out-of-screen-capture",
+      "address": "package::record-the-screen::tool::places-left-out-of-screen-capture",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:places-left-out-of-screen-capture",
+        "status": "active",
+        "label": "Places left out of screen capture",
+        "job": "List, check and turn on or off the categories of places (banking, health, social and more) the person's screen capture must leave out, and take new coverage as a cursor diff",
+        "description": "Runs on the person's own Mac. action list gives each category, whether it is on and how many domains it holds; check says which category on an address is in, or null; set turns one category on or off in the person's own file; diff applies a cursor diff of added domains and tombstones only when it starts at this Mac's cursor. A subdomain belongs to its domain's category, a look-alike does not, and a removed domain stays gone after a seed reload.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "list",
+                "check",
+                "set",
+                "diff"
+              ]
+            },
+            "address": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            },
+            "on": {
+              "type": "boolean"
+            },
+            "diff": {
+              "type": "object",
+              "required": [
+                "from",
+                "to"
+              ],
+              "properties": {
+                "from": {
+                  "type": "integer"
+                },
+                "to": {
+                  "type": "integer"
+                },
+                "add": {
+                  "type": "array"
+                },
+                "remove": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "categories": {
+              "type": "array"
+            },
+            "cursor": {
+              "type": "integer"
+            },
+            "category": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "on": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/record-the-screen",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/record-the-screen/do-work/capture-exclusion.mjs",
+            "exclusion"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "record-the-screen",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/record-the-screen"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:record-the-screen",
+        "provenance": {
+          "source": "Trillion's Mac host computer/capture-exclusion.mjs (Trillion-X/trillion before dc79bb0a8)"
+        }
+      }
+    }
+  ]
+}

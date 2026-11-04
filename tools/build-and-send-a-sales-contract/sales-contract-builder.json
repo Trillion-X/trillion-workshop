@@ -1,0 +1,395 @@
+{
+  "_what": "What the sales contract builder knows about the person's own business, and what it sets up after a deal is paid. Read by src/sales-contract-builder.mjs (tool:manage-sales-contracts operation `resources`, and the follow-ups `send` sets) and by the builder screen (src/workspace/sales-contract-builder-surface.tsx). `sources`: each one read of the person's own data. `read.from` names one of the readers the account owner hands in (tool: a Workshop tool run with the person's own connection; action: one of their account actions; lists: their lists whose rows are the named record types or the named list ids; workflows: their saved workflows), `items` is the path to the list in the answer, `keep` tests a row must pass, `each` maps a row's fields to the builder's (paths into the row, `0` for a list's first item), `group` is the builder choice it fills, `needs_connection` is the vendor whose connection the read needs. A new source is one row. `after_payment.trigger` is the person's own rule `when` for a paid deal (the contract's id is added to it); `after_payment.steps` are the follow-ups the builder offers, each a Workshop tool run by a rule when the deal is paid (`on: \"paid\"`) or by a schedule some days after it is sent (`on: { after_days, at }`). Words in braces in a step's input are filled when the deal is sent: {to}, {contract_name}, {contract_id}, {address}. `words_for` names the plain words the builder shows for what a rule measures (`metrics`), what a performance payment waits for (`events`) and what access can depend on (`conditions`); the id is what the deal keeps. `screens` names the screens the builder opens: `connect` where a payment service or list is connected, `automations` where the person sees the rules and schedules a deal set.",
+  "sources": [
+    {
+      "id": "stripe-prices",
+      "group": "offers",
+      "label": "Your offers on Stripe",
+      "needs_connection": "stripe",
+      "read": {
+        "from": "tool",
+        "tool_id": "tool:stripe-events-list_prices",
+        "input": {}
+      },
+      "items": [
+        "data"
+      ],
+      "keep": [
+        {
+          "path": [
+            "active"
+          ],
+          "equals": true
+        },
+        {
+          "path": [
+            "product",
+            "active"
+          ],
+          "equals": true
+        }
+      ],
+      "each": {
+        "id": [
+          "id"
+        ],
+        "label": [
+          "product",
+          "name"
+        ],
+        "detail": [
+          "product",
+          "description"
+        ],
+        "picture": [
+          "product",
+          "images",
+          0
+        ],
+        "amount_cents": [
+          "unit_amount"
+        ],
+        "currency": [
+          "currency"
+        ],
+        "interval": [
+          "recurring",
+          "interval"
+        ],
+        "interval_count": [
+          "recurring",
+          "interval_count"
+        ]
+      },
+      "source": {
+        "url": "https://docs.stripe.com/api/prices/list",
+        "read_on": "2026-10-02"
+      }
+    },
+    {
+      "id": "customer-lists",
+      "group": "customers",
+      "label": "Your customer lists",
+      "read": {
+        "from": "lists",
+        "row_types": [
+          "customer",
+          "crm"
+        ],
+        "list_ids": [
+          "trillion-crm",
+          "customers",
+          "crm"
+        ]
+      },
+      "items": [
+        "rows"
+      ],
+      "each": {
+        "id": [
+          "id"
+        ],
+        "label": [
+          "title"
+        ],
+        "email": [
+          "email"
+        ],
+        "detail": [
+          "list"
+        ]
+      }
+    },
+    {
+      "id": "stripe-customers",
+      "group": "customers",
+      "label": "Your customers on Stripe",
+      "needs_connection": "stripe",
+      "read": {
+        "from": "tool",
+        "tool_id": "tool:stripe-events-list_customers",
+        "input": {}
+      },
+      "items": [
+        "data"
+      ],
+      "each": {
+        "id": [
+          "id"
+        ],
+        "label": [
+          "name"
+        ],
+        "email": [
+          "email"
+        ],
+        "detail": [
+          "email"
+        ]
+      },
+      "source": {
+        "url": "https://docs.stripe.com/api/customers/list",
+        "read_on": "2026-10-02"
+      }
+    },
+    {
+      "id": "saved-contracts",
+      "group": "contracts",
+      "label": "Your saved deals",
+      "read": {
+        "from": "action",
+        "action": "sales-contracts",
+        "input": {
+          "operation": "list"
+        }
+      },
+      "items": [
+        "contracts"
+      ],
+      "each": {
+        "id": [
+          "id"
+        ],
+        "label": [
+          "name"
+        ],
+        "detail": [
+          "status"
+        ],
+        "when": [
+          "updated_at"
+        ]
+      }
+    },
+    {
+      "id": "rules",
+      "group": "rules",
+      "label": "Your rules",
+      "read": {
+        "from": "action",
+        "action": "run-when-something-happens",
+        "input": {
+          "operation": "list"
+        }
+      },
+      "items": [
+        "rules"
+      ],
+      "each": {
+        "id": [
+          "rule_id"
+        ],
+        "label": [
+          "label"
+        ],
+        "tool_id": [
+          "then",
+          "tool_id"
+        ],
+        "workflow_id": [
+          "then",
+          "workflow_id"
+        ]
+      }
+    },
+    {
+      "id": "schedules",
+      "group": "schedules",
+      "label": "Your schedules",
+      "read": {
+        "from": "action",
+        "action": "run-at-a-time",
+        "input": {
+          "operation": "list"
+        }
+      },
+      "items": [
+        "schedules"
+      ],
+      "each": {
+        "id": [
+          "schedule_id"
+        ],
+        "label": [
+          "label"
+        ],
+        "when": [
+          "next_run_at"
+        ],
+        "tool_id": [
+          "then",
+          "tool_id"
+        ]
+      }
+    },
+    {
+      "id": "workflows",
+      "group": "workflows",
+      "label": "Your workflows",
+      "read": {
+        "from": "workflows"
+      },
+      "items": [
+        "workflows"
+      ],
+      "keep": [
+        {
+          "path": [
+            "made_by"
+          ],
+          "equals": "this account"
+        }
+      ],
+      "each": {
+        "id": [
+          "workflow_id"
+        ],
+        "label": [
+          "label"
+        ],
+        "detail": [
+          "job"
+        ]
+      }
+    }
+  ],
+  "after_payment": {
+    "trigger": {
+      "recorded": "commercial-event",
+      "where": [
+        {
+          "field": "event",
+          "equals": "negotiated_offer_paid"
+        }
+      ]
+    },
+    "steps": [
+      {
+        "id": "welcome-email",
+        "label": "Send the welcome email",
+        "detail": "Emails them the moment they pay",
+        "icon": "MailCheck",
+        "on": "paid",
+        "chosen": true,
+        "then": {
+          "tool_id": "tool:send-an-email",
+          "input": {
+            "to": "{to}",
+            "subject": "Welcome to {contract_name}",
+            "markdown": "Thank you for joining {contract_name}. Your payment came through, and I will be in touch shortly with your first steps.",
+            "preheader": "Your payment came through"
+          }
+        }
+      },
+      {
+        "id": "tell-me",
+        "label": "Tell me when they pay",
+        "detail": "A notice for you the moment it is paid",
+        "icon": "BellRing",
+        "on": "paid",
+        "chosen": true,
+        "then": {
+          "tool_id": "tool:tell-the-person",
+          "input": {
+            "title": "{to} paid for {contract_name}",
+            "key": "paid:{contract_id}"
+          }
+        }
+      },
+      {
+        "id": "check-in",
+        "label": "Check in after 3 days",
+        "detail": "Emails them 3 days after you send it, at 10:00",
+        "icon": "CalendarClock",
+        "on": {
+          "after_days": 3,
+          "at": "10:00"
+        },
+        "chosen": true,
+        "then": {
+          "tool_id": "tool:send-an-email",
+          "input": {
+            "to": "{to}",
+            "subject": "Any questions about {contract_name}?",
+            "markdown": "I wanted to check in on the plan we put together. If anything is unclear, reply here and I will help. Your link: {address}",
+            "preheader": "Checking in on the plan we put together"
+          }
+        }
+      }
+    ],
+    "workflow_step": {
+      "label": "Run {label}",
+      "detail": "Starts your workflow when they pay",
+      "icon": "Workflow",
+      "on": "paid"
+    }
+  },
+  "words_for": {
+    "metrics": [
+      {
+        "id": "metric:sessions_booked",
+        "label": "Sessions booked"
+      },
+      {
+        "id": "metric:service_hours",
+        "label": "Hours of service"
+      },
+      {
+        "id": "metric:api_calls",
+        "label": "Requests or runs"
+      },
+      {
+        "id": "metric:reports_generated",
+        "label": "Reports delivered"
+      },
+      {
+        "id": "metric:seats_active",
+        "label": "Active seats"
+      }
+    ],
+    "events": [
+      {
+        "id": "event:milestone_reached",
+        "label": "A milestone is reached"
+      },
+      {
+        "id": "event:outcome_won",
+        "label": "The outcome is won"
+      },
+      {
+        "id": "event:referral_made",
+        "label": "A referral comes in"
+      },
+      {
+        "id": "event:payment_processed",
+        "label": "A payment goes through"
+      },
+      {
+        "id": "event:contract_approved",
+        "label": "The deal is accepted"
+      }
+    ],
+    "conditions": [
+      {
+        "id": "constraint:payment_status",
+        "label": "Payment status"
+      },
+      {
+        "id": "constraint:usage_count",
+        "label": "How much they used"
+      },
+      {
+        "id": "constraint:approval_state",
+        "label": "Whether it is accepted"
+      },
+      {
+        "id": "constraint:time_window",
+        "label": "A time window"
+      }
+    ]
+  },
+  "screens": {
+    "connect": "trillion.connections",
+    "automations": "trillion.workflows", "lists": "trillion.lists"
+  }
+}

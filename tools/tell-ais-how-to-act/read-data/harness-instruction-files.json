@@ -1,0 +1,90 @@
+{
+  "_what": "Where each AI harness keeps its own global instruction file, one row per harness: `standing_instructions` is { kind: 'file', folder (under the home folder), home_variable? (an environment variable that moves that folder), file } or { kind: 'host-control', control } for a hosted app with no file, whose control the person is pointed to. The id, app and standing_instructions of each row of Trillion-X/trillion src/harnesses.json, moved with do-work/standing-instructions.mjs. Adding a harness is a row here.",
+  "harnesses": [
+    {
+      "id": "claude-code",
+      "app": "Claude Code",
+      "standing_instructions": {
+        "kind": "file",
+        "folder": ".claude",
+        "home_variable": "CLAUDE_CONFIG_DIR",
+        "file": "CLAUDE.md"
+      }
+    },
+    {
+      "id": "codex",
+      "app": "Codex",
+      "standing_instructions": {
+        "kind": "file",
+        "folder": ".codex",
+        "home_variable": "CODEX_HOME",
+        "file": "AGENTS.md"
+      }
+    },
+    {
+      "id": "gemini-cli",
+      "app": "Gemini CLI",
+      "standing_instructions": {
+        "kind": "file",
+        "folder": ".gemini",
+        "file": "GEMINI.md"
+      }
+    },
+    {
+      "id": "hermes",
+      "app": "Hermes",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "its own memory"
+      }
+    },
+    {
+      "id": "muse",
+      "app": "Muse",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "its own memory or custom instructions"
+      }
+    },
+    {
+      "id": "chatgpt",
+      "app": "ChatGPT",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "ChatGPT's Custom instructions or Memory in its personalization settings"
+      }
+    },
+    {
+      "id": "claude",
+      "app": "Claude",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "Claude's personal preferences or memory in its settings"
+      }
+    },
+    {
+      "id": "gemini",
+      "app": "Gemini",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "Gemini's saved info or instructions for Gemini in its settings"
+      }
+    },
+    {
+      "id": "grok",
+      "app": "Grok",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "Grok's custom instructions in its settings"
+      }
+    },
+    {
+      "id": "cursor",
+      "app": "Cursor",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "Cursor's User Rules in its settings"
+      }
+    }
+  ]
+}

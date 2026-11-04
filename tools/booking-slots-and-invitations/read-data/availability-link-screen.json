@@ -1,0 +1,523 @@
+{
+  "title": "Availability links",
+  "editorHeading": "Availability link editor",
+  "detailHeading": "Availability link details",
+  "detailsLabel": "Link details",
+  "actionsLabel": "Link actions",
+  "calendarStatusLabel": "Calendar status",
+  "errorLabel": "Availability link message",
+  "noticeLabel": "Availability link update",
+  "listLabel": "Availability link list",
+  "paginationLabel": "More availability links",
+  "composition": {
+    "view": {
+      "keptAt": "screen-arrangement-of::trillion.calendar-settings::availability-links",
+      "words": {
+        "arrange": "Arrange availability links",
+        "done": "Done arranging",
+        "layout": "Availability links"
+      },
+      "arrangement": {
+        "kind": "split",
+        "dir": "column",
+        "unit": "px",
+        "keep": true,
+        "sizes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "children": [
+          {
+            "kind": "pane",
+            "surfaces": [
+              "list-heading"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "list-actions"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "list-content"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "detail-view"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "editor-view"
+            ]
+          }
+        ]
+      }
+    },
+    "list": {
+      "keptAt": "screen-arrangement-of::trillion.calendar-settings::availability-links::list",
+      "words": {
+        "arrange": "Arrange link list",
+        "done": "Done arranging",
+        "layout": "Availability links list"
+      },
+      "arrangement": {
+        "kind": "split",
+        "dir": "column",
+        "unit": "px",
+        "keep": true,
+        "sizes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "children": [
+          {
+            "kind": "pane",
+            "surfaces": [
+              "loading"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "load-error"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "notice"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "list-error"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "empty-state"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "link-rows"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "pagination"
+            ]
+          }
+        ]
+      }
+    },
+    "detail": {
+      "keptAt": "screen-arrangement-of::trillion.calendar-settings::availability-links::detail",
+      "words": {
+        "arrange": "Arrange link details",
+        "done": "Done arranging",
+        "layout": "Availability link details"
+      },
+      "arrangement": {
+        "kind": "split",
+        "dir": "column",
+        "unit": "px",
+        "keep": true,
+        "sizes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "children": [
+          {
+            "kind": "pane",
+            "surfaces": [
+              "detail-heading"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "detail-summary"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "detail-facts"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "detail-requests"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "detail-actions"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "delete-confirmation"
+            ]
+          }
+        ]
+      }
+    },
+    "editor": {
+      "keptAt": "screen-arrangement-of::trillion.calendar-settings::availability-links::editor",
+      "words": {
+        "arrange": "Arrange link editor",
+        "done": "Done arranging",
+        "layout": "Availability link editor"
+      },
+      "arrangement": {
+        "kind": "split",
+        "dir": "column",
+        "unit": "px",
+        "keep": true,
+        "sizes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "children": [
+          {
+            "kind": "pane",
+            "surfaces": [
+              "editor-heading"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "title-field"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "description-field"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "location-field"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "alias-field"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "calendar-field"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "calendar-status"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "timezone-field"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "duration-fields"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "repeat-control"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "weekly-times"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "one-off-times"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "cohosts"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "buffers"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "booking-rules"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "editor-error"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "editor-actions"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "editor-submit"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "description": "Share times that work for a meeting. People can book an open time on the calendar you choose.",
+  "loading": "Loading availability links",
+  "loadError": "Availability links could not be loaded. Your current draft is still here.",
+  "retry": "Try again",
+  "loadMore": "Load more availability links",
+  "emptyTitle": "No availability links yet",
+  "empty": "Create a link with the times you can meet, then share it with the people you want to invite.",
+  "create": "Create link",
+  "edit": "Edit",
+  "read": "Details",
+  "share": "Share",
+  "copyTimes": "Copy open times",
+  "copySucceeded": "Times copied.",
+  "copyFailed": "Times could not be copied.",
+  "delete": "Delete",
+  "deleteConfirm": "Delete this availability link?",
+  "confirmDelete": "Delete link",
+  "cancel": "Cancel",
+  "save": "Save link",
+  "createTitle": "New availability link",
+  "editTitle": "Edit availability link",
+  "titleLabel": "Title",
+  "titlePlaceholder": "Meet with me",
+  "descriptionLabel": "Description",
+  "descriptionPlaceholder": "What should people know before booking?",
+  "location": "Location or meeting details",
+  "locationPlaceholder": "Video call or a place to meet",
+  "alias": "Preferred link address",
+  "aliasPlaceholder": "Choose the address when sharing",
+  "calendar": "Put meetings on this calendar",
+  "chooseCalendar": "Choose a calendar",
+  "noCalendar": "No writable connected calendar is available. Connect one, then try again.",
+  "calendarUnavailable": "The saved calendar is no longer connected. Choose a current calendar before saving.",
+  "refreshCalendars": "Refresh calendars",
+  "timezone": "Time zone",
+  "duration": "Meeting length",
+  "step": "Time between start times",
+  "minutes": "minutes",
+  "repeat": "Repeat these times every week",
+  "weeklyTitle": "Times you are available",
+  "weekdays": [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ],
+  "weekdayShort": [
+    "Sun",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat"
+  ],
+  "weeklyWords": {
+    "title": "Weekly times",
+    "newSchedule": "Add weekly time set",
+    "newScheduleName": "Availability",
+    "scheduleName": "Name",
+    "empty": "Add times when you are available.",
+    "chooseSchedule": "Edit weekly times",
+    "schedulePlaceholder": "Weekly times",
+    "defaultSchedule": "Default time set",
+    "noDefault": "None",
+    "weekdayLabels": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "toggleDay": "Available on {day}",
+    "start": "{day} start {interval}",
+    "end": "{day} end {interval}",
+    "addInterval": "Add hours",
+    "removeInterval": "Remove {day} hours {interval}",
+    "save": "Use these times",
+    "nameRequired": "Give this time set a name.",
+    "intervalInvalid": "Choose valid, non-overlapping times.",
+    "addBreak": "Add break on {day}",
+    "breakBetween": "Break {start}–{end}",
+    "describeLabel": "Describe your week",
+    "describePlaceholder": "Weekdays 9 to 5, break 12 to 1, Saturday 10 to 2",
+    "describeConfirm": "Confirm",
+    "describePreview": "Understood: {hours}",
+    "describeIssues": {
+      "empty": "Describe the days and hours you are available.",
+      "no_times": "Add hours for \"{text}\".",
+      "unreadable_times": "Could not read the hours in \"{text}\". Try \"Mon-Fri 9 to 5\".",
+      "no_days": "Say which days \"{text}\" applies to.",
+      "break_without_hours": "\"{text}\" is a break, but no hours come before it."
+    },
+    "menu": {
+      "label": "Preferred time actions",
+      "rename": {
+        "label": "Rename",
+        "icon": "pencil"
+      },
+      "makeDefault": {
+        "label": "Make default",
+        "icon": "star"
+      },
+      "createBookingLink": {
+        "label": "Create booking link",
+        "icon": "link"
+      },
+      "delete": {
+        "label": "Delete",
+        "icon": "trash-2"
+      }
+    }
+  },
+  "preferredTimes": "Copy from preferred times",
+  "choosePreferredTimes": "Choose a preferred time set",
+  "copyPreferredTimes": "Copy preferred times",
+  "oneOffTitle": "One-time dates",
+  "date": "Date in the link time zone",
+  "startTime": "Start time",
+  "addOneOff": "Add date and time",
+  "timeDoesNotExist": "That local time does not exist because the clocks change. Choose another time.",
+  "oneOffOverlap": "This one-time meeting overlaps another date and time.",
+  "removeOneOff": "Remove {when}",
+  "noOneOff": "Add at least one date and time.",
+  "cohosts": "Co-hosts",
+  "addCohost": "Add co-host",
+  "cohostCalendar": "Co-host calendar",
+  "cohostEmail": "Co-host invitation email",
+  "removeCohost": "Remove co-host",
+  "cohostEmailRequired": "Add a valid email for every co-host invitation.",
+  "bookingRules": "Who can book and how",
+  "seats": "People per time (leave empty for one)",
+  "seatsPlaceholder": "1",
+  "requiresConfirmation": "I confirm each booking before it is made",
+  "pendingBlocks": "Keep the time held while a request waits",
+  "hostMode": "When there are co-hosts",
+  "hostWeight": "Share of bookings (1 to 100)",
+  "hostModes": [
+    {
+      "value": "everyone",
+      "label": "Everyone attends"
+    },
+    {
+      "value": "take_turns",
+      "label": "Take turns, one host per booking"
+    }
+  ],
+  "buffers": "Time around each meeting",
+  "beforeBuffer": "Before",
+  "afterBuffer": "After",
+  "notice": "Minimum notice in minutes",
+  "horizon": "Days ahead to offer",
+  "active": "Active",
+  "revoked": "Revoked",
+  "deleted": "Deleted",
+  "revoke": "Stop sharing",
+  "restore": "Restore",
+  "readError": "This availability link could not be read.",
+  "saveError": "The change could not be saved. Your draft is still here; retrying keeps the same request.",
+  "revisionConflict": "This link changed elsewhere. Read its current version before saving again.",
+  "copyError": "Times could not be copied.",
+  "retryMutation": "Retry same change",
+  "closed": "Close",
+  "repeatLabel": "Weekly",
+  "oneOffLabel": "One time",
+  "noOpenTimes": "No open times in the current booking window. Check your availability or choose a later date.",
+  "requestsHeading": "Requests waiting for you",
+  "noRequests": "No requests are waiting.",
+  "confirmRequest": "Confirm",
+  "declineRequest": "Decline",
+  "requestsError": "The requests could not be read.",
+  "requestAnswered": "Answered.",
+  "durationMinutes": [
+    15,
+    30,
+    45,
+    60
+  ]
+}

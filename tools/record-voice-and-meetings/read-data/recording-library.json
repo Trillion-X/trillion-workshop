@@ -1,0 +1,156 @@
+{
+  "label": "Recordings",
+  "identity": "recording-library:record-audio",
+  "preference_key": "recording-library:record-audio",
+  "capture_bar": {
+    "label": "Recording controls",
+    "waveform_label": "Live recording waveform",
+    "actions": [
+      {"id": "cancel", "operation": "cancel", "label": "Cancel", "icon": "X"},
+      {"id": "pause", "operation": "pause", "label": "Pause", "icon": "Pause", "when": "recording"},
+      {"id": "resume", "operation": "resume", "label": "Resume", "icon": "Play", "when": "paused"},
+      {"id": "stop", "operation": "stop", "label": "Stop", "icon": "Square", "main": true}
+    ]
+  },
+  "fields": [
+    {
+      "id": "recording-title",
+      "default": true,
+      "editable": true,
+      "width": 260
+    },
+    {
+      "id": "recording-condition",
+      "default": true,
+      "width": 180
+    },
+    {
+      "id": "recording-recorded-at",
+      "default": true,
+      "format": "date",
+      "rule_kind": "date",
+      "width": 180
+    },
+    {
+      "id": "recording-duration-ms",
+      "default": true,
+      "format": "duration",
+      "rule_kind": "duration",
+      "fact_scale": 0.001,
+      "width": 180
+    },
+    {
+      "id": "recording-media-type",
+      "default": true,
+      "width": 180
+    },
+    {
+      "id": "recording-subtitle",
+      "default": false,
+      "editable": true,
+      "width": 180
+    },
+    {
+      "id": "recording-notes",
+      "default": false,
+      "editable": true,
+      "document": true,
+      "width": 240
+    },
+    {
+      "id": "recording-error",
+      "default": false,
+      "width": 180
+    },
+    {
+      "id": "recording-byte-length",
+      "default": false,
+      "width": 180
+    },
+    {
+      "id": "recording-source",
+      "default": false,
+      "width": 180
+    }
+  ],
+  "views": [
+    {
+      "id": "table",
+      "label": "List",
+      "legacy_id": "library-list",
+      "kind": "table"
+    },
+    {
+      "id": "board",
+      "label": "Board",
+      "legacy_id": "library-board",
+      "kind": "board",
+      "group_field": "recording-condition"
+    },
+    {
+      "id": "timeline",
+      "label": "Timeline",
+      "legacy_id": "library-timeline",
+      "kind": "timeline",
+      "date_field": "recording-recorded-at"
+    }
+  ],
+  "legacy_view_owner": "visual-database.descriptors::record-audio",
+  "legacy_column_order": [
+    "recording-title",
+    "recording-condition",
+    "recording-recorded-at",
+    "recording-duration-ms",
+    "recording-media-type"
+  ],
+  "composition": {
+    "capture_label": "Recording controls",
+    "kept_at": "screen-arrangement-of::trillion.record-audio::capture-and-library",
+    "words": {
+      "arrange": "Arrange recording controls and library",
+      "done": "Done arranging",
+      "layout": "Recording controls and library"
+    },
+    "arrangement": {
+      "kind": "split",
+      "dir": "column",
+      "unit": "px",
+      "keep": true,
+      "sizes": [
+        0,
+        0
+      ],
+      "children": [
+        {
+          "kind": "pane",
+          "surfaces": [
+            "capture-controls"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "recording-library"
+          ]
+        }
+      ]
+    }
+  },
+  "actions": [
+    {
+      "id": "open",
+      "operation": "open",
+      "label": "Open",
+      "icon": "ExternalLink"
+    },
+    {
+      "id": "remove",
+      "operation": "remove",
+      "label": "Remove from library",
+      "icon": "Trash2",
+      "tone": "destructive",
+      "confirm": "Remove this entry"
+    }
+  ],
+  "empty_message": "No recordings yet. Make a recording or choose an audio file."
+}

@@ -25,6 +25,24 @@ Judges a public page against the saved craft rules at every width they name, and
 
 The result retains `rendered_labels` for readable as well as too-small labels. It measures individual SVG character heights perpendicular to their screen-transformed baseline, rather than treating a rotated or multiline union box or sideways shear as readable type height. Hidden ancestors are excluded; unavailable geometry is a finding. This is a configured size check, separate from containment, clipping, contrast, glyph shape or comprehension. A consumer selects its own diagram parts and keeps its own bound; the shared template has no universal minimum or default label selection.
 
+## Frame, reduced-motion and page-order rules
+
+Rows of `read-data/page-craft-rules.json`, each one line a person reads, measured in `do-work/measure-page-craft.mjs`:
+
+| Rule | Fails when |
+|------|------------|
+| `first_screen_title` | No h1 is on the first screen (or the page has none). |
+| `untitled_section` | A section of at least `min_words` words has no heading and no aria label. |
+| `lopsided_sections` | Columns side by side carry content heights more than `max_ratio` apart (and at least `min_difference_px`). |
+| `blank_stretch` | A vertical stretch with no text, picture or control is longer than `max_screens` of a screen. |
+| `side_margins` | The page's `main` sits with left and right margins more than `max_difference_px` apart. |
+| `reduced_motion_hidden` | Second pass: the page is opened again with `prefers-reduced-motion: reduce` and read at its first screen before scrolling; text there that is still invisible (opacity under `min_opacity`, or hidden) fails. |
+| `heading_order` | The first heading is not an h1, there is more than `most_h1` h1, or a level is skipped. |
+| `tab_order` | A control has a positive `tabindex`, or a focusable control sits inside `aria-hidden`. |
+| `page_metadata` | A `required` item (title, `html[lang]`, viewport, description) is missing or empty. |
+
+Accessible names are `control_name` above. Text touching the browser edge is `edge_padding`. `test/frame-motion-and-page-rules.test.mjs` runs the critic against a planted page that breaks every rule and one that keeps them all.
+
 ## Dependencies
 
 **Depends on:** `tools/headless-browser` (`devtools.mjs`, a Chromium spoken to over DevTools, `quiet-switches.json`).

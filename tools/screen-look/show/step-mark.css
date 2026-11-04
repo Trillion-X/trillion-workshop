@@ -1,0 +1,25 @@
+/* parts/screen-look/show/step-mark.css
+   The look of the shared step mark (ui/show/step-mark/StepMark.tsx): a round mark the height of a title line. Still to
+   do: the step's number in a hairline ring. Done: the same success fill and tick as the shared steps checklist's mark
+   (steps-checklist.css), never ink or the accent, so a done step reads as done in every look. Not readable: a dashed
+   ring. Colours are the look's own tokens. */
+
+.step-mark {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 1.75rem; height: 1.75rem; border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  color: var(--color-foreground);
+  font-size: .8125rem; font-weight: 600; font-variant-numeric: tabular-nums;
+  transition: background-color .3s, border-color .3s, color .3s;
+}
+.step-mark svg { width: .9rem; height: .9rem; }
+.step-mark[data-state="done"] { border-color: transparent; background: var(--color-success, #16a34a); color: #fff; }
+.step-mark[data-state="unknown"] { border-style: dashed; color: var(--color-muted-foreground); }
+/* Checking: an empty ring that breathes slowly while the step's state is read; it never reads as not done. */
+.step-mark[data-state="checking"] { border-color: color-mix(in srgb, var(--color-foreground) 28%, transparent); animation: step-mark-checking 2.4s ease-in-out infinite; }
+@keyframes step-mark-checking {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-foreground) 0%, transparent); }
+  50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-foreground) 10%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .step-mark { transition: none; } .step-mark[data-state="checking"] { animation: none; } }
