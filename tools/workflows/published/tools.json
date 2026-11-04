@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:487dc596f7b7a79811001c1559a35afae7b68a060a13e95921b54e9f74bb12b1"
+  "blake3": "1f:33d99cb1c1c46d0b90e16cd9a986a5972be067bdc7ed01020585b5b2b597abe4"
  },
  "fields": [
   {
@@ -445,6 +445,22 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:ask-a-model",
+   "values": {
+    "title": "Ask a model",
+    "job": "Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word",
+    "description": "Runs on the person's computer with the models it serves (read-data/models-on-this-computer.json: Ollama for conversations, a small classifier for yes-or-no questions). messages asks a conversation and answers in the chat-completions shape; job picks a job row (which models, how many words, what answer format); tools optionally supplies the functions it may call, whose calls are returned for the caller to execute through its normal permissions; parts true also returns the answer as keyed parts. state and questions ask the classifier and answer its probabilities. Answers error in words, with each model tried and why it did not answer, when no model on the computer is running.",
+    "status": "active",
+    "maker": "maker:models-on-this-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T05:00:00Z",
+    "folder": "models-on-this-computer"
    }
   },
   {
@@ -2715,6 +2731,22 @@
    }
   },
   {
+   "id": "tool:get-free-models",
+   "values": {
+    "title": "Free AI models that fit my device",
+    "job": "See which free AI models fit the person's computer (its chip, memory and free space) and which it already has, and have its model server download them",
+    "description": "Runs on the person's computer. Without input it answers the computer's chip, memory and free space, whether its model server runs, and each model offered for it (read-data/models-on-this-computer.json offer) with whether it fits and whether the computer has it. With get \"fitting\" it has the running model server download every model that fits and is missing; with get as a list of offer ids, those. A model got here answers tool:ask-a-model at once. When the model server is not running it says so in words; it does not install the server.",
+    "status": "active",
+    "maker": "maker:models-on-this-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T22:00:00Z",
+    "folder": "models-on-this-computer"
+   }
+  },
+  {
    "id": "tool:get-the-judges-ready",
    "values": {
     "title": "Test my models on my questions ahead of time and keep who passed (runs on your computer)",
@@ -2938,6 +2970,36 @@
      "placement:small-container"
     ],
     "folder": "paid-access"
+   }
+  },
+  {
+   "id": "tool:give-a-place-a-new-release",
+   "values": {
+    "title": "Give a place a new release",
+    "job": "Put a new engine release on a running place and restart it",
+    "description": "Installs the request's engine release beside the old ones, points the place at it, restarts the service and reads back the sign-up page. The old release stays on the machine, so going back is the same command with the old release_name.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-place"
+   }
+  },
+  {
+   "id": "tool:give-back-a-place",
+   "values": {
+    "title": "Give back a place",
+    "job": "Stop paying for a place's machine: remove its public name and give the machine back",
+    "description": "Removes the public name the lease made, then deletes the machine and the SSH key the lease made, each only after reading it back and finding this lease's own label. A machine the person already runs is only forgotten, never touched. Move the place's accounts to another place first: this deletes the machine's disk.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-place"
    }
   },
   {
@@ -5706,6 +5768,36 @@
    }
   },
   {
+   "id": "tool:read-a-place",
+   "values": {
+    "title": "Read a place",
+    "job": "See whether a place's machine is running and its sign-up page answers",
+    "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the place's public name.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-place"
+   }
+  },
+  {
+   "id": "tool:read-a-place-price",
+   "values": {
+    "title": "Read a place's price",
+    "job": "See what a machine for a place would cost each month before renting it",
+    "description": "Reads the monthly price of the request's machine size at its location from the provider row's price request. Rents nothing.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-place"
+   }
+  },
+  {
    "id": "tool:read-a-receptionist-build-host",
    "values": {
     "title": "Read a receptionist build host",
@@ -8426,16 +8518,15 @@
   {
    "id": "tool:start-a-place",
    "values": {
-    "title": "Make and start a Trillion place on this computer (runs on your computer)",
-    "job": "Make a Trillion place on this computer and start it: its key, its config and the running place",
-    "description": "Makes one Trillion place in a folder the person names and starts it with the engine's own program (trillion-local, named in trillion_local or found on the PATH; it is never built here). It makes the place key once (32 random bytes, base64, readable only by the person; a key already there is kept and never read), writes the place config the engine reads (listen, accounts, place_key_file, public_origin, report, sign_in, sign_up, new_accounts, and router, access and default_places when given), asks the engine for the place's id (`trillion-local place id`), then starts `trillion-local serve` in the background with its output in place.log, and answers the place id, the files and the running place's pid. public_origin must be https and only the scheme and host. default_places are the places a new account that signs up here starts in: holders (one to 16), answering (among the holders) and voters, each a place id or the word this-place, no place twice in a list, and this place among both holders and answering. Report values left out are the engine test place's (reach is the public origin; takes_new_accounts false). start false makes the key and config and answers the id without starting. A refusal says what to change.",
+    "title": "Start a place",
+    "job": "Make a machine into a place that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
+    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the place config with the machine's address and price, starts it, and answers the place id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
     "status": "active",
     "maker": "maker:start-a-place",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "listed_on": "2026-11-03T00:00:00Z",
     "folder": "start-a-place"
    }
   },
