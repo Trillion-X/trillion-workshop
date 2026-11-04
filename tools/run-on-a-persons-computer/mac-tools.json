@@ -85,19 +85,18 @@
    "name": "transcribe"
   },
   "tool:hear-a-link": {
-   "module": "./hear-a-link.mjs",
-   "export": "linkTools",
-   "name": "hear"
+   "workshop": "tools/audio-transcription/read-data/hear-here.mjs",
+   "function": "hearALink",
+   "door": ["write_file_start", "write_file_piece", "write_file_finish"]
   },
   "tool:say-with-a-voice-model": {
-   "module": "./speak.mjs",
-   "export": "speakTools",
-   "name": "say"
+   "workshop": "tools/generate-speech/read-data/speak.mjs",
+   "function": "say",
+   "door": ["write_file_start", "write_file_piece", "write_file_finish"]
   },
   "tool:voices": {
-   "module": "./speak.mjs",
-   "export": "speakTools",
-   "name": "voices"
+   "workshop": "tools/generate-speech/read-data/speak.mjs",
+   "function": "voices"
   },
   "tool:run-an-app-job": {
    "module": "./app-job.mjs",
@@ -135,9 +134,8 @@
    "name": "hear"
   },
   "tool:keep-trillion-in-your-instructions": {
-   "module": "./harness-instructions.mjs",
-   "export": "instructionTools",
-   "name": "keep"
+   "workshop": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+   "function": "keep"
   },
   "tool:hold-a-device-quiet": {
    "workshop": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
@@ -173,19 +171,12 @@
    "function": "findEveryPlaceAFileIs"
   },
   "tool:read-app-distribution": {
-   "module": "./app-distribution.mjs",
-   "export": "appDistributionTools",
-   "name": "read"
+   "workshop": "tools/app-release-access/read-data/app-distribution.mjs",
+   "function": "read"
   },
   "tool:fulfill-setup-access": {
-   "module": "./setup-access.mjs",
-   "export": "setupAccessTools",
-   "name": "fulfill"
-  },
-  "tool:manage-harness": {
-   "module": "./harness-setup.mjs",
-   "export": "harnessSetupTools",
-   "name": "manage"
+   "workshop": "tools/app-release-access/read-data/setup-access.mjs",
+   "function": "fulfill"
   },
   "tool:look-at-the-screen": {
    "module": "./drive-the-screen.mjs",
@@ -376,9 +367,7 @@
   "skill_prefix": "computer-sources:"
  },
  "scoped_tools": {
-  "tool_ids": [
-   "tool:manage-harness"
-  ],
+  "tool_ids": [],
   "agent_prefix": "computer-tools:"
  }
 }

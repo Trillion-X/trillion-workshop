@@ -1,0 +1,23 @@
+{
+  "schema": "side-files",
+  "about": "Files a device writes beside a recording that are not recordings of their own: a smaller proxy copy, a thumbnail picture, a preview. Each row names the side file's path and the paths of the original it was made from. `side` and `originals` are matched at the end of a path, starting at a folder boundary; `{part}` stands for one or more characters inside one folder or file name, and the same part fills the other paths. `drop` says when the side file is not kept: `always`, or `when_original_present` (a proxy with no original beside it may be the only copy, so it stays). `carry` names the results kept about the side file that move onto the original when the side file is dropped, the more complete one staying. A new camera or device is one more row. `set_aside_as` is the Recently Deleted state (src/namespace-set-aside.json) a dropped side file goes to.",
+  "set_aside_as": "deleted",
+  "rows": [
+    { "id": "sony-xavc-s-proxy", "side": "M4ROOT/SUB/{clip}S03.MP4", "originals": ["M4ROOT/CLIP/{clip}.MP4"], "drop": "when_original_present", "carry": ["transcript"], "why": "the smaller proxy copy a Sony mirrorless camera writes beside each clip" },
+    { "id": "sony-xavc-s-thumbnail", "side": "M4ROOT/THMBNL/{clip}T01.JPG", "originals": ["M4ROOT/CLIP/{clip}.MP4"], "drop": "always", "carry": [], "why": "the thumbnail picture a Sony mirrorless camera writes for each clip" },
+    { "id": "sony-xdcam-proxy", "side": "XDROOT/Sub/{clip}S03.MP4", "originals": ["XDROOT/Clip/{clip}.MXF"], "drop": "when_original_present", "carry": ["transcript"], "why": "the smaller proxy copy a Sony cinema camera writes beside each clip" },
+    { "id": "sony-xdcam-proxy-older", "side": "XDROOT/Sub/{clip}S02.MP4", "originals": ["XDROOT/Clip/{clip}.MXF"], "drop": "when_original_present", "carry": ["transcript"], "why": "the smaller proxy copy an older Sony cinema camera writes beside each clip" },
+    { "id": "sony-xdcam-thumbnail", "side": "XDROOT/Thmbnl/{clip}T01.JPG", "originals": ["XDROOT/Clip/{clip}.MXF"], "drop": "always", "carry": [], "why": "the thumbnail picture a Sony cinema camera writes for each clip" },
+    { "id": "gopro-proxy", "side": "GL{number}.LRV", "originals": ["GX{number}.MP4", "GH{number}.MP4"], "drop": "when_original_present", "carry": ["transcript"], "why": "the low-resolution proxy a GoPro writes beside each clip" },
+    { "id": "action-camera-proxy", "side": "{clip}.LRV", "originals": ["{clip}.MP4", "{clip}.MOV", "{clip}.INSV"], "drop": "when_original_present", "carry": ["transcript"], "why": "the low-resolution proxy an action camera writes beside each clip" },
+    { "id": "action-camera-thumbnail", "side": "{clip}.THM", "originals": ["{clip}.MP4", "{clip}.MOV"], "drop": "always", "carry": [], "why": "the thumbnail an action or photo camera writes beside each clip" },
+    { "id": "dji-proxy", "side": "{clip}.LRF", "originals": ["{clip}.MP4", "{clip}.MOV"], "drop": "when_original_present", "carry": ["transcript"], "why": "the low-resolution proxy a DJI drone or gimbal camera writes beside each clip" },
+    { "id": "canon-xf-avc-proxy", "side": "{clip}_{stream}P.MXF", "originals": ["{clip}.MXF"], "drop": "when_original_present", "carry": ["transcript"], "why": "the proxy clip a Canon cinema camera records next to the main clip" },
+    { "id": "canon-xf-avc-proxy-card", "side": "{clip}_P.MXF", "originals": ["{clip}.MXF"], "drop": "when_original_present", "carry": ["transcript"], "why": "the proxy clip a Canon cinema camera records on a card of its own" },
+    { "id": "canon-xf-avc-s-proxy", "side": "{clip}_Proxy.MP4", "originals": ["{clip}.MP4"], "drop": "when_original_present", "carry": ["transcript"], "why": "the proxy clip a Canon mirrorless camera records next to the main clip" },
+    { "id": "panasonic-p2-proxy", "side": "CONTENTS/PROXY/{clip}.MOV", "originals": ["CONTENTS/VIDEO/{clip}.MXF"], "drop": "when_original_present", "carry": ["transcript"], "why": "the proxy copy a Panasonic P2 camera writes for each clip" },
+    { "id": "panasonic-p2-proxy-timing", "side": "CONTENTS/PROXY/{clip}.BIN", "originals": ["CONTENTS/VIDEO/{clip}.MXF"], "drop": "when_original_present", "carry": [], "why": "the timing data a Panasonic P2 camera writes with each proxy" },
+    { "id": "panasonic-p2-icon", "side": "CONTENTS/ICON/{clip}.BMP", "originals": ["CONTENTS/VIDEO/{clip}.MXF"], "drop": "always", "carry": [], "why": "the thumbnail a Panasonic P2 camera writes for each clip" },
+    { "id": "panasonic-lumix-proxy", "side": "DCIM/{folder}_PRXY/{clip}", "originals": ["DCIM/{folder}_PANA/{clip}"], "drop": "when_original_present", "carry": ["transcript"], "why": "the proxy copy a Panasonic LUMIX camera records next to the main clip" }
+  ]
+}

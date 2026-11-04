@@ -27,7 +27,7 @@ import { bearerControl, namespaceClient } from '../browse-and-upload-my-files/do
 import { loadChunking } from '../browse-and-upload-my-files/do-work/content-chunks.mjs';
 import { fileSource, sendFile } from '../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
 import { mediaTypeOf } from '../browse-and-upload-my-files/do-work/send-a-folder-to-a-namespace.mjs';
-import { fileType } from '../src/file-type.mjs';
+import { fileType } from './file-type.mjs';
 
 /** The key is the first stdin line; the app's ordered files packet follows as JSON, never in process arguments. */
 export function openedInput(input, paths) {

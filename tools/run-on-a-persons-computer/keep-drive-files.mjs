@@ -42,14 +42,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hearingHere, hearingReasons } from '../computer-programs/read-data/program-here.mjs';
-import { makeHashCodeHexFromChunks } from '../src/workspace/content-identity.mjs';
+import { makeHashCodeHexFromChunks } from '../content-identity/read-data/identity.mjs';
 export { hearingHere, hearingReasons };
 import { bearerControl, namespaceClient } from '../browse-and-upload-my-files/do-work/namespace-client.mjs';
 import { loadChunking } from '../browse-and-upload-my-files/do-work/content-chunks.mjs';
 import { NamespaceRefused, WHOLE_FILE_BYTES, byteBudget, fileSource, sendFile, sendWholeFiles } from '../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
 import { filesUnder, mediaTypeOf } from '../browse-and-upload-my-files/do-work/send-a-folder-to-a-namespace.mjs';
-import { fileType } from '../src/file-type.mjs';
-import { sideFiles } from '../src/side-files.mjs';
+import { fileType } from './file-type.mjs';
+import { sideFiles } from './side-files.mjs';
 import { seeWith, seenAlready } from './see-a-recording.mjs';
 import { observeVisual, captionWith, genericVisualTitle } from './observe-visual.mjs';
 
