@@ -804,7 +804,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/workflow-authoring-guidance.mjs",
       "source_identity": "1f:d16116925dabbd764e1d231696ad07bd0610c7fb32ebb1b3a41f67b3a52b18ca",
-      "identity": "1f:d16116925dabbd764e1d231696ad07bd0610c7fb32ebb1b3a41f67b3a52b18ca"
+      "identity": "1f:d16116925dabbd764e1d231696ad07bd0610c7fb32ebb1b3a41f67b3a52b18ca",
+      "finding": "F-0108"
     },
     {
       "from": "src/workflow-recipe-input.mjs",
