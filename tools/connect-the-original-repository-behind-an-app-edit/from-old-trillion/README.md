@@ -6,7 +6,7 @@ Files of old trillion whose job is this tool's (connect the original repository 
 |---|---|---|
 | `src/source-project-edit.mjs` | `src/source-project-edit.mjs` | loads here |
 | `src/source-project-host.mjs` | `src/source-project-host.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/account-app-state.mjs (at the tag, not moved here yet), src/tool-run-call.mjs (at the tag, not moved here yet) |
-| `src/source-project-preview.mjs` | `src/source-project-preview.mjs` | loads here |
+| `src/source-project-preview.mjs` | `../../refresh-one-page-of-a-copied-site-from-its-original/src/source-project-preview.mjs` | home already: moved there by the src/ m–r lane (PR #159); the files here import that copy |
 | `src/source-project-tools.mjs` | `src/source-project-tools.mjs` | loads here |
 | `test/source-project-edit.test.mjs` | `test/source-project-edit.test.mjs` | runs here: 12/12 pass |
 | `test/source-project-host.test.mjs` | `test/source-project-host.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports test/source-project-workshop-for-tests.mjs (at the tag, not moved here yet), src/account-app-state.mjs (at the tag, not moved here yet), src/local-store.mjs (at the tag, not moved here yet), test/app (already gone at the tag) |

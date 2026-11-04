@@ -9390,8 +9390,8 @@
   {
    "path": "src/share-link-routing.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/open-a-share-link-on-my-own-web-address-instead/src/share-link-routing.mjs",
-   "why": "a feature a person or AI uses",
+   "destination": "trillion-workshop:tools/put-a-site-on-the-persons-own-web-address-through/src/share-link-routing.mjs",
+   "why": "a tool a person or AI runs: moved byte for byte by the src/ m–r lane (PR #159) as import closure; this lane keeps that one copy",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9901,8 +9901,8 @@
   {
    "path": "src/source-project-preview.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/src/source-project-preview.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/refresh-one-page-of-a-copied-site-from-its-original/src/source-project-preview.mjs",
+   "why": "a tool a person or AI runs: moved byte for byte by the src/ m–r lane (PR #159) as import closure; this lane keeps that one copy",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10395,8 +10395,8 @@
   {
    "path": "src/task-proposals.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/let-an-ai-or-a-rule-suggest-tasks-found/src/task-proposals.mjs",
-   "why": "a feature a person or AI uses",
+   "destination": "trillion-workshop:tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/task-proposals.mjs",
+   "why": "a tool a person or AI runs: moved byte for byte by the src/ m–r lane (PR #159) as import closure; this lane keeps that one copy",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {

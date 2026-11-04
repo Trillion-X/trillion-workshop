@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { proxyPreviewRequest, sourcePreviewTarget, sourcePreviewPageMatches, sourcePreviewRoutes, sourceSitemapRoutes } from '../src/source-project-preview.mjs';
+import { proxyPreviewRequest, sourcePreviewTarget, sourcePreviewPageMatches, sourcePreviewRoutes, sourceSitemapRoutes } from '../../../refresh-one-page-of-a-copied-site-from-its-original/src/source-project-preview.mjs';
 
 test('route discovery keeps clean links within the connected app and one base path', () => {
   assert.deepEqual(sourcePreviewRoutes('https://app.example.com/', [
