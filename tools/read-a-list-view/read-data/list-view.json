@@ -1,5 +1,16 @@
 {
   "what_this_is": "The row sources a list may declare (row_sources: [{ source, id?, root?, of, match?, exclude?, paths?, text_extensions?, content?, values? }]) and the tool that serves each. source is the tool kind; optional id is its unique logical collection identity, defaulting to source for existing lists. Each template input uses the declared source fields, retaining exact JSON types; absent optional inputs are omitted. content, exclude, paths and text_extensions are forwarded unchanged. values projects fields while retaining every original value. limit and after bound each page. A refresh streams all successful pages before it removes obsolete rows, regardless of a view's rows_per_read bound. A new source kind is one row here. A source declared original: \"list\" (with optional adopt_own_rows and copy_name) is the list's copy instead of its origin: its refresh is the two-way sync of list-copy.mjs, through the source kind's change tool, and only a source kind with change and copy can be one.",
+  "restore": {
+    "record_type": "setting",
+    "record": "setting:restore-generation",
+    "restored_at": "value.restored_at",
+    "why": "The account's restore generation (list-copy.mjs invariant 6): the setting record stamped when the account adopts an older copy of its state, { value: { generation, restored_at } }. A two-way sync trusts no removal judged from a row version older than restored_at, so a restore never deletes the newer file copies: they are carried back up. With no such record the account was never restored and every removal is judged as before."
+  },
+  "copies_when_unreachable": {
+    "answers": ["unavailable", "original_workspace_source_unavailable", "selected_owner_unavailable"],
+    "transport_failures": true,
+    "why": "When a list's file copy may be read, read-only (copy-readable.mjs, asked by a copy guard): only when reading the list answers one of these codes, or the door cannot be reached at all (transport_failures), which is when every holder of the account is unreachable. Any answer from the list, with or without rows, keeps the copy closed, so agents read the list. On Nov 3, 2026 the account's stores were lost and the door answered original_workspace_source_unavailable for hours while the copies held every memory."
+  },
   "limits": {
     "read_page_rows": 50,
     "door_page_rows": 500,
