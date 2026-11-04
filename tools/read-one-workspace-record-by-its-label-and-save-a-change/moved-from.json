@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-workspace-record-reader.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-one-workspace-record-by-its-label-and-save-a-change/src/native-workspace-record-reader.mjs",
+      "source_identity": "1f:4c25e402fe95c0f70a6938e4da2d5ea296f10538fa3352353a60614683ed516c",
+      "identity": "1f:4c25e402fe95c0f70a6938e4da2d5ea296f10538fa3352353a60614683ed516c"
+    },
+    {
+      "from": "src/native-workspace-records.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-one-workspace-record-by-its-label-and-save-a-change/src/native-workspace-records.mjs",
+      "source_identity": "1f:f27d6031ec481e2284f9108ae9ced00c0b6d0126661e142c2c76a3834a37e41f",
+      "identity": "1f:4276e0cbf4d12cf85be4ac53d8dd0338c70fedbbc18a5c453b3d50868df50e79"
+    },
+    {
+      "from": "src/workspace/document-operations.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-one-workspace-record-by-its-label-and-save-a-change/src/workspace/document-operations.json",
+      "source_identity": "1f:382629820923fae179998737ceb366831bcb34ad931ca1491687c11fd5c439d8",
+      "identity": "1f:382629820923fae179998737ceb366831bcb34ad931ca1491687c11fd5c439d8"
+    },
+    {
+      "from": "src/workspace/document-operations.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-one-workspace-record-by-its-label-and-save-a-change/src/workspace/document-operations.mjs",
+      "source_identity": "1f:b1cfa5e4ab8482e14a279f5739082ae66b6faffa9609732535196c14eb841c04",
+      "identity": "1f:b1cfa5e4ab8482e14a279f5739082ae66b6faffa9609732535196c14eb841c04"
+    },
+    {
+      "from": "test/native-workspace-document-history-owner.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-one-workspace-record-by-its-label-and-save-a-change/test/native-workspace-document-history-owner.test.mjs",
+      "source_identity": "1f:22a3c0f3e07d858a57041a80f0213cd9c52f8d107b04c5edbc646c6c2d9d09d4",
+      "identity": "1f:f77854239461b664f3aee50c4aedcf4102114da21ae92e96b2da677c97899dcd"
+    },
+    {
+      "from": "test/native-workspace-record-reader.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-one-workspace-record-by-its-label-and-save-a-change/test/native-workspace-record-reader.test.mjs",
+      "source_identity": "1f:59c3f90d6a8e4e5ae936998b602dc667e7e45a94fdbd452717ba645165a62cc4",
+      "identity": "1f:59c3f90d6a8e4e5ae936998b602dc667e7e45a94fdbd452717ba645165a62cc4"
+    },
+    {
+      "from": "test/native-workspace-write-contract.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-one-workspace-record-by-its-label-and-save-a-change/test/native-workspace-write-contract.test.mjs",
+      "source_identity": "1f:b155915f15c00c100bec693bd9647fe3273d86e80b21318198c2204f4f4c9e03",
+      "identity": "1f:c80943991c4c079be7f971b817186e2a52fad18cabd95ef10f2b216d47cc5b56"
+    }
+  ]
+}

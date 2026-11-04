@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-network-moderation.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-the-labels-people-give-each-other-in-the-network/src/native-network-moderation.mjs",
+      "source_identity": "1f:ed0a0ce421cf699437720d24859690ac3a4a96a3f842ba5de4a07f1bdb1c6b46",
+      "identity": "1f:d041f83a2ffcf2c63be4cacd4ee016cf5656a2d56e98d78006806ce089aadd8e"
+    },
+    {
+      "from": "test/native-network-moderation.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-the-labels-people-give-each-other-in-the-network/test/native-network-moderation.test.mjs",
+      "source_identity": "1f:369abfe9b13dd9e81a7ea78f923118ea0d97fe028a2549cc76764b28e353d321",
+      "identity": "1f:c6601944e57f4179e860f3d5f2e16548f47ccf7d23e424f6cf5733cde9d8488b"
+    }
+  ]
+}

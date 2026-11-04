@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-xcode-source.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/prepare-an-app-project-from-a-github-commit/src/native-xcode-source.mjs",
+      "source_identity": "1f:1672a6f2d6abb843e715746862011b97d48cf9bb159fafd2242691b923ae0add",
+      "identity": "1f:14b1a0144a4d511622d276b3bfbcb272073cff87b7ce2315a95f3549981d3d75"
+    }
+  ]
+}

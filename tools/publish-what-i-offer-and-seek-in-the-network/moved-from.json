@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-network-owner.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/publish-what-i-offer-and-seek-in-the-network/src/native-network-owner.mjs",
+      "source_identity": "1f:7957c1b9364c3311feec83e319f2220a0b388d1400791ce0eae35fd1fac8bd99",
+      "identity": "1f:a6e1b45183610739c830c5c3e814cb3af61b4b172e0416a6d46eb134b9ee1a4c"
+    },
+    {
+      "from": "src/network-publication-shape.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/publish-what-i-offer-and-seek-in-the-network/src/network-publication-shape.mjs",
+      "source_identity": "1f:9f8b9f5ab330616fc3f44303ce8cdbe412e901bae9d699df7b8dbcc226a8b813",
+      "identity": "1f:07f821b808d9877bfebffa3a7ffd110b4b00d5759493d929c38a71c5493088fb"
+    },
+    {
+      "from": "test/native-network-owner.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/publish-what-i-offer-and-seek-in-the-network/test/native-network-owner.test.mjs",
+      "source_identity": "1f:34c3b05890dd58a2f919295a9d8a4306d9be8f9e1bd229b9dc1cd33b134b4092",
+      "identity": "1f:b290a0092f1cbd34b4fad3ef22061991e864f6105b608b156731a11f5e7baa00"
+    }
+  ]
+}

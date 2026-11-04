@@ -17,5 +17,5 @@ The 21 test files moved with the group. Run here, they give the same results by 
 
 ## Not yet
 
-- No tool row: nothing here is offered to an AI as a row yet. Each script is a hook or a long-running helper started by `harness/setup.mjs` and `harness/wake-sessions.mjs`; the rows (and the adaptation of their `../src/` imports to the records door) are the next lane.
+- Rows: `tool-rows.json` offers the two commands a person's AI runs here, both through `harness/setup.mjs`: setting up the hooks in an AI app (inspect, apply, remove) and its Trillion MCP entry (inspect, preview, register, unregister). The other scripts are hooks or long-running helpers that setup starts, not rows; adapting their `../src/` imports to the records door is still a later lane.
 - `src/` holds the old app's files these scripts imported (the import closure), each still in its old shape.

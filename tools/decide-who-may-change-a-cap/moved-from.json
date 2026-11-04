@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/cap-change.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-who-may-change-a-cap/src/cap-change.mjs",
+      "source_identity": "1f:5883fe27a6eb0df33af132606fd406c77366f3e2a9aa3779d50458cb911c3403",
+      "identity": "1f:a2242e56954ab275b1cdc67c2051740e2c4c810b3b9fcba6201bec6a9cf8528f"
+    },
+    {
+      "from": "src/passkey-authority.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-who-may-change-a-cap/src/passkey-authority.json",
+      "source_identity": "1f:5659d86e3e79310f3a967c712867fa28fb6f23e2d5201034b75c317a753bb55b",
+      "identity": "1f:5659d86e3e79310f3a967c712867fa28fb6f23e2d5201034b75c317a753bb55b"
+    }
+  ]
+}

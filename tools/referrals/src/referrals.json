@@ -1,0 +1,51 @@
+{
+  "comment": "Trillion's referral rules (decision source:cmVmZXJyYWwtMjUtZWFjaC11bmxpbWl0ZWQtMjAyNi0xMC0wMg, 2026-10-02: $25 off for each side and no limit, replacing the free month of source:Z3Jvd3RoLXJlZmVycmFscy0yMDI2LTA5LTI5). Read by src/shares.mjs (who joined through whose link and what each earned), src/payment.mjs (the rewards) and the Account screen. `friend` is what someone who joined through a link gets: the checkout-code-adjustment row `code_id`, whose `adjustment` is also what the person and their AI are told the friend gets, (in records/checkout-code-adjustment-records.json) is prefilled on their checkout links for `offer_ids` while `window_days` have not passed since they joined. `referrer` is what the person whose link it was gets once that friend's first payment above zero on one of `paid_offer_ids` arrives: one arm of `credit_arms` (a test like a price test: each referrer lands on one arm, the same one every time, by `weight`; adding an amount to try is one row here), as credit Stripe takes off their next bills on the plan they pay for among `offer_ids`, with no limit unless `max_per_year` is set (at most that many in any 365 days); while they pay for none of those plans the credit waits and is given when they start one. `join_cookie` names the cookie a link visit is remembered in (the landing at gettrillion.ai sets it for the whole domain, the app for itself) and `join_cookie_days` how long, until the account is made. `credit_tool` is the operator account's Workshop tool that gives the credit on Stripe. `links` are the addresses a person's link can take, `{code}` filled in; the first is the one shown. Changing a reward, limit, window or address is a change here only. `source_cookie` names the cookie a visit's `from` value (the post or page that brought the visitor, e.g. gettrillion.ai/start?from=<post id>) is remembered in, for `source_cookie_days`; account creation records it as came-from:<new person> next to the referral credit, so a sign-up can be traced back to the post that brought it.",
+  "join_cookie": "trillion_ref",
+  "join_cookie_days": 30,
+  "links": [
+    "https://gettrillion.ai/?ref={code}",
+    "https://app.gettrillion.ai/join/{code}"
+  ],
+  "friend": {
+    "code_id": "checkout-code-adjustment:trillion-friend-25-off",
+    "offer_ids": [
+      "offer:trillion-member",
+      "offer:trillion",
+      "offer:trillion-spot-150",
+      "offer:trillion-spot-50",
+      "offer:trillion-margin-50",
+      "offer:trillion-start-free"
+    ],
+    "window_days": 90
+  },
+  "referrer": {
+    "credit_experiment": "experiment:referral-credit",
+    "optimizing_for": "Paying friends brought per referrer, against the credit given.",
+    "credit_arms": {
+      "credit:usd-2500": {
+        "amount_cents": 2500,
+        "currency": "usd",
+        "weight": 1
+      }
+    },
+    "offer_ids": [
+      "offer:trillion-member",
+      "offer:trillion",
+      "offer:trillion-spot-150",
+      "offer:trillion-spot-50",
+      "offer:trillion-margin-50",
+      "offer:trillion-start-free"
+    ],
+    "paid_offer_ids": [
+      "offer:trillion-member",
+      "offer:trillion",
+      "offer:trillion-spot-150",
+      "offer:trillion-spot-50",
+      "offer:trillion-margin-50",
+      "offer:trillion-start-free"
+    ]
+  },
+  "credit_tool": "tool:give-referral-credit",
+  "source_cookie": "trillion_from",
+  "source_cookie_days": 30
+}

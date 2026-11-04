@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-look-command-receipts.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-the-exact-first-answer-to-each-change-i/src/native-look-command-receipts.mjs",
+      "source_identity": "1f:3295cb39b649f94a2a2bef9c39214683239d35e26a944be6478cc8807c191ac8",
+      "identity": "1f:1fe32e608572227b8bf553fa4ed658d25a086725bad9df0346507160512aeef8"
+    },
+    {
+      "from": "test/native-local-command-receipts-rebuild.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-the-exact-first-answer-to-each-change-i/test/native-local-command-receipts-rebuild.test.mjs",
+      "source_identity": "1f:27052eafb1b3d74f5cdc821448fd056c6e776e9879bcd1530ae9ed089c98f5db",
+      "identity": "1f:7bb22305e81d2c17a30356e62b48489ee6154ac2ea862ccb3edc9e49e251b621"
+    }
+  ]
+}

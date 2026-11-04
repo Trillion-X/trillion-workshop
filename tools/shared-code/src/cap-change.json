@@ -1,0 +1,85 @@
+{
+  "_what": "Every cap a person has (a use budget: set_use_budget, remove_use_budget; a spend budget: set_spend_budget, remove_spend_budget) has a finite CEILING, the most that cap may be set to. Any credential, an AI included, may set, raise or lower a cap freely up to its ceiling: nothing is asked and nothing waits, so a person at their cap is never locked out of changing it. Moving a CEILING, either way, needs a confirmation from one of the person's KNOWN passkeys with user verification, for exactly that change (src/passkey-authority.json: the UV flag is the authenticator's own word, so only a passkey whose enrollment the person controlled counts; a fresh sign-in, an emailed code or a passkey an AI enrolled is never enough). So does loosening a cap's shape (its coverage, period, stop or, for use budgets, its measure), moving the billing month and moving the paid ceiling. `safe_moves` declares, for each guarded value, the only move open to every credential: a cap's amount anywhere within its ceiling (so restoring a cap someone lowered is always open), a shape only tighter, and no move at all of a ceiling, the billing month or the paid ceiling (so no credential can lower one to force the person through the passkey step to restore it). Taking a cap away never leaves it unlimited: a cap that sits over a starting row goes back to that row, any other becomes a cap at its ceiling. The ceiling of a cap is the larger of: the default below for its period (and measure, for a use budget), and the ceiling the person declared on the row itself (the row's ceiling field, set with a passkey confirmation). A payment pays for work and never authorizes more: what a bought plan or contract gives (its daily cap, or none) never lifts a ceiling, so the quota applies the plan's daily cap only up to the plan-daily-cap row's ceiling, and a plan with no daily cap holds a cap at that ceiling (src/resource-budget-owner.mjs). Code: src/cap-change.mjs. Every ceiling also has a hard `maxima` row and a `most_steps` row, deploy DATA that no touch moves: a ceiling is never above its maximum, and one confirmed raise moves it at most one step above the ceiling in force. A raise never takes effect at once: the row keeps the ceiling in force and the raise (`raise_field`: { to, from }) takes effect only from `from`, the notice row's hours after it was saved (src/passkey-authority.json provenance.notice.wait_hours). Every confirmation is told on every channel when it is made (src/worker.mjs passkeyConfirm), and setting the ceiling again with a known passkey's confirmation (back to the one in force, or lower) cancels a waiting raise. So one deceived passkey touch yields at most one bounded step, told, and only after the notice. Default ceilings, dollars: a day or a month of everything the account's services cost. The starting daily cap is 25 dollars, so the default ceiling for a day is 4 times that and for a month 1000 (the operator's own service-month row is 300). Default ceilings, use: about 2 times the largest starting row of that measure and period (the starting rows are 5,000,000,000 rows read and 20,000,000 rows written a day, 500,000,000 rows read and 500,000 rows written an hour); calls and statements have no starting row, so theirs are set to the same order of work (a call or statement touches at most thousands of rows). `paid` caps the money itself: within window_days, what an account commits to pay comes to at most its paid ceiling (ceiling_dollars, or the one the person set with a known passkey's confirmation, APP_KV paid-ceiling:<user id> { dollars, raise }, the account/paid-ceiling route, with the same maximum, step and notice wait as every ceiling). What a payment commits is read from the request itself, never from the name of its operation (src/cap-change.mjs commitmentCents): every line's unit price times its quantity, once for a one-time line, and for a recurring line every charge that falls inside the window after its trial (a month counts as `interval_days.month` days, the shortest, so no window holds more charges than are counted), at most its installments. It counts every payee: Trillion's own offers, a seller's or a share link's terms and their installments (src/negotiated-offers.mjs accept), and the usage of the accounts that took a spot the person pays for. Each admitted commitment is kept under its reference (APP_KV paid-reserved:<user id>, src/payment.mjs) and counted with the payments already made (a completed checkout counted once per reference; refunded ones not). A spot another account takes carves `spot_carve.per_day` of each reading from the payer's paid ceiling while the purchase is active (its price at the offer's usage rates, times window_days), and what that account's usage bills the payer each day is clamped to that carve (src/account-plan-usage.mjs). The adjustable quantity of a payment link is capped so one checkout commits at most `maxima.paid` dollars. A checkout that would pass it is not handed out (src/worker.mjs buyNow), and because a payment link can be reused, a purchase that still passes it is refunded when its notice arrives, its subscription cancelled, and the person told (src/payment.mjs receivePaymentEvent).",
+  "confirmation_seconds": 120,
+  "safe_moves": {
+    "amount": "within-ceiling",
+    "shape": "tighter",
+    "ceiling": "none",
+    "billing_month": "none",
+    "paid_ceiling": "none"
+  },
+  "raise_field": "ceiling_raise",
+  "maxima": {
+    "_what": "The most each ceiling may ever be, whatever any touch confirms (deploy DATA).",
+    "paid": 10000,
+    "spend": { "day": 1000, "month": 10000 },
+    "use": {
+      "calls": { "day": 500000000, "hour": 50000000 },
+      "statements": { "day": 5000000000, "hour": 500000000 },
+      "rows_read": { "day": 100000000000, "hour": 10000000000 },
+      "rows_written": { "day": 400000000, "hour": 10000000 }
+    }
+  },
+  "most_steps": {
+    "_what": "The most one confirmed raise moves a ceiling above the one in force (deploy DATA).",
+    "paid": 1000,
+    "spend": { "day": 100, "month": 1000 },
+    "use": {
+      "calls": { "day": 50000000, "hour": 5000000 },
+      "statements": { "day": 500000000, "hour": 50000000 },
+      "rows_read": { "day": 10000000000, "hour": 1000000000 },
+      "rows_written": { "day": 40000000, "hour": 1000000 }
+    }
+  },
+  "raise_words": {
+    "above_maximum": "A ceiling can never be above {maximum} {unit}.",
+    "above_step": "One raise moves a ceiling at most {step} {unit} above the one in force now ({ceiling} {unit}). Raise it by up to that now, and again once this raise has taken effect.",
+    "amount_above_in_force": "The most this limit can be set to now is {ceiling} {unit}, its ceiling in force. A raise of its ceiling takes effect only after its notice."
+  },
+  "paid": {
+    "window_days": 30,
+    "ceiling_dollars": 1000,
+    "words": {
+      "above_ceiling": "This purchase commits {amount} dollars within {days} days, which would take this account past its paid ceiling of {ceiling} dollars ({paid} dollars already paid or committed). To allow more, raise the paid ceiling on your Spend screen; that asks for your passkey.",
+      "refunded_title": "A purchase was refunded",
+      "refunded": "A purchase committing {amount} dollars was refunded and cancelled, and nothing was added: it took what this account paid or committed in {days} days past its paid ceiling of {ceiling} dollars. If you made it, raise the paid ceiling on your Spend screen with your passkey, then buy again.",
+      "needs_passkey": "Changing the paid ceiling needs a passkey you already had. Confirm with it on your Spend screen.",
+      "not_a_ceiling": "The paid ceiling is a number of dollars, 0 or more.",
+      "saved": "Your paid ceiling is now {ceiling} dollars every {days} days.",
+      "raise_saved": "Your paid ceiling rises to {to} dollars every {days} days from {from}; until then it stays {ceiling} dollars. Setting it again with your passkey cancels the raise.",
+      "spot_refused": "Taking this spot would commit {amount} dollars of its usage within {days} days to the account that pays for it, past that account's paid ceiling of {ceiling} dollars. The payer can raise their paid ceiling with their passkey.",
+      "above_room": "This payment commits {amount} dollars within {days} days, more than this account's paid ceiling leaves now ({room} dollars). To allow more, raise the paid ceiling on your Spend screen; that asks for your passkey."
+    },
+    "interval_days": { "day": 1, "week": 7, "month": 28, "year": 365 },
+    "spot_carve": { "per_day": { "stored-bytes": 50000000000, "work-cost": 200000 } }
+  },
+  "families": {
+    "spend": {
+      "amount": "most_dollars",
+      "ceiling_field": "ai_ceiling_dollars",
+      "shape": ["when", "each", "period", "scope"],
+      "stop": "tree",
+      "ceilings": { "day": 100, "month": 1000 },
+      "words": {
+        "above_ceiling": "The most a spend limit can be set to is {ceiling} dollars a {period} (that limit's ceiling). To allow more, raise its ceiling on your Spend screen; that asks for your passkey.",
+        "needs_passkey": "Changing this needs a passkey you already had: changing a ceiling, loosening what a limit covers or when it stops, or moving the billing month. Confirm with it on your Spend screen."
+      }
+    },
+    "use": {
+      "amount": "most",
+      "ceiling_field": "ai_ceiling",
+      "shape": ["when", "per", "measure", "period", "scope"],
+      "stop": "flag",
+      "ceilings": {
+        "calls": { "day": 50000000, "hour": 5000000 },
+        "statements": { "day": 500000000, "hour": 50000000 },
+        "rows_read": { "day": 10000000000, "hour": 1000000000 },
+        "rows_written": { "day": 40000000, "hour": 1000000 }
+      },
+      "words": {
+        "above_ceiling": "The most a use limit can be set to is {ceiling} {measure} a {period} (that limit's ceiling). To allow more, raise its ceiling on your Spend screen; that asks for your passkey.",
+        "needs_passkey": "Changing this needs a passkey you already had: changing a ceiling, loosening what a limit covers or when it stops. Confirm with it on your Spend screen."
+      }
+    }
+  }
+}
