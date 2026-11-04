@@ -30,7 +30,7 @@
 //
 import { groupStarts, maintainInTurns, maintenancePacing, maintenanceTurn, recordLogStore } from '../parts/record-log/do-work/record-log-store.mjs';
 import { EEAF_CORE_TABLES, eeafStore } from '../parts/eeaf/do-work/eeaf-sqlite-store.mjs';
-import { eeafFieldReads } from '../../eeaf/do-work/eeaf-field-reads.mjs';
+import { eeafFieldReads } from '../parts/eeaf/do-work/eeaf-field-reads.mjs';
 import { tableGeneration } from './table-generation.mjs';
 import recordIndexes from './record-indexes.json' with { type: 'json' };
 import recordModel from './record-model.json' with { type: 'json' };
