@@ -1,6 +1,0 @@
-{
-  "_what": "How long a change Trillion's own work made in a folder is remembered, so a folder read (computer/read-new-items.mjs) does not send it back as something new. Read by computer/own-writes.mjs.",
-  "file": "own-writes.json",
-  "ttl_seconds": 600,
-  "most_paths": 2000
-}

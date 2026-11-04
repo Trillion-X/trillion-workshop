@@ -13,6 +13,14 @@
       "reused": true
     },
     {
+      "from": "parts/json-expansion.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/json-expansion.mjs",
+      "source_identity": "1f:a18552080f3cd2e12cc85201f078c33fc8e41a0adcca6ec18899ec39937bb8af",
+      "identity": "1f:a18552080f3cd2e12cc85201f078c33fc8e41a0adcca6ec18899ec39937bb8af",
+      "reused": true
+    },
+    {
       "from": "parts/sql-statement-execution.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/sql-statement-execution.mjs",

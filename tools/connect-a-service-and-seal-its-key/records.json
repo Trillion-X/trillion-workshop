@@ -6918,7 +6918,7 @@
     "carriedBy": {
      "steps": [
       "On Account, under Personal keys, press Make a new key and copy it",
-      "On your Mac, open Terminal and paste this line, then press Return: curl -fsS --create-dirs --output-dir \"$HOME/Library/Application Support/Trillion\" -O https://app.gettrillion.ai/computer/sync-contacts.zsh -O https://app.gettrillion.ai/computer/sync-contacts.js -O https://app.gettrillion.ai/computer/sync-contacts.json && zsh \"$HOME/Library/Application Support/Trillion/sync-contacts.zsh\" install",
+      "On your Mac, open Terminal and paste this line, then press Return: curl -fsS --create-dirs --output-dir \"$HOME/Library/Application Support/Trillion\" -O https://raw.githubusercontent.com/Trillion-X/trillion-workshop/main/tools/bring-in-new-items-from-this-computer/computer/sync-contacts.zsh -O https://raw.githubusercontent.com/Trillion-X/trillion-workshop/main/tools/bring-in-new-items-from-this-computer/computer/sync-contacts.js -O https://raw.githubusercontent.com/Trillion-X/trillion-workshop/main/tools/bring-in-new-items-from-this-computer/computer/sync-contacts.json && zsh \"$HOME/Library/Application Support/Trillion/sync-contacts.zsh\" install",
       "Paste your key when it asks; it is kept in your Mac's Keychain",
       "Allow access to Contacts when macOS asks. Your contacts land in your People list; to use another list, add its id and name after install",
       "This shows Connected while your Mac is on and sending"

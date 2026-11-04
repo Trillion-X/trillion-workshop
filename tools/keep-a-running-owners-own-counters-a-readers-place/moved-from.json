@@ -10,6 +10,21 @@
       "to": "tools/keep-a-running-owners-own-counters-a-readers-place/src/operational-state.mjs",
       "source_identity": "1f:7d7f40d44645ff80e8c9793b99eee20cb5bcf0669d34838e24a21fcf18c0d2c9",
       "identity": "1f:6e335760eb60ad58d2941f1dec02c849416b2ab534f1d59ef123336171ea0e09"
+    },
+    {
+      "from": "src/operational-state.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-a-running-owners-own-counters-a-readers-place/src/operational-state.mjs",
+      "source_identity": "1f:7d7f40d44645ff80e8c9793b99eee20cb5bcf0669d34838e24a21fcf18c0d2c9",
+      "identity": "1f:6e335760eb60ad58d2941f1dec02c849416b2ab534f1d59ef123336171ea0e09",
+      "reused": true
+    },
+    {
+      "from": "test/operational-state.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-a-running-owners-own-counters-a-readers-place/test/operational-state.test.mjs",
+      "source_identity": "1f:fd66328e2d3f71e832af9da4805b6d8c0b5873b697fafa7b0c562cf40312a5fa",
+      "identity": "1f:e40cc5dc9d867be23798e2fa0b2763598181ecc3a0efde1ac4ac840b4ce43a82"
     }
   ]
 }
