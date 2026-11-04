@@ -1,0 +1,6 @@
+{
+  "_what": "How a store change names what changed (src/live-keys.mjs): each screen revision carries `writes`, the ids of the records written since the last revision with the fields written when known, never values. `tables`: SQL tables a screen draws from outside the records, each named in a revision by its `key` (fields unknown) whenever a write may have touched it (the store's per-table write counts, src/sql-writes.mjs, which also count a write they cannot place against every table). `most_records`: past this many changed records in one revision the frame names none, and every open screen reads again as before. `most_noted`: the most records whose written fields are kept between two revisions; a record past it is told with its fields unknown (any field may have changed), never left out.",
+  "tables": [{ "table": "workspace_records", "key": "table:workspace_records", "_why": "The workspace's saved arrangement and preferences (src/native-workspace-records.mjs) are rows of this table, not records: a write to it is named by this key (src/workspace/records.ts reads again only for it)." }],
+  "most_records": 500,
+  "most_noted": 2000
+}

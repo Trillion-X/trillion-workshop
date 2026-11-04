@@ -35,9 +35,9 @@
 //   namespaceFiles(http) → the Namespace reads and the conditional write this file uses, over its HTTP routes
 //   readDocumentTypes(files, folder) / saveDocumentTypes(files, folder, { types, formulas, expected_identity })
 //   readFrontmatter(text) / writeFrontmatter(text, { set, remove })
-import data from './document-properties.json' with { type: 'json' };
-import listsData from './lists.json' with { type: 'json' };
-import { listSay as say } from './list-refusals.mjs';
+import data from '../query-and-change-list-rows/src/document-properties.json' with { type: 'json' };
+import listsData from '../keep-and-wake-ai-sessions-on-this-computer/src/lists.json' with { type: 'json' };
+import { listSay as say } from '../query-and-change-list-rows/src/list-refusals.mjs';
 
 const { limits } = data;
 const NS = listsData.source_namespaces[data.source];
