@@ -156,7 +156,8 @@ function heldPipe(path, value) {
 // or { cannot }. `doorOptions` reach the stand-in records door. A string anywhere in the input or the sample may name
 // a granted folder as {grant:<capability>}; it is that folder's path for this run. `laid_files` ([{ path, text }])
 // replaces a file the row packs, at its absolute place, for this run only. `model_server` ({ vector }) starts a stand-in
-// model server (startStandInModelServer) whose address any string names as {model_endpoint}.
+// model server (startStandInModelServer) whose address any string names as {model_endpoint}. `task` gives fields of the
+// made-up task (its request_key, its cause); `stdin` replaces the filled standard input, for a refusal test.
 export async function runRow(row, sampleInput, sample = {}) {
   const why = cannotRun(row);
   if (why) return { cannot: why };
@@ -188,7 +189,9 @@ export async function runRow(row, sampleInput, sample = {}) {
       if (!existsSync(target) || !target.startsWith(`${there}/`)) return { cannot: `the sample replaces ${file.path}, which the row does not pack` };
       writeFileSync(target, file.text ?? '');
     }
-    const task = { task_id: 'task-sample', request_key: 'sample', cause: { kind: 'sample-run' }, started_at: new Date().toISOString(), grants };
+    // A sample may give the task fields of its own (`task`, e.g. the request_key a test reads back, or what a changes
+    // run's cause names); the granted folders are always this run's.
+    const task = { task_id: 'task-sample', request_key: 'sample', cause: { kind: 'sample-run' }, started_at: new Date().toISOString(), ...(sample.task ?? {}), grants };
     for (const file of files) {
       const folder = grants[file.grant]?.folder;
       if (!folder) return { cannot: `the sample lays a file in ${file.grant}, which the row does not ask for` };
@@ -202,7 +205,9 @@ export async function runRow(row, sampleInput, sample = {}) {
     let argv, stdin, rights;
     try {
       argv = fill(invoke.argv, { input, task }).map(word => placed(word, specs, there));
-      stdin = invoke.stdin === undefined ? undefined : fill(invoke.stdin, { input, task });
+      // `stdin` hands the program a standard input verbatim instead of the row's own fill: only for a test that proves
+      // the program refuses what the engine's fill would never build.
+      stdin = 'stdin' in sample ? placedGrants(sample.stdin) : invoke.stdin === undefined ? undefined : fill(invoke.stdin, { input, task });
       rights = fill(invoke.records?.rights ?? [], { input, task });
     } catch (error) {
       if (error instanceof Unfillable) return { cannot: error.message };

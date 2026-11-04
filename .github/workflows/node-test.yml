@@ -1,4 +1,6 @@
-# Runs the Workshop's tests (CONTRIBUTING.md, Checks) on every pull request and on main.
+# Runs the Workshop's tests (CONTRIBUTING.md, Checks) on every pull request and on main, on Node 24. The suite is cut
+# into four shards (node --test --test-shard) that run side by side, so no one job comes near its time limit; a newer
+# push to the same branch cancels the run it replaces.
 name: node --test
 on:
   pull_request:
@@ -6,20 +8,28 @@ on:
     branches: [main]
 permissions:
   contents: read
+concurrency:
+  group: node-test-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    name: test (shard ${{ matrix.shard }} of 4)
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: npm ci
-      - run: npm test
+      - run: node --test --test-shard=${{ matrix.shard }}/4 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'
