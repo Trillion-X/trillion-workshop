@@ -34,7 +34,7 @@ test('a piece row carries its id, lead, text, identity, key and where it stands,
   assert.deepEqual(row, {
     id: `piece-${atom.identity.slice(3, 27)}`, kind: 'piece', says: 'Made-up lead', text: '**Made-up lead.** Then the rest.', identity: atom.identity,
     key: 'Made-up part / Made-up lead', sources: [{ file: 'made-up.md', section: 'Made-up part / Made-up lead', file_identity: '1f:' + 'a'.repeat(64), at: 3 }],
-    groups: [], kinds: [], checked_by: [],
+    tags: [], kinds: [], checked_by: [],
   });
   assert.equal(row.id.length, 'piece-'.length + 24);
   assert.equal('no_check' in row, false);

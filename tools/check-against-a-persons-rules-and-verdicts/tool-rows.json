@@ -986,7 +986,7 @@
     "label": "Split a document into its pieces",
     "status": "active",
     "job": "Split a document into its smallest self-contained pieces, each as the row a person keeps so every check can name the piece it came from",
-    "description": "Give the text of a document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block under its headings is one piece; titles, rules and table headers are not. Each piece comes back as the row a person keeps in their Checks list: id (piece- and the first 24 hex of its identity), kind piece, says (its lead: its bold opening or its first words), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line of the file where it starts), and empty groups, kinds and checked_by for the person to fill. The same text twice is one row with two sources. Nothing is read from or written to anyone's records.",
+    "description": "Give the text of a document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block under its headings is one piece; titles, rules and table headers are not. Each piece comes back as the row a person keeps in their Checks list: id (piece- and the first 24 hex of its identity), kind piece, says (its lead: its bold opening or its first words), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line of the file where it starts), and empty tags, kinds and checked_by for the person to fill. The same text twice is one row with two sources. Nothing is read from or written to anyone's records.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -1026,7 +1026,7 @@
          "identity",
          "key",
          "sources",
-         "groups",
+         "tags",
          "kinds",
          "checked_by"
         ],
@@ -1061,7 +1061,7 @@
            ]
           }
          },
-         "groups": {
+         "tags": {
           "type": "array"
          },
          "kinds": {
@@ -1405,7 +1405,7 @@
            "at": 1
           }
          ],
-         "groups": [],
+         "tags": [],
          "kinds": [],
          "checked_by": [
           "made-up-check"
@@ -1430,7 +1430,7 @@
            "at": 1
           }
          ],
-         "groups": [],
+         "tags": [],
          "kinds": [],
          "checked_by": [],
          "no_check": {
@@ -1456,7 +1456,7 @@
            "at": 1
           }
          ],
-         "groups": [],
+         "tags": [],
          "kinds": [],
          "checked_by": []
         }
