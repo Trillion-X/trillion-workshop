@@ -7,12 +7,11 @@ import test from 'node:test';
 import { lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { createFolderBindings } from '../do-work/folder-bindings.mjs';
 import { settingsOf as settings } from '../do-work/drive-sync-status.mjs';
 
-const identityOf = bytes => `1f:${bytesToHex(blake3(bytes))}`;
+const identityOf = bytes => makeHashCodeHexFromBytes(bytes);
 const text = value => Buffer.from(value);
 const IGNORED = ['._', '.DS_Store', '.Spotlight-V100', '.Trashes', '.fseventsd', '.hidden', '.metadata_never_index'];
 
