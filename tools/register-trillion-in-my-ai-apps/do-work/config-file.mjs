@@ -11,12 +11,14 @@
 //      never overwritten; the earlier bytes are kept as a private backup beside it, and the write is read back.
 //   2. Content identities are BLAKE3 (the declared identity owner), never SHA-256.
 import { randomUUID } from 'node:crypto';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
 import { closeSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
-export const hash = value => bytesToHex(blake3(typeof value === 'string' ? new TextEncoder().encode(value) : value));
+/** BLAKE3-256 of the bytes as 64 hex digits, from the one content-identity owner (its `1f:` prefix dropped). */
+const blake3Hex = bytes => makeHashCodeHexFromBytes(bytes).slice(3);
+
+export const hash = value => blake3Hex(typeof value === 'string' ? new TextEncoder().encode(value) : value);
 export const json = value => JSON.stringify(value, null, 2) + '\n';
 export const read = path => { try { return readFileSync(path, 'utf8'); } catch (error) { if (error.code === 'ENOENT') return null; throw error; } };
 export const stat = path => { try { return lstatSync(path); } catch (error) { if (error.code === 'ENOENT') return null; throw error; } };
