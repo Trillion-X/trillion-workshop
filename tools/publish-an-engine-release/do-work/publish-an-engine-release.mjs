@@ -13,12 +13,12 @@
 // a file, the environment, a log or the answer.
 //
 // usage: publish-an-engine-release.mjs publish REQUEST_FILE [--commit COMMIT] | make-key KEY_FILE | public-key KEY_FILE
-import { closeSync, createReadStream, createWriteStream, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, renameSync, rmdirSync, rmSync, statSync, writeSync } from 'node:fs';
-import { dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
+import { closeSync, createReadStream, createWriteStream, existsSync, fsyncSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, rmdirSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
-import { createGzip } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
-import { makeHashCodeHasher } from '../../content-identity/read-data/identity.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { addRelease, checkCommit, checkTarget, mayPublish, newSigningKey, publicKeyHex, readFeed, settings, signEntry } from './release-feed.mjs';
 
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
@@ -74,19 +74,22 @@ export async function hostTarget(rustc = 'rustc', env = process.env) {
   return checkTarget(host?.slice(6).trim());
 }
 
+/** The files under each of `paths` (relative to `root`) as tarGz entries, executable when the owner may run them;
+ *  a folder named in `skip` is left out, and anything but a file or a folder is refused. */
+export function filesUnder(root, paths, skip = []) {
+  return paths.flatMap(path => {
+    const status = lstatSync(join(root, path));
+    if (status.isDirectory()) return skip.includes(basename(path)) ? [] : filesUnder(root, readdirSync(join(root, path)).map(name => `${path}/${name}`), skip);
+    if (!status.isFile()) throw refuse(`${path} is neither a file nor a folder: a release holds only files.`);
+    return [{ name: path, bytes: readFileSync(join(root, path)), executable: Boolean(status.mode & 0o100) }];
+  });
+}
+
 /** Pack the program and product/ as tar.gz into `file`; answers { content, bytes }. */
-export async function packRelease({ program, source, file, mtime }) {
-  const tar = spawn('tar', ['--sort=name', '--owner=0', '--group=0', '--numeric-owner', `--mtime=@${mtime}`, '--mode=u+rwX,go+rX,go-w',
-    '-C', dirname(program), settings.binary, '-C', source, settings.product_folder, '-cf', '-'], { stdio: ['ignore', 'pipe', 'pipe'] });
-  const hasher = makeHashCodeHasher(), gzip = createGzip({ level: 9 }), out = createWriteStream(file, { mode: 0o644 });
-  let bytes = 0, err = '';
-  tar.stderr.on('data', chunk => { err = (err + chunk).slice(-4096); });
-  gzip.on('data', chunk => { hasher.update(new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength)); bytes += chunk.length; });
-  const tarDone = new Promise((resolve, reject) => { tar.on('error', reject); tar.on('close', code => (code === 0 ? resolve() : reject(refuse(`tar exited ${code}: ${err.trim()}`)))); });
-  const written = new Promise((resolve, reject) => { out.on('finish', resolve); out.on('error', reject); gzip.on('error', reject); });
-  tar.stdout.pipe(gzip).pipe(out);
-  await Promise.all([tarDone, written]);
-  return { content: hasher.identity(), bytes };
+export function packRelease({ program, source, file }) {
+  const packed = tarGz([...filesUnder(dirname(program), [settings.binary]), ...filesUnder(source, [settings.product_folder])]);
+  writeFileSync(file, packed, { mode: 0o644 });
+  return { content: makeHashCodeHexFromBytes(packed), bytes: packed.length };
 }
 
 /** The signing key, refused when anyone but its owner may read it. */
@@ -168,8 +171,7 @@ export async function publish(request, { token = '', commit: asked } = {}) {
 
   const file = tarballOf(feedFolder, commit, target), part = `${file}.${process.pid}.part`;
   mkdirSync(dirname(file), { recursive: true, mode: 0o755 });
-  const mtime = Number((await git(source, ['show', '-s', '--format=%ct', commit])).trim());
-  const { content, bytes } = await packRelease({ program, source, file: part, mtime });
+  const { content, bytes } = packRelease({ program, source, file: part });
   const entry = signEntry({ commit, sequence, target, url: `${request.base_url}${commit}/${target}.tar.gz`, content, bytes, urgent }, privateKey);
 
   return withFeedLock(feedFolder, async () => {
