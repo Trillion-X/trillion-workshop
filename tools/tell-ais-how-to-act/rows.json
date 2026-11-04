@@ -72,7 +72,8 @@
         "kind": "ai-instruction-fill",
         "id": "transcript_hook_apps",
         "source": "data",
-        "from": "harnesses",
+        "tool": "set-up-my-account",
+        "from": "read-data/harnesses.json",
         "array": "harnesses",
         "path": [
           "turns",
