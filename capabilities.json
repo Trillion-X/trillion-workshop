@@ -901,6 +901,7 @@
     {
       "capability": "watch the places a person follows (any site's feed, a YouTube channel, a blog, a changelog, a page, a best-seller or trending list) every hour, keep each new item once as a row of their list, weigh what is new against what they pursue and hand only what moves a pursuit to their AIs",
       "owner": ["tools/watch-my-sources/"],
+      "asked_as": ["watch sources like Product Hunt, Hacker News, a blog or a YouTube channel for new items every hour and keep the ones that move what I am pursuing"],
       "entry": "tools/watch-my-sources/tool-rows.json",
       "evidence": "tools/watch-my-sources/README.md: moved from Trillion-X/trillion src/watch-sources.mjs (2e57d9a49b); the places are rows of the person's signal-sources list, items rows of signals, a ranked list's ranks rows of ranked-items; a source's first read is a quiet baseline; the weighing question and the arrivals are handed to the AI that runs tool:watch-my-sources; Trillion's in-account run imports the same module",
       "distinct_from": [
