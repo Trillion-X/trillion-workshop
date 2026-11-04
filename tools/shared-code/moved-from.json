@@ -335,6 +335,13 @@
       "identity": "1f:40173bd2e2572045e4f39d8716444a6121a7d7a0f87ed4e8452aa257693c769f"
     },
     {
+      "from": "src/native-local-command-receipts.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/native-local-command-receipts.mjs",
+      "source_identity": "1f:2339cd3ffa8f3662a0b478051607076a3536ad56d8c0c3312bb7e290efea5aad",
+      "identity": "1f:fa76bcaca9fb3165ae6b4eb92e035c743314da1b504897a01b3d4cad67956992"
+    },
+    {
       "from": "src/network-identity.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/network-identity.json",
