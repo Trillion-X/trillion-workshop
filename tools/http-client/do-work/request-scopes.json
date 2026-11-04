@@ -1,0 +1,15 @@
+{
+  "_what": "How a request template becomes a request (do-work/request-scopes.mjs). `open` and `close` bracket a placeholder. `scope_order` is the default order of scope names, first holding a value wins; a caller may give its own ordered list. Secrets are always the last scope, so no ordinary variable can hide one. `mask` replaces a secret's value in anything kept or shown. A new delimiter, order or word is a row here.",
+  "open": "{{",
+  "close": "}}",
+  "scope_order": ["local", "data", "environment", "collection", "global"],
+  "mask": "[held value]",
+  "name_pattern": "^[A-Za-z_][A-Za-z0-9_.\\-]*$",
+  "request_url_field": "url",
+  "response_event_keys": ["response"],
+  "words": {
+    "secret_host_unbound": "The secret {name} is bound to {hosts} and the request goes to {host}, so it was not placed.",
+    "secret_url_unreadable": "The secret {name} was not placed: the request's address could not be read as one host.",
+    "secret_moved_host": "The secret {name} was not placed: placing it would change where the request goes."
+  }
+}

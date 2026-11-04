@@ -1,0 +1,9 @@
+[
+  {"id":"search","label":"Search","fields":["search"]},
+  {"id":"rules","label":"Filters","fields":["rules"]},
+  {"id":"sort","label":"Sorting","fields":["sort"]},
+  {"id":"groups","label":"Grouping","fields":["groups"]},
+  {"id":"columns","label":"Columns","fields":["columns"]},
+  {"id":"time","label":"Time range and time zone","fields":["time","time_zone"]},
+  {"id":"display","label":"Layout and display settings","fields":["display"]}
+]

@@ -1,0 +1,201 @@
+{
+  "what_this_is": "How panes size and snap, as DATA. A person can drag a pane's edge down to drag_minimum_px along its split (so it slides nearly out of the way at every screen size); its screen is still laid out at content_minimum_width_px by content_minimum_height_px and the pane shows the part that fits, its cut edges fading out over cut_fade_px so a squashed pane reads as tucked away rather than broken. The sidebar's fit (parts/sidebar/read-data/docked-list-fit.ts) keeps the work at least content_minimum_width_px wide. A new pane splitting another takes new_pane_share_percent of it; a pane added beside or below another opens at added_pane_width_px or added_pane_height_px while every pane keeps the size it has (the arrangement scrolls), and a dragged edge snaps to snap_points_percent of its split when within snap_within_px, settling over snap_ease_ms; a pane's own height in a row (or width in a stack) snaps the same way to points of the split's height. The arrow keys move a pane edge to the next snap point while snapping is on, else by arrow_step_px (arrow_big_step_px with Shift). `defaults` is what every person starts with; `sections` are the settings rows the Panes settings draw with the shared TuningPanel. A person's own choice is their workspace preference screen-arrangement.pane-sizes and wins key by key.",
+  "defaults": {
+    "drag_minimum_px": 20,
+    "content_minimum_width_px": 320,
+    "content_minimum_height_px": 240,
+    "cut_fade_px": 28,
+    "new_pane_share_percent": 50,
+    "snap_on": true,
+    "snap_within_px": 16,
+    "snap_points_percent": [
+      "25",
+      "33.333",
+      "50",
+      "66.667",
+      "75"
+    ],
+    "snap_ease_ms": 160,
+    "added_pane_width_px": 480,
+    "added_pane_height_px": 360,
+    "arrow_step_px": 16,
+    "arrow_big_step_px": 64
+  },
+  "sections": [
+    {
+      "id": "size",
+      "title": "Size",
+      "settings": [
+        {
+          "key": "drag_minimum_px",
+          "label": "Narrowest you can drag a pane",
+          "widget": "slider",
+          "min": 20,
+          "max": 640,
+          "step": 4,
+          "unit": "px",
+          "default_value": 20
+        },
+        {
+          "key": "content_minimum_width_px",
+          "label": "Screens keep their layout down to",
+          "widget": "slider",
+          "min": 200,
+          "max": 800,
+          "step": 8,
+          "unit": "px",
+          "default_value": 320,
+          "note": "Narrower panes show the part that fits"
+        },
+        {
+          "key": "content_minimum_height_px",
+          "label": "Shortest screen layout",
+          "widget": "slider",
+          "min": 120,
+          "max": 600,
+          "step": 8,
+          "unit": "px",
+          "default_value": 240
+        },
+        {
+          "key": "cut_fade_px",
+          "label": "Cut edge fades over",
+          "widget": "slider",
+          "min": 0,
+          "max": 80,
+          "step": 2,
+          "unit": "px",
+          "default_value": 28
+        },
+        {
+          "key": "new_pane_share_percent",
+          "label": "A new pane takes",
+          "widget": "slider",
+          "min": 20,
+          "max": 80,
+          "step": 1,
+          "unit": "%",
+          "default_value": 50,
+          "note": "Of the pane it splits"
+        },
+        {
+          "key": "added_pane_width_px",
+          "label": "A pane added beside is",
+          "widget": "slider",
+          "min": 160,
+          "max": 1600,
+          "step": 8,
+          "unit": "px",
+          "default_value": 480,
+          "note": "Your pane keeps its width"
+        },
+        {
+          "key": "added_pane_height_px",
+          "label": "A pane added below is",
+          "widget": "slider",
+          "min": 120,
+          "max": 1200,
+          "step": 8,
+          "unit": "px",
+          "default_value": 360,
+          "note": "Your pane keeps its height"
+        }
+      ]
+    },
+    {
+      "id": "snapping",
+      "title": "Snapping",
+      "settings": [
+        {
+          "key": "snap_on",
+          "label": "Snap while dragging",
+          "widget": "toggle",
+          "default_value": true
+        },
+        {
+          "key": "snap_points_percent",
+          "label": "Snap to",
+          "widget": "many",
+          "options": [
+            {
+              "value": "20",
+              "label": "1/5"
+            },
+            {
+              "value": "25",
+              "label": "1/4"
+            },
+            {
+              "value": "33.333",
+              "label": "1/3"
+            },
+            {
+              "value": "50",
+              "label": "1/2"
+            },
+            {
+              "value": "66.667",
+              "label": "2/3"
+            },
+            {
+              "value": "75",
+              "label": "3/4"
+            },
+            {
+              "value": "80",
+              "label": "4/5"
+            }
+          ]
+        },
+        {
+          "key": "snap_within_px",
+          "label": "Snaps when this close",
+          "widget": "slider",
+          "min": 2,
+          "max": 64,
+          "step": 1,
+          "unit": "px",
+          "default_value": 16
+        },
+        {
+          "key": "snap_ease_ms",
+          "label": "Snap softness",
+          "widget": "slider",
+          "min": 0,
+          "max": 400,
+          "step": 10,
+          "unit": "ms",
+          "default_value": 160,
+          "note": "0 snaps at once"
+        }
+      ]
+    },
+    {
+      "id": "keys",
+      "title": "Keys",
+      "settings": [
+        {
+          "key": "arrow_step_px",
+          "label": "Arrow keys move an edge by",
+          "widget": "slider",
+          "min": 1,
+          "max": 160,
+          "step": 1,
+          "unit": "px",
+          "default_value": 16,
+          "note": "While snapping is off; on, they move to the next snap point"
+        },
+        {
+          "key": "arrow_big_step_px",
+          "label": "With Shift held",
+          "widget": "slider",
+          "min": 8,
+          "max": 480,
+          "step": 4,
+          "unit": "px",
+          "default_value": 64
+        }
+      ]
+    }
+  ]
+}

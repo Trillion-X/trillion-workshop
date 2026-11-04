@@ -1,0 +1,32 @@
+{
+  "_what": "How a sidebar row shows its live badge (parts/ui/show/surface-badges), by what the badge counts (its `kind`, which the publisher names: `count` for things that are new, `notification` for unread notifications, `note` for the count on a note the person's AI left there) and whether the row shows its name (`with_label`, the open sidebar) or only its icon (`icon_only`, the collapsed sidebar and the controls). A mark is `number` (the badge's words in the quiet grey pill), `dot` (a small red dot, no number) or `none`. Red is kept for notifications, so a count shows no mark on a collapsed row. A kind with no row here, and a row's fixed `badge` from its DATA, use `fallback`. Read by sidebar-badge-marks.ts. A `dot` takes the badge's `tone` when it has one (`dot_status_by_tone`: a plain tone word to the dot's colour), so a state that is not a notification (working offline, changes waiting) is not drawn red; with no tone it is red.",
+  "fallback": {
+    "with_label": "number",
+    "icon_only": "none"
+  },
+  "kinds": {
+    "count": {
+      "with_label": "number",
+      "icon_only": "none"
+    },
+    "notification": {
+      "with_label": "number",
+      "icon_only": "dot"
+    },
+    "note": {
+      "with_label": "number",
+      "icon_only": "dot"
+    },
+    "catch-up": {
+      "with_label": "dot",
+      "icon_only": "dot"
+    }
+  },
+  "dot_status_by_tone": {
+    "good": "success",
+    "attention": "warning",
+    "bad": "error",
+    "info": "info",
+    "quiet": "idle"
+  }
+}

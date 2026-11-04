@@ -1,0 +1,6 @@
+{
+  "_what": "How an edit session is kept (edit-command-log.mjs): every change is a typed command, appended to a log before it is shown as done; a snapshot of the whole session (the state and its undo and redo history) is written every `snapshot_every` commands; a session reopened is the newest snapshot with the commands after it replayed. `most_undo` is how many steps back an undo can go. `marks` are the log entries that are not edits (undo, redo), named here so a store can be read without the code.",
+  "snapshot_every": 20,
+  "most_undo": 100,
+  "marks": { "undo": "$undo", "redo": "$redo" }
+}

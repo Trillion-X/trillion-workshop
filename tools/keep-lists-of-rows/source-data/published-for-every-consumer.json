@@ -1,0 +1,49 @@
+{
+  "_what": "The records the visual-database package publishes for every screen that shows a Visual Database of its own (OwnerBoundVisualDatabaseSurface): its input descriptors and the records they read, copied unchanged from the package's things-to-store-and-run.json, whose other rows are the Bitfield runtime's and are not ported. A consumer's screen shows them through src/workspace/part-records.ts partManifestInputValues.",
+  "package": "visual-database",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::visual-database::input::mutation-settlement-policy",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "mutationSettlementPolicy",
+        "value_address_label": "visual-database.mutation-settlement-policy",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.mutation-settlement-policy",
+      "live_write_policy": "seed-only",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "genesis"
+      ],
+      "payload": {
+        "kind": "mutation-settlement.policy-set",
+        "schema_version": 1,
+        "active_revision": "visual-database-mutation-settlement-r1",
+        "descriptors": [
+          {
+            "revision": "visual-database-mutation-settlement-r1",
+            "timeout_ms": 5000,
+            "poll_interval_ms": 40
+          }
+        ]
+      },
+      "remove": false
+    }
+  ]
+}
