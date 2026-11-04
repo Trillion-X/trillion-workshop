@@ -11,6 +11,9 @@ A person's records kept on their own device: the same record store (`parts/recor
 | `do-work/device-copy-worker.mjs` | The worker a page starts: opens the person's copy in the private file system and answers the page's messages (read, ids, find, settle, state, and the sealed-record calls: sealing, unlock, lock, seal, unseal, open_sealed, find_sealed, with the sealing key kept only in the worker's memory); a settle sends bounded, replay-safe batches to the hosted store and keeps the copy's position in the copy itself |
 | `do-work/account-copy.mjs` | Account-specific browser database locations and authenticated sync transport; authorization refusals close access and abort pending requests |
 | `do-work/frame-compression.mjs` + `do-work/frame-dictionaries.json` | A settle upload compressed (deflate) against a sample of settle JSON in DATA, the sample named by its BLAKE3 hash in the frame headers; `compressFrame(text)` → `{ body, headers }` or null (send plain), `expandFrame(body, headers, { max_expanded_bytes })` expands only to the size the frame declared and refuses a frame with no size, an unknown dictionary, a wrong size or too many bytes. `account-copy.mjs` sends large batches this way and `src/browser-record-copy.mjs` `browserRecordCopyBody` reads them for `/work/records/settle`; a plain post is still read |
+| `do-work/pack-a-settle-upload.mjs` | `packSettleUpload({ account, request })`: where one account's copy is kept and the exact upload one settle batch would be (frame or plain, headers, sizes, body), with nothing opened or sent (what `tool-rows.json` runs) |
+| `tool-rows.json` | The row `tool:pack-my-device-copys-settle-upload`, with a sample run whose twelve-note batch goes as a compressed frame |
+| `moved-from.json` | Where `do-work/frame-compression.mjs` came from (old trillion `parts/device-copy/`, byte for byte) |
 | `README.md` | This file |
 
 ## Key Types / Functions

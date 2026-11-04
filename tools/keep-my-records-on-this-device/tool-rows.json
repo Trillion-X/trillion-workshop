@@ -1,0 +1,409 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-my-records-on-this-device",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:pack-my-device-copys-settle-upload",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Pack my device copy's settle upload",
+        "job": "Work out what my device's copy of my records would send when it settles with my account: where the account's copy is kept on the device and the exact upload for one batch, compressed when that makes it smaller",
+        "description": "Give account (the signed-in account name, 1 to 256 characters) and request (one settle batch as a JSON object, the shape record-sync.mjs sends: copy, root, took_through, rows). Answers location (the private-file-system directory the account's copy is kept under, the account name's bytes in hex so two accounts never share one, and the file name records.sqlite3), sends (frame or plain), headers (content type, the x-trillion-device-account header, and for a frame its dictionary BLAKE3 id and exact expanded size), plain_bytes, sent_bytes, body (plain text) or body_base64 (the deflate frame, compressed against the sample of settle JSON in do-work/frame-dictionaries.json) and expands_back (the frame expands to exactly the batch). A batch under 1024 bytes, or one that would not shrink, goes plain. Refuses an empty, non-text or over-long account and a request that is not an object. It reads only its input: it opens no database, keeps nothing on any device, sends nothing and settles nothing. The screen's other work (the SQLite copy in the browser's private file system that survives reloads and reads offline, the outbox of small writes, the settle itself with the hosted store and sealed records) needs a browser worker and @sqlite.org/sqlite-wasm and is not done by this run.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "account",
+            "request"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "request": {
+              "type": "object",
+              "properties": {
+                "copy": {
+                  "type": "string"
+                },
+                "root": {
+                  "type": "string"
+                },
+                "took_through": {},
+                "rows": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "location",
+            "sends",
+            "headers",
+            "plain_bytes",
+            "sent_bytes",
+            "expands_back"
+          ],
+          "properties": {
+            "location": {
+              "type": "object",
+              "required": [
+                "directory",
+                "name"
+              ],
+              "properties": {
+                "directory": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            },
+            "sends": {
+              "type": "string",
+              "enum": [
+                "frame",
+                "plain"
+              ]
+            },
+            "headers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "plain_bytes": {
+              "type": "integer"
+            },
+            "sent_bytes": {
+              "type": "integer"
+            },
+            "body": {
+              "type": "string"
+            },
+            "body_base64": {
+              "type": "string"
+            },
+            "expands_back": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/keep-my-records-on-this-device",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-my-records-on-this-device/do-work/pack-a-settle-upload.mjs",
+            "packSettleUpload"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-my-records-on-this-device",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/keep-my-records-on-this-device"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "fflate",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "esm/index.mjs",
+                  "esm/browser.js"
+                ],
+                "at": "/opt/node_modules/fflate"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/device-copy/do-work/account-copy.mjs and frame-compression.mjs (frame-compression.mjs brought in byte for byte from 4ffa1dc4a2^, see moved-from.json; the folder moved in a9ee258 (#76)); old capability row capabilities.json:134 at 4ffa1dc4a2^ (keep a working copy of my records on this device ... settles with the account later)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account": "sample-person",
+              "request": {
+                "copy": "device-1",
+                "root": "0123456789abcdef",
+                "took_through": null,
+                "rows": [
+                  {
+                    "id": "01a15709-3f0a-7019-81df-90cabc197099",
+                    "envelopes": [
+                      {
+                        "id": "note:0",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 0",
+                          "text": "Words of note 0 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:20.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000000",
+                        "floor": "01a157093f040000000",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:1",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 1",
+                          "text": "Words of note 1 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:21.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000001",
+                        "floor": "01a157093f040000001",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:2",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 2",
+                          "text": "Words of note 2 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:22.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000002",
+                        "floor": "01a157093f040000002",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:3",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 3",
+                          "text": "Words of note 3 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:23.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000003",
+                        "floor": "01a157093f040000003",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:4",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 4",
+                          "text": "Words of note 4 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:24.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000004",
+                        "floor": "01a157093f040000004",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:5",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 5",
+                          "text": "Words of note 5 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:25.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000005",
+                        "floor": "01a157093f040000005",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:6",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 6",
+                          "text": "Words of note 6 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:26.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000006",
+                        "floor": "01a157093f040000006",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:7",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 7",
+                          "text": "Words of note 7 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:27.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000007",
+                        "floor": "01a157093f040000007",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:8",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 8",
+                          "text": "Words of note 8 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:28.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000008",
+                        "floor": "01a157093f040000008",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:9",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 9",
+                          "text": "Words of note 9 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:29.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000009",
+                        "floor": "01a157093f040000009",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:10",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 10",
+                          "text": "Words of note 10 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:30.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000010",
+                        "floor": "01a157093f040000010",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:11",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 11",
+                          "text": "Words of note 11 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:31.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000011",
+                        "floor": "01a157093f040000011",
+                        "prior": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "output_selector": "$.sends",
+            "contains": "frame"
+          }
+        ]
+      }
+    }
+  ]
+}
