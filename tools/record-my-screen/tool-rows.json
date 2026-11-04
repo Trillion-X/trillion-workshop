@@ -1,0 +1,235 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:record-my-screen",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:rebuild-a-screen-recording-from-its-chunks",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Rebuild a screen recording from its chunks",
+        "job": "Keep a screen recording's chunks in order as they are recorded and rebuild the finished recording from them, with the file reference it is published with",
+        "description": "Give chunks ([{ base64 } or { text }] in the order they were recorded; at most 1000 and 8 MB in all), and optionally recording_id (screen-record:<words>; one is made when left out), media_type (video/webm when left out) and observed_at (the ISO time each chunk is stamped with). Each chunk is kept through the folder's own store (do-work/recorded-file-store.ts) under the key the browser uses (<recording_id>:chunk:<sequence>), in a stand-in IndexedDB held only in this run's memory; then the file reference a finished recording is published with (kind local-playback.indexeddb-chunks, database, store, chunk_refs, media_type, byte_length) is built and the recording read back in order. Answers file, kept_keys and rebuilt ({ byte_length, media_type, identity: 1f: and the BLAKE3 hex of the rebuilt bytes, matches_chunks }). Refuses no chunks, a chunk with neither base64 nor text, too many chunks or bytes, and a recording_id or media_type of another shape. It captures no screen, keeps nothing in any browser once the run ends, and saves, names, removes or publishes no recording. The screen's other work (asking for the screen through getDisplayMedia, the recording panel, and publishing through the workflow actions in screen-recording-requests.ts, which needs the workspace's request sender) needs a browser and is not done by this run.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "chunks"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "recording_id": {
+              "type": "string",
+              "pattern": "^screen-record:[A-Za-z0-9._-]{1,128}$"
+            },
+            "media_type": {
+              "type": "string"
+            },
+            "observed_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "chunks": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1000,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "base64": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "file",
+            "kept_keys",
+            "rebuilt"
+          ],
+          "properties": {
+            "file": {
+              "type": "object",
+              "required": [
+                "kind",
+                "database",
+                "store",
+                "recording_id",
+                "chunk_refs",
+                "media_type",
+                "byte_length"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "database": {
+                  "type": "string"
+                },
+                "store": {
+                  "type": "string"
+                },
+                "recording_id": {
+                  "type": "string"
+                },
+                "chunk_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "byte_length"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "byte_length": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "media_type": {
+                  "type": "string"
+                },
+                "byte_length": {
+                  "type": "integer"
+                }
+              }
+            },
+            "kept_keys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rebuilt": {
+              "type": "object",
+              "required": [
+                "byte_length",
+                "media_type",
+                "identity",
+                "matches_chunks"
+              ],
+              "properties": {
+                "byte_length": {
+                  "type": "integer"
+                },
+                "media_type": {
+                  "type": "string"
+                },
+                "identity": {
+                  "type": "string"
+                },
+                "matches_chunks": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/record-my-screen",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/record-my-screen/do-work/rebuild-a-recording-from-chunks.mjs",
+            "rebuildARecordingFromChunks"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "record-my-screen",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/record-my-screen"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/screen-recording/do-work/recorded-file-store.ts, moved in a9ee258 (#76); old capability row capabilities.json:97 at 4ffa1dc4a2^ (record my screen from the browser, keep chunks safely while recording and publish the finished recording)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "recording_id": "screen-record:sample-demo",
+              "media_type": "video/webm",
+              "observed_at": "2026-11-04T10:00:00Z",
+              "chunks": [
+                {
+                  "text": "first piece of a made-up recording "
+                },
+                {
+                  "base64": "AAECAwQFBgcICQ=="
+                },
+                {
+                  "text": "last piece"
+                }
+              ]
+            },
+            "output_selector": "$.rebuilt.byte_length",
+            "at_least": 55
+          }
+        ]
+      }
+    }
+  ]
+}
