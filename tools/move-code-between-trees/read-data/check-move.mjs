@@ -101,6 +101,19 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
           }
           if (!isRelative(was[at].specifier) && !alias(was[at].specifier)) { if (was[at].specifier !== is[at].specifier) problems.push(`${file.to} imports ${is[at].specifier} where ${file.from} imported ${was[at].specifier}`); continue; }
           const target = targetOf(file.from, was[at].specifier, tree.exists, alias);
+          // A file whose home is in a package the destination depends on: the import names that home, and the home,
+          // resolved from the moved file through the installed package, is the source file once import paths are set aside.
+          const home = target && file.homes?.[target];
+          if (home) {
+            if (is[at].specifier !== home) { problems.push(`${file.to} imports ${is[at].specifier} where its receipt says ${target} is home at ${home}`); continue; }
+            let resolved = null;
+            try { resolved = createRequire(join(destinationFolder, file.to)).resolve(home); } catch { /* not installed */ }
+            if (!resolved) { problems.push(`${file.to}: ${home} (home of ${target}) does not resolve from here: install the package`); continue; }
+            const homeText = readFileSync(resolved, 'utf8');
+            const sourceText = tree.read(target).toString('utf8');
+            if (isCode(target) ? withoutRequests(homeText) !== withoutRequests(sourceText) : homeText !== sourceText) problems.push(`${file.to}: ${home} is not ${target} at ${file.commit.slice(0, 10)} beyond its import paths`);
+            continue;
+          }
           const expected = target && (landing.get(`${file.commit}:${target}`) ?? null);
           const reached = resolveRequest(file.to, is[at].specifier, destinationExists);
           if (target && (expected ? !expected.includes(reached) : reached !== null)) problems.push(`${file.to}: ${is[at].specifier} reaches ${reached ?? 'nothing'}, where ${file.from} reached ${target} (now ${expected?.join(' or ') ?? 'not moved'})`);
