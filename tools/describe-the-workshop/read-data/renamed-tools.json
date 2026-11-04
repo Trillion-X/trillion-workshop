@@ -1,0 +1,65 @@
+{
+  "_what": "Tools, agents and Marketplace configurations renamed so a device is never part of a tool's identity. Each key is a former id and each value its current id. The server and the computer program read this so a device app released before the rename, and installs saved before it, keep working. Every use of a former tool or agent id that reaches the server (an agent card, a take, a live connection naming it) is counted operator-wide as a former_id_used event (records/interactions.json), at most once per `note_every_minutes` per isolate. Once a tool or agent row has had no use for `quiet_days`, counted from `counted_since`, the service watch former-names-retire (src/service-watch.json) hands the operator's AIs one job to delete it, so no one has to remember. Configuration and placement rows are read from saved rows and shared packages, not from a device, so they are not counted and are removed by hand once no saved row names them.",
+  "counted_since": "2026-10-10",
+  "quiet_days": 30,
+  "note_every_minutes": 60,
+  "tools": {
+    "tool:ask-a-model-on-this-mac": "tool:ask-a-model",
+    "tool:get-models-for-this-mac": "tool:get-free-models",
+    "tool:hear-a-recording-on-this-mac": "tool:hear-a-recording",
+    "tool:hear-a-link-on-this-mac": "tool:hear-a-link",
+    "tool:speak-on-this-mac": "tool:say-with-a-voice-model",
+    "tool:voices-on-this-mac": "tool:voices",
+    "tool:listen-on-this-mac": "tool:listen",
+    "tool:people-this-mac-knows": "tool:people-listening-can-name",
+    "tool:enroll-someone-on-this-mac": "tool:enroll-someone",
+    "tool:hold-this-mac": "tool:hold-a-device-quiet",
+    "tool:release-this-mac": "tool:release-a-device",
+    "tool:holds-on-this-mac": "tool:device-holds",
+    "tool:focus-on-this-mac": "tool:focus",
+    "tool:manage-harness-on-this-mac": "tool:manage-harness",
+    "tool:printers-on-this-mac": "tool:printers",
+    "tool:print-on-this-mac": "tool:print",
+    "tool:read-this-mac": "tool:read-a-computer",
+    "tool:carry-connections-on-this-mac": "tool:carry-connections",
+    "tool:trillion-media-drives": "tool:list-connected-drives",
+    "tool:trillion-media-drive-folder": "tool:list-a-drive-folder",
+    "tool:trillion-media-drive-holders": "tool:name-what-holds-a-drive",
+    "tool:trillion-media-drive-kinds": "tool:see-what-is-on-a-drive",
+    "tool:trillion-media-drive-icon": "tool:get-a-drive-icon"
+  },
+  "agents": {
+    "this-mac-tools": "computer-tools"
+  },
+  "agent_prefixes": {
+    "this-mac-tools:": "computer-tools:"
+  },
+  "configurations": {
+    "trillion-this-mac": "trillion-your-computer"
+  },
+  "placements": {
+    "placement:your-mac": "placement:your-computer"
+  },
+  "operations": {
+    "_what": "MCP operations merged into another: an AI or app that still calls the former name is answered by the current one. input_names renames the caller's arguments, input fills arguments it did not give, answer_names renames keys of the answer, and row_fills gives every row of a renamed list a field it lacks from another of its fields.",
+    "list_spaces": {
+      "to": "list_pursuits",
+      "input": {
+        "limit": 100
+      },
+      "answer_names": {
+        "pursuits": "spaces"
+      },
+      "row_fills": {
+        "space_id": "id",
+        "pursuit_id": "id"
+      }
+    },
+    "archive_space": {
+      "to": "archive_pursuit",
+      "input_names": {
+        "space_id": "pursuit_id"
+      }
+    }
+  }
+}

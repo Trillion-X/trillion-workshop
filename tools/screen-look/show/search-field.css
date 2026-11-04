@@ -1,0 +1,48 @@
+/* packages/screen-look/show/search-field.css
+ *
+ * The look of ui/show/search-field: a magnifier inside the start of the box,
+ * the box on the same surface, border and radius as the toolbar controls
+ * beside it (ui/show/expandable-tabs sm: --glass-bg-subtle, --border-primary,
+ * 12px), so a search in a toolbar reads as one of its controls rather than a
+ * lighter patch. Reference anatomy: 21st.dev 27914 (search with leading
+ * icon), Dropbox Dash search.
+ */
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.search-field-icon {
+  position: absolute;
+  inset-inline-start: 10px;
+  z-index: 1;
+  pointer-events: none;
+  color: var(--t-font-color-light, var(--muted-foreground));
+}
+
+.search-field > [data-slot='input-control'] {
+  border-color: var(--border-primary, var(--border));
+  border-radius: 12px;
+  background-color: var(--glass-bg-subtle, transparent);
+  box-shadow: none;
+}
+
+.search-field > [data-slot='input-control']::before {
+  display: none;
+}
+
+.search-field > [data-slot='input-control']:hover {
+  background-color: var(--glass-bg-hover, var(--glass-bg-subtle));
+}
+
+.search-field [data-slot='input'] {
+  padding-inline-start: 30px;
+  text-overflow: ellipsis;
+}
+
+.search-field[data-size='sm'] [data-slot='input'] {
+  height: 32px;
+  line-height: 32px;
+}

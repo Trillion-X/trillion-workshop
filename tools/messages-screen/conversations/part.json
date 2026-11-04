@@ -1,0 +1,8 @@
+{
+  "public": [
+    "do-work/addressed-exchange-owner-actions.ts",
+    "read-data/build-conversation-projections.ts",
+    "read-data/record-projection.ts",
+    "read-data/use-conversation-projections.ts"
+  ]
+}

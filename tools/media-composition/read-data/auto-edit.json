@@ -1,0 +1,11 @@
+{
+  "_what": "How a recording's kept transcript becomes cut proposals as typed lines (auto-edit.mjs). `algorithm_version` is written with every kept answer, so changing the rules below means raising it and no earlier answer is shown as current. `fillers` is the word list the filler mode strips (a DATA edit adds one). `proposal_kind` is the edit decision each span becomes. `words` is what the status and thinking lines say; {count} is how many timed words were read, {spans} how many cuts were found, {seconds} how long they are together. The modes themselves (silent_pauses, filler_words and any added) are rows in suggestion-stream.json.",
+  "algorithm_version": 1,
+  "proposal_kind": "remove-span",
+  "fillers": ["um", "umm", "uh", "uhh", "er", "err", "ah", "ahh", "hmm", "mmm", "like", "basically", "literally", "actually", "you know"],
+  "most_words": 200000,
+  "words": {
+    "reading": "Reading {count} timed words",
+    "found": "Found {spans} cuts, {seconds} seconds in all"
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:pick-a-screen-as-you-type",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:pick-a-screen-for-typed-words",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Pick the screen for what I am typing",
+        "job": "Pick, as a person types, the screen that already does what their words ask from the screens they are offered, the interfaces made for them and the screens they kept, with no model, and keep the shown screen calm",
+        "description": "Give words (what is typed so far) and the catalog: rows (offered screens, each { id, label, description?, asked?, source? }), made (interfaces, each { interface_id, title, intent }) and asks (kept screens, each { id, words, screen, input? }). memory is the last call's memory (omit it the first time). Answers picks (ranked, each with its entry and score) and memory: shown is the screen to show, which a challenger replaces only after winning twice in a row or with a certain score. Weights, thresholds and bounds are src/instant-screens.json; it names no screen.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "words"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "words": {
+              "type": "string"
+            },
+            "rows": {
+              "type": "array"
+            },
+            "made": {
+              "type": "array"
+            },
+            "asks": {
+              "type": "array"
+            },
+            "memory": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "picks": {
+              "type": "array"
+            },
+            "memory": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/pick-a-screen-as-you-type",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pick-a-screen-as-you-type/do-work/pick-a-screen-as-you-type.mjs",
+            "pickAScreenForWords"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pick-a-screen-as-you-type",
+                "paths": [
+                  "do-work",
+                  "src"
+                ],
+                "at": "/opt/pick-a-screen-as-you-type"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/instant-screens.mjs, src/input-parsers.mjs, src/word-match.mjs at b92aa549f23873750ec918e86e7ed3896c9c4c0c, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "words": "focus timer",
+              "rows": [
+                {
+                  "id": "tool:focus-timer",
+                  "label": "Focus timer",
+                  "description": "Counts down a focus session"
+                }
+              ]
+            },
+            "output_selector": "$.memory.shown.entry.screen",
+            "contains": "tool:focus-timer"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:pick-a-screen-as-you-type",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:fill-screen-inputs-from-words",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Fill a screen's inputs from my words",
+        "job": "Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model",
+        "description": "Give schema (the screen's input schema, { properties }), words, and now (the device's time, ISO) for words like tomorrow or in 20 minutes; used ([[start, end]]) are the spans of the words that picked the screen, which are not values; choices names labels for enum values. Answers values (only what the words give and the schema accepts; anything uncertain is left for the person) with how each was read. Parsers and their words are src/input-parsers.json.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "schema",
+            "words"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "schema": {
+              "type": "object"
+            },
+            "words": {
+              "type": "string"
+            },
+            "now": {
+              "type": "string"
+            },
+            "used": {
+              "type": "array"
+            },
+            "choices": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "values": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/pick-a-screen-as-you-type",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pick-a-screen-as-you-type/do-work/pick-a-screen-as-you-type.mjs",
+            "fillInputsFromWords"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pick-a-screen-as-you-type",
+                "paths": [
+                  "do-work",
+                  "src"
+                ],
+                "at": "/opt/pick-a-screen-as-you-type"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/instant-screens.mjs, src/input-parsers.mjs, src/word-match.mjs at b92aa549f23873750ec918e86e7ed3896c9c4c0c, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "schema": {
+                "properties": {
+                  "seconds": {
+                    "type": "number"
+                  }
+                }
+              },
+              "words": "timer 25 min"
+            },
+            "output_selector": "$.values.seconds",
+            "contains": "1500"
+          }
+        ]
+      }
+    }
+  ]
+}

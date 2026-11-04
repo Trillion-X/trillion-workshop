@@ -1,0 +1,143 @@
+{
+  "kind": "tool-rows",
+  "record_set": "take-pictures-out-of-a-zip-archive-tool-rows",
+  "what_this_is": "The Workshop rows of tools/take-pictures-out-of-a-zip-archive.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:take-pictures-out-of-a-zip-archive",
+        "label": "Take the pictures out of a zip archive",
+        "status": "active",
+        "job": "Take the pictures out of a zip archive as files to import, without ever unpacking it to disk by entry name",
+        "description": "Give zip_base64 (the archive's bytes), and when wanted profile (chat_export: the conversations*.json files of an account export) or limits (max_entries, max_entry_bytes, max_total_bytes, max_ratio, media_types, title_prefix). Only entries of an admitted extension are read; archive litter (__MACOSX, ._ files, .DS_Store, Thumbs.db) and folders never are. An entry's name is never a path: it gives only a title (its last segment without the extension). An archive over a limit is refused whole, naming the limit. Returns entries [{ title, media_type, byte_count, bytes_base64 }] in archive order and count.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "zip_base64"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "zip_base64": {
+              "type": "string",
+              "minLength": 1
+            },
+            "profile": {
+              "type": "string"
+            },
+            "limits": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "entries",
+            "count"
+          ],
+          "properties": {
+            "entries": {
+              "type": "array"
+            },
+            "count": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/take-pictures-out-of-a-zip-archive",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-pictures-out-of-a-zip-archive/do-work/take-pictures-out.mjs",
+            "takePicturesOut"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "take-pictures-out-of-a-zip-archive",
+                "paths": [
+                  "src",
+                  "do-work"
+                ],
+                "at": "/opt/take-pictures-out-of-a-zip-archive"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "fflate",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "esm/index.mjs",
+                  "esm/browser.js"
+                ],
+                "at": "/opt/node_modules/fflate"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:take-pictures-out-of-a-zip-archive",
+        "provenance": {
+          "source": "Trillion-X/trillion src/archive-entries.mjs at b92aa549f23873750ec918e86e7ed3896c9c4c0c, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "zip_base64": "UEsDBBQAAAAIAPWzY10Lp5HHCQAAAAcAAAARAAAAaG9saWRheS9iZWFjaC5wbmfrDPBzZ2RiBgBQSwMEFAAAAAgA9bNjXRvfBaUDAAAAAQAAAA4AAABfX01BQ09TWC94LnBuZ2MEAFBLAQIUABQAAAAIAPWzY10Lp5HHCQAAAAcAAAARAAAAAAAAAAAAAAAAAAAAAABob2xpZGF5L2JlYWNoLnBuZ1BLAQIUABQAAAAIAPWzY10b3wWlAwAAAAEAAAAOAAAAAAAAAAAAAAAAADgAAABfX01BQ09TWC94LnBuZ1BLBQYAAAAAAgACAHsAAABnAAAAAAA="
+            },
+            "output_selector": "$.entries",
+            "contains": "beach"
+          }
+        ]
+      }
+    }
+  ]
+}

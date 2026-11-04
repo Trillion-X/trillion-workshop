@@ -13,6 +13,7 @@
 //   2. A decision runs under the method snapshot it was opened with; later edits to the rows never rewrite it.
 //   3. The question's answer_schema is built from the same rows validation reads, so the two cannot disagree.
 import { publicAddressOrNull } from './public-address.mjs';
+import { checksOfBranch, lineageOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
 
 // A field's shape: its declared kind, or a list of texts when it only says list.
 export const kindOf = spec => spec.kind ?? (spec.list ? 'list' : 'text');
@@ -201,12 +202,9 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     };
   }
 
-  // A method and every method it extends, by id, from the rows in use.
-  function methodLineage(id) {
-    const seen = new Set();
-    for (let at = id; at && !seen.has(at); at = methodData.find(data => data.id === at)?.extends) seen.add(at);
-    return seen;
-  }
+  // A method and every method it extends (tools/check-against-a-persons-rules-and-verdicts/do-work/branch.mjs). A case
+  // kept under a method no longer among the rows keeps the checks of that method alone.
+  const lineageFor = id => (methods.has(id) ? lineageOf(methodData, id) : [id]);
 
   // The checks that apply to this step of this case: the step's rows whose switch is on (or that have none), then the
   // rows the step names by id (`check_ids`), whatever switch they carry. A method with no scope question has no
@@ -215,8 +213,8 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
   function checklistFor(record, step) {
     if (step.kind === 'scope') return [];
     const active = context(record) ?? {};
-    const lineage = methodLineage(methodOf(record).id);
-    const own = (checksByStep.get(step.id) ?? []).filter(row => (!row.method || lineage.has(row.method)) && (!row.when || active[row.when] === true));
+    const lineage = lineageFor(methodOf(record).id);
+    const own = checksOfBranch(checksByStep.get(step.id) ?? [], lineage).filter(row => !row.when || active[row.when] === true);
     const named = (step.check_ids ?? []).map(id => checksById.get(id)).filter(row => row && !own.includes(row));
     return [...own, ...named];
   }

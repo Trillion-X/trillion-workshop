@@ -1,0 +1,8 @@
+{
+  "_what": "Typographic registers of a look (tools/screen-looks/read-data/type-register.ts): each is the values a set of the look's font tokens take together, so one choice moves every type role at once (compact sans for working screens, editorial serif for pages meant to be read). save_look takes `register` by id. A register names look token keys only and its faces are ones the look editor offers (look-tuning.json font_faces). Which screens wear which register is the person's look rules (where-looks-apply.json, by the screen's `place`) pointing at looks saved with different registers; nothing here lists a screen. A new register is a row.",
+  "registers": [
+    { "id": "compact", "label": "Compact", "about": "One clean sans for everything; for screens you work in.", "tokens": { "defaultPrimaryFontFamily": "Instrument Sans", "displayFontFamily": "Instrument Sans" } },
+    { "id": "editorial", "label": "Editorial", "about": "A reading serif for the text and a warm display face for headings; for pages meant to be read.", "tokens": { "defaultPrimaryFontFamily": "Georgia", "displayFontFamily": "Recoleta" } }
+  ],
+  "words": { "unknown_register": "There is no type register {id}. The ones that exist: {ids}." }
+}

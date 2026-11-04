@@ -1,0 +1,116 @@
+{
+  "_what": "Which failure code (src/failure-codes.json) an error the platform made is, read once by src/failure.mjs failureOf for an error that carries no Trillion failure_code. Rows are tried in order and the first that holds wins: `flag` holds when the error's property of that name is true; `contains` holds when the error's message contains those words, in any case; `reply_status` holds when the owner that refused answered one of those HTTP statuses (an error carries it as `reply_status`). An error no row names is `unexpected`. Adding a platform failure is a row here.",
+  "rows": [
+    {
+      "contains": "maximum database size",
+      "code": "store-full",
+      "_why": "SQLite refuses every write once a Durable Object's pages run out (workerd: 'Exceeded the maximum database size'). The same request asked again at once on a fresh handle fails the same way; the owner frees derived space (src/full-store-recovery.mjs) and the sender sends it again after the wait."
+    },
+    {
+      "contains": "SQLITE_FULL",
+      "code": "store-full",
+      "_why": "SQLite refuses every write once a Durable Object's pages run out (workerd: 'Exceeded the maximum database size'). The same request asked again at once on a fresh handle fails the same way; the owner frees derived space (src/full-store-recovery.mjs) and the sender sends it again after the wait."
+    },
+    {
+      "contains": "database or disk is full",
+      "code": "store-full",
+      "_why": "SQLite's own words for SQLITE_FULL (a page limit reached), as a host without workerd's wording says it. SQLite refuses every write once a Durable Object's pages run out (workerd: 'Exceeded the maximum database size'). The same request asked again at once on a fresh handle fails the same way; the owner frees derived space (src/full-store-recovery.mjs) and the sender sends it again after the wait."
+    },
+    {
+      "reply_status": [
+        400,
+        404,
+        413,
+        422
+      ],
+      "code": "request-refused",
+      "_why": "An owner's reply of 400, 404, 413 or 422 is its deliberate refusal of what was asked, in words it wrote for the caller (\"A list needs a label\"). It is the caller's to correct and send again, so an AI is told to read the reason and correct the request; it was told `unexpected`, fatal, with the remedy 'use the error reference to investigate', which made a fixable mistake look like a defect and was logged as one. 401, 402 and 403 are access and plan answers that carry their own payload, 409 is an unsettled attempt, 5xx is not a refusal, so none of them is here."
+    },
+    {
+      "contains": "exceeded its memory limit",
+      "code": "resource-exhausted",
+      "_why": "Cloudflare may mark an out-of-memory reset retryable; repeating the same request at once resets it again."
+    },
+    {
+      "contains": "exceeded CPU time limit",
+      "code": "resource-exhausted",
+      "_why": "A retryable CPU-limit reset cannot be cured by immediately repeating the same work on a fresh handle."
+    },
+    {
+      "contains": "exceeded its CPU time limit",
+      "code": "resource-exhausted",
+      "_why": "A retryable CPU-limit reset cannot be cured by immediately repeating the same work on a fresh handle."
+    },
+    {
+      "contains": "exceeded its CPU limit",
+      "code": "resource-exhausted",
+      "_why": "A retryable CPU-limit reset cannot be cured by immediately repeating the same work on a fresh handle."
+    },
+    {
+      "contains": "We encountered an internal error. Please try again. (10001)",
+      "code": "service-busy",
+      "_why": "Cloudflare R2 documents code 10001 as HTTP 500 InternalError and recommends retrying the request. Wait before retrying; a fresh Durable Object handle cannot repair a storage service error. Match its specific code, not generic internal-error wording."
+    },
+    {
+      "flag": "overloaded",
+      "code": "service-busy"
+    },
+    {
+      "contains": "Durable Object is overloaded",
+      "code": "service-busy"
+    },
+    {
+      "contains": "storage operation exceeded timeout",
+      "code": "service-busy",
+      "_why": "The storage service timed out and reset the object. A fresh handle cannot repair that operation inside the same request; wait before retrying, even when the platform marks the reset retryable."
+    },
+    {
+      "flag": "retryable",
+      "code": "service-interrupted"
+    },
+    {
+      "contains": "Network connection lost",
+      "code": "service-interrupted"
+    },
+    {
+      "contains": "Durable Object reset",
+      "code": "service-interrupted"
+    },
+    {
+      "contains": "reset because its code was updated",
+      "code": "service-interrupted"
+    },
+    {
+      "contains": "does not implement the method",
+      "code": "service-interrupted",
+      "_why": "A call through a handle made by the Worker before an update reached the Worker after it."
+    },
+    {
+      "reply_status": [
+        400,
+        404,
+        413,
+        422
+      ],
+      "code": "request-refused",
+      "_why": "An owner's reply of 400, 404, 413 or 422 is its deliberate refusal of what was asked, in words it wrote for the caller (\"A list needs a label\"). It is the caller's to correct and send again, so an AI is told to read the reason and correct the request; it was told `unexpected`, fatal, with the remedy 'use the error reference to investigate', which made a fixable mistake look like a defect and was logged as one. 401, 402 and 403 are access and plan answers that carry their own payload, 409 is an unsettled attempt, 5xx is not a refusal, so none of them is here."
+    }
+  ],
+  "own_words": {
+    "_what": "Words a platform error carries that are the platform's own (its database's error and code), read by src/failure.mjs platformSaid: an answer to the person or their AI never repeats them; a failure Trillion did not expect answers its reference and plain words instead (src/tools.mjs). `contains` holds when the message contains those words, in any case; `code` holds when the error's code property is exactly that.",
+    "rows": [
+      {
+        "contains": "SQLITE_",
+        "_why": "workerd ends every Durable Object SQLite error with SQLite's result code (\"LIKE or GLOB pattern too complex: SQLITE_ERROR\", seen in MCP answers by the deploy's workerd smoke on 2026-10-17)."
+      },
+      {
+        "contains": "D1_ERROR",
+        "_why": "D1 prefixes its own errors so."
+      },
+      {
+        "code": "ERR_SQLITE_ERROR",
+        "_why": "node:sqlite, the local host's database, marks its errors so and does not name the result code in the message."
+      }
+    ]
+  }
+}

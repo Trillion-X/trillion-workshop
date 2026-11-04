@@ -1,0 +1,14 @@
+{
+  "public": [
+    "do-work/connect-service.ts",
+    "do-work/disconnect-service.ts",
+    "do-work/rename-service-connection.ts",
+    "do-work/external-effect-attempt.ts",
+    "read-data/owner-record-work-contract.ts",
+    "read-data/read-service-connection-options.ts",
+    "read-data/grant-requirements.ts",
+    "records.json",
+    "read-data/calendar-connection-options.ts",
+    "read-data/public-door-rows.mjs"
+  ]
+}

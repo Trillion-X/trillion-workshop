@@ -187,9 +187,83 @@
             "kind": "output-contains-input",
             "output_selector": "$.setting",
             "input_field": "setting"
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "setting": "sample-digest"
+            },
+            "records": [
+              {
+                "id": "notification-setting:sample-digest",
+                "type": "notification-setting",
+                "value": {
+                  "title": "Sample digest",
+                  "description": "How often a made-up digest arrives.",
+                  "options": [
+                    {
+                      "id": "daily",
+                      "label": "Daily"
+                    },
+                    {
+                      "id": "weekly",
+                      "label": "Weekly"
+                    }
+                  ],
+                  "default": "weekly"
+                }
+              },
+              {
+                "id": "notification-choice:sample-digest",
+                "type": "notification-choice",
+                "value": {
+                  "value": "daily",
+                  "at": "2026-11-01T00:00:00Z"
+                }
+              }
+            ]
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "notice-list",
+              "erasable": [
+                [
+                  "item",
+                  "said"
+                ]
+              ],
+              "guard_properties": {
+                "item": "object",
+                "seqs": "numbers"
+              }
+            },
+            {
+              "type": "notice-readers",
+              "guard_properties": {
+                "readers": "object"
+              }
+            }
+          ],
+          "indexes": [
+            {
+              "type": "notice-list",
+              "name": "handoff",
+              "backfill": "notice-handoff",
+              "paths": [
+                [
+                  "item",
+                  "refs",
+                  "handoff_id"
+                ]
+              ],
+              "_read_by": "parts/record-log record-log-store erase (a job erased takes the notices that quote its words with it: src/record-model.json erase_with)"
+            }
+          ]
+        }
       }
     },
     {
@@ -346,6 +420,34 @@
             "kind": "output-contains-input",
             "output_selector": "$.setting",
             "input_field": "setting"
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "setting": "sample-digest",
+              "choice": "daily"
+            },
+            "records": [
+              {
+                "id": "notification-setting:sample-digest",
+                "type": "notification-setting",
+                "value": {
+                  "title": "Sample digest",
+                  "description": "How often a made-up digest arrives.",
+                  "options": [
+                    {
+                      "id": "daily",
+                      "label": "Daily"
+                    },
+                    {
+                      "id": "weekly",
+                      "label": "Weekly"
+                    }
+                  ],
+                  "default": "weekly"
+                }
+              }
+            ]
           }
         ],
         "result_selector": "$.result"
@@ -602,6 +704,27 @@
             "kind": "output-contains-input",
             "output_selector": "$.notification_id",
             "input_field": "notification_id"
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "notification_id": "sample-notice-1",
+              "kind": "report",
+              "audience_refs": [
+                "person:sample"
+              ],
+              "conversation_ref": "conversation:sample-1",
+              "privacy_class": "private",
+              "title": "Sample report",
+              "body": "A made-up report is ready.",
+              "occurred_at": "2026-11-03T12:00:00Z",
+              "source_refs": [
+                "source:sample-1"
+              ],
+              "proof_refs": [
+                "proof:sample-1"
+              ]
+            }
           }
         ],
         "result_selector": "$.result"
@@ -748,6 +871,36 @@
             "kind": "output-contains-input",
             "output_selector": "$.audience",
             "input_field": "audience"
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "audience": "person:sample"
+            },
+            "records": [
+              {
+                "id": "notification-event:sample-notice-1",
+                "type": "notification-event",
+                "value": {
+                  "notification_id": "sample-notice-1",
+                  "kind": "report",
+                  "audience_refs": [
+                    "person:sample"
+                  ],
+                  "conversation_ref": "conversation:sample-1",
+                  "privacy_class": "private",
+                  "title": "Sample report",
+                  "body": "A made-up report is ready.",
+                  "occurred_at": "2026-11-03T12:00:00Z",
+                  "source_refs": [
+                    "source:sample-1"
+                  ],
+                  "proof_refs": [
+                    "proof:sample-1"
+                  ]
+                }
+              }
+            ]
           }
         ],
         "result_selector": "$.result"
@@ -1579,7 +1732,10 @@
               "audience": "person:me"
             },
             "output_selector": "$.said",
-            "contains": "Record it first"
+            "contains": "Record it first",
+            "held": {
+              "notification-signing-keys": "{}"
+            }
           }
         ],
         "result_selector": "$.result"
@@ -1840,7 +1996,10 @@
               "items": []
             },
             "output_selector": "$.said",
-            "contains": "Nothing is running"
+            "contains": "Nothing is running",
+            "held": {
+              "notification-signing-keys": "{}"
+            }
           }
         ],
         "result_selector": "$.result"

@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/kept-work.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/credit-kept-lines-to-their-writer/src/kept-work.json",
+      "source_identity": "1f:d872851a053021c35ae2e5123c3ef42cd3a4f03049eb4b36cd3cb9923592f307",
+      "identity": "1f:d872851a053021c35ae2e5123c3ef42cd3a4f03049eb4b36cd3cb9923592f307"
+    },
+    {
+      "from": "src/kept-work.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/credit-kept-lines-to-their-writer/src/kept-work.mjs",
+      "source_identity": "1f:22e6c1e0191bff11100d70246f9fbd735e3613d7aa747db386c3cae007f42438",
+      "identity": "1f:22e6c1e0191bff11100d70246f9fbd735e3613d7aa747db386c3cae007f42438"
+    }
+  ]
+}

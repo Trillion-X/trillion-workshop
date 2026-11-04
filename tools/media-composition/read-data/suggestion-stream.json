@@ -1,0 +1,48 @@
+{
+  "_what": "How an AI or an analysis proposes changes to a record while the person watches (suggestion-stream.mjs): a stream of typed lines, one JSON object per line. `lines` name each type and the fields it must carry; `errors` are the codes an ending in failure may carry, with their words. A finished suggestion is kept by (input, mode) with the algorithm's `algorithm_version`: a later version never reads an earlier one's answer. `modes` are the ways a suggestion can be asked for, as rows the producer reads (for cutting a recording: only long silences, or only filler words); adding a mode is one row.",
+  "lines": {
+    "status": {
+      "required": [
+        "message"
+      ]
+    },
+    "thinking": {
+      "required": [
+        "text"
+      ]
+    },
+    "complete": {
+      "required": [
+        "proposals"
+      ]
+    },
+    "error": {
+      "required": [
+        "code"
+      ]
+    }
+  },
+  "errors": {
+    "NO_PROPOSALS": "Nothing to suggest here.",
+    "ABORTED": "The suggestion was stopped.",
+    "FAILED": "The suggestion could not be made.",
+    "UNREADABLE": "A line of the suggestion could not be read.",
+    "NO_TRANSCRIPT": "This recording has no timed words yet, so there is nothing to cut by."
+  },
+  "words": {
+    "working": "Looking for a suggestion",
+    "cached": "Found a suggestion made earlier"
+  },
+  "modes": {
+    "silent_pauses": {
+      "removeSilence": true,
+      "removeFillers": false,
+      "minSilence": 1,
+      "silencePad": 0.1
+    },
+    "filler_words": {
+      "removeSilence": false,
+      "removeFillers": true
+    }
+  }
+}

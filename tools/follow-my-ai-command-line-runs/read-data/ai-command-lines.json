@@ -1,0 +1,335 @@
+{
+  "_what": "The rows tools/follow-my-ai-command-line-runs reads, moved from Trillion-X/trillion harness/wake-sessions.json: `folder` and `settings_file` (this computer's settings file, where the per-folder allow-list `workspace_tools` is kept), `progress_folder` (under `folder`, one progress.json per session) and `harnesses`, one row per AI command line: its `resume` argv, its `allowed_tools` flag (where it goes and how names are joined; a command line with none is answered as not applying) and its `stream` row (the flags that turn on its JSON event stream, where they go, the event map from its own lines to text / thinking / tool_start / tool_done / reply, which kinds' text is kept and how much, and how often the progress file is written). Nothing in the code names a command line or an event; adding one is a row here.",
+  "folder": "~/.trillion/wake-sessions",
+  "settings_file": "settings.json",
+  "progress_folder": "progress",
+  "harnesses": {
+    "codex": {
+      "app": "Codex",
+      "resume": [
+        "codex",
+        "exec",
+        "resume",
+        "--skip-git-repo-check",
+        "-o",
+        "{reply_file}",
+        "{session_id}",
+        "{message}"
+      ],
+      "reply": "reply_file",
+      "records_transcript": "codex",
+      "stream": {
+        "flags": [
+          "--json"
+        ],
+        "after": "exec",
+        "show_text": [
+          "text",
+          "reply"
+        ],
+        "show_text_characters": 280,
+        "progress_every_ms": 1000,
+        "events": [
+          {
+            "when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "item.completed"
+              },
+              {
+                "path": [
+                  "item",
+                  "type"
+                ],
+                "is": "agent_message"
+              }
+            ],
+            "kind": "text",
+            "text": [
+              "item",
+              "text"
+            ]
+          },
+          {
+            "when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "item.completed"
+              },
+              {
+                "path": [
+                  "item",
+                  "type"
+                ],
+                "is": "reasoning"
+              }
+            ],
+            "kind": "thinking",
+            "text": [
+              "item",
+              "text"
+            ]
+          },
+          {
+            "when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "item.started"
+              },
+              {
+                "path": [
+                  "item",
+                  "type"
+                ],
+                "is": "command_execution"
+              }
+            ],
+            "kind": "tool_start",
+            "name": [
+              "item",
+              "command"
+            ],
+            "id": [
+              "item",
+              "id"
+            ]
+          },
+          {
+            "when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "item.completed"
+              },
+              {
+                "path": [
+                  "item",
+                  "type"
+                ],
+                "is": "command_execution"
+              }
+            ],
+            "kind": "tool_done",
+            "id": [
+              "item",
+              "id"
+            ]
+          },
+          {
+            "when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "item.started"
+              },
+              {
+                "path": [
+                  "item",
+                  "type"
+                ],
+                "is": "mcp_tool_call"
+              }
+            ],
+            "kind": "tool_start",
+            "name": [
+              "item",
+              "tool"
+            ],
+            "id": [
+              "item",
+              "id"
+            ]
+          },
+          {
+            "when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "item.completed"
+              },
+              {
+                "path": [
+                  "item",
+                  "type"
+                ],
+                "is": "mcp_tool_call"
+              }
+            ],
+            "kind": "tool_done",
+            "id": [
+              "item",
+              "id"
+            ]
+          }
+        ]
+      }
+    },
+    "claude-code": {
+      "app": "Claude Code",
+      "resume": [
+        "claude",
+        "--resume",
+        "{session_id}",
+        "--mcp-config",
+        "{mcp_config}",
+        "--append-system-prompt",
+        "This run was started for the current -p message. Earlier conversation and compaction summaries are background. If the current message names a Trillion handoff, call take_work first with exactly the agent_id and handoff_id in that message, then do that job and call finish_work for the same IDs. Do not continue an earlier task before the current message is handled. If Trillion is unavailable, say so and end this run so delivery can retry.",
+        "-p",
+        "{message}"
+      ],
+      "reply": "stdout",
+      "records_transcript": "claude-code",
+      "allowed_tools": {
+        "flag": "--allowedTools",
+        "join": ",",
+        "after": "claude"
+      },
+      "stream": {
+        "flags": [
+          "--output-format",
+          "stream-json",
+          "--verbose"
+        ],
+        "after": "claude",
+        "show_text": [
+          "text",
+          "reply"
+        ],
+        "show_text_characters": 280,
+        "progress_every_ms": 1000,
+        "events": [
+          {
+            "when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "assistant"
+              }
+            ],
+            "each": [
+              "message",
+              "content"
+            ],
+            "item_when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "text"
+              }
+            ],
+            "kind": "text",
+            "text": [
+              "text"
+            ]
+          },
+          {
+            "when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "assistant"
+              }
+            ],
+            "each": [
+              "message",
+              "content"
+            ],
+            "item_when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "thinking"
+              }
+            ],
+            "kind": "thinking",
+            "text": [
+              "thinking"
+            ]
+          },
+          {
+            "when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "assistant"
+              }
+            ],
+            "each": [
+              "message",
+              "content"
+            ],
+            "item_when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "tool_use"
+              }
+            ],
+            "kind": "tool_start",
+            "name": [
+              "name"
+            ],
+            "id": [
+              "id"
+            ]
+          },
+          {
+            "when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "user"
+              }
+            ],
+            "each": [
+              "message",
+              "content"
+            ],
+            "item_when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "tool_result"
+              }
+            ],
+            "kind": "tool_done",
+            "id": [
+              "tool_use_id"
+            ]
+          },
+          {
+            "when": [
+              {
+                "path": [
+                  "type"
+                ],
+                "is": "result"
+              }
+            ],
+            "kind": "reply",
+            "text": [
+              "result"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

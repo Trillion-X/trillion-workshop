@@ -1,0 +1,30 @@
+/* parts/screen-look/show/frames-canvas.css: the look of ui FramesCanvas, frames of one page at several sizes on a
+   dotted canvas (anatomy from Klaviyo's form editor and MagicPath on Mobbin). */
+.frames-canvas { position: relative; min-width: 0; min-height: 0; height: 100%; }
+.frames-canvas__stage {
+  position: relative; overflow: hidden; height: 100%; min-height: 320px; touch-action: none; cursor: grab;
+  background-color: var(--bg-tertiary, #f1f1ef); border-radius: 12px;
+}
+.frames-canvas__stage:active { cursor: grabbing; }
+.frames-canvas__world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.frames-canvas__label { position: absolute; transform: translateY(-100%); color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.6; }
+.frames-canvas__frame {
+  position: absolute; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: crosshair;
+  background: var(--bg-primary); box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 8px 28px rgb(0 0 0 / 0.08);
+}
+.frames-canvas__frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; pointer-events: none; }
+.frames-canvas__state { color: var(--text-muted); }
+.frames-canvas__peer { position: absolute; display: flex; align-items: flex-start; gap: 2px; transform-origin: 0 0; pointer-events: none; transition: left 120ms linear, top 120ms linear; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.25)); }
+.frames-canvas__peer svg { fill: currentColor; }
+.frames-canvas__peer-name { margin-top: 14px; padding: 2px 7px; border-radius: 999px; color: white; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.frames-canvas__dock {
+  position: absolute; z-index: 3; left: 50%; bottom: 12px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 2px; padding: 4px;
+  border: 1px solid var(--border-primary); border-radius: 12px;
+  background: var(--bg-primary); box-shadow: 0 6px 24px rgb(0 0 0 / 0.12);
+}
+/* Frames holding live content (a tour's steps as their cards): rows the canvas chooses, each item as tall as it is. */
+.frames-canvas__flow { display: grid; align-items: start; width: max-content; padding-top: 28px; }
+.frames-canvas__item { position: relative; display: flex; flex-direction: column; gap: 8px; cursor: default; }
+.frames-canvas__item-label { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.6; }
+.frames-canvas__item[data-selected] > :last-child { outline: 2px solid var(--accent-primary); outline-offset: 4px; border-radius: 14px; }

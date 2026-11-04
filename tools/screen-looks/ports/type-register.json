@@ -1,0 +1,79 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-TYPE-REGISTER-FROM-OLD-TRILLION",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "rea pm/ws move 2026-11-03: not-yet-moved product modules and workshop tool parts",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+      "path_multihash": "1f:413ecc680f7ec002a69c97cb55206f0f1e6c1c4025e87b38fe7231f6d2ac0ddf",
+      "multihash": "1f:3d81cd50e7f38aea58b1ce145ce32d7cd230e55a7d774d1ef505f969f2eacfe7",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T12:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/screen-looks/read-data/type-register.ts",
+      "baseline_commit_message": "screen-looks and page-critic: move the look colour modules and build the frame, reduced-motion and page-order checks"
+    }
+  ],
+  "preserve": [
+    "pure and blind: no page, storage, look, token or colour is named; ranges, rules and words are DATA",
+    "a token the look lacks is skipped, never invented",
+    "every value written goes through changeScreenLookTokens, which keeps each token kind and bounds"
+  ],
+  "allowed_deltas": [
+    "the file header and the import and comment paths name the file's new place (baseline.redactions)"
+  ],
+  "banned_substitutions": [
+    "a second look validator or colour parser",
+    "a colour, look or font named in code"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:3d81cd50e7f38aea58b1ce145ce32d7cd230e55a7d774d1ef505f969f2eacfe7",
+    "target_multihash_at_baseline": "1f:b161ef1e3b3a1aeccb6d7ee751a81f24f45b14bfcda8c6284b7b4652201ca8a3",
+    "redactions": [
+      {
+        "from": "'../type-registers.json'",
+        "to": "'./type-registers.json'"
+      },
+      {
+        "from": "'../look-tuning.json'",
+        "to": "'./look-tuning.json'"
+      },
+      {
+        "from": "parts/screen-look/read-data/",
+        "to": "tools/screen-looks/read-data/"
+      },
+      {
+        "from": "parts/screen-look/type-registers.json",
+        "to": "tools/screen-looks/read-data/type-registers.json"
+      }
+    ],
+    "commit": "47b9d2aa0a8362172aa465a3f5bee0a34b158917",
+    "recorded_at": "2026-11-03T12:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export type TypeRegisters",
+      "export function wearRegister",
+      "export const unofferedFaces"
+    ],
+    "test_refs": [
+      "tools/screen-looks/test/type-register.test.ts"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}
