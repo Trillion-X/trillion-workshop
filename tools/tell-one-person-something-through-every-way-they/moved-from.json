@@ -82,6 +82,13 @@
       "to": "tools/tell-one-person-something-through-every-way-they/from-old-trillion/records/tell-the-person.json",
       "source_identity": "1f:96cd1ac0f4be6ef5a57d6b2e4a8325759a2960b4e07f4b4d1e4362ab4079921c",
       "identity": "1f:96cd1ac0f4be6ef5a57d6b2e4a8325759a2960b4e07f4b4d1e4362ab4079921c"
+    },
+    {
+      "from": "src/tell-quiet-hours.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/tell-one-person-something-through-every-way-they/read-data/tell-quiet-hours.json",
+      "source_identity": "1f:32fd790fee74846a2b6be11b779fc27fdbdccf5a10e766093ccef798e677b76a",
+      "identity": "1f:32fd790fee74846a2b6be11b779fc27fdbdccf5a10e766093ccef798e677b76a"
     }
   ]
 }

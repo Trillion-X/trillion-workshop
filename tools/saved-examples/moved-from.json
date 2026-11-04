@@ -10,6 +10,13 @@
       "to": "tools/saved-examples/from-old-trillion/records/workshop-saved-example-tool-records.json",
       "source_identity": "1f:676027fb86ceba7bf1bd6b92dfb12ec9ce971be87b754118dd8129ee8fa8ba4d",
       "identity": "1f:676027fb86ceba7bf1bd6b92dfb12ec9ce971be87b754118dd8129ee8fa8ba4d"
+    },
+    {
+      "from": "src/saved-examples.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/saved-examples/from-old-trillion/src/saved-examples.mjs",
+      "source_identity": "1f:2f3983566dac754a5fdf0277836fe9529976da35a33d0a812ad57e3dae45d050",
+      "identity": "1f:2f3983566dac754a5fdf0277836fe9529976da35a33d0a812ad57e3dae45d050"
     }
   ]
 }

@@ -17,6 +17,20 @@
       "to": "tools/route-model-calls/from-old-trillion/records/workshop-ask-a-model-tool-records.json",
       "source_identity": "1f:60c61b2f462292e590142afa797ff1c9442aa1b7489992209f1045ca74d3f4d4",
       "identity": "1f:60c61b2f462292e590142afa797ff1c9442aa1b7489992209f1045ca74d3f4d4"
+    },
+    {
+      "from": "src/model-waits.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/route-model-calls/src/model-waits.mjs",
+      "source_identity": "1f:3e5854546ce3f27c6c7670eaa1a51a30b8460f19d94799afcc172c7b089e31f6",
+      "identity": "1f:3e5854546ce3f27c6c7670eaa1a51a30b8460f19d94799afcc172c7b089e31f6"
+    },
+    {
+      "from": "test/model-waits-continuation.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/route-model-calls/test/model-waits-continuation.test.mjs",
+      "source_identity": "1f:ac97a65175a1bbb97792632d570df228d9888ef95fd382f438e122bfb25296f1",
+      "identity": "1f:ac97a65175a1bbb97792632d570df228d9888ef95fd382f438e122bfb25296f1"
     }
   ]
 }

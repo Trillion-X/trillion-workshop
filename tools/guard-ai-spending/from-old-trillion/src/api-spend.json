@@ -1,0 +1,392 @@
+{
+  "_what": "What a person's own API accounts cost them, counted where Trillion sends to them (src/api-spend.mjs, through the one send every connected service's request passes: src/workshop.mjs sendThroughBox). services are the connections whose answers say what they used: { connection_id, label, prices: [{ model, per_million: { measure: dollars }, above?: { input_tokens, per_million } }], source }. A call's model is read from its request body, else its answer (model_at); its usage from the answer (usage paths, one list of paths per measure, the first that holds a number wins); output is never less than total minus input, so thinking a service reports only in its total is still counted. A model's price is the row whose model is the longest start of the call's model; above prices every token of a call whose input passed that many tokens. A call with no price row is counted as calls and tokens with its dollars unknown, never as free. Cached input is priced as plain input, so dollars are never below the bill. Prices are hand-typed from each service's own page on read_on; a service, a model or a price is a row here.",
+  "read_on": "2026-10-05",
+  "model_at": [
+    [
+      "model"
+    ],
+    [
+      "modelVersion"
+    ]
+  ],
+  "usage": {
+    "input_tokens": [
+      [
+        "usage",
+        "prompt_tokens"
+      ],
+      [
+        "usage",
+        "input_tokens"
+      ],
+      [
+        "usageMetadata",
+        "promptTokenCount"
+      ]
+    ],
+    "output_tokens": [
+      [
+        "usage",
+        "completion_tokens"
+      ],
+      [
+        "usage",
+        "output_tokens"
+      ],
+      [
+        "usageMetadata",
+        "candidatesTokenCount"
+      ]
+    ],
+    "total_tokens": [
+      [
+        "usage",
+        "total_tokens"
+      ],
+      [
+        "usageMetadata",
+        "totalTokenCount"
+      ]
+    ]
+  },
+  "services": [
+    {
+      "connection_id": "service_connection:google",
+      "label": "Google AI (Gemini)",
+      "source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "prices": [
+        {
+          "model": "gemini-3.1-pro",
+          "per_million": {
+            "input_tokens": 2,
+            "output_tokens": 12
+          },
+          "above": {
+            "input_tokens": 200000,
+            "per_million": {
+              "input_tokens": 4,
+              "output_tokens": 18
+            }
+          }
+        },
+        {
+          "model": "gemini-3-pro",
+          "per_million": {
+            "input_tokens": 2,
+            "output_tokens": 12
+          },
+          "above": {
+            "input_tokens": 200000,
+            "per_million": {
+              "input_tokens": 4,
+              "output_tokens": 18
+            }
+          }
+        },
+        {
+          "model": "gemini-2.5-pro",
+          "per_million": {
+            "input_tokens": 1.25,
+            "output_tokens": 10
+          },
+          "above": {
+            "input_tokens": 200000,
+            "per_million": {
+              "input_tokens": 2.5,
+              "output_tokens": 15
+            }
+          }
+        },
+        {
+          "model": "gemini-3.5-flash-lite",
+          "per_million": {
+            "input_tokens": 0.3,
+            "output_tokens": 2.5
+          }
+        },
+        {
+          "model": "gemini-3.5-flash",
+          "per_million": {
+            "input_tokens": 1.5,
+            "output_tokens": 9
+          }
+        },
+        {
+          "model": "gemini-3.1-flash-lite",
+          "per_million": {
+            "input_tokens": 0.25,
+            "output_tokens": 1.5
+          }
+        },
+        {
+          "model": "gemini-3-flash",
+          "per_million": {
+            "input_tokens": 0.5,
+            "output_tokens": 3
+          }
+        },
+        {
+          "model": "gemini-2.5-flash-lite",
+          "per_million": {
+            "input_tokens": 0.1,
+            "output_tokens": 0.4
+          }
+        },
+        {
+          "model": "gemini-2.5-flash",
+          "per_million": {
+            "input_tokens": 0.3,
+            "output_tokens": 2.5
+          }
+        },
+        {
+          "model": "gemini-3.8-flash",
+          "per_million": {
+            "input_tokens": 0.75,
+            "output_tokens": 3.75
+          }
+        },
+        {
+          "model": "gemini-3.7-flash",
+          "per_million": {
+            "input_tokens": 0.75,
+            "output_tokens": 3.75
+          }
+        },
+        {
+          "model": "gemini-3.6-flash",
+          "per_million": {
+            "input_tokens": 0.75,
+            "output_tokens": 3.75
+          }
+        }
+      ]
+    },
+    {
+      "connection_id": "service_connection:openai",
+      "label": "OpenAI",
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "prices": [
+        {
+          "model": "gpt-5.6-sol",
+          "per_million": {
+            "input_tokens": 4,
+            "output_tokens": 20
+          }
+        },
+        {
+          "model": "gpt-5.6-terra",
+          "per_million": {
+            "input_tokens": 2,
+            "output_tokens": 12
+          }
+        },
+        {
+          "model": "gpt-5.6-luna",
+          "per_million": {
+            "input_tokens": 0.2,
+            "output_tokens": 1.2
+          }
+        },
+        {
+          "model": "gpt-5.5-pro",
+          "per_million": {
+            "input_tokens": 30,
+            "output_tokens": 180
+          }
+        },
+        {
+          "model": "gpt-5.5",
+          "per_million": {
+            "input_tokens": 5,
+            "output_tokens": 30
+          }
+        },
+        {
+          "model": "gpt-5.4-pro",
+          "per_million": {
+            "input_tokens": 30,
+            "output_tokens": 180
+          }
+        },
+        {
+          "model": "gpt-5.4-mini",
+          "per_million": {
+            "input_tokens": 0.75,
+            "output_tokens": 4.5
+          }
+        },
+        {
+          "model": "gpt-5.4-nano",
+          "per_million": {
+            "input_tokens": 0.2,
+            "output_tokens": 1.25
+          }
+        },
+        {
+          "model": "gpt-5.4",
+          "per_million": {
+            "input_tokens": 2.5,
+            "output_tokens": 15
+          }
+        },
+        {
+          "model": "gpt-5.2-pro",
+          "per_million": {
+            "input_tokens": 21,
+            "output_tokens": 168
+          }
+        },
+        {
+          "model": "gpt-5.2",
+          "per_million": {
+            "input_tokens": 1.75,
+            "output_tokens": 14
+          }
+        },
+        {
+          "model": "gpt-5.3",
+          "per_million": {
+            "input_tokens": 1.75,
+            "output_tokens": 14
+          }
+        },
+        {
+          "model": "gpt-5.1",
+          "per_million": {
+            "input_tokens": 1.25,
+            "output_tokens": 10
+          }
+        },
+        {
+          "model": "gpt-5-pro",
+          "per_million": {
+            "input_tokens": 15,
+            "output_tokens": 120
+          }
+        },
+        {
+          "model": "gpt-5-mini",
+          "per_million": {
+            "input_tokens": 0.25,
+            "output_tokens": 2
+          }
+        },
+        {
+          "model": "gpt-5-nano",
+          "per_million": {
+            "input_tokens": 0.05,
+            "output_tokens": 0.4
+          }
+        },
+        {
+          "model": "gpt-5",
+          "per_million": {
+            "input_tokens": 1.25,
+            "output_tokens": 10
+          }
+        },
+        {
+          "model": "gpt-4.1-mini",
+          "per_million": {
+            "input_tokens": 0.4,
+            "output_tokens": 1.6
+          }
+        },
+        {
+          "model": "gpt-4.1-nano",
+          "per_million": {
+            "input_tokens": 0.1,
+            "output_tokens": 0.4
+          }
+        },
+        {
+          "model": "gpt-4.1",
+          "per_million": {
+            "input_tokens": 2,
+            "output_tokens": 8
+          }
+        },
+        {
+          "model": "gpt-4o-mini",
+          "per_million": {
+            "input_tokens": 0.15,
+            "output_tokens": 0.6
+          }
+        },
+        {
+          "model": "gpt-4o",
+          "per_million": {
+            "input_tokens": 2.5,
+            "output_tokens": 10
+          }
+        }
+      ]
+    },
+    {
+      "connection_id": "service_connection:anthropic",
+      "label": "Anthropic (Claude)",
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "prices": [
+        {
+          "model": "claude-fable-5",
+          "per_million": {
+            "input_tokens": 10,
+            "output_tokens": 50
+          }
+        },
+        {
+          "model": "claude-opus-5-5",
+          "per_million": {
+            "input_tokens": 4,
+            "output_tokens": 20
+          }
+        },
+        {
+          "model": "claude-opus-5",
+          "per_million": {
+            "input_tokens": 5,
+            "output_tokens": 25
+          }
+        },
+        {
+          "model": "claude-opus-4-1",
+          "per_million": {
+            "input_tokens": 15,
+            "output_tokens": 75
+          }
+        },
+        {
+          "model": "claude-opus-4",
+          "per_million": {
+            "input_tokens": 5,
+            "output_tokens": 25
+          }
+        },
+        {
+          "model": "claude-sonnet-5",
+          "per_million": {
+            "input_tokens": 2,
+            "output_tokens": 10
+          }
+        },
+        {
+          "model": "claude-sonnet-4",
+          "per_million": {
+            "input_tokens": 3,
+            "output_tokens": 15
+          }
+        },
+        {
+          "model": "claude-haiku-4-5",
+          "per_million": {
+            "input_tokens": 1,
+            "output_tokens": 5
+          }
+        }
+      ]
+    }
+  ],
+  "open": "/spend",
+  "kind": "limit-status"
+}

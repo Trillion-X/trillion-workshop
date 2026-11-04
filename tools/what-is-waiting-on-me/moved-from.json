@@ -1,0 +1,29 @@
+{
+  "about": "Files of old trillion (commit 5dc302be, Trillion-X/trillion main) whose job is this tool's, moved here byte for byte by the old-trillion sweep, under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes). Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/waiting-nudge.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/what-is-waiting-on-me/from-old-trillion/src/waiting-nudge.mjs",
+      "source_identity": "1f:64dc247beac1bda00a5150bff7b0318de18f6328827c039b9c39160fc0dc1f2a",
+      "identity": "1f:229507668a2217fd46ccfcbdb8212fd26803447066eb33fdcd0d2c8634fda8fd"
+    },
+    {
+      "from": "src/waiting-weigh.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/what-is-waiting-on-me/from-old-trillion/src/waiting-weigh.mjs",
+      "source_identity": "1f:1089898fd6fbbc21b8821dfc9ce9fd046461cdfdba963d46b974b5b7a5114911",
+      "identity": "1f:ca8fca9d043958720f7ed8da689c6627b8454b99295ddf15e20c68d2dae81b50"
+    },
+    {
+      "from": "src/work-rounds.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/what-is-waiting-on-me/from-old-trillion/src/work-rounds.mjs",
+      "source_identity": "1f:e25d8973b94731c5f517220b300a6a9bdb7b61be196bb5ad8178d30b81cc3ad7",
+      "identity": "1f:e25d8973b94731c5f517220b300a6a9bdb7b61be196bb5ad8178d30b81cc3ad7"
+    }
+  ]
+}

@@ -139,6 +139,34 @@
       "to": "tools/hand-off-jobs-between-agents/test/quoted-words.test.mjs",
       "source_identity": "1f:7548e155d8415f735e657e991b1729a659a7e7b7c947497b49ce5a8012a77dff",
       "identity": "1f:399f50c74f79899d7f066a5a1a67f915c45fa23614cba3d1f664d872647baa28"
+    },
+    {
+      "from": "src/close-many.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-off-jobs-between-agents/src/close-many.json",
+      "source_identity": "1f:e83cbfac815060e352db2cc3cef223676fd5b9691efa06966d026ff5bbbf8f4a",
+      "identity": "1f:e83cbfac815060e352db2cc3cef223676fd5b9691efa06966d026ff5bbbf8f4a"
+    },
+    {
+      "from": "src/close-many.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-off-jobs-between-agents/src/close-many.mjs",
+      "source_identity": "1f:0d62a45a8aedcc8a7db3eb2dc7a440dc4744e536a3b9bec887cb67c3f5fb0173",
+      "identity": "1f:0d62a45a8aedcc8a7db3eb2dc7a440dc4744e536a3b9bec887cb67c3f5fb0173"
+    },
+    {
+      "from": "src/lapsed-asks.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-off-jobs-between-agents/src/lapsed-asks.json",
+      "source_identity": "1f:27af73f19daf372d5c74b3cc0d1ff7d0fa7e062e49898831583d4b7fdf0eb234",
+      "identity": "1f:27af73f19daf372d5c74b3cc0d1ff7d0fa7e062e49898831583d4b7fdf0eb234"
+    },
+    {
+      "from": "src/lapsed-asks.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-off-jobs-between-agents/src/lapsed-asks.mjs",
+      "source_identity": "1f:945207ef82e2aa7692c685426ce6784a9a556d1481813826c47f32e0fcdf5666",
+      "identity": "1f:945207ef82e2aa7692c685426ce6784a9a556d1481813826c47f32e0fcdf5666"
     }
   ]
 }

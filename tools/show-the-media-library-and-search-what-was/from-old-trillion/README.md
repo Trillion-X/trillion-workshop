@@ -6,5 +6,8 @@ Files of old trillion whose job is this tool's (show the media library and searc
 |---|---|---|
 | `test/work-media-session.test.mjs` | `test/work-media-session.test.mjs.held` | held: ERR_MODULE_NOT_FOUND |
 | `test/work-media.test.mjs` | `test/work-media.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports test/media-run-seam-for-tests.mjs (at the tag, not moved here yet) |
+| `src/media-next-edit.json` | `src/media-next-edit.json` | data, read by its module (from 5dc302be) |
+| `src/media-next-edit.mjs` | `src/media-next-edit.mjs` | loads here (from 5dc302be) |
+| `src/media-search.json` | `src/media-search.json` | data, read by its module (from 5dc302be) |
 
 `src/work-media.mjs` is wired: it is `do-work/answer-the-media-page.mjs` (ported, `ports/answer-the-media-page.json`).

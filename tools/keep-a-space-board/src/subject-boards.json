@@ -1,0 +1,24 @@
+{
+  "what_this_is": "How any record gets a board (src/subject-boards.mjs, tool:keep-a-board): a subject (a decision, a pursuit, a plan, any key) gets one space, titled with the subject, whose Board place lays out what is put there. A pursuit's board is its own room (src/pursuit-rooms.mjs pursuitRoom). `space_label` is the kind of space made (a label of src/network-settings.json membership_labels). `section_fact` is the item fact that names the row a thing sits in on the board and the heading it reads under as a document; the sections themselves are whatever words the caller sends. `most_items` is how many things one run takes. Every word the person sees is here. `feed` is how a feed is read onto boards: the section a thing goes in when the caller names none, the folder its pictures are kept in, how many new items one run takes and how many item keys are remembered per feed.",
+  "space_label": "project",
+  "section_fact": "section",
+  "most_items": 100,
+  "kinds": {
+    "note": "note",
+    "link": "link"
+  },
+  "said": {
+    "made": "Made a board for {title}.",
+    "kept": "Put {added} new thing(s) on the board for {title}.",
+    "nothing": "The board for {title} already has all of these.",
+    "feed": "Put {added} new thing(s) on {boards} board(s); {waiting} more next time.",
+    "feed_nothing": "Every board already has what the feed holds."
+  },
+  "feed": {
+    "section": "Versions",
+    "folder": "/Boards/Pictures",
+    "most_per_run": 20,
+    "most_remembered": 5000
+  },
+  "section_order_fact": "section_order"
+}

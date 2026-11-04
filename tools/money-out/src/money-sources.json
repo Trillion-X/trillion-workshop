@@ -1,0 +1,47 @@
+{
+  "lookback_days": 400,
+  "every_minutes": { "bank": 360, "mail": 120 },
+  "backlog_minutes": 10,
+  "mercury": {
+    "kind": "bank",
+    "accounts": {
+      "tool": "list_accounts",
+      "items": ["accounts", "*"],
+      "id": ["id"],
+      "label": [["nickname"], ["name"]],
+      "group": [["legalBusinessName"]]
+    },
+    "payments": {
+      "tool": "list_transactions",
+      "input": { "account_ref": { "account": "id" }, "page_size": 500, "start": { "since": true }, "offset": { "offset": true } },
+      "items": ["transactions", "*"],
+      "total": ["total"],
+      "id": ["id"],
+      "amount": ["amount"],
+      "out_when": "negative",
+      "merchant": [["counterpartyNickname"], ["counterpartyName"], ["bankDescription"]],
+      "at": [["postedAt"], ["createdAt"]],
+      "keep": { "path": ["status"], "one_of": ["sent", "pending"] },
+      "skip": { "path": ["kind"], "one_of": ["internalTransfer", "treasuryTransfer", "creditAccountPayment"] }
+    }
+  },
+  "google-account": {
+    "kind": "mail",
+    "search": {
+      "tool": "search_mail",
+      "query": "(category:purchases OR subject:(receipt OR invoice OR \"payment\" OR \"order\" OR subscription OR renewal OR billing)) -subject:(refund OR payout OR \"payment received\" OR \"you received\" OR \"new payment from\") newer_than:{days}d"
+    },
+    "read": { "tool": "read_a_mail" },
+    "per_read": 40
+  },
+  "mail": {
+    "subject_merchant": ["receipt from (.+)", "your (.+?) receipt", "invoice from (.+)", "payment to (.+)", "your (.+?) (subscription|order|invoice)"],
+    "skip_subjects": ["refund", "payout", "payment received", "you received", "new payment from"],
+    "name_drop": ["billing", "receipts", "receipt", "no-reply", "noreply", "team", "via stripe", "payments"],
+    "plan_drop": ["your", "receipt", "invoice", "from", "payment", "thanks"],
+    "amount": "(?:US\\$|\\$|USD\\s?)\\s?(\\d[\\d,]*(?:\\.\\d{1,2})?)",
+    "amount_words": ["total", "amount paid", "amount charged", "you paid", "charged", "amount due", "grand total"],
+    "skip_words": ["refund", "credit", "balance"],
+    "skip_words_unless": "total"
+  }
+}

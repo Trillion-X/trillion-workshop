@@ -6,3 +6,4 @@ Files of old trillion whose job is this tool's (give an AI the tools to read and
 |---|---|---|
 | `src/space-tools.mjs` | `src/space-tools.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/space-settings.json (at the tag, not moved here yet) |
 | `src/spaces.mjs` | `src/spaces.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/shared-native-dependency-command.mjs (at the tag, not moved here yet), src/shared-native-execution-context.mjs (at the tag, not moved here yet), src/shared-resource-routing.mjs (at the tag, not moved here yet), src/space-settings.json (at the tag, not moved here yet) and 5 more |
+| `src/pursuit-rooms.json` | `src/pursuit-rooms.json` | data, read by its module (from 5dc302be) |

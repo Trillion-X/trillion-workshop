@@ -1,0 +1,14 @@
+{
+  "_what": "How the Media section searches, as DATA read by src/media-search.mjs. Results are moments: a recording and the seconds where it matches. `lanes` run together and their moments are merged. A `words` lane finds every asked word in the text at `text_path` of result `kind`, timed by the segments at `segments_path` when the transcript has them. A `meaning` lane embeds the question with `model` and compares it with the vectors kept in result `kind` (each chunk's `v`, float16 base64, with its `text` and, when measured, `start`/`end`); a chunk under `floor` is not a match. A `name` lane finds the words in a recording's name or title. `rank` weighs a lane's moments against the others. Moments of one recording closer than `merge_seconds` become one; at most `per_recording` come from one recording and `limit` in all. `moment_seconds` is how long a moment with only a start runs. Picture search (result `picture-vectors`, CLIP ViT-B-32) needs that model's text encoder to embed the question, which Workers AI does not serve, so no picture lane is listed.",
+  "lanes": [
+    { "id": "words", "kind": "transcript", "text_path": "$.text", "segments_path": "$.segments", "rank": 1.2 },
+    { "id": "meaning", "kind": "speech-vectors", "model": "@cf/baai/bge-small-en-v1.5", "floor": 0.62, "rank": 1 },
+    { "id": "name", "rank": 0.8 }
+  ],
+  "min_word_length": 2,
+  "merge_seconds": 4,
+  "per_recording": 3,
+  "limit": 60,
+  "moment_seconds": 6,
+  "said_characters": 280
+}

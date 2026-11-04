@@ -10,6 +10,13 @@
       "to": "tools/generate-speech/from-old-trillion/records/speech-engine-records.json",
       "source_identity": "1f:54301f7d8075a0f9e2da303068efb07cc936116eccd44815c689a89e54424e36",
       "identity": "1f:54301f7d8075a0f9e2da303068efb07cc936116eccd44815c689a89e54424e36"
+    },
+    {
+      "from": "src/account-speech.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/generate-speech/from-old-trillion/src/account-speech.mjs",
+      "source_identity": "1f:28b93925336be54e276c07badbd7af0f2f6c97756e3312f18364aa045bade893",
+      "identity": "1f:97050170a6088a288935e7ab117251e508e605ce91ed306785408d47e28215c8"
     }
   ]
 }

@@ -17,6 +17,20 @@
       "to": "tools/list-the-person-for-others-to-find-ask-the-network/test/network-person-route.test.mjs",
       "source_identity": "1f:18f6c1a4fe6e1080f88174e898256d5026e08dbc5bd36965eca8c9173dbd67e7",
       "identity": "1f:18f6c1a4fe6e1080f88174e898256d5026e08dbc5bd36965eca8c9173dbd67e7"
+    },
+    {
+      "from": "src/network-account-privacy.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/list-the-person-for-others-to-find-ask-the-network/src/network-account-privacy.mjs",
+      "source_identity": "1f:6f594675f5f546c063ed8221b09f0a48d3f7e2587890dd6e804a7925c1497f4f",
+      "identity": "1f:3cbd0444cc7e0dc143ad3c88c6488112d053891352d91e034249abe06c849089"
+    },
+    {
+      "from": "test/network-account-privacy.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/list-the-person-for-others-to-find-ask-the-network/test/network-account-privacy.test.mjs",
+      "source_identity": "1f:8123be2c8ba7b650f635d836942452a9f503facd9bc474995282c69c53ae8928",
+      "identity": "1f:8123be2c8ba7b650f635d836942452a9f503facd9bc474995282c69c53ae8928"
     }
   ]
 }

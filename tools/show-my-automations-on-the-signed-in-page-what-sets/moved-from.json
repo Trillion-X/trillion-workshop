@@ -19,6 +19,20 @@
       "source_identity": "1f:3c0da13de144a641c44ffb406972cdea2363ef390fab6d1076c93c4b64fb7377",
       "identity": "1f:3c0da13de144a641c44ffb406972cdea2363ef390fab6d1076c93c4b64fb7377",
       "held": true
+    },
+    {
+      "from": "src/record-kind-words.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/show-my-automations-on-the-signed-in-page-what-sets/from-old-trillion/src/record-kind-words.json",
+      "source_identity": "1f:b534d77953b2a48657559a127952076a7a634fe34b319f4899077af0884e7eb1",
+      "identity": "1f:b534d77953b2a48657559a127952076a7a634fe34b319f4899077af0884e7eb1"
+    },
+    {
+      "from": "src/record-kind-words.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/show-my-automations-on-the-signed-in-page-what-sets/from-old-trillion/src/record-kind-words.mjs",
+      "source_identity": "1f:5cf29beb175c950d9f4ae6da8d960bdb4d8b6d433064193b31311c8acce15891",
+      "identity": "1f:5cf29beb175c950d9f4ae6da8d960bdb4d8b6d433064193b31311c8acce15891"
     }
   ]
 }
