@@ -30,11 +30,18 @@
 //   3. A run with `paths` settles only those documents (the write a file-writing app just made); without, every one.
 //   4. No list, field, folder or tool is named here: the source declaration and list-view.json `row_sources` name them.
 //   5. dry_run plans the same and writes nothing, so a first run on a person's real list can be read before it acts.
+//   6. A restore never becomes a removal. When the account was restored from an older copy of its state, it holds a
+//      restore generation stamped with its time (list-view.json `restore` names the record and its time field). A
+//      removal judged from a row version older than that time is not trusted: the folder may hold newer copies than
+//      the restored rows. A file whose row history ends in such an older removal is carried back up to the list
+//      (carried_after_restore), and a row whose file is gone keeps its rows (kept_after_restore). Removals written
+//      after the restore are judged as always.
 //
 //   syncRowSource({ list, type, source, sources, paths?, dry_run?, source_answer_bytes?, key, signal? }, door)
 //     → { source, original: "list", documents, unchanged, pushed, pulled, adopted, removed_rows, removed_files,
-//         conflicts: [{ document, kept, because }], refused: [{ document, because }], planned? }
-//     door: { list, run, write, history?(id) → { versions: [{ value, deleted, at }] } }
+//         carried_after_restore, kept_after_restore, conflicts: [{ document, kept, because }],
+//         refused: [{ document, because }], planned? }
+//     door: { list, run, write, read?(type, id), history?(id) → { versions: [{ value, deleted, at }] } }
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { projectedValues, sourcePages, valueIdentity, writeAll, SOURCE_MARK } from './list-view.mjs';
 import data from './list-view.json' with { type: 'json' };
@@ -95,7 +102,13 @@ export async function syncRowSource(input, door) {
     return typeof record.value?.[names.parent_field] === 'string' ? record.value[names.parent_field] : own;
   };
   const report = { source: source.id, original: 'list', documents: 0, unchanged: 0, pushed: 0, pulled: 0, adopted: 0,
-    removed_rows: 0, removed_files: 0, conflicts: [], refused: [], ...(dryRun ? { planned: [] } : {}) };
+    removed_rows: 0, removed_files: 0, carried_after_restore: 0, kept_after_restore: 0, conflicts: [], refused: [],
+    ...(dryRun ? { planned: [] } : {}) };
+  // When the account was last restored from an older copy of its state (list-view.json `restore`): the time its
+  // restore generation was stamped, or null when it never was.
+  const restore = data.restore;
+  const stamped = typeof door.read === 'function' ? await door.read(restore.record_type, restore.record) : null;
+  const restoredAt = Number.isFinite(Date.parse(at(stamped, restore.restored_at))) ? Date.parse(at(stamped, restore.restored_at)) : null;
   let writeIndex = 0;
   const plan = (action, document) => { if (dryRun && report.planned.length < data.limits.planned_shown) report.planned.push({ action, document }); };
   const write = async records => {
@@ -180,6 +193,9 @@ export async function syncRowSource(input, door) {
     const versions = (await door.history(id))?.versions ?? [];
     return versions[0]?.at ?? null;
   };
+  // A removal is decided only by a version written after the account's last restore: a version older than it may come
+  // from the older state the account was restored from, while the folder kept the newer copies (invariant 6).
+  const beforeRestore = when => restoredAt !== null && !(Date.parse(when) >= restoredAt);
 
   const settle = async (name, fileRows, listRows) => {
     report.documents += 1;
@@ -235,6 +251,11 @@ export async function syncRowSource(input, door) {
     }
     if (row) {
       if (row.baseline !== null && row.baseline === row.textIdentity) {
+        if (restoredAt !== null && beforeRestore(await newestRowTime(row.rows[0].id))) {
+          plan('keep-after-restore', name);
+          report.kept_after_restore += 1;
+          return;
+        }
         plan('remove-rows', name);
         await write(listRows.map(record => ({ id: record.id, type, value: null })));
         report.removed_rows += 1;
@@ -247,6 +268,12 @@ export async function syncRowSource(input, door) {
     // Only a file: the list removed it when the row's newest version is a removal of this same file's text.
     const versions = typeof door.history === 'function' ? (await door.history(recordId(name)))?.versions ?? [] : [];
     const removedFromList = versions[0]?.deleted && versions.slice(1).find(version => !version.deleted)?.value?.[names.identity_field] === file.first[names.identity_field];
+    if (removedFromList && beforeRestore(versions[0].at)) {
+      plan('carry-after-restore', name);
+      await push(fileRows);
+      report.carried_after_restore += 1;
+      return;
+    }
     if (removedFromList) {
       plan('remove-file', name);
       if (dryRun) return;
