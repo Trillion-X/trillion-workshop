@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import causes from '../../workflows/recipe-wake-causes.json' with { type: 'json' };
+import shippedDefaults from '../../starting-set/shipped-defaults.json' with { type: 'json' };
 import { profileRules, ruleProblem } from '../../set-up-my-account/read-data/show-rules.mjs';
 import { USE_ASKED } from '../do-work/show-rules.mjs';
 import { blake3 } from '@noble/hashes/blake3.js';
@@ -21,6 +22,10 @@ const [SUBJECT, EFFECT] = Object.keys(data.subjects).flatMap(subject => data.eff
 const STARTING = data.starting_rules.find(one => ruleProblem(data, one, 'personal') === null).id;
 const rule = (id, extra = {}) => ({ id, label: `Sample ${id}`, subject: SUBJECT, when: null, effect: EFFECT, on: true, ...extra });
 const type = (id, rules = [], inherits = []) => ({ id, label: `Sample ${id}`, inherits, rules });
+// The shipped show-rules default (tools/starting-set/shipped-defaults.json), laid under every record the rows read.
+const SHIPPED = shippedDefaults.records.map(one => one.payload).find(one => one.record === data.record);
+const SHIPPED_TYPES = SHIPPED.value.types.map(one => one.id);
+const SHIPPED_ON = SHIPPED.value.in_use;
 const RECORD = {
   rules: [rule('own-1')],
   types: [type('base', [rule('quiet')]), type('child', [rule('loud', { on: false })], ['base'])],
@@ -53,18 +58,20 @@ test('read: the starting rules, the person\'s own, and the rules of switched-on 
   assert.equal(off.status, 0);
   assert.ok(off.result.rules.some(one => one.id === STARTING && one.starting));
   assert.ok(off.result.rules.some(one => one.id === 'own-1'));
-  assert.ok(!off.result.rules.some(one => String(one.id).startsWith('type:')), 'a kept type applies only while it is on');
-  assert.deepEqual(off.result.types.map(one => one.id), ['base', 'child']);
+  assert.ok(!off.result.rules.some(one => /^type:(base|child):/.test(String(one.id))), 'a kept type applies only while it is on');
+  assert.deepEqual(off.result.types.map(one => one.id), [...SHIPPED_TYPES, 'base', 'child']);
+  assert.deepEqual(off.result.in_use, SHIPPED_ON, 'the shipped types are on until the person switches them off');
   const on = await run('see-when-things-show', {}, { ...RECORD, in_use: ['child'] });
   assert.ok(on.result.rules.some(one => one.id === 'type:base:quiet'), 'a type takes the rules of the types it inherits');
-  assert.deepEqual(on.result.in_use, ['child']);
+  assert.deepEqual(on.result.in_use, [...SHIPPED_ON, 'child']);
 });
 
-test('read with no record: everything shows but the starting rules', async () => {
+test('read with no record: the starting rules and the shipped types, on', async () => {
   const { status, result } = await run('see-when-things-show', {}, null);
   assert.equal(status, 0);
-  assert.deepEqual(result.types, []);
-  assert.ok(result.rules.every(one => one.starting));
+  assert.deepEqual(result.types.map(one => [one.id, one.shipped]), SHIPPED_TYPES.map(id => [id, true]));
+  assert.deepEqual(result.in_use, SHIPPED_ON);
+  assert.ok(result.rules.every(one => one.starting || SHIPPED_TYPES.some(id => String(one.id).startsWith(`type:${id}:`))));
 });
 
 test('type precedence: a child\'s version of an inherited rule replaces it, switched off or not', () => {
@@ -127,10 +134,11 @@ test('take a type away: a parent another type inherits is refused; a leaf is tak
 
 test('switch a kept type on and off; a type nobody keeps is refused', async () => {
   const on = await run('switch-a-kept-show-type', { use: { type: 'child', on: true } });
-  assert.deepEqual(on.result.in_use, ['child']);
+  assert.deepEqual(on.result.in_use, [...SHIPPED_ON, 'child']);
+  assert.deepEqual(kept(on.result).value.in_use, ['child'], 'the shipped switch is not written into the record');
   assert.equal(on.result.said, 'Switched on Sample child.');
   const off = await run('switch-a-kept-show-type', { use: { type: 'child', on: false } }, { ...RECORD, in_use: ['child'] });
-  assert.deepEqual(off.result.in_use, []);
+  assert.deepEqual(off.result.in_use, SHIPPED_ON);
   assert.match((await run('switch-a-kept-show-type', { use: { type: 'nobody', on: true } })).error, /^No profile nobody is kept here/);
 });
 
@@ -142,10 +150,58 @@ test('a wake: a record of the declared kind written switches the type it names',
   const asked = [{ id: `${USE_ASKED}:child`, type: USE_ASKED, value: { type: 'child', on: true } }];
   const { status, result } = await run('switch-a-kept-show-type', {}, RECORD, asked);
   assert.equal(status, 0);
-  assert.deepEqual(result.in_use, ['child']);
+  assert.deepEqual(result.in_use, [...SHIPPED_ON, 'child']);
   assert.deepEqual(kept(result).value.in_use, ['child']);
   const none = await run('switch-a-kept-show-type', {}, RECORD, []);
   assert.match(none.error, new RegExp(USE_ASKED));
+});
+
+test('the shipped types: switched off and on as the person\'s starting switch, never written into the record', async () => {
+  const [id] = SHIPPED_ON;
+  const off = await run('switch-a-kept-show-type', { use: { type: id, on: false } });
+  assert.equal(off.status, 0);
+  assert.ok(!off.result.in_use.includes(id));
+  const record = kept(off.result);
+  assert.deepEqual(record.expected, RECORD, 'the record as read');
+  assert.deepEqual(record.value.starting[id], { on: false }, 'switched off where the reader looks (merge.switched off_in)');
+  assert.deepEqual(record.value.types.map(one => one.id), ['base', 'child'], 'no shipped type is written');
+  assert.equal(record.value.in_use, undefined);
+  const back = await run('switch-a-kept-show-type', { use: { type: id, on: true } }, record.value);
+  assert.equal(back.error, undefined);
+  assert.ok(back.result.in_use.includes(id));
+  assert.equal(kept(back.result).value.starting[id], undefined, 'switched back on by leaving the default to say');
+  // A wake asks for it the same way.
+  const woken = await run('switch-a-kept-show-type', {}, null, [{ id: `${USE_ASKED}:${id}`, type: USE_ASKED, value: { type: id, on: false } }]);
+  assert.deepEqual(kept(woken.result).value.starting[id], { on: false });
+  assert.equal(kept(woken.result).value.types, undefined);
+});
+
+test('a shipped type is not taken away; a person\'s own copy of one is, and the shipped one comes back as switched', async () => {
+  const [id] = SHIPPED_ON;
+  const refused = await run('take-a-show-type-away', { remove_type: id });
+  assert.match(refused.error, new RegExp(`^${id} ships with Trillion for every account`));
+  const mine = { ...SHIPPED.value.types.find(one => one.id === id), label: 'My own copy' };
+  const changed = await run('keep-a-show-type', { type: mine });
+  assert.equal(changed.status, 0);
+  const own = kept(changed.result).value;
+  assert.deepEqual(own.types.map(one => [one.id, one.label]), [[id, 'My own copy'], ['base', 'Sample base'], ['child', 'Sample child']], 'a changed shipped type becomes the person\'s own');
+  assert.deepEqual(own.in_use, [id], 'and its switch is theirs');
+  const read = await run('see-when-things-show', {}, own);
+  assert.equal(read.result.types.find(one => one.id === id).shipped, undefined);
+  const taken = await run('take-a-show-type-away', { remove_type: id }, own);
+  assert.equal(taken.status, 0);
+  const after = kept(taken.result).value;
+  assert.ok(!after.types.some(one => one.id === id));
+  assert.equal(after.starting?.[id], undefined, 'it was on, so the shipped one comes back on');
+  const unchanged = await run('keep-a-show-type', { type: SHIPPED.value.types.find(one => one.id === id) });
+  assert.deepEqual(kept(unchanged.result).value.types.map(one => one.id), ['base', 'child'], 'keeping the shipped type unchanged writes no copy');
+});
+
+test('a shipped type can be shared like a kept one', async () => {
+  const [id] = SHIPPED_TYPES;
+  const { status, result } = await share({ type: id, principal: 'sample-account' });
+  assert.equal(status, 0);
+  assert.deepEqual(result.keep[0].value.types.map(one => one.id), [id]);
 });
 
 const GRANT = id => `sharing:${data.sharing.record_prefix}${id}`;
