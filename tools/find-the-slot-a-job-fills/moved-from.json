@@ -10,6 +10,28 @@
       "to": "tools/find-the-slot-a-job-fills/src/job-slots.mjs",
       "source_identity": "1f:f55fa51bf85d485f7bdc6f91b8af9457636c672f547af6b173f2f15c17301cae",
       "identity": "1f:f55fa51bf85d485f7bdc6f91b8af9457636c672f547af6b173f2f15c17301cae"
+    },
+    {
+      "from": "src/job-slots.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/find-the-slot-a-job-fills/src/job-slots.mjs",
+      "source_identity": "1f:f55fa51bf85d485f7bdc6f91b8af9457636c672f547af6b173f2f15c17301cae",
+      "identity": "1f:f55fa51bf85d485f7bdc6f91b8af9457636c672f547af6b173f2f15c17301cae",
+      "reused": true
+    },
+    {
+      "from": "test/job-slots.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/find-the-slot-a-job-fills/test/job-slots.test.mjs",
+      "source_identity": "1f:687768efebfc37e7a2ce8e93977019b81ac325b7a47af6782d063e169511cb1d",
+      "identity": "1f:a27a6c0a48a55ba219259051fa947efc1927d88e738d200045ab72e7b172c8b7"
+    },
+    {
+      "from": "test/tool-listing.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/find-the-slot-a-job-fills/test/tool-listing.test.mjs",
+      "source_identity": "1f:ce651589c25451f95a66150de08d999ced69207d52ffa155008f6b57a62db391",
+      "identity": "1f:aeadeafb75fa639d7e5dbdce34b88b78082f9d9b4c3396e7a78b40e4fb300c83"
     }
   ]
 }

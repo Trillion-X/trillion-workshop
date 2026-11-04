@@ -10,6 +10,21 @@
       "to": "tools/move-the-rows-a-persons-store-kept-in-tables/src/tables-into-records.mjs",
       "source_identity": "1f:1b31ae1ca12b9c5a2f0598db75b10808192e4c1aacd5c00bdc678fa4b2b6d8a4",
       "identity": "1f:cef7a93a87b5c894a8d75781a800c13eed78d2df8543cbb788a08296274fc911"
+    },
+    {
+      "from": "src/tables-into-records.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/move-the-rows-a-persons-store-kept-in-tables/src/tables-into-records.mjs",
+      "source_identity": "1f:1b31ae1ca12b9c5a2f0598db75b10808192e4c1aacd5c00bdc678fa4b2b6d8a4",
+      "identity": "1f:cef7a93a87b5c894a8d75781a800c13eed78d2df8543cbb788a08296274fc911",
+      "reused": true
+    },
+    {
+      "from": "test/agent-records.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/move-the-rows-a-persons-store-kept-in-tables/test/agent-records.test.mjs",
+      "source_identity": "1f:dee05252767aa97ad8da1d4ff6e81b2a9de150c96b3d8c240106eb5e5079a612",
+      "identity": "1f:3f6e1f043db6c4aa937704db3e98ac68cc76bb6a71a169a398a20a493619964b"
     }
   ]
 }
