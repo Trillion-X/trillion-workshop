@@ -26,8 +26,8 @@ import {
   isGroupGraph,
   type Group,
   type GroupGraph,
-} from '../../ui/show/group/group-graph.ts';
-import type { AddressRef } from '../../ui/show/visual-layer-stack/visual-layer-types';
+} from '../../make-screen-layouts-and-controls/parts/ui/show/group/group-graph.ts';
+import type { AddressRef } from '../../turn-frames-into-slides/read-data/visual-layer-types.ts';
 
 /** One persisted group, as it sits in the log (value may arrive parsed or as JSON text). */
 export interface GroupRecord {
