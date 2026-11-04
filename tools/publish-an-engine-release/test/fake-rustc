@@ -1,0 +1,4 @@
+#!/bin/sh
+# A stand-in for rustc, for tools/publish-an-engine-release's tests: `rustc -vV` names a made-up host target.
+[ "$1" = "-vV" ] || exit 2
+printf 'rustc 1.90.0 (fake)\nbinary: rustc\nhost: %s\nrelease: 1.90.0\n' "${FAKE_RUSTC_HOST:-x86_64-unknown-linux-gnu}"

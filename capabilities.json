@@ -483,6 +483,15 @@
       "evidence": "README.md:3 which domains a person's email-sending account may send from, how each stands, and how many there are"
     },
     {
+      "capability": "publish a signed engine release on every push to the engine repository's branch: a builder computer builds the engine at that commit, signs a release feed entry with a key only it holds and serves the feed, so every computer adopts the fix without an app install",
+      "owner": ["tools/publish-an-engine-release/"],
+      "entry": "tools/publish-an-engine-release/tool-rows.json",
+      "evidence": "README.md:3 a builder computer receives each push to the engine repository's branch, builds trillion-local at that commit, signs the entry with a key only the builder holds, and adds it to a feed",
+      "distinct_from": [
+        {"job": "make a machine into a place that keeps people's accounts: rent a server from a provider named by a row, or take a Linux machine someone already runs over SSH, install the account engine's release on it, start it serving and read back its sign-up page and monthly price", "why": "that job installs one given release on one place and points the place at this feed; this one builds and signs every release and serves the feed the places adopt from"}
+      ]
+    },
+    {
       "capability": "make a machine into a place that keeps people's accounts: rent a server from a provider named by a row, or take a Linux machine someone already runs over SSH, install the account engine's release on it, start it serving and read back its sign-up page and monthly price",
       "owner": ["tools/start-a-place/"],
       "entry": "tools/start-a-place/tool-rows.json",

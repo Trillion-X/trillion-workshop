@@ -1,0 +1,92 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PUBLISH-AN-ENGINE-RELEASE",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:9c15e06aa7af929c7fa6f3b70d9f6f4718ab96062a20c7d49be7023851812d44",
+    "quote": "An engine fix must reach accounts without any Mac app install."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Publish a signed engine release on every push to the branch, so every computer adopts it from a release feed",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/publish-an-engine-release/do-work/release-feed.mjs"
+    },
+    {
+      "path": "tools/publish-an-engine-release/do-work/publish-an-engine-release.mjs"
+    },
+    {
+      "path": "tools/publish-an-engine-release/do-work/receive-pushes.mjs"
+    },
+    {
+      "path": "tools/publish-an-engine-release/do-work/install-a-builder.mjs"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/publish-an-engine-release/",
+      "why": "This tool itself: its README, rows, settings and tests name the signing domain, the release values and the push signature header it uses."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "capabilities.json",
+      "why": "This tool's own capability row, whose owner names this folder: the registry entry for this tool, not another owner of the job."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/published/tools.json",
+      "why": "The generated tool catalog (publish-tool-catalog.mjs): it carries this tool's own rows. A generated listing of this tool, not another owner of the job."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/start-a-place/",
+      "why": "start-a-place writes the release_feed a place reads this tool's feed with, and its README names this folder as the feed's publisher; it starts places and publishes nothing."
+    },
+    {
+      "repository": "trillion",
+      "path": "scripts/deploy-worker.mjs",
+      "why": "The older product's Workers Builds deploy, removed at the commit this search names: it uploaded and promoted a hosted Worker version on each push to main. Its rule that an older commit never wins is kept here, but the job differs: this builds the engine program on a builder and signs a feed entry each computer adopts itself; nothing is uploaded or promoted."
+    },
+    {
+      "repository": "trillion",
+      "path": "scripts/deploy-batching.json",
+      "why": "The batching numbers of that removed Worker deploy; this tool's numbers are its own (read-data/settings.json)."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "Publish a signed engine release on every push to the branch, so every computer adopts it from a release feed",
+        "build trillion-local at a commit with TRILLION_RELEASE_SEQUENCE and sign the release",
+        "sign a release feed entry with trillion-engine-release-v1",
+        "check the x-hub-signature-256 of a push and publish the commit"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "trillion-engine-release-v1",
+        "TRILLION_RELEASE_SEQUENCE",
+        "x-hub-signature-256",
+        "publish-an-engine-release|publishAnEngineRelease"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "3d97e38e867d62670773616bf59c1256e39cd862"
+        },
+        {
+          "repository": "trillion",
+          "commit": "4ffa1dc4a2"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/publish-an-engine-release/test/publish-an-engine-release.test.mjs"
+    ]
+  }
+}
