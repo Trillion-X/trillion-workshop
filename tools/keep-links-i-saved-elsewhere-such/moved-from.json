@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/saved-links-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-links-i-saved-elsewhere-such/src/saved-links-tools.mjs",
+      "source_identity": "1f:bf341be1a74cf34ee0a6a873e2f554c2964f033114e76e92783f7e1922cf6d14",
+      "identity": "1f:c0f492d375c57605351138d70b1a80d49ecf98b1a7110a8ded2f1914094aa019"
+    },
+    {
+      "from": "src/saved-links.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-links-i-saved-elsewhere-such/src/saved-links.mjs",
+      "source_identity": "1f:d0e89f97067d3289b4af9dc275aaa9ae68e789b0e1751ccb164c37f8d5317e79",
+      "identity": "1f:d7538562e54393ddbd323b6416586ca74e0289f7b423de7067efc35b0a9388c8"
+    },
+    {
+      "from": "src/saved-pages.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-links-i-saved-elsewhere-such/src/saved-pages.json",
+      "source_identity": "1f:f30f984fdb1a1befa0de9c00d893c2152a27e1764eaeedfa7634e10afe40d292",
+      "identity": "1f:f30f984fdb1a1befa0de9c00d893c2152a27e1764eaeedfa7634e10afe40d292"
+    },
+    {
+      "from": "src/saved-pages.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-links-i-saved-elsewhere-such/src/saved-pages.mjs",
+      "source_identity": "1f:14bdcee7714dbe6d2baabeeffffd10fdc261a6e53487efbf8f0db65f457d2a4e",
+      "identity": "1f:14bdcee7714dbe6d2baabeeffffd10fdc261a6e53487efbf8f0db65f457d2a4e"
+    },
+    {
+      "from": "test/saved-pages-adoption.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-links-i-saved-elsewhere-such/test/saved-pages-adoption.test.mjs",
+      "source_identity": "1f:35ced4ef5de13fd1eb5391f37aff4ea524c24081dcaa9cd26860bc7f5f2a2aba",
+      "identity": "1f:0c755222945509bb230c9c8f611f00d7c3cb1bed25da7a36dae1281279597e7d"
+    }
+  ]
+}

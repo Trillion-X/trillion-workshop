@@ -1,0 +1,132 @@
+// test/search-catch-up-reset-slice.test.mjs
+// A catch-up wake the platform resets (a Durable Object over its CPU limit) never reaches its end, so the wake after it
+// takes half the slice (src/search.mjs openStep) instead of the same one again. Each wake reads at most its byte slice
+// plus one value, a far-behind follower reaches the same word index as one unbounded catch-up, and a killed wake loses
+// only the value it was reading.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { searchFeedWriter } from '../../../shared-code/src/search-feed.mjs';
+import { makeSearch } from '../src/search.mjs';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+
+const lane = { id: 'contents-words', place: 'written', source: 'files', match: 'words-in-index', kind: 'contents', text_path: '$.text', rank: 1.1 };
+const SLICE = 300_000;
+const DOCS = 40;
+
+// A store whose statements count the bytes of result values they read, and whose result reads can be made to fail.
+async function store({ bytesPerWake, docs = DOCS, bodyBytes = 100_000 }) {
+  const host = sqliteHost(':memory:');
+  host.sql.exec('CREATE TABLE IF NOT EXISTS namespace_results (identity TEXT NOT NULL, kind TEXT NOT NULL, value TEXT NOT NULL, produced_by TEXT, value_identity TEXT NOT NULL, recorded_at TEXT NOT NULL, PRIMARY KEY (identity, kind))');
+  let largest = 0;
+  for (let n = 0; n < docs; n += 1) {
+    const value = JSON.stringify({ text: `marker${n} ${'lorem ipsum '.repeat(Math.ceil(bodyBytes / 12))}`.slice(0, bodyBytes) });
+    largest = Math.max(largest, value.length);
+    host.sql.exec("INSERT INTO namespace_results (identity, kind, value, produced_by, value_identity, recorded_at) VALUES (?, 'contents', ?, 'test', ?, '2026-10-13T00:00:00Z')", `doc${String(n).padStart(3, '0')}`, value, `v${n}`);
+  }
+  const meter = { bytes: 0 };
+  const sql = { exec(query, ...params) {
+    const rows = host.sql.exec(query, ...params).toArray();
+    meter.bytes += rows.reduce((sum, row) => sum + (typeof row.value === 'string' ? row.value.length : 0), 0);
+    return { toArray: () => rows, one: () => rows[0] };
+  } };
+  const raw = searchFeedWriter(sql);
+  // fault.hang makes the wake's rows read never answer, as a wake the platform kills (nothing runs after the reset, not even a finally);
+  // fault.refuse makes it fail with an error, which the wake survives to report.
+  const fault = { hang: false, refuse: false };
+  const results = { ...raw, rows(...args) {
+    if (fault.hang) return new Promise(() => {});
+    if (fault.refuse) return Promise.reject(new Error('the owner refused'));
+    return raw.rows(...args);
+  }, row(...args) {
+    if (fault.refuse) return Promise.reject(new Error('the owner refused'));
+    return raw.row(...args);
+  } };
+  const config = { ...settings, lanes: [lane], catch_up: { ...settings.catch_up, bytes_per_wake: bytesPerWake } };
+  const search = makeSearch({ sql, transaction: host.transaction, results, config });
+  return { sql, search, meter, fault, largest };
+}
+
+// Runs wakes until nothing waits, and answers the bytes each wake read.
+async function settle(s) {
+  const wakes = [];
+  for (let wake = 0; wake < 500 && (await s.search.backlog(50)); wake += 1) {
+    const before = s.meter.bytes;
+    await s.search.catchUp(50);
+    wakes.push(s.meter.bytes - before);
+  }
+  assert.equal(await s.search.backlog(50), null, 'the follower settles');
+  return wakes;
+}
+
+const indexState = s => ({
+  marks: s.sql.exec('SELECT lane, identity, value_identity FROM search_marks ORDER BY lane, identity').toArray(),
+  words: s.sql.exec('SELECT lane, identity, text FROM search_words ORDER BY lane, identity').toArray(),
+});
+
+test('a far-behind follower catches up in wakes that each read a fixed byte slice, to the same word index as one unbounded catch-up', async () => {
+  const bounded = await store({ bytesPerWake: SLICE });
+  const wakes = await settle(bounded);
+  const unbounded = await store({ bytesPerWake: Number.MAX_SAFE_INTEGER });
+  await settle(unbounded);
+  assert.ok(wakes.length >= Math.floor(DOCS / 3), `${wakes.length} wakes for ${DOCS} documents of ~100 KB`);
+  for (const bytes of wakes) assert.ok(bytes <= SLICE + bounded.largest, `a wake read ${bytes} bytes, past the slice ${SLICE} plus one value`);
+  assert.equal(indexState(bounded).marks.length, DOCS);
+  assert.deepEqual(indexState(bounded), indexState(unbounded));
+});
+
+test('a wake the platform resets is remembered: the next wake reads half the slice, and the slice grows back after a clean wake', async () => {
+  const s = await store({ bytesPerWake: SLICE });
+  let before = s.meter.bytes;
+  await s.search.catchUp(50);
+  const first = s.meter.bytes - before;
+  // The second wake is killed while it reads its values: it never answers, and nothing after the reset runs.
+  s.fault.hang = true;
+  s.search.catchUp(50).catch(() => {});
+  for (let turn = 0; turn < 20; turn++) await new Promise(done => setImmediate(done));
+  s.fault.hang = false;
+  before = s.meter.bytes;
+  await s.search.catchUp(50);
+  const afterReset = s.meter.bytes - before;
+  assert.ok(afterReset <= Math.floor(SLICE / 2) + s.largest, `the wake after a reset read ${afterReset} bytes, past half the slice`);
+  assert.ok(afterReset < first, `the wake after a reset (${afterReset} bytes) read less than a full wake (${first} bytes)`);
+  before = s.meter.bytes;
+  await s.search.catchUp(50);
+  assert.ok(s.meter.bytes - before > afterReset, 'a clean wake takes a larger slice again');
+  await settle(s);
+  const unbounded = await store({ bytesPerWake: Number.MAX_SAFE_INTEGER });
+  await settle(unbounded);
+  assert.deepEqual(indexState(s), indexState(unbounded), 'the killed wake left no partial index behind');
+});
+
+test('one rows read never reads a value past the byte slice into the store, takes at least one, and names where it stopped', async () => {
+  const s = await store({ bytesPerWake: SLICE, docs: 20 });
+  const results = searchFeedWriter(s.sql);
+  const identities = Array.from({ length: 20 }, (_, n) => `doc${String(n).padStart(3, '0')}`);
+  let before = s.meter.bytes;
+  const slice = results.rows('contents', identities, SLICE);
+  assert.ok(s.meter.bytes - before <= SLICE, `the read took ${s.meter.bytes - before} bytes against a slice of ${SLICE}`);
+  assert.ok(slice.rows.length >= 2 && slice.rows.length < 20, `${slice.rows.length} values fit the slice`);
+  assert.equal(slice.through, slice.rows.at(-1).identity, 'it names the last value it took');
+  before = s.meter.bytes;
+  const one = results.rows('contents', identities, 1);
+  assert.equal(one.rows.length, 1, 'a slice smaller than one value still takes one');
+  assert.ok(s.meter.bytes - before <= s.largest, 'and reads only that one');
+  assert.deepEqual(results.rows('contents', identities).rows.map(row => row.identity), identities, 'with no slice it takes them all, in order');
+});
+
+test('a wake that fails with an error is not a wake the platform cut off: the next wake keeps its slice and grows it', async () => {
+  const s = await store({ bytesPerWake: SLICE });
+  let before = s.meter.bytes;
+  await s.search.catchUp(50);
+  const first = s.meter.bytes - before;
+  // The owner refuses the wake's reads three times running: each wake fails, runs its finally and leaves no mark open.
+  s.fault.refuse = true;
+  for (let wake = 0; wake < 3; wake++) await assert.rejects(s.search.catchUp(50), /the owner refused/);
+  s.fault.refuse = false;
+  assert.equal(s.sql.exec('SELECT open FROM search_step WHERE singleton = 1').toArray()[0].open, 0, 'no mark is left open');
+  before = s.meter.bytes;
+  await s.search.catchUp(50);
+  const after = s.meter.bytes - before;
+  assert.ok(after >= first, `the wake after three refusals read ${after} bytes, a full wake read ${first}`);
+});

@@ -1,0 +1,4 @@
+import settings from './space-settings.json' with { type: 'json' };
+
+// A Space page has the same public size before and after physical placement.
+export const spacePageSize = limit => Math.min(Math.max(Math.floor(Number(limit) || settings.page.default), 1), settings.page.max);

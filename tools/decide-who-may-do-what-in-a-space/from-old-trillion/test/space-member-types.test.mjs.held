@@ -1,0 +1,358 @@
+// Member types in a space (src/space-member-types.mjs): each label's types come from DATA, a joiner gets the
+// label's joining type, a member is given another type only as the space's rules allow and never so that nobody can
+// change the rules, a space adds and removes its own types, the rules decide by type, what the reader may do to the
+// space and each thing is the rules' own answer, and a refused set of rules names each reason by its rule.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { sqliteHost } from '../src/local-store.mjs';
+import { withSourceImports } from './source-imports-for-tests.mjs';
+import rules from '../../../introduce-two-people/src/network-settings.json' with { type: 'json' };
+import permissions from '../../../space-permission-rules/src/space-permission-rules.json' with { type: 'json' };
+import memberTypes from '../../../space-member-types/src/space-member-types.json' with { type: 'json' };
+import { documentMemberTypesOf } from '../src/space-member-types.mjs';
+import { handleSpacesRequest } from '../src/person-spaces.mjs';
+import { importSource } from './import-source-for-tests.mjs';
+import { makeSharedNetwork } from '../src/shared-resource-routing.mjs';
+import { accountControlBinding } from './account-control-binding-for-tests.mjs';
+
+const source = withSourceImports(readFileSync(new URL('../src/network.mjs', import.meta.url), 'utf8')
+  .replace("import { DurableObject } from 'cloudflare:workers';", 'class DurableObject { constructor(ctx, env) { this.ctx = ctx; this.env = env; } }')
+  .replace("import rules from './network-settings.json' with { type: 'json' };", `const rules = ${JSON.stringify(rules)};`));
+const { Network } = await importSource(source);
+
+const ana = 'relay_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const bo = 'relay_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+
+test('legacy member types beyond one page retain late inheritance and permission-change detection', async () => {
+  const { net, sql, id } = await space();
+  const count = memberTypes.own_types.max + 3;
+  const last = `legacy_${String(count - 1).padStart(3, '0')}`;
+  for (let index = 0; index < count; index += 1) {
+    sql.exec('INSERT INTO space_member_types (space_id, type_id, label, added_by, added_at, inherits) VALUES (?, ?, ?, ?, ?, ?)',
+      id, `legacy_${String(index).padStart(3, '0')}`, `Legacy ${index}`, ana, '2026-10-13T00:00:00Z', JSON.stringify(index === count - 1 ? ['owner'] : []));
+  }
+  const target = { id, label: 'project' };
+  assert.equal(net.baseMemberTypesOf(target).filter(type => type.own).length, count);
+  assert.deepEqual(net.memberTypeIdsOf(target, last), ['owner', last]);
+  const before = net.spaceAccessState(id, ana);
+  sql.exec('UPDATE space_member_types SET inherits = ? WHERE space_id = ? AND type_id = ?', JSON.stringify(['viewer']), id, last);
+  assert.throws(() => net.assertSpaceAccessUnchanged(id, ana, before), /permissions changed/);
+  assert.deepEqual(net.memberTypeIdsOf(target, last), ['viewer', last]);
+});
+
+async function space(label = 'project') {
+  const { sql, transaction } = sqliteHost(':memory:');
+  const net = new Network({ storage: { sql, transactionSync: transaction } }, { ACCOUNT_CONTROL: accountControlBinding(), PERSON: { idFromString: ref => ref, get: () => ({ includesPlanFeature: async () => true, spaceChanged: async () => undefined }) } });
+  for (const [relay, ref] of [[ana, 'store-ana'], [bo, 'store-bo']]) net.remember(relay, ref);
+  const { membership_id: id } = await net.createMembership({ relay: ana, person_ref: 'store-ana', label, title: 'Riverside' });
+  const asked = await net.request({ from: ana, person_ref: 'store-ana', to: bo, why: 'Join', membership_id: id });
+  await net.answer({ relay: bo, request_id: asked.request_id, accept: true });
+  const { ids: [anaItem] } = await net.addSpaceItems({ relay: ana, space_id: id, items: [{ kind: 'message', body: 'From ana' }] });
+  return { net, sql, id, anaItem };
+}
+
+test('member-type copy discovery is read-only, paced durably, and resumes its bounded page after restart', async () => {
+  const { net, sql, id } = await space();
+  const cursor = () => sql.exec("SELECT after_space_id, after_type_id, done_at, next_at FROM space_member_type_copy WHERE id = 'rows'").toArray()[0];
+
+  const emptyBefore = cursor();
+  assert.ok(Number.isFinite(net.spaceMemberTypeCopyNextAt()));
+  assert.deepEqual(cursor(), emptyBefore, 'discovery must not mark an empty copy complete');
+  net.copySpaceMemberTypesPage();
+  assert.ok(cursor().done_at, 'the copy owner records empty completion');
+  assert.equal(cursor().next_at, null);
+
+  sql.exec("UPDATE space_member_type_copy SET after_space_id = '', after_type_id = '', done_at = NULL, next_at = NULL WHERE id = 'rows'");
+  for (let index = 0; index < memberTypes.own_types.copy_rows_per_run + 1; index += 1) {
+    const typeId = `legacy_${String(index).padStart(3, '0')}`;
+    sql.exec('INSERT INTO space_member_types (space_id, type_id, label, added_by, added_at, inherits) VALUES (?, ?, ?, ?, ?, ?)',
+      id, typeId, `Legacy ${index}`, ana, '2026-10-13T00:00:00Z', '[]');
+  }
+
+  const pendingBefore = cursor();
+  const initiallyDue = net.spaceMemberTypeCopyNextAt();
+  assert.ok(Number.isFinite(initiallyDue));
+  assert.deepEqual(cursor(), pendingBefore, 'pending discovery must not write the cursor');
+  net.copySpaceMemberTypesPage();
+  const firstPage = cursor();
+  assert.equal(firstPage.after_type_id, `legacy_${String(memberTypes.own_types.copy_rows_per_run - 1).padStart(3, '0')}`);
+  assert.equal(JSON.parse(sql.exec('SELECT types FROM space_show_rule_types WHERE space_id = ?', id).toArray()[0].types).length,
+    memberTypes.own_types.copy_rows_per_run, 'one run copies exactly the configured row bound');
+  assert.ok(firstPage.next_at);
+  assert.equal(firstPage.done_at, null);
+
+  const restarted = new Network({ storage: net.ctx.storage }, { ACCOUNT_CONTROL: accountControlBinding(), PERSON: { idFromString: ref => ref, get: () => ({ includesPlanFeature: async () => true, spaceChanged: async () => undefined }) } });
+  const durableDeadline = Date.parse(firstPage.next_at);
+  assert.equal(restarted.spaceMemberTypeCopyNextAt(), durableDeadline);
+  assert.equal(restarted.spaceMemberTypeCopyNextAt(), durableDeadline, 'repeated discovery keeps the same stored deadline');
+
+  sql.exec("UPDATE space_member_type_copy SET next_at = '2000-01-01T00:00:00.000Z' WHERE id = 'rows'");
+  restarted.copySpaceMemberTypesPage();
+  const final = cursor();
+  assert.equal(final.after_type_id, `legacy_${String(memberTypes.own_types.copy_rows_per_run).padStart(3, '0')}`);
+  assert.ok(final.done_at, 'the restarted copy continues and records completion');
+  assert.equal(final.next_at, null);
+  assert.equal(JSON.parse(sql.exec('SELECT types FROM space_show_rule_types WHERE space_id = ?', id).toArray()[0].types).length,
+    memberTypes.own_types.copy_rows_per_run + 1);
+});
+
+test('each label offers its own types from DATA, and a joiner gets the label\'s joining type', async () => {
+  for (const label of ['project', 'group']) {
+    const { net, id } = await space(label);
+    const read = await net.readSpaceRules({ relay: ana, space_id: id });
+    assert.deepEqual(read.member_types.map(type => type.id), memberTypes.labels[label].types.map(type => type.id));
+    assert.deepEqual(read.members.map(member => member.member_type), ['owner', memberTypes.labels[label].joins_as]);
+    assert.deepEqual(read.rules.map(rule => rule.id), permissions.default_rules_by_label[label].map(rule => rule.id));
+  }
+});
+
+test('a member set as Viewer is refused writing, and the owner may give types while a contributor may not', async () => {
+  const { net, id } = await space();
+  assert.equal((await net.addSpaceItems({ relay: bo, space_id: id, items: [{ kind: 'message', body: 'Hi' }] })).ids.length, 1);
+  await assert.rejects(net.setMemberType({ relay: bo, space_id: id, member_id: ana, member_type: 'viewer' }), /cannot change people's types/);
+  const after = await net.setMemberType({ relay: ana, space_id: id, member_id: bo, member_type: 'viewer' });
+  assert.equal(after.members.find(member => member.member_id === bo).member_type, 'viewer');
+  await assert.rejects(net.addSpaceItems({ relay: bo, space_id: id, items: [{ kind: 'message', body: 'Hi' }] }), /not a member of that pursuit|Write and share/);
+  assert.equal((await net.spaceItems({ relay: bo, space_id: id })).items.length, 2);
+  const seen = await net.space({ relay: bo, space_id: id });
+  assert.equal(seen.may.add_items, false);
+  assert.equal((await net.space({ relay: ana, space_id: id })).may.set_member_type, true);
+  await assert.rejects(net.setMemberType({ relay: ana, space_id: id, member_id: bo, member_type: 'wizard' }), /not a type in this space/);
+});
+
+test('nobody can be left unable to change the rules, by a type change or a new set of rules', async () => {
+  const { net, id } = await space();
+  await assert.rejects(net.setMemberType({ relay: ana, space_id: id, member_id: ana, member_type: 'viewer' }), /Nobody here could change who can do what/);
+  assert.equal((await net.readSpaceRules({ relay: ana, space_id: id })).members[0].member_type, 'owner');
+  const starting = permissions.default_rules_by_label.project;
+  await assert.rejects(net.setSpaceRules({ relay: ana, space_id: id, rules: starting.filter(rule => rule.id !== 'owners') }), /would stop you changing them again/);
+  // With bo made an owner first, ana may step down.
+  await net.setMemberType({ relay: ana, space_id: id, member_id: bo, member_type: 'owner' });
+  await net.setMemberType({ relay: ana, space_id: id, member_id: ana, member_type: 'viewer' });
+  assert.equal((await net.readSpaceRules({ relay: ana, space_id: id })).may_change, false);
+});
+
+test('a rule saved for a type changes what the evaluator allows', async () => {
+  const { net, id, anaItem } = await space();
+  const starting = permissions.default_rules_by_label.project;
+  await assert.rejects(net.withdrawSpaceItem({ relay: bo, space_id: id, item_id: anaItem }), /Only the member who put an item/);
+  const tidy = { id: 'contributors-tidy', effect: 'allow', says: 'Contributors take back and hide anything.', who: { kind: 'member_type', member_type: 'contributor' }, actions: ['withdraw_item', 'hide_item'] };
+  await net.setSpaceRules({ relay: ana, space_id: id, rules: [...starting, tidy] });
+  const [item] = (await net.spaceItems({ relay: bo, space_id: id })).items;
+  assert.deepEqual(item.may, { withdraw_item: true, hide_item: true });
+  const stop = { id: 'no-viewers-writing', effect: 'deny', says: 'Viewers do not write.', refuses: 'Viewers read only here.', who: { kind: 'member_type', member_type: 'viewer' }, actions: ['add_items'] };
+  await net.setSpaceRules({ relay: ana, space_id: id, rules: [...starting, stop] });
+  await net.setMemberType({ relay: ana, space_id: id, member_id: bo, member_type: 'viewer' });
+  await assert.rejects(net.addSpaceItems({ relay: bo, space_id: id, items: [{ kind: 'message', body: 'Hi' }] }), /Viewers read only here/);
+});
+
+test('nested member types inherit rule access, preserve rule editors, and protect every named ancestor', async () => {
+  const { net, id, anaItem } = await space();
+  await net.addMemberType({ relay: ana, space_id: id, label: 'Editor' });
+  const editor = (await net.readSpaceRules({ relay: ana, space_id: id })).member_types.find(type => type.label === 'Editor');
+  await net.addMemberType({ relay: ana, space_id: id, label: 'Senior editor', inherits: [editor.id] });
+  const senior = (await net.readSpaceRules({ relay: ana, space_id: id })).member_types.find(type => type.label === 'Senior editor');
+  await net.addMemberType({ relay: ana, space_id: id, label: 'Lead editor', inherits: [senior.id] });
+  const lead = (await net.readSpaceRules({ relay: ana, space_id: id })).member_types.find(type => type.label === 'Lead editor');
+  const starting = permissions.default_rules_by_label.project;
+  const rule = { id: 'editors-take-back', effect: 'allow', says: 'Editors take back shared things.',
+    who: { kind: 'any_member' }, actions: ['withdraw_item'],
+    when: { kind: 'group', combinator: 'and', rules: [{ kind: 'rule', field: 'member_types', operator: 'has_any_of', params: { values: [editor.id] } }] } };
+  await net.setSpaceRules({ relay: ana, space_id: id, rules: [...starting, rule] });
+  await net.setMemberType({ relay: ana, space_id: id, member_id: bo, member_type: lead.id });
+  assert.deepEqual(await net.withdrawSpaceItem({ relay: bo, space_id: id, item_id: anaItem }), { withdrawn: anaItem });
+  await assert.rejects(net.removeMemberType({ relay: ana, space_id: id, member_type: editor.id }), /A rule names Editor/);
+  await assert.rejects(net.removeMemberType({ relay: ana, space_id: id, member_type: senior.id }), /Another type inherits Senior editor/);
+});
+
+test('a pursuit-owned member type can be renamed and its inheritance changed without allowing cycles', async () => {
+  const { net, id } = await space();
+  await net.addMemberType({ relay: ana, space_id: id, label: 'Editor' });
+  const editor = (await net.readSpaceRules({ relay: ana, space_id: id })).member_types.find(type => type.label === 'Editor');
+  await net.addMemberType({ relay: ana, space_id: id, label: 'Lead', inherits: [editor.id] });
+  const lead = (await net.readSpaceRules({ relay: ana, space_id: id })).member_types.find(type => type.label === 'Lead');
+  const changed = await net.updateMemberType({ relay: ana, space_id: id, member_type: lead.id, label: 'Senior lead', inherits: ['contributor'] });
+  assert.deepEqual(changed.member_types.find(type => type.id === lead.id), {
+    id: lead.id, label: 'Senior lead', inherits: ['contributor'], own: true,
+  });
+  await assert.rejects(net.updateMemberType({ relay: ana, space_id: id, member_type: lead.id, inherits: [lead.id] }), /list of other member type ids/);
+});
+
+test('the starting type is rule-owner state, persists on the space, and applies to later request admissions', async () => {
+  const { net, sql, id } = await space();
+  await assert.rejects(net.setJoiningType({ relay: bo, space_id: id, member_type: 'viewer' }), /change who may do what/);
+  // A contributor may invite, so this reaches the separate permission for choosing the invite's type.
+  await assert.rejects(net.makeSpaceInvite({ relay: bo, space_id: id, member_type: 'contributor' }), /change people's types/);
+  assert.equal((await net.setMemberType({ relay: ana, space_id: id, member_id: bo, member_type: 'viewer' })).members.find(member => member.member_id === bo).member_type, 'viewer');
+  await net.setJoiningType({ relay: ana, space_id: id, member_type: 'viewer' });
+  assert.equal(sql.exec('SELECT joins_as FROM space_state WHERE space_id = ?', id).toArray()[0].joins_as, 'viewer');
+
+  const restarted = new Network({ storage: net.ctx.storage }, { ACCOUNT_CONTROL: accountControlBinding(), PERSON: { idFromString: ref => ref, get: () => ({ includesPlanFeature: async () => true, spaceChanged: async () => undefined }) } });
+  restarted.remember('relay_cccccccccccccccccccccccccccccccc', 'store-cy');
+  const request = await restarted.request({ from: ana, person_ref: 'store-ana', to: 'relay_cccccccccccccccccccccccccccccccc', why: 'Join', membership_id: id });
+  await restarted.answer({ relay: 'relay_cccccccccccccccccccccccccccccccc', request_id: request.request_id, accept: true });
+  assert.equal(restarted.sql.exec('SELECT role FROM members WHERE membership_id = ? AND relay = ?', id, 'relay_cccccccccccccccccccccccccccccccc').toArray()[0].role, 'viewer');
+});
+
+test('setJoiningType forwards to the active Space writer', async () => {
+  const { net, sql, id } = await space();
+  const calls = [];
+  net.env.NETWORK = {
+    idFromName: name => name,
+    get: name => name === `resource-route:${id}`
+      ? { resolveSharedMount: async () => ({ resource: id, owner_address: 'space:space-owner', generation: 'transfer-1' }) }
+      : { invokeSharedResource: async input => (calls.push({ name, input }), { state: 'answered', result: { forwarded: true } }) },
+  };
+  sql.exec("INSERT INTO space_partition_routes (space_id, owner_space_id, transfer_id, state) VALUES (?, ?, ?, 'active')", id, 'space-owner', 'transfer-1');
+  const command = { relay: ana, space_id: id, member_type: 'viewer' };
+  const result = await makeSharedNetwork(net.env).setJoiningType(command);
+  assert.deepEqual(result, { forwarded: true });
+  assert.deepEqual(calls, [{ name: 'space:space-owner', input: {
+    resource: id, operation: 'setJoiningType', args: [command], generation: 'transfer-1',
+  } }]);
+});
+
+test('a retried rename preserves inheritance written while its first permission check was awaiting', async () => {
+  const { net, sql, id } = await space();
+  await net.addMemberType({ relay: ana, space_id: id, label: 'Editor' });
+  const editor = (await net.readSpaceRules({ relay: ana, space_id: id })).member_types.find(type => type.label === 'Editor');
+  await net.addMemberType({ relay: ana, space_id: id, label: 'Lead' });
+  const lead = (await net.readSpaceRules({ relay: ana, space_id: id })).member_types.find(type => type.label === 'Lead');
+  const decide = net.decideInSpace.bind(net);
+  let changed = false;
+  net.decideInSpace = async (...args) => {
+    if (!changed) {
+      changed = true;
+      net.writeDocumentMemberTypes(id, documentMemberTypesOf(sql, id).map(type => type.id === lead.id ? { ...type, inherits: [editor.id] } : type));
+    }
+    return decide(...args);
+  };
+  const result = await net.updateMemberType({ relay: ana, space_id: id, member_type: lead.id, label: 'Senior lead' });
+  assert.deepEqual(result.member_types.find(type => type.id === lead.id).inherits, [editor.id]);
+});
+
+test('a nested owner type keeps a rule editor available when the original owner changes type', async () => {
+  const { net, id } = await space();
+  const starting = permissions.default_rules_by_label.project;
+  await net.addMemberType({ relay: ana, space_id: id, label: 'Assistant owner', inherits: ['owner'] });
+  const assistant = (await net.readSpaceRules({ relay: ana, space_id: id })).member_types.find(type => type.label === 'Assistant owner');
+  await net.setMemberType({ relay: ana, space_id: id, member_id: bo, member_type: assistant.id });
+  await net.setMemberType({ relay: ana, space_id: id, member_id: ana, member_type: 'viewer' });
+  assert.equal((await net.readSpaceRules({ relay: bo, space_id: id })).may_change, true);
+  assert.deepEqual((await net.readSpaceRules({ relay: ana, space_id: id })).rules.map(rule => rule.id), starting.map(rule => rule.id));
+});
+
+test('invalid inheritance fails closed when a cycle or missing parent is present', async () => {
+  const { inheritedMemberTypes } = await import('../src/space-member-types.mjs');
+  assert.deepEqual(inheritedMemberTypes([
+    { id: 'reader', inherits: [] }, { id: 'editor', inherits: ['reader'] }, { id: 'lead', inherits: ['editor'] },
+  ], 'lead'), ['reader', 'editor', 'lead']);
+  assert.throws(() => inheritedMemberTypes([{ id: 'one', inherits: ['two'] }, { id: 'two', inherits: ['one'] }], 'one'), /cycle/);
+  assert.throws(() => inheritedMemberTypes([{ id: 'one', inherits: ['missing'] }], 'one'), /not in this space/);
+});
+
+test('a viewer can read handoffs and find agents without permission to hand out work', async () => {
+  const { net, id } = await space();
+  const stop = { id: 'viewers-do-not-hand-work', effect: 'deny', says: 'Viewers do not hand out work.', refuses: 'Viewers can read work but cannot hand it out.',
+    who: { kind: 'member_type', member_type: 'viewer' }, actions: ['hand_work'] };
+  await net.setSpaceRules({ relay: ana, space_id: id, rules: [...permissions.default_rules_by_label.project, stop] });
+  await net.setMemberType({ relay: ana, space_id: id, member_id: bo, member_type: 'viewer' });
+  assert.deepEqual((await net.spaceAgents({ relay: bo, space_id: id, verb: 'read' })).handoffs, []);
+  assert.deepEqual((await net.spaceAgents({ relay: bo, space_id: id, verb: 'find' })).agents, []);
+  await assert.rejects(net.spaceAgents({ relay: bo, space_id: id, verb: 'handOff', input: { job: 'Draft a wrap', request_key: 'viewer-test' } }), /Viewers can read work/);
+  await assert.rejects(net.spaceAgents({ relay: 'relay_cccccccccccccccccccccccccccccccc', space_id: id, verb: 'read' }), /not a member/);
+});
+
+test('a space adds its own type, offered next to the rest, and removes it only when nobody holds it and no rule names it', async () => {
+  const { net, id } = await space();
+  const added = await net.addMemberType({ relay: ana, space_id: id, label: 'Editor' });
+  const editor = added.member_types.find(type => type.label === 'Editor');
+  assert.equal(editor.own, true);
+  assert.equal(editor.id, 'editor');
+  await assert.rejects(net.addMemberType({ relay: ana, space_id: id, label: 'editor' }), /already has a type called/);
+  await assert.rejects(net.addMemberType({ relay: bo, space_id: id, label: 'Boss' }), /change who may do what/);
+  const invite = await net.makeSpaceInvite({ relay: ana, space_id: id, member_type: editor.id });
+  await assert.rejects(net.removeMemberType({ relay: ana, space_id: id, member_type: editor.id }), /An open invite gives people the Editor type/);
+  await net.revokeSpaceInvite({ relay: ana, space_id: id, invite_id: invite.invite_id });
+  await net.setMemberType({ relay: ana, space_id: id, member_id: bo, member_type: 'editor' });
+  await assert.rejects(net.removeMemberType({ relay: ana, space_id: id, member_type: 'editor' }), /Someone here is Editor/);
+  await net.setMemberType({ relay: ana, space_id: id, member_id: bo, member_type: 'contributor' });
+  const named = { id: 'editors-hide', effect: 'allow', says: 'Editors hide anything.', who: { kind: 'member_type', member_type: 'editor' }, actions: ['hide_item'] };
+  await net.setSpaceRules({ relay: ana, space_id: id, rules: [...permissions.default_rules_by_label.project, named] });
+  await assert.rejects(net.removeMemberType({ relay: ana, space_id: id, member_type: 'editor' }), /A rule names Editor/);
+  await net.setSpaceRules({ relay: ana, space_id: id, rules: null });
+  await assert.rejects(net.removeMemberType({ relay: ana, space_id: id, member_type: 'viewer' }), /comes with every space/);
+  assert.ok(!(await net.removeMemberType({ relay: ana, space_id: id, member_type: 'editor' })).member_types.some(type => type.id === 'editor'));
+});
+
+test('a hidden thing keeps its words for whoever may show it; everyone else reads that it is hidden', async () => {
+  const { net, id, anaItem } = await space();
+  await assert.rejects(net.hideSpaceItem({ relay: bo, space_id: id, item_id: anaItem, hidden: true }), /cannot hide or show that/);
+  await net.hideSpaceItem({ relay: ana, space_id: id, item_id: anaItem, hidden: true });
+  const forBo = (await net.spaceItems({ relay: bo, space_id: id })).items.find(item => item.item_id === anaItem);
+  assert.equal(forBo.body, null);
+  assert.ok(forBo.hidden.at);
+  const forAna = (await net.spaceItems({ relay: ana, space_id: id })).items.find(item => item.item_id === anaItem);
+  assert.equal(forAna.body, 'From ana');
+  await net.hideSpaceItem({ relay: ana, space_id: id, item_id: anaItem, hidden: false });
+  assert.equal((await net.spaceItems({ relay: bo, space_id: id })).items.find(item => item.item_id === anaItem).hidden, undefined);
+});
+
+test('the route answers a refused set of rules with each reason beside the rule it is about', async () => {
+  const { net, id } = await space();
+  const person = { network: () => net, relay: () => ana, ctx: { id: { toString: () => 'store-ana' } } };
+  const unfinished = [...permissions.default_rules_by_label.project, { id: 'half', effect: 'allow', says: 'Half a rule.', when: { kind: 'group', combinator: 'and', rules: [{ kind: 'rule', field: '', operator: 'is_any_of', params: { values: [] } }] } }];
+  const response = await handleSpacesRequest(person, new Request(`https://person/spaces/${id}/rules`, { method: 'POST', body: JSON.stringify({ rules: unfinished }) }));
+  assert.equal(response.status, 400);
+  const answer = await response.json();
+  assert.match(answer.error, /cannot be kept/);
+  assert.equal(answer.problems[0].index, unfinished.length - 1);
+  const typed = await handleSpacesRequest(person, new Request(`https://person/spaces/${id}/members/type`, { method: 'POST', body: JSON.stringify({ member_id: bo, member_type: 'viewer' }) }));
+  assert.equal((await typed.json()).members.find(member => member.member_id === bo).member_type, 'viewer');
+});
+
+test('whoever the rules let take people out removes a member, who then reads nothing there; nobody removes themselves or the last who can change the rules', async () => {
+  for (const label of ['project', 'group']) {
+    const { net, id } = await space(label);
+    assert.equal((await net.space({ relay: ana, space_id: id })).may.remove_member, true);
+    assert.equal((await net.space({ relay: bo, space_id: id })).may.remove_member, false);
+    await assert.rejects(net.removeMember({ relay: bo, space_id: id, member_id: ana }), /cannot take people out/);
+    await assert.rejects(net.removeMember({ relay: ana, space_id: id, member_id: ana }), /leave the space/);
+    await net.addSpaceItems({ relay: bo, space_id: id, items: [{ kind: 'message', body: 'From bo' }] });
+    assert.deepEqual(await net.removeMember({ relay: ana, space_id: id, member_id: bo }), { removed: bo, space_id: id });
+    assert.deepEqual((await net.readSpaceRules({ relay: ana, space_id: id })).members.map(member => member.member_id), [ana]);
+    await assert.rejects(net.spaceItems({ relay: bo, space_id: id }), /not a member of that pursuit/);
+    // What bo put there stays for those still in it.
+    assert.ok((await net.spaceItems({ relay: ana, space_id: id })).items.some(item => item.body?.text === 'From bo' || JSON.stringify(item.body).includes('From bo')));
+    await assert.rejects(net.removeMember({ relay: ana, space_id: id, member_id: bo }), /not in this space/);
+  }
+});
+
+test('the last member who can change the rules cannot be taken out, even by someone the rules let take people out', async () => {
+  const { net, id } = await space();
+  const tidy = { id: 'contributors-take-out', effect: 'allow', says: 'Contributors take people out.', who: { kind: 'member_type', member_type: 'contributor' }, actions: ['remove_member'] };
+  await net.setSpaceRules({ relay: ana, space_id: id, rules: [...permissions.default_rules_by_label.project, tidy] });
+  await assert.rejects(net.removeMember({ relay: bo, space_id: id, member_id: ana }), /Nobody left could change who may do what/);
+  assert.deepEqual((await net.readSpaceRules({ relay: ana, space_id: id })).members.map(member => member.member_id), [ana, bo]);
+});
+
+test('a member is taken out through the spaces route, and the MCP tool names it', async () => {
+  const { net, id } = await space();
+  const person = { network: () => net, relay: () => ana, ctx: { id: { toString: () => 'store-ana' } } };
+  const answer = await handleSpacesRequest(person, new Request(`https://person/spaces/${id}/members/remove`, { method: 'POST', body: JSON.stringify({ member_id: bo }) }));
+  assert.equal(answer.status, 200);
+  assert.deepEqual(await answer.json(), { removed: bo, space_id: id });
+  assert.match(readFileSync(new URL('../../../give-an-ai-the-tools-to-read-and-change-a-pursuits/from-old-trillion/src/space-tools.mjs.held', import.meta.url), 'utf8'), /tool\('remove_from_space'[^\n]*members\/remove/);
+});
+
+
+test('permission snapshots follow document-only member type edits after migration', async () => {
+  const { net, id } = await space();
+  const read = await net.addMemberType({ relay: ana, space_id: id, label: 'Document role', inherits: ['viewer'] });
+  const type = read.member_types.find(type => type.label === 'Document role');
+  assert.ok(documentMemberTypesOf(net.sql, id).some(row => row.id === type.id));
+  const before = net.spaceAccessState(id, ana);
+  net.writeDocumentMemberTypes(id, documentMemberTypesOf(net.sql, id).map(row => row.id === type.id ? { ...row, inherits: ['contributor'] } : row));
+  assert.throws(() => net.assertSpaceAccessUnchanged(id, ana, before), /permissions changed/);
+});

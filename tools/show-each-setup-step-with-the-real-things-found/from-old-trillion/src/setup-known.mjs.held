@@ -1,0 +1,103 @@
+// src/setup-known.mjs
+//
+// Purpose: the last facts setup read successfully from each owner, kept per account in APP_KV, so that a read which fails
+// later shows the fact as it was when it last changed, not as unfinished. Titles, names and the profile words a setup
+// step asks for (PROFILE_WORDS) only (a pursuit also keeps the id of its shared place), with the lists capped.
+//
+// Non-Negotiable Invariants:
+//   1. A value is kept only from a successful read. A failed read (undefined here) keeps the previous value and its time.
+//   2. A fact read now always wins over the snapshot; the snapshot is used only for an owner that could not be read.
+//   3. The snapshot is written only when a kept value changed, and a failed write changes nothing for the person.
+//   4. Every stale fact says when it was read (`known_at`), so the screen can say "as of" and never shows it as live.
+
+import setupPolicy from './setup-policy.json' with { type: 'json' };
+
+export const SETUP_KNOWN_SCHEMA = 'trillion.setup-known/v1';
+export const setupKnownKey = userId => `setup-known:${userId}`;
+const LIMIT = { pursuits: 200, connections: 50, apps: 20, components: 40, profile_word_chars: 600 };
+// The profile's own words a step finished here also asks for (its complete_here fields beyond the name parts, such as
+// what the person offers and who they want to meet), kept so the step's boxes start from them. Only these are read.
+export const PROFILE_WORDS = Object.freeze(setupPolicy.requirements.filter(row => row.evidence?.kind === 'profile').flatMap(row => row.complete_here?.fields ?? [])
+  .map(field => field.name).filter(name => !['name', 'given_name', 'family_name'].includes(name)));
+export const profileWords = profile => Object.fromEntries(PROFILE_WORDS.flatMap(name => typeof profile?.[name] === 'string' && profile[name].trim() ? [[name, profile[name].trim().slice(0, LIMIT.profile_word_chars)]] : []));
+// `components`: the runtime owner's component rows (state and evidence) that the step checks read. `policy`: the requirement
+// ids the last resolved policy required (written after setup runs, src/account-routes.mjs), held for a later unreadable policy.
+const KEYS = ['profile', 'pursuits', 'connections', 'apps', 'connected', 'components', 'policy'];
+const clip = value => typeof value === 'string' ? value.trim().slice(0, 200) : '';
+const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+/** What was read now, normalized. A key is undefined when its read failed or was not made; nothing else is kept. */
+export function normalizeLive({ profile, pursuits, connections, apps, connected, components } = {}) {
+  return {
+    components: Array.isArray(components) ? components.slice(0, LIMIT.components).map(row => ({ id: clip(row?.id), state: clip(row?.state),
+      ready: row?.ready === true, evidence: object(row?.evidence) ? row.evidence : null })).filter(row => row.id) : undefined,
+    profile: object(profile) ? { name: clip(profile.name), given_name: clip(profile.given_name), family_name: clip(profile.family_name),
+      ...profileWords(profile) } : undefined,
+    // An ended or archived pursuit is not something the person is pursuing now, so it is kept out of what Trillion knows.
+    // Each keeps its shared place, when it has one, so the step can open the pursuit the person was invited into.
+    pursuits: Array.isArray(pursuits) ? pursuits.filter(row => !['ended', 'archived'].includes(row?.status)).slice(0, LIMIT.pursuits)
+      .map(row => ({ title: clip(row?.title), ...(clip(row?.space_id) ? { space_id: clip(row.space_id) } : {}) })).filter(row => row.title) : undefined,
+    connections: Array.isArray(connections) ? connections.slice(0, LIMIT.connections).map(row => ({ vendor: clip(row?.vendor), label: clip(row?.label), status: clip(row?.status), domain: clip(row?.domain) })) : undefined,
+    apps: Array.isArray(apps) ? apps.slice(0, LIMIT.apps).map(app => clip(typeof app === 'string' ? app : app?.name)).filter(Boolean) : undefined,
+    connected: typeof connected === 'boolean' ? connected : undefined,
+  };
+}
+
+/** The snapshot as it was stored, or null when there is none or it is not this version's. */
+export function storedKnown(value) {
+  return object(value) && value.schema === SETUP_KNOWN_SCHEMA ? value : null;
+}
+
+/** The next snapshot after this read: a changed value takes this read's time, an unchanged one keeps its old time, and a
+ *  value that could not be read is carried over unchanged. `changed` says whether the snapshot must be written. */
+export function mergeKnown(previous, live, now) {
+  const stored = storedKnown(previous) ?? {};
+  const at = new Date(now).toISOString();
+  const next = { schema: SETUP_KNOWN_SCHEMA };
+  let changed = false;
+  for (const key of KEYS) {
+    const kept = stored[key], read = live[key];
+    if (read === undefined) { if (kept) next[key] = kept; continue; }
+    if (kept && JSON.stringify(kept.value) === JSON.stringify(read)) { next[key] = kept; continue; }
+    next[key] = { value: read, at };
+    changed = true;
+  }
+  return { snapshot: next, changed };
+}
+
+/** The facts setup reads now: each owner's live value, else its kept value, else null. `known_at` names the owners that
+ *  are kept (not read now) and when they were last read, keyed the way src/setup-checks.mjs reads a check's owner. */
+export function knownFacts(live, snapshot) {
+  const pick = key => live[key] !== undefined ? { value: live[key], at: null }
+    : snapshot[key] ? { value: snapshot[key].value, at: snapshot[key].at } : { value: null, at: null };
+  const profile = pick('profile'), pursuits = pick('pursuits'), connections = pick('connections'), apps = pick('apps'), connected = pick('connected');
+  const components = pick('components');
+  const known_at = { owned: {}, ai: {}, components: {} };
+  if (profile.at) known_at.owned.profile = profile.at;
+  if (pursuits.at) known_at.owned.pursuits = pursuits.at;
+  if (connections.at) known_at.owned.connections = connections.at;
+  const aiAt = apps.at ?? connected.at;
+  if (aiAt) known_at.ai.apps = aiAt;
+  // A kept component is keyed by its id, the owner a check reads (`components.<id>`, src/setup-checks.mjs).
+  if (components.at) for (const row of components.value ?? []) known_at.components[row.id] = components.at;
+  return {
+    owned: {
+      profile: profile.value,
+      // A snapshot kept before shared places were kept holds bare titles; both read the same way.
+      pursuits: pursuits.value ? pursuits.value.map(row => typeof row === 'string' ? { title: row, status: 'active' } : { ...row, status: 'active' }) : null,
+      connections: connections.value,
+    },
+    aiApps: apps.value,
+    aiConnected: connected.value,
+    components: components.value,
+    // The last resolved policy's required ids, and when they were read. Null when none was ever resolved.
+    held_policy: storedPolicy(snapshot),
+    known_at,
+  };
+}
+
+/** The requirement ids a resolved policy required, as they were kept, or null. */
+export function storedPolicy(snapshot) {
+  const kept = snapshot?.policy;
+  return kept?.value?.requirements_resolved === true ? { ...kept.value, known_at: kept.at } : null;
+}

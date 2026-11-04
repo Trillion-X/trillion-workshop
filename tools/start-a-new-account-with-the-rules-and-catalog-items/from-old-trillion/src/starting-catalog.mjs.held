@@ -1,0 +1,172 @@
+// src/starting-catalog.mjs
+//
+
+import { resolveMarketplaceContentSource } from './marketplace-content-sources.mjs';
+import { configurationOf, configurationIdentity } from '../../../see-what-an-account-has-installed/src/marketplace-configurations.mjs';
+// PURPOSE
+//   Trillion's starting composition resolves the exact published Marketplace sections at runtime; records are its
+//   bootstrap until publication is adopted. Component bodies and versions still come from their canonical owners.
+//   A catalogue reference never supplies execution authority. No-env generator callers keep their lazy deploy index.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. The records file is loaded the first time something asks, never when the Worker or a person's store starts, so a
+//      cold start neither parses nor holds it (like src/shipped-workflows.mjs).
+//   2. The no-env deploy index is made once; runtime reads resolve current publication sections.
+//   3. A load that fails is asked for again on the next call, never remembered as the answer.
+//   4. Asking never writes anything or reads a mutable shared owner; publication is a per-item edge projection.
+//   5. A component body is read from the deploy's own copy of the row (the Workshop rows the deploy bound, the shipped
+//      workflows, starting-rules.json, the event source rows), so the version in the records is checked against the row
+//      by test/starting-catalog.test.mjs, never copied here.
+//
+
+
+// The words the Marketplace shows as the maker of a configuration Trillion ships.
+export const STARTING_MAKER = 'Trillion';
+
+/** The exact original records, including component dependencies, configuration content, core and pinned choices. */
+export const startingManifestIdentity = records => configurationIdentity(records);
+const freezeRecords = value => {
+  if (value && typeof value === 'object') {
+    for (const item of Object.values(value)) freezeRecords(item);
+    Object.freeze(value);
+  }
+  return value;
+};
+const immutableSet = values => {
+  const set = new Set(values);
+  const view = new Proxy(set, { get(target, key) {
+    if (['add', 'delete', 'clear'].includes(key)) return () => { throw TypeError('The indexed catalogue is immutable.'); };
+    if (key === 'valueOf') return () => view;
+    if (key === 'forEach') return (callback, receiver) => target.forEach(value => callback.call(receiver, value, value, view));
+    if (key === 'constructor') return Set;
+    const value = Reflect.get(target, key, target); return typeof value === 'function' ? value.bind(target) : value;
+  } });
+  return Object.freeze(view);
+};
+
+/** The lookups over a records file's content (starting-set-records.json). Pure; the same content gives the same index. */
+export function indexManifest(records) {
+  // The index and its identity describe the same snapshot. A caller changing a
+  // dependency array after indexing must not silently change an in-flight fold.
+  records = freezeRecords(JSON.parse(JSON.stringify(records)));
+  const components = new Map(records.components.map(item => [item.id, Object.freeze(item)]));
+  const configurations = records.configurations.map(row => Object.freeze({ ...row, made_by: STARTING_MAKER, follows: row.slug }));
+  const byId = new Map(configurations.map(row => [row.id, row]));
+  const bySlug = new Map(configurations.map(row => [row.slug, row]));
+  const members = new Map(configurations.map(row => [row.id, Object.freeze(row.components.map(item => item.id))]));
+  return Object.freeze({
+    identity: startingManifestIdentity(records),
+    configurations: Object.freeze(configurations),
+    core: immutableSet(records.core),
+    pinned: immutableSet(records.pinned),
+    ids: immutableSet(components.keys()),
+    component: id => components.get(id) ?? null,
+    configuration: id => byId.get(id) ?? null,
+    configurationBySlug: slug => bySlug.get(slug) ?? null,
+    members: id => members.get(id) ?? [],
+  });
+}
+
+let loading = null;
+let recordsLoading = null;
+const sourceRecords = () => recordsLoading ??= import('../records/starting-set-records.json', { with: { type: 'json' } })
+  .then(module => module.default).catch(error => { recordsLoading = null; throw error; });
+const sections = ['core', 'pinned', 'configurations', 'components'];
+const componentKinds = ['tool', 'workflow', 'rule', 'event-rule-template'];
+
+// Published catalogue bytes remain composition DATA. Validate references with the
+// same configuration owner before any installation can use them.
+function checkedManifest(records) {
+  for (const key of sections) if (!Array.isArray(records[key])) throw new TypeError(`The starting catalogue ${key} must be a list.`);
+  for (const key of ['core','pinned']) if (records[key].some(id => typeof id !== 'string' || !id)) throw new TypeError(`The starting catalogue ${key} must name items.`);
+  const ids = new Set();
+  for (const item of records.components) {
+    if (!item || !componentKinds.includes(item.kind) || typeof item.id !== 'string' || !item.id || typeof item.version !== 'string' || !item.version)
+      throw new TypeError('A starting catalogue component needs its kind, id and version.');
+    if (ids.has(item.id)) throw new TypeError('A starting catalogue component is included twice.');
+    ids.add(item.id);
+    if (item.uses !== undefined && (!Array.isArray(item.uses) || item.uses.some(id => typeof id !== 'string'))) throw new TypeError('A component uses a list of item ids.');
+  }
+  const slugs = new Set();
+  for (const row of records.configurations) {
+    const checked = configurationOf(row, componentKinds);
+    if (row.id !== checked.id || row.version !== checked.version || slugs.has(checked.slug)) throw new TypeError('The starting configuration identity does not match its content.');
+    slugs.add(checked.slug);
+  }
+  return indexManifest(records);
+}
+/** The index of every configuration Trillion ships, loaded on first use. */
+export function startingManifest({ env = null, read, current } = {}) {
+  if (env) return sourceRecords().then(async bootstrap => {
+    const selected = await Promise.all(sections.map(async key => {
+      const source = await resolveMarketplaceContentSource(env, { file: 'records/starting-set-records.json', pointer: `/${key}` }, bootstrap[key], { read, current });
+      return [key, source.found ? source.value : []];
+    }));
+    return checkedManifest(Object.fromEntries(selected));
+  });
+  loading ??= sourceRecords()
+    .then(indexManifest)
+    .catch(error => { loading = null; throw error; });
+  return loading;
+}
+
+/** Every configuration Trillion ships: { id, slug, title, description, components: [{ kind, id, version }], version, made_by, follows }. */
+export async function startingConfigurations(options) { return (await startingManifest(options)).configurations; }
+
+/** One shipped configuration by its id, or null. */
+export async function startingConfiguration(id, options) { return (await startingManifest(options)).configuration(id); }
+
+/** The shipped component named by kind and id: { kind, id, version, title, description, source, configuration|core, uses? }, or null. */
+export async function startingComponent(kind, id, options) {
+  const found = (await startingManifest(options)).component(id);
+  if (!found || found.kind !== kind) return null;
+  // A catalogue reference never establishes executable availability or version.
+  // The current canonical definition still has to exist and match its owner.
+  if (options?.env) {
+    const row = await componentBody(kind,id,options);
+    if (!row) return null;
+    let version;
+    if (kind === 'tool') version = (await import('../../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs')).workshopToolVersion(row);
+    else if (kind === 'workflow') version = (await import('../../../write-a-job-done-in-several-steps-have/from-old-trillion/src/workflows.mjs.held')).workflowRecipeIdentity(row);
+    else if (kind === 'rule') {
+      const [{startingRuleData},{defaultAutomationOf}]=await Promise.all([import('./starting-rules.mjs'),import('./automations.mjs')]);
+      const rule=(await startingRuleData(options.env,options)).every_account.map(defaultAutomationOf).find(item=>item.id===id);
+      if (!rule) return null;
+      version=configurationIdentity(rule.value);
+    }
+    else if (kind === 'event-rule-template') {
+      const { startingRuleData } = await import('./starting-rules.mjs');
+      const data = await startingRuleData(options.env, options);
+      if (!data.each_connected_event) return null;
+      version = configurationIdentity({ source: row, shape: data.each_connected_event });
+    }
+    if (version !== found.version) return null;
+  }
+  return found;
+}
+
+// Where each kind's bodies are kept. A caller may hand in its own readers (tests do); these are what the Worker uses.
+// Each reader is loaded when first asked for, so naming it here costs a start nothing.
+const defaultSources = {
+  tool: async ({ env }) => (await (await import('../../../keep-the-shared-tool-rows-a-deploy-ships/from-old-trillion/src/stored-checks.mjs.held')).loadWorkshopRows(env)).tools,
+  workflow: async ({ env }) => env ? (await import('./default-workflows.mjs')).defaultWorkflows(env) : (await import('../../../give-every-account-ready-made-workflows-and-defaults/from-old-trillion/src/shipped-workflows.mjs.held')).shippedWorkflows(),
+  rule: async ({ env }) => {
+    const [{ startingRuleData }, { defaultAutomationOf }] = await Promise.all([import('./starting-rules.mjs'), import('./automations.mjs')]);
+    return (await startingRuleData(env)).every_account.map(row => {const checked=defaultAutomationOf(row);return {...checked.value,id:checked.id};});
+  },
+  'event-rule-template': async ({env}) => env ? (await (await import('../../../keep-the-shared-tool-rows-a-deploy-ships/from-old-trillion/src/stored-checks.mjs.held')).loadWorkshopRows(env)).event_sources : (await import('../records/workshop-event-source-records.json', { with: { type: 'json' } })).default.records.map(record => record.payload),
+};
+async function componentBody(kind,id,{env=null,sources=defaultSources}={}) {
+  const read=sources[kind];
+  return read ? (await read({env})).find(row=>row?.id===id)??null : null;
+}
+
+/**
+ * The body of one shipped component, or null when the deploy does not hold it (a kind whose rows no package has added
+ * yet answers null). `sources` replaces the readers: { <kind>: async ({ env }) → rows with an id }.
+ */
+export async function startingRow(kind, id, { env = null, sources = defaultSources } = {}) {
+  const component=(await startingManifest({env})).component(id);
+  if (!component || component.kind!==kind) return null;
+  return componentBody(kind,id,{env,sources});
+}

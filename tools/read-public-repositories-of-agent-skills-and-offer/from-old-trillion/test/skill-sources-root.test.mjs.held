@@ -1,0 +1,60 @@
+// Repository-root skills keep their support files and exclude other skill folders.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { DatabaseSync } from 'node:sqlite';
+import { tarGz, untarGz } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
+import { makeSkillSources, skillsFromArchive } from '../src/skill-sources.mjs';
+import config from '../records/skill-sources.json' with { type: 'json' };
+import rules from '../records/skill-import-rules.json' with { type: 'json' };
+
+const source = { id: 'maker-skills', host: 'github', owner: 'maker', repository: 'skills', branch: 'main', folder: 'skills' };
+const COMMIT_A = 'a'.repeat(40);
+const MIT = 'MIT License\n\nCopyright (c) 2026 Some Maker\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\n';
+const openLicences = new Set(['MIT', 'Apache-2.0']);
+const archiveOf = files => tarGz(Object.entries(files).map(([name, text]) => ({ name: `repo-abc/${name}`, bytes: new TextEncoder().encode(text) })));
+
+test('a repository-root skill keeps its own kit, excludes nested skills, and links omitted support to its pinned revision', () => {
+  const rootSource = { ...source, folder: '' };
+  const files = untarGz(archiveOf({
+    LICENSE: MIT,
+    'SKILL.md': '---\nname: mechanism\ndescription: Explain a mechanism with an interactive figure\n---\nUse kit/geometry.mjs and references/craft.md.\n',
+    'kit/geometry.mjs': 'export const project = point => point;',
+    'references/craft.md': 'Part recipes. '.repeat(10),
+    'nested/SKILL.md': '---\nname: nested\ndescription: Another skill\n---\nAnother instruction.\n',
+    'nested/private.md': 'Only for the nested skill.',
+  }));
+  const smallRules = { ...rules, budget: { ...rules.budget, max_file_characters: 100 } };
+  const { rows, held } = skillsFromArchive({ files, source: rootSource, host: config.hosts[0], commit: COMMIT_A, rules: smallRules, openLicences, readFrom: 'GitHub' });
+  assert.deepEqual(held, []);
+  assert.deepEqual(rows.map(row => row.id), ['workflow:skill-mechanism', 'workflow:skill-nested']);
+  const root = rows[0];
+  assert.equal(root.source.licence, 'MIT');
+  assert.equal(root.files['kit/geometry.mjs'], 'export const project = point => point;');
+  assert.equal(root.files['nested/private.md'], undefined);
+  assert.deepEqual(root.files_left_out, ['references/craft.md']);
+  assert.match(root.steps[0].do, new RegExp(`Read any needed file not included here from the skill's original folder at https://github.com/maker/skills/tree/${COMMIT_A}/`));
+  assert.match(root.steps[0].do, /Use that pinned revision/);
+});
+
+test('an unchanged repository root is reread when its old cached answer omitted the root skill', async () => {
+  const rootSource = { ...source, folder: '' };
+  const db = new DatabaseSync(':memory:');
+  const sql = { exec(query, ...values) { const rows = db.prepare(query).all(...values); return { toArray: () => rows }; } };
+  const asked = [];
+  const pkt = line => `${(line.length + 4).toString(16).padStart(4, '0')}${line}`;
+  const reader = makeSkillSources({
+    sql, config: { ...config, sources: [rootSource] }, rules, openLicences,
+    now: () => new Date('2026-10-11T22:00:00Z'),
+    fetchImpl: async address => {
+      asked.push(address);
+      if (address.includes('/info/refs')) return new Response(`${pkt(`${COMMIT_A} refs/heads/main\n`)}0000`);
+      return new Response(archiveOf({ LICENSE: MIT, 'SKILL.md': '---\nname: mechanism\ndescription: Explain a mechanism\n---\nDraw it.\n' }));
+    },
+  });
+  const legacyKey = JSON.stringify([rootSource.host, rootSource.owner, rootSource.repository, rootSource.branch, rootSource.folder, config.default_kind]);
+  sql.exec('INSERT INTO skill_repository_reads (source_key, commit_id, rows, held, read_at, checked_at, error) VALUES (?, ?, ?, ?, ?, ?, ?)', legacyKey, COMMIT_A, '[]', '[]', '2026-10-11T21:59:00Z', '2026-10-11T21:59:00Z', null);
+  assert.deepEqual((await reader.rows({ workflow_id: 'workflow:skill-mechanism' })).map(row => row.id), ['workflow:skill-mechanism']);
+  assert.equal(asked.length, 2, 'the unchanged upstream archive is parsed with root-inclusive semantics');
+  assert.equal((await reader.rows({ workflow_id: 'workflow:skill-mechanism' })).length, 1);
+  assert.equal(asked.length, 2, 'the complete new answer is kept normally');
+});

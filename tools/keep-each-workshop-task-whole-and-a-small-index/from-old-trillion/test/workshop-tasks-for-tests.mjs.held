@@ -1,0 +1,20 @@
+// The Workshop store's task questions (src/workshop.mjs `store`) answered over a test's in-memory list of current tasks,
+// with the same answers src/workshop-tasks.mjs gives from its index: what is due, when the next task is due, a tool's
+// last completed run, and the cards of the newest runs (the one card shape, `cardOf`). A test host passes the list its
+// facts hold now; src/workshop-tasks.mjs itself is tested over SQLite in test/workshop-tasks-bounded.test.mjs.
+import { cardOf, RUNS_LISTED, SCHEDULED_TASK_PAGE } from '../src/workshop-tasks.mjs';
+
+const scheduled = task => task.state === 'scheduled' && Number.isFinite(Date.parse(task.due_at));
+
+export function taskQuestions(current) {
+  return {
+    dueTasks: async atMs => (await current()).filter(task => scheduled(task) && Date.parse(task.due_at) <= atMs)
+      .sort((a, b) => Date.parse(a.due_at) - Date.parse(b.due_at)).slice(0, SCHEDULED_TASK_PAGE),
+    nextDueAt: async () => { const times = (await current()).filter(scheduled).map(task => Date.parse(task.due_at)); return times.length ? Math.min(...times) : null; },
+    lastCompleted: async toolId => (await current()).filter(task => task.tool_id === toolId && task.state === 'completed').at(-1) ?? null,
+    taskCards: async ({ tool_id, limit = RUNS_LISTED } = {}) => (await current())
+      .filter(task => task.tool_id && (!tool_id || task.tool_id === tool_id))
+      .sort((a, b) => String(b.started_at ?? b.due_at ?? '').localeCompare(String(a.started_at ?? a.due_at ?? '')))
+      .slice(0, limit).map(cardOf),
+  };
+}

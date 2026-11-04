@@ -1,0 +1,151 @@
+// src/service-checks.mjs
+//
+// Purpose: Trillion's own capability checks (src/service-watch.json `checks`), each kept, scheduled and run by its own
+// owner: one record book per check (src/book-handlers.mjs 'service-check'), woken by its own alarm when the check is
+// next due, with the same check engine every account's checks use (src/capability-checks.mjs makeCapabilityChecks).
+// They used to be added to the operator account's own checks and run on that one store's alarm, and then all ran in
+// one loop of the one shared pool; neither may hold every check. What each owner saw is published into the service's
+// edge store (Workers KV), where the account that runs Trillion reads them beside its own checks. The account is
+// reached only for the steps that need it: a probe that runs one of its tools on its own connections (one run in its own
+// book, src/tool-run-call.mjs runServiceTool), and a stopped check handed to its AIs once per stop (RecordBook
+// handServiceWork, in that account's own records).
+//
+// Non-negotiable invariants:
+//   1. Nothing here names a check, an action or a tool: checks are rows of the settings, the service's own probes are
+//      `actions` the owner wiring hands in (name → run(input)), and comparisons are the formula engine's (filterRows).
+//   2. One owner keeps exactly one check (its book is named service-check:{check}); any other check is refused there.
+//   3. A probe the service cannot answer itself and that names a tool runs through the account's narrow tool method; a
+//      probe with no owner fails as unread (src/capability-checks.mjs invariant 3), never quietly skipped.
+//   4. A check that stopped is handed once per stop (its failing_since): kept as handed only after the account took it,
+//      so a busy account is handed it on the next pass, never twice.
+//   5. An owner's own alarm runs its check; the service watch (src/service-watch.mjs) only starts an owner whose state
+//      was never published or whose next run is long overdue, and wakes one whose watch just changed.
+//
+//   serviceCheckBookName(check) → the owner's book name
+//   makeServiceCheck({ list, put, filterRows, actions, hand, runTool, publish, rules, now }) →
+//     { run(operation, { check }), maintain(), nextAt() }      operations: start (keep it, run if due), changed (run now)
+//   startServiceChecks(env, { changed, only_changed, rules, now }) → [{ check, woke } | { check, error }]
+//   readServiceCheckStates(env, rules) → [published state]
+//   withServiceChecks(status, states, rules) → an Everything still working status with Trillion's own checks in it
+import { CAPABILITY_CHECKS, dueAt, makeCapabilityChecks } from '../../../check-every-capability-still-works/src/capability-checks.mjs';
+import settings from '../../../service-watch/src/service-watch.json' with { type: 'json' };
+import { hostOf } from './resource-host.mjs';
+
+const STATE = 'service-check-state:';
+const MINUTE = 60_000;
+const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (values[name] === undefined || values[name] === null ? whole : String(values[name])));
+export const serviceCheckBookName = check => `service-check:${check}`;
+
+export function makeServiceCheck({ list, put, filterRows, actions = {}, hand, runTool, publish, rules = settings, now = () => Date.now() }) {
+  const kept = () => list('check')[0] ?? null;
+  const own = check => {
+    const held = kept();
+    if (held && held.check !== check) throw new Error('This owner keeps another service check.');
+    return held;
+  };
+  const rows = {
+    all: () => (kept() ? [{ id: kept().check, values: kept() }] : []),
+    ids: candidates => candidates.filter(id => kept()?.check === id),
+    keep: items => { for (const { id, values } of items) put('check', { ...(own(id) ?? {}), ...values, check: id }); },
+    ensureList: () => {},
+  };
+  const tools = async () => [
+    { name: CAPABILITY_CHECKS.account_probe, run: async ({ action, input } = {}) => {
+      if (typeof actions[action] !== 'function') throw new Error(`The service answers no ${action} itself.`);
+      return actions[action](input ?? {});
+    } },
+    // A probe's wait_seconds is how long its check run waits for the tool; a failed run answers its refusal in words, as
+    // every probe's failure reads (src/capability-checks.mjs).
+    { name: 'run_tool', run: async ({ tool_id, input, request_key, wait_seconds } = {}) => {
+      const run = await runTool({ tool_id, input: input ?? {}, request_key, wait_seconds, job: rules.check_stopped.tool_job });
+      return run?.error ? { ...run, error: String(run.error.message ?? run.error) } : run;
+    } },
+  ];
+  const checks = makeCapabilityChecks({ rows, tools, filterRows, now, rules: CAPABILITY_CHECKS });
+
+  // A stop is handed once per failing_since; what the owner saw is published every pass.
+  async function settle() {
+    const handed = [];
+    for (const stop of checks.stopped()) {
+      const before = kept();
+      if (!stop.failing_since || before?.handed_for === stop.failing_since) continue;
+      const values = { check: stop.check, label: stop.label, owner: stop.owner || '', since: stop.failing_since, failures: stop.failures, problem: stop.problem ?? '',
+        last_worked: before?.last_worked ?? 'never', probe: JSON.stringify(stop.probe), read: JSON.stringify(stop.read ?? null), expect: JSON.stringify(stop.expect) };
+      try {
+        const { handoff_id } = await hand({ job: fill(rules.check_stopped.job, values), said: fill(rules.check_stopped.said, values),
+          outcome: fill(rules.check_stopped.outcome, values), once_per: `service-check:${stop.check}:${stop.failing_since}`, priority: rules.check_stopped.priority });
+        put('check', { ...kept(), handed_for: stop.failing_since });
+        handed.push({ check: stop.check, since: stop.failing_since, handoff_id });
+      } catch (error) {
+        handed.push({ check: stop.check, since: stop.failing_since, error: String(error?.message ?? error).slice(0, rules.calls.failure_chars) });
+      }
+    }
+    const check = kept();
+    if (check) {
+      const [shown] = checks.status().checks;
+      await publish(check.check, { ...shown, state_id: check.state_id, failing_since: check.failing_since ?? null, next_at: checks.nextAt(), handed: handed.length ? handed : undefined });
+    }
+    return handed;
+  }
+
+  async function run(operation, { check } = {}) {
+    if (!['start', 'changed'].includes(operation)) throw new Error('A service check can be started or told its watch changed.');
+    const row = rules.checks.find(item => item.check === check);
+    if (!row) throw new Error('The service keeps no check by that name.');
+    if (!own(check)) checks.keepChecks({ add: [row] });
+    const due = operation === 'changed' || dueAt(kept(), CAPABILITY_CHECKS) <= now();
+    const { checked } = due ? await checks.runDue({ check_id: check }) : { checked: [] };
+    const handed = await settle();
+    return { checked, handed };
+  }
+  return {
+    run,
+    async maintain() { if (kept()) { await checks.runDue({ check_id: kept().check }); await settle(); } },
+    nextAt: () => (kept() ? checks.nextAt() : null),
+  };
+}
+
+const stateKey = check => STATE + check;
+export async function readServiceCheckStates(env, rules = settings) {
+  if (!env?.APP_KV) return [];
+  const states = await Promise.all(rules.checks.map(row => env.APP_KV.get(stateKey(row.check), { type: 'json' }).catch(() => null)));
+  return states.filter(Boolean);
+}
+export const publishServiceCheckState = (kv, check, state) => kv.put(stateKey(check), JSON.stringify({ ...state, check, published_at: new Date().toISOString() }));
+
+/** Each owner whose watch just changed is woken (a watch owner's pass, only_changed), and, from the starter
+ *  (src/service-watch.mjs startServiceOwners), each whose state was never published or whose next run is long overdue
+ *  (its alarm was lost); the others run on their own alarms. */
+export async function startServiceChecks(env, { changed = [], only_changed = false, rules = settings, now = Date.now() } = {}) {
+  if (!env?.RECORD_BOOK || !env.APP_KV) return [];
+  const states = only_changed ? new Map() : new Map((await readServiceCheckStates(env, rules)).map(state => [state.check, state]));
+  const late = CAPABILITY_CHECKS.recheck_after_minutes * MINUTE * 2;
+  const woken = [];
+  for (const row of rules.checks) {
+    const state = states.get(row.check);
+    const moved = changed.includes(row.check);
+    if (only_changed && !moved) continue;
+    if (!moved && state && !(Number.isFinite(state.next_at) && state.next_at + late < now)) continue;
+    try {
+      await hostOf(env, { kind: 'record-book', key: serviceCheckBookName(row.check) }).run('service-check', moved ? 'changed' : 'start', { check: row.check });
+      woken.push({ check: row.check, woke: moved ? 'changed' : 'start' });
+    } catch (error) {
+      woken.push({ check: row.check, error: String(error?.message ?? error).slice(0, rules.calls.failure_chars) });
+    }
+  }
+  return woken;
+}
+
+/** The account that runs Trillion sees Trillion's own checks on its Everything still working answer, read from their
+ *  owners' published states, beside its own checks. */
+export function withServiceChecks(status, states, rules = CAPABILITY_CHECKS) {
+  if (!states.length) return status;
+  const own = new Set(status.checks.map(check => check.check));
+  const shown = states.filter(state => !own.has(state.check)).map(state => ({ check: state.check, label: state.label, state: state.state,
+    last_worked: state.last_worked ?? null, last_checked: state.last_checked ?? null, problem: state.problem ?? '', owner: state.owner ?? '', kept_by: 'trillion' }));
+  const checks = [...status.checks, ...shown];
+  const failing = checks.filter(check => check.state === rules.states.failing.label);
+  const working = checks.filter(check => check.state === rules.states.working.label);
+  return { ...status, checks,
+    said: failing.length ? fill(rules.words.said_failing, { failing: failing.length, total: checks.length, labels: failing.map(check => check.label).join('; ') }) : fill(rules.words.said_all, { working: working.length, total: checks.length }) };
+}

@@ -1,0 +1,106 @@
+// A finished decision told as a public story: the situation, what was weighed, what was chosen and why, and how it
+// turned out. Only a decision stories are on for is ever written (src/person-store.mjs storiesOn), and only through
+// the privacy pass every shared word goes through (src/private-rewrite.mjs): the facts are redacted, one model
+// writes the story from them, and the plain pass and a second model must both find nothing that points to anyone.
+//
+// The story is written from the decision's facts, never copied from them: no answer, note or question of the method
+// is published as it was written. A story names no person, account or case; the pool keeps it under an opaque id
+// that only the owner's store can connect back to the decision, so only the owner can take it down.
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import settings from '../../../keep-and-wake-ai-sessions-on-this-computer/src/pool-settings.json' with { type: 'json' };
+import storySettings from './story-settings.json' with { type: 'json' };
+import { privateRewrite, privateTerms } from './private-rewrite.mjs';
+import { workedSteps } from './answer-words.mjs';
+
+const { kinds, rewrite } = storySettings;
+const fallbackKind = kinds.find(kind => kind.fallback)?.id ?? kinds.at(-1).id;
+const known = new Set(kinds.map(kind => kind.id));
+const text = value => String(value ?? '').trim();
+const clip = (value, size) => (value.length > size ? `${value.slice(0, size)}…` : value);
+
+/** The kind rows a story can be filed under, with the one used when a pick is not listed. */
+export const storyKinds = () => kinds;
+export const kindOf = id => (known.has(id) ? id : fallbackKind);
+
+/** A new story's permanent address: the first 80 bits of the BLAKE3 digest of 32 random bytes, as hex. */
+export const mintStoryId = () => bytesToHex(blake3(crypto.getRandomValues(new Uint8Array(32)))).slice(0, 20);
+export const isStoryId = value => typeof value === 'string' && /^[0-9a-f]{20}$/.test(value);
+
+/** Whether a decision is finished enough to be a story: something was chosen. */
+export const isFinished = record => Boolean(record?.decision && record.input?.options?.length);
+
+/** The latest settled result of a decision: what the owner reported, else what a check observed. */
+export function latestResult(record) {
+  if (!record) return null;
+  const reported = (record.reports ?? []).map(report => ({ result: report.result, what_happened: report.summary, at: report.reported_at }));
+  const checked = (record.outcome_checks ?? []).filter(check => check.result && check.result !== 'unknown').map(check => ({ result: check.result, what_happened: check.reason, at: check.checked_at }));
+  return [...reported, ...checked].sort((a, b) => String(a.at).localeCompare(String(b.at))).at(-1) ?? null;
+}
+
+/**
+ * What the story is written from. The worked answers go to the rewriting model only as the owner's thinking, with
+ * no question of the method attached, and the whole is capped at `rewrite.facts_limit_characters`.
+ */
+export function storyFacts(record) {
+  const label = id => record.input.options.find(option => option.id === id)?.label ?? id;
+  const outcome = latestResult(record);
+  const facts = {
+    goal: text(record.input.goal),
+    context: (record.input.evidence ?? []).filter(item => !item.retracted_at).map(item => text(item.claim)).filter(Boolean),
+    options: record.input.options.map(option => text(option.label)),
+    chosen: text(record.decision.move ?? label(record.decision.option_id)),
+    why: text(record.decision.reason),
+    next_step: text(record.decision.next_action),
+    measured_by: text(record.decision.success_measure),
+    thinking: workedSteps(record).flatMap(step => step.rows.map(row => text(row.text))).filter(Boolean),
+    outcome: outcome ? { result: outcome.result, what_happened: text(outcome.what_happened) } : null,
+  };
+  // Thinking is dropped from the end first, then context, so the decision itself always fits.
+  while (JSON.stringify(facts).length > rewrite.facts_limit_characters && (facts.thinking.length || facts.context.length)) {
+    if (facts.thinking.length) facts.thinking.pop(); else facts.context.pop();
+  }
+  facts.context = facts.context.map(item => clip(item, 600));
+  return facts;
+}
+
+/** The words that must never reach a story written from this record: the owner's `known` values, the owner's own `neverPublish` list and its proper names. */
+export const storyPrivateTerms = (record, known = [], neverPublish = []) => privateTerms({ known, neverPublish, texts: [storyFacts(record), (record.scratchpad ?? []).map(note => note.text)] });
+
+const STORY = [
+  'You turn one person\'s decision into a short public story that a stranger can learn from. No one may be able to tell who it was.',
+  'Remove or generalize every name, nickname, company, product, brand, place, event, date, month, age, number, amount of money, job title, and any unusual detail that could point to one person. Say sizes and shares in words ("most of the points", "a few hours a week"), never as figures. Never write [removed]; write around anything missing in plain general words.',
+  'Keep what makes it worth reading: the concrete stakes, what was pulling each way, why the tempting options were tempting, what was chosen and the reasoning that decided it, the first step, how success would be measured, and how it turned out if that is given.',
+  'Write in the third person ("they"), in plain everyday words, warm and specific about the thinking, general about the facts. No advice to the reader, no headings, no lists inside strings, no filler such as "meaningful" or "authentic".',
+  `Pick the one kind that fits best from these ids: ${kinds.map(kind => `${kind.id} (${kind.label})`).join(', ')}.`,
+  'Reply with JSON only: {"kind": string, "title": string (a specific headline of 6 to 12 words that names the dilemma and the choice, in sentence case, for example "Keeping the day job while the side business proves itself"; never a two- or three-word label), "summary": string (one sentence under 160 characters that makes a stranger want to read on: the tension and the choice), "situation": string (3 to 5 sentences), "options": [string] (each option as a phrase of 4 to 12 words), "chosen": string (the chosen option, exactly as written in options), "why": string (2 to 4 sentences), "next_step": string, "measured_by": string, "outcome": string or null (what happened, only if the facts give an outcome)}.',
+].join(' ');
+
+/**
+ * Write `record` as a story. Resolves to `{ shared: true, story }` with the story's words, or `{ shared: false,
+ * reason }` when the privacy pass would not let it through or its kind is one of `heldKinds`. `terms` are the words that
+ * must never appear.
+ */
+export async function writeStory(env, record, { terms = new Set(), rewriteModel = settings.rewrite_model.id, heldKinds = [] } = {}) {
+  const facts = storyFacts(record);
+  const checked = await privateRewrite(env, facts, STORY, rewriteModel, reply => {
+    const options = (Array.isArray(reply.options) ? reply.options : []).map(text).filter(Boolean).slice(0, 8);
+    const story = {
+      kind: kindOf(text(reply.kind)),
+      title: clip(text(reply.title), 90),
+      summary: clip(text(reply.summary), 220),
+      situation: text(reply.situation),
+      options,
+      chosen: text(reply.chosen),
+      why: text(reply.why),
+      next_step: text(reply.next_step),
+      measured_by: text(reply.measured_by),
+      outcome: facts.outcome && text(reply.outcome) ? { result: facts.outcome.result, what_happened: text(reply.outcome) } : null,
+    };
+    return story.title && story.situation && story.chosen && story.why && options.length >= 2 ? story : null;
+  }, { terms, maxTokens: rewrite.max_tokens, checkContext: storySettings.privacy.publisher_context });
+  if (!checked.shared) return { shared: false, reason: checked.reason };
+  // A kind the owner keeps private is never published, however well its words are hidden.
+  if (heldKinds.includes(checked.entry.kind)) return { shared: false, reason: storySettings.words.held_kind.replace('{kind}', (kinds.find(kind => kind.id === checked.entry.kind)?.label ?? '').toLowerCase()) };
+  return { shared: true, story: checked.entry, rounds: checked.rounds };
+}

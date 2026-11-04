@@ -1,0 +1,41 @@
+// src/space-names.mjs
+//
+// Purpose
+//   A space named by its name instead of its id. An AI told "post this in Riverside" should not need a list_pursuits call
+//   (a whole round trip) to learn the id first: the member's own store turns the name into the id, and a name that
+//   fits none or several of their spaces is answered with every space's name and id, so the next call is right.
+//
+// Non-negotiable invariants
+//   1. Only the member's own current spaces are matched, within the sign-in's reach; a name never opens a space the
+//      id would not.
+//   2. A name matches one space or none: the space whose name is the words given (any case), else the one space whose
+//      name holds them. Several matches are refused, never guessed.
+//   3. The words of a refusal are src/space-settings.json `named`.
+//
+import settings from './space-settings.json' with { type: 'json' };
+
+const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
+
+/** Whether `given` has the shape of an id the Network makes (a lower-case word, "_", then lower-case letters and
+ *  digits, never a space), so it needs no name lookup. */
+export const looksLikeSpaceId = given => /^[a-z]+_[0-9a-z]+$/.test(String(given ?? ''));
+
+// The Network's side (src/network.mjs).
+export const spaceNameMethods = {
+  // { space_id } of the one current space of `relay`, within `within` ("all" or a list of ids), that `name` names.
+  async spaceNamed({ relay, name, within = 'all' }) {
+    const wanted = String(name ?? '').trim().toLowerCase();
+    const moved = this.sql.exec("SELECT 1 FROM space_member_directory directory JOIN space_partition_routes route ON route.space_id = directory.space_id AND route.state = 'active' WHERE directory.relay = ? LIMIT 1", relay).toArray().length;
+    const mine = (moved
+      ? (await this.spaces({ relay })).spaces.map(space => ({ id: space.space_id, title: space.title }))
+      : this.sql.exec("SELECT m.id, m.title FROM memberships m JOIN members me ON me.membership_id = m.id WHERE me.relay = ? AND me.state = 'member' ORDER BY m.created_at DESC", relay).toArray())
+      .filter(row => within === 'all' || within.includes(row.id));
+    const titled = row => String(row.title ?? '').trim().toLowerCase();
+    const exact = mine.filter(row => titled(row) === wanted);
+    const found = exact.length || !wanted ? exact : mine.filter(row => titled(row).includes(wanted));
+    if (found.length === 1) return { space_id: found[0].id };
+    const words = settings.named;
+    const list = rows => rows.map(row => fill(words.one_space, { title: row.title, space_id: row.id })).join(', ') || words.no_spaces;
+    throw new Error(found.length ? fill(words.several, { name, spaces: list(found) }) : fill(words.none, { name, spaces: list(mine) }));
+  },
+};

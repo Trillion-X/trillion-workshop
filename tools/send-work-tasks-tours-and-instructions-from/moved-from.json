@@ -1,0 +1,32 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/work-for-ais.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-work-tasks-tours-and-instructions-from/from-old-trillion/src/work-for-ais.mjs.held",
+      "source_identity": "1f:e2c82204844af5eca66e3aa57a15706e818a8a0ac4247805ac075e9a3f075faf",
+      "identity": "1f:e2c82204844af5eca66e3aa57a15706e818a8a0ac4247805ac075e9a3f075faf",
+      "held": true
+    },
+    {
+      "from": "test/work-for-ais-route.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-work-tasks-tours-and-instructions-from/from-old-trillion/test/work-for-ais-route.test.mjs.held",
+      "source_identity": "1f:bdda6737c58c9aca6c67ccffbffddc34a58cf7b449fe2559f213b3154f6bc896",
+      "identity": "1f:bdda6737c58c9aca6c67ccffbffddc34a58cf7b449fe2559f213b3154f6bc896",
+      "held": true
+    },
+    {
+      "from": "test/work-for-ais.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-work-tasks-tours-and-instructions-from/from-old-trillion/test/work-for-ais.test.mjs.held",
+      "source_identity": "1f:dea5ea00cb2cb6b7ae136f93961f30d2ea6de38ab831c325b954e68451caa238",
+      "identity": "1f:bc43f560041ec3c2c3ad380b2a6b7988cbbabb5786da0f8989eb4ff1cadb6ecf",
+      "held": true
+    }
+  ]
+}

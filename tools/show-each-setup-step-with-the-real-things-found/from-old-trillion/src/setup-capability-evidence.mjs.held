@@ -1,0 +1,260 @@
+// Setup's DATA names the owner proof required for each capability. These checks inspect exact account records
+// and the existing local inspector's structured output. A locally reported process check is labeled as such;
+// it is not promoted into a signed OS attestation or proof that its remote network effect succeeded.
+// Where a record the system already keeps answers the question, it is read instead of asking an AI to restate it:
+// the transcript hook's own kept prompt and execution receipt for a harness session, and the person's words kept
+// through the carrier door (what read_setup counts as arrived) for source intake. No check here accepts a message an
+// AI wrote to describe those records, and none promotes them past what they show.
+import harnessSetup from '../../../keep-and-wake-ai-sessions-on-this-computer/harness/setup.json' with { type: 'json' };
+import { workResultWords } from './work-results.mjs';
+
+const list = value => Array.isArray(value) ? value : [];
+const text = value => typeof value === 'string' && value.trim().length > 0;
+const instant = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
+const resolved = row => ['resolved', 'verified_before_expiry'].includes(row?.state);
+const unique = rows => new Set(rows).size === rows.length;
+const same = (left, right) => left.length === right.length && left.every(value => right.includes(value));
+const hash = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+const only = (value, keys) => value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).every(key => keys.includes(key));
+
+export function nativeSourceReturn(handoff, { readReference, identity }) {
+  const saved = handoff?.source_return;
+  if (!saved?.verified) return { verified: false, basis: 'source_return_not_observed' };
+  try {
+    const found = readReference(saved.message_id), message = found?.value;
+    const outcome = typeof handoff.result === 'string' ? handoff.result.trim().slice(0, 2000) : handoff.result?.outcome?.trim().slice(0, 2000);
+    const valid = handoff.state === 'finished' && !handoff.withdrawal && handoff.input?.arrived?.source_id === saved.source_id
+      && (typeof handoff.result === 'string' || ['completed', 'done'].includes(handoff.result?.state)) && saved.outcome === outcome
+      && found?.kind === 'message' && !found.unavailable && message && !message.deleted_at && !message.removed_at && !message.withdrawal && message.speaker === 'ai'
+      && message.conversation_id === saved.source_id && message.source_ref === saved.transcript_message_id
+      && text(outcome) && text(message.text) && message.text.includes(handoff.handoff_id) && message.text.includes(outcome)
+      && instant(handoff.finished_at) && instant(message.at) && instant(message.recorded_at) && instant(saved.verified_at)
+      && Date.parse(message.at) >= Date.parse(handoff.finished_at) && Date.parse(message.recorded_at) >= Date.parse(handoff.finished_at)
+      && Date.parse(saved.verified_at) >= Date.parse(message.recorded_at);
+    return { verified: Boolean(valid), basis: 'signed_source_receiver_and_owned_transcript',
+      source_id: saved.source_id, message_ref: saved.message_id, transcript_message_id: saved.transcript_message_id,
+      verified_at: saved.verified_at, ...(valid ? { message_identity: identity(message) } : { problem: 'The previously signed return no longer matches its owned transcript message.' }) };
+  } catch { return { verified: false, basis: 'signed_source_receiver_and_owned_transcript', problem: 'The signed return’s own transcript message could not be read.' }; }
+}
+
+/** Inspect a report kept by the account AI, preserving that provenance instead of claiming server access to macOS. */
+export function localHarnessReport(reference, { scope_id, harness, settings = harnessSetup } = {}) {
+  const problems = [], message = reference?.value;
+  let envelope = null;
+  if (reference?.kind !== 'message' || !resolved(reference) || !message || message.speaker === 'person' || !text(message.speaker)
+    || !instant(message.recorded_at) || !text(message.conversation_id) || !text(message.captured_road) || message.captured_road === 'unspecified')
+    problems.push('A local inspection must be kept as an attributed AI evidence message with its actual record provenance.');
+  try { if (typeof message?.text === 'string' && message.text.length <= 100_000) envelope = JSON.parse(message.text); } catch { /* generic prose is not an inspector report */ }
+  if (envelope?.schema !== 'trillion.setup-local-evidence/v1' || envelope.capability !== 'harness' || envelope.scope_id !== scope_id)
+    problems.push('The stored local evidence must bind the exact capability and discovered computer.');
+  const report = envelope?.report, host = settings.hosts.find(row => row.id === harness);
+  if (!host || report?.schema !== 'trillion.harness-setup-report/v1' || report.scope !== 'local-harness' || report.action !== 'inspect'
+    || report.harness !== harness || report.evidence_level !== 'local-configuration-and-processes') problems.push('Use the current structured inspect output for this exact supported harness.');
+  const checks = list(report?.checks);
+  if (!checks.length || checks.length > 80 || !unique(checks.map(row => row?.id))) problems.push('The inspector checks must be nonempty and distinct.');
+  const check = id => checks.find(row => row?.id === id);
+  const payload = check('payload'), configuration = check('configuration');
+  const provenance = payload?.evidence;
+  const signed = provenance?.kind === 'signed-mac-app' && provenance.identifier === settings.mac_app.identifier && provenance.team === settings.mac_app.team && text(provenance.app);
+  const pinned = provenance?.kind === 'pinned-checkout' && /^[a-f0-9]{40}$/i.test(provenance.commit ?? '') && text(provenance.checkout);
+  if (payload?.status !== 'ready' || !(signed || pinned)) problems.push('The inspector must verify the actual signed app or explicitly pinned source payload.');
+  const configured = list(configuration?.evidence?.hooks);
+  if (configuration?.status !== 'ready' || !text(configuration?.evidence?.path) || configured.length !== settings.hooks.length
+    || !unique(configured.map(row => row?.id))) problems.push('The current complete hook configuration must be observed exactly once.');
+  const observed = [];
+  for (const expected of settings.hooks) {
+    const current = configured.find(row => row?.id === expected.id), ran = check(`ran-${expected.id}`), evidence = ran?.evidence;
+    if (!current || current.event !== expected.event || !text(current.command) || !hash(current.definition_hash)
+      || ran?.status !== 'ready' || evidence?.event !== expected.event || evidence.exit_code !== 0 || evidence.level !== 'local-process-execution'
+      || !hash(evidence.definition_hash) || current.definition_hash !== evidence.definition_hash || !instant(evidence.at)
+      || !instant(message?.recorded_at) || Date.parse(evidence.at) > Date.parse(message.recorded_at))
+      problems.push(`The current ${expected.id} hook has no matching successful execution observation.`);
+    else observed.push({ id: expected.id, event: expected.event, definition_hash: evidence.definition_hash, at: evidence.at });
+    if (host?.trust) {
+      const trusted = check(`host-${expected.id}`), facts = trusted?.evidence;
+      if (trusted?.status !== 'ready' || facts?.enabled !== true || !['trusted', 'managed'].includes(facts.trust) || !text(facts.key) || !text(facts.current_hash))
+        problems.push(`The host has not confirmed the current ${expected.id} hook as enabled and trusted.`);
+    }
+  }
+  return { verified: !problems.length, origin: 'agent-kept-local-inspector', scope_id, harness, evidence_ref: reference?.ref ?? null,
+    observed_at: message?.recorded_at ?? null, observations: observed, problems,
+    limits: ['The computer association was supplied with the AI’s stored report.', 'A successful local hook process does not prove a remote intake or delivery result.'],
+    ...(report ? { whole_report_ready: report.ready === true } : {}) };
+}
+
+/** What the transcript hook (harness/record-every-message.mjs) keeps by itself for one harness session: the person's
+ * words sent through the carrier door (captured_road carrier_door, conversation <harness>:<session>, the harness's
+ * app) and a host_transcript execution receipt for a tool call read from that same session's transcript, both sent
+ * with the same sign-in. Together they show the hook ran and reached this account. Only the transcript hook leaves
+ * such records; the other hooks are not claimed, and the computer named by the pair is the AI's association. */
+export function hookKeptHarnessRecords(refs, { scope_id, harness, settings = harnessSetup } = {}) {
+  const problems = [], host = settings.hosts.find(row => row.id === harness);
+  const session = value => typeof value === 'string' && value.startsWith(`${harness}:`) && value.length > `${harness}:`.length;
+  const prompts = list(refs).filter(ref => ref?.kind === 'message' && resolved(ref) && ref.value?.captured_road === 'carrier_door'
+    && ref.value.speaker === 'person' && ref.value.app === host?.name && session(ref.value.conversation_id)
+    && instant(ref.value.recorded_at) && text(ref.value.recorded_by));
+  const receipts = list(refs).filter(ref => ref?.kind === 'execution' && resolved(ref) && ref.value?.capture_kind === 'host_transcript'
+    && ref.value.claimed?.app === host?.name && session(ref.value.claimed?.conversation_id) && instant(ref.value.captured_at)
+    && text(ref.value.recorder?.reader) && !ref.value.corrects);
+  const matched = prompts.flatMap(prompt => receipts.filter(receipt => receipt.value.claimed.conversation_id === prompt.value.conversation_id
+    && receipt.value.recorder.reader === prompt.value.recorded_by).map(receipt => ({ prompt, receipt })));
+  if (!host) problems.push('Name a supported harness.');
+  else if (!matched.length) problems.push(`Cite a person message the ${host.name} transcript hook kept through the carrier door and an execution receipt it kept from the same session with the same sign-in.`);
+  const latest = matched.sort((a, b) => Date.parse(b.receipt.value.captured_at) - Date.parse(a.receipt.value.captured_at))[0];
+  const ran = settings.hooks.filter(hook => hook.script === 'record-every-message.mjs' && !hook.args.length);
+  return { verified: !problems.length, origin: 'hook-kept-transcript-records', scope_id, harness,
+    evidence_refs: latest ? [latest.prompt.ref, latest.receipt.ref] : [], conversation_id: latest?.prompt.value.conversation_id ?? null,
+    observed_at: latest?.receipt.value.captured_at ?? null,
+    observations: latest ? ran.map(hook => ({ id: hook.id, event: hook.event, at: latest.receipt.value.captured_at })) : [], problems,
+    unobserved_hooks: settings.hooks.filter(hook => !ran.includes(hook)).map(hook => hook.id),
+    limits: ['The computer association was supplied with the AI’s verification.', 'Only the transcript hook leaves account records; the other hooks are not observed here.',
+      'An execution receipt is recorded under the sign-in that sent it; any caller holding that same key could record one.'] };
+}
+
+/** Selected, non-secret output of a tool the external host owns. The record and downstream result are local;
+ * the external tool's execution is explicitly agent-kept evidence, not an account-side query of that host. */
+export function hostToolEvidence(reference, { operation, references = new Map() } = {}) {
+  const message = reference?.value;
+  let envelope = null;
+  try { if (typeof message?.text === 'string' && message.text.length <= 16_000) envelope = JSON.parse(message.text); } catch { /* prose does not satisfy this protocol */ }
+  const problems = [];
+  const common = ['schema', 'operation', 'host', 'tool', 'tool_result_id', 'observed_at', 'account_ref', 'connector', 'scheduled_pickup'];
+  if (reference?.kind !== 'message' || !resolved(reference) || message?.speaker === 'person' || !text(message?.speaker)
+    || !instant(message?.recorded_at) || !text(message?.conversation_id) || !text(message?.captured_road) || message.captured_road === 'unspecified'
+    || !only(envelope, common) || envelope?.schema !== 'trillion.setup-host-evidence/v1' || envelope.operation !== operation
+    || !['host', 'tool', 'tool_result_id'].every(field => text(envelope?.[field]) && envelope[field].length <= 300)
+    || !instant(envelope?.observed_at) || Date.parse(envelope.observed_at) > Date.parse(message.recorded_at))
+    problems.push('Use an attributed, bounded host-tool result with its actual host, tool, result identity and observation time.');
+  const account = references.get(envelope?.account_ref);
+  if (envelope?.account_ref !== 'setting:owner_user_id' || !resolved(account) || account.kind !== 'setting' || !text(account.value?.value))
+    problems.push('The external evidence must be associated with this authenticated account record.');
+  const facts = { evidence_ref: reference?.ref, host: envelope?.host ?? null, tool: envelope?.tool ?? null,
+    tool_result_id: envelope?.tool_result_id ?? null, observed_at: envelope?.observed_at ?? null };
+  if (operation === 'connector') {
+    const connector = envelope?.connector;
+    const arrival = references.get(connector?.arrival_ref), sourceMessage = references.get(arrival?.value?.message_id);
+    if (envelope?.scheduled_pickup !== undefined || !only(connector, ['connection_id', 'service', 'authorized', 'source_id', 'arrival_ref', 'source_item_ref'])
+      || !['connection_id', 'service', 'source_id', 'arrival_ref', 'source_item_ref'].every(field => text(connector?.[field]) && connector[field].length <= 300)
+      || connector.authorized !== true || !resolved(arrival) || arrival.kind !== 'arrival' || arrival.value.source_id !== connector.source_id
+      || !text(arrival.value.route) || !instant(arrival.value.at)
+      || !resolved(sourceMessage) || sourceMessage.kind !== 'message' || sourceMessage.value.source_ref !== connector.source_item_ref
+      || !instant(sourceMessage.value.recorded_at) || !text(sourceMessage.value.captured_road) || sourceMessage.value.captured_road === 'unspecified')
+      problems.push('A host connector must show a successful authorized read linked to a real owned arrival and that exact source item.');
+    Object.assign(facts, { connection_id: connector?.connection_id ?? null, service: connector?.service ?? null,
+      source_id: connector?.source_id ?? null, arrival_ref: connector?.arrival_ref ?? null });
+  } else if (operation === 'scheduled-pickup') {
+    const pickup = envelope?.scheduled_pickup, schedule = pickup?.schedule, execution = pickup?.execution;
+    const agent = references.get(`agent:${pickup?.agent_id}`), work = references.get(execution?.handoff_ref), result = references.get(execution?.result_ref);
+    const held = work?.value, answer = result?.value, source = references.get(held?.input?.arrived?.message_id);
+    if (envelope?.connector !== undefined || !only(pickup, ['agent_id', 'schedule', 'execution']) || !text(pickup?.agent_id) || pickup.agent_id.length > 300
+      || !only(schedule, ['id', 'enabled', 'next_run_at']) || !text(schedule?.id) || schedule.id.length > 300 || schedule.enabled !== true
+      || !instant(schedule?.next_run_at) || !instant(envelope?.observed_at) || Date.parse(schedule.next_run_at) <= Date.parse(envelope.observed_at)
+      || !only(execution, ['id', 'state', 'trigger', 'started_at', 'finished_at', 'handoff_ref', 'result_ref'])
+      || !['id', 'handoff_ref', 'result_ref'].every(field => text(execution?.[field]) && execution[field].length <= 300)
+      || execution.state !== 'completed' || execution.trigger !== 'scheduled' || !instant(execution.started_at) || !instant(execution.finished_at)
+      || Date.parse(execution.started_at) > Date.parse(execution.finished_at) || Date.parse(execution.finished_at) > Date.parse(envelope.observed_at)
+      || !resolved(agent) || agent.kind !== 'agent' || agent.value.agent_id !== pickup.agent_id || agent.value.takes_work !== true
+      || !resolved(work) || work.kind !== 'handoff' || held.state !== 'finished' || held.taken_by !== pickup.agent_id
+      || !instant(held.taken_at) || !instant(held.finished_at) || Date.parse(execution.started_at) > Date.parse(held.taken_at)
+      || Date.parse(execution.finished_at) < Date.parse(held.finished_at) || Date.parse(held.taken_at) > Date.parse(held.finished_at) || held.result == null
+      || held.handoff_id !== execution.handoff_ref || held.withdrawal || ['duplicate', 'source_provenance_correction'].includes(held.result?.kind)
+      || [held.result?.state, held.result?.status].some(value => /(?:^|[ _-])(?:blocked|unverified|incomplete|pending|queued|waiting|working|running|delegated|withdrawn|failed)(?:$|[ _-])/i.test(String(value ?? '')))
+      || !resolved(source) || source.kind !== 'message' || !text(source.value.conversation_id)
+      || !resolved(result) || result.kind !== 'message' || answer.source_ref !== `handoff:${execution.handoff_ref}`
+      || answer.speaker !== pickup.agent_id || !text(answer.text) || answer.text !== workResultWords(held).slice(0, 100_000)
+      || answer.conversation_id !== source.value.conversation_id || !instant(answer.at) || Date.parse(answer.at) < Date.parse(held.finished_at)
+      || !list(answer.about).some(item => item?.kind === 'message' && item.id === held.input?.arrived?.message_id))
+      problems.push('A host pickup schedule needs its enabled next run and an actually completed scheduled execution linked to this AI’s finished handoff and exact result.');
+    Object.assign(facts, { agent_id: pickup?.agent_id ?? null, schedule_id: schedule?.id ?? null, next_run_at: schedule?.next_run_at ?? null,
+      execution_id: execution?.id ?? null, work_ref: execution?.handoff_ref ?? null, result_ref: execution?.result_ref ?? null });
+  } else problems.push('This external host operation is not supported.');
+  return { verified: !problems.length, basis: 'agent_kept_external_tool_evidence', facts, problems,
+    limits: ['The account checks its own downstream records; it cannot independently query this external host’s current authorization or schedule.'] };
+}
+
+/** Only the requirement's own final refs supply its typed proof; an arbitrary message cannot satisfy these kinds. */
+export function setupCapabilityEvidence({ definition, original, scopeInventory, row, references, readReference, identity }) {
+  const kind = definition?.evidence?.kind;
+  const refs = list(row.evidence_refs).map(ref => references.get(ref)).filter(resolved);
+  const ownRefs = new Map(refs.map(ref => [ref.ref, ref]));
+  const facts = {}, problems = [];
+  const basis = kind ? `owner_check:${kind}` : 'agent_outcome_with_owned_references';
+  if (row.state === 'not-applicable') {
+    for (const field of list(definition?.evidence?.applicable_if_declared)) {
+      if (list(original?.[field]).length) problems.push(`A declared ${field} scope cannot be omitted as not applicable.`);
+    }
+    if (kind === 'local-harness-report' && (list(original?.harness_scopes).length || list(scopeInventory?.harness_scopes).length || list(row.harness_scopes).length)) problems.push('A declared local harness cannot be omitted as not applicable.');
+    return { verified: !problems.length, basis: 'agent_applicability_with_owned_references', facts, problems };
+  }
+  if (!kind) return { verified: true, basis, facts, problems };
+  if (kind === 'profile') {
+    const account = refs.find(ref => ref.ref === 'setting:owner_user_id' && ref.kind === 'setting');
+    const profile = refs.find(ref => ref.ref === 'setting:network_profile' && ref.kind === 'setting')?.value?.value;
+    if (!text(account?.value?.value) || !profile || typeof profile !== 'object') problems.push('Read the authenticated account identity and the actual saved profile records.');
+    const nameOrigin = list(profile?.written).includes('name') ? 'account-written' : text(profile?.name) && profile?.filled?.name === profile?.name ? 'automatically-filled' : 'unknown';
+    Object.assign(facts, { account_record_present: Boolean(account), name_present: text(profile?.name), name_origin: nameOrigin, supplied_name_verified: false, legal_name_verified: false });
+    for (const field of list(definition.evidence.required_fields)) {
+      if (!text(profile?.[field]) || (field === 'name' && nameOrigin !== 'account-written')) problems.push(`The enabled capability still needs supported evidence for ${field}.`);
+    }
+  } else if (kind === 'pursuit-record') {
+    const pursuits = refs.filter(ref => ref.kind === 'pursuit' && !['ended', 'archived', 'left'].includes(ref.value.status)
+      && ['title', 'now', 'after'].every(field => text(ref.value[field])));
+    if (!pursuits.length) problems.push('Name a current owned pursuit with its specific title, present state and intended result.');
+    facts.pursuit_refs = pursuits.map(ref => ref.ref);
+  } else if (kind === 'source-arrival') {
+    const arrivals = refs.filter(ref => ref.kind === 'arrival' && text(ref.value.source_id) && text(ref.value.route) && instant(ref.value.at)
+      && refs.some(message => message.ref === ref.value.message_id && message.kind === 'message' && instant(message.value.recorded_at)
+        && text(message.value.captured_road) && message.value.captured_road !== 'unspecified'));
+    // The same record read_setup counts as arrived: the person's words kept through the carrier door, whose road the
+    // message store sets itself (src/messages.mjs record), so record_messages cannot supply it.
+    const door = refs.filter(ref => ref.kind === 'message' && ref.value.captured_road === 'carrier_door' && ref.value.speaker === 'person'
+      && text(ref.value.conversation_id) && instant(ref.value.recorded_at));
+    if (!arrivals.length && !door.length) problems.push('Name a real owned arrival and its linked recorded source message, or the person’s words kept through the carrier door.');
+    const backlog = refs.filter(ref => (ref.kind === 'task' && ['working', 'scheduled'].includes(ref.value.state))
+      || (ref.kind === 'handoff' && ['open', 'taken'].includes(ref.value.state)));
+    Object.assign(facts, { arrivals: [...arrivals.map(ref => ({ ref: ref.ref, source_id: ref.value.source_id, message_ref: ref.value.message_id })),
+      ...door.map(ref => ({ ref: ref.ref, source_id: ref.value.conversation_id, message_ref: ref.ref, route: ref.value.app ?? null, basis: 'carrier_door_message' }))],
+      active_backlog_refs: backlog.map(ref => ref.ref), complete_history_inferred: false });
+  } else if (kind === 'connected-service') {
+    const connections = refs.filter(ref => ref.kind === 'connection');
+    const connected = connections.filter(ref => ref.value.status === 'connected'
+      && !(Number(ref.value.last_checked?.service_answered) >= 400));
+    const external = refs.filter(ref => ref.kind === 'message').map(ref => hostToolEvidence(ref, { operation: 'connector', references: ownRefs })).filter(proof => proof.verified);
+    if ((!connections.length && !external.length) || connected.length !== connections.length) problems.push('Name working account connection IDs, or an attributed external connector read linked to a real source arrival.');
+    facts.connection_refs = connected.map(ref => ref.ref);
+    if (external.length) { facts.external_tools = external; return { verified: !problems.length, basis: 'agent_kept_external_tool_evidence', facts, problems }; }
+  } else if (kind === 'agent-pickup') {
+    const agents = refs.filter(ref => ref.kind === 'agent' && ref.value.takes_work === true);
+    const jobs = refs.filter(ref => ref.kind === 'handoff' && ref.value.state === 'finished' && instant(ref.value.taken_at) && instant(ref.value.finished_at));
+    const picked = jobs.flatMap(job => agents.filter(agent => agent.value.agent_id === job.value.taken_by).map(agent => ({ job, agent })));
+    const observations = picked.map(({ job, agent }) => {
+      const returned = nativeSourceReturn(job.value, { readReference, identity });
+      const delivered = agent.value.delivery_configured === true && instant(agent.value.last_delivered_at) && instant(job.value.handed_at) && Date.parse(agent.value.last_delivered_at) >= Date.parse(job.value.handed_at)
+        && (!instant(agent.value.last_undelivered_at) || Date.parse(agent.value.last_undelivered_at) <= Date.parse(agent.value.last_delivered_at));
+      const delivery = agent.value.reach?.live === true ? 'current-live-delivery'
+        : returned.verified && agent.value.source_id === returned.source_id ? 'signed-native-return' : delivered ? 'owner-observed-delivery' : null;
+      return { work_ref: job.ref, agent_ref: agent.ref, taken_at: job.value.taken_at, delivery, native_return: returned };
+    });
+    const external = refs.filter(ref => ref.kind === 'message').map(ref => hostToolEvidence(ref, { operation: 'scheduled-pickup', references: ownRefs })).filter(proof => proof.verified);
+    if (!observations.some(item => item.delivery) && !external.length) problems.push('A published card and manual pickup are insufficient: observe live or owner-recorded delivery, a signed native return, or an actually executed external pickup schedule.');
+    facts.pickups = observations;
+    if (external.length) { facts.external_tools = external; return { verified: !problems.length, basis: 'agent_kept_external_tool_evidence', facts, problems }; }
+  } else if (kind === 'local-harness-report') {
+    const before = list((scopeInventory ?? original)?.harness_scopes), after = list(row.harness_scopes);
+    const key = item => `${item?.scope_id}\n${item?.harness}`;
+    if (!before.length || !after.length || !unique(before.map(key)) || !unique(after.map(key)) || !same(before.map(key), after.map(key)))
+      problems.push('Declare each chosen harness and computer pair identically in the saved scope and verification.');
+    if (after.some(item => !list(row.scope_ids).includes(item.scope_id))) problems.push('A local harness names a computer outside its verified scope.');
+    facts.reports = after.map(pair => {
+      const reports = refs.filter(ref => ref.kind === 'message').map(ref => localHarnessReport(ref, pair));
+      const kept = hookKeptHarnessRecords(refs, pair);
+      return reports.find(report => report.verified) ?? (kept.verified ? kept : { verified: false, origin: 'agent-kept-local-inspector', ...pair,
+        problems: ['No complete attributed inspector report or hook-kept transcript record matches this exact harness and computer.',
+          ...kept.problems, ...reports.flatMap(report => report.problems)].slice(0, 5) });
+    });
+    if (facts.reports.some(report => !report.verified)) problems.push('The applicable local harness has incomplete configuration, trust or execution evidence.');
+    const basis = facts.reports.every(report => report.origin === 'agent-kept-local-inspector') ? 'structured_local_inspector_report' : 'hook_kept_transcript_records';
+    return { verified: !problems.length, basis, facts, problems };
+  } else problems.push(`This setup evidence kind is not implemented: ${kind}.`);
+  return { verified: !problems.length, basis, facts, problems };
+}

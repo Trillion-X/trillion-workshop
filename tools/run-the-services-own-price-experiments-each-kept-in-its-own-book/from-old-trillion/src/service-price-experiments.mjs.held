@@ -1,0 +1,55 @@
+// src/service-price-experiments.mjs
+//
+// Purpose: the service's own price experiments, each kept by its own owner, one record book per experiment
+// (src/book-handlers.mjs 'price-experiment', priceExperimentBookName), never any person's store or one book for all.
+// An operation that names an experiment (or a save, whose experiment its id or label names) reaches that experiment's
+// book; listing reads what each book published under its own key (src/price-experiments.mjs publishedExperiments);
+// an operation over every experiment at once (shown_offers) or none (ladder) runs here over those published records,
+// keeping nothing.
+//
+// Non-Negotiable Invariants:
+//   1. One experiment is one owner: its record and every event of it are kept only in its own book.
+//   2. Nothing here keeps or changes an experiment: writes happen in its book, which publishes what changed.
+//   3. No book is shared by every experiment: the service's earlier single book was carried to these owners on
+//      2026-10-15 (both kinds read back as carried in the edge store) and is no longer reached.
+//
+//   priceExperimentBookName(id) → the book name
+//   servicePriceExperiments(env, operation, input) → that operation's answer (src/price-experiments.mjs operations)
+//   serviceWorkRows(env) → { list, save, end } over each work row's own book
+import { experimentIdOf, forgetPublished, makePriceExperiments, operationWords, priceExperimentOperations, publishedExperiments } from './price-experiments.mjs';
+import { serviceOfferPrices } from './payment.mjs';
+import started from '../records/service-price-experiments.json' with { type: 'json' };
+import { workRowsOf } from '../../../send-work-tasks-tours-and-instructions-from/from-old-trillion/src/work-for-ais.mjs.held';
+import { hostOf } from './resource-host.mjs';
+
+export const priceExperimentBookName = id => `price-experiment:${id}`;
+const bookOf = (env, id) => hostOf(env, { kind: 'record-book', key: priceExperimentBookName(id) });
+
+// Over every published experiment, keeping nothing: what an operation across experiments reads.
+const readOnly = experiments => makePriceExperiments({
+  store: { list: () => experiments, put: () => { throw new Error('This reading keeps nothing.'); } },
+  recordEvent: () => { throw new Error('This reading keeps nothing.'); }, eventsOf: () => [], offers: async () => serviceOfferPrices(),
+});
+
+export async function servicePriceExperiments(env, operation, input = {}) {
+  if (!priceExperimentOperations.includes(operation)) throw new Error(operationWords);
+  if (operation === 'list') {
+    const published = await publishedExperiments(env.APP_KV);
+    // A DATA row whose own book was never reached starts there now, by reaching it.
+    for (const id of new Set(started.experiments.map(row => row.experiment_id))) {
+      if (!published.some(experiment => experiment.id === id)) published.push(await bookOf(env, id).run('price-experiment', 'read', { experiment_id: id }));
+    }
+    const experiments = published.sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at)));
+    return { experiments, count: experiments.length };
+  }
+  if (operation === 'shown_offers' || operation === 'ladder') return readOnly(await publishedExperiments(env.APP_KV))[operation](input);
+  const id = operation === 'save' ? experimentIdOf(input) : input?.experiment_id;
+  if (typeof id !== 'string' || !id) throw new Error('Name the price experiment (experiment_id).');
+  // The book publishes what it changed from its own isolate; this one forgets its kept copy, so what it reads next (the
+  // operator's settle, a payment's record) is what the book now holds, not what it held a minute ago.
+  try { return await bookOf(env, id).run('price-experiment', operation, input); }
+  finally { await forgetPublished(env.APP_KV); }
+}
+
+/** The work Trillion HQ sends to customers' AIs (src/work-for-ais.mjs workRowsOf): each row kept by its own book. */
+export const serviceWorkRows = env => workRowsOf(env);

@@ -1,0 +1,92 @@
+// src/space-membership-kinds.mjs
+//
+// Purpose: who the people in a space are, and what someone must hold from this service to join it. A space's kind is
+// DATA (src/space-membership-kinds.json kinds): its own configuration's `members_are`, else its label's default
+// (src/network-settings.json membership_labels[label].members_are), else none. A kind's `plan_feature` names the plan
+// feature row the joiner's plan must include; a kind without one (a business's members or customers) never asks for
+// anything from this service.
+//
+// Non-Negotiable Invariants:
+//   1. One gate: every way into a space joined by invitation (an invite link, an invite sent to a proven address, an
+//      accepted request, a moved space's accept) ends in Network.answer or acceptSpaceRequest, and both ask
+//      coveredToJoin before a member row is written. Nothing else decides whether a kind lets someone in.
+//   2. The joiner's plan is judged by their current access in their policy directory (currentAccess), allowance-aware: a free plan that names
+//      the access with an allowance does not include the feature, exactly as its plan card says.
+//   3. A joiner not covered takes a free seat of the space owner's team purchase when one is open (the owner's store
+//      giveSeat, src/seats.mjs), recorded in the joiner's own store as every seat is; the owner pays for that seat.
+//   4. Members already in a space are never put out: a kind is judged only as someone joins.
+//   5. No kind, label or plan is named here; adding a kind is a row in the JSON.
+//
+import settings from '../../../space-membership-kinds/src/space-membership-kinds.json' with { type: 'json' };
+import labels from '../../../introduce-two-people/src/network-settings.json' with { type: 'json' };
+import { settledConfiguration } from './community.mjs';
+import { featureIncluded } from './plan-comparison.mjs';
+import { policyDirectoryFor } from './account-policy-name.mjs';
+
+const fill = (template, parts) => template.replace(/\{(\w+)\}/g, (_, name) => String(parts[name] ?? ''));
+
+/** The kind id a space with this label and configuration has, or null. */
+export const membersAre = (label, config = null) => config?.members_are ?? labels.membership_labels[label]?.members_are ?? null;
+/** The kind row for a kind id, or null. */
+export const membershipKind = id => (id && Object.hasOwn(settings.kinds, id) ? { id, ...settings.kinds[id] } : null);
+/** Every kind, in order, as { id, label, about } for a screen that offers them. */
+export const membershipKinds = () => Object.entries(settings.kinds).map(([id, row]) => ({ id, label: row.label, about: row.about }));
+/** A configuration's `members_are` problem in words, or null. */
+export const membersAreProblem = config => (config?.members_are === undefined || membershipKind(config.members_are) ? null
+  : fill(settings.words.kind_unknown, { kinds: Object.keys(settings.kinds).join(', ') }));
+/** What a person not covered is told about joining this space. */
+export const needsPlanWords = ({ space, owner = null }) => fill(owner ? settings.words.needs_plan : settings.words.needs_plan_unnamed, { space, owner });
+
+export const membershipKindMethods = {
+  // The kind of one space: { id, label, about, plan_feature } or null.
+  kindOfSpace(spaceId) {
+    const row = this.sql.exec('SELECT m.label, c.config FROM memberships m LEFT JOIN communities c ON c.id = m.id WHERE m.id = ?', spaceId).toArray()[0];
+    return row ? membershipKind(membersAre(row.label, row.config ? JSON.parse(row.config) : null)) : null;
+  },
+
+  // Whether someone who is not in this space yet would be covered to join it now: { covered: true } or
+  // { covered: false, words }. `takeSeat` takes the owner's free seat for them (when joining); without it the seat is
+  // only looked for (an invite page asking before anyone joins).
+  async joinCover(spaceId, relay, personRef, { takeSeat = false } = {}) {
+    const kind = this.kindOfSpace(spaceId);
+    if (!kind?.plan_feature) return { covered: true };
+    const space = this.sql.exec('SELECT title, created_by FROM memberships WHERE id = ?', spaceId).toArray()[0];
+    if (!space || space.created_by === relay) return { covered: true };
+    // The joiner's plan and the seat it is given, and the Space owner's free seats, are each account's policy owner's
+    // (src/account-control.mjs), never a store's.
+    const joiner = personRef ? policyDirectoryFor(this.env, personRef) : null;
+    if (joiner && featureIncluded(await joiner.currentAccess(personRef), kind.plan_feature)) return { covered: true };
+    const ownerRef = this.sql.exec('SELECT person_ref FROM relays WHERE relay = ?', space.created_by).toArray()[0]?.person_ref ?? null;
+    if (joiner && ownerRef) {
+      const payer = policyDirectoryFor(this.env, ownerRef);
+      if (!takeSeat && await payer.accountHasFreeSeat(ownerRef)) return { covered: true, seat: 'open' };
+      if (takeSeat) {
+        const given = await payer.giveSpaceSeat(ownerRef, { taker: personRef, taker_access: await joiner.accountCurrentAccess(personRef) });
+        if (given?.effects) {
+          for (const effect of given.effects) await joiner.recordAccountEffect(personRef, effect);
+          return { covered: true, seat: 'taken' };
+        }
+      }
+    }
+    return { covered: false, words: needsPlanWords({ space: space.title, owner: this.memberNames(spaceId)(space.created_by) }) };
+  },
+
+  // Who the people in one space are, changed by whoever its rules let change it (change_community): its configuration
+  // keeps `members_are`, everything else as it was. null goes back to its label's default. Nobody already in it is put out.
+  async setMembersAre({ relay, space_id: spaceId, members_are: kindId }) {
+    await this.allowedInSpace(spaceId, relay, 'change_community');
+    if (kindId !== null && !membershipKind(kindId)) throw new Error(membersAreProblem({ members_are: kindId }));
+    const space = this.readCommunity(spaceId);
+    const { members_are: _earlier, ...config } = space.config;
+    this.keepConfiguration(space.id, settledConfiguration(space.label, kindId === null ? config : { ...config, members_are: kindId }));
+    this.spaceChanged(space.id);
+    return { space_id: space.id, members_are: this.kindOfSpace(space.id) };
+  },
+
+  // Refuses a join this space's kind does not cover, taking the owner's free seat for the joiner when one is open.
+  async coveredToJoin(spaceId, relay, personRef) {
+    const cover = await this.joinCover(spaceId, relay, personRef, { takeSeat: true });
+    if (!cover.covered) throw Object.assign(new Error(cover.words), { status: 402 });
+    return cover;
+  },
+};

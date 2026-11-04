@@ -1,0 +1,487 @@
+// A share is never lost to a store that cannot answer: it is kept at the edge, listed as waiting, and sent when the store
+// answers, once. (src/share-inbox.mjs)
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { answerMcpWithFailureBoundary } from '../src/mcp-failure-boundary.mjs';
+import { failureFromReply } from '../../../tweak-live-controls/failure.mjs';
+import settings from '../records/share-inbox.json' with { type: 'json' };
+import { marketplaceContentSourceId, marketplaceContentItemId, marketplaceContentProjectionKey } from '../src/marketplace-content-section.mjs';
+import { defaultMakers } from '../src/marketplace-defaults.mjs';
+import { databaseInputIdentity } from '../src/database-resource-composition.mjs';
+import { ShareInboxError, callOrKeep, deliverOrKeep, drainBehind, drainEverySharedInbox, drainShareInbox, keepInEdge, pendingShares, shareToKeep, sharesWithPending } from '../src/share-inbox.mjs';
+
+const kv = () => {
+  const map = new Map();
+  return {
+    map,
+    get: async (key, as) => (map.has(key) ? (as === 'json' ? JSON.parse(map.get(key).value) : map.get(key).value) : null),
+    put: async (key, value, options) => void map.set(key, { value, ttl: options?.expirationTtl }),
+    delete: async key => void map.delete(key),
+    list: async ({ prefix, limit = 1000, cursor = '' }) => {
+      const remaining = [...map.keys()].filter(key => key.startsWith(prefix) && key > cursor).sort();
+      const page = remaining.slice(0, limit);
+      return { keys: page.map(name => ({ name })), list_complete: remaining.length <= limit,
+        ...(remaining.length > limit ? { cursor: page.at(-1) } : {}) };
+    },
+  };
+};
+const NOW = Date.parse('2026-10-07T12:00:00Z');
+const memoryLimit = () => Object.assign(new Error('Durable Object\'s isolate exceeded its memory limit and was reset.'), {});
+const items = [{ kind: 'page', url: 'https://example.com/a', title: 'A page' }];
+const headers = { 'x-trillion-origin': 'https://app.gettrillion.ai', 'x-trillion-user': 'user-1' };
+const asText = body => JSON.stringify(body);
+
+test('a share the store cannot take is kept at the edge and answered 202 as kept, under a key made when the device sent none', async () => {
+  const env = { APP_KV: kv() };
+  const answer = await deliverOrKeep({ env, userId: 'user-1', text: asText({ items }), path: '/share-destinations/deliver', headers, send: async () => { throw memoryLimit(); }, now: NOW });
+  assert.equal(answer.status, 202);
+  const body = await answer.json();
+  assert.deepEqual({ ...body, request_key: typeof body.request_key }, { queued: true, request_key: 'string', words: 'Kept. Trillion will deliver it as soon as your account answers.' });
+  const kept = await env.APP_KV.get(`share-inbox:user-1:${body.request_key}`, 'json');
+  assert.equal(kept.path, '/share-destinations/deliver');
+  assert.equal(JSON.parse(kept.body).request_key, body.request_key, 'the replay carries the key the answer names');
+  assert.deepEqual(kept.headers, headers);
+  assert.equal(kept.tries, 0);
+  assert.equal(env.APP_KV.map.get(`share-inbox:user-1:${body.request_key}`).ttl, 30 * 86400);
+  assert.ok(env.APP_KV.map.has('share-inbox-has:user-1'));
+});
+
+test('a 5xx from the store is kept the same, a key the device sent is kept as sent, and the same key twice is one kept share', async () => {
+  const env = { APP_KV: kv() };
+  const send = async () => new Response('{}', { status: 503 });
+  const first = await deliverOrKeep({ env, userId: 'user-1', text: asText({ items, request_key: 'phone-1' }), path: '/p', headers, send, now: NOW });
+  const again = await deliverOrKeep({ env, userId: 'user-1', text: asText({ items, request_key: 'phone-1' }), path: '/p', headers, send, now: NOW + 5000 });
+  assert.deepEqual([first.status, again.status], [202, 202]);
+  assert.equal((await again.json()).request_key, 'phone-1');
+  assert.deepEqual([...env.APP_KV.map.keys()].filter(key => key.startsWith('share-inbox:')), ['share-inbox:user-1:phone-1']);
+  assert.equal((await env.APP_KV.get('share-inbox:user-1:phone-1', 'json')).kept_at, new Date(NOW).toISOString());
+});
+
+test('what the store answers itself is passed on and never kept: a refusal, a success, a failure that is not the store being down, a share that is not a share', async () => {
+  const env = { APP_KV: kv() };
+  const refused = await deliverOrKeep({ env, userId: 'user-1', text: asText({ items, request_key: 'k' }), path: '/p', headers, send: async () => Response.json({ error: 'No action x.' }, { status: 400 }) });
+  assert.equal(refused.status, 400);
+  const fine = await deliverOrKeep({ env, userId: 'user-1', text: asText({ items, request_key: 'k' }), path: '/p', headers, send: async () => Response.json({ delivered: [] }) });
+  assert.equal(fine.status, 200);
+  await assert.rejects(deliverOrKeep({ env, userId: 'user-1', text: asText({ items, request_key: 'k' }), path: '/p', headers, send: async () => { throw new Error('a bug'); } }), /a bug/);
+  const wrongTo = await deliverOrKeep({ env, userId: 'user-1', text: asText({ to: 'private', items, request_key: 'k' }), path: '/p', headers, send: async () => new Response('{}', { status: 500 }) });
+  assert.equal(wrongTo.status, 500);
+  assert.equal(shareToKeep('not json'), null);
+  assert.equal(shareToKeep(asText({ items: [] })), null);
+  assert.equal(env.APP_KV.map.size, 0);
+});
+
+test('something too large to hold is refused with a plain error and nothing half kept', async () => {
+  const env = { APP_KV: kv() };
+  const big = [{ kind: 'text', text: 'x'.repeat(20_000_100) }];
+  const answer = await deliverOrKeep({ env, userId: 'user-1', text: asText({ items: big, request_key: 'big' }), path: '/p', headers, send: async () => { throw memoryLimit(); } });
+  assert.equal(answer.status, 503);
+  assert.match((await answer.json()).error, /too big to hold/);
+  assert.equal(env.APP_KV.map.size, 0);
+});
+
+test('a kept share is sent again with the same key and headers when the store answers, then forgotten; a store still down leaves it', async () => {
+  const env = { APP_KV: kv() };
+  await keepInEdge(env, 'user-1', { key: 'phone-2', path: '/share-destinations/deliver', body: asText({ items, request_key: 'phone-2' }), headers }, NOW);
+  const sentToStore = [];
+  const down = async () => { throw memoryLimit(); };
+  const first = await drainShareInbox(env, 'user-1', down, { now: NOW });
+  assert.deepEqual(first, { delivered: 0, refused: 0, left: 1 });
+  assert.equal((await env.APP_KV.get('share-inbox:user-1:phone-2', 'json')).tries, 1);
+  assert.ok(env.APP_KV.map.has('share-inbox-has:user-1'));
+  // Not again within the throttle.
+  const soon = await drainShareInbox(env, 'user-1', async entry => { sentToStore.push(entry); return Response.json({}); }, { now: NOW + 10_000 });
+  assert.equal(soon.throttled, true);
+  assert.deepEqual(sentToStore, []);
+  const later = await drainShareInbox(env, 'user-1', async entry => { sentToStore.push(entry); return Response.json({ delivered: [] }); }, { now: NOW + 31_000 });
+  assert.deepEqual(later, { delivered: 1, refused: 0, left: 0 });
+  assert.equal(sentToStore.length, 1);
+  assert.equal(JSON.parse(sentToStore[0].body).request_key, 'phone-2');
+  assert.deepEqual(sentToStore[0].headers, headers);
+  assert.equal(await env.APP_KV.get('share-inbox:user-1:phone-2'), null);
+  assert.equal(await env.APP_KV.get('share-inbox-has:user-1'), null, 'nothing waits, so the marker goes');
+});
+
+test('an answer of queued is not delivery, and a refusal for good moves the share aside with its reason instead of deleting it', async () => {
+  const env = { APP_KV: kv() };
+  await keepInEdge(env, 'user-1', { key: 'a', path: '/p', body: asText({ items, request_key: 'a' }), headers }, NOW);
+  const queued = await drainShareInbox(env, 'user-1', async () => Response.json({ queued: true }, { status: 202 }), { now: NOW, force: true });
+  assert.equal(queued.left, 1);
+  assert.ok(await env.APP_KV.get('share-inbox:user-1:a'));
+  const refused = await drainShareInbox(env, 'user-1', async () => Response.json({ error: 'On the free plan nothing is kept.' }, { status: 402 }), { now: NOW, force: true });
+  assert.deepEqual(refused, { delivered: 0, refused: 1, left: 0 });
+  assert.equal(await env.APP_KV.get('share-inbox:user-1:a'), null);
+  const record = await env.APP_KV.get('share-inbox-refused:user-1:a', 'json');
+  assert.deepEqual([record.reason, record.status, JSON.parse(record.body).request_key], ['On the free plan nothing is kept.', 402, 'a']);
+});
+
+test('a refused mail take keeps its already-written attachments recoverable and names their Files paths', async () => {
+  const env = { APP_KV: kv() };
+  const files = [{ name: '/Emailed in/2026-10-07 Note/scan.pdf', media_type: 'application/pdf', identity: `1f:${'a'.repeat(64)}`, base64: 'YQ==' }];
+  await keepInEdge(env, 'user-1', { key: 'mail-refused', kind: 'inbound', path: '/inbound', body: JSON.stringify({ source_id: '<mail>' }), files }, NOW);
+  const order = [], deliver = async () => { order.push('take'); return Response.json({ error: 'This arrival is refused.' }, { status: 400 }); };
+  deliver.preflight = async () => { order.push('plan'); return Response.json({ preflight: true }); };
+  const drained = await drainShareInbox(env, 'user-1', deliver, { now: NOW, force: true, keepFile: async (_env, _user, entry) => { order.push('files'); assert.deepEqual(entry.files, files); } });
+  assert.deepEqual(drained, { delivered: 0, refused: 1, left: 0 });
+  assert.deepEqual(order, ['plan', 'files', 'take']);
+  assert.equal(await env.APP_KV.get('share-inbox:user-1:mail-refused'), null, 'the edge queue moves the refusal aside');
+  const refused = await env.APP_KV.get('share-inbox-refused:user-1:mail-refused', 'json');
+  assert.equal(refused.reason, 'This arrival is refused. The attachments remain in Files: /Emailed in/2026-10-07 Note/scan.pdf.');
+  assert.deepEqual(refused.files, files, 'the refused receipt retains the file identity and bytes for recovery');
+});
+
+test('the share list shows what waits as "waiting to deliver" and what was turned away as "could not deliver", and still answers when the store cannot be read', async () => {
+  const env = { APP_KV: kv() };
+  await keepInEdge(env, 'user-1', { key: 'w1', path: '/p', body: asText({ items, own_words: 'try this', from: 'Chrome', request_key: 'w1' }), headers }, NOW);
+  await keepInEdge(env, 'user-1', { key: 'm1', kind: 'inbound', path: '/inbound', body: asText({ text: 'a mail' }) }, NOW);
+  await keepInEdge(env, 'user-1', { key: 'r1', path: '/p', body: asText({ items, request_key: 'r1' }), headers }, NOW - 1000);
+  await drainShareInbox(env, 'user-1', async entry => (JSON.parse(entry.body).request_key === 'r1' ? Response.json({ error: 'Not allowed.' }, { status: 403 }) : new Response('{}', { status: 503 })), { now: NOW, force: true });
+  const rows = await pendingShares(env, 'user-1');
+  assert.deepEqual(rows.map(row => [row.share_id, row.status]), [['w1', 'waiting to deliver'], ['r1', 'could not deliver: Not allowed.']]);
+  assert.deepEqual([rows[0].from, rows[0].own_words, rows[0].items], ['Chrome', 'try this', items]);
+  // The store's list comes with them first, and a share the store already has is not listed twice.
+  const stored = { shares: [{ share_id: 'w1', at: '2026-10-07T12:00:00.000Z', items }, { share_id: 'old', at: '2026-10-01T00:00:00.000Z', items }], next_before: null };
+  const merged = await sharesWithPending(env, 'user-1', async () => stored, '');
+  assert.deepEqual(merged.shares.map(share => share.share_id), ['r1', 'w1', 'old']);
+  assert.equal(merged.shares.find(share => share.share_id === 'w1').status, undefined, 'the store\'s own row wins');
+  const unreadable = await sharesWithPending(env, 'user-1', async () => { throw memoryLimit(); }, '');
+  assert.deepEqual(unreadable.shares.map(share => share.share_id), ['w1', 'r1']);
+  // Older pages are the store's alone, and an empty inbox lets a store error through.
+  assert.deepEqual((await sharesWithPending(env, 'user-1', async () => stored, 'before=2026-10-02')).shares.length, 2);
+  await assert.rejects(sharesWithPending({ APP_KV: kv() }, 'user-2', async () => { throw new Error('store down'); }, ''), /store down/);
+});
+
+test('a later request drains only an account whose marker exists, and the shared alarm drains every account with one', async () => {
+  const env = { APP_KV: kv(), PERSON: { idFromName: name => name, get: name => ({ fetch: async request => { calls.push([name, new URL(request.url).pathname, request.headers.get('x-trillion-user')]); return Response.json({ ok: true }); } }) } };
+  const calls = [];
+  const work = [];
+  const ctx = { waitUntil: promise => work.push(promise) };
+  drainBehind(env, ctx, 'user-1');
+  await Promise.all(work.splice(0));
+  assert.deepEqual(calls, []);
+  await keepInEdge(env, 'user-1', { key: 'a', path: '/share-destinations/deliver', body: asText({ items, request_key: 'a' }), headers }, NOW);
+  await keepInEdge(env, 'user-2', { key: 'b', path: '/share-destinations/deliver', body: asText({ items, request_key: 'b' }), headers: { 'x-trillion-user': 'user-2' } }, NOW);
+  drainBehind(env, ctx, 'user-1');
+  await Promise.all(work.splice(0));
+  assert.deepEqual(calls, [['user-1', '/share-destinations/deliver', 'user-1']]);
+  assert.equal(await drainEverySharedInbox(env), 1, 'user-1 has nothing left; user-2 is drained');
+  assert.deepEqual(calls.map(call => call[0]), ['user-1', 'user-2']);
+});
+
+test('deliver_share through MCP answers a normal result with the kept words when the store is down, and still raises what is not that', async () => {
+  const env = { APP_KV: kv() };
+  const input = { items, request_key: 'mcp-1' };
+  const kept = await callOrKeep({ env, userId: 'user-1', path: '/share-destinations/deliver', input, headers, call: async () => { throw Object.assign(new Error('busy'), { failure_code: 'service-busy' }); }, now: NOW });
+  assert.deepEqual(kept, { queued: true, request_key: 'mcp-1', words: 'Kept. Trillion will deliver it as soon as your account answers.' });
+  const reply = await callOrKeep({ env, userId: 'user-1', path: '/p', input, headers, call: async () => ({ delivered: [] }) });
+  assert.deepEqual(reply, { delivered: [] });
+  // A 5xx answer from the store is the store being down, whatever words it came with.
+  const fiveHundred = await callOrKeep({ env, userId: 'user-1', path: '/p', input: { items, request_key: 'mcp-3' }, headers, call: async () => { throw Object.assign(new Error('Server error'), { reply_status: 500 }); }, now: NOW });
+  assert.equal(fiveHundred.queued, true);
+  assert.ok(env.APP_KV.map.has('share-inbox:user-1:mcp-1') && env.APP_KV.map.has('share-inbox:user-1:mcp-3'));
+  await assert.rejects(callOrKeep({ env, userId: 'user-1', path: '/p', input, headers, call: async () => { throw new Error('No action x.'); } }), /No action x\./);
+});
+
+test('a deliver_share that fails before its tool runs (the sign-in could not be checked) is kept and answered as a tool result, not an error', async () => {
+  const env = { APP_KV: kv() };
+  const message = { jsonrpc: '2.0', id: 7, method: 'tools/call', params: { name: 'deliver_share', arguments: { items, request_key: 'mcp-2' } } };
+  const request = () => new Request('https://app.gettrillion.ai/mcp', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(message) });
+  const run = async () => { throw new Error('Durable Object\'s isolate exceeded its memory limit and was reset.'); };
+  const keepShare = async input => { const kept = shareToKeep(JSON.stringify(input)); return keepInEdge(env, 'user-1', { key: kept.key, path: '/share-destinations/deliver', body: kept.body, headers }, NOW); };
+  const answered = await (await answerMcpWithFailureBoundary(request(), { userId: 'user-1' }, run, { keepShare })).json();
+  assert.equal(answered.result.isError, false);
+  assert.deepEqual(answered.result.structuredContent, { queued: true, request_key: 'mcp-2', words: 'Kept. Trillion will deliver it as soon as your account answers.' });
+  assert.deepEqual(JSON.parse(answered.result.content[0].text), answered.result.structuredContent);
+  assert.ok(await env.APP_KV.get('share-inbox:user-1:mcp-2'));
+  // Any other tool, or without the keeper, stays the coded error it was.
+  const other = { ...message, params: { name: 'shares_sent', arguments: {} } };
+  const plain = await (await answerMcpWithFailureBoundary(new Request('https://app.gettrillion.ai/mcp', { method: 'POST', body: JSON.stringify(other) }), { userId: 'user-1' }, run, { keepShare })).json();
+  assert.equal(plain.result.isError, true);
+  const without = await (await answerMcpWithFailureBoundary(request(), { userId: 'user-1' }, run)).json();
+  assert.equal(without.result.isError, true);
+});
+
+// What the person's store answers for a used-up hour (src/person-store.mjs): 429, the budget's words, when it runs again.
+const RESUMES = '2026-10-07T13:00:00.000Z';
+const usedUp = () => Response.json({ error: 'Saving in your account is used up this hour (515,998 of 500,000 rows written by rpc:beginExecution). It runs again at 13:00 UTC, when the hour ends.', failure_code: 'use-budget-reached', retry_at: RESUMES },
+  { status: 429, headers: { 'retry-after': '3600' } });
+const usedUpError = () => Object.assign(failureFromReply('Saving in your account is used up this hour.', { failure_code: 'use-budget-reached', retry_at: RESUMES }), { reply_status: 429 });
+
+test('a share refused for a used-up hour (429 use-budget-reached) is kept as 202 Kept, through the request road and the tool road', async () => {
+  const env = { APP_KV: kv() };
+  const answer = await deliverOrKeep({ env, userId: 'user-1', text: asText({ items, request_key: 'budget-1' }), path: '/p', headers, send: async () => usedUp(), now: NOW });
+  assert.equal(answer.status, 202);
+  assert.deepEqual(await answer.json(), { queued: true, request_key: 'budget-1', words: 'Kept. Trillion will deliver it as soon as your account answers.' });
+  assert.ok(await env.APP_KV.get('share-inbox:user-1:budget-1'));
+  assert.equal(await env.APP_KV.get('share-inbox-drain-after:user-1'), String(Date.parse(RESUMES)), 'the account is not drained before the hour ends');
+
+  const tool = await callOrKeep({ env, userId: 'user-1', path: '/p', input: { items, request_key: 'budget-2' }, headers, now: NOW, call: async () => { throw usedUpError(); } });
+  assert.deepEqual(tool, { queued: true, request_key: 'budget-2', words: 'Kept. Trillion will deliver it as soon as your account answers.' });
+  assert.ok(await env.APP_KV.get('share-inbox:user-1:budget-2'));
+
+  // A 408 and a bare 429 (no budget code, no time) are kept the same; a 400 is still the store's own refusal.
+  for (const [status, key] of [[408, 'late'], [429, 'bare']]) {
+    const kept = await deliverOrKeep({ env, userId: 'user-1', text: asText({ items, request_key: key }), path: '/p', headers, send: async () => new Response('{}', { status }), now: NOW });
+    assert.equal(kept.status, 202, `${status} is kept`);
+  }
+  const refused = await deliverOrKeep({ env, userId: 'user-1', text: asText({ items, request_key: 'no' }), path: '/p', headers, send: async () => Response.json({ error: 'No.' }, { status: 400 }), now: NOW });
+  assert.equal(refused.status, 400);
+  await assert.rejects(callOrKeep({ env, userId: 'user-1', path: '/p', input: { items, request_key: 'x' }, headers, call: async () => { throw failureFromReply('No.', {}); } }), /No\./);
+});
+
+test('the drain waits for the hour to end, then delivers a share kept for a used-up hour once', async () => {
+  const env = { APP_KV: kv() };
+  await deliverOrKeep({ env, userId: 'user-1', text: asText({ items, request_key: 'budget-3' }), path: '/p', headers, send: async () => usedUp(), now: NOW });
+  const received = [];
+  let budgetLeft = false;
+  const deliver = async entry => { received.push(JSON.parse(entry.body).request_key); return budgetLeft ? Response.json({ delivered: [] }) : usedUp(); };
+
+  // Every alarm before the hour ends is throttled without asking the store.
+  assert.equal((await drainShareInbox(env, 'user-1', deliver, { now: NOW + 60_000 })).throttled, true);
+  assert.equal((await drainShareInbox(env, 'user-1', deliver, { now: NOW + 59 * 60_000 })).throttled, true);
+  assert.deepEqual(received, []);
+
+  // Forced while still used up: the answer names the time again, so the drain holds until then (not every 30 seconds).
+  assert.deepEqual(await drainShareInbox(env, 'user-1', deliver, { now: NOW + 120_000, force: true }), { delivered: 0, refused: 0, left: 1 });
+  assert.equal(await env.APP_KV.get('share-inbox-drain-after:user-1'), String(Date.parse(RESUMES)));
+  assert.ok(await env.APP_KV.get('share-inbox:user-1:budget-3'), 'a used-up hour never moves a share aside');
+
+  budgetLeft = true;
+  const at = Date.parse(RESUMES) + 1000;
+  assert.deepEqual(await drainShareInbox(env, 'user-1', deliver, { now: at }), { delivered: 1, refused: 0, left: 0 });
+  assert.deepEqual(await drainShareInbox(env, 'user-1', deliver, { now: at + 60_000 }), { delivered: 0, refused: 0, left: 0 });
+  assert.deepEqual(received, ['budget-3', 'budget-3'], 'asked once while used up (forced), delivered once after');
+  assert.equal([...env.APP_KV.map.keys()].some(key => key.startsWith('share-inbox:') || key.startsWith('share-inbox-has:')), false);
+});
+
+test('a used-up hour with only Retry-After still holds the drain, and a time far away is held at most a day', async () => {
+  const env = { APP_KV: kv() };
+  await deliverOrKeep({ env, userId: 'user-1', text: asText({ items, request_key: 'ra' }), path: '/p', headers, send: async () => new Response('{}', { status: 429, headers: { 'retry-after': '120' } }), now: NOW });
+  assert.equal(await env.APP_KV.get('share-inbox-drain-after:user-1'), String(NOW + 120_000));
+  const far = { APP_KV: kv() };
+  await deliverOrKeep({ env: far, userId: 'user-1', text: asText({ items, request_key: 'far' }), path: '/p', headers, send: async () => new Response('{}', { status: 429, headers: { 'retry-after': '99999999' } }), now: NOW });
+  assert.equal(await far.APP_KV.get('share-inbox-drain-after:user-1'), String(NOW + 86_400_000));
+});
+
+test('bounded alarm pages resume after paused or unavailable accounts across owner restarts', async () => {
+  for (const paused of [true, false]) {
+    const calls = [];
+    const appKv = kv();
+    const cursorStore = kv();
+    const env = { APP_KV: appKv, PERSON: { idFromName: name => name, get: name => ({ fetch: async () => {
+      calls.push(name);
+      return new Response('{}', { status: name === 'account-050' ? 200 : 503 });
+    } }) } };
+    const now = Date.now();
+    for (let i = 0; i < 51; i++) {
+      const user = `account-${String(i).padStart(3, '0')}`;
+      await keepInEdge(env, user, { key: 'share', path: '/share-destinations/deliver', body: asText({ items, request_key: 'share' }), headers: { 'x-trillion-user': user } }, now);
+      if (paused && i < 50) await appKv.put(`share-inbox-drain-after:${user}`, String(now + 86_400_000));
+    }
+    assert.equal(await drainEverySharedInbox(env, { cursorStore }), 50);
+    assert.equal(calls.includes('account-050'), false);
+    assert.ok(await cursorStore.get('share-inbox-drain-cursor'));
+    // A fresh caller has no in-memory progress; durable cursor still resumes at the healthy account.
+    assert.equal(await drainEverySharedInbox({ ...env }, { cursorStore }), 1);
+    assert.equal(calls.filter(user => user === 'account-050').length, 1);
+    assert.equal(await appKv.get('share-inbox-has:account-050'), null);
+    assert.equal(await cursorStore.get('share-inbox-drain-cursor'), null, 'completed sweep wraps');
+    assert.equal(await drainEverySharedInbox(env, { cursorStore }), 50);
+    assert.equal(calls.length, paused ? 1 : 51, 'per-account holds and throttles survive the wrap');
+  }
+});
+
+test('an inbox page without an advancing continuation fails before spending or forgetting its cursor', async () => {
+  const cursorStore = kv();
+  await cursorStore.put('share-inbox-drain-cursor', 'held-page');
+  const env = { APP_KV: { list: async () => ({ keys: [], list_complete: false, cursor: 'held-page' }) } };
+  await assert.rejects(drainEverySharedInbox(env, { cursorStore }), /did not advance/);
+  assert.equal(await cursorStore.get('share-inbox-drain-cursor'), 'held-page');
+});
+
+
+function publishedInbox() {
+  const edge = kv(), gets = [], sourceReads = [];
+  let mode = 'ready', sourceStarted;
+  const started = new Promise(resolve => { sourceStarted = resolve; });
+  const env = { OPERATOR_ACCOUNT_ID: 'fixture-inbox-publisher', PERSON: { idFromName: name => name }, APP_KV: {
+    ...edge,
+    get: async (key, as) => {
+      gets.push(key);
+      if (key.startsWith('marketplace-content:')) {
+        sourceReads.push(key); sourceStarted();
+        if (mode === 'outage') throw new Error('Fixture content projection unavailable');
+        if (mode === 'stalled') return new Promise(() => {});
+      }
+      return edge.get(key, as);
+    },
+  } };
+  const maker = [...defaultMakers(env)][0];
+  const coordinate = field => {
+    const source = { file: 'records/share-inbox.json', pointer: `/${field}` };
+    const logical_id = marketplaceContentSourceId(source), id = marketplaceContentItemId(maker, logical_id);
+    return { source, logical_id, id, key: marketplaceContentProjectionKey(id) };
+  };
+  return { env, edge, gets, sourceReads, started,
+    mode(value) { mode = value; },
+    async publish(field, value) {
+      const { source, logical_id, id, key } = coordinate(field);
+      await edge.put(key, JSON.stringify({ adopted: true, item: { maker, row: { id, logical_id, source, format: 'json', revision: 1,
+        value, value_identity: databaseInputIdentity(value) } } }));
+    },
+    async withdraw(field) { await edge.put(coordinate(field).key, JSON.stringify({ item: null, adopted: true })); },
+  };
+}
+
+test('actual inbox custody precedes current published acknowledgement words, while duplicate keys retain their original bytes and TTL', async () => {
+  const f = publishedInbox(), key = 'original/key with spaces';
+  await f.publish('kept_words', 'Fixture share retained.');
+  const body = asText({ items, request_key: key, own_words: 'Keep my exact words.' });
+  const first = await keepInEdge(f.env, 'fixture-owner', { key, path: '/p', body, headers }, NOW);
+  assert.deepEqual(first, { queued: true, request_key: key, words: 'Fixture share retained.' });
+  const retained = (await f.edge.list({ prefix: 'share-inbox:fixture-owner:' })).keys;
+  assert.equal(retained.length, 1);
+  const name = retained[0].name, original = await f.edge.get(name, 'json');
+  assert.equal(original.body, body);
+  assert.deepEqual(original.headers, headers);
+  assert.equal(f.edge.map.get(name).ttl, settings.keep_days * 86400);
+  assert.ok(f.gets.indexOf(name) < f.gets.findIndex(value => value.startsWith('marketplace-content:')));
+  await f.publish('kept_words', 'Fixture current acknowledgement.');
+  assert.equal((await keepInEdge(f.env, 'fixture-owner', { key, path: '/changed', body: 'different bytes' }, NOW + 5000)).words, 'Fixture current acknowledgement.');
+  assert.deepEqual(await f.edge.get(name, 'json'), original, 'a presentation replacement never changes original custody');
+  await f.withdraw('kept_words');
+  const withdrawn = await keepInEdge(f.env, 'fixture-owner', { key, path: '/changed', body: 'different bytes' }, NOW + 10000);
+  assert.equal(withdrawn.queued, true);
+  assert.equal(withdrawn.code, 'share_queued');
+  assert.equal(Object.hasOwn(withdrawn, 'words'), false);
+  assert.deepEqual(withdrawn.presentation, { state: 'withdrawn', code: 'share_inbox_presentation_withdrawn', fields: { kept_words: 'withdrawn' } });
+  assert.deepEqual(await f.edge.get(name, 'json'), original);
+  assert.equal(f.edge.map.get(name).ttl, settings.keep_days * 86400);
+});
+
+test('content outage cannot lose an HTTP/tool queued acknowledgement, retry hold or original receiving bytes', async () => {
+  const f = publishedInbox(); f.mode('outage');
+  const http = await deliverOrKeep({ env: f.env, userId: 'user-1', text: asText({ items, request_key: 'held-http' }), path: '/p', headers, now: NOW, send: async () => usedUp() });
+  assert.equal(http.status, 202);
+  const ack = await http.json();
+  assert.deepEqual(ack, { queued: true, request_key: 'held-http', code: 'share_queued', presentation: {
+    state: 'unavailable', code: 'share_inbox_presentation_unavailable', fields: { kept_words: 'unavailable' } } });
+  const tool = await callOrKeep({ env: f.env, userId: 'user-1', path: '/p', input: { items, request_key: 'held-tool' }, headers, now: NOW, call: async () => { throw usedUpError(); } });
+  assert.equal(tool.queued, true);
+  assert.equal(tool.presentation.state, 'unavailable');
+  assert.equal(await f.edge.get('share-inbox-drain-after:user-1'), String(Date.parse(RESUMES)));
+  assert.equal((await drainShareInbox(f.env, 'user-1', async () => { throw new Error('Should stay held'); }, { now: NOW + 1000 })).throttled, true);
+  const before = ['held-http', 'held-tool'].map(key => f.edge.get(`share-inbox:user-1:${key}`, 'json'));
+  const originals = await Promise.all(before), received = [];
+  const reads = f.sourceReads.length;
+  assert.deepEqual(await drainShareInbox(f.env, 'user-1', async (entry, owner) => {
+    received.push({ body: entry.body, headers: entry.headers, request_key: entry.request_key, owner });
+    return Response.json({ delivered: [] });
+  }, { now: Date.parse(RESUMES) + 1 }), { delivered: 2, refused: 0, left: 0 });
+  assert.deepEqual(received, originals.map(entry => ({ body: entry.body, headers: entry.headers, request_key: entry.request_key, owner: 'user-1' })));
+  assert.equal(f.sourceReads.length, reads, 'drain never depends on presentation');
+  assert.equal(await f.edge.get('share-inbox-has:user-1'), null);
+});
+
+test('a stalled optional source times out after custody and still acknowledges bytes under the original key', async () => {
+  const f = publishedInbox(); f.mode('stalled');
+  const acknowledgement = keepInEdge(f.env, 'user-1', { key: 'stalled-source', path: '/p', body: asText({ items, request_key: 'stalled-source' }), headers }, NOW);
+  await f.started;
+  assert.ok(await f.edge.get('share-inbox:user-1:stalled-source'));
+  assert.equal(await f.edge.get('share-inbox-has:user-1'), '1');
+  const answer = await acknowledgement;
+  assert.equal(answer.queued, true);
+  assert.equal(answer.request_key, 'stalled-source');
+  assert.equal(answer.presentation.state, 'unavailable');
+  assert.equal(Object.hasOwn(answer, 'words'), false);
+});
+
+test('receiver refusal evidence stays verbatim while current no-reason and refusal presentation can change or disappear', async () => {
+  const f = publishedInbox();
+  const exactReason = `  Original receiver refusal $& $$\n${'evidence '.repeat(80)}  `;
+  for (const key of ['exact', 'missing']) await keepInEdge(f.env, 'user-1', { key, path: '/p', body: asText({ items, request_key: key }), headers }, NOW);
+  const reads = f.sourceReads.length;
+  assert.deepEqual(await drainShareInbox(f.env, 'user-1', async entry => JSON.parse(entry.body).request_key === 'exact'
+    ? Response.json({ error: exactReason }, { status: 403 }) : Response.json({}, { status: 402 }), { force: true, now: NOW }), { delivered: 0, refused: 2, left: 0 });
+  assert.equal(f.sourceReads.length, reads);
+  const original = await f.edge.get('share-inbox-refused:user-1:exact', 'json');
+  const missing = await f.edge.get('share-inbox-refused:user-1:missing', 'json');
+  assert.equal(original.reason, exactReason);
+  assert.equal(original.reason_code, 'receiver_refused');
+  assert.equal(original.status, 403);
+  assert.equal(missing.reason_code, 'receiver_refused_without_reason');
+  assert.equal(Object.hasOwn(missing, 'reason'), false, 'new refusals never persist compiled fallback copy');
+  await f.publish('refused_status', 'Fixture receiver said: {reason}');
+  await f.publish('no_reason', 'Fixture receiver gave no reason.');
+  let rows = await pendingShares(f.env, 'user-1');
+  assert.equal(rows.find(row => row.share_id === 'exact').status, `Fixture receiver said: ${exactReason}`);
+  assert.equal(rows.find(row => row.share_id === 'exact').reason, exactReason);
+  assert.equal(rows.find(row => row.share_id === 'missing').reason, 'Fixture receiver gave no reason.');
+  await f.publish('no_reason', 'Fixture replacement explanation.');
+  assert.equal((await pendingShares(f.env, 'user-1')).find(row => row.share_id === 'missing').reason, 'Fixture replacement explanation.');
+  assert.deepEqual(await f.edge.get('share-inbox-refused:user-1:exact', 'json'), original);
+  await f.withdraw('refused_status');
+  await f.withdraw('no_reason');
+  rows = await pendingShares(f.env, 'user-1');
+  assert.equal(rows.find(row => row.share_id === 'exact').reason, exactReason);
+  assert.equal(rows.find(row => row.share_id === 'exact').status, null);
+  assert.equal(rows.find(row => row.share_id === 'missing').reason, null);
+  assert.equal(rows.find(row => row.share_id === 'missing').presentation.state, 'withdrawn');
+});
+
+test('new exhausted attempts persist lifecycle codes and original TTLs without requiring current reason copy', async () => {
+  const f = publishedInbox();
+  await keepInEdge(f.env, 'user-1', { key: 'exhausted', path: '/p', body: asText({ items, request_key: 'exhausted' }), headers }, NOW);
+  const name = 'share-inbox:user-1:exhausted', original = await f.edge.get(name, 'json');
+  await f.edge.put(name, JSON.stringify({ ...original, tries: settings.give_up_after_tries - 1 }));
+  f.mode('outage');
+  const reads = f.sourceReads.length;
+  assert.deepEqual(await drainShareInbox(f.env, 'user-1', async () => new Response('{}', { status: 503 }), { force: true, now: NOW + 1000 }), { delivered: 0, refused: 1, left: 0 });
+  assert.equal(f.sourceReads.length, reads);
+  const refused = await f.edge.get('share-inbox-refused:user-1:exhausted', 'json');
+  assert.equal(refused.reason_code, 'tries_exhausted');
+  assert.equal(Object.hasOwn(refused, 'reason'), false);
+  assert.equal(refused.body, original.body);
+  assert.equal(refused.kept_at, original.kept_at);
+  assert.equal(f.edge.map.get('share-inbox-refused:user-1:exhausted').ttl, settings.keep_days * 86400);
+  f.mode('ready');
+  await f.publish('gave_up_reason', 'Fixture account remained unavailable.');
+  assert.equal((await pendingShares(f.env, 'user-1'))[0].reason, 'Fixture account remained unavailable.');
+  await f.withdraw('gave_up_reason');
+  const row = (await pendingShares(f.env, 'user-1'))[0];
+  assert.equal(row.reason, null);
+  assert.equal(row.reason_code, 'tries_exhausted');
+  assert.equal(row.presentation.fields.gave_up_reason, 'withdrawn');
+});
+
+test('unavailable or malformed current status never hides private waiting/refused rows or rewrites legacy reasons', async () => {
+  const f = publishedInbox();
+  await keepInEdge(f.env, 'user-1', { key: 'waiting', path: '/p', body: asText({ items, request_key: 'waiting' }), headers }, NOW);
+  const legacy = { body: asText({ items, request_key: 'legacy' }), path: '/p', kept_at: new Date(NOW - 1000).toISOString(), tries: 1,
+    request_key: 'legacy', reason: '  Original legacy evidence.  ', status: 403 };
+  await f.edge.put('share-inbox-refused:user-1:legacy', asText(legacy));
+  await f.publish('waiting_status', { invalid: 'not words' });
+  let rows = await pendingShares(f.env, 'user-1');
+  assert.equal(rows.length, 2);
+  assert.equal(rows[0].share_id, 'waiting');
+  assert.equal(rows[0].presentation.state, 'unavailable');
+  assert.equal(rows[0].status, null);
+  f.mode('outage');
+  rows = (await sharesWithPending(f.env, 'user-1', async () => { throw memoryLimit(); })).shares;
+  assert.deepEqual(rows.map(row => row.share_id), ['waiting', 'legacy']);
+  assert.equal(rows[1].reason, legacy.reason);
+  assert.equal(rows[1].receiver_status, 403);
+  assert.equal(rows[1].presentation.state, 'unavailable');
+  assert.deepEqual(await f.edge.get('share-inbox-refused:user-1:legacy', 'json'), legacy);
+  assert.deepEqual(await pendingShares(f.env, 'different-user'), [], 'content cannot broaden private inbox ownership');
+});
+
+test('the original size admission remains independent of too-big presentation publication and withdrawal', async () => {
+  const f = publishedInbox(), body = 'x'.repeat(settings.max_bytes + 1);
+  await f.publish('too_big_words', 'Fixture share exceeds inbox capacity.');
+  await assert.rejects(keepInEdge(f.env, 'user-1', { key: 'large', path: '/p', body }, NOW), error => error instanceof ShareInboxError && error.message === 'Fixture share exceeds inbox capacity.');
+  await f.withdraw('too_big_words');
+  await assert.rejects(keepInEdge(f.env, 'user-1', { key: 'large', path: '/p', body }, NOW), error => error instanceof ShareInboxError && error.code === 'share_inbox_too_big' && error.presentation.state === 'withdrawn');
+  assert.deepEqual((await f.edge.list({ prefix: 'share-inbox:' })).keys, []);
+  assert.equal(await f.edge.get('share-inbox-has:user-1'), null);
+});

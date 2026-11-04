@@ -1,0 +1,19 @@
+// Price guidance is published DATA; the offer owner still sets actual prices.
+import bootstrap from '../records/service-price-rules.json' with {type:'json'};
+import {resolveMarketplaceContentSource} from './marketplace-content-sources.mjs';
+import {cleanRule} from '../../../price-and-sell-by-contract/src/geometric-pricing.mjs';
+
+export async function readServicePriceRules(env,options={}){
+  const selected=await resolveMarketplaceContentSource(env,{file:'records/service-price-rules.json',pointer:'/rules'},bootstrap.rules,options);
+  const rows=selected.found?selected.value:[];
+  const invalid=()=>Object.assign(new Error('Published price rules need a list of distinct experiment identities and valid price rules.'),{status:503,code:'marketplace_price_rules_invalid'});
+  if(!Array.isArray(rows))throw invalid();
+  const seen=new Set();
+  return rows.map(row=>{
+    if(!row||typeof row!=='object'||Array.isArray(row)||typeof row.applies_to!=='string'||!row.applies_to.trim()||seen.has(row.applies_to.trim()))throw invalid();
+    const applies_to=row.applies_to.trim();
+    seen.add(applies_to);
+    try { return {applies_to,rule:cleanRule(row.rule)}; }
+    catch(error){throw Object.assign(invalid(),{cause:error});}
+  });
+}

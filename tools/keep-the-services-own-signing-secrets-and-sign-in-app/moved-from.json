@@ -1,0 +1,16 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/service-values.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-the-services-own-signing-secrets-and-sign-in-app/from-old-trillion/src/service-values.mjs.held",
+      "source_identity": "1f:49cfd4b91506d82fd4227ab98b1adc042ba323a0579cb24c91084b3956c188be",
+      "identity": "1f:7540f413102fc3633e30cdb3c0fe79a18b51584305d94c974c0261332ab6ca0b",
+      "held": true
+    }
+  ]
+}

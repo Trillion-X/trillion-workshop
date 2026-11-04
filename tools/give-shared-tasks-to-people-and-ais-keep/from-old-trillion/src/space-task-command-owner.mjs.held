@@ -1,0 +1,86 @@
+import { identityOf } from '../../../shared-code/src/typed-operation-contract.mjs';
+import { isAt } from './resource-host.mjs';
+
+export const taskCommandAddress = (spaceId, input) => `space:task-command:${spaceId}:${identityOf([input?.relay,input?.input?.request_key])}`;
+
+export function setupSpaceTaskCommands(sql) {
+  sql.exec(`CREATE TABLE IF NOT EXISTS space_task_commands (
+    space_id TEXT NOT NULL, relay TEXT NOT NULL, request_key TEXT NOT NULL,
+    input_identity TEXT NOT NULL, selected_handoff TEXT, tried_json TEXT NOT NULL DEFAULT '[]',
+    state TEXT NOT NULL, result_json TEXT, updated_at INTEGER NOT NULL,
+    PRIMARY KEY(space_id,relay,request_key)
+  )`);
+}
+
+const running = new WeakMap();
+
+// Each take command has its own addressed coordinator. It records a candidate
+// before dispatch and the exact public reply after dispatch so a lost reply
+// resumes that handoff instead of taking a second independent task.
+export async function invokeSpaceTaskCommand(owner, { resource, operation, args, generation, select, validate }) {
+  const input = args?.[0];
+  const request = input?.input ?? {};
+  if (operation !== 'spaceAgents' || input?.verb !== 'take' || request.handoff_id
+    || typeof input?.relay !== 'string' || !input.relay || typeof request.request_key !== 'string' || !request.request_key) {
+    throw new Error('An addressed no-recipient take command is required.');
+  }
+  if (!isAt(owner, { kind: 'network', key: taskCommandAddress(resource, input) })) {
+    throw new Error('Wrong task command owner.');
+  }
+  setupSpaceTaskCommands(owner.sql);
+  const inputIdentity = identityOf({ operation, args });
+  const lockKey = `${resource}\u0000${input.relay}\u0000${request.request_key}`;
+  let active = running.get(owner);
+  if (!active) { active = new Map(); running.set(owner, active); }
+  if (active.has(lockKey)) return active.get(lockKey);
+  const work = (async () => {
+    if (validate) {
+      const checked = await validate({ resource, args, generation });
+      if (checked?.state !== 'answered') return checked;
+    }
+    const sql = owner.sql;
+    let row = owner.ctx.storage.transactionSync(() => {
+      const current = sql.exec('SELECT * FROM space_task_commands WHERE space_id=? AND relay=? AND request_key=? LIMIT 1', resource, input.relay, request.request_key).toArray()[0];
+      if (current) {
+        if (current.input_identity !== inputIdentity) throw new Error('Task take request key already names another command.');
+        return current;
+      }
+      sql.exec("INSERT INTO space_task_commands(space_id,relay,request_key,input_identity,tried_json,state,updated_at) VALUES(?,?,?,?,?,'selecting',?)",
+        resource,input.relay,request.request_key,inputIdentity,'[]',Date.now());
+      return sql.exec('SELECT * FROM space_task_commands WHERE space_id=? AND relay=? AND request_key=? LIMIT 1',resource,input.relay,request.request_key).toArray()[0];
+    });
+    if(row.result_json==='null')throw new Error('The original task result was erased.');
+    if (row.state === 'committed') return { state: 'answered', result: JSON.parse(row.result_json) };
+    const progress = {
+      selected: row.selected_handoff,
+      tried: new Set(JSON.parse(row.tried_json)),
+      saveCandidate(handoffId) {
+        owner.ctx.storage.transactionSync(() => sql.exec("UPDATE space_task_commands SET selected_handoff=?,state='dispatched',updated_at=? WHERE space_id=? AND relay=? AND request_key=? AND state!='committed'",handoffId,Date.now(),resource,input.relay,request.request_key));
+        progress.selected = handoffId;
+      },
+      markTried(handoffId) {
+        progress.tried.add(handoffId);
+        owner.ctx.storage.transactionSync(() => sql.exec("UPDATE space_task_commands SET selected_handoff=NULL,tried_json=?,state='selecting',updated_at=? WHERE space_id=? AND relay=? AND request_key=? AND state!='committed'",JSON.stringify([...progress.tried]),Date.now(),resource,input.relay,request.request_key));
+        progress.selected = null;
+      },
+      commit(result) {
+        owner.ctx.storage.transactionSync(() => sql.exec("UPDATE space_task_commands SET selected_handoff=NULL,state='committed',result_json=?,updated_at=? WHERE space_id=? AND relay=? AND request_key=?",JSON.stringify(result),Date.now(),resource,input.relay,request.request_key));
+      },
+    };
+    const answer = await select({ resource, args, generation, progress });
+    if (answer?.state !== 'answered') return answer;
+    progress.commit(answer.result);
+    return answer;
+  })().finally(() => active.delete(lockKey));
+  active.set(lockKey, work);
+  return work;
+}
+
+export function eraseSpaceTaskCommand(owner,{relay}){
+ setupSpaceTaskCommands(owner.sql);
+ owner.sql.exec("UPDATE space_task_commands SET result_json='null',selected_handoff=NULL,tried_json='[]' WHERE relay=?",relay);
+ // Keep the active erasure command's captured parent and terminal receipt.
+ // It is the replay fence for this deletion and must not erase itself midway.
+ owner.ctx.storage.sql.exec("UPDATE shared_native_commands SET result_json='null',input_json='null',context_json='null' WHERE NOT (operation='sharedDependency:eraseSpaceTaskCommand' AND state IN ('captured','uncertain','committed') AND json_extract(context_json,'$.commitment.lifecycle.erasure_relay')=?) AND EXISTS(SELECT 1 FROM json_tree(CASE WHEN json_valid(input_json) THEN input_json ELSE 'null' END) j WHERE j.key='relay' AND j.value=?)",relay,relay);
+ return {erased:true};
+}

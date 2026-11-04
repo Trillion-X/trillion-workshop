@@ -1,0 +1,92 @@
+// The one way Trillion's own code acts for an account with no person's sign-in behind it: a service actor
+// (src/service-actor-origins.json names every origin, the file that mints it and the scope kinds it may mint). The actor
+// is minted by the account's own policy owner only (AccountControl mintServiceActor): claims for the principal
+// service:<origin> carrying a proof that owner makes with a key it generated for the account and never returns, over the
+// account, the origin, the time it was minted and its scope { kind, id }. Every account gate refuses a service: or
+// system: principal until its policy owner has verified that proof (account-control-state validateClaims,
+// serviceVerified), so a request, a header or any forwarded claims object never stands as one; and a gate opens for it
+// only what its scope kind's row names, for its own scope id where that row binds one.
+import rows from '../../../service-actor-origins/src/service-actor-origins.json' with { type: 'json' };
+import { send } from './resource-host.mjs';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js';
+
+const MINTED = 'service:';
+const origins = new Map(rows.origins.map(row => [row.id, row]));
+const kinds = new Map(rows.scope_kinds.map(row => [row.id, { ...row, gates: new Map(row.gates.filter(gate => gate.resource).map(gate => [gate.resource, gate])),
+  prefixed: row.gates.filter(gate => gate.resource_prefix), scoped: row.gates.find(gate => gate.resource_is_scope) ?? null }]));
+const encoder = new TextEncoder();
+const refuse = (message, status) => Object.assign(new Error(message), { status });
+
+/** Whether a sign-in is a service principal: one that stands only when minted here and verified by its policy owner. */
+export const isServiceSignIn = signIn => typeof signIn === 'string' && rows.reserved_prefixes.some(prefix => signIn.startsWith(prefix));
+/** The origin a service principal's claims name, or null. */
+export const serviceOriginOfClaims = claims => (typeof claims?.sign_in === 'string' && claims.sign_in.startsWith(MINTED) ? claims.sign_in.slice(MINTED.length) : null);
+/** Whether a scope kind's actor is kept by its policy owner (the same claims each mint, until minted again). */
+export const serviceScopeKept = kind => kinds.get(kind)?.kept === true;
+/** Whether some scope kind names this gate: the only gates a service principal is ever initialized at. */
+export const serviceGateKnown = resource => rows.scope_kinds.some(kind => kind.gates.some(gate =>
+  gate.resource === resource || (gate.resource_prefix && typeof resource === 'string' && resource.startsWith(gate.resource_prefix))
+  || (gate.resource_is_scope && typeof resource === 'string' && new RegExp(kind.id_pattern).test(resource))));
+/** The gate row a service principal's scope kind names for a resource, or null when its kind opens no such gate. */
+export const serviceGateOf = (claims, resource) => {
+  const kind = kinds.get(claims?.service_scope?.kind);
+  if (!kind) return null;
+  return kind.gates.get(resource)
+    ?? (typeof resource === 'string' ? kind.prefixed.find(gate => resource.startsWith(gate.resource_prefix)) : null)
+    ?? (kind.scoped && claims.service_scope.id === resource && new RegExp(kind.id_pattern).test(resource) ? kind.scoped : null);
+};
+
+/** Who pays for the work a service actor does at a gate: the gate row's `paid_by` (src/service-actor-origins.json), or null for
+ *  the account (the person's plan pays, as for any sign-in). The operator's own restore work is paid by the service
+ *  ('service'), so a person's daily cap (spend-meter.json plan-daily-cap, which counts only Trillion-paid work for the person)
+ *  neither counts it nor stops it. */
+export const serviceWorkPayer = (claims, resource) => (isServiceSignIn(claims?.sign_in) ? serviceGateOf(claims, resource)?.paid_by ?? null : null);
+
+const scopeOf = (origin, account, scope) => {
+  const row = origins.get(origin);
+  if (!row) throw refuse(`No internal caller ${origin} may act for an account; add it to src/service-actor-origins.json.`, 403);
+  const kind = kinds.get(scope?.kind);
+  if (!kind || !row.scopes.includes(kind.id)) throw refuse(`The internal caller ${origin} may not act on a ${scope?.kind} scope.`, 403);
+  if (typeof scope.id !== 'string' || (kind.id_is_account ? scope.id !== account : !new RegExp(kind.id_pattern).test(scope.id)))
+    throw refuse(`A ${kind.id} scope names its one ${kind.id_is_account ? 'account' : kind.id}.`, 400);
+  return { kind: kind.id, id: scope.id };
+};
+
+/**
+ * The claims of a service actor for one account and one scope, minted by that account's policy owner.
+ * Example: `const { claims } = await mintServiceActor(env, { origin: 'automations', account, scope: { kind: 'tool-run', id: runId } });`
+ */
+export async function mintServiceActor(env, { origin, account, scope, again = false }) {
+  const checked = scopeOf(origin, account, scope);
+  return { claims: await send(env, { kind: 'account-control', key: `policy:${account}` }, 'mintServiceActor', { origin, account, scope: checked, ...(again ? { again: true } : {}) }) };
+}
+
+// The policy owner's side: what the proof is made over (the reach too, so no field of the claims can be widened), made and checked with the key only it holds.
+// Its first field names its purpose, so a sign-in vouch made with the same key (src/sign-in-vouch.mjs) never verifies as a proof.
+const signed = (account, claims) => encoder.encode(JSON.stringify(['service-actor', account, serviceOriginOfClaims(claims), claims.issued_at,
+  [claims.service_scope?.kind, claims.service_scope?.id], claims.made ?? null, claims.ceiling ?? null]));
+const proofOf = (key, account, claims) => bytesToHex(blake3(signed(account, claims), { key: hexToBytes(key) }));
+/** What a gate keeps of a proof its policy owner verified: the unkeyed digest of exactly what the proof was made over, so
+ *  a later check of the same proof stands only for claims whose every signed field is the same. */
+export const serviceSignedDigest = (account, claims) => bytesToHex(blake3(signed(account, claims)));
+
+/** Mint the claims of one service actor (AccountControl mintServiceActor, on the account's policy owner only). */
+export function mintServiceClaims(key, { origin, account, scope, now = Date.now() }) {
+  const checked = scopeOf(origin, account, scope), reach = kinds.get(checked.kind).reach;
+  const claims = { sign_in: `${MINTED}${origin}`, issued_at: new Date(now).toISOString(), made: reach, ceiling: reach,
+    approved_by: 'service', service_scope: checked };
+  return { ...claims, service_proof: proofOf(key, account, claims) };
+}
+
+/** Whether these claims are exactly ones this account's policy owner minted (AccountControl verifyServiceActor). */
+export function serviceClaimsMinted(key, account, claims) {
+  const origin = serviceOriginOfClaims(claims);
+  if (!key || !origin || claims.approved_by !== 'service' || typeof claims.issued_at !== 'string'
+    || !/^[0-9a-f]{64}$/.test(String(claims.service_proof))) return false;
+  try { scopeOf(origin, account, claims.service_scope); } catch { return false; }
+  const expected = proofOf(key, account, claims);
+  let same = 0;
+  for (let at = 0; at < expected.length; at++) same |= expected.charCodeAt(at) ^ claims.service_proof.charCodeAt(at);
+  return same === 0;
+}

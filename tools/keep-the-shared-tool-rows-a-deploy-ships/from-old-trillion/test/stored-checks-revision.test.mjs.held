@@ -1,0 +1,28 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { loadWorkshopRows } from '../src/stored-checks.mjs';
+
+const encoded = text => new TextEncoder().encode(text);
+const identity = bytes => bytesToHex(blake3(bytes));
+
+test('a running instance reloads stored rows when the deployed identity changes', async () => {
+  const reads = [];
+  const values = new Map();
+  const add = (prefix, bytes) => {
+    values.set(`${prefix}:parts`, '1');
+    values.set(`${prefix}:0`, bytes.buffer);
+  };
+  const firstRows = encoded('[]');
+  const secondRows = encoded('[ ]');
+  add(`workshop:rows:${identity(firstRows)}`, firstRows);
+  add(`workshop:rows:${identity(secondRows)}`, secondRows);
+  const kv = { get: async key => { reads.push(key); return values.get(key) ?? null; } };
+  const first = { APP_KV: kv, WORKSHOP_IDENTITY: identity(firstRows) };
+  const second = { APP_KV: kv, WORKSHOP_IDENTITY: identity(secondRows) };
+  const oldRows = await loadWorkshopRows(first);
+  const newRows = await loadWorkshopRows(second);
+  assert.notEqual(newRows, oldRows);
+  assert.ok(reads.includes(`workshop:rows:${second.WORKSHOP_IDENTITY}:0`));
+});

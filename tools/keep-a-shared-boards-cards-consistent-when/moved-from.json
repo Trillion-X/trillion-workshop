@@ -1,0 +1,22 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/space-board-partitions.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-boards-cards-consistent-when/from-old-trillion/src/space-board-partitions.mjs",
+      "source_identity": "1f:9f930ef8b7ebc2aa938643c240a14e122347182321c7a3c0b33d93f0dacbbf65",
+      "identity": "1f:b679261b8ee4d80d657b2e7bba7147a16ec258f011fc86d8a1e643c7f1bd0104"
+    },
+    {
+      "from": "test/space-board-partitions.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-boards-cards-consistent-when/from-old-trillion/test/space-board-partitions.test.mjs",
+      "source_identity": "1f:fb7efc1afcfb28a8d53913f3b35dc7109cf5636d088daac1fe7a2cffd2a24aec",
+      "identity": "1f:fb7efc1afcfb28a8d53913f3b35dc7109cf5636d088daac1fe7a2cffd2a24aec"
+    }
+  ]
+}

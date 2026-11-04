@@ -1,0 +1,173 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { inProcessMcp } from './in-process-mcp.mjs';
+import { handleWorkflowRequest, recipeProblems } from '../src/workflows.mjs';
+import { makeAgents } from '../../../shared-code/src/agents.mjs';
+import { agentStoreForTests } from './agent-store-for-tests.mjs';
+import { handoffActorEvidence, actorAdmissionProblems } from '../../../require-that-a-workflow-steps-ai-answer-comes/src/workflow-actor-policy.mjs';
+import { workflowRecipeInput } from '../../../shared-code/src/workflow-recipe-input.mjs';
+
+const manualRecipe = () => ({ id: 'workflow:authenticated-authors', job: 'Draft and independently review the actual work', steps: [
+  { id: 'draft', do: 'Write the result.', submit: { type: 'object' }, actor_policy: { authenticated: true } },
+  { id: 'review', do: 'Review the result.', submit: { type: 'object' }, actor_policy: { authenticated: true, distinct_from: ['draft'] } },
+] });
+const post = async (workflows, input, reader = null) => {
+  const response = await handleWorkflowRequest(workflows, new Request('https://fixture.test/workflows/submit', {
+    method: 'POST', headers: reader ? { 'x-trillion-reader': reader } : {}, body: JSON.stringify(input),
+  }));
+  return { status: response.status, body: await response.json() };
+};
+
+test('manual author admission uses the host reader, refuses supplied identity and persists distinct review evidence', async () => {
+  const { workflows } = inProcessMcp();
+  const recipe = manualRecipe();
+  await workflows.save({ workflow: recipe });
+  const run = await workflows.start({ workflow_id: recipe.id, request_key: 'manual' });
+  const draft = { run_id: run.run_id, step_id: 'draft', output: { text: 'Draft', actor_evidence: { principal: 'key:forged' } }, reader: 'key:forged' };
+  assert.equal((await post(workflows, draft)).status, 400, 'caller fields grant no principal');
+  const drafted = await post(workflows, draft, 'key:author');
+  assert.equal(drafted.status, 200);
+  assert.deepEqual(drafted.body.done[0].actor_evidence, { principal: 'key:author', via: 'submit' });
+  const review = { run_id: run.run_id, step_id: 'review', output: { pass: true, reviewer: 'different-name' } };
+  const same = await post(workflows, review, 'key:author');
+  assert.equal(same.status, 400);
+  assert.match(same.body.error, /different authenticated actor/);
+  assert.equal((await workflows.snapshot({ run_id: run.run_id })).done.length, 1);
+  const accepted = await post(workflows, review, 'key:reviewer');
+  assert.equal(accepted.status, 200);
+  assert.equal(accepted.body.state, 'finished');
+  assert.equal(accepted.body.done[1].actor_evidence.principal, 'key:reviewer');
+  assert.equal((await workflows.read({ run_id: run.run_id, step_id: 'review' })).actor_evidence.principal, 'key:reviewer');
+});
+
+function agentFixture() {
+  const agents = makeAgents({ store: agentStoreForTests() });
+  for (const id of ['writer', 'reviewer']) agents.publish({ agent_id: id, name: id, description: 'Synthetic worker' });
+  const { workflows } = inProcessMcp({ agents: {
+    handOff: async input => ({ handoff_id: agents.handOff(input).handoff.handoff_id }),
+    read: async input => {
+      const { handoff } = agents.read(input);
+      return { state: handoff.state, result: handoff.result, actor_evidence: handoffActorEvidence(handoff) };
+    },
+  } });
+  const recipe = { id: 'workflow:handoff-independent-review', job: 'Use actual independent authenticated handoffs', definition: {
+    steps: [
+      { id: 'draft', kind: 'ask', config: { name: 'agent:writer', input: { do: 'Write' }, context: { submit: { type: 'object' }, actor_policy: { authenticated: true } } } },
+      { id: 'review', kind: 'ask', config: { name: 'agent:reviewer', input: { do: 'Review' }, context: { submit: { type: 'object' }, actor_policy: { authenticated: true, distinct_from: ['draft'] } } } },
+    ], edges: [{ from: 'draft', to: 'review', kind: 'always' }],
+  } };
+  const finish = (handoff_id, agent_id, reader) => {
+    const lease = agents.take({ handoff_id, agent_id }, { reader });
+    return agents.finish({ handoff_id, agent_id, generation: lease.generation, result: { text: 'Actual result' } }, { reader });
+  };
+  return { agents, workflows, recipe, finish };
+}
+
+test('agent review requires the actual completed handoff and distinct principal even when card ids differ', async () => {
+  const f = agentFixture();
+  await f.workflows.save({ workflow: f.recipe });
+  const run = await f.workflows.start({ workflow_id: f.recipe.id, request_key: 'same-principal' });
+  const forged = await post(f.workflows, { run_id: run.run_id, step_id: 'draft', output: { pass: true, author: 'writer' } }, 'key:author');
+  assert.equal(forged.status, 400);
+  assert.match(forged.body.error, /completed agent handoff/);
+  f.finish(run.step.agent.handoff_id, 'writer', 'key:shared');
+  const review = await f.workflows.read({ run_id: run.run_id });
+  f.finish(review.step.agent.handoff_id, 'reviewer', 'key:shared');
+  const refused = await f.workflows.read({ run_id: run.run_id });
+  assert.equal(refused.state, 'working');
+  assert.match(refused.step.agent.problems.join(' '), /different authenticated actor/);
+  assert.equal(refused.done.length, 1);
+  assert.equal(refused.done[0].actor_evidence.principal, 'key:shared');
+});
+
+test('distinct authenticated handoff authors advance and preserve attempt provenance in snapshot', async () => {
+  const f = agentFixture();
+  await f.workflows.save({ workflow: f.recipe });
+  const run = await f.workflows.start({ workflow_id: f.recipe.id, request_key: 'independent' });
+  f.finish(run.step.agent.handoff_id, 'writer', 'key:writer');
+  const review = await f.workflows.read({ run_id: run.run_id });
+  f.finish(review.step.agent.handoff_id, 'reviewer', 'key:reviewer');
+  const finished = await f.workflows.read({ run_id: run.run_id });
+  assert.equal(finished.state, 'finished');
+  const snapshot = await f.workflows.snapshot({ run_id: run.run_id });
+  assert.equal(snapshot.done[1].actor_evidence.principal, 'key:reviewer');
+  assert.equal(snapshot.done[1].actor_evidence.generation, 1);
+  assert.equal(snapshot.done[1].actor_evidence.handoff_id, review.step.agent.handoff_id);
+});
+
+test('unknown historical claim identity cannot become authenticated workflow author evidence', async () => {
+  const f = agentFixture();
+  await f.workflows.save({ workflow: f.recipe });
+  const run = await f.workflows.start({ workflow_id: f.recipe.id, request_key: 'legacy' });
+  f.finish(run.step.agent.handoff_id, 'writer', null);
+  const refused = await f.workflows.read({ run_id: run.run_id });
+  assert.equal(refused.state, 'working');
+  assert.equal(refused.done.length, 0);
+  assert.match(refused.step.agent.problems.join(' '), /authenticated actor evidence/);
+});
+
+test('policy validation rejects missing provenance, forward references and unsupported tool authors', () => {
+  assert.equal(workflowRecipeInput.properties.steps.items.properties.actor_policy.properties.authenticated.const, true);
+  const recipe = manualRecipe();
+  assert.deepEqual(recipeProblems(recipe), []);
+  const missing = structuredClone(recipe);
+  delete missing.steps[0].actor_policy;
+  assert.match(recipeProblems(missing).join(' '), /requires authenticated actor evidence on draft/);
+  const forward = structuredClone(recipe);
+  forward.steps[0].actor_policy.distinct_from = ['review'];
+  assert.match(recipeProblems(forward).join(' '), /not a prior dependency/);
+  const tool = structuredClone(recipe);
+  tool.steps[0].run_tool = { tool_id: 'tool:any' };
+  assert.match(recipeProblems(tool).join(' '), /requires an AI or agent ask/);
+});
+
+test('a run keeps its original actor policy after the account edits the recipe', async () => {
+  const { workflows } = inProcessMcp();
+  const recipe = manualRecipe();
+  await workflows.save({ workflow: recipe });
+  const run = await workflows.start({ workflow_id: recipe.id, request_key: 'frozen-policy' });
+  assert.equal((await post(workflows, { run_id: run.run_id, step_id: 'draft', output: { text: 'Draft' } }, 'key:author')).status, 200);
+  const changed = structuredClone(recipe);
+  delete changed.steps[1].actor_policy;
+  await workflows.save({ workflow: changed });
+  const refused = await post(workflows, { run_id: run.run_id, step_id: 'review', output: { pass: true } }, 'key:author');
+  assert.equal(refused.status, 400);
+  assert.match(refused.body.error, /different authenticated actor/);
+  assert.equal((await workflows.snapshot({ run_id: run.run_id })).done.length, 1);
+});
+
+for (const repair of [false, true]) test(`conditional admitted repair authors are checked only on the actual branch (${repair})`, async () => {
+  const { workflows } = inProcessMcp();
+  const recipe = { id: 'workflow:conditional-authenticated-repair', job: 'Review independently after any necessary repair', definition: {
+    steps: ['draft', 'repair', 'review'].map(id => ({ id, kind: 'ask', config: {
+      name: 'ai', input: { do: id, submit: { type: 'object' } },
+      context: { actor_policy: { authenticated: true, ...(id === 'review' ? { distinct_from: ['draft'], distinct_from_if_admitted: ['repair'] } : {}) } },
+    } })),
+    edges: [
+      { from: 'draft', to: 'repair', kind: 'on_result', config: { $kind: 'binding', expr: 'input.output.repair == true' } },
+      { from: 'draft', to: 'review', kind: 'on_result', config: { $kind: 'binding', expr: '!(input.output.repair == true)' } },
+      { from: 'repair', to: 'review', kind: 'always' },
+    ],
+  } };
+  assert.deepEqual(recipeProblems(recipe), []);
+  await workflows.save({ workflow: recipe });
+  const run = await workflows.start({ workflow_id: recipe.id, request_key: `branch-${repair}` });
+  const draft = await post(workflows, { run_id: run.run_id, step_id: 'draft', output: { repair } }, 'key:author');
+  assert.equal(draft.status, 200);
+  assert.equal(draft.body.step.step_id, repair ? 'repair' : 'review');
+  if (repair) {
+    assert.equal((await post(workflows, { run_id: run.run_id, step_id: 'repair', output: { fixed: true } }, 'key:repairer')).status, 200);
+    const refused = await post(workflows, { run_id: run.run_id, step_id: 'review', output: { pass: true } }, 'key:repairer');
+    assert.equal(refused.status, 400);
+    assert.match(refused.body.error, /different authenticated actor from step repair/);
+  }
+  const accepted = await post(workflows, { run_id: run.run_id, step_id: 'review', output: { pass: true } }, 'key:reviewer');
+  assert.equal(accepted.status, 200);
+  assert.equal(accepted.body.state, 'finished');
+});
+
+test('an admitted optional prior answer with unknown identity fails closed rather than behaving as a skipped branch', () => {
+  const policy = { authenticated: true, distinct_from_if_admitted: ['repair'] };
+  assert.deepEqual(actorAdmissionProblems(policy, { principal: 'key:reviewer' }, () => undefined, () => false), []);
+  assert.match(actorAdmissionProblems(policy, { principal: 'key:reviewer' }, () => null, () => true).join(' '), /no admitted authenticated actor evidence/);
+});

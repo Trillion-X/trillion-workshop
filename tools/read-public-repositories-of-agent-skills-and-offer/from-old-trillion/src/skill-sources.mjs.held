@@ -1,0 +1,281 @@
+// src/skill-sources.mjs
+//
+// Purpose
+//   Public repositories of agent skills read from the repository itself, so their skills are Marketplace workflows for
+//   every account with nothing copied in: records/skill-sources.json names each repository (a host row, the owner, the
+//   repository, the branch, the folder its skills sit under). The shared pool (src/pool.mjs) holds the one reader, so
+//   one read serves every account; each person's store asks the pool for the rows (src/person-store.mjs) and
+//   src/workflows.mjs lists them beside the shipped, saved and published workflows.
+//
+//   How a repository is read, cheapest first:
+//     1. at most once every check_every_minutes, the branch's commit is read from the host's own reference list
+//        (git's smart-HTTP advertisement, a few kilobytes, the same on every git host, never an API with a quota);
+//     2. only when that commit differs from the one kept is the archive of that commit read (one gzipped tar), its
+//        unit folders found (each folder holding its kind's entry file: records/skill-sources.json kinds, SKILL.md for
+//        skills; a source row names its kind, default_kind when it names none) and each made into a row by src/skill-rows.mjs, with the licence its folder or the
+//        repository declares, the author its front matter or licence names, and the page of the folder at that commit;
+//     3. the rows are kept with the commit they were read at, under the repository itself (host, owner, repository,
+//        branch, folder), so every account reads them with no host asked, and two accounts that list the same
+//        repository share one read.
+//   A source whose host cannot be read keeps the rows of its last good read and says when that was and why the newest
+//   read failed. A source row removed is never read again and its rows leave at once; a read nobody has listed for
+//   forget_after_days is forgotten.
+//   The sources are the DATA rows every account sees plus, for one account, the repositories its own AI added
+//   (src/workflows.mjs `sources`), so a person's AI can bring any public skill repository in with one call.
+//
+// Non-negotiable invariants
+//   1. Blind: nothing here names a host, a repository, a skill or an author. Hosts are rows (their addresses are
+//      templates over {owner}, {repository}, {commit}, {path}); repositories and kinds are rows; screens, budgets and licences
+//      are records/skill-import-rules.json.
+//   2. A fact lives at its source: no row is ever typed or copied in by hand; every row names the repository and commit
+//      it was read from.
+//   3. Read only what changed: the archive is read only when its commit or the source/import definition changed.
+//   4. Only public addresses are read (parts/http-client/do-work/public-address.mjs fetchPublic judges every hop).
+//   5. A skill whose text holds a secret, a computer path, an email or a phone number, or that names no licence, never
+//      becomes a row; it is named under held with its reasons. A known licence that does not allow sharing makes a
+//      reference row (src/skill-rows.mjs): credited and linked, none of its instructions copied.
+//
+import { untarGz } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
+import { skillRow } from './skill-rows.mjs';
+import {databaseInputIdentity} from './database-resource-composition.mjs';
+
+const SAFE_PART = /^[A-Za-z0-9._-]+$/;
+const SAFE_BRANCH = /^[A-Za-z0-9._/-]+$/;
+const RELATED_PAGE = 64;
+const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+/** Bind cached derivation to its current host templates, entry definition and
+ * source identity. An unchanged upstream commit cannot certify another host or
+ * changed entry filename merely because its human-facing host id is the same. */
+export function skillSourceCacheKey(source,config,{rules=null,openLicences=new Set()}={}) {
+  return JSON.stringify([source.host,source.owner,source.repository,source.branch??null,source.folder??'',source.kind??config.default_kind,
+    ...(String(source.folder??'').replace(/^\/+|\/+$/g,'')?[]:['root-and-descendant-units']),
+    ['source-definition',databaseInputIdentity({id:source.id,host:config.hosts.find(host=>host.id===source.host),kind:config.kinds[source.kind??config.default_kind],
+      rules,open_licences:[...openLicences].sort()})]]);
+}
+
+/** Every problem with one source row against the hosts and kinds it may name, at once. */
+export function sourceProblems(source, hosts, kinds = {}) {
+  const problems = [];
+  if (!object(source)) return ['A source must be an object.'];
+  if (!SAFE_PART.test(String(source.id ?? ''))) problems.push('id must be letters, numbers, dots, dashes or underscores.');
+  if (!hosts.some(host => host.id === source.host)) problems.push(`host must be one of: ${hosts.map(host => host.id).join(', ')}.`);
+  if (source.kind !== undefined && !Object.hasOwn(kinds, source.kind)) problems.push(`kind must be one of: ${Object.keys(kinds).join(', ')}.`);
+  for (const field of ['owner', 'repository']) if (!SAFE_PART.test(String(source[field] ?? ''))) problems.push(`${field} must be letters, numbers, dots, dashes or underscores.`);
+  if (source.branch !== undefined && !(SAFE_BRANCH.test(String(source.branch)) && !String(source.branch).includes('..'))) problems.push('branch must be a branch name.');
+  if (source.folder !== undefined && (typeof source.folder !== 'string' || source.folder.split('/').some(part => part === '..'))) problems.push('folder must be a path inside the repository.');
+  return problems;
+}
+
+/** A host address template with the source's own parts in it. */
+export const addressOf = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
+
+/**
+ * The commit a branch points at in a git smart-HTTP reference advertisement (pkt-lines: a four-hex-digit length, then
+ * `<commit> <ref>`, the first ref followed by NUL and the capabilities, which name `symref=HEAD:<branch>`). With no
+ * branch, the branch HEAD names. Null when the branch is not there.
+ */
+export function branchCommit(advertisement, branch = null) {
+  const refs = new Map();
+  let head = null;
+  for (let at = 0; at + 4 <= advertisement.length;) {
+    const length = parseInt(advertisement.slice(at, at + 4), 16);
+    if (!Number.isFinite(length)) break;
+    if (length < 4) { at += 4; continue; }
+    const line = advertisement.slice(at + 4, at + length).replace(/\n$/, '');
+    at += length;
+    const [refPart, capabilities = ''] = line.split('\0');
+    const match = /^([0-9a-f]{40,64}) (\S+)$/.exec(refPart);
+    if (!match) continue;
+    refs.set(match[2], match[1]);
+    head ??= /(?:^| )symref=HEAD:(\S+)/.exec(capabilities)?.[1] ?? null;
+  }
+  const name = branch ? `refs/heads/${branch}` : head;
+  return (name && refs.get(name)) ?? (branch ? null : refs.get('HEAD') ?? null);
+}
+
+/**
+ * Every skill in one archive of a repository as rows, and the skills held back with why. `files` are untarGz entries
+ * whose names start with the archive's own top folder.
+ */
+export function skillsFromArchive({ files, source, host, commit, rules, openLicences, readFrom, entry = 'SKILL.md' }) {
+  const inRepo = files.map(file => ({ ...file, path: file.name.split('/').slice(1).join('/') })).filter(file => file.path);
+  const folder = String(source.folder ?? '').replace(/^\/+|\/+$/g, '');
+  const under = folder ? `${folder}/` : '';
+  const licenceAt = dir => inRepo.find(file => file.path.startsWith(dir) && /^licen[cs]e(\.[a-z]+)?$/i.test(file.path.slice(dir.length)))?.text ?? null;
+  const repositoryLicence = licenceAt('');
+  const skipped = path => path.split('/').some(part => rules.skipped_folders.includes(part));
+  const skillDirs = inRepo
+    .filter(file => file.path.startsWith(under) && (file.path === entry || file.path.endsWith(`/${entry}`)) && !skipped(file.path))
+    .map(file => file.path.slice(0, -entry.length))
+    .sort();
+  const values = { owner: source.owner, repository: source.repository, commit };
+  const rows = [];
+  const held = [];
+  const ids = new Set();
+  for (const dir of skillDirs) {
+    const name = dir.replace(/\/$/, '').split('/').pop();
+    const skillText = inRepo.find(file => file.path === `${dir}${entry}`).text;
+    if (skillText === null) { held.push({ skill: name, folder: dir, reasons: [`${entry} is not text`] }); continue; }
+    const nested = skillDirs.filter(other => other !== dir && other.startsWith(dir));
+    const ownFiles = inRepo
+      .filter(file => file.path.startsWith(dir) && file.path !== `${dir}${entry}` && !nested.some(other => file.path.startsWith(other)))
+      .map(file => ({ path: file.path.slice(dir.length), text: file.text }))
+      .filter(file => !/(^|\/)licen[cs]e(\.[a-z]+)?$/i.test(file.path) && !/(^|\/)\.DS_Store$/.test(file.path) && !skipped(file.path))
+      .map(file => ({ ...file, text: rules.text_files.includes(file.path.includes('.') ? file.path.split('.').pop().toLowerCase() : '') ? file.text : null }));
+    const result = skillRow({
+      folder: dir, name, skillText, files: ownFiles, licenceText: licenceAt(dir) ?? repositoryLicence, madeHere: false, rules, openLicences, privateWords: [],
+      origin: {
+        author: source.owner,
+        repository: addressOf(host.repository_page, values),
+        url: addressOf(host.page, { ...values, path: dir.replace(/\/$/, '') }),
+        commit,
+        read_from: readFrom,
+        source_id: source.id,
+      },
+    });
+    if (result.row && ids.has(result.row.id)) { held.push({ skill: result.skill, folder: dir, reasons: [`${result.row.id} is already taken by another skill here`] }); continue; }
+    if (result.row) { ids.add(result.row.id); rows.push(result.row); } else held.push({ skill: result.skill, folder: dir, reasons: result.reasons });
+  }
+  return { rows, held };
+}
+
+/**
+ * The reader the shared pool holds. `sql` is the pool's storage, `fetchImpl` reads a public address, `config` is
+ * current source config (or an async resolver), `rules` records/skill-import-rules.json, `openLicences` the SPDX ids anyone may share.
+ */
+export function makeSkillSources({ sql, fetchImpl, config, rules, openLicences, now = () => new Date() }) {
+  sql.exec('CREATE TABLE IF NOT EXISTS skill_repository_reads (source_key TEXT PRIMARY KEY, commit_id TEXT, rows TEXT NOT NULL, held TEXT NOT NULL, read_at TEXT, checked_at TEXT NOT NULL, error TEXT)');
+  const reading = new Map();
+  const kindOf = (source,selected) => selected.kinds[source.kind ?? selected.default_kind];
+  // Earlier cache keys omitted root units and current source/import definitions.
+  // Those cached derivations cannot certify the current host, entry or policy.
+  const sourceKey = (source,selected) => skillSourceCacheKey(source,selected,{rules,openLicences});
+  const metadataOf = (source,selected) => sql.exec('SELECT source_key, commit_id, read_at, checked_at, error FROM skill_repository_reads WHERE source_key = ? LIMIT 1', sourceKey(source,selected)).toArray()[0] ?? null;
+  const keptOf = (source, { workflow_id, made_from } = {}, selected) => {
+    if (workflow_id !== undefined || made_from !== undefined) {
+      const kept = metadataOf(source,selected);
+      if (!kept) return null;
+      const rows = [];
+      if (workflow_id !== undefined) {
+        const found = sql.exec(`SELECT skill.value AS row FROM skill_repository_reads kept, json_each(kept.rows) skill
+          WHERE kept.source_key = ? AND json_extract(skill.value, '$.id') = ? ORDER BY CAST(skill.key AS INTEGER) LIMIT 1`, sourceKey(source,selected), workflow_id).toArray();
+        for (const item of found) rows.push(JSON.parse(item.row));
+      } else {
+        let after = -1;
+        for (;;) {
+          const page = sql.exec(`SELECT CAST(skill.key AS INTEGER) AS position, skill.value AS row
+            FROM skill_repository_reads kept, json_each(kept.rows) skill WHERE kept.source_key = ? AND CAST(skill.key AS INTEGER) > ?
+            AND json_type(skill.value, '$.made_from') = 'array'
+            AND EXISTS (SELECT 1 FROM json_each(skill.value, '$.made_from') member WHERE member.value = ?)
+            ORDER BY CAST(skill.key AS INTEGER) LIMIT ?`, sourceKey(source,selected), after, made_from, RELATED_PAGE).toArray();
+          for (const item of page) rows.push(JSON.parse(item.row));
+          if (page.length < RELATED_PAGE) break;
+          after = page.at(-1).position;
+        }
+      }
+      return { ...kept, rows, held: [] };
+    }
+    const row = sql.exec('SELECT * FROM skill_repository_reads WHERE source_key = ?', sourceKey(source,selected)).toArray()[0];
+    return row ? { ...row, rows: JSON.parse(row.rows), held: JSON.parse(row.held) } : null;
+  };
+
+  async function read(source, kept, selected) {
+    const host = selected.hosts.find(item => item.id === source.host);
+    const values = { owner: source.owner, repository: source.repository };
+    const at = now().toISOString();
+    const keep = (fields) => {
+      // Checking an unchanged commit or keeping a failed refresh changes only metadata. Never parse and stringify all
+      // of that repository's saved definitions just to preserve them during an exact-ID read.
+      if (kept && fields.rows === undefined) {
+        sql.exec('UPDATE skill_repository_reads SET checked_at = ?, error = ? WHERE source_key = ?', at, fields.error ?? null, sourceKey(source,selected));
+        return metadataOf(source,selected);
+      }
+      const next = { commit_id: kept?.commit_id ?? null, rows: kept?.rows ?? [], held: kept?.held ?? [], read_at: kept?.read_at ?? null, error: null, ...fields };
+      sql.exec('INSERT OR REPLACE INTO skill_repository_reads (source_key, commit_id, rows, held, read_at, checked_at, error) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        sourceKey(source,selected), next.commit_id, JSON.stringify(next.rows), JSON.stringify(next.held), next.read_at, at, next.error);
+      return metadataOf(source,selected);
+    };
+    try {
+      const refs = await fetchImpl(addressOf(host.refs, values), { headers: { accept: 'application/x-git-upload-pack-advertisement' } });
+      if (!refs.ok) throw new Error(`${host.label} answered ${refs.status} for ${source.owner}/${source.repository}`);
+      const commit = branchCommit(await refs.text(), source.branch ?? null);
+      if (!commit) throw new Error(`${source.owner}/${source.repository} has no branch ${source.branch ?? '(default)'}`);
+      if (kept?.commit_id === commit) return keep({});
+      const archive = await fetchImpl(addressOf(host.archive, { ...values, commit }));
+      if (!archive.ok) throw new Error(`${host.label} answered ${archive.status} for the archive of ${commit.slice(0, 12)}`);
+      const bytes = new Uint8Array(await archive.arrayBuffer());
+      if (bytes.length > selected.max_archive_bytes) throw new Error(`the archive is ${bytes.length} bytes, over ${selected.max_archive_bytes}`);
+      const { rows, held } = skillsFromArchive({ files: untarGz(bytes), source, host, commit, rules, openLicences, readFrom: host.label, entry: kindOf(source,selected).entry });
+      return keep({ commit_id: commit, rows, held, read_at: at });
+    } catch (error) {
+      return keep({ error: String(error?.message ?? error) });
+    }
+  }
+
+  async function current(source, selection, selected) {
+    const kept = metadataOf(source,selected);
+    const due = !kept || now().getTime() - Date.parse(kept.checked_at) >= selected.check_every_minutes * 60_000;
+    if (!due) return keptOf(source, selection, selected);
+    const key = sourceKey(source,selected);
+    if (!reading.has(key)) reading.set(key, read(source, kept, selected).finally(() => reading.delete(key)));
+    await reading.get(key);
+    return keptOf(source, selection, selected);
+  }
+
+  const selectedConfig = async () => {
+    const selected = typeof config === 'function' ? await config() : config;
+    if (!object(selected?.kinds) || !Array.isArray(selected.hosts) || !Array.isArray(selected.sources))
+      throw Object.assign(new Error('Current skill-source configuration is unavailable.'),{code:'marketplace_content_source_unavailable'});
+    return selected;
+  };
+  const assertConfig = async selected => {
+    if (typeof config === 'function' && databaseInputIdentity(await selectedConfig()) !== databaseInputIdentity(selected))
+      throw Object.assign(new Error('The skill-source definitions changed while their workflows were being read; read the current repositories again.'),{code:'marketplace_content_source_unavailable'});
+  };
+  function candidates(options,selected) {
+    if (!Array.isArray(options.also ?? []) || !Array.isArray(options.sources ?? selected.sources))
+      throw Object.assign(new Error('Skill repositories must be source arrays.'),{code:'marketplace_content_source_unavailable'});
+    const own = (options.also ?? []).filter(source => source?.status !== 'deleted');
+    const privateIds = new Set(own.map(source => source?.id));
+    return [...(options.sources ?? selected.sources).filter(source => !privateIds.has(source?.id)).map(source => ({source,scope:'default'})),
+      ...own.map(source => ({source,scope:'account'}))].map(item => ({...item,problems:sourceProblems({...item.source,kind:item.source?.kind??selected.default_kind},selected.hosts,selected.kinds)}));
+  }
+  const forget = selected => sql.exec('DELETE FROM skill_repository_reads WHERE checked_at < ?', new Date(now().getTime() - (selected.forget_after_days ?? 30) * 86_400_000).toISOString());
+
+  return {
+    /**
+     * Every source as it was last read: its rows, the skills held back, the commit, when, and any failure. `sources`
+     * are the DATA rows unless given; `also` are more rows (one account's own), read the same way after them.
+     */
+    async reads(options = {}) {
+      const selected = await selectedConfig(), choices = candidates(options,selected);
+      const valid = choices.filter(item => !item.problems.length), refused = choices.filter(item => item.problems.length);
+      const read = await Promise.all(valid.map(({source}) => current(source,undefined,selected)));
+      await assertConfig(selected);forget(selected);
+      return [...read.map((item, at) => ({
+        source_id: valid[at].source.id, scope:valid[at].scope, commit: item.commit_id, read_at: item.read_at, checked_at: item.checked_at, error: item.error,
+        rows: item.rows, held: item.held,
+      })),...refused.map(({source,scope,problems}) => ({source_id:source?.id??null,scope,commit:null,read_at:null,checked_at:now().toISOString(),
+        error:'This repository does not match the current skill-source definitions.',rows:[],held:[{reasons:problems}]}))];
+    },
+    /** Every row every source holds now, first source first; an id one source already gave is not given twice. */
+    async rows(options = {}) {
+      const seen = new Set();
+      if (options.workflow_id !== undefined || options.made_from !== undefined) {
+        const selected = await selectedConfig(), valid = candidates(options,selected).filter(item => !item.problems.length);
+        const rows = [];
+        // Repository freshness still follows the existing commit reader. Only matching saved definitions are decoded,
+        // one repository at a time; a first-source exact hit makes later repositories irrelevant to this identity.
+        for (const {source} of valid) {
+          const read = await current(source, options, selected);
+          for (const row of read.rows) if (!seen.has(row.id)) { seen.add(row.id); rows.push(row); }
+          if (options.workflow_id !== undefined && rows.length) break;
+        }
+        await assertConfig(selected);forget(selected);
+        return rows;
+      }
+      return (await this.reads(options)).flatMap(read => read.rows).filter(row => !seen.has(row.id) && seen.add(row.id));
+    },
+  };
+}
