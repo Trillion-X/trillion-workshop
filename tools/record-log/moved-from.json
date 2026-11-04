@@ -1,5 +1,5 @@
 {
-  "about": "Files copied here byte for byte from another code tree. store-size.json stays in Trillion-X/trillion too: trillion's own store code (src/store-size.mjs, src/store-health.mjs, src/record-book.mjs) reads it, so trillion owns it, and this copy is what do-work/kept-runs.mjs reads instead of a path into another repository. Change the numbers in trillion and copy them here in the same change.",
+  "about": "Files moved here byte for byte from another code tree. store-size.json came from Trillion-X/trillion src/store-size.json; trillion retired its copy and every reader with its old Worker (trillion #243, merge f345b38440; the tag old-trillion-before-worker-retire holds those bytes), so this is its one copy and do-work/kept-runs.mjs, its one reader, owns it.",
   "source": "Trillion-X/trillion",
   "files": [
     {
@@ -8,7 +8,7 @@
       "to": "tools/record-log/do-work/store-size.json",
       "source_identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
       "identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
-      "kept_in_source": true
+      "source_retired_by": "Trillion-X/trillion f345b38440 (#243)"
     }
   ]
 }
