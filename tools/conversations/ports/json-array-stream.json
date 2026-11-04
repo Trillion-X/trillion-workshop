@@ -1,0 +1,58 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CONVERSATIONS-JSON-ARRAY-STREAM",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:004db06b8b362327d62f5637c746e08a9e6c1a8e218725fb1e0c448f8b33989b",
+  "quote": "Cloud job: one Workshop tool brings in every AI conversation a person has, from every app, completely and resumably."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "read the elements of a JSON array file a piece at a time, so a ChatGPT conversations.json too large to parse whole is kept one conversation at a time and resumed at a byte offset",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/conversations/read-data/json-array-stream.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/conversations/read-data/chat-import.mjs",
+   "why": "The importer that calls this reader (readArchiveFile): it keeps each conversation through the records door and writes the cursor; this file only cuts a JSON array's elements out of a file."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/conversations/test/large-and-zipped-exports.test.mjs",
+   "why": "This file's own test."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "read the elements of a JSON array file a piece at a time",
+    "json array elements"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "jsonArrayElements"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "96765cac82061ac66e9a43299ef6b2a3dc658c75"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/conversations/test/large-and-zipped-exports.test.mjs"
+  ]
+ }
+}
