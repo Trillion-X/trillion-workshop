@@ -1,0 +1,10 @@
+{
+  "_what": "Why a tools/call is refused before it runs, in words written for the AI that made it, read by src/tool-call-refusal.mjs. `retry` says whether asking again can help: no (do not repeat it), after_listing (call tools/list or find_tool_for_job first), correct_the_call (fix the named part, then call again). Add a reason as a row; the code names none of them but looks each up here.",
+  "reasons": {
+    "malformed_call": { "retry": "correct_the_call", "words": "The call was not a tool name with an object of arguments. Send name as text and arguments as an object." },
+    "unknown_tool": { "retry": "after_listing", "words": "No tool of that name is in your current tool list. Do not repeat the call: list your tools (tools/list) or use find_tool_for_job to find the one for this job." },
+    "ambiguous_name": { "retry": "correct_the_call", "words": "That name matches more than one tool in your current list once spelling is ignored: {matches}. Call one of them by its exact name." },
+    "did_you_mean": { "retry": "correct_the_call", "words": "No tool is named exactly that, but one differs only in spelling: {matches}. Call it by that exact name." },
+    "check_failed": { "retry": "after_listing", "words": "This call could not be checked before it ran, so it did not run. Try again shortly; if it keeps failing, say so to the person." }
+  }
+}

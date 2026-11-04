@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/sidebar-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-the-sidebar-add-a-note-to-it-and-change-it-from/src/sidebar-tools.mjs",
+      "source_identity": "1f:e87819e15b728ca36d972677eed6aa258773d356123f5c2dc2f3b9856e06546d",
+      "identity": "1f:e87819e15b728ca36d972677eed6aa258773d356123f5c2dc2f3b9856e06546d"
+    }
+  ]
+}

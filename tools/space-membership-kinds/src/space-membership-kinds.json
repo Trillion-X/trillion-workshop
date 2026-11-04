@@ -1,0 +1,21 @@
+{
+  "schema": "trillion.space-membership-kinds",
+  "about": "Who the people in a pursuit are, as DATA for src/space-membership-kinds.mjs: each kind says what someone must hold from this service to join a pursuit of that kind. `plan_feature` names a feature row of src/plan-comparison.json the joiner's own plan must include (judged allowance-aware, the same rule its plan card shows), or is null when joining never needs anything from this service; then only the pursuit owner's own join rules and what the owner sold decide (src/community.mjs mayJoin). A joiner whose plan lacks the feature is covered by a free seat of the pursuit owner's team purchase when one is open (src/seats.mjs), taken as they join; otherwise they are refused with `words.needs_plan`. A label's default kind is its `members_are` in src/network-settings.json membership_labels; a pursuit names its own in its configuration (`members_are`), set by whoever its rules let change it (change_community). A label with no `members_are` and a pursuit that names none have no kind: anyone the pursuit lets in joins. Members already in a pursuit are never put out when its kind or their plan changes; a kind is judged as someone joins. Words fill {space} and {owner}.",
+  "kinds": {
+    "team": {
+      "label": "Your team",
+      "about": "People who work in this pursuit with you on Trillion. Each one has a paid plan, or a seat you pay for.",
+      "plan_feature": "spaces"
+    },
+    "customers": {
+      "label": "Your members or customers",
+      "about": "People who join what you run. You decide whether joining is free or paid; they never need a Trillion plan.",
+      "plan_feature": null
+    }
+  },
+  "words": {
+    "needs_plan": "{space} is a team space: joining it comes with a paid Trillion plan, or a seat {owner} pays for.",
+    "needs_plan_unnamed": "{space} is a team space: joining it comes with a paid Trillion plan, or a seat the person who runs it pays for.",
+    "kind_unknown": "members_are is one of: {kinds}."
+  }
+}

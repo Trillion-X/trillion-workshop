@@ -1,0 +1,71 @@
+{
+  "_what": "How several tool calls are made together so that the whole either stands or is put back (tool-transaction.mjs, the MCP tool run_tools_together). A plan is steps; each step has an id, a tool and its input, and any value in an input may be `{ \"$from\": \"<step id>.result.<path>\" }` to take it from an earlier step (a path is keys separated by dots, `[*]` collects a field from every item of a list). There is no code in a plan: nothing is evaluated, so there is nothing to escape from. If a step fails, every step already done is put back in reverse order. A step can be put back when its tool only reads (`read_only_tools` are found from the tool's own hint), when its result carries the call that undoes it (`reverse_result_fields`), or when `reversals` has a row for its tool (a row with `undo` names the call and where its input comes from; a row with `by_result` says the result carries the call); any other step can only be the LAST step, because nothing after it could be undone. `failed_when` says what in a result counts as a failure even when the call did not throw. `limits` bound a plan. Adding a reversible tool is one row. `tool_name` is the MCP tool that runs a plan.",
+  "limits": {
+    "steps": 20,
+    "path_depth": 8
+  },
+  "reverse_result_fields": [
+    "put_back"
+  ],
+  "reversals": [
+    {
+      "tool": "delete_file",
+      "undo": {
+        "tool": "put_back_file",
+        "input": {
+          "ids": {
+            "$from": "result.set_aside[*].id"
+          }
+        }
+      }
+    },
+    {
+      "tool": "archive_file",
+      "undo": {
+        "tool": "put_back_file",
+        "input": {
+          "ids": {
+            "$from": "result.set_aside[*].id"
+          }
+        }
+      }
+    },
+    {
+      "tool": "remove_schedule",
+      "by_result": true
+    }
+  ],
+  "failed_when": [
+    {
+      "field": "error",
+      "present": true
+    },
+    {
+      "field": "swapped",
+      "equals": false
+    },
+    {
+      "field": "ok",
+      "equals": false
+    },
+    {
+      "field": "refused",
+      "not_empty": true
+    }
+  ],
+  "words": {
+    "errors": {
+      "NOT_A_PLAN": "steps must be a list of { id, tool, input }.",
+      "TOO_MANY_STEPS": "A plan holds at most {most} steps.",
+      "BAD_STEP": "Step {index} needs an id, a tool name and (optionally) an input object.",
+      "DUPLICATE_ID": "Step id \"{id}\" is used twice.",
+      "UNKNOWN_TOOL": "Step \"{id}\" names the tool \"{tool}\", which does not exist.",
+      "NESTED": "Step \"{id}\" is itself a plan; plans do not nest.",
+      "CANNOT_BE_PUT_BACK": "Step \"{id}\" ({tool}) cannot be put back and is not the last step, so a later failure could not be undone. Move it last, or leave it out.",
+      "BAD_REFERENCE": "Step \"{id}\" reads from \"{from}\", which is not an earlier step's result.",
+      "REFERENCE_UNRESOLVED": "Step \"{id}\" reads \"{from}\", which the earlier result does not hold.",
+      "STEP_FAILED": "Step \"{id}\" ({tool}) failed: {why}"
+    }
+  },
+  "tool_name": "run_tools_together"
+}

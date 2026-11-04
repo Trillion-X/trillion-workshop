@@ -1,0 +1,16 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/usage-meters.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/usage-meters.json",
+      "source_identity": "1f:a91222642323643e4406d205d4628385b90b878b24752c72add48d5b7a6d5736",
+      "identity": "1f:a91222642323643e4406d205d4628385b90b878b24752c72add48d5b7a6d5736",
+      "reused": true
+    }
+  ]
+}

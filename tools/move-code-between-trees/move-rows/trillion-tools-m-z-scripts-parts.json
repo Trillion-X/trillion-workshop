@@ -1,0 +1,3244 @@
+{
+ "id": "move:trillion-workshop-tools-m-z-scripts-parts",
+ "about": "The backlog rows (docs/worker-retirement-port-backlog.json) of class workshop-tool whose path is under src/ with a file name starting m to z or a digit, or under scripts/ or parts/ (not parts/record-log or parts/eeaf), that had no home on trillion-workshop, trillion-rust or trillion-apps main by content, moved byte for byte from the tag old-trillion-before-worker-retire. One group per capabilities.json row at the tag that owns the files (named after the capability; owner globs narrowed to this slice's paths, so other slices' files move with their own lanes or as import closure), and for files no capability row owns, one group per source subfolder or per file stem. src/chat-import.mjs, src/chat-archives.mjs and src/ai-conversations-list.json stay for the conversations job. The opinion content stays read_as_rows as in move-rows/trillion-to-workshop.json, and keep holds what that row keeps, the EEAF and record-log parts, and the files retired for having no running consumer (the operator one-time imports, raw export and census, the old-store cutover and retirement, proof account names). No call is swapped: a group with a provider call is held for the engine port.",
+ "source": {
+  "name": "Trillion-X/trillion",
+  "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+  "test_folders": [
+   "test"
+  ]
+ },
+ "destination": {
+  "name": "Trillion-X/trillion-workshop",
+  "package": "trillion-workshop",
+  "shared_folder": "tools/shared-code"
+ },
+ "keep": [
+  "cases/",
+  "communities/",
+  "computer/",
+  "extension/",
+  "harness/",
+  "ios/",
+  "macos/",
+  "methods/",
+  "native-apps/",
+  "parts/eeaf/",
+  "parts/record-log/",
+  "records/action-completeness.json",
+  "records/commercial-offer-records.json",
+  "records/content-format-starters.json",
+  "records/copy-rules.json",
+  "records/delight-moments.json",
+  "records/execution-mode-records.json",
+  "records/feel-moments.json",
+  "records/starting-rules.json",
+  "records/workflow-recipe-records.json",
+  "src/action-completeness.mjs",
+  "src/ai-conversations-list.json",
+  "src/attention.json",
+  "src/awareness.json",
+  "src/catch-up.mjs",
+  "src/chat-archives.mjs",
+  "src/chat-import.mjs",
+  "src/decision-store.mjs",
+  "src/error-page-lines.json",
+  "src/life-map.json",
+  "src/local-store.mjs",
+  "src/namespace-store.mjs",
+  "src/native-resource-sign-in.mjs",
+  "src/operator-import-targets.json",
+  "src/operator-import.mjs",
+  "src/passkey-*",
+  "src/passwords.*",
+  "src/person-store-purpose.mjs",
+  "src/person-store.mjs",
+  "src/proof-account-names.json",
+  "src/public-app-file-store.mjs",
+  "src/public-app-orphan-retirement.mjs",
+  "src/public-app-rows-import.mjs",
+  "src/pursuit-plan.json",
+  "src/raw-export.mjs",
+  "src/record-model-tools.mjs",
+  "src/records-import.mjs",
+  "src/retirable-census-classes.json",
+  "src/session-cookie.mjs",
+  "src/session-pairing.mjs",
+  "src/share-collection-store.mjs",
+  "src/shared-content-retirement.mjs",
+  "src/show-rules-store.mjs",
+  "src/sign-in-*",
+  "src/space-partition-inventory.mjs",
+  "src/story-settings.json",
+  "src/web-sign-in.mjs",
+  "src/worker.mjs",
+  "src/workspace-records-import.mjs",
+  "src/workspace/walkthroughs/"
+ ],
+ "provider_calls": [
+  {
+   "id": "durable-object",
+   "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+  },
+  {
+   "id": "durable-object-storage",
+   "find": "\\b(?:ctx|state|this)\\.storage\\b|\\bstorage\\.sql\\b"
+  },
+  {
+   "id": "kv",
+   "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+  },
+  {
+   "id": "env-binding",
+   "find": "(?<![.\\w$])env\\.[A-Z][A-Z0-9_]+\\b"
+  }
+ ],
+ "calls": [],
+ "groups": [
+  {
+   "id": "build-the-interactive-page-that-explains-how-trillion",
+   "owner": [
+    "scripts/build-anatomy-explainer.mjs"
+   ],
+   "to": "tools/build-the-interactive-page-that-explains-how-trillion",
+   "capability": "build the interactive page that explains how Trillion is put together, from its explainer record"
+  },
+  {
+   "id": "local-cost-pricing",
+   "owner": [
+    "scripts/local-cost-pricing.mjs"
+   ],
+   "to": "tools/local-cost-pricing",
+   "capability": "scripts/local-cost-pricing.mjs at the tag"
+  },
+  {
+   "id": "local-only-options",
+   "owner": [
+    "scripts/local-only-options.mjs"
+   ],
+   "to": "tools/local-only-options",
+   "capability": "scripts/local-only-options.mjs at the tag"
+  },
+  {
+   "id": "local-runtime-package",
+   "owner": [
+    "scripts/local-runtime-package.mjs"
+   ],
+   "to": "tools/local-runtime-package",
+   "capability": "scripts/local-runtime-package.mjs at the tag"
+  },
+  {
+   "id": "draw-trillions-app-icon-in-every-size-from",
+   "owner": [
+    "scripts/make-opening-cover.mjs",
+    "scripts/make-stories-share-image.mjs"
+   ],
+   "to": "tools/draw-trillions-app-icon-in-every-size-from",
+   "capability": "draw Trillion's app icon in every size from the supplied drawing, and the pictures shown when a story or the cover is shared or the app opens"
+  },
+  {
+   "id": "turn-the-decision-methods-own-sources-into-workflows",
+   "owner": [
+    "scripts/method-workflows.mjs"
+   ],
+   "to": "tools/turn-the-decision-methods-own-sources-into-workflows",
+   "capability": "turn the decision method's own sources into workflows that every account's AI can find and run when it designs a feature"
+  },
+  {
+   "id": "photograph-each-whats-new-tour-live-on-a-fresh-account",
+   "owner": [
+    "scripts/picture-whats-new.mjs"
+   ],
+   "to": "tools/photograph-each-whats-new-tour-live-on-a-fresh-account",
+   "capability": "photograph each what's-new tour live on a fresh account at the step that points at something, and keep the picture beside the tour"
+  },
+  {
+   "id": "measure-how-well-ai-agents-of-each-model",
+   "owner": [
+    "scripts/run-agent-tool-evals.mjs"
+   ],
+   "to": "tools/measure-how-well-ai-agents-of-each-model",
+   "capability": "measure how well AI agents of each model use Trillion's tools on plain jobs, counting steps, errors and wrong changes, and print the table"
+  },
+  {
+   "id": "let-a-tools-screen-be-its-own-code-built-into",
+   "owner": [
+    "scripts/screen-modules.mjs"
+   ],
+   "to": "tools/let-a-tools-screen-be-its-own-code-built-into",
+   "capability": "let a tool's screen be its own code, built into a bundle the page loads when the screen opens, and list which built-in screens are still drawn by workspace code"
+  },
+  {
+   "id": "turn-a-folder-of-agent-skills-into-workflows",
+   "owner": [
+    "scripts/skills-to-workflows.mjs"
+   ],
+   "to": "tools/turn-a-folder-of-agent-skills-into-workflows",
+   "capability": "turn a folder of agent skills into workflows every account's AI can find, read and run"
+  },
+  {
+   "id": "start-a-community-from-its-configuration-file-and-hand",
+   "owner": [
+    "scripts/start-community.mjs"
+   ],
+   "to": "tools/start-a-community-from-its-configuration-file-and-hand",
+   "capability": "start a community from its configuration file and hand it over to the person who will run it with a one-time link"
+  },
+  {
+   "id": "load-the-shared-tool-rows-and-tool-folders",
+   "owner": [
+    "scripts/tool-bundles.mjs",
+    "scripts/workshop-rows.mjs"
+   ],
+   "to": "tools/load-the-shared-tool-rows-and-tool-folders",
+   "capability": "load the shared tool rows and tool folders at deploy and take each container tool's files from its folder instead of typing them into the row"
+  },
+  {
+   "id": "check-that-everything-waiting-on-a-person-reaches-them",
+   "owner": [
+    "scripts/waiting-controls.mjs"
+   ],
+   "to": "tools/check-that-everything-waiting-on-a-person-reaches-them",
+   "capability": "check that everything waiting on a person reaches them with a working control, and that the place it points to opens a real screen"
+  },
+  {
+   "id": "community-logic-match",
+   "owner": [
+    "src/community-logic/match/select-pairs.mjs",
+    "src/community-logic/match/solve-capacity-constrained-assignment.mjs"
+   ],
+   "to": "tools/community-logic-match",
+   "capability": "the files of src/community-logic/match at the tag"
+  },
+  {
+   "id": "community-logic",
+   "owner": [
+    "src/community-logic/nudge-gate.ts",
+    "src/community-logic/project-progress-to-path.ts",
+    "src/community-logic/tribe-chains.ts"
+   ],
+   "to": "tools/community-logic",
+   "capability": "the files of src/community-logic at the tag"
+  },
+  {
+   "id": "receive-mail-at-the-accounts-own-trillion-address",
+   "owner": [
+    "src/mail-admission.mjs"
+   ],
+   "to": "tools/receive-mail-at-the-accounts-own-trillion-address",
+   "capability": "receive mail at the account's own Trillion address and hand it to its AIs"
+  },
+  {
+   "id": "send-an-email-from-one-place-with-the-sender-mark",
+   "owner": [
+    "src/mail-sender.mjs"
+   ],
+   "to": "tools/send-an-email-from-one-place-with-the-sender-mark",
+   "capability": "send an email from one place, with the sender, mark and colours kept as editable data and the same look for invitations, codes and notices"
+  },
+  {
+   "id": "mail-settings",
+   "owner": [
+    "src/mail-settings.json"
+   ],
+   "to": "tools/mail-settings",
+   "capability": "src/mail-settings.json at the tag"
+  },
+  {
+   "id": "preview-a-published-marketplace-bundle-and-install-it-on-an-acco",
+   "owner": [
+    "src/marketplace-configuration-tools.mjs"
+   ],
+   "to": "tools/preview-a-published-marketplace-bundle-and-install-it-on-an-acco",
+   "capability": "preview a published Marketplace bundle and install it on an account or space, keeping only a versioned reference to its parts"
+  },
+  {
+   "id": "publish-each-shipped-json-section-on-its-own-in-the-marketplace",
+   "owner": [
+    "src/marketplace-content-document.mjs",
+    "src/marketplace-content-section.mjs",
+    "src/marketplace-content-source-id.mjs",
+    "src/marketplace-content-sources.mjs"
+   ],
+   "to": "tools/publish-each-shipped-json-section-on-its-own-in-the-marketplace",
+   "capability": "publish each shipped JSON section on its own in the Marketplace and read it back, rebuilding a whole document from the sections chosen"
+  },
+  {
+   "id": "marketplace-defaults",
+   "owner": [
+    "src/marketplace-defaults.json"
+   ],
+   "to": "tools/marketplace-defaults",
+   "capability": "src/marketplace-defaults.json at the tag"
+  },
+  {
+   "id": "give-every-account-the-marketplace-items-it-uses-by-default",
+   "owner": [
+    "src/marketplace-defaults.mjs"
+   ],
+   "to": "tools/give-every-account-the-marketplace-items-it-uses-by-default",
+   "capability": "give every account the Marketplace items it uses by default, read from what the default publishers have published"
+  },
+  {
+   "id": "search-my-kept-results-by-meaning-with-each-installed-meaning",
+   "owner": [
+    "src/meaning-sets.mjs",
+    "src/meaning-spaces.mjs"
+   ],
+   "to": "tools/search-my-kept-results-by-meaning-with-each-installed-meaning",
+   "capability": "search my kept results by meaning with each installed meaning model, and fall back to matching the words when no model can answer that day"
+  },
+  {
+   "id": "browse-the-recordings-in-my-media-library-in-a-stable-order",
+   "owner": [
+    "src/media-tools.mjs"
+   ],
+   "to": "tools/browse-the-recordings-in-my-media-library-in-a-stable-order",
+   "capability": "browse the recordings in my Media library in a stable order and find them by name quickly, for any AI or screen that reads Media"
+  },
+  {
+   "id": "show-a-public-shop-its-sellable-items-with-prices",
+   "owner": [
+    "src/merchant-commerce.mjs"
+   ],
+   "to": "tools/show-a-public-shop-its-sellable-items-with-prices",
+   "capability": "show a public shop its sellable items with prices and stock read from the seller, never from the page or the visitor's checkout request"
+  },
+  {
+   "id": "open-one-decision-from-each-message-i-send",
+   "owner": [
+    "src/message-decision.mjs"
+   ],
+   "to": "tools/open-one-decision-from-each-message-i-send",
+   "capability": "open one decision from each message I send, linked to its source and worded as my own goal, before the message is acknowledged"
+  },
+  {
+   "id": "metered-use",
+   "owner": [
+    "src/metered-use.json"
+   ],
+   "to": "tools/metered-use",
+   "capability": "src/metered-use.json at the tag"
+  },
+  {
+   "id": "count-what-each-kind-of-work-reads-and-writes",
+   "owner": [
+    "src/metered-use.mjs"
+   ],
+   "to": "tools/count-what-each-kind-of-work-reads-and-writes",
+   "capability": "count what each kind of work reads and writes in a store, by what the work was for, and stop work that goes over its cap"
+  },
+  {
+   "id": "install-the-decision-methods-every-account-uses-from",
+   "owner": [
+    "src/method-catalogue.mjs"
+   ],
+   "to": "tools/install-the-decision-methods-every-account-uses-from",
+   "capability": "install the decision methods every account uses from the default publishers' shelf of methods, refreshed on a schedule with their checks"
+  },
+  {
+   "id": "install-the-working-modes-every-account-can-switch",
+   "owner": [
+    "src/mode-catalogue.mjs"
+   ],
+   "to": "tools/install-the-working-modes-every-account-can-switch",
+   "capability": "install the working modes every account can switch between from the default publishers' shelf, refreshed on a schedule"
+  },
+  {
+   "id": "moments",
+   "owner": [
+    "src/moments.json"
+   ],
+   "to": "tools/moments",
+   "capability": "src/moments.json at the tag"
+  },
+  {
+   "id": "group-arrivals-that-belong-together-in-time-or-subject",
+   "owner": [
+    "src/moments.mjs"
+   ],
+   "to": "tools/group-arrivals-that-belong-together-in-time-or-subject",
+   "capability": "group arrivals that belong together in time or subject, such as photos, screenshots and voice memos, into one moment and one handoff"
+  },
+  {
+   "id": "money-out",
+   "owner": [
+    "src/money-out.json"
+   ],
+   "to": "tools/money-out",
+   "capability": "src/money-out.json at the tag"
+  },
+  {
+   "id": "work-out-from-bank-rows-and-receipt",
+   "owner": [
+    "src/money-out.mjs",
+    "src/money-sources.mjs"
+   ],
+   "to": "tools/work-out-from-bank-rows-and-receipt",
+   "capability": "work out from bank rows and receipt emails what I pay each merchant a month, how it renews, whether the price is going up and whether it may be paid twice"
+  },
+  {
+   "id": "money-reads",
+   "owner": [
+    "src/money-reads.json"
+   ],
+   "to": "tools/money-reads",
+   "capability": "src/money-reads.json at the tag"
+  },
+  {
+   "id": "turn-a-list-column-that-holds-names-into",
+   "owner": [
+    "src/naming-fields.mjs"
+   ],
+   "to": "tools/turn-a-list-column-that-holds-names-into",
+   "capability": "turn a list column that holds names into links to the rows of another list, making a row for each name that has none"
+  },
+  {
+   "id": "send-a-command-for-a-published-page-or-shop-to-that-publications",
+   "owner": [
+    "src/native-addressed-resource-command.mjs"
+   ],
+   "to": "tools/send-a-command-for-a-published-page-or-shop-to-that-publications",
+   "capability": "send a command for a published page or shop to that publication's own gate instead of through my account's records"
+  },
+  {
+   "id": "add-change-time-and-remove-the-ais-on-my-account",
+   "owner": [
+    "src/native-ai-account-owner.mjs"
+   ],
+   "to": "tools/add-change-time-and-remove-the-ais-on-my-account",
+   "capability": "add, change, time and remove the AIs on my account, and see when each one last worked"
+  },
+  {
+   "id": "start-work-in-a-shared-space-from-my-account",
+   "owner": [
+    "src/native-ai-space-owner.mjs"
+   ],
+   "to": "tools/start-work-in-a-shared-space-from-my-account",
+   "capability": "start work in a shared Space from my account and share my AI there as a card that can be claimed, delivered and withdrawn"
+  },
+  {
+   "id": "build-a-mac-app-from-a-folder-of-swift",
+   "owner": [
+    "src/native-app-output-host.mjs"
+   ],
+   "to": "tools/build-a-mac-app-from-a-folder-of-swift",
+   "capability": "build a Mac app from a folder of Swift files on my own computer and publish the built app"
+  },
+  {
+   "id": "press-an-automation-once-and-keep-one-receipt-for-that-press",
+   "owner": [
+    "src/native-automation-child-command.mjs",
+    "src/native-automation-command-receipts.mjs",
+    "src/native-automation-run-receipts.mjs"
+   ],
+   "to": "tools/press-an-automation-once-and-keep-one-receipt-for-that-press",
+   "capability": "press an automation once and keep one receipt for that press and for the single run it started, so a retry never runs it twice"
+  },
+  {
+   "id": "share-my-availability-by-link-so-others-can-book",
+   "owner": [
+    "src/native-availability-owner.mjs"
+   ],
+   "to": "tools/share-my-availability-by-link-so-others-can-book",
+   "capability": "share my availability by link so others can book a time, within the limits of each share, using my calendar and its tools"
+  },
+  {
+   "id": "tell-an-ai-what-i-have-been",
+   "owner": [
+    "src/native-awareness.mjs"
+   ],
+   "to": "tools/tell-an-ai-what-i-have-been",
+   "capability": "tell an AI what I have been doing lately from my messages and from my recordings' transcripts and summaries"
+  },
+  {
+   "id": "keep-my-account-preferences-and-disclosures-such-as",
+   "owner": [
+    "src/native-behavior-controls.mjs"
+   ],
+   "to": "tools/keep-my-account-preferences-and-disclosures-such-as",
+   "capability": "keep my account preferences and disclosures, such as budgets, spend cycle day, relay and profile, and erase what a source left behind"
+  },
+  {
+   "id": "keep-a-shared-board-live-for-several-people",
+   "owner": [
+    "src/native-board-live-supply.mjs",
+    "src/native-board-live.mjs"
+   ],
+   "to": "tools/keep-a-shared-board-live-for-several-people",
+   "capability": "keep a shared board live for several people at once, with records, who is present and changes arriving in order"
+  },
+  {
+   "id": "show-the-funnel-screen-what-happened-in-my-accounts",
+   "owner": [
+    "src/native-browser-commercial.mjs"
+   ],
+   "to": "tools/show-the-funnel-screen-what-happened-in-my-accounts",
+   "capability": "show the funnel screen what happened in my account's sales, plan and allowance events as I sign in"
+  },
+  {
+   "id": "let-a-signed-in-browser-page-or-outside-entry",
+   "owner": [
+    "src/native-browser-consumer.mjs"
+   ],
+   "to": "tools/let-a-signed-in-browser-page-or-outside-entry",
+   "capability": "let a signed-in browser page or outside entry point use my account, shared spaces and files under the saved browser sign-in, never form fields"
+  },
+  {
+   "id": "keep-the-reports-each-of-my-browsers-sends-about-its-device",
+   "owner": [
+    "src/native-browser-device-facts.mjs"
+   ],
+   "to": "tools/keep-the-reports-each-of-my-browsers-sends-about-its-device",
+   "capability": "keep the reports each of my browsers sends about its device, with newer reports replacing older ones"
+  },
+  {
+   "id": "let-the-media-screen-in-my-browser-do-what",
+   "owner": [
+    "src/native-browser-media.mjs"
+   ],
+   "to": "tools/let-the-media-screen-in-my-browser-do-what",
+   "capability": "let the Media screen in my browser do what an AI can do with recordings, edits, renders and shared files"
+  },
+  {
+   "id": "let-my-message-screens-in-the-browser-send-read",
+   "owner": [
+    "src/native-browser-messages.mjs"
+   ],
+   "to": "tools/let-my-message-screens-in-the-browser-send-read",
+   "capability": "let my message screens in the browser send, read and sort messages through the account's own message owners"
+  },
+  {
+   "id": "sign-me-up-as-a-seller-who",
+   "owner": [
+    "src/native-browser-seller-payments.mjs"
+   ],
+   "to": "tools/sign-me-up-as-a-seller-who",
+   "capability": "sign me up as a seller who takes card payments and show the status of that onboarding"
+  },
+  {
+   "id": "let-my-browser-start-and-follow-ai-work",
+   "owner": [
+    "src/native-browser-work-adapter.mjs"
+   ],
+   "to": "tools/let-my-browser-start-and-follow-ai-work",
+   "capability": "let my browser start and follow AI work, screens and handoffs the same way an AI tool does"
+  },
+  {
+   "id": "keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
+   "owner": [
+    "src/native-calendar-owner.mjs"
+   ],
+   "to": "tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
+   "capability": "keep my calendar in my account's own records, with its lists, files, connections and model, never in a second calendar store"
+  },
+  {
+   "id": "run-the-connections-and-automations-my-computers-carry-keeping",
+   "owner": [
+    "src/native-carried-automation-owner.mjs"
+   ],
+   "to": "tools/run-the-connections-and-automations-my-computers-carry-keeping",
+   "capability": "run the connections and automations my computers carry, keeping their durable work and recovery across restarts"
+  },
+  {
+   "id": "apply-to-a-client-program-accept-or-drop-a-client",
+   "owner": [
+    "src/native-client-program-owner.mjs"
+   ],
+   "to": "tools/apply-to-a-client-program-accept-or-drop-a-client",
+   "capability": "apply to a client program, accept or drop a client, and have the other account take it up under its own sign-in"
+  },
+  {
+   "id": "keep-a-sellers-sales-contracts-and-offers-with-their-events",
+   "owner": [
+    "src/native-commercial-domain.mjs"
+   ],
+   "to": "tools/keep-a-sellers-sales-contracts-and-offers-with-their-events",
+   "capability": "keep a seller's sales contracts and offers with their events, and read the payment methods connected for selling"
+  },
+  {
+   "id": "run-my-community-members-posts-and-shared-calls",
+   "owner": [
+    "src/native-community-owner.mjs"
+   ],
+   "to": "tools/run-my-community-members-posts-and-shared-calls",
+   "capability": "run my community: members, posts and shared calls, each admitted on its own for the person making it"
+  },
+  {
+   "id": "read-and-edit-the-saved-configurations-others-shared",
+   "owner": [
+    "src/native-configuration-command-receipts.mjs",
+    "src/native-configurations.mjs"
+   ],
+   "to": "tools/read-and-edit-the-saved-configurations-others-shared",
+   "capability": "read and edit the saved configurations others shared with me, by link or offer, and keep a receipt of each change"
+  },
+  {
+   "id": "list-the-accounts-i-have-connected-the-ones",
+   "owner": [
+    "src/native-connection-list.mjs"
+   ],
+   "to": "tools/list-the-accounts-i-have-connected-the-ones",
+   "capability": "list the accounts I have connected, the ones my computers carry and the ones others shared with me, a page at a time"
+  },
+  {
+   "id": "turn-a-payment-notice-from-the-processor-into",
+   "owner": [
+    "src/native-contract-stripe.mjs"
+   ],
+   "to": "tools/turn-a-payment-notice-from-the-processor-into",
+   "capability": "turn a payment notice from the processor into a receipt on the seller's saved offer, only after reading the seller's actual payment objects"
+  },
+  {
+   "id": "record-a-signed-payment-effect-once-and-carry",
+   "owner": [
+    "src/native-control-payment-effects.mjs"
+   ],
+   "to": "tools/record-a-signed-payment-effect-once-and-carry",
+   "capability": "record a signed payment effect once and carry out its follow-up steps, such as ending a seat, until each is done"
+  },
+  {
+   "id": "charge-for-a-paid-tool-run-once-against",
+   "owner": [
+    "src/native-control-tool-billing.mjs"
+   ],
+   "to": "tools/charge-for-a-paid-tool-run-once-against",
+   "capability": "charge for a paid tool run once against my account's balance and keep the totals, so a retry or erasure never double counts"
+  },
+  {
+   "id": "give-each-account-its-free-allowance-of-decisions-per",
+   "owner": [
+    "src/native-decision-allowance.mjs"
+   ],
+   "to": "tools/give-each-account-its-free-allowance-of-decisions-per",
+   "capability": "give each account its free allowance of decisions per period, in the arm of the test it was placed in, and count what it used"
+  },
+  {
+   "id": "run-a-decision-case-from-start-to-finish",
+   "owner": [
+    "src/native-decision-commands.mjs"
+   ],
+   "to": "tools/run-a-decision-case-from-start-to-finish",
+   "capability": "run a decision case from start to finish: take its actions, check the outcome and run its hooks"
+  },
+  {
+   "id": "publish-my-decisions-to-others-and-learn-from-what",
+   "owner": [
+    "src/native-decision-publication.mjs"
+   ],
+   "to": "tools/publish-my-decisions-to-others-and-learn-from-what",
+   "capability": "publish my decisions to others and learn from what they all decided, through the whole life of each publication"
+  },
+  {
+   "id": "offer-my-tool-declarations-and-saved-list-tools",
+   "owner": [
+    "src/native-declared-route-actions.mjs",
+    "src/native-list-tool-actions.mjs"
+   ],
+   "to": "tools/offer-my-tool-declarations-and-saved-list-tools",
+   "capability": "offer my tool declarations and saved list tools to an AI as actions it can run, where everything the action needs is installed"
+  },
+  {
+   "id": "keep-a-receipt-for-each-action-an-ai-took-from",
+   "owner": [
+    "src/native-execution-receipts.mjs",
+    "src/native-managed-execution-capture.mjs",
+    "src/native-managed-source.mjs"
+   ],
+   "to": "tools/keep-a-receipt-for-each-action-an-ai-took-from",
+   "capability": "keep a receipt for each action an AI took, from its transcript hook or its own report, and read them back with the carried ones"
+  },
+  {
+   "id": "install-update-and-remove-a-site-or-app-of-mine",
+   "owner": [
+    "src/native-historical-site-inventory.mjs"
+   ],
+   "to": "tools/install-update-and-remove-a-site-or-app-of-mine",
+   "capability": "install, update and remove a site or app of mine, checking the old copies and the sources it depends on before a removal is final"
+  },
+  {
+   "id": "share-an-installed-static-site-by-link-so-visitors",
+   "owner": [
+    "src/native-installed-site-sharing.mjs"
+   ],
+   "to": "tools/share-an-installed-static-site-by-link-so-visitors",
+   "capability": "share an installed static site by link so visitors read it from its published files"
+  },
+  {
+   "id": "show-an-invitations-one-current-picture-to-the-person-holding",
+   "owner": [
+    "src/native-invitation-picture.mjs"
+   ],
+   "to": "tools/show-an-invitations-one-current-picture-to-the-person-holding",
+   "capability": "show an invitation's one current picture to the person holding its code, without giving them an account or a view of my files"
+  },
+  {
+   "id": "keep-the-exact-first-answer-to-each-change-i",
+   "owner": [
+    "src/native-local-command-receipts.mjs",
+    "src/native-look-command-receipts.mjs"
+   ],
+   "to": "tools/keep-the-exact-first-answer-to-each-change-i",
+   "capability": "keep the exact first answer to each change I make, so a retry returns the same result and never makes the change twice"
+  },
+  {
+   "id": "let-someone-view-my-account-as-me",
+   "owner": [
+    "src/native-look-authorization.mjs"
+   ],
+   "to": "tools/let-someone-view-my-account-as-me",
+   "capability": "let someone view my account as me for a short time, reading only and never signing in as the owner"
+  },
+  {
+   "id": "native-look-read-operations",
+   "owner": [
+    "src/native-look-read-operations.json"
+   ],
+   "to": "tools/native-look-read-operations",
+   "capability": "src/native-look-read-operations.json at the tag"
+  },
+  {
+   "id": "native-managed-source",
+   "owner": [
+    "src/native-managed-source.json"
+   ],
+   "to": "tools/native-managed-source",
+   "capability": "src/native-managed-source.json at the tag"
+  },
+  {
+   "id": "read-what-the-marketplace-has-installed-for-me",
+   "owner": [
+    "src/native-marketplace-account.mjs"
+   ],
+   "to": "tools/read-what-the-marketplace-has-installed-for-me",
+   "capability": "read what the Marketplace has installed for me, and settings for my relay and exclusions, from my account's own records"
+  },
+  {
+   "id": "remove-one-component-i-installed-from-the-marketplace",
+   "owner": [
+    "src/native-marketplace-component-removal.mjs"
+   ],
+   "to": "tools/remove-one-component-i-installed-from-the-marketplace",
+   "capability": "remove one component I installed from the Marketplace from my account, keeping the record of the removal"
+  },
+  {
+   "id": "list-my-private-marketplace-installations-and-open-one-of-them",
+   "owner": [
+    "src/native-marketplace-installation-pages.mjs",
+    "src/native-marketplace-installation-read-mount.mjs"
+   ],
+   "to": "tools/list-my-private-marketplace-installations-and-open-one-of-them",
+   "capability": "list my private Marketplace installations and open one of them, a page at a time"
+  },
+  {
+   "id": "install-and-remove-marketplace-items-on-my-account-each-change",
+   "owner": [
+    "src/native-marketplace-installations.mjs"
+   ],
+   "to": "tools/install-and-remove-marketplace-items-on-my-account-each-change",
+   "capability": "install and remove Marketplace items on my account, each change written once in my own records and receipted"
+  },
+  {
+   "id": "do-with-the-accounts-own-files-and-media-what-an-ai",
+   "owner": [
+    "src/native-media-account-actions.mjs"
+   ],
+   "to": "tools/do-with-the-accounts-own-files-and-media-what-an-ai",
+   "capability": "do with the account's own files and media what an AI can do through its media and files actions"
+  },
+  {
+   "id": "read-the-things-i-can-mention-with-an-at",
+   "owner": [
+    "src/native-mention-sources.mjs"
+   ],
+   "to": "tools/read-the-things-i-can-mention-with-an-at",
+   "capability": "read the things I can mention with an at sign on a signed-in page from the owner that holds each source"
+  },
+  {
+   "id": "correct-a-saved-message-give-a-voice-i",
+   "owner": [
+    "src/native-message-account-owner.mjs"
+   ],
+   "to": "tools/correct-a-saved-message-give-a-voice-i",
+   "capability": "correct a saved message, give a voice I heard a name, and send a message out to everyone it is meant for, keeping text and names private"
+  },
+  {
+   "id": "remember-which-people-in-the-network-vouch-for-each-other",
+   "owner": [
+    "src/native-network-membership-drain.mjs",
+    "src/native-network-membership-publication.mjs",
+    "src/native-network-trust-carry.mjs",
+    "src/native-network-trust-resource.mjs",
+    "src/native-network-trust.mjs"
+   ],
+   "to": "tools/remember-which-people-in-the-network-vouch-for-each-other",
+   "capability": "remember which people in the network vouch for each other so a person can be introduced only through people they trust"
+  },
+  {
+   "id": "keep-the-labels-people-give-each-other-in-the-network",
+   "owner": [
+    "src/native-network-moderation-carry.mjs",
+    "src/native-network-moderation-resource.mjs",
+    "src/native-network-moderation.mjs"
+   ],
+   "to": "tools/keep-the-labels-people-give-each-other-in-the-network",
+   "capability": "keep the labels people give each other in the network and hide a person once enough different trusted people have flagged them"
+  },
+  {
+   "id": "native-network-offers",
+   "owner": [
+    "src/native-network-offers.json"
+   ],
+   "to": "tools/native-network-offers",
+   "capability": "src/native-network-offers.json at the tag"
+  },
+  {
+   "id": "send-invitations-and-introductions-to-people-in-the-network-and",
+   "owner": [
+    "src/native-network-offers.mjs",
+    "src/network-introduction-expiry.mjs"
+   ],
+   "to": "tools/send-invitations-and-introductions-to-people-in-the-network-and",
+   "capability": "send invitations and introductions to people in the network, and give each introduction a time to be answered before it lapses"
+  },
+  {
+   "id": "publish-what-i-offer-and-seek-in-the-network",
+   "owner": [
+    "src/native-network-owner.mjs",
+    "src/native-network-resource.mjs",
+    "src/network-publication-shape.mjs",
+    "src/network.mjs"
+   ],
+   "to": "tools/publish-what-i-offer-and-seek-in-the-network",
+   "capability": "publish what I offer and seek in the network under a random id so anyone's AI can find me by meaning without seeing my contact details"
+  },
+  {
+   "id": "offer-a-place-to-stay-to-people-in-my-network-take",
+   "owner": [
+    "src/native-network-stay-address.mjs",
+    "src/native-network-stay-carry.mjs",
+    "src/native-network-stay-host.mjs",
+    "src/native-network-stays.mjs",
+    "src/network-stay-request-credit.mjs",
+    "src/network-stays.mjs"
+   ],
+   "to": "tools/offer-a-place-to-stay-to-people-in-my-network-take",
+   "capability": "offer a place to stay to people in my network, take their requests and charge the same introduction credit for each request"
+  },
+  {
+   "id": "check-that-everything-still-works-check-results",
+   "owner": [
+    "src/native-operational-account-actions.mjs",
+    "src/native-operational-support.mjs"
+   ],
+   "to": "tools/check-that-everything-still-works-check-results",
+   "capability": "check that everything still works, check results that are due, weigh the steps my AIs left me and hand a job to another account"
+  },
+  {
+   "id": "let-a-carried-task-or-contract-carry-on-later",
+   "owner": [
+    "src/native-original-continuation-binding.mjs"
+   ],
+   "to": "tools/let-a-carried-task-or-contract-carry-on-later",
+   "capability": "let a carried task or contract carry on later only under a real current private command, taking due work one page at a time"
+  },
+  {
+   "id": "list-and-search-across-all-of-an-accounts-record",
+   "owner": [
+    "src/native-own-collection-projection.mjs",
+    "src/native-own-collection-publication.mjs",
+    "src/native-own-indexed-query.mjs",
+    "src/native-own-resource-query.mjs"
+   ],
+   "to": "tools/list-and-search-across-all-of-an-accounts-record",
+   "capability": "list and search across all of an account's record books page by page, saying plainly when a book is down instead of showing it empty"
+  },
+  {
+   "id": "native-own-collection-publication",
+   "owner": [
+    "src/native-own-collection-publication.json"
+   ],
+   "to": "tools/native-own-collection-publication",
+   "capability": "src/native-own-collection-publication.json at the tag"
+  },
+  {
+   "id": "open-an-ordinary-consumers-own-records-once-importing",
+   "owner": [
+    "src/native-own-consumer-context.mjs"
+   ],
+   "to": "tools/open-an-ordinary-consumers-own-records-once-importing",
+   "capability": "open an ordinary consumer's own records once, importing them first and telling the person to try again shortly while that happens"
+  },
+  {
+   "id": "show-the-decisions-and-home-screens-in-pages-with-statistics",
+   "owner": [
+    "src/native-own-home-query.mjs"
+   ],
+   "to": "tools/show-the-decisions-and-home-screens-in-pages-with-statistics",
+   "capability": "show the Decisions and Home screens in pages, with statistics worked out from every item my AIs helped with rather than averaged"
+  },
+  {
+   "id": "follow-up-each-payment-step-once-remembering",
+   "owner": [
+    "src/native-payment-followup.mjs"
+   ],
+   "to": "tools/follow-up-each-payment-step-once-remembering",
+   "capability": "follow up each payment step once, remembering the original command and its exact outcome and never replaying on missing evidence"
+  },
+  {
+   "id": "read-and-book-on-another-members-calendar-from",
+   "owner": [
+    "src/native-peer-calendar.mjs"
+   ],
+   "to": "tools/read-and-book-on-another-members-calendar-from",
+   "capability": "read and book on another member's calendar from my own records, asking as myself and never as that member"
+  },
+  {
+   "id": "add-what-peoples-decisions-learned-and-their-results",
+   "owner": [
+    "src/native-pool-decision-effects.mjs"
+   ],
+   "to": "tools/add-what-peoples-decisions-learned-and-their-results",
+   "capability": "add what people's decisions learned and their results to the shared pool of learning exactly once, with its receipt"
+  },
+  {
+   "id": "keep-client-programs-practice-watched-sources",
+   "owner": [
+    "src/native-portable-account-actions.mjs"
+   ],
+   "to": "tools/keep-client-programs-practice-watched-sources",
+   "capability": "keep client programs, practice, watched sources, subject boards and saved examples as account actions that work anywhere"
+  },
+  {
+   "id": "offer-the-same-posts-and-saved-workflow-actions-to-browsers",
+   "owner": [
+    "src/native-post-tool-actions.mjs",
+    "src/native-workflow-tool-actions.mjs"
+   ],
+   "to": "tools/offer-the-same-posts-and-saved-workflow-actions-to-browsers",
+   "capability": "offer the same Posts and saved-workflow actions to browsers and AI clients from one set of declared actions"
+  },
+  {
+   "id": "show-the-persons-published-sites-and-source-projects",
+   "owner": [
+    "src/native-public-apps.mjs"
+   ],
+   "to": "tools/show-the-persons-published-sites-and-source-projects",
+   "capability": "show the person's published sites and source projects from their own records"
+  },
+  {
+   "id": "publish-change-or-take-down-a-public-item",
+   "owner": [
+    "src/native-published-item-command.mjs",
+    "src/native-published-placement.mjs"
+   ],
+   "to": "tools/publish-change-or-take-down-a-public-item",
+   "capability": "publish, change or take down a public item with a counted allowance and a journal, and find the host that holds it"
+  },
+  {
+   "id": "start-a-new-shared-pursuit-with-people-keep",
+   "owner": [
+    "src/native-pursuit-owner.mjs",
+    "src/native-space-creation.mjs",
+    "src/native-spaces-owner.mjs"
+   ],
+   "to": "tools/start-a-new-shared-pursuit-with-people-keep",
+   "capability": "start a new shared pursuit with people, keep its rooms and links, and carry it on with sharing, Workshop work and source files"
+  },
+  {
+   "id": "read-add-and-change-lists-decisions-and-work",
+   "owner": [
+    "src/native-record-consumers.mjs"
+   ],
+   "to": "tools/read-add-and-change-lists-decisions-and-work",
+   "capability": "read, add and change lists, decisions and work records from account screens, always on the records of the one account"
+  },
+  {
+   "id": "read-a-saved-record-and-show-its-value-the-same",
+   "owner": [
+    "src/native-record-inspection.mjs"
+   ],
+   "to": "tools/read-a-saved-record-and-show-its-value-the-same",
+   "capability": "read a saved record and show its value the same way everywhere, without changing, indexing or running anything"
+  },
+  {
+   "id": "share-a-saved-record-with-another-person-through",
+   "owner": [
+    "src/native-record-sharing.mjs"
+   ],
+   "to": "tools/share-a-saved-record-with-another-person-through",
+   "capability": "share a saved record with another person through a grant that shows only what the grant names"
+  },
+  {
+   "id": "keep-saved-logins-locked-in-the-vault-recording",
+   "owner": [
+    "src/native-saved-logins-owner.mjs"
+   ],
+   "to": "tools/keep-saved-logins-locked-in-the-vault-recording",
+   "capability": "keep saved logins locked in the vault, recording only receipts that hold no secret"
+  },
+  {
+   "id": "limit-a-list-answer-to-the-records-the-persons-access",
+   "owner": [
+    "src/native-scoped-lists.mjs"
+   ],
+   "to": "tools/limit-a-list-answer-to-the-records-the-persons-access",
+   "capability": "limit a list answer to the records the person's access scope lets them see"
+  },
+  {
+   "id": "keep-a-plan-take-a-stand-on-a-record-exactly",
+   "owner": [
+    "src/native-secondary-commands.mjs"
+   ],
+   "to": "tools/keep-a-plan-take-a-stand-on-a-record-exactly",
+   "capability": "keep a plan, take a stand on a record exactly once and manage notification preferences through their whole life"
+  },
+  {
+   "id": "connect-an-outside-service-by-signing-in-with-oauth-or-a-device",
+   "owner": [
+    "src/native-service-signin.mjs"
+   ],
+   "to": "tools/connect-an-outside-service-by-signing-in-with-oauth-or-a-device",
+   "capability": "connect an outside service by signing in with OAuth or a device code and keep the credential in the vault"
+  },
+  {
+   "id": "show-the-accounts-setup-answers-and-save-a-change",
+   "owner": [
+    "src/native-setup.mjs"
+   ],
+   "to": "tools/show-the-accounts-setup-answers-and-save-a-change",
+   "capability": "show the account's setup answers and save a change to them in the account's own records"
+  },
+  {
+   "id": "let-a-visitor-download-or-upload-files-through",
+   "owner": [
+    "src/native-share-byte-carrier.mjs"
+   ],
+   "to": "tools/let-a-visitor-download-or-upload-files-through",
+   "capability": "let a visitor download or upload files through a shared link with a short-lived limited permission and no view of the owner's account"
+  },
+  {
+   "id": "sell-what-is-shared-by-attaching-a-price-a-stripe",
+   "owner": [
+    "src/native-share-commerce.mjs"
+   ],
+   "to": "tools/sell-what-is-shared-by-attaching-a-price-a-stripe",
+   "capability": "sell what is shared by attaching a price, a Stripe checkout and delivery to the share so buyers pay and get access"
+  },
+  {
+   "id": "list-every-shared-space-an-account-belongs-to-and-find",
+   "owner": [
+    "src/native-shared-account-list.mjs",
+    "src/native-shared-source-query.mjs"
+   ],
+   "to": "tools/list-every-shared-space-an-account-belongs-to-and-find",
+   "capability": "list every shared space an account belongs to and find the shared sources each contributor holds, each read under the person's own rights"
+  },
+  {
+   "id": "answer-an-invitation-to-a-shared-space-join-a-community",
+   "owner": [
+    "src/native-shared-addressed-invitation.mjs",
+    "src/native-shared-community-join.mjs",
+    "src/native-shared-invitation.mjs",
+    "src/native-shared-request-admission.mjs"
+   ],
+   "to": "tools/answer-an-invitation-to-a-shared-space-join-a-community",
+   "capability": "answer an invitation to a shared space, join a community under its rules and accept a request to join for people who are not yet members"
+  },
+  {
+   "id": "store-one-entry-of-a-shared-library-once-under",
+   "owner": [
+    "src/native-shared-library-owner.mjs"
+   ],
+   "to": "tools/store-one-entry-of-a-shared-library-once-under",
+   "capability": "store one entry of a shared library once under a globally unique id so others can search and add it"
+  },
+  {
+   "id": "decide-how-one-thing-shows-across-the-persons",
+   "owner": [
+    "src/native-show-rules.mjs"
+   ],
+   "to": "tools/decide-how-one-thing-shows-across-the-persons",
+   "capability": "decide how one thing shows across the person's devices from rules they can read, keep and remove, and resolve two kept versions"
+  },
+  {
+   "id": "work-with-a-source-projects-github-repository-on-the-persons",
+   "owner": [
+    "src/native-source-projects.mjs"
+   ],
+   "to": "tools/work-with-a-source-projects-github-repository-on-the-persons",
+   "capability": "work with a source project's GitHub repository on the person's own Workshop, pinned to exact commits"
+  },
+  {
+   "id": "keep-a-shared-source-pointer-working-after",
+   "owner": [
+    "src/native-source-route-aliases.mjs"
+   ],
+   "to": "tools/keep-a-shared-source-pointer-working-after",
+   "capability": "keep a shared source pointer working after a person's account identity changes"
+  },
+  {
+   "id": "native-space-source-release",
+   "owner": [
+    "src/native-space-source-release.json"
+   ],
+   "to": "tools/native-space-source-release",
+   "capability": "src/native-space-source-release.json at the tag"
+  },
+  {
+   "id": "give-an-account-the-starting-defaults-shipped-with-trillion",
+   "owner": [
+    "src/native-starting-defaults.mjs"
+   ],
+   "to": "tools/give-an-account-the-starting-defaults-shipped-with-trillion",
+   "capability": "give an account the starting defaults shipped with Trillion merged with the changes it has made"
+  },
+  {
+   "id": "keep-the-output-of-a-session-only-run-for-the-live-return",
+   "owner": [
+    "src/native-terminal-retention.mjs"
+   ],
+   "to": "tools/keep-the-output-of-a-session-only-run-for-the-live-return",
+   "capability": "keep the output of a session-only run for the live return only, never in accounting or recovery records"
+  },
+  {
+   "id": "run-each-command-once-on-the-accounts-records-keep",
+   "owner": [
+    "src/native-tool-command-receipts.mjs"
+   ],
+   "to": "tools/run-each-command-once-on-the-accounts-records-keep",
+   "capability": "run each command once on the account's records, keep its reply and answer a retry with the same result, including saving a tool"
+  },
+  {
+   "id": "show-waiting-on-you-reminders-and-holds-from",
+   "owner": [
+    "src/native-waiting-account-owner.mjs"
+   ],
+   "to": "tools/show-waiting-on-you-reminders-and-holds-from",
+   "capability": "show Waiting on you, reminders and holds from the account's own records"
+  },
+  {
+   "id": "find-the-clips-of-a-voice-in-saved-recordings-and-guess",
+   "owner": [
+    "src/native-waiting-voices.mjs"
+   ],
+   "to": "tools/find-the-clips-of-a-voice-in-saved-recordings-and-guess",
+   "capability": "find the clips of a voice in saved recordings and guess who is speaking, retrying sources where a voice was not found yet"
+  },
+  {
+   "id": "stream-live-updates-of-the-persons-work-to-their-open",
+   "owner": [
+    "src/native-work-live.mjs"
+   ],
+   "to": "tools/stream-live-updates-of-the-persons-work-to-their-open",
+   "capability": "stream live updates of the person's work to their open screens over sockets, sending every waiting frame in order"
+  },
+  {
+   "id": "show-the-workshop-and-workflow-screens-for-an-accounts-work",
+   "owner": [
+    "src/native-work-presentation.mjs"
+   ],
+   "to": "tools/show-the-workshop-and-workflow-screens-for-an-accounts-work",
+   "capability": "show the Workshop and workflow screens for an account's work"
+  },
+  {
+   "id": "learn-reusable-recipes-from-the-work-an-account",
+   "owner": [
+    "src/native-workflow-learning.mjs"
+   ],
+   "to": "tools/learn-reusable-recipes-from-the-work-an-account",
+   "capability": "learn reusable recipes from the work an account has already done without turning private inputs into public marketplace text"
+  },
+  {
+   "id": "carry-a-running-workshop-tasks-callback-back",
+   "owner": [
+    "src/native-workshop-relay.mjs"
+   ],
+   "to": "tools/carry-a-running-workshop-tasks-callback-back",
+   "capability": "carry a running Workshop task's callback back to the same run, trusting its live key and never a general account login"
+  },
+  {
+   "id": "stage-files-other-people-shared-into",
+   "owner": [
+    "src/native-workshop-shared-files.mjs"
+   ],
+   "to": "tools/stage-files-other-people-shared-into",
+   "capability": "stage files other people shared into a tool's input, reading each byte range only while a current grant allows it"
+  },
+  {
+   "id": "count-each-workshop-tasks-delivery-and-results-locally",
+   "owner": [
+    "src/native-workshop-telemetry.mjs"
+   ],
+   "to": "tools/count-each-workshop-tasks-delivery-and-results-locally",
+   "capability": "count each Workshop task's delivery and results locally and send them on without running the tool again"
+  },
+  {
+   "id": "read-one-workspace-record-by-its-label-and-save-a-change",
+   "owner": [
+    "src/native-workspace-record-reader.mjs",
+    "src/native-workspace-records.mjs"
+   ],
+   "to": "tools/read-one-workspace-record-by-its-label-and-save-a-change",
+   "capability": "read one workspace record by its label and save a change only when it names the version it read, keeping every version of documents and layouts"
+  },
+  {
+   "id": "prepare-an-app-project-from-a-github-commit",
+   "owner": [
+    "src/native-xcode-source.mjs"
+   ],
+   "to": "tools/prepare-an-app-project-from-a-github-commit",
+   "capability": "prepare an app project from a GitHub commit so the Mac's Xcode builds exactly that source"
+  },
+  {
+   "id": "give-one-buyer-their-own-price-on-an-offer-let-them",
+   "owner": [
+    "src/negotiated-offers.mjs"
+   ],
+   "to": "tools/give-one-buyer-their-own-price-on-an-offer-let-them",
+   "capability": "give one buyer their own price on an offer, let them accept the saved terms and open a Stripe checkout for it"
+  },
+  {
+   "id": "propose-the-first-people-a-new-account-should",
+   "owner": [
+    "src/network-first-matches.mjs"
+   ],
+   "to": "tools/propose-the-first-people-a-new-account-should",
+   "capability": "propose the first people a new account should meet from what each side offers and seeks, free until the person sends the introduction"
+  },
+  {
+   "id": "network-identity",
+   "owner": [
+    "src/network-identity.json"
+   ],
+   "to": "tools/network-identity",
+   "capability": "src/network-identity.json at the tag"
+  },
+  {
+   "id": "tell-which-network-my-trillion-is-on-trillions-cloud",
+   "owner": [
+    "src/network-identity.mjs"
+   ],
+   "to": "tools/tell-which-network-my-trillion-is-on-trillions-cloud",
+   "capability": "tell which network my Trillion is on, Trillion's cloud, my own server or only this computer, and which features need the others"
+  },
+  {
+   "id": "charge-introduction-credits-to-reach-people-in-the-network",
+   "owner": [
+    "src/network-request-credit.mjs"
+   ],
+   "to": "tools/charge-introduction-credits-to-reach-people-in-the-network",
+   "capability": "charge introduction credits to reach people in the network, counted apart from money, whether a person or their AI asks"
+  },
+  {
+   "id": "new-work",
+   "owner": [
+    "src/new-work.json"
+   ],
+   "to": "tools/new-work",
+   "capability": "src/new-work.json at the tag"
+  },
+  {
+   "id": "show-what-is-new-on-each-screen-since-i",
+   "owner": [
+    "src/new-work.mjs"
+   ],
+   "to": "tools/show-what-is-new-on-each-screen-since-i",
+   "capability": "show what is new on each screen since I last looked there, and the newest things my AIs made"
+  },
+  {
+   "id": "note-text-index",
+   "owner": [
+    "src/note-text-index.json"
+   ],
+   "to": "tools/note-text-index",
+   "capability": "src/note-text-index.json at the tag"
+  },
+  {
+   "id": "find-checkbox-tasks-and-nested-hashtags-written",
+   "owner": [
+    "src/note-text-index.mjs"
+   ],
+   "to": "tools/find-checkbox-tasks-and-nested-hashtags-written",
+   "capability": "find checkbox tasks and nested hashtags written inside note text, kept in indexes that can be rebuilt"
+  },
+  {
+   "id": "keep-one-notice-list-to-a-persons-ais-for-every-screen",
+   "owner": [
+    "src/notices.mjs"
+   ],
+   "to": "tools/keep-one-notice-list-to-a-persons-ais-for-every-screen",
+   "capability": "keep one notice list to a person's AIs for every screen and tool"
+  },
+  {
+   "id": "read-the-price-offers-with-each-variant-resolved-once",
+   "owner": [
+    "src/offer-rows.mjs"
+   ],
+   "to": "tools/read-the-price-offers-with-each-variant-resolved-once",
+   "capability": "read the price offers with each variant resolved once, so a price-test arm at another price reads its own price everywhere"
+  },
+  {
+   "id": "keep-a-running-owners-own-counters-a-readers-place",
+   "owner": [
+    "src/operational-state.mjs"
+   ],
+   "to": "tools/keep-a-running-owners-own-counters-a-readers-place",
+   "capability": "keep a running owner's own counters, a reader's place and its waiting queue"
+  },
+  {
+   "id": "original-work-collection-held",
+   "owner": [
+    "src/original-work-collection-held.json"
+   ],
+   "to": "tools/original-work-collection-held",
+   "capability": "src/original-work-collection-held.json at the tag"
+  },
+  {
+   "id": "keep-each-task-input-and-list-on-the-one-record-book",
+   "owner": [
+    "src/original-work-installation-shard.mjs",
+    "src/original-work-list-owner.mjs",
+    "src/original-work-resource-affinity.mjs",
+    "src/original-work-resource-catalogue.mjs",
+    "src/original-work-resource-selection.mjs",
+    "src/original-work-result-identities.mjs"
+   ],
+   "to": "tools/keep-each-task-input-and-list-on-the-one-record-book",
+   "capability": "keep each task, input and list on the one record book that holds it, and find which book holds a list by its id"
+  },
+  {
+   "id": "group-my-ais-by-the-app-they-connected-claude",
+   "owner": [
+    "src/own-ais-apps.mjs"
+   ],
+   "to": "tools/group-my-ais-by-the-app-they-connected-claude",
+   "capability": "group my AIs by the app they connected, Claude Code, Codex, ChatGPT or Claude, with each session and agent under it"
+  },
+  {
+   "id": "give-waiting-jobs-addressed-to-nobody-to-the-first",
+   "owner": [
+    "src/own-ais-routing.mjs"
+   ],
+   "to": "tools/give-waiting-jobs-addressed-to-nobody-to-the-first",
+   "capability": "give waiting jobs addressed to nobody to the first of my AIs that is live and able to do them, in my order"
+  },
+  {
+   "id": "send-waiting-jobs-to-whichever-of-the-persons-own-ais",
+   "owner": [
+    "src/own-ais-work.mjs"
+   ],
+   "to": "tools/send-waiting-jobs-to-whichever-of-the-persons-own-ais",
+   "capability": "send waiting jobs to whichever of the person's own AIs or computers can take them now and let a model-run AI work one"
+  },
+  {
+   "id": "refuse-a-change-made-from-an-open-page",
+   "owner": [
+    "src/page-account.mjs"
+   ],
+   "to": "tools/refuse-a-change-made-from-an-open-page",
+   "capability": "refuse a change made from an open page when the signed-in account is not the one the page was drawn for"
+  },
+  {
+   "id": "put-a-site-on-the-persons-own-web-address-through",
+   "owner": [
+    "src/pages-domain-provider.mjs",
+    "src/public-app-domain-provider.mjs",
+    "src/public-app-domains.mjs"
+   ],
+   "to": "tools/put-a-site-on-the-persons-own-web-address-through",
+   "capability": "put a site on the person's own web address through the hosting provider and check the address belongs to it"
+  },
+  {
+   "id": "show-the-privacy-data-deletion-and-documentation-pages",
+   "owner": [
+    "src/pages.mjs"
+   ],
+   "to": "tools/show-the-privacy-data-deletion-and-documentation-pages",
+   "capability": "show the privacy, data deletion and documentation pages every visitor can read"
+  },
+  {
+   "id": "work-out-who-pays-for-a-tool-call",
+   "owner": [
+    "src/payers.mjs",
+    "src/person-billing.mjs"
+   ],
+   "to": "tools/work-out-who-pays-for-a-tool-call",
+   "capability": "work out who pays for a tool call, the person's own account or Trillion credit, and keep the person's tool charges"
+  },
+  {
+   "id": "take-payment-for-trillion-plans-through-stripe",
+   "owner": [
+    "src/payment-operations.mjs",
+    "src/payment.mjs"
+   ],
+   "to": "tools/take-payment-for-trillion-plans-through-stripe",
+   "capability": "take payment for Trillion plans through Stripe and turn each paid event into what the person may now do"
+  },
+  {
+   "id": "payment-platform",
+   "owner": [
+    "src/payment-platform.json"
+   ],
+   "to": "tools/payment-platform",
+   "capability": "src/payment-platform.json at the tag"
+  },
+  {
+   "id": "let-a-seller-connect-a-payment-account-in-one-click",
+   "owner": [
+    "src/payment-platform.mjs"
+   ],
+   "to": "tools/let-a-seller-connect-a-payment-account-in-one-click",
+   "capability": "let a seller connect a payment account in one click and sell through it with checkouts and schedules"
+  },
+  {
+   "id": "start-a-community-as-a-space-and-let-members",
+   "owner": [
+    "src/person-community.mjs"
+   ],
+   "to": "tools/start-a-community-as-a-space-and-let-members",
+   "capability": "start a community as a space and let members join, stay or lapse as their plan allows"
+  },
+  {
+   "id": "person-names",
+   "owner": [
+    "src/person-names.json"
+   ],
+   "to": "tools/person-names",
+   "capability": "src/person-names.json at the tag"
+  },
+  {
+   "id": "claim-one-unique-public-name-for-a-person-so-it-is-shown",
+   "owner": [
+    "src/person-names.mjs"
+   ],
+   "to": "tools/claim-one-unique-public-name-for-a-person-so-it-is-shown",
+   "capability": "claim one unique public name for a person so it is shown instead of a random code"
+  },
+  {
+   "id": "list-the-person-for-others-to-find-ask-the-network",
+   "owner": [
+    "src/person-network.mjs"
+   ],
+   "to": "tools/list-the-person-for-others-to-find-ask-the-network",
+   "capability": "list the person for others to find, ask the network for people who fit a need and release contact details to members"
+  },
+  {
+   "id": "person-notifications",
+   "owner": [
+    "src/person-notifications.json"
+   ],
+   "to": "tools/person-notifications",
+   "capability": "src/person-notifications.json at the tag"
+  },
+  {
+   "id": "show-the-person-one-list-of-what-happened-for-them",
+   "owner": [
+    "src/person-notifications.mjs"
+   ],
+   "to": "tools/show-the-person-one-list-of-what-happened-for-them",
+   "capability": "show the person one list of what happened for them, newest first, with their own read marks"
+  },
+  {
+   "id": "keep-the-spaces-a-person-is-in-what-is-shared-there",
+   "owner": [
+    "src/person-spaces.mjs"
+   ],
+   "to": "tools/keep-the-spaces-a-person-is-in-what-is-shared-there",
+   "capability": "keep the spaces a person is in, what is shared there, who the members are and what they have not seen"
+  },
+  {
+   "id": "person-work-concerns",
+   "owner": [
+    "src/person-work-concerns.json"
+   ],
+   "to": "tools/person-work-concerns",
+   "capability": "src/person-work-concerns.json at the tag"
+  },
+  {
+   "id": "run-a-persons-background-work-such-as",
+   "owner": [
+    "src/person-work-wake.mjs",
+    "src/person-work.mjs"
+   ],
+   "to": "tools/run-a-persons-background-work-such-as",
+   "capability": "run a person's background work such as search indexing in its own worker that wakes itself and applies each job once"
+  },
+  {
+   "id": "person-work",
+   "owner": [
+    "src/person-work.json"
+   ],
+   "to": "tools/person-work",
+   "capability": "src/person-work.json at the tag"
+  },
+  {
+   "id": "receive-what-the-person-shares-from-their-android",
+   "owner": [
+    "src/phone-share.mjs"
+   ],
+   "to": "tools/receive-what-the-person-shares-from-their-android",
+   "capability": "receive what the person shares from their Android phone, keep it safe if the account is unreachable and route it to the right place"
+  },
+  {
+   "id": "keep-a-lists-rows-in-one-of-the-accounts-databases-while",
+   "owner": [
+    "src/placed-lists.mjs"
+   ],
+   "to": "tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while",
+   "capability": "keep a list's rows in one of the account's databases while the account keeps only the list itself"
+  },
+  {
+   "id": "pick-where-one-piece-of-work-runs-the-device",
+   "owner": [
+    "src/placement.mjs"
+   ],
+   "to": "tools/pick-where-one-piece-of-work-runs-the-device",
+   "capability": "pick where one piece of work runs: the device that captured it, the strongest awake device, the one opened on, or the cloud"
+  },
+  {
+   "id": "compare-plans-side-by-side-and-tell-a-person",
+   "owner": [
+    "src/plan-comparison.mjs"
+   ],
+   "to": "tools/compare-plans-side-by-side-and-tell-a-person",
+   "capability": "compare plans side by side and tell a person what a feature needs when their plan lacks it"
+  },
+  {
+   "id": "keep-a-task-plan-as-one-editable-record",
+   "owner": [
+    "src/plan-records.mjs"
+   ],
+   "to": "tools/keep-a-task-plan-as-one-editable-record",
+   "capability": "keep a task plan as one editable record with a progress trail that any connected AI can read and update"
+  },
+  {
+   "id": "quote-and-count-what-a-plan-charges-by-use",
+   "owner": [
+    "src/plan-usage.mjs",
+    "src/prospective-plan-usage.mjs"
+   ],
+   "to": "tools/quote-and-count-what-a-plan-charges-by-use",
+   "capability": "quote and count what a plan charges by use, and send a paying person's daily usage to billing"
+  },
+  {
+   "id": "keep-trillions-own-keys-to-outside-gateways-sealed",
+   "owner": [
+    "src/platform.mjs"
+   ],
+   "to": "tools/keep-trillions-own-keys-to-outside-gateways-sealed",
+   "capability": "keep Trillion's own keys to outside gateways sealed in a locked box and send calls with them without showing them"
+  },
+  {
+   "id": "keep-a-list-of-accounts-whose-rights-change",
+   "owner": [
+    "src/policy-overdue-index.mjs"
+   ],
+   "to": "tools/keep-a-list-of-accounts-whose-rights-change",
+   "capability": "keep a list of accounts whose rights change is still unfinished so it is driven even when they never wake again"
+  },
+  {
+   "id": "policy-overdue",
+   "owner": [
+    "src/policy-overdue.json"
+   ],
+   "to": "tools/policy-overdue",
+   "capability": "src/policy-overdue.json at the tag"
+  },
+  {
+   "id": "read-a-locked-stores-rights-source-straight",
+   "owner": [
+    "src/policy-source-unopened.mjs"
+   ],
+   "to": "tools/read-a-locked-stores-rights-source-straight",
+   "capability": "read a locked store's rights source straight from its storage without waking the store"
+  },
+  {
+   "id": "share-decisions-anonymously-with-other-people-by-choice",
+   "owner": [
+    "src/pool-embedding.mjs",
+    "src/pool.mjs"
+   ],
+   "to": "tools/share-decisions-anonymously-with-other-people-by-choice",
+   "capability": "share decisions anonymously with other people by choice, each rewritten in general words and checked by a second model"
+  },
+  {
+   "id": "say-in-plain-words-whether-a-post-is-ready",
+   "owner": [
+    "src/post-places.mjs"
+   ],
+   "to": "tools/say-in-plain-words-whether-a-post-is-ready",
+   "capability": "say in plain words whether a post is ready for each place it is going and list those places"
+  },
+  {
+   "id": "walk-an-ai-through-a-procedure-one-question-at",
+   "owner": [
+    "src/private-method.mjs"
+   ],
+   "to": "tools/walk-an-ai-through-a-procedure-one-question-at",
+   "capability": "walk an AI through a procedure one question at a time while the steps and their routing stay on the service"
+  },
+  {
+   "id": "react-privately-to-anything-in-a-persons-own-trillion-so-no",
+   "owner": [
+    "src/private-responses.mjs"
+   ],
+   "to": "tools/react-privately-to-anything-in-a-persons-own-trillion-so-no",
+   "capability": "react privately to anything in a person's own Trillion so no space or other account can read the reaction"
+  },
+  {
+   "id": "make-a-persons-words-safe-to-show-other",
+   "owner": [
+    "src/private-rewrite.mjs"
+   ],
+   "to": "tools/make-a-persons-words-safe-to-show-other",
+   "capability": "make a person's words safe to show other people by removing names, contact details and anything that identifies them"
+  },
+  {
+   "id": "keep-an-accounts-private-sites-and-what-their-visitors",
+   "owner": [
+    "src/private-sites.mjs"
+   ],
+   "to": "tools/keep-an-accounts-private-sites-and-what-their-visitors",
+   "capability": "keep an account's private sites and what their visitors leave: page views and form answers"
+  },
+  {
+   "id": "keep-the-names-given-while-making-an-account",
+   "owner": [
+    "src/profile-names.mjs"
+   ],
+   "to": "tools/keep-the-names-given-while-making-an-account",
+   "capability": "keep the names given while making an account as profile facts, never split or guessed from an email"
+  },
+  {
+   "id": "prove-a-commands-authority-once-for-a-run-of-back-to-back",
+   "owner": [
+    "src/proof-per-run.mjs"
+   ],
+   "to": "tools/prove-a-commands-authority-once-for-a-run-of-back-to-back",
+   "capability": "prove a command's authority once for a run of back-to-back database statements instead of before each one"
+  },
+  {
+   "id": "count-visits-to-a-hosted-site-without-storing",
+   "owner": [
+    "src/public-app-analytics.mjs"
+   ],
+   "to": "tools/count-visits-to-a-hosted-site-without-storing",
+   "capability": "count visits to a hosted site without storing who the visitor is or what they typed"
+  },
+  {
+   "id": "public-app-error-words",
+   "owner": [
+    "src/public-app-error-words.json"
+   ],
+   "to": "tools/public-app-error-words",
+   "capability": "src/public-app-error-words.json at the tag"
+  },
+  {
+   "id": "upload-a-large-site-in-resumable-pieces-from",
+   "owner": [
+    "src/public-app-file-import-session.mjs"
+   ],
+   "to": "tools/upload-a-large-site-in-resumable-pieces-from",
+   "capability": "upload a large site in resumable pieces from the browser without sending the whole folder at once"
+  },
+  {
+   "id": "let-a-site-use-one-of-the-persons-own-files-like",
+   "owner": [
+    "src/public-app-file-sources.mjs"
+   ],
+   "to": "tools/let-a-site-use-one-of-the-persons-own-files-like",
+   "capability": "let a site use one of the person's own files, like a picture or font, or a whole folder from another source"
+  },
+  {
+   "id": "store-a-sites-files-by-their-content-and-keep-an-index",
+   "owner": [
+    "src/public-app-file-store.mjs",
+    "src/public-app-upload.mjs"
+   ],
+   "to": "tools/store-a-sites-files-by-their-content-and-keep-an-index",
+   "capability": "store a site's files by their content and keep an index of them so publishing and uploads point at the same bytes"
+  },
+  {
+   "id": "publish-a-site-install-it-where-the-person-chose",
+   "owner": [
+    "src/public-app-host.mjs"
+   ],
+   "to": "tools/publish-a-site-install-it-where-the-person-chose",
+   "capability": "publish a site, install it where the person chose and serve each installation on its own address to visitors"
+  },
+  {
+   "id": "keep-each-installed-site-in-its-own-book-that-answers-install",
+   "owner": [
+    "src/public-app-installation-owner.mjs"
+   ],
+   "to": "tools/keep-each-installed-site-in-its-own-book-that-answers-install",
+   "capability": "keep each installed site in its own book that answers install, read and go-live"
+  },
+  {
+   "id": "public-app-installation",
+   "owner": [
+    "src/public-app-installation.json"
+   ],
+   "to": "tools/public-app-installation",
+   "capability": "src/public-app-installation.json at the tag"
+  },
+  {
+   "id": "make-every-published-site-work-inside-ai",
+   "owner": [
+    "src/public-app-mcp.mjs"
+   ],
+   "to": "tools/make-every-published-site-work-inside-ai",
+   "capability": "make every published site work inside AI apps like ChatGPT and Claude with no work from its maker"
+  },
+  {
+   "id": "give-each-installed-site-one-readable-address-name",
+   "owner": [
+    "src/public-app-name-carry.mjs",
+    "src/public-app-name-claim.mjs",
+    "src/public-app-names.mjs"
+   ],
+   "to": "tools/give-each-installed-site-one-readable-address-name",
+   "capability": "give each installed site one readable address name that only its first claimant gets and keeps until released"
+  },
+  {
+   "id": "place-a-sign-up-form-or-a-published-recipe-on-a-site",
+   "owner": [
+    "src/public-app-published-capabilities.mjs",
+    "src/public-app-visitor-view.mjs"
+   ],
+   "to": "tools/place-a-sign-up-form-or-a-published-recipe-on-a-site",
+   "capability": "place a sign-up form or a published recipe on a site page and show visitors a safe view of it"
+  },
+  {
+   "id": "keep-what-site-visitors-do-their-answers",
+   "owner": [
+    "src/public-app-record-bridge.mjs",
+    "src/public-app-records.mjs",
+    "src/public-app-visitor-call.mjs"
+   ],
+   "to": "tools/keep-what-site-visitors-do-their-answers",
+   "capability": "keep what site visitors do, their answers, sign-ups and page views, as the owner's own records"
+  },
+  {
+   "id": "refresh-one-page-of-a-copied-site-from-its-original",
+   "owner": [
+    "src/public-app-route-refresh.mjs"
+   ],
+   "to": "tools/refresh-one-page-of-a-copied-site-from-its-original",
+   "capability": "refresh one page of a copied site from its original with its pictures and styles"
+  },
+  {
+   "id": "let-an-ai-create-and-edit-a-site-its-draft",
+   "owner": [
+    "src/public-app-tools.mjs"
+   ],
+   "to": "tools/let-an-ai-create-and-edit-a-site-its-draft",
+   "capability": "let an AI create and edit a site, its draft and its version history, the same as the visual editor"
+  },
+  {
+   "id": "browse-and-search-every-marketplace-listing-without-signing",
+   "owner": [
+    "src/public-tool-catalog.mjs"
+   ],
+   "to": "tools/browse-and-search-every-marketplace-listing-without-signing",
+   "capability": "browse and search every Marketplace listing without signing in"
+  },
+  {
+   "id": "keep-files-the-service-publishes-under-their-content",
+   "owner": [
+    "src/published-file-keys.mjs"
+   ],
+   "to": "tools/keep-files-the-service-publishes-under-their-content",
+   "capability": "keep files the service publishes under their content identity and check the bytes both ways"
+  },
+  {
+   "id": "keep-published-items-on-shelves-people-can",
+   "owner": [
+    "src/published-shelf-resource.mjs"
+   ],
+   "to": "tools/keep-published-items-on-shelves-people-can",
+   "capability": "keep published items on shelves people can browse while each item keeps its own maker"
+  },
+  {
+   "id": "leave-a-makers-private-starting-values-out",
+   "owner": [
+    "src/published-workflow-privacy.mjs"
+   ],
+   "to": "tools/leave-a-makers-private-starting-values-out",
+   "capability": "leave a maker's private starting values out of the copy of a workflow that is published"
+  },
+  {
+   "id": "open-the-billing-page-for-one-purchase-and-show-the-card",
+   "owner": [
+    "src/purchase-billing.mjs",
+    "src/purchase-cards.mjs"
+   ],
+   "to": "tools/open-the-billing-page-for-one-purchase-and-show-the-card",
+   "capability": "open the billing page for one purchase and show the card that purchase is paid with"
+  },
+  {
+   "id": "keep-the-buyers-name-from-a-checkout-on-their-own-account",
+   "owner": [
+    "src/purchase-name-fill.mjs"
+   ],
+   "to": "tools/keep-the-buyers-name-from-a-checkout-on-their-own-account",
+   "capability": "keep the buyer's name from a checkout on their own account, including for purchases made before names were kept"
+  },
+  {
+   "id": "keep-a-persons-pursuits-tidy-by-merging-duplicates",
+   "owner": [
+    "src/pursuit-consolidate.mjs"
+   ],
+   "to": "tools/keep-a-persons-pursuits-tidy-by-merging-duplicates",
+   "capability": "keep a person's pursuits tidy by merging duplicates and setting related ones under a parent"
+  },
+  {
+   "id": "pursuit-plan",
+   "owner": [
+    "src/pursuit-plan.json"
+   ],
+   "to": "tools/pursuit-plan",
+   "capability": "src/pursuit-plan.json at the tag"
+  },
+  {
+   "id": "turn-a-pursuit-in-someones-own-words-into-what",
+   "owner": [
+    "src/pursuit-plan.mjs"
+   ],
+   "to": "tools/turn-a-pursuit-in-someones-own-words-into-what",
+   "capability": "turn a pursuit in someone's own words into what Trillion would keep for it, the closest workflows and recordings"
+  },
+  {
+   "id": "keep-one-thing-a-person-works-toward-as",
+   "owner": [
+    "src/pursuit-rooms.mjs"
+   ],
+   "to": "tools/keep-one-thing-a-person-works-toward-as",
+   "capability": "keep one thing a person works toward as a single pursuit, with the people and shared things in its room"
+  },
+  {
+   "id": "turn-a-button-press-like-ask-my-ai",
+   "owner": [
+    "src/queued-work.mjs"
+   ],
+   "to": "tools/turn-a-button-press-like-ask-my-ai",
+   "capability": "turn a button press like ask my AI to look into this into one waiting job for the person's own AIs"
+  },
+  {
+   "id": "reach-choices",
+   "owner": [
+    "src/reach-choices.json"
+   ],
+   "to": "tools/reach-choices",
+   "capability": "src/reach-choices.json at the tag"
+  },
+  {
+   "id": "limit-what-one-sign-in-may-reach-the-persons",
+   "owner": [
+    "src/reach.mjs"
+   ],
+   "to": "tools/limit-what-one-sign-in-may-reach-the-persons",
+   "capability": "limit what one sign-in may reach: the person's private Trillion, the rooms of some pursuits or both"
+  },
+  {
+   "id": "read-a-public-web-link-whole-its-card",
+   "owner": [
+    "src/read-link.mjs"
+   ],
+   "to": "tools/read-a-public-web-link-whole-its-card",
+   "capability": "read a public web link whole: its card, every picture and video it declares, its structured data and the words a person reads on it"
+  },
+  {
+   "id": "remember-that-a-sign-in-or-key-request-arrived-in-whichever",
+   "owner": [
+    "src/receipt-owner.mjs"
+   ],
+   "to": "tools/remember-that-a-sign-in-or-key-request-arrived-in-whichever",
+   "capability": "remember that a sign-in or key request arrived, in whichever place now keeps the account's records"
+  },
+  {
+   "id": "show-every-file-i-used-newest-first",
+   "owner": [
+    "src/recent-files.mjs"
+   ],
+   "to": "tools/show-every-file-i-used-newest-first",
+   "capability": "show every file I used, newest first, whether I opened, watched, edited or published it, and let any screen or AI record a use"
+  },
+  {
+   "id": "offer-one-of-my-records-to-chosen-people-so-it-shows-in-their-li",
+   "owner": [
+    "src/record-offers.mjs"
+   ],
+   "to": "tools/offer-one-of-my-records-to-chosen-people-so-it-shows-in-their-li",
+   "capability": "offer one of my records to chosen people so it shows in their list while its words stay in my store and my permission is checked again at each open"
+  },
+  {
+   "id": "share-a-record-a-file-or-one-list-row-with-people",
+   "owner": [
+    "src/record-sharing.mjs"
+   ],
+   "to": "tools/share-a-record-a-file-or-one-list-row-with-people",
+   "capability": "share a record, a file or one list row with people by email, phone or link with a role, see who has access, stop sharing, and see everything shared with me and what I shared before"
+  },
+  {
+   "id": "record-where-i-stand-on-one-of-my-records-agree",
+   "owner": [
+    "src/record-stance.mjs"
+   ],
+   "to": "tools/record-where-i-stand-on-one-of-my-records-agree",
+   "capability": "record where I stand on one of my records, agree or disagree, and show it beside what came after it"
+  },
+  {
+   "id": "referrals",
+   "owner": [
+    "src/referrals.json"
+   ],
+   "to": "tools/referrals",
+   "capability": "src/referrals.json at the tag"
+  },
+  {
+   "id": "write-out-a-decided-case-as-a-plain",
+   "owner": [
+    "src/report.mjs"
+   ],
+   "to": "tools/write-out-a-decided-case-as-a-plain",
+   "capability": "write out a decided case as a plain report with the choice, why, the evidence for it and the action to take"
+  },
+  {
+   "id": "run-my-rules-over-the-records-that-changed-and-send",
+   "owner": [
+    "src/rules-over-records.mjs"
+   ],
+   "to": "tools/run-my-rules-over-the-records-that-changed-and-send",
+   "capability": "run my rules over the records that changed and send out whatever the rules call for"
+  },
+  {
+   "id": "put-a-customers-own-domain-name-in-front-of-a-published",
+   "owner": [
+    "src/saas-domain-provider.mjs"
+   ],
+   "to": "tools/put-a-customers-own-domain-name-in-front-of-a-published",
+   "capability": "put a customer's own domain name in front of a published app through the service's separate hosting zone"
+  },
+  {
+   "id": "close-a-list-row-when-i-say",
+   "owner": [
+    "src/said-done.mjs"
+   ],
+   "to": "tools/close-a-list-row-when-i-say",
+   "capability": "close a list row when I say in my own message that I already did the thing, but only when the answer is a clear yes"
+  },
+  {
+   "id": "draft-and-send-a-sales-contract-to-a-customer-from",
+   "owner": [
+    "src/sales-contract-templates.mjs"
+   ],
+   "to": "tools/draft-and-send-a-sales-contract-to-a-customer-from",
+   "capability": "draft and send a sales contract to a customer from my own offers, prices and customers, and set things up once the deal is sent"
+  },
+  {
+   "id": "sales",
+   "owner": [
+    "src/sales.json"
+   ],
+   "to": "tools/sales",
+   "capability": "src/sales.json at the tag"
+  },
+  {
+   "id": "keep-links-i-saved-elsewhere-such",
+   "owner": [
+    "src/saved-links-tools.mjs",
+    "src/saved-links.mjs"
+   ],
+   "to": "tools/keep-links-i-saved-elsewhere-such",
+   "capability": "keep links I saved elsewhere, such as a browser's pinned tabs and folders and a service's bookmarks, so every AI and screen can read them"
+  },
+  {
+   "id": "saved-links",
+   "owner": [
+    "src/saved-links.json"
+   ],
+   "to": "tools/saved-links",
+   "capability": "src/saved-links.json at the tag"
+  },
+  {
+   "id": "keep-my-own-logins-sealed-so-i-can-always",
+   "owner": [
+    "src/saved-logins-tools.mjs",
+    "src/saved-logins.mjs"
+   ],
+   "to": "tools/keep-my-own-logins-sealed-so-i-can-always",
+   "capability": "keep my own logins sealed so I can always see and copy them, let my AIs read only the ones I allow, and never show a value I kept private"
+  },
+  {
+   "id": "saved-logins",
+   "owner": [
+    "src/saved-logins.json"
+   ],
+   "to": "tools/saved-logins",
+   "capability": "src/saved-logins.json at the tag"
+  },
+  {
+   "id": "schedule-lateness",
+   "owner": [
+    "src/schedule-lateness.json"
+   ],
+   "to": "tools/schedule-lateness",
+   "capability": "src/schedule-lateness.json at the tag"
+  },
+  {
+   "id": "say-how-late-a-recurring-run-is-against",
+   "owner": [
+    "src/schedule-lateness.mjs"
+   ],
+   "to": "tools/say-how-late-a-recurring-run-is-against",
+   "capability": "say how late a recurring run is against its own time: on time, late or catching up, with a grace that fits how often it runs"
+  },
+  {
+   "id": "pick-the-best-of-a-known-set-of-choices-by-how",
+   "owner": [
+    "src/score-candidates.mjs"
+   ],
+   "to": "tools/pick-the-best-of-a-known-set-of-choices-by-how",
+   "capability": "pick the best of a known set of choices by how close each is in meaning to the situation, instead of asking a model to write an answer"
+  },
+  {
+   "id": "show-my-screens-from-a-catalogue-of-reads-and-layouts",
+   "owner": [
+    "src/screen.mjs"
+   ],
+   "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts",
+   "capability": "show my screens from a catalogue of reads and layouts, page by page, each drawn from the facts its reads answered"
+  },
+  {
+   "id": "answer-one-search-over-my-results-by-matching-words",
+   "owner": [
+    "src/search-answer.mjs",
+    "src/search-candidate-pages.mjs",
+    "src/search-vector-index.mjs"
+   ],
+   "to": "tools/answer-one-search-over-my-results-by-matching-words",
+   "capability": "answer one search over my results by matching words and meaning together, reading the follower's candidates a page at a time"
+  },
+  {
+   "id": "learn-how-much-each-way-of-matching-is-worth",
+   "owner": [
+    "src/search-answers.mjs"
+   ],
+   "to": "tools/learn-how-much-each-way-of-matching-is-worth",
+   "capability": "learn how much each way of matching is worth to me from which results I open or use after a search"
+  },
+  {
+   "id": "keep-my-search-index-beside-a-copy-of-my-results",
+   "owner": [
+    "src/search-cleanup-pages.mjs",
+    "src/search-feed.mjs",
+    "src/search-follower.mjs",
+    "src/search-results-size.mjs"
+   ],
+   "to": "tools/keep-my-search-index-beside-a-copy-of-my-results",
+   "capability": "keep my search index beside a copy of my results, fed by small pages of what changed, so my saves never wait on it"
+  },
+  {
+   "id": "find-my-records-by-the-words-i-type-on-the-hosted",
+   "owner": [
+    "src/search-word-index.mjs"
+   ],
+   "to": "tools/find-my-records-by-the-words-i-type-on-the-hosted",
+   "capability": "find my records by the words I type, on the hosted store and on the copy kept on a device, reading only a bounded number each time"
+  },
+  {
+   "id": "search",
+   "owner": [
+    "src/search.json"
+   ],
+   "to": "tools/search",
+   "capability": "src/search.json at the tag"
+  },
+  {
+   "id": "find-anything-from-one-box-jump-to-a-screen",
+   "owner": [
+    "src/search.mjs"
+   ],
+   "to": "tools/find-anything-from-one-box-jump-to-a-screen",
+   "capability": "find anything from one box: jump to a screen, a calendar event, an AI, an action or a search hit across what I said, saw, named and noted"
+  },
+  {
+   "id": "seats",
+   "owner": [
+    "src/seats.json"
+   ],
+   "to": "tools/seats",
+   "capability": "src/seats.json at the tag"
+  },
+  {
+   "id": "sell-one-purchase-that-pays-for-several-people-with-each-offer",
+   "owner": [
+    "src/seats.mjs"
+   ],
+   "to": "tools/sell-one-purchase-that-pays-for-several-people-with-each-offer",
+   "capability": "sell one purchase that pays for several people, with each offer naming its seats and a buyer picking how many"
+  },
+  {
+   "id": "remember-when-a-reader-last-saw-a-place",
+   "owner": [
+    "src/seen-marks.mjs"
+   ],
+   "to": "tools/remember-when-a-reader-last-saw-a-place",
+   "capability": "remember when a reader last saw a place, so every count of what is new to them reads one mark"
+  },
+  {
+   "id": "send-one-message-to-all-of-my-ais-at-once",
+   "owner": [
+    "src/send-to-all-ais.mjs"
+   ],
+   "to": "tools/send-one-message-to-all-of-my-ais-at-once",
+   "capability": "send one message to all of my AIs at once, kept word for word in the shared conversation"
+  },
+  {
+   "id": "list-everything-my-ais-sent-out-in-the-world",
+   "owner": [
+    "src/sent-tools.mjs"
+   ],
+   "to": "tools/list-everything-my-ais-sent-out-in-the-world",
+   "capability": "list everything my AIs sent out in the world, such as emails, posts, comments, messages and orders, and record one that a road did not keep itself"
+  },
+  {
+   "id": "name-each-paragraph-of-the-ai-connection-instructions-so-structu",
+   "owner": [
+    "src/server-instruction-paragraphs.mjs"
+   ],
+   "to": "tools/name-each-paragraph-of-the-ai-connection-instructions-so-structu",
+   "capability": "name each paragraph of the AI connection instructions so structured readers and the MCP text resolve to the same words"
+  },
+  {
+   "id": "service-actor-origins",
+   "owner": [
+    "src/service-actor-origins.json"
+   ],
+   "to": "tools/service-actor-origins",
+   "capability": "src/service-actor-origins.json at the tag"
+  },
+  {
+   "id": "let-trillions-own-code-act-for-an-account-when",
+   "owner": [
+    "src/service-actor.mjs"
+   ],
+   "to": "tools/let-trillions-own-code-act-for-an-account-when",
+   "capability": "let Trillion's own code act for an account when no person is signed in, with a short-lived proof only the account's own policy can make"
+  },
+  {
+   "id": "run-trillions-own-capability-checks-each-on-its-own-schedule-and",
+   "owner": [
+    "src/service-check-rows.mjs",
+    "src/service-checks.mjs"
+   ],
+   "to": "tools/run-trillions-own-capability-checks-each-on-its-own-schedule-and",
+   "capability": "run Trillion's own capability checks, each on its own schedule, and show their results as rows only in the operating account"
+  },
+  {
+   "id": "tell-the-person-of-an-account-something-from-the-service",
+   "owner": [
+    "src/service-notice.mjs"
+   ],
+   "to": "tools/tell-the-person-of-an-account-something-from-the-service",
+   "capability": "tell the person of an account something from the service itself, such as a bill notice or a spending alert"
+  },
+  {
+   "id": "run-the-services-own-price-experiments-each-kept-in-its-own-book",
+   "owner": [
+    "src/service-price-experiments.mjs"
+   ],
+   "to": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book",
+   "capability": "run the service's own price experiments, each kept in its own book and read by what each published"
+  },
+  {
+   "id": "publish-price-guidance-as-editable-rows",
+   "owner": [
+    "src/service-price-rules.mjs"
+   ],
+   "to": "tools/publish-price-guidance-as-editable-rows",
+   "capability": "publish price guidance as editable rows, while the offer owner still sets the real prices"
+  },
+  {
+   "id": "publish-the-operators-shared-records-such-as",
+   "owner": [
+    "src/service-record-publication.mjs",
+    "src/service-records.mjs",
+    "src/service-warm.mjs"
+   ],
+   "to": "tools/publish-the-operators-shared-records-such-as",
+   "capability": "publish the operator's shared records, such as show rules, setup context, releases and brand, to every region, and make them current right after a deploy"
+  },
+  {
+   "id": "price-a-customers-use-of-a-service-from-the-sellers",
+   "owner": [
+    "src/service-resource-pricing.mjs"
+   ],
+   "to": "tools/price-a-customers-use-of-a-service-from-the-sellers",
+   "capability": "price a customer's use of a service from the seller's own Workshop pricing, keeping the terms each existing purchase was saved with"
+  },
+  {
+   "id": "keep-the-services-own-signing-secrets-and-sign-in-app",
+   "owner": [
+    "src/service-values.mjs"
+   ],
+   "to": "tools/keep-the-services-own-signing-secrets-and-sign-in-app",
+   "capability": "keep the service's own signing secrets and sign-in app values sealed in a locked box, and change the master keys without ever reading one back"
+  },
+  {
+   "id": "service-watch",
+   "owner": [
+    "src/service-watch.json"
+   ],
+   "to": "tools/service-watch",
+   "capability": "src/service-watch.json at the tag"
+  },
+  {
+   "id": "watch-the-service-itself-such-as-the-share",
+   "owner": [
+    "src/service-watch.mjs"
+   ],
+   "to": "tools/watch-the-service-itself-such-as-the-share",
+   "capability": "watch the service itself, such as the share of calls each store failed and whether what landed on main went live, on its own schedule"
+  },
+  {
+   "id": "keep-each-accounts-setup-access-request-in-a-book",
+   "owner": [
+    "src/setup-access-records.mjs"
+   ],
+   "to": "tools/keep-each-accounts-setup-access-request-in-a-book",
+   "capability": "keep each account's setup access request in a book of its own, so preparing and fulfilling it reaches only that request"
+  },
+  {
+   "id": "let-a-person-ask-for-the-trillion-app-to-be-installed",
+   "owner": [
+    "src/setup-access-tools.mjs",
+    "src/setup-access.mjs"
+   ],
+   "to": "tools/let-a-person-ask-for-the-trillion-app-to-be-installed",
+   "capability": "let a person ask for the Trillion app to be installed on a device and follow the provider's delivery until setup is truly finished"
+  },
+  {
+   "id": "show-each-setup-step-with-the-real-things-found",
+   "owner": [
+    "src/setup-capability-evidence.mjs",
+    "src/setup-evidence-revision.mjs",
+    "src/setup-known.mjs",
+    "src/setup-week.mjs"
+   ],
+   "to": "tools/show-each-setup-step-with-the-real-things-found",
+   "capability": "show each setup step with the real things found behind it, such as which AIs, devices and sources, and what Trillion did this past week"
+  },
+  {
+   "id": "walk-a-new-person-through-first-setup",
+   "owner": [
+    "src/setup-installs.mjs",
+    "src/setup-plan.mjs",
+    "src/setup-runtime.mjs"
+   ],
+   "to": "tools/walk-a-new-person-through-first-setup",
+   "capability": "walk a new person through first setup: the apps to install on their devices, the AIs to connect, and one saved run that resumes where they stopped"
+  },
+  {
+   "id": "show-a-big-shared-collection-of-files-page",
+   "owner": [
+    "src/share-collection-store.mjs"
+   ],
+   "to": "tools/show-a-big-shared-collection-of-files-page",
+   "capability": "show a big shared collection of files page by page as cards with small cover pictures and the files each record points to"
+  },
+  {
+   "id": "choose-where-shares-from-the-phone-browser",
+   "owner": [
+    "src/share-destinations.mjs",
+    "src/share-history.mjs",
+    "src/share-starting-action.mjs"
+   ],
+   "to": "tools/choose-where-shares-from-the-phone-browser",
+   "capability": "choose where shares from the phone, browser and Android go, which AI action each site starts, and look back at what was shared before"
+  },
+  {
+   "id": "keep-anything-sent-to-trillion-a-link-file",
+   "owner": [
+    "src/share-inbox-presentation.mjs",
+    "src/share-inbox.mjs",
+    "src/share-input-limits.mjs"
+   ],
+   "to": "tools/keep-anything-sent-to-trillion-a-link-file",
+   "capability": "keep anything sent to Trillion, a link, file or words, safely at the edge when the person's store is busy, then deliver it with its status"
+  },
+  {
+   "id": "open-a-share-link-on-my-own-web-address-instead",
+   "owner": [
+    "src/share-link-routing.mjs"
+   ],
+   "to": "tools/open-a-share-link-on-my-own-web-address-instead",
+   "capability": "open a share link on my own web address instead of Trillion's, once I own the address"
+  },
+  {
+   "id": "share-a-field-only-so-others-can-tell",
+   "owner": [
+    "src/share-match.mjs"
+   ],
+   "to": "tools/share-a-field-only-so-others-can-tell",
+   "capability": "share a field only so others can tell whether a value they already know matches it, without ever seeing the value"
+  },
+  {
+   "id": "run-each-command-in-a-shared-space-exactly-once",
+   "owner": [
+    "src/shared-command-effects.mjs",
+    "src/shared-command-subjects.mjs",
+    "src/shared-membership-control.mjs",
+    "src/shared-policy-maintenance.mjs",
+    "src/shared-source-custody.mjs"
+   ],
+   "to": "tools/run-each-command-in-a-shared-space-exactly-once",
+   "capability": "run each command in a shared space exactly once: remember what it did, ask again when unsure, and keep it from half finishing"
+  },
+  {
+   "id": "shared-command-reconcile-walk",
+   "owner": [
+    "src/shared-command-reconcile-walk.json"
+   ],
+   "to": "tools/shared-command-reconcile-walk",
+   "capability": "src/shared-command-reconcile-walk.json at the tag"
+  },
+  {
+   "id": "shared-command-subjects",
+   "owner": [
+    "src/shared-command-subjects.json"
+   ],
+   "to": "tools/shared-command-subjects",
+   "capability": "src/shared-command-subjects.json at the tag"
+  },
+  {
+   "id": "keep-a-shared-spaces-posts-files-and-tasks",
+   "owner": [
+    "src/shared-content-presentation.mjs",
+    "src/space-commit-context.mjs",
+    "src/space-content-coordination.mjs",
+    "src/space-content-directory.mjs",
+    "src/space-content-owner.mjs",
+    "src/space-content-policy.mjs",
+    "src/space-content-shard-owner.mjs",
+    "src/space-content-shards.mjs",
+    "src/space-list-read.mjs",
+    "src/space-page-size.mjs",
+    "src/space-shard-routing.mjs"
+   ],
+   "to": "tools/keep-a-shared-spaces-posts-files-and-tasks",
+   "capability": "keep a shared space's posts, files and tasks in separate stores so a busy space never slows another, and read them back merged in order"
+  },
+  {
+   "id": "turn-a-decision-someone-chose-to-share-with-their-name",
+   "owner": [
+    "src/shared-question-candidates.mjs"
+   ],
+   "to": "tools/turn-a-decision-someone-chose-to-share-with-their-name",
+   "capability": "turn a decision someone chose to share, with their name removed, into questions other people can answer"
+  },
+  {
+   "id": "publish-the-tools-a-space-shares-as-public",
+   "owner": [
+    "src/shared-workshop-projection.mjs"
+   ],
+   "to": "tools/publish-the-tools-a-space-shares-as-public",
+   "capability": "publish the tools a space shares as public pages and keep their use counts"
+  },
+  {
+   "id": "publish-my-progress-as-a-public-page-with-a-picture",
+   "owner": [
+    "src/shares.mjs"
+   ],
+   "to": "tools/publish-my-progress-as-a-public-page-with-a-picture",
+   "capability": "publish my progress as a public page with a picture card and a link that credits me for each person who joins through it"
+  },
+  {
+   "id": "choose-whether-my-decisions-are-shared-show",
+   "owner": [
+    "src/sharing-choice.mjs",
+    "src/sharing-state.mjs"
+   ],
+   "to": "tools/choose-whether-my-decisions-are-shared-show",
+   "capability": "choose whether my decisions are shared, show the default and the day it began, and count what everyone has shared"
+  },
+  {
+   "id": "give-every-account-ready-made-workflows-and-defaults",
+   "owner": [
+    "src/shipped-workflows.mjs"
+   ],
+   "to": "tools/give-every-account-ready-made-workflows-and-defaults",
+   "capability": "give every account ready made workflows and defaults, and keep only the changes the person makes to them"
+  },
+  {
+   "id": "let-a-visitor-try-trillions-own-workspace-live",
+   "owner": [
+    "src/showcase-spare-facts.mjs",
+    "src/showcases.mjs"
+   ],
+   "to": "tools/let-a-visitor-try-trillions-own-workspace-live",
+   "capability": "let a visitor try Trillion's own workspace live in a throwaway account that empties itself when its time ends"
+  },
+  {
+   "id": "showcases",
+   "owner": [
+    "src/showcases.json"
+   ],
+   "to": "tools/showcases",
+   "capability": "src/showcases.json at the tag"
+  },
+  {
+   "id": "show-a-person-under-a-name-they-use",
+   "owner": [
+    "src/shown-name.mjs"
+   ],
+   "to": "tools/show-a-person-under-a-name-they-use",
+   "capability": "show a person under a name they use and never reveal an email address or phone number as their name"
+  },
+  {
+   "id": "read-the-sidebar-add-a-note-to-it-and-change-it-from",
+   "owner": [
+    "src/sidebar-tools.mjs"
+   ],
+   "to": "tools/read-the-sidebar-add-a-note-to-it-and-change-it-from",
+   "capability": "read the sidebar, add a note to it and change it from an AI"
+  },
+  {
+   "id": "host-a-sites-own-backend-inside-trillion-install",
+   "owner": [
+    "src/site-worker-assets.mjs",
+    "src/site-worker-database.mjs",
+    "src/site-worker-installation.mjs",
+    "src/site-worker-runtime.mjs",
+    "src/site-worker-source.mjs"
+   ],
+   "to": "tools/host-a-sites-own-backend-inside-trillion-install",
+   "capability": "host a site's own backend inside Trillion: install its code, give it a private database and serve its files"
+  },
+  {
+   "id": "site-worker-email-grants",
+   "owner": [
+    "src/site-worker-email-grants.json"
+   ],
+   "to": "tools/site-worker-email-grants",
+   "capability": "src/site-worker-email-grants.json at the tag"
+  },
+  {
+   "id": "read-public-repositories-of-agent-skills-and-offer",
+   "owner": [
+    "src/skill-rows.mjs",
+    "src/skill-source-config.mjs",
+    "src/skill-sources.mjs"
+   ],
+   "to": "tools/read-public-repositories-of-agent-skills-and-offer",
+   "capability": "read public repositories of agent skills and offer each skill as a Marketplace workflow"
+  },
+  {
+   "id": "receive-a-text-message-sent-to-the-ais-phone",
+   "owner": [
+    "src/sms-inbound.mjs"
+   ],
+   "to": "tools/receive-a-text-message-sent-to-the-ais-phone",
+   "capability": "receive a text message sent to the AI's phone number and hand it to the person's AIs"
+  },
+  {
+   "id": "draft-approve-and-publish-my-social-posts-now",
+   "owner": [
+    "src/social-post-tools.mjs",
+    "src/social-posts.mjs"
+   ],
+   "to": "tools/draft-approve-and-publish-my-social-posts-now",
+   "capability": "draft, approve and publish my social posts now or at a set time, and read back where each went"
+  },
+  {
+   "id": "connect-the-original-repository-behind-an-app-edit",
+   "owner": [
+    "src/source-project-edit.mjs",
+    "src/source-project-host.mjs",
+    "src/source-project-preview.mjs",
+    "src/source-project-tools.mjs"
+   ],
+   "to": "tools/connect-the-original-repository-behind-an-app-edit",
+   "capability": "connect the original repository behind an app, edit its source with revision checks and preview the rebuilt app"
+  },
+  {
+   "id": "give-shared-tasks-to-people-and-ais-keep",
+   "owner": [
+    "src/space-agent-capacity-owner.mjs",
+    "src/space-assignment-delivery.mjs",
+    "src/space-task-command-owner.mjs",
+    "src/space-task-dependency-owner.mjs",
+    "src/space-task-shard-query.mjs"
+   ],
+   "to": "tools/give-shared-tasks-to-people-and-ais-keep",
+   "capability": "give shared tasks to people and AIs, keep an order and dependencies between them, and cap how many one AI works at once"
+  },
+  {
+   "id": "list-the-ais-in-a-shared-space-for-its-members-and-hand",
+   "owner": [
+    "src/space-ais.mjs",
+    "src/space-brief.mjs"
+   ],
+   "to": "tools/list-the-ais-in-a-shared-space-for-its-members-and-hand",
+   "capability": "list the AIs in a shared space for its members, and hand an AI working there what members said most recently"
+  },
+  {
+   "id": "move-a-shared-spaces-content-into-its-own-store",
+   "owner": [
+    "src/space-board-carry.mjs",
+    "src/space-content-carry.mjs",
+    "src/space-content-shard-carry.mjs",
+    "src/space-moving-refusal.mjs"
+   ],
+   "to": "tools/move-a-shared-spaces-content-into-its-own-store",
+   "capability": "move a shared space's content into its own store and clear the old copy only after the new one reads back exactly"
+  },
+  {
+   "id": "keep-a-shared-boards-cards-consistent-when",
+   "owner": [
+    "src/space-board-owner.mjs",
+    "src/space-board-partitions.mjs"
+   ],
+   "to": "tools/keep-a-shared-boards-cards-consistent-when",
+   "capability": "keep a shared board's cards consistent when several people edit at once, even when the board is split across stores"
+  },
+  {
+   "id": "space-brief",
+   "owner": [
+    "src/space-brief.json"
+   ],
+   "to": "tools/space-brief",
+   "capability": "src/space-brief.json at the tag"
+  },
+  {
+   "id": "add-a-leaderboard-points-rewards-a-streak-or-a-classroom",
+   "owner": [
+    "src/space-capabilities.mjs"
+   ],
+   "to": "tools/add-a-leaderboard-points-rewards-a-streak-or-a-classroom",
+   "capability": "add a leaderboard, points, rewards, a streak or a classroom to a space as a tool"
+  },
+  {
+   "id": "space-content-operations",
+   "owner": [
+    "src/space-content-operations.json"
+   ],
+   "to": "tools/space-content-operations",
+   "capability": "src/space-content-operations.json at the tag"
+  },
+  {
+   "id": "count-how-much-each-member-has-written",
+   "owner": [
+    "src/space-contribution-counts.mjs"
+   ],
+   "to": "tools/count-how-much-each-member-has-written",
+   "capability": "count how much each member has written in a community and show it beside their name"
+  },
+  {
+   "id": "space-invitation",
+   "owner": [
+    "src/space-invitation.json"
+   ],
+   "to": "tools/space-invitation",
+   "capability": "src/space-invitation.json at the tag"
+  },
+  {
+   "id": "invite-people-to-a-space-by-link-email-address",
+   "owner": [
+    "src/space-invitation.mjs",
+    "src/space-invite-addresses.mjs"
+   ],
+   "to": "tools/invite-people-to-a-space-by-link-email-address",
+   "capability": "invite people to a space by link, email address or phone number and show the invitation in every state it can be in"
+  },
+  {
+   "id": "space-list-read",
+   "owner": [
+    "src/space-list-read.json"
+   ],
+   "to": "tools/space-list-read",
+   "capability": "src/space-list-read.json at the tag"
+  },
+  {
+   "id": "space-member-types",
+   "owner": [
+    "src/space-member-types.json"
+   ],
+   "to": "tools/space-member-types",
+   "capability": "src/space-member-types.json at the tag"
+  },
+  {
+   "id": "decide-who-may-do-what-in-a-space",
+   "owner": [
+    "src/space-member-types.mjs",
+    "src/space-membership-kinds.mjs",
+    "src/space-permissions.mjs"
+   ],
+   "to": "tools/decide-who-may-do-what-in-a-space",
+   "capability": "decide who may do what in a space by each member's kind and the space's own rules, and open or close a space to everyone"
+  },
+  {
+   "id": "space-membership-kinds",
+   "owner": [
+    "src/space-membership-kinds.json"
+   ],
+   "to": "tools/space-membership-kinds",
+   "capability": "src/space-membership-kinds.json at the tag"
+  },
+  {
+   "id": "space-move-retry",
+   "owner": [
+    "src/space-move-retry.json"
+   ],
+   "to": "tools/space-move-retry",
+   "capability": "src/space-move-retry.json at the tag"
+  },
+  {
+   "id": "name-a-space-by-its-name-when-posting-to-it-find",
+   "owner": [
+    "src/space-names.mjs",
+    "src/space-search.mjs",
+    "src/space-shareable.mjs"
+   ],
+   "to": "tools/name-a-space-by-its-name-when-posting-to-it-find",
+   "capability": "name a space by its name when posting to it, find items in it by their words and pick things of mine to share into it"
+  },
+  {
+   "id": "space-operation-placement",
+   "owner": [
+    "src/space-operation-placement.json"
+   ],
+   "to": "tools/space-operation-placement",
+   "capability": "src/space-operation-placement.json at the tag"
+  },
+  {
+   "id": "space-permission-rules",
+   "owner": [
+    "src/space-permission-rules.json"
+   ],
+   "to": "tools/space-permission-rules",
+   "capability": "src/space-permission-rules.json at the tag"
+  },
+  {
+   "id": "give-an-ai-the-tools-to-read-and-change-a-pursuits",
+   "owner": [
+    "src/space-tools.mjs",
+    "src/spaces.mjs"
+   ],
+   "to": "tools/give-an-ai-the-tools-to-read-and-change-a-pursuits",
+   "capability": "give an AI the tools to read and change a pursuit's people, shared things, rules and agents"
+  },
+  {
+   "id": "spend-meter",
+   "owner": [
+    "src/spend-meter.json"
+   ],
+   "to": "tools/spend-meter",
+   "capability": "src/spend-meter.json at the tag"
+  },
+  {
+   "id": "estimate-what-a-persons-services-cost-from",
+   "owner": [
+    "src/spend-meter.mjs"
+   ],
+   "to": "tools/estimate-what-a-persons-services-cost-from",
+   "capability": "estimate what a person's services cost from measured use and listed rates, warn at a budget and stop paid work"
+  },
+  {
+   "id": "send-each-action-on-a-shared-space-to-the-place-that-holds",
+   "owner": [
+    "src/standalone-resource-behavior.mjs"
+   ],
+   "to": "tools/send-each-action-on-a-shared-space-to-the-place-that-holds",
+   "capability": "send each action on a shared space to the place that holds it, whether from a page, a tool or an AI"
+  },
+  {
+   "id": "start-a-new-account-with-the-rules-and-catalog-items",
+   "owner": [
+    "src/starting-catalog.mjs",
+    "src/starting-rules.mjs"
+   ],
+   "to": "tools/start-a-new-account-with-the-rules-and-catalog-items",
+   "capability": "start a new account with the rules and catalog items Trillion does for everyone until the person changes them"
+  },
+  {
+   "id": "keep-the-shared-tool-rows-a-deploy-ships",
+   "owner": [
+    "src/stored-checks.mjs"
+   ],
+   "to": "tools/keep-the-shared-tool-rows-a-deploy-ships",
+   "capability": "keep the shared tool rows a deploy ships in the worker's key-value storage, splitting large values into checked parts that are read back whole"
+  },
+  {
+   "id": "turn-a-finished-decision-into-an-anonymous-public",
+   "owner": [
+    "src/stories.mjs",
+    "src/story-shelf.mjs"
+   ],
+   "to": "tools/turn-a-finished-decision-into-an-anonymous-public",
+   "capability": "turn a finished decision into an anonymous public story of what was weighed, what was chosen and how it turned out, and keep or take it down"
+  },
+  {
+   "id": "decide-which-subscription-and-billing-profile-a-purchase",
+   "owner": [
+    "src/subscription-allocation.mjs"
+   ],
+   "to": "tools/decide-which-subscription-and-billing-profile-a-purchase",
+   "capability": "decide which subscription and billing profile a purchase belongs to, so a usage meter is never counted twice for the same customer"
+  },
+  {
+   "id": "move-the-rows-a-persons-store-kept-in-tables",
+   "owner": [
+    "src/tables-into-records.mjs"
+   ],
+   "to": "tools/move-the-rows-a-persons-store-kept-in-tables",
+   "capability": "move the rows a person's store kept in tables of their own into the record store, first the rows needed at once and then the rest in batches"
+  },
+  {
+   "id": "draw-the-task-map-of-one-pages-arrivals-and-the-work",
+   "owner": [
+    "src/task-map-reads.mjs"
+   ],
+   "to": "tools/draw-the-task-map-of-one-pages-arrivals-and-the-work",
+   "capability": "draw the task map of one page's arrivals and the work done on them, read the same way from either store"
+  },
+  {
+   "id": "task-proposals",
+   "owner": [
+    "src/task-proposals.json"
+   ],
+   "to": "tools/task-proposals",
+   "capability": "src/task-proposals.json at the tag"
+  },
+  {
+   "id": "let-an-ai-or-a-rule-suggest-tasks-found",
+   "owner": [
+    "src/task-proposals.mjs"
+   ],
+   "to": "tools/let-an-ai-or-a-rule-suggest-tasks-found",
+   "capability": "let an AI or a rule suggest tasks found in a meeting or an email, which the person reviews and accepts before they become real tasks"
+  },
+  {
+   "id": "tell-the-person-something-on-all-of-their-own-phones-computers",
+   "owner": [
+    "src/tell-devices.mjs"
+   ],
+   "to": "tools/tell-the-person-something-on-all-of-their-own-phones-computers",
+   "capability": "tell the person something on all of their own phones, computers and browsers at once, with the volume the kind of news calls for"
+  },
+  {
+   "id": "tell-one-person-something-through-every-way-they",
+   "owner": [
+    "src/tell-the-person.mjs"
+   ],
+   "to": "tools/tell-one-person-something-through-every-way-they",
+   "capability": "tell one person something through every way they chose to hear that kind of news, and stop when the thing it was about is settled"
+  },
+  {
+   "id": "send-a-report-or-a-note-to-the-people-who-make",
+   "owner": [
+    "src/tell-us.mjs"
+   ],
+   "to": "tools/send-a-report-or-a-note-to-the-people-who-make",
+   "capability": "send a report or a note to the people who make Trillion, from the Tell us screen or from an AI, worded the same on both roads"
+  },
+  {
+   "id": "tool-allowlist",
+   "owner": [
+    "src/tool-allowlist.json"
+   ],
+   "to": "tools/tool-allowlist",
+   "capability": "src/tool-allowlist.json at the tag"
+  },
+  {
+   "id": "narrow-an-ais-tool-list-to-only-the-tools",
+   "owner": [
+    "src/tool-allowlist.mjs"
+   ],
+   "to": "tools/narrow-an-ais-tool-list-to-only-the-tools",
+   "capability": "narrow an AI's tool list to only the tools one job needs, so a coding agent started for that job can reach nothing else"
+  },
+  {
+   "id": "tool-call-refusal",
+   "owner": [
+    "src/tool-call-refusal.json"
+   ],
+   "to": "tools/tool-call-refusal",
+   "capability": "src/tool-call-refusal.json at the tag"
+  },
+  {
+   "id": "refuse-a-tool-call-that-is-not-on-the-callers-current",
+   "owner": [
+    "src/tool-call-refusal.mjs"
+   ],
+   "to": "tools/refuse-a-tool-call-that-is-not-on-the-callers-current",
+   "capability": "refuse a tool call that is not on the caller's current tool list, saying why and whether asking again can help"
+  },
+  {
+   "id": "keep-the-tables-that-record-how-tools-are",
+   "owner": [
+    "src/tool-telemetry.mjs"
+   ],
+   "to": "tools/keep-the-tables-that-record-how-tools-are",
+   "capability": "keep the tables that record how tools are used, the same for the shared pool and for every owner that keeps its own"
+  },
+  {
+   "id": "run-several-tool-calls-together-so-the-whole",
+   "owner": [
+    "src/tool-transaction-tool.mjs",
+    "src/tool-transaction.mjs"
+   ],
+   "to": "tools/run-several-tool-calls-together-so-the-whole",
+   "capability": "run several tool calls together so the whole stands or every step already done is put back"
+  },
+  {
+   "id": "tool-transaction",
+   "owner": [
+    "src/tool-transaction.json"
+   ],
+   "to": "tools/tool-transaction",
+   "capability": "src/tool-transaction.json at the tag"
+  },
+  {
+   "id": "tool-undo",
+   "owner": [
+    "src/tool-undo.json"
+   ],
+   "to": "tools/tool-undo",
+   "capability": "src/tool-undo.json at the tag"
+  },
+  {
+   "id": "list-and-run-trillions-tools-for-any-ai",
+   "owner": [
+    "src/tools.mjs"
+   ],
+   "to": "tools/list-and-run-trillions-tools-for-any-ai",
+   "capability": "list and run Trillion's tools for any AI app over the standard tool protocol, locally or on the hosted web address"
+  },
+  {
+   "id": "let-an-ai-write-a-guided-tour-for-the-moment",
+   "owner": [
+    "src/tours-tools.mjs",
+    "src/tours.mjs"
+   ],
+   "to": "tools/let-an-ai-write-a-guided-tour-for-the-moment",
+   "capability": "let an AI write a guided tour for the moment the person is in, file it in a category and show it on their open page at once"
+  },
+  {
+   "id": "find-the-recording-and-the-exact-moment-a-heard-line",
+   "owner": [
+    "src/transcript-source-index.mjs"
+   ],
+   "to": "tools/find-the-recording-and-the-exact-moment-a-heard-line",
+   "capability": "find the recording and the exact moment a heard line came from, by the identity the listener gave that stretch of sound"
+  },
+  {
+   "id": "let-an-ai-read-what-the-persons-work",
+   "owner": [
+    "src/use-tools.mjs"
+   ],
+   "to": "tools/let-an-ai-read-what-the-persons-work",
+   "capability": "let an AI read what the person's work used and cost today and this month, and set or remove their usage and spend budgets"
+  },
+  {
+   "id": "make-a-cover-picture-for-each-saved-video-catching",
+   "owner": [
+    "src/video-preview-catch-up.mjs"
+   ],
+   "to": "tools/make-a-cover-picture-for-each-saved-video-catching",
+   "capability": "make a cover picture for each saved video, catching up on older files newest first without restarting when new ones keep arriving"
+  },
+  {
+   "id": "view-as",
+   "owner": [
+    "src/view-as.json"
+   ],
+   "to": "tools/view-as",
+   "capability": "src/view-as.json at the tag"
+  },
+  {
+   "id": "let-someone-look-at-my-trillion-read",
+   "owner": [
+    "src/view-as.mjs"
+   ],
+   "to": "tools/let-someone-look-at-my-trillion-read",
+   "capability": "let someone look at my Trillion read only for a few days, exactly as I see it, with every change refused"
+  },
+  {
+   "id": "show-a-visitor-who-is-not-signed-in-the-same",
+   "owner": [
+    "src/visitor-mark.mjs",
+    "src/visitor-offers.mjs"
+   ],
+   "to": "tools/show-a-visitor-who-is-not-signed-in-the-same",
+   "capability": "show a visitor who is not signed in the same price every time, and keep that price once they sign in"
+  },
+  {
+   "id": "turn-any-recording-already-in-the-persons-files",
+   "owner": [
+    "src/voice-memos.mjs"
+   ],
+   "to": "tools/turn-any-recording-already-in-the-persons-files",
+   "capability": "turn any recording already in the person's files into a voice memo with its words kept beside it and handed to their AIs"
+  },
+  {
+   "id": "give-up-on-a-call-to-another-object-after",
+   "owner": [
+    "src/waited-for.mjs"
+   ],
+   "to": "tools/give-up-on-a-call-to-another-object-after",
+   "capability": "give up on a call to another object after a set time and answer busy so the caller retries, instead of hanging for the platform's whole limit"
+  },
+  {
+   "id": "send-exactly-one-notice-when-a-new-item",
+   "owner": [
+    "src/waiting-ask-notices.mjs"
+   ],
+   "to": "tools/send-exactly-one-notice-when-a-new-item",
+   "capability": "send exactly one notice when a new item lands on the Waiting on you list, never again on an edit, a refile or Done"
+  },
+  {
+   "id": "stop-a-reminder-about-a-waiting-or-held-thing",
+   "owner": [
+    "src/waiting-notice-guard.mjs"
+   ],
+   "to": "tools/stop-a-reminder-about-a-waiting-or-held-thing",
+   "capability": "stop a reminder about a waiting or held thing once that thing is no longer waiting"
+  },
+  {
+   "id": "send-a-push-message-to-a-browser-that-asked-to-be-told",
+   "owner": [
+    "src/web-push.mjs"
+   ],
+   "to": "tools/send-a-push-message-to-a-browser-that-asked-to-be-told",
+   "capability": "send a push message to a browser that asked to be told things, encrypted for that browser alone, and show it when it arrives"
+  },
+  {
+   "id": "who-does-it",
+   "owner": [
+    "src/who-does-it.json"
+   ],
+   "to": "tools/who-does-it",
+   "capability": "src/who-does-it.json at the tag"
+  },
+  {
+   "id": "say-for-each-step-of-a-plan-who-should-do",
+   "owner": [
+    "src/who-does-it.mjs"
+   ],
+   "to": "tools/say-for-each-step-of-a-plan-who-should-do",
+   "capability": "say for each step of a plan who should do it, Trillion, Trillion after one tap, the person alone or nobody yet, so nothing is dumped on the person"
+  },
+  {
+   "id": "mark-a-titled-block-of-source-words-such",
+   "owner": [
+    "src/work-blocks.mjs"
+   ],
+   "to": "tools/mark-a-titled-block-of-source-words-such",
+   "capability": "mark a titled block of source words, such as a passage of a transcript, as its own record that points back to where it came from"
+  },
+  {
+   "id": "show-the-persons-cloud-space-on-the-signed-in-page",
+   "owner": [
+    "src/work-cloud-space.mjs"
+   ],
+   "to": "tools/show-the-persons-cloud-space-on-the-signed-in-page",
+   "capability": "show the person's cloud space on the signed-in page: how many files, how many bytes and which file types"
+  },
+  {
+   "id": "show-the-communities-a-person-is-in-on-the-signed-in-page-and-le",
+   "owner": [
+    "src/work-community.mjs"
+   ],
+   "to": "tools/show-the-communities-a-person-is-in-on-the-signed-in-page-and-le",
+   "capability": "show the communities a person is in on the signed-in page and let them act on them the same way their AI can"
+  },
+  {
+   "id": "send-work-tasks-tours-and-instructions-from",
+   "owner": [
+    "src/work-for-ais.mjs"
+   ],
+   "to": "tools/send-work-tasks-tours-and-instructions-from",
+   "capability": "send work, tasks, tours and instructions from Trillion to customers' AIs, to one person, a group, a test group or everyone, in a time window"
+  },
+  {
+   "id": "send-a-saved-edit-from-the-media-editor",
+   "owner": [
+    "src/work-media-editor.mjs"
+   ],
+   "to": "tools/send-a-saved-edit-from-the-media-editor",
+   "capability": "send a saved edit from the media editor to my own video editor and attach the video I exported there"
+  },
+  {
+   "id": "work-media-session",
+   "owner": [
+    "src/work-media-session.json"
+   ],
+   "to": "tools/work-media-session",
+   "capability": "src/work-media-session.json at the tag"
+  },
+  {
+   "id": "keep-the-media-editors-open-session-its-published",
+   "owner": [
+    "src/work-media-session.mjs"
+   ],
+   "to": "tools/keep-the-media-editors-open-session-its-published",
+   "capability": "keep the media editor's open session, its published versions and its track check on the person's own store"
+  },
+  {
+   "id": "show-the-media-library-and-search-what-was",
+   "owner": [
+    "src/work-media.mjs"
+   ],
+   "to": "tools/show-the-media-library-and-search-what-was",
+   "capability": "show the media library and search what was said or seen in recordings, and change the next-edit suggestion"
+  },
+  {
+   "id": "show-the-signed-in-persons-message-inbox-and-tell",
+   "owner": [
+    "src/work-messages.mjs"
+   ],
+   "to": "tools/show-the-signed-in-persons-message-inbox-and-tell",
+   "capability": "show the signed-in person's message inbox and tell the sender whether the AI can be reached or will find the message later"
+  },
+  {
+   "id": "let-the-signed-in-page-reach-the-same-network",
+   "owner": [
+    "src/work-network.mjs"
+   ],
+   "to": "tools/let-the-signed-in-page-reach-the-same-network",
+   "capability": "let the signed-in page reach the same network of AIs and people that connected AIs reach"
+  },
+  {
+   "id": "show-the-posts-and-the-posting-calendar-on-the-signed-in-page",
+   "owner": [
+    "src/work-posts.mjs"
+   ],
+   "to": "tools/show-the-posts-and-the-posting-calendar-on-the-signed-in-page",
+   "capability": "show the posts and the posting calendar on the signed-in page, the same posts their AIs list and change"
+  },
+  {
+   "id": "show-and-toggle-a-private-reaction-on-a-response-from",
+   "owner": [
+    "src/work-responses.mjs"
+   ],
+   "to": "tools/show-and-toggle-a-private-reaction-on-a-response-from",
+   "capability": "show and toggle a private reaction on a response from the signed-in page, with the person's store owning the record"
+  },
+  {
+   "id": "narrow-any-list-the-workspace-shows-to-the-part",
+   "owner": [
+    "src/work-scope.mjs"
+   ],
+   "to": "tools/narrow-any-list-the-workspace-shows-to-the-part",
+   "capability": "narrow any list the workspace shows to the part of the account a chosen scope covers, adding the filter with one row of data"
+  },
+  {
+   "id": "show-one-shelf-of-everything-a-person-or-their-ai-can",
+   "owner": [
+    "src/work-shared-library.mjs"
+   ],
+   "to": "tools/show-one-shelf-of-everything-a-person-or-their-ai-can",
+   "capability": "show one shelf of everything a person or their AI can pick up, who made it, what it costs and how often it ran, and publish or withdraw mine"
+  },
+  {
+   "id": "open-the-sharing-sheet-for-a-record-preview-the-copy",
+   "owner": [
+    "src/work-sharing.mjs"
+   ],
+   "to": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy",
+   "capability": "open the sharing sheet for a record, preview the copy others would see with chosen fields left out, and change who can see it"
+  },
+  {
+   "id": "show-the-persons-spaces-on-the-signed-in-page-answer",
+   "owner": [
+    "src/work-spaces.mjs"
+   ],
+   "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer",
+   "capability": "show the person's spaces on the signed-in page, answer invitations, leave a space and import a whole chat export"
+  },
+  {
+   "id": "show-my-automations-on-the-signed-in-page-what-sets",
+   "owner": [
+    "src/work-workflows.mjs"
+   ],
+   "to": "tools/show-my-automations-on-the-signed-in-page-what-sets",
+   "capability": "show my automations on the signed-in page: what sets each off and what it does, and draw a workflow or one run as a board of steps"
+  },
+  {
+   "id": "require-that-a-workflow-steps-ai-answer-comes",
+   "owner": [
+    "src/workflow-actor-policy.mjs"
+   ],
+   "to": "tools/require-that-a-workflow-steps-ai-answer-comes",
+   "capability": "require that a workflow step's AI answer comes from a signed-in AI different from the AIs that did earlier steps"
+  },
+  {
+   "id": "workflow-authoring-guidance",
+   "owner": [
+    "src/workflow-authoring-guidance.json"
+   ],
+   "to": "tools/workflow-authoring-guidance",
+   "capability": "src/workflow-authoring-guidance.json at the tag"
+  },
+  {
+   "id": "tell-an-ai-what-each-field-of-a-workflow-it-writes",
+   "owner": [
+    "src/workflow-authoring-guidance.mjs"
+   ],
+   "to": "tools/tell-an-ai-what-each-field-of-a-workflow-it-writes",
+   "capability": "tell an AI what each field of a workflow it writes means, so the workflow it saves is complete and valid"
+  },
+  {
+   "id": "run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+   "owner": [
+    "src/workflow-definition-runner.mjs"
+   ],
+   "to": "tools/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+   "capability": "run a workflow definition on the workflow engine in one call and get back where every step stands"
+  },
+  {
+   "id": "workflow-interruptions",
+   "owner": [
+    "src/workflow-interruptions.json"
+   ],
+   "to": "tools/workflow-interruptions",
+   "capability": "src/workflow-interruptions.json at the tag"
+  },
+  {
+   "id": "accept-the-full-workflow-a-schema-driven-ai-client",
+   "owner": [
+    "src/workflow-recipe-input.mjs"
+   ],
+   "to": "tools/accept-the-full-workflow-a-schema-driven-ai-client",
+   "capability": "accept the full workflow a schema-driven AI client writes without cutting it down to the fields one editor shows"
+  },
+  {
+   "id": "workflow-step-versions",
+   "owner": [
+    "src/workflow-step-versions.json"
+   ],
+   "to": "tools/workflow-step-versions",
+   "capability": "src/workflow-step-versions.json at the tag"
+  },
+  {
+   "id": "keep-the-version-of-each-workflow-step-that-runs-a-marketplace",
+   "owner": [
+    "src/workflow-step-versions.mjs"
+   ],
+   "to": "tools/keep-the-version-of-each-workflow-step-that-runs-a-marketplace",
+   "capability": "keep the version of each workflow step that runs a Marketplace tool, so a workflow does not change when the tool does"
+  },
+  {
+   "id": "let-an-ai-find-a-workflow-for-a-job-read",
+   "owner": [
+    "src/workflow-tools.mjs"
+   ],
+   "to": "tools/let-an-ai-find-a-workflow-for-a-job-read",
+   "capability": "let an AI find a workflow for a job, read it, run it step by step with each answer checked and kept, and save or publish one it wrote"
+  },
+  {
+   "id": "write-a-job-done-in-several-steps-have",
+   "owner": [
+    "src/workflows.mjs"
+   ],
+   "to": "tools/write-a-job-done-in-several-steps-have",
+   "capability": "write a job done in several steps, have my AI, agents and tools answer each step, and keep every answer"
+  },
+  {
+   "id": "keep-every-version-of-a-fact-about-a-persons-tools",
+   "owner": [
+    "src/workshop-facts.mjs"
+   ],
+   "to": "tools/keep-every-version-of-a-fact-about-a-persons-tools",
+   "capability": "keep every version of a fact about a person's tools, with the newest per thing marked current"
+  },
+  {
+   "id": "write-a-workshop-tasks-history-to-a-file-and-read",
+   "owner": [
+    "src/workshop-history-serialization.mjs",
+    "src/workshop-task-history.mjs"
+   ],
+   "to": "tools/write-a-workshop-tasks-history-to-a-file-and-read",
+   "capability": "write a Workshop task's history to a file and read it back whole, even a row too big for the file limit, in exact byte pieces"
+  },
+  {
+   "id": "keep-each-workshop-task-whole-and-a-small-index",
+   "owner": [
+    "src/workshop-tasks.mjs"
+   ],
+   "to": "tools/keep-each-workshop-task-whole-and-a-small-index",
+   "capability": "keep each Workshop task whole and a small index of every task for fast questions across all of them"
+  },
+  {
+   "id": "list-the-signed-in-pages-current-script-stylesheet",
+   "owner": [
+    "src/workspace-files.mjs"
+   ],
+   "to": "tools/list-the-signed-in-pages-current-script-stylesheet",
+   "capability": "list the signed-in page's current script, stylesheet and screen files by their content names, kept by a browser for a year"
+  },
+  {
+   "id": "workspace-page",
+   "owner": [
+    "src/workspace-page.json"
+   ],
+   "to": "tools/workspace-page",
+   "capability": "src/workspace-page.json at the tag"
+  },
+  {
+   "id": "show-the-workspace-screen-my-picture-name-and-account",
+   "owner": [
+    "src/workspace-page.mjs"
+   ],
+   "to": "tools/show-the-workspace-screen-my-picture-name-and-account",
+   "capability": "show the Workspace screen: my picture, name and account, summary templates, profile details, delete account, and members with an invite by email"
+  },
+  {
+   "id": "keep-the-serving-workers-content-named-workspace-pieces",
+   "owner": [
+    "src/workspace-pieces-kept.mjs"
+   ],
+   "to": "tools/keep-the-serving-workers-content-named-workspace-pieces",
+   "capability": "keep the serving Worker's content-named workspace pieces so a page that is loading never meets a missing file"
+  },
+  {
+   "id": "workspace-pieces",
+   "owner": [
+    "src/workspace-pieces.json"
+   ],
+   "to": "tools/workspace-pieces",
+   "capability": "src/workspace-pieces.json at the tag"
+  }
+ ],
+ "read_as_rows": [
+  "methods/",
+  "records/workflow-recipe-records.json",
+  "records/execution-mode-records.json",
+  "records/starting-rules.json",
+  "records/copy-rules.json",
+  "records/commercial-offer-records.json",
+  "records/content-format-starters.json",
+  "records/feel-moments.json",
+  "records/delight-moments.json",
+  "communities/",
+  "cases/",
+  "src/awareness.json",
+  "src/life-map.json",
+  "src/pursuit-plan.json",
+  "src/story-settings.json",
+  "src/attention.json",
+  "src/workspace/walkthroughs/",
+  "src/error-page-lines.json"
+ ],
+ "not_provider_calls": [
+  {
+   "file": "parts/process-session/do-work/place-cache-folder.mjs",
+   "id": "env-binding",
+   "found": "env.XDG_CACHE_HOME",
+   "why": "placeCacheFolder(env = process.env) reads the cache folder a computer names in its process environment; it is no Worker binding."
+  }
+ ]
+}

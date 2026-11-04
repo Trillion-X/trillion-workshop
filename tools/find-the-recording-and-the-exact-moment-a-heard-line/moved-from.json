@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/transcript-source-index.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-the-recording-and-the-exact-moment-a-heard-line/src/transcript-source-index.mjs",
+      "source_identity": "1f:edadcf118fe10854b1e03d47a9776a17e7278a8c3ce1a96ac0404c63012f80ca",
+      "identity": "1f:edadcf118fe10854b1e03d47a9776a17e7278a8c3ce1a96ac0404c63012f80ca"
+    }
+  ]
+}

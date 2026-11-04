@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "package.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-a-workflow-definition-on-the-workflow-engine-in-one-call/package.json",
+      "source_identity": "1f:89e9c8c7979ec363d16226350fc0ce191a57527523771f9412d184307cac7f63",
+      "identity": "1f:89e9c8c7979ec363d16226350fc0ce191a57527523771f9412d184307cac7f63"
+    },
+    {
+      "from": "src/workflow-definition-runner.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-a-workflow-definition-on-the-workflow-engine-in-one-call/src/workflow-definition-runner.mjs",
+      "source_identity": "1f:8bbeb0dd5ff07fc3a7017891983d00d04e75a9b1d11937fe2ea00c8bd4a28405",
+      "identity": "1f:8bbeb0dd5ff07fc3a7017891983d00d04e75a9b1d11937fe2ea00c8bd4a28405"
+    },
+    {
+      "from": "test/workflow-definition-runner-bounded.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-a-workflow-definition-on-the-workflow-engine-in-one-call/test/workflow-definition-runner-bounded.test.mjs",
+      "source_identity": "1f:f39141595aefee012948f6365dc6d0c2bb1407a55579255f69f6be60c54a3998",
+      "identity": "1f:f39141595aefee012948f6365dc6d0c2bb1407a55579255f69f6be60c54a3998"
+    }
+  ]
+}

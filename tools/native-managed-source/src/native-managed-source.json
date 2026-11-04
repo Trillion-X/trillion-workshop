@@ -1,0 +1,23 @@
+{
+  "schema": "trillion.native-managed-source/v1",
+  "card_resource": "@own-records",
+  "card_read_quota": {
+    "calls": 1,
+    "statements": 256,
+    "rows_read": 2048,
+    "rows_written": 64
+  },
+  "session_work_operations": [
+    "marketplace-configurations:request",
+    "claims:handOffForAi",
+    "claims:take",
+    "claims:finish",
+    "claims:pendingForReader",
+    "claims:read",
+    "tools:screenContext"
+  ],
+  "self_source_operations": [
+    "executions:record",
+    "executions:read"
+  ]
+}

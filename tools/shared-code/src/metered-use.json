@@ -1,0 +1,274 @@
+{
+  "_what": "What a Durable Object's work uses, counted and capped, owned by src/metered-use.mjs. Every request, RPC call and alarm step is one purpose (the entry's own name, refined by named steps such as a scheduler source); what its database statements read and write is counted per purpose per day. measures are what the meter counts (each from the platform's own per-statement count). A budget row is { id, label, scope, when, per, measure, most, alert_at, stop, period, tell? }: period names a row of periods (day when left out; a period is its length in ms, how many characters of its start's ISO time name its window, and the words a notice uses for it), and the row counts over the window of that period the moment falls in; when is a formula-engine rule tree over a purpose's facts (facts lists them; null covers every purpose), per 'purpose' caps each covered purpose on its own and per 'all' caps their sum, most is how much one period may use, alert_at the share of most at which the person is told, and stop true refuses further work of a covered purpose until the period's window ends, when it runs again by itself (with per 'all', only the purposes that used the measure in that window are refused, so a loop stops while screens that only read keep answering) (UseBudgetReached, said where the work was asked for, never dropped silently) while false only tells; tell false stops without telling (a part of the person's deal they switched off, src/billing-screen.json). A person's own rows (set_use_budget) replace a starting row with the same id or add one. prices turn a measure into dollars and included_per_month is what the plan gives free each month, both read from the vendor's own page. Adding a measure, a budget or a price is a row here; nothing in code names one. Once every report_every_seconds a store that did any work since its last report hands its report_top purposes of the day (by what they cost) to the shared pool (everyonesUse), so whoever runs the service sees which work in which store costs most, by the same store id Cloudflare's own analytics name.",
+  "measures": {
+    "calls": {
+      "label": "calls"
+    },
+    "statements": {
+      "label": "statements"
+    },
+    "rows_read": {
+      "label": "rows read"
+    },
+    "rows_written": {
+      "label": "rows written"
+    }
+  },
+  "periods": {
+    "day": { "ms": 86400000, "key_length": 10, "this": "today", "resumes": "tomorrow (UTC)" },
+    "hour": { "ms": 3600000, "key_length": 13, "this": "this hour", "resumes": "at {at} UTC, when the hour ends" }
+  },
+  "facts": [
+    {
+      "id": "purpose",
+      "kind": "text"
+    },
+    {
+      "id": "entry",
+      "kind": "choice"
+    }
+  ],
+  "budgets": [
+    {
+      "id": "each-background-step-reads",
+      "label": "Reads by one piece of background work",
+      "scope": "person",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "entry",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "alarm",
+                "unscoped"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "purpose",
+            "operator": "does_not_contain",
+            "params": {
+              "text": "record-history"
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "purpose",
+            "operator": "is_not_text",
+            "params": {
+              "text": "alarm"
+            }
+          }
+        ]
+      },
+      "per": "purpose",
+      "measure": "rows_read",
+      "most": 1000000000,
+      "alert_at": 0.25,
+      "stop": false
+    },
+    {
+      "id": "each-background-step-writes",
+      "label": "Writes by one piece of background work",
+      "scope": "person",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "entry",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "alarm",
+                "unscoped"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "purpose",
+            "operator": "does_not_contain",
+            "params": {
+              "text": "record-history"
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "purpose",
+            "operator": "is_not_text",
+            "params": {
+              "text": "alarm"
+            }
+          }
+        ]
+      },
+      "per": "purpose",
+      "measure": "rows_written",
+      "most": 5000000,
+      "alert_at": 0.25,
+      "stop": false
+    },
+    {
+      "id": "each-request-kind-reads",
+      "label": "Reads by one kind of request",
+      "scope": "person",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "entry",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "rpc",
+                "http"
+              ]
+            }
+          }
+        ]
+      },
+      "per": "purpose",
+      "measure": "rows_read",
+      "most": 2000000000,
+      "alert_at": 0.25,
+      "stop": false
+    },
+    {
+      "id": "all-reads",
+      "label": "All reads in one store",
+      "scope": "person",
+      "when": null,
+      "per": "all",
+      "measure": "rows_read",
+      "most": 5000000000,
+      "alert_at": 0.2,
+      "stop": false
+    },
+    {
+      "id": "all-writes",
+      "label": "All writes in one store",
+      "scope": "person",
+      "when": null,
+      "per": "all",
+      "measure": "rows_written",
+      "most": 20000000,
+      "alert_at": 0.2,
+      "stop": false
+    },
+    {
+      "id": "store-writes-per-hour",
+      "label": "Saving in your account",
+      "_why": "Historical reason for this alert: on 2026-10-03/04 one store wrote about 2 million rows an hour (a $175 day). Half a million rows written by ONE kind of work in an hour costs about $0.50, so it identifies unusually heavy work. This default now alerts and meters without stopping real work; a person may set a stopping budget. On 2026-10-10 the whole-store version of this limit stopped every save in the busiest account at 07:59Z after its tools and testing wrote 500,748 rows between them, none of them a loop, so the person's own work stopped with it. Setup, the bare alarm, sign-in, and exact Spend read routes are never stopped. Nor is a carry's own taking of pages (rpc:takeOwnRecordCarry, rpc:takeOwnRecordSchedulerCarry, rpc:carry-namespace): it moves rows the account already owns into its own book, never more than its frozen source holds (each page is refused past the rows that source counted when it froze: src/resource-state-carry.mjs take, src/namespace-sqlite-target.mjs importPage, and no page is taken without a carry begun from a frozen source), so it cannot run away; stopped here, a 2.8 million row account took about 6 hours instead of minutes (2026-10-18). Its writes are still counted, in all-writes and in every report.",
+      "scope": "person",
+      "period": "hour",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [
+        { "kind": "rule", "field": "entry", "operator": "is_none_of", "params": { "values": ["construct"] } },
+        { "kind": "rule", "field": "purpose", "operator": "is_not_text", "params": { "text": "alarm" } },
+        { "kind": "rule", "field": "purpose", "operator": "is_not_text", "params": { "text": "rpc:authorizeSignIn" } },
+        { "kind": "rule", "field": "purpose", "operator": "is_not_text", "params": { "text": "rpc:admitClaims" } },
+        { "kind": "rule", "field": "purpose", "operator": "is_not_text", "params": { "text": "http:GET /spend" } },
+        { "kind": "group", "combinator": "and", "negate": true, "rules": [
+          { "kind": "rule", "field": "purpose", "operator": "starts_with", "params": { "text": "http:GET /spend/inside/" } }
+        ] },
+        { "kind": "rule", "field": "purpose", "operator": "is_not_text", "params": { "text": "rpc:spendList" } },
+        { "kind": "rule", "field": "purpose", "operator": "is_not_text", "params": { "text": "rpc:spendInside" } },
+        { "kind": "rule", "field": "purpose", "operator": "is_not_text", "params": { "text": "rpc:takeOwnRecordCarry" } },
+        { "kind": "rule", "field": "purpose", "operator": "is_not_text", "params": { "text": "rpc:takeOwnRecordSchedulerCarry" } },
+        { "kind": "rule", "field": "purpose", "operator": "is_not_text", "params": { "text": "rpc:carry-namespace" } }
+      ] },
+      "per": "purpose",
+      "measure": "rows_written",
+      "most": 500000,
+      "alert_at": 0.5,
+      "stop": false
+    },
+    {"id": "each-purpose-reads-per-hour", "label": "Reading in your account", "_why": "Historical reason for this read alert: on 2026-10-05 one store read about 4.9 billion rows an hour for two hours while crashing (about $9.40), and nothing counted it. Half a billion rows read by one kind of work in an hour costs about $0.50; the busiest screen read about 18 million an hour, so it identifies unusually heavy reads. This default now alerts without stopping work; a person may set a stopping budget. Its own setup and its bare alarm are never stopped.", "scope": "person", "period": "hour", "when": {"kind": "group", "combinator": "and", "negate": false, "rules": [{"kind": "rule", "field": "entry", "operator": "is_none_of", "params": {"values": ["construct"]}}, {"kind": "rule", "field": "purpose", "operator": "is_not_text", "params": {"text": "alarm"}}]}, "per": "purpose", "measure": "rows_read", "most": 500000000, "alert_at": 0.5, "stop": false}
+  ],
+  "prices": [
+    {
+      "measure": "rows_read",
+      "dollars_per_million": 0.001,
+      "included_per_month": 25000000000,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-04",
+        "from": "https://developers.cloudflare.com/durable-objects/platform/pricing/ (SQLite storage billing, Workers Paid): rows read $0.001 per million beyond 25 billion a month"
+      }
+    },
+    {
+      "measure": "rows_written",
+      "dollars_per_million": 1,
+      "included_per_month": 50000000,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-04",
+        "from": "https://developers.cloudflare.com/durable-objects/platform/pricing/ (SQLite storage billing, Workers Paid): rows written $1.00 per million beyond 50 million a month"
+      }
+    }
+  ],
+  "flush_every_seconds": 60,
+  "keep_every_seconds": 3600,
+  "_keep_every_seconds": "How often a store that stays awake keeps its counts when nothing else keeps them (src/metered-use.mjs invariant 3): the store's own health keeps one row an hour too (src/store-health.mjs, onKept). Kept every flush_every_seconds, the counts were one row written by every AI command at a person's pace (2026-10-28: 1 of 18.6 bookkeeping rows a command); a store that resets loses at most this much of its counts, never what the account quota counted.",
+  "stops_kept_most_seconds": 120,
+  "stops_retry_seconds": 10,
+  "_stops_why": "A new host admits on the service stops its store last read (one row) and reads the shared key again beside the work, because that read can take seconds on a cold isolate (2026-10-16 15:38Z: 6.8 s of one f281 start). Stops read more than stops_kept_most_seconds ago are never admitted on (120: a warm host already admits on stops up to its KV cache of 60 s plus its 60 s flush, and no host may admit on older ones): the next entry waits for a real read. A failed read is said (judgement failed, stage stops) and tried again by the next entry after stops_retry_seconds.",
+  "keep_after": { "rows_read": 5000000, "rows_written": 50000, "_why": "A run the platform ends keeps what it counted up to here: on 2026-10-05 each crashed run read about 10 million rows before it ended (4.9 billion an hour over about 480 resets). Keeping costs one row written (about $0.000001) per 5 million rows read ($0.005)." },
+  "heavy_invocation": { "statements": 20000, "rows_read": 200000, "rows_written": 50000, "again_times": 4, "top": 5, "_why": "One request, RPC call or alarm that crosses one of these is logged the moment it does, then again at each again_times times that, so the line is out before a run the platform ends (2026-10-08 01:15Z: one POST /executions ran about 31 s of CPU and its object was reset, and nothing said what it did)." },
+  "most_held_statements": 4000,
+  "_kept_work_drain_ms": "How long a command waits, after its own work returns, for work it kept alive (keepAlive/waitUntil) before its terminal readback (src/native-resource-meter.mjs keepInMeasurement). Kept work still running then is no longer this command's: its later statements are refused, as before.",
+  "kept_work_drain_ms": 5000,
+  "_command_slow_ms": "A command whose own time (its work, its pending stages, the drain of work it kept alive and its terminal readback) reaches this is logged 'native command slow' with each part (src/native-resource-meter.mjs); every command keeps the same parts as times in its observation. On 2026-10-20 a new work book's first workflows:start took 14.4 s with 317 ms of CPU and nothing said what it waited on.",
+  "command_slow_ms": 3000,
+  "_command_heavy_rows": "A command that finishes under its bound but reads at least this many rows keeps its ten most run statements, the ten that read the most rows and its sampled callers in its observation (heavy: true), as a command stopped at its bound does, and is logged 'native command heavy' (src/native-resource-meter.mjs). On 2026-10-21 a ten-row list write read 10,113 rows and closed with nothing kept to say where.",
+  "command_heavy_rows": 4000,
+  "native_read_bound": { "times_largest": 4, "least": { "statements": 100, "rows_read": 1000, "rows_written": 100 }, "_why": "A resource's own read (an alarm entry, a status read) that names no bound of its own is admitted for what that resource's reads of the same kind have actually used: four times the largest recent use, never less than these floors and never more than the heavy bound. It holds the account's shared hourly budget for as long as it runs; on 2026-10-16 09:02Z about nine alarm reads of 25-43 s, each admitted for 50,000 rows written while writing about 20, held 450,000 of one account's 500,000 and refused every other book's alarm for the rest of the hour. A read that reaches its bound gets the whole heavy bound next time, then comes back down by halves as it uses less." },
+  "native_read_failure_logged": { "ms": 10000, "_why": "A native read that fails says why (its error's name, status, code and first line) at most this often for each purpose. On 2026-10-21 every upload with a file failed inside its Files check and the caller was told only that a receipt was uncertain; nothing said what threw." },
+  "receipt_prune": { "days": 14, "page_rows": 500, "legacy_keep_rows": 50000, "every_ms": 300000, "_why": "A finished command keeps its receipt (the answer a retry of its request key gets) this many days, then its row goes (the meter's pruneReceipts), oldest first, page_rows a call, from the alarm and as a full-store recovery step. A command finished before the row carried a finished stamp is expired once more than legacy_keep_rows commands newer than it exist. On 2026-10-21 book 880c74dd held 629,202 of them and went full; nothing had ever deleted a command that was not a native read." },
+  "abandoned_sweep": { "page": 16, "_why": "How many unfinished commands one alarm pass of a record book settles (the meter's settleAbandoned, least 1, most 32). On 2026-10-21 a book held 4,449 uncertain commands at 8 a pass and the pass was slow to drain them; each settle is local plus one call to the quota owner, so a page stays well inside an alarm." },
+  "native_read_logged": { "statements": 500, "rows_read": 10000, "_why": "A resource read (status, retention preparation, alarm entry) that uses this much is logged with what it used. On 2026-10-16 19:56Z the founder's own-record book spent 2.2-4.7 s of CPU on each ownRecordStatus, prepareOwnRecordRetention and alarm, and nothing said which statements." },
+  "projection_upkeep": { "purposes": ["rpc:own-record-alarm-entry"], "open_replay_rows": 50, "_open_replay_rows_why": "A store opened over an uncovered log tail of at most this many rows replays it in the opening call; a longer tail is left to the upkeep and the call is answered busy. Opening always loads the projection, so without this every first call after an eviction was answered own_records_catching_up (2026-10-22: 20 to 80 answers per half hour across the accounts' books).", "slice_rows": { "first": 200, "least": 16, "most": 4000, "_why": "How many record-log rows one upkeep wake replays when it rebuilds a stale projection (src/record-book.mjs rebuildRecordProjection). A slice the meter refused is halved (never below least); one that fit doubles (never past most), and what it applied is checkpointed, so a long tail is rebuilt over several wakes each inside its bound. On 2026-10-21 book 880c74dd held a tail of 10,000 to 46,000 changes that no single wake could replay under its bound, so it stayed stale and answered every read busy." }, "_why": "The work that rebuilds an own-records book's stale record projection (after a rolled-back write): its own alarm entry, under its own learned bound. Any other call that finds the projection stale answers busy and wakes that alarm, and never rebuilds inside its own bound. On 2026-10-19 from 07:42Z store f281a627's book 880c74dd rebuilt in every call (500-2,200 statements each), and about 1,300 calls whose bounds were smaller were refused credit_exhausted, each refusal leaving the projection stale for the next." },
+  "refused_read_drop": { "page": 2000, "alarm_page": 500, "next_after_ms": 1000, "_why": "A deletion drops the quota credits kept for reads its fenced quota refused (src/native-resource-quota.mjs dropRefusedReads) this many a pass, oldest first (an alarm drops alarm_page, never a read running in the isolate), and asks again after next_after_ms while more are left: a book held 33,000 of them, which one invocation must not delete." },
+  "unaccounted_lease_retry": { "ms": 300000, "_why": "An account erasure that finds one of its own resource's quota leases still held after its dead leases settle waits this long before asking again. On 2026-10-17 seven erasures retried that wait every 9 s, each refused with original_resource_lease_unaccounted, while the lease's own command still held its place; the uncertain command settles only when its original owner reads its terminal back." },
+  "alarm_stage_wait_ms": 30000,
+  "reads_stacking_warn": 8,
+  "reads_at_once": 8,
+  "reads_waiting": 32,
+  "reads_wait_ms": 5000,
+  "reads_at_once_why": "reads_at_once, reads_waiting, reads_wait_ms: how many metered reads run at once on one RecordBook, how many more may wait their turn, and the longest one waits; a caller past either gets the book's busy answer (503, retry after 1 s), which every client already retries. RecordBook 880c74dd was reset for memory with fourteen RPCs and an alarm in flight (2026-10-20 10:48 AM PDT). A read waiting for its turn holds no credit yet.",
+  "reads_stacking_why": "reads_stacking_warn: how many metered reads in flight at once on one RecordBook make it log 'record book reads stacking' with the count; RecordBook 880c74dd was reset for memory with fourteen RPCs and an alarm in flight (2026-10-20 10:48 AM PDT). It only names the stacking, it limits nothing.",
+  "grant_alarm_gap_ms": 10000,
+  "alarm_pace_why": "alarm_stage_wait_ms: the most a book's quota-grant alarm stage waits for the calls it awaits (settling and releasing credits are calls to the account's quota object): past it the stage is left for the next pass. RecordBook de0c14c4 had alarms of 294 s and 182 s stopped in settle-abandoned-presentations on 2026-10-20. grant_alarm_gap_ms: the grant alarm runs at most once in this long (src/alarm-pace.mjs).",
+  "grant_growth_window_ms": 3600000,
+  "grant_growth_why": "How long a resource remembers the size of its last grant of a kind (src/resource-quota-grants.mjs nextGrantSize): a stream that asks again within the window opens a grant of twice the size once the last was fully used, instead of one command a grant. On 2026-10-20 one account's quota object took 19 permits a second (1,439,004 kept), mostly grants of one command from about 25 shared-Space resources, and every read of the account waited in that queue.",
+  "unexecuted_command_release": { "after_ms": 600000, "per_pass": 16, "_why": "A command that took its credit from a grant and never began (no command record) holds that credit until its grant is settled, and nothing else ends it. Its request is gone and its original owner can tombstone the permit as aborted, so a resource releases it, at zero use, once its grant ended this long ago. On 2026-10-19 store f281a627 held 22.04 of its 25 dollar plan-daily-cap in about 3,000 such credits (shared-participant bootstraps retried every minute for hours, own-record claims and screen reads), every request of the founder was refused budget_reached, and the account could not reach set_spend_budget to lift the cap." },
+  "block_tally": { "idle_flush_ms": 5000, "headroom_places": 4, "_why": "What a resource's blocks hold and used, for its commands and its reads, is kept for a reset in one row for all its blocks (src/resource-quota-grants.mjs writeTally), not one write per command or read: a command keeps no row of the meter's, its record is its owner's receipt. The row is written when a place starts beyond what it already holds (with room for the next headroom_places places of the block, so a burst writes once), and once the places have been idle idle_flush_ms. A Durable Object is evicted after 70 to 140 s idle, so 5 s keeps what was used before almost any eviction; a reset inside that window counts the places it lost at their whole bound against the person's limits and charges none of them (escrow). Decided 2026-10-28 (floor)." },
+  "own_command_heavy_from_first": { "purposes": ["rpc:spend:setBudget", "rpc:spend:removeBudget"], "_why": "set_spend_budget and remove_spend_budget change a budget and then read the whole Spend answer (every reading, the days, the stops) in the same command, far more than the installed rule's estimate for their few input nodes (1,184 statements). On 2026-10-19 the founder's first set_spend_budget was stopped credit_exhausted at its own estimate, which rolled back the change and left the book's projection stale, so every later call answered busy. They are admitted for the heavy bound at once, as a stopped run would be next time." },
+  "shown_days": 7,
+  "report_every_seconds": 3600,
+  "report_top": 12,
+  "budget_contributors": 12,
+  "words": {
+    "dollars_basis": "Estimated from rows at published marginal rates, before Cloudflare monthly included usage. These dollars are not a provider invoice or an amount billed.",
+    "near_title": "{label}: {share} of the limit for {this} used",
+    "reached_title": "{label}: the limit for {this} is reached",
+    "near_body": "{purpose} used {used} of {most} {measure} {this}.",
+    "reached_body": "{purpose} used {used} of {most} {measure} {this}. It waits and starts again {resumes}, and anything that asks for it in the meantime is told so. Change the limit with set_use_budget.",
+    "told_body": "{purpose} used {used} of {most} {measure} {this}, about {cost} at listed rates. Nothing was stopped; work past this limit is charged. Change the limit with set_use_budget.",
+    "refused": "{label} is used up {this} ({used} of {most} {measure} by {purpose}). It runs again {resumes}.",
+    "refused_all": "{label} is used up {this} ({used} of {most} {measure} in total). This request can run again {resumes}.",
+    "kind": "limit-status",
+    "open": "/spend"
+  }
+}

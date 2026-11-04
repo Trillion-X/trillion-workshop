@@ -1,0 +1,8 @@
+{
+  "_what": "How each tool that changes something can be reversed, as DATA read by src/tools.mjs and sent on every listed tool as `_meta` `trillion/mutation`: `read` for a tool that only reads (its readOnlyHint), `undoable` for a tool named below (with the tool that reverses it), and `immediate` for every other tool that changes something and has no reversing tool. A new reversible tool is one row here.",
+  "undoable": {
+    "apply_file_tidy": "undo_file_tidy",
+    "archive_file": "put_back_file",
+    "delete_file": "put_back_file"
+  }
+}
