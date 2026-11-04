@@ -72,7 +72,6 @@
         "test/device-facts.test.mjs",
         "test/events-poll-bounded.test.mjs",
         "test/failure-contract.test.mjs",
-        "test/file-card-offers.test.mjs",
         "test/fixtures/github-expanded-assets-gridcraft-v0.3.0.html",
         "test/fixtures/github-releases-latest-gridcraft-v0.3.0.html",
         "test/google-account-thread-contract.test.mjs",

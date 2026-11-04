@@ -1,0 +1,322 @@
+{
+  "_what": "Settings for harness/wake-handlers/wake-stopped-chats.mjs, the part of the person's computer helper that wakes AI chats which stopped before their turn finished (a usage limit, an outage, a crash, the computer restarting or losing power) so nobody has to notice and start them again by hand. Every check_every_minutes it reads the transcripts touched in the last look_back_hours. A chat is judged by the last row of its turn (`turn_row`): the first of `rows` whose tests all hold (each test is { path, equals | one_of | present | starts_with }) says it finished, or that it stopped and why, and when it may go on (`resumes_at`, or wait_minutes after it stopped). A chat and all of its lanes must have been quiet for quiet_minutes (measured from each one's last turn row, not the file's mtime, which queued messages move), so a live chat is never woken. Each stop is handed out once through the person's Trillion (POST /handoffs, once_per the stop), one job per chat and one per stopped lane, never relaunched all at once from one place: the computer's taker (take-open-work.json max_concurrent) and other chats calling take_work pick them up a few at a time, because one chat relaunching about 80 lanes filled this computer's memory (84 GB, swap full) on 2026-10-04. A lane whose name has a newer transcript anywhere was already carried on and is left alone. A chat with a `live` block is also read from the computer's live status files (one per running process): a session that is busy is never handed out, and one waiting on a prompt nobody can answer is handed out at once as stuck, with no AI preferred. Messages waiting in a chat are counted by its `queued` rule and named in the job. Adding an AI is a row in `chats`; every word the AIs and the person read is here.",
+  "check_every_minutes": 2,
+  "look_back_hours": 12,
+  "quiet_minutes": 6,
+  "after_reset_minutes": 2,
+  "tail_bytes": 262144,
+  "head_bytes": 131072,
+  "first_prompt_chars": 6000,
+  "most_per_check": 40,
+  "state_file": "~/.trillion/wake-sessions/woken-stops.json",
+  "stuck_file": "~/.trillion/wake-sessions/stuck-chats.json",
+  "keep_woken_days": 3,
+  "chat_prefer_minutes": 5,
+  "stopped_chat_silence_minutes": 0,
+  "_stopped_chat_silence_minutes": "The silence window a stopped chat's job keeps for that chat (src/agents.mjs anyoneFrom, chat_silence_minutes on the arrival). A stopped chat keeps no turn of its own, so it is 0: a chat not hosted here is open to any AI at once, and one hosted here is given back to itself first for chat_prefer_minutes. Without it a stop waited the hour every chat's own work waits before any AI could take it (2026-10-10, h_02fd5a223bb0e1e260ab7cf4).",
+  "lane_prefer_minutes": 30,
+  "chats": [
+    {
+      "id": "claude-code",
+      "source_prefix": "claude-code:",
+      "transcripts": [
+        "~/.claude/projects",
+        "*",
+        "*.jsonl"
+      ],
+      "session_pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\\.jsonl$",
+      "lanes_folder": [
+        "{session}",
+        "subagents"
+      ],
+      "lane_pattern": "^agent-a(.+?)(?:-[0-9a-f]{16})?\\.jsonl$",
+      "skip_when": [
+        {
+          "path": [
+            "entrypoint"
+          ],
+          "equals": "sdk-cli",
+          "why": "a headless run a program started, which owns its own retry"
+        }
+      ],
+      "turn_row": {
+        "path": [
+          "type"
+        ],
+        "one_of": [
+          "user",
+          "assistant"
+        ]
+      },
+      "first_prompt": {
+        "path": [
+          "type"
+        ],
+        "equals": "user",
+        "text_path": [
+          "message",
+          "content"
+        ]
+      },
+      "rows": [
+        {
+          "when": [
+            {
+              "path": [
+                "error"
+              ],
+              "equals": "rate_limit"
+            }
+          ],
+          "stopped": "a usage limit",
+          "resumes_at": {
+            "path": [
+              "quotaLimits",
+              "resetsAt"
+            ],
+            "unit": "seconds"
+          }
+        },
+        {
+          "when": [
+            {
+              "path": [
+                "isApiErrorMessage"
+              ],
+              "equals": true
+            }
+          ],
+          "stopped": "an error from the AI service"
+        },
+        {
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "equals": "user"
+            },
+            {
+              "path": [
+                "message",
+                "content",
+                0,
+                "text"
+              ],
+              "starts_with": "[Request interrupted by user"
+            }
+          ],
+          "finished": true,
+          "why": "the person stopped it themselves"
+        },
+        {
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "equals": "user"
+            },
+            {
+              "path": [
+                "message",
+                "content"
+              ],
+              "starts_with": "[Request interrupted by user"
+            }
+          ],
+          "finished": true,
+          "why": "the person stopped it themselves"
+        },
+        {
+          "when": [
+            {
+              "path": [
+                "type"
+              ],
+              "equals": "assistant"
+            },
+            {
+              "path": [
+                "message",
+                "stop_reason"
+              ],
+              "one_of": [
+                "end_turn",
+                "stop_sequence"
+              ]
+            }
+          ],
+          "finished": true
+        },
+        {
+          "when": [],
+          "stopped": "being cut off before its turn finished"
+        }
+      ],
+      "queued": {
+        "enqueue": {
+          "path": [
+            "operation"
+          ],
+          "equals": "enqueue"
+        },
+        "remove": {
+          "path": [
+            "operation"
+          ],
+          "equals": "remove"
+        },
+        "row": {
+          "path": [
+            "type"
+          ],
+          "equals": "queue-operation"
+        },
+        "text_path": [
+          "content"
+        ]
+      },
+      "live": {
+        "files": [
+          "~/.claude/sessions",
+          "*.json"
+        ],
+        "session_path": [
+          "sessionId"
+        ],
+        "pid_path": [
+          "pid"
+        ],
+        "since_path": [
+          "statusUpdatedAt"
+        ],
+        "kinds": {
+          "path": [
+            "kind"
+          ],
+          "one_of": [
+            "bg"
+          ]
+        },
+        "working": [
+          {
+            "path": [
+              "status"
+            ],
+            "one_of": [
+              "busy",
+              "shell"
+            ]
+          }
+        ],
+        "stuck": [
+          {
+            "when": [
+              {
+                "path": [
+                  "status"
+                ],
+                "equals": "waiting"
+              }
+            ],
+            "why_path": [
+              "waitingFor"
+            ],
+            "after_minutes": 3,
+            "stopped": "waiting on {why} in a background chat that nobody can answer"
+          }
+        ]
+      }
+    },
+    {
+      "id": "codex",
+      "source_prefix": "codex:",
+      "transcripts": [
+        "~/.codex/sessions",
+        "*",
+        "*",
+        "*",
+        "rollout-*.jsonl"
+      ],
+      "session_pattern": "^rollout-.*-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\\.jsonl$",
+      "skip_when": [],
+      "turn_row": {
+        "path": [
+          "payload",
+          "type"
+        ],
+        "one_of": [
+          "task_started",
+          "task_complete",
+          "turn_aborted"
+        ]
+      },
+      "first_prompt": {
+        "path": [
+          "payload",
+          "type"
+        ],
+        "equals": "user_message",
+        "text_path": [
+          "payload",
+          "message"
+        ]
+      },
+      "rows": [
+        {
+          "when": [
+            {
+              "path": [
+                "payload",
+                "error",
+                "codex_error_info"
+              ],
+              "equals": "usage_limit_exceeded"
+            }
+          ],
+          "stopped": "a usage limit",
+          "wait_minutes": 60
+        },
+        {
+          "when": [
+            {
+              "path": [
+                "payload",
+                "error"
+              ],
+              "present": true
+            }
+          ],
+          "stopped": "an error from the AI service"
+        },
+        {
+          "when": [
+            {
+              "path": [
+                "payload",
+                "type"
+              ],
+              "one_of": [
+                "task_complete",
+                "turn_aborted"
+              ]
+            }
+          ],
+          "finished": true
+        },
+        {
+          "when": [],
+          "stopped": "being cut off before its turn finished"
+        }
+      ]
+    }
+  ],
+  "chat_job": "This chat ({source_id}) stopped because of {reason} at {stopped_at}, and nobody started it again. Carry on the work it was doing: read the end of its transcript ({transcript}) first, check what already landed (git log, its handoffs), and never redo landed work. {lanes_line}{queued_line}Do the work through to a checked result, then finish_work.",
+  "chat_lanes_line": "Its stopped helper AIs ({lanes}) were each handed out separately through Trillion to the person's own AIs, so other chats and this computer's worker take them a few at a time; do not relaunch them from here (one chat relaunching about 80 helpers once filled this computer's memory). ",
+  "lane_job": "The helper AI {lane} stopped because of {reason} at {stopped_at}, inside chat {source_id}. Carry its work on as the person's own AI: its original instructions are below and its transcript is {transcript}. {queued_line}First check what it already landed (git log, its proof folder, its handoffs) and never redo landed work; then do the rest through to a checked result, report as its instructions say, and finish_work.\n\n--- its original instructions ---\n{first_prompt}",
+  "chat_said": "Carry on a chat that stopped because of {reason}",
+  "lane_said": "Carry on the work of {lane}, which stopped because of {reason}",
+  "queued_line": "{queued_messages} messages sent to it are still waiting unread; read them in its transcript and act on them. ",
+  "stuck_job": "This chat ({source_id}) is still open. It has been {reason} since {stopped_at}; only the person can answer that prompt on this computer, so the chat will not go on by itself. Carry on the work it was doing: read the end of its transcript ({transcript}) first, check what already landed (git log, its handoffs), and never redo landed work. {queued_line}Do the work through to a checked result, then finish_work."
+}

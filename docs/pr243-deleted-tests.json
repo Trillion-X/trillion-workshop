@@ -5,12 +5,12 @@
  "planned_from": "1e886c3f68828439c545f34bbef0e415055a800f",
  "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
  "counts": {
-  "carried": 71,
+  "carried": 70,
   "home-by-another-lane": 56,
   "needs-decision": 41,
   "split": 255,
   "test-help": 61,
-  "waits-on-a-read": 3,
+  "waits-on-a-read": 4,
   "with-slice": 1562
  },
  "rows": [
@@ -95016,24 +95016,16 @@
     "pass": 8,
     "fail": 0
    },
-   "status": "carried",
-   "now": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/test/file-card-offers.test.mjs",
-   "here": {
-    "pass": 6,
-    "fail": 2
-   },
+   "status": "waits-on-a-read",
    "at_tag_by_name": {
     "pass": 8,
     "fail": 0
    },
-   "passed_at_tag_not_here": [
-    "GET /work/api/workshop/for-thing answers from the person's own tool list",
-    "a video is offered its editor, posting, its folder and the tools that take a recording"
-   ],
    "imports_missing_at_tag": [
     "records",
     "records/${name}"
-   ]
+   ],
+   "why": "every import is home, but it reads every records/workshop-*.json by its folder, and that tool-record DATA is still on trillion main; carried here it failed 2 tests that pass at the tag (\"GET /work/api/workshop/for-thing answers from the person's own tool list\", \"a video is offered its editor, posting, its folder and the tools that take a recording\"), so it was taken back out"
   },
   {
    "test": "test/file-facts-screen.test.mjs",
@@ -428921,13 +428913,14 @@
    "status": "carried",
    "now": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/test/wake-stopped-chats.test.mjs",
    "here": {
-    "pass": 0,
-    "fail": 11
+    "pass": 11,
+    "fail": 0
    },
    "at_tag_by_name": {
     "pass": 0,
     "fail": 1
-   }
+   },
+   "note": "its handler reads harness/wake-stopped-chats.json by address; that rules file moved too (row trillion-pr243-test-reads-to-workshop.json)"
   },
   {
    "test": "test/warm-native-space-for-tests.mjs",
