@@ -113,7 +113,7 @@ test('a private import links each found file in its message, reports the rest, a
   assert.deepEqual(kept.find(message => message.text === 'Here is a thinner coat.').attachments, [{ identity: drawn, name: 'file_00000000bb22-coat.webp', media_type: 'image/webp' }]);
   assert.equal(kept.find(message => message.text === 'Too thick over dust.').about, undefined);
   // The bytes are the person's own file now, at the name the export gave it.
-  assert.equal(makeHashCodeHexFromBytes(fake.files['/messages/ChatGPT/file-Tile01-tile.jpg']), tile);
+  assert.equal(makeHashCodeHexFromBytes(fake.stored.get('/messages/ChatGPT/file-Tile01-tile.jpg')), tile);
 
   touch();
   const again = await run();

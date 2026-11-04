@@ -87,7 +87,7 @@ test('the files each source\'s messages carried are copied through the files doo
   assert.deepEqual(Object.fromEntries(Object.entries(results).map(([source, result]) => [source, [result.done, result.attachments_kept, result.attachments_not_kept, result.messages_added]])), {
     'chatgpt-export': [true, 2, 1, 4], 'grok-export': [true, 1, 0, 2], 'claude-code-sessions': [true, 1, 0, 2],
   });
-  const kept = Object.fromEntries(Object.entries(fake.files).map(([name, bytes]) => [name, id(bytes)]));
+  const kept = Object.fromEntries([...fake.stored].map(([name, bytes]) => [name, id(bytes)]));
   assert.deepEqual(kept, {
     '/messages/ChatGPT/file-AB12-crumb.png': id(PNG),
     '/messages/ChatGPT/file-CD34-prices.pdf': id(PDF),
@@ -95,7 +95,7 @@ test('the files each source\'s messages carried are copied through the files doo
     [`/messages/claude-code_${session}/cc-img-1.png`]: id(PNG),
   });
   // The decoy that only starts with the same id is never taken; the file never exported is reported where it was asked.
-  assert.ok(!Object.keys(fake.files).some(name => name.includes('AB123')));
+  assert.ok(![...fake.stored.keys()].some(name => name.includes('AB123')));
   const messages = ofType(fake, 'message');
   const crumb = messages.find(message => message.source_ref === 'f-1');
   assert.deepEqual(crumb.attachments, [{ identity: id(PNG), name: 'crumb.png', media_type: 'image/png' }]);
@@ -132,13 +132,13 @@ test('a door that answers 503 in the middle of a file\'s pieces stops the run, a
   assert.match(first.sources.find(source => source.stopped).stopped, /stayed busy or slow/);
   assert.equal(ofType(fake, 'message').length, 0, 'nothing is kept before its files are');
   assert.equal(fake.calls.filter(call => call.method === 'write_file_piece').length, 1, 'one piece landed before the door went busy');
-  assert.equal(Object.keys(fake.files).length, 0, 'a file is not kept until its last piece is');
+  assert.equal([...fake.stored.keys()].length, 0, 'a file is not kept until its last piece is');
 
   trouble.busy = false;
   const resumed = await resumeConversationImports(request(home, { sources: SOURCES }), context);
   assert.equal(resumed.more, false, JSON.stringify(resumed));
-  assert.equal(Object.keys(fake.files).length, 4);
-  assert.ok(Object.values(fake.files).every(bytes => [id(PNG), id(JPEG), id(PDF)].includes(id(bytes))));
+  assert.equal([...fake.stored.keys()].length, 4);
+  assert.ok([...fake.stored.values()].every(bytes => [id(PNG), id(JPEG), id(PDF)].includes(id(bytes))));
   assert.equal(ofType(fake, 'message').length, 8);
 });
 
