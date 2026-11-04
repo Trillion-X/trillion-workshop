@@ -1,0 +1,16 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on with no home and no backlog row, moved here byte for byte from the parent of the commit that deleted each (commit; deleted_by names the deleting commit). Nothing here is rewritten: a file waits here for its wiring, under its old path, so the files keep importing each other as they did. A redaction replaces a real person's name or address with a made-up one, and is listed on the file; source_identity is the BLAKE3 identity of the bytes at commit, identity of the bytes here.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/work-cloud-space.json",
+      "commit": "4064d2b9a14ebc7c53c76c79ec66e506f5420062",
+      "deleted_by": "5c6e5f16f4",
+      "to": "tools/connected-drives/from-old-trillion/src/work-cloud-space.json",
+      "source_identity": "1f:5caddf9e7a7f5901cd1705b093e658d345a5247370332356fdabc47dc682d808",
+      "identity": "1f:5caddf9e7a7f5901cd1705b093e658d345a5247370332356fdabc47dc682d808"
+    }
+  ]
+}

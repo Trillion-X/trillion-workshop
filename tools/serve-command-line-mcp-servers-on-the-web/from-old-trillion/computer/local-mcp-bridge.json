@@ -1,0 +1,27 @@
+{
+  "_what": "The local MCP bridge (computer/local-mcp-bridge.mjs): a listener on this computer's own loopback address that speaks MCP over HTTP (JSON-RPC by POST, the server's event stream by GET) and passes each request to the person's account /mcp with the person's key, which stays in the bridge and never reaches the client. A local AI client is configured with the bridge's address and its token; it needs no key of its own. `host` is the only address it binds. The `token` is made once, kept in `token_file` (mode 600) and compared in constant time; every request without it is refused before anything else is read or answered, the health of the bridge included. A request whose Host is not one of `hosts`, or that carries an Origin not in `origins`, is refused, so a web page cannot reach it. `port` 0 takes a free port, written to `port_file`. `tools.allow` is null (every tool the account offers) or a list of tool names the bridge will list and call; it is an opt-in narrowing, open by default.",
+  "host": "127.0.0.1",
+  "port": 0,
+  "path": "/mcp",
+  "hosts": ["127.0.0.1", "localhost"],
+  "origins": [],
+  "token_file": "~/.trillion/mcp-bridge/token",
+  "port_file": "~/.trillion/mcp-bridge/port",
+  "max_body_bytes": 4194304,
+  "forward_headers": ["content-type", "accept", "mcp-session-id", "mcp-protocol-version", "last-event-id"],
+  "return_headers": ["content-type", "mcp-session-id", "cache-control"],
+  "tools": { "allow": null },
+  "words": {
+    "unauthorized": "Send the bridge token as a Bearer token.",
+    "bad_host": "This address is not served here.",
+    "bad_origin": "A web page may not use this bridge.",
+    "not_found": "Not found.",
+    "too_big": "That request is larger than the bridge takes.",
+    "upstream_failed": "The account did not answer: {error}",
+    "tool_not_offered": "This bridge does not offer the tool {tool}.",
+    "needs_key": "The bridge needs the account key from the helper that started it.",
+    "on": "The local MCP bridge is on at {url}. Its token is in {file}.",
+    "off": "The local MCP bridge is off.",
+    "already": "The local MCP bridge is already on at {url}."
+  }
+}

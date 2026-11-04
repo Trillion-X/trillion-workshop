@@ -1,0 +1,10 @@
+{
+  "imported_by": [
+    "check-every-tool-call"
+  ],
+  "public": [
+    "do-work/check-deleted-code-names-its-home.mjs",
+    "read-data/rules.json",
+    "read-data/check-row.json"
+  ]
+}

@@ -1,0 +1,125 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import { build } from 'esbuild';
+import { Miniflare } from 'miniflare';
+import { purposeOfStoreMethod, fixedPurposesOfStoreMethod } from '../src/person-store-purpose.mjs';
+
+const person = readFileSync(new URL('../src/person-store.mjs', import.meta.url), 'utf8');
+const namespaceMethod = person.match(/  async namespaceResults\(verb, \.\.\.args\) \{[\s\S]*?\n  \}\n/)?.[0];
+assert.ok(namespaceMethod, 'use the real production Namespace results method');
+
+for (const savingPurpose of [null, 'rpc:namespaceResults', 'rpc:otherWriter']) test(`shared words cross real RPC${savingPurpose ? ` after the saving cap from ${savingPurpose}` : ''}`, async () => {
+  const savingReached = savingPurpose !== null;
+  const script = `
+    import { DurableObject } from 'cloudflare:workers';
+    import { resultsStore } from './src/namespace-results.mjs';
+    import { answerRecordShare } from './src/record-share-pages.mjs';
+    import { meteredUse, meterMethods } from './src/metered-use.mjs';
+    import { purposeOfStoreMethod, fixedPurposesOfStoreMethod } from './src/person-store-purpose.mjs';
+    import { organizationEvidenceKinds } from './src/file-organization.mjs';
+    import { watchedSql } from './src/live-screen.mjs';
+    const identity = '1f:' + 'a'.repeat(64);
+    export class Probe extends DurableObject {
+      constructor(ctx, env) {
+        super(ctx, env);
+        this.results = resultsStore(ctx.storage.sql);
+        this.results.put([{ identity, kind: 'transcript', value: {
+          text: 'These are the shared words.',
+          segments: [{ start: 0, end: 1, text: 'These are the shared words.' }],
+        } }]);
+        const sql = ctx.storage.sql;
+        const at = Date.now();
+        const start = Math.floor(at / 3600000) * 3600000;
+        sql.exec('CREATE TABLE metered_use_days (day TEXT PRIMARY KEY, purposes TEXT NOT NULL, windows TEXT) WITHOUT ROWID');
+        const purposes = ${savingReached ? JSON.stringify({ [savingPurpose]: { rows_written: 500001 } }) : '{}'};
+        sql.exec('INSERT INTO metered_use_days (day, purposes, windows) VALUES (?, ?, ?)', new Date(at).toISOString().slice(0,10),
+          JSON.stringify(purposes), JSON.stringify({ hour: { start, purposes } }));
+        this.meter = meteredUse({ sql, now: () => at, filterRows: async ({ rows }) => ({ matches: rows.map((_,i) => i) }) });
+        this.results = resultsStore(watchedSql(sql, () => {}, (query, cursor) => this.meter.observe(query, cursor),
+          null, query => this.meter.beforeStatement(query)));
+        ctx.blockConcurrencyWhile(() => this.meter.initialize({ purposes: probePurposes }));
+      }
+      async sharedFileForLink() {
+        return { copy: { kind: 'file', body: { identity } }, row: { identity } };
+      }
+      transaction(fn) { return this.ctx.storage.transactionSync(fn); }
+      organizeFileArrival() { return null; }
+      noticeSearch() {}
+      scheduler() { return { arm: async () => {} }; }
+      ${namespaceMethod}
+    }
+    const probePurposes = meterMethods(Probe.prototype, {
+      purposeOf: purposeOfStoreMethod, fixedPurposeOf: fixedPurposesOfStoreMethod,
+    });
+    export default { fetch(request, env) {
+      const owner = env.PERSON.idFromName('synthetic').toString();
+      if (new URL(request.url).pathname === '/write') return (async () => {
+        try {
+          await env.PERSON.get(env.PERSON.idFromString(owner)).namespaceResults('put',
+            [{ identity, kind: 'transcript', value: { text: 'This must not replace the saved words.' } }]);
+          return Response.json({ saved: true });
+        } catch (error) {
+          return Response.json({ error: error.message }, { status: 429 });
+        }
+      })();
+      const kv = { get: async () => ({ person_ref: owner }) };
+      return answerRecordShare(request, { env: { ...env, APP_KV: kv }, kv, origin: 'http://localhost' });
+    } };
+  `;
+  const bundled = await build({ stdin: { contents: script, resolveDir: new URL('..', import.meta.url).pathname,
+    sourcefile: 'shared-transcript-rpc-probe.mjs' }, bundle: true, write: false, format: 'esm',
+    platform: 'node', external: ['cloudflare:workers', 'node:async_hooks'] });
+  const runtime = new Miniflare({ telemetry: { enabled: false }, workers: [{ config: {
+    name: 'shared-transcript-test', compatibilityDate: '2026-09-01', compatibilityFlags: ['nodejs_compat'],
+    manifest: { mainModule: 'worker.mjs', modules: { 'worker.mjs': { type: 'esm', contents: bundled.outputFiles[0].text } } },
+    env: { PERSON: { type: 'durable-object', worker: 'shared-transcript-test', exportName: 'Probe' } },
+    exports: { Probe: { type: 'durable-object', storage: 'sqlite' } },
+  } }] });
+  try {
+    const answer = await runtime.dispatchFetch('http://localhost/share/' + 't'.repeat(32) + '/transcript');
+    assert.equal(answer.status, 200);
+    assert.deepEqual(await answer.json(), { text: 'These are the shared words.',
+      segments: [{ start: 0, end: 1, text: 'These are the shared words.' }] });
+    if (savingPurpose === 'rpc:otherWriter') {
+      // Another kind of work running away stops only that work; this write still saves.
+      const write = await runtime.dispatchFetch('http://localhost/write');
+      const body = await write.json();
+      assert.equal(write.status, 200, JSON.stringify(body));
+      assert.deepEqual(body, { saved: true });
+    } else if (savingReached) {
+      const write = await runtime.dispatchFetch('http://localhost/write');
+      assert.equal(write.status, 429);
+      assert.match((await write.json()).error, /Saving in your account is used up/);
+      const unchanged = await runtime.dispatchFetch('http://localhost/share/' + 't'.repeat(32) + '/transcript');
+      assert.deepEqual(await unchanged.json(), { text: 'These are the shared words.',
+        segments: [{ start: 0, end: 1, text: 'These are the shared words.' }] });
+    }
+  } finally { await runtime.dispose(); }
+});
+
+test('read operations have distinct purposes while old writers and invalid verbs keep their counts', () => {
+  for (const verb of ['readBody', 'manyBody', 'listBody', 'counts']) {
+    assert.equal(purposeOfStoreMethod('namespaceResults', [verb]), `rpc:namespaceResults:${verb}`);
+  }
+  for (const verb of ['list', 'history']) {
+    assert.equal(purposeOfStoreMethod('namespaceTidy', [verb]), `rpc:namespaceTidy:${verb}`);
+  }
+  for (const verb of ['put', 'merge', 'unknown', 'a'.repeat(10000), { toString: () => 'readBody' }]) {
+    assert.equal(purposeOfStoreMethod('namespaceResults', [verb]), 'rpc:namespaceResults');
+  }
+  assert.equal(purposeOfStoreMethod('namespaceTidy', ['apply']), 'rpc:namespaceTidy');
+  assert.equal(purposeOfStoreMethod('namespaceTidy', ['undo']), 'rpc:namespaceTidy');
+  assert.equal(purposeOfStoreMethod('fetch', [new Request('https://x/namespace/results/' + 'a'.repeat(64))]),
+    'http:GET /namespace/results/:id');
+  assert.equal(purposeOfStoreMethod('alarm'), 'alarm');
+  assert.deepEqual(fixedPurposesOfStoreMethod('fetch'), []);
+  assert.deepEqual(fixedPurposesOfStoreMethod('alarm'), ['alarm']);
+  assert.deepEqual(fixedPurposesOfStoreMethod('namespaceResults'), [
+    'rpc:namespaceResults', ...['readBody', 'manyBody', 'listBody', 'counts'].map(verb => `rpc:namespaceResults:${verb}`),
+  ]);
+  assert.deepEqual(fixedPurposesOfStoreMethod('namespaceTidy'), [
+    'rpc:namespaceTidy', 'rpc:namespaceTidy:list', 'rpc:namespaceTidy:history',
+  ]);
+  assert.deepEqual(fixedPurposesOfStoreMethod('sharedFileForLink'), ['rpc:sharedFileForLink']);
+});

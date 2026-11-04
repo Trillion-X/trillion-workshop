@@ -1,0 +1,60 @@
+// Heavy on-device AI in its own helper process (computer/model-helper.mjs): the tier this Mac meets is chosen from DATA, the
+// runner and model bundle come from the helper owner, the helper gets only the listed environment, and the Mac's tool host
+// row (computer/mac-tools.json) reaches it.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { makeModelHelper, modelHelperSettings, modelHelperTools, tierFor } from '../computer/model-helper.mjs';
+
+const settings = {
+  ...modelHelperSettings(),
+  jobs: [{ id: 'cut-out', what: 'Cuts a person out of a picture.', tiers: [
+    { id: 'large', min_memory_gb: 16, arch: 'arm64', runner: 'runner-large', bundle: 'bundle-large' },
+    { id: 'small', min_memory_gb: 4, runner: 'runner-small', bundle: 'bundle-small' }] }],
+};
+const GB = 2 ** 30;
+function mac({ memoryGb, arch = 'arm64', fail = false }) {
+  const ensured = [], ran = [];
+  const helpers = { ensure: async ({ id }) => { ensured.push(id); return { id, path: `/helpers/${id}/${id.startsWith('bundle') ? 'bundle.mlpackage' : 'run'}` }; } };
+  const run = async (path, args, options) => { ran.push({ path, args, options }); if (fail) throw new Error('model crashed\nstack'); return { stdout: ' done \n' }; };
+  return { ensured, ran, helper: makeModelHelper({ settings, helpers, memory: () => memoryGb * GB, arch, run }) };
+}
+
+test('the most capable tier this Mac meets runs, from its own runner and bundle, with only the listed environment', async () => {
+  const { helper, ensured, ran } = mac({ memoryGb: 32 });
+  assert.deepEqual(helper.list().jobs, [{ id: 'cut-out', what: 'Cuts a person out of a picture.', tier: 'large' }]);
+  const answer = await helper.runJob({ job: 'cut-out', input: '/p/in.png', output: '/p/out.png' });
+  assert.deepEqual([answer.ran, answer.tier, answer.result, answer.output], [true, 'large', 'done', '/p/out.png']);
+  assert.deepEqual(ensured, ['runner-large', 'bundle-large']);
+  assert.deepEqual(ran[0].args, ['/helpers/bundle-large', '/p/in.png', '/p/out.png']);
+  assert.deepEqual(Object.keys(ran[0].options.env).sort(), settings.env.filter(name => process.env[name] !== undefined).sort());
+  assert.equal(ran[0].options.timeout, settings.timeout_seconds * 1000);
+});
+
+test('a smaller Mac takes the smaller tier, one below every tier fetches nothing and says why in numbers', async () => {
+  const small = mac({ memoryGb: 8 });
+  assert.equal((await small.helper.runJob({ job: 'cut-out', input: '/p/in.png' })).tier, 'small');
+  assert.equal(tierFor(settings.jobs[0], { memoryGb: 32, arch: 'x64' }).id, 'small', 'a tier for another chip is passed over');
+  const tiny = mac({ memoryGb: 2 });
+  const answer = await tiny.helper.runJob({ job: 'cut-out', input: '/p/in.png' });
+  assert.equal(answer.ran, false);
+  assert.match(answer.said, /\(2 GB memory, arm64\) is below the smallest tier of cut-out, which needs 4 GB/);
+  assert.deepEqual([tiny.ensured, tiny.ran], [[], []]);
+});
+
+test('a failed helper is words, an unknown job or missing input is refused, and with no rows nothing is listed', async () => {
+  const broken = mac({ memoryGb: 32, fail: true });
+  assert.match((await broken.helper.runJob({ job: 'cut-out', input: '/p/in.png' })).said, /^cut-out did not finish: model crashed$/);
+  await assert.rejects(broken.helper.runJob({ job: 'nope', input: '/x' }), /There is no job named nope\. The jobs: cut-out\./);
+  await assert.rejects(broken.helper.runJob({ job: 'cut-out' }), /Give the path of the file/);
+  assert.equal(modelHelperSettings().jobs.length, 0, 'nothing ships on trust');
+});
+
+test('the Mac host rows reach the tool and, shipped empty, it lists nothing and runs nothing', async () => {
+  const rows = JSON.parse(readFileSync(new URL('../computer/mac-tools.json', import.meta.url), 'utf8')).tools;
+  for (const [id, name] of [['tool:list-model-jobs', 'jobs'], ['tool:run-model-job', 'run']]) {
+    assert.deepEqual([rows[id].module, rows[id].export, rows[id].name], ['./model-helper.mjs', 'modelHelperTools', name]);
+  }
+  assert.deepEqual(await modelHelperTools.jobs(), { jobs: [], said: 'No heavy AI job is set up on this Mac yet.' });
+  await assert.rejects(modelHelperTools.run({ job: 'cut-out', input: '/x' }), /There is no job named cut-out\. The jobs: none\./);
+});
