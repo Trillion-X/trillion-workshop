@@ -219,6 +219,11 @@ test('a destination tool folder holds a group, unless its row says in joins_tool
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
 
+test('a regular expression built in a template string is not a module request', () => {
+  const text = "const m = s.match(new RegExp(`export \\\\{[^}]*\\\\} from '([^']+)'`));\nimport x from './real.mjs';\n";
+  assert.deepEqual(requestsIn(text).map(item => item.specifier), ['./real.mjs']);
+});
+
 test('a CSS @import written inside a string is not a module request', () => {
   const text = "const css = 'h1{}@import \"/styles/shared.css\";@import \"../shared.css\";';\nimport './real.mjs';\n";
   assert.deepEqual(requestsIn(text).map(item => item.specifier), ['./real.mjs']);
@@ -241,4 +246,37 @@ test('a match the row names as no provider call holds nothing, and regex text is
     assert.equal(moveCode({ step: 'plan', row: other, source_folder: source, destination_folder: destination }).groups.find(item => item.id === 'read-secret').held.length, 1, 'a row for another file frees nothing');
     assert.throws(() => moveCode({ step: 'plan', row: { ...row, not_provider_calls: [{ file: 'src/secret-user.mjs', id: 'env-binding', found: 'env.PRICE_TOKEN' }] }, source_folder: source, destination_folder: destination }), /why it is no provider call/);
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
+
+test('a file the destination already holds where it would land, differing only in import paths, is home already', () => {
+  const source = repository({
+    'package.json': json({ name: 'old-app', type: 'module' }),
+    'src/screen.mjs': "import { look } from './look.mjs';\nexport const screen = () => look();\n",
+    'src/look.mjs': "import { tint } from './tint.mjs';\nexport const look = () => tint;\n",
+    'src/tint.mjs': "export const tint = 'blue';\n",
+  });
+  const destination = repository({
+    'package.json': json({ name: 'apps', type: 'module' }),
+    'web/src/look.mjs': "import { tint } from './tint.mjs';\nexport const look = () => tint;\n",
+    'web/src/tint.mjs': "export const tint = 'blue';\n",
+  });
+  const homeRow = { id: 'move:screens', source: { name: 'old-app', test_folders: ['test'] }, destination: { name: 'apps', package: 'apps', shared_folder: 'web' }, keep: [], provider_calls: [], calls: [], groups: [{ id: 'screen', owner: ['src/screen.mjs'], to: 'web' }] };
+  try {
+    const plan = moveCode({ step: 'plan', row: homeRow, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups[0].held, []);
+    const look = plan.files.find(file => file.from === 'src/look.mjs');
+    assert.equal(look.reused, true);
+    assert.equal(look.to, 'web/src/look.mjs');
+    writeFileSync(join(destination, 'web/src/look.mjs'), "import { tint } from './tint.mjs?v=2';\nexport const look = () => tint;\n");
+    git(destination, 'commit', '-q', '-am', 'the copy here imports with a query');
+    const again = moveCode({ step: 'plan', row: homeRow, source_folder: source, destination_folder: destination });
+    assert.equal(again.files.find(file => file.from === 'src/look.mjs').reused, true);
+    writeFileSync(join(destination, 'web/src/look.mjs'), "import { tint } from './tint.mjs';\nexport const look = () => tint + '!';\n");
+    git(destination, 'commit', '-q', '-am', 'the copy here changed');
+    const changed = moveCode({ step: 'plan', row: homeRow, source_folder: source, destination_folder: destination });
+    assert.match(changed.groups[0].held.join('\n'), /web\/src\/look\.mjs is already in the destination with other bytes/);
+  } finally {
+    rmSync(source, { recursive: true, force: true });
+    rmSync(destination, { recursive: true, force: true });
+  }
 });
