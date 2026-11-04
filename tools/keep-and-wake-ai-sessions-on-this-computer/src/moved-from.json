@@ -235,6 +235,54 @@
       "source_identity": "1f:a9558aae34c876e2b80758b1cb4cffb893ca693e473d159a25c547461aefbf6a",
       "identity": "1f:a9558aae34c876e2b80758b1cb4cffb893ca693e473d159a25c547461aefbf6a",
       "reused": true
+    },
+    {
+      "from": "src/meaning-or-words.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/meaning-or-words.mjs",
+      "source_identity": "1f:d7274ee31552b102834f4f1869b2d562e0687964580cb597fb6576bc0e09efb4",
+      "identity": "1f:7990ff649ef717f2ebf7279e2092b5d2eba3d4adb5445c8dc614d18354595ebf",
+      "reused": true
+    },
+    {
+      "from": "src/maker-payouts.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/maker-payouts.json",
+      "source_identity": "1f:36d2d4d5544743101dfc0a66ba391365b94c00d580fa5e226ebf15595b818a9a",
+      "identity": "1f:36d2d4d5544743101dfc0a66ba391365b94c00d580fa5e226ebf15595b818a9a",
+      "reused": true
+    },
+    {
+      "from": "src/maker-payouts.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/maker-payouts.mjs",
+      "source_identity": "1f:fd37d324633d5adbb5b98e3c95e82f96779a86367bf1b562e4336c94e3476aa6",
+      "identity": "1f:fd37d324633d5adbb5b98e3c95e82f96779a86367bf1b562e4336c94e3476aa6",
+      "reused": true
+    },
+    {
+      "from": "src/model-calls.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs",
+      "source_identity": "1f:4d26bd96fc1fac9ddcdf0dd2aca213232ce2af08de26539b884ad70a26c40e3e",
+      "identity": "1f:4d26bd96fc1fac9ddcdf0dd2aca213232ce2af08de26539b884ad70a26c40e3e",
+      "reused": true
+    },
+    {
+      "from": "src/record-model-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/record-model-tools.mjs",
+      "source_identity": "1f:1626699cce23df5e219059b94c7950015578ee355a975575bbe97112527ad78e",
+      "identity": "1f:044e634142833fb8aab73fe22746eb11e10816648bdcf5745111b179ed7ec5b5",
+      "reused": true
+    },
+    {
+      "from": "src/workshop.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs",
+      "source_identity": "1f:172fc5ddc10f4c05d04ea73375a4daadc2c7c29db6ceed3b769499b9703fa787",
+      "identity": "1f:66e5565912e2d04d87e5a58bb4d708eb042430e6ae377db0615832aa86ac81e7",
+      "reused": true
     }
   ]
 }

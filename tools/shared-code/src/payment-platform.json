@@ -1,0 +1,56 @@
+{
+  "_what": "Selling through a payment platform this service runs, as DATA (src/payment-platform.mjs). A seller who has not brought their own payment account connects one under the platform in one click; every checkout their store makes then acts for that account and carries the platform's fee. A seller's own connection (their own key) stays their road whenever they have one, with no fee. A new platform is one row; nothing in code names a vendor.",
+  "platforms": [
+    {
+      "id": "stripe",
+      "label": "Stripe",
+      "vendor": "stripe",
+      "_vendor": "The operator account's connections of this vendor are the platform. Which of them is live and which is test is READ from the vendor (mode_read), never typed here.",
+      "own_connection": "service_connection:stripe",
+      "secret_field": "secret_key",
+      "credential_placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " },
+      "mode_read": { "operation_id": "operation:read-balance", "live_field": ["livemode"] },
+      "acting_header": "Stripe-Account",
+      "allowed_hosts": ["api.stripe.com"],
+      "allowed_operations": [
+        "operation:create-session",
+        "operation:read-session",
+        "operation:read-invoice",
+        "operation:read-payment-intent",
+        "operation:read-charge",
+        "operation:read-subscription",
+        "operation:find-subscription-schedules",
+        "operation:read-subscription-schedule",
+        "operation:create-subscription-schedule",
+        "operation:create-product",
+        "operation:create-price",
+        "operation:find-webhook-endpoints",
+        "operation:create-webhook-endpoint"
+      ],
+      "account": {
+        "create": "operation:create-connected-account",
+        "read": "operation:read-connected-account",
+        "onboarding_link": "operation:create-account-link",
+        "onboarding_type": "account_onboarding",
+        "subject": {
+          "controller": { "fees": { "payer": "account" }, "losses": { "payments": "stripe" }, "stripe_dashboard": { "type": "full" } }
+        },
+        "facts": { "ready": ["charges_enabled"], "submitted": ["details_submitted"], "payouts": ["payouts_enabled"] },
+        "dashboard_url": "https://dashboard.stripe.com/"
+      },
+      "fee": {
+        "_rules": "The first rule whose `when` facts all equal the seller's facts gives the fee in basis points (100 = 1%). Facts: active_plan (the seller has a paid Trillion plan now) and mode (live or test).",
+        "rules": [
+          { "when": { "active_plan": true }, "percent_bps": 300 },
+          { "when": {}, "percent_bps": 500 }
+        ],
+        "_placements": "Where the fee goes in a request, by the request's operation and the subject's own mode (null: any). `as: amount_of_lines` places percent_bps of the subject's line items total (smallest currency unit, rounded down); `as: percent` places percent_bps as a percentage.",
+        "placements": [
+          { "operation_id": "operation:create-session", "subject_mode": "payment", "path": ["payment_intent_data", "application_fee_amount"], "as": "amount_of_lines" },
+          { "operation_id": "operation:create-session", "subject_mode": "subscription", "path": ["subscription_data", "application_fee_percent"], "as": "percent" },
+          { "operation_id": "operation:create-subscription-schedule", "subject_mode": null, "path": ["default_settings", "application_fee_percent"], "as": "percent" }
+        ]
+      }
+    }
+  ]
+}

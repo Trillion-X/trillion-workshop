@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/consent-fingerprint.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-invitations-and-introductions-to-people-in-the-network-and/src/consent-fingerprint.mjs",
+      "source_identity": "1f:45e0e9821f87cd27d806e933022c3cb5a21069a92eabc2bbb0656a3c28e51b81",
+      "identity": "1f:1784cd1b526b9808c096bce830fc30f9463cfaa5ec83b0a9832cb827c57b2d1e"
+    },
+    {
+      "from": "src/network-introduction-expiry.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-invitations-and-introductions-to-people-in-the-network-and/src/network-introduction-expiry.mjs",
+      "source_identity": "1f:7ac1329d84877ded267a5c158d1152a3681d89ad5b30e471e7479d75c961a979",
+      "identity": "1f:160f2d5a17412fb1f8cab7c84276fc217e93ead08bc99c7a14d18eb206035255"
+    }
+  ]
+}

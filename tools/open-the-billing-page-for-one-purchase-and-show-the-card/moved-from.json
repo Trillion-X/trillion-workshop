@@ -1,0 +1,22 @@
+{
+ "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+ "source": "Trillion-X/trillion",
+ "package": "trillion-workshop",
+ "calls": [],
+ "files": [
+  {
+   "from": "src/purchase-billing.mjs",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/open-the-billing-page-for-one-purchase-and-show-the-card/src/purchase-billing.mjs",
+   "source_identity": "1f:937863793d546b74d72d296a37adafffb452b25c3d48c336bc7df83a756252dc",
+   "identity": "1f:1a7b24fb24a0540e2567e9fb5f3754e220b5d3f441e5f15c3df9661d48444059"
+  },
+  {
+   "from": "src/purchase-cards.mjs",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/open-the-billing-page-for-one-purchase-and-show-the-card/src/purchase-cards.mjs",
+   "source_identity": "1f:117083fad8eb7ceb82d89d7b0651474610320fa90af90e302a8a15ad42792794",
+   "identity": "1f:117083fad8eb7ceb82d89d7b0651474610320fa90af90e302a8a15ad42792794"
+  }
+ ]
+}
