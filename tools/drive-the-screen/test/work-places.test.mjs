@@ -9,10 +9,12 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
 import { makePlaces, placeSettings } from '../read-data/work-places.mjs';
 import { makeScreenTools } from '../read-data/drive-the-screen.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
+/** BLAKE3-256 of the bytes as 64 hex digits, from the one content-identity owner (its `1f:` prefix dropped). */
+const blake3Hex = bytes => makeHashCodeHexFromBytes(bytes).slice(3);
 
 const ok = (stdout = '') => ({ code: 0, stdout: Buffer.from(stdout), stderr: '' });
 
@@ -32,7 +34,7 @@ test('the person takes a place over: AIs are refused until it ends or is handed 
   assert.equal(taken.hand_back_key, 'the-persons-key');
   assert.ok(Date.parse(taken.until) - Date.parse('2026-10-21T09:00:00Z') <= placeSettings().limits.longest_take_over_minutes * 60_000, 'capped at longest_take_over_minutes');
   const kept = JSON.parse(await readFile(file, 'utf8'));
-  assert.equal(kept.places['this-mac'].lease.key, bytesToHex(blake3(new TextEncoder().encode('the-persons-key'))), 'only the BLAKE3 of the key is kept');
+  assert.equal(kept.places['this-mac'].lease.key, blake3Hex(new TextEncoder().encode('the-persons-key')), 'only the BLAKE3 of the key is kept');
   assert.ok(!JSON.stringify(kept).includes('the-persons-key'));
 
   await assert.rejects(places.handsOn('this-mac'), error => {

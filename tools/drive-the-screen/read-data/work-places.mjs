@@ -19,8 +19,6 @@
 //      (tools/drive-the-screen/read-data/settings-file.mjs).
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
 import { execFile } from 'node:child_process';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -28,12 +26,16 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readSettingsFile, writeSettingsFile } from './settings-file.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
+/** BLAKE3-256 of the bytes as 64 hex digits, from the one content-identity owner (its `1f:` prefix dropped). */
+const blake3Hex = bytes => makeHashCodeHexFromBytes(bytes).slice(3);
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const placeSettings = () => JSON.parse(readFileSync(join(HERE, 'work-places.json'), 'utf8'));
 const fill = (text, values) => String(text ?? '').replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 const expand = (path, home) => String(path).replace(/^~(?=\/|$)/, home);
-const hex = bytes => bytesToHex(blake3(bytes));
+const hex = bytes => blake3Hex(bytes);
 const refuse = (settings, key, values = {}, status = 400, extra = {}) => Object.assign(new Error(fill(settings.words[key], values)), { status, ...extra });
 
 /** Runs one argv to its end: { code, stdout (bytes), stderr }. Never throws for a program that fails or is missing. */
