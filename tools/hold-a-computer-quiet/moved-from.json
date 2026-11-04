@@ -1,0 +1,30 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here (or, for a file changed here since, to its bytes at byte_copy_commit); deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "computer/hold-this-mac.mjs",
+      "commit": "b4e3c05abe5660652a58c054fba304efe4cee49e",
+      "deleted_by": "73091c050d5fe11c1295433be36aa760002838a1",
+      "to": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+      "source_identity": "1f:720ec348778fb33196bfca6e25d696514302f36e46b2e3bb0a205885fbb7d498",
+      "identity_at_move": "1f:720ec348778fb33196bfca6e25d696514302f36e46b2e3bb0a205885fbb7d498",
+      "byte_copy_commit": "53bd4c4da544638a62df808bf4b56d877be878fd",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "test/hold-this-mac.test.mjs",
+      "commit": "b4e3c05abe5660652a58c054fba304efe4cee49e",
+      "deleted_by": "73091c050d5fe11c1295433be36aa760002838a1",
+      "to": "tools/hold-a-computer-quiet/test/hold-this-mac.test.mjs",
+      "source_identity": "1f:df19c161b05902e1379a9daefcf2292988fa137bd9a0899d1360a142dd4ba2b5",
+      "identity_at_move": "1f:df19c161b05902e1379a9daefcf2292988fa137bd9a0899d1360a142dd4ba2b5",
+      "byte_copy_commit": "53bd4c4da544638a62df808bf4b56d877be878fd",
+      "changed": true,
+      "found_by": "same bytes"
+    }
+  ]
+}

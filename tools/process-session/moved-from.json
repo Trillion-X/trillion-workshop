@@ -1,0 +1,89 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/process-session/do-work/owned-process-lifetime.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/process-session/do-work/owned-process-lifetime.mjs",
+      "source_identity": "1f:9dc1a6058f9fb623bf1af93cf9342d5130cf49d24c5a2857805fc0bacf43072d",
+      "identity": "1f:9dc1a6058f9fb623bf1af93cf9342d5130cf49d24c5a2857805fc0bacf43072d",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/process-session/do-work/run-owned-process.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/process-session/do-work/run-owned-process.mjs",
+      "source_identity": "1f:4e321bc4d7e6253c4ff7619e04c6c5f0dafa33a9376f67eac7957a78e986e346",
+      "identity": "1f:4e321bc4d7e6253c4ff7619e04c6c5f0dafa33a9376f67eac7957a78e986e346",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/process-session/envelope-client/start-process-session.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/process-session/envelope-client/start-process-session.ts",
+      "source_identity": "1f:6cd0091597dd8d067c916ab81be794212c4a0e7b62d5a041c7a4cf17bdd0c876",
+      "identity": "1f:6cd0091597dd8d067c916ab81be794212c4a0e7b62d5a041c7a4cf17bdd0c876",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/process-session/read-data/accumulate-process-session-output.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/process-session/read-data/accumulate-process-session-output.ts",
+      "source_identity": "1f:8a57c7d392ee7dca2eee56366126741b18a796fc20169f2e7f0c2a32397b3154",
+      "identity": "1f:8a57c7d392ee7dca2eee56366126741b18a796fc20169f2e7f0c2a32397b3154",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/process-session/read-data/read-process-session-events.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/process-session/read-data/read-process-session-events.ts",
+      "source_identity": "1f:cb2cac4e08d23ff79affb90797faace997907c4aaabf863db42d06b8a193bbb2",
+      "identity": "1f:cb2cac4e08d23ff79affb90797faace997907c4aaabf863db42d06b8a193bbb2",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/process-session/read-data/read-process-session-launch.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/process-session/read-data/read-process-session-launch.ts",
+      "source_identity": "1f:9ed6c1ec1f96e04734852b7364b145006e84b39513467b74c1346500a39ddb57",
+      "identity": "1f:9ed6c1ec1f96e04734852b7364b145006e84b39513467b74c1346500a39ddb57",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/process-session/read-data/render-launch-from-chat-launch.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/process-session/read-data/render-launch-from-chat-launch.ts",
+      "source_identity": "1f:e2eae1552a155f5ffeecb96557fdd8d87b577b9c238905987fed401fd54cdc1b",
+      "identity": "1f:e2eae1552a155f5ffeecb96557fdd8d87b577b9c238905987fed401fd54cdc1b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/process-session/read-data/stream-output-text.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/process-session/read-data/stream-output-text.ts",
+      "source_identity": "1f:f6a8becfab9b270c4815df163d9ceb3a8580d6194b3a19345082409244d94c2c",
+      "identity": "1f:f6a8becfab9b270c4815df163d9ceb3a8580d6194b3a19345082409244d94c2c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/process-session/show/use-process-session-live-output.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/process-session/show/use-process-session-live-output.ts",
+      "source_identity": "1f:b6d70a8b364641934906aa8f223086db2204fc41120bc8812a1de77354e1898f",
+      "identity": "1f:b6d70a8b364641934906aa8f223086db2204fc41120bc8812a1de77354e1898f",
+      "found_by": "same bytes"
+    }
+  ]
+}

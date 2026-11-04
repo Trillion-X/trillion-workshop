@@ -10,6 +10,244 @@
       "to": "tools/tours-screen/read-data/tours.json",
       "source_identity": "1f:3226be40db3075bf6195fb66977e20c4c8a4997a32c70b94c8a591bfc06c593a",
       "identity": "1f:3226be40db3075bf6195fb66977e20c4c8a4997a32c70b94c8a591bfc06c593a"
+    },
+    {
+      "from": "parts/guided-overlay/do-work/act-on-target.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/do-work/act-on-target.ts",
+      "source_identity": "1f:a2381f5c573c054ab5b6ac684b5e4342fb19d67cf3ce343898db956f6531e86d",
+      "identity": "1f:a2381f5c573c054ab5b6ac684b5e4342fb19d67cf3ce343898db956f6531e86d",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/do-work/dispatch-step-perform.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/do-work/dispatch-step-perform.ts",
+      "source_identity": "1f:db79dc2fe75721b4a1ebc3d3124478a04de4ebb94026bd355ddbfe7960171447",
+      "identity": "1f:db79dc2fe75721b4a1ebc3d3124478a04de4ebb94026bd355ddbfe7960171447",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/engine/advance-evaluator.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/engine/advance-evaluator.ts",
+      "source_identity": "1f:d600ec774ff63186d9aa0ef93823c3b6ebc5bfcfa408fa72e620c31841d4e941",
+      "identity": "1f:d600ec774ff63186d9aa0ef93823c3b6ebc5bfcfa408fa72e620c31841d4e941",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/engine/branch-resolver.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/engine/branch-resolver.ts",
+      "source_identity": "1f:4c0d37477558b7441d386198bc4ec93ea9121dd659f9b6f3ba79996629b50072",
+      "identity": "1f:4c0d37477558b7441d386198bc4ec93ea9121dd659f9b6f3ba79996629b50072",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/engine/cursor-machine.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/engine/cursor-machine.ts",
+      "source_identity": "1f:54446b525197086db9cffe20df37eed576d0fd35f1eb0a96bf0bd1bbca4727ce",
+      "identity": "1f:54446b525197086db9cffe20df37eed576d0fd35f1eb0a96bf0bd1bbca4727ce",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/engine/trigger-intake.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/tours-screen/engine/trigger-intake.ts",
+      "source_identity": "1f:b368eddcc30acd9f3c325b70dc74624a872be553bc9dd5031e4b2a13b19e5005",
+      "identity": "1f:b368eddcc30acd9f3c325b70dc74624a872be553bc9dd5031e4b2a13b19e5005",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/read-data/tour-library.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/tours-screen/read-data/tour-library.ts",
+      "source_identity": "1f:1d135450f5f508b008382ed98a90ac86ccde91f8e9793bd23443ef65ab56f502",
+      "identity": "1f:1d135450f5f508b008382ed98a90ac86ccde91f8e9793bd23443ef65ab56f502",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/changed-tour.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/changed-tour.ts",
+      "source_identity": "1f:bcb642673c35311abdbd1291cd886d8d5b0d67fe7cdb8cd62f55c82537107c38",
+      "identity": "1f:bcb642673c35311abdbd1291cd886d8d5b0d67fe7cdb8cd62f55c82537107c38",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/default-content-renderers.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/default-content-renderers.tsx",
+      "source_identity": "1f:10e50e95bd2e0a15f275f234ab5a7b219d0f3a724eca59057dcf5f4c2b1f4733",
+      "identity": "1f:10e50e95bd2e0a15f275f234ab5a7b219d0f3a724eca59057dcf5f4c2b1f4733",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/default-progress-visuals.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/default-progress-visuals.tsx",
+      "source_identity": "1f:326f34c7c046b717a8e75a40e070c3abacc5537b3c82b32c8187c469ad2ad207",
+      "identity": "1f:326f34c7c046b717a8e75a40e070c3abacc5537b3c82b32c8187c469ad2ad207",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/glance-content.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/glance-content.tsx",
+      "source_identity": "1f:43b16e03a3ecb010f27c31457f00adecdd38a308b4caaecb35009e632bce9702",
+      "identity": "1f:43b16e03a3ecb010f27c31457f00adecdd38a308b4caaecb35009e632bce9702",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/mount-walkthrough-host.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/mount-walkthrough-host.tsx",
+      "source_identity": "1f:20418979d758888f7f64b55108da44f625dacb6c6992a36b103cafbb7b62c4cd",
+      "identity": "1f:20418979d758888f7f64b55108da44f625dacb6c6992a36b103cafbb7b62c4cd",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/NavButtons.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/NavButtons.tsx",
+      "source_identity": "1f:599a06e305b7666de4f9b2b837a146df17386b5741cb82b3c1eda4e4288fe695",
+      "identity": "1f:599a06e305b7666de4f9b2b837a146df17386b5741cb82b3c1eda4e4288fe695",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/package-onboarding.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/package-onboarding.ts",
+      "source_identity": "1f:9938a59d501ae05211f1052fb175ccf0def4dc1b20887ab9b8962d9f4f59a709",
+      "identity": "1f:9938a59d501ae05211f1052fb175ccf0def4dc1b20887ab9b8962d9f4f59a709",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/presentation-registry.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/presentation-registry.ts",
+      "source_identity": "1f:62f98073a5f28a74a0cde56fc43a9a6d905dba491554032991dc75e12d376e1a",
+      "identity": "1f:62f98073a5f28a74a0cde56fc43a9a6d905dba491554032991dc75e12d376e1a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/step-card.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/step-card.ts",
+      "source_identity": "1f:0049cb91a7ba9017ad2631e60c2f5d45e23297eb5da590176b088b5ca100c940",
+      "identity": "1f:0049cb91a7ba9017ad2631e60c2f5d45e23297eb5da590176b088b5ca100c940",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/StepCardBody.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/StepCardBody.tsx",
+      "source_identity": "1f:47f3ae176cd254854c076bf858014f6c5670390fed64fb889126becc8d8a2737",
+      "identity": "1f:47f3ae176cd254854c076bf858014f6c5670390fed64fb889126becc8d8a2737",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/target-resolution.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/target-resolution.ts",
+      "source_identity": "1f:a64b5e00f99ba9d221db820e5d0e7d87d6003b1966e4960afa017475eb7c88d1",
+      "identity": "1f:a64b5e00f99ba9d221db820e5d0e7d87d6003b1966e4960afa017475eb7c88d1",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/TargetHighlight.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/TargetHighlight.tsx",
+      "source_identity": "1f:80b032cfc5802198c85d1dab62cb0e0ff68bd1d987c4718c48312025fecf5e07",
+      "identity": "1f:80b032cfc5802198c85d1dab62cb0e0ff68bd1d987c4718c48312025fecf5e07",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/walkthrough-events.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/walkthrough-events.ts",
+      "source_identity": "1f:460dc572b73d829884be14296f31cf0498491d60530579479b5a0ad9e4fe650c",
+      "identity": "1f:460dc572b73d829884be14296f31cf0498491d60530579479b5a0ad9e4fe650c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/walkthrough-presentation.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/walkthrough-presentation.ts",
+      "source_identity": "1f:74ce93b248e53a476ac0f8ca4a97e8a4a75a263606c4fb01ce1993f48e96cefd",
+      "identity": "1f:74ce93b248e53a476ac0f8ca4a97e8a4a75a263606c4fb01ce1993f48e96cefd",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/WalkthroughHost.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/WalkthroughHost.tsx",
+      "source_identity": "1f:a672b7cbc887c89488d16517367f94a9634adbc82d5ee75a2deabbaa72dba06e",
+      "identity": "1f:a672b7cbc887c89488d16517367f94a9634adbc82d5ee75a2deabbaa72dba06e",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/walkthroughs.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/walkthroughs.ts",
+      "source_identity": "1f:87d13cd111b4aa5215d425d077eb4c8de2c53db0d927394071a494a8cf6ba922",
+      "identity": "1f:87d13cd111b4aa5215d425d077eb4c8de2c53db0d927394071a494a8cf6ba922",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/WalkthroughSurface.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/WalkthroughSurface.tsx",
+      "source_identity": "1f:8119e53465103f407a5d9a6f583a365be01948a9e3d608b8089642b281c13dbd",
+      "identity": "1f:8119e53465103f407a5d9a6f583a365be01948a9e3d608b8089642b281c13dbd",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/do-work/walkthrough-progress.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/do-work/walkthrough-progress.ts",
+      "source_identity": "1f:96c1c358e2163c963f195ae5688572c8642ad21f506755c6bab3cc3c15a69655",
+      "identity_at_move": "1f:96c1c358e2163c963f195ae5688572c8642ad21f506755c6bab3cc3c15a69655",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/read-data/walkthrough-eeaf.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/tours-screen/read-data/walkthrough-eeaf.ts",
+      "source_identity": "1f:1fdefc0d83b1bdada326d033bab12eee69e665ac691d867aa92e65690af2fe82",
+      "identity_at_move": "1f:1fdefc0d83b1bdada326d033bab12eee69e665ac691d867aa92e65690af2fe82",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
     }
   ]
 }

@@ -1,0 +1,53 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+      "source_identity": "1f:4395599d0ceb6230b681553c6b7d5e2bb704a075824c1fbee52c45f8753245f0",
+      "identity": "1f:4395599d0ceb6230b681553c6b7d5e2bb704a075824c1fbee52c45f8753245f0",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/formula-engine/rules/compile-rules.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/formula-engine/rules/compile-rules.mjs",
+      "source_identity": "1f:333f68eccb3a61f211f64c3c0a43183d05edc755c77bd8c43c208f6e0e72eb61",
+      "identity": "1f:333f68eccb3a61f211f64c3c0a43183d05edc755c77bd8c43c208f6e0e72eb61",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/formula-engine/rules/evaluate-over-rows.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/formula-engine/rules/evaluate-over-rows.mjs",
+      "source_identity": "1f:0893069917f15c03a3711ec0e0f75f84ce78b116e396e6cd7a78988246cfa60b",
+      "identity": "1f:0893069917f15c03a3711ec0e0f75f84ce78b116e396e6cd7a78988246cfa60b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/formula-engine/rules/filter-records.mjs",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/formula-engine/rules/filter-records.mjs",
+      "source_identity": "1f:293261ab3e768557997c35859714f0cb72c2835bf71daf3d1e6c0e8f8b0846d0",
+      "identity": "1f:293261ab3e768557997c35859714f0cb72c2835bf71daf3d1e6c0e8f8b0846d0",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/formula-engine/rules/filter-rows-by-rules.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/formula-engine/rules/filter-rows-by-rules.mjs",
+      "source_identity": "1f:6f8bb787fadbc17bb24b023aa49cdccc7ed29dbf66400eaabf513d833cc105f5",
+      "identity": "1f:6f8bb787fadbc17bb24b023aa49cdccc7ed29dbf66400eaabf513d833cc105f5",
+      "found_by": "same bytes"
+    }
+  ]
+}

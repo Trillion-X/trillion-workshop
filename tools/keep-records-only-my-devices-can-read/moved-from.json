@@ -10,6 +10,15 @@
       "to": "tools/keep-records-only-my-devices-can-read/do-work/sealed-records.mjs",
       "source_identity": "1f:a2f408561e49a8beb8323dc5b7eecbc851ad93ec20719383b4d86724e24b27b7",
       "identity": "1f:a2f408561e49a8beb8323dc5b7eecbc851ad93ec20719383b4d86724e24b27b7"
+    },
+    {
+      "from": "parts/sealed-records/do-work/sealed-copy.mjs",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-records-only-my-devices-can-read/do-work/sealed-copy.mjs",
+      "source_identity": "1f:50cda29f4ec3a165a7b46e6c7fe0d0ada679919dc943b5f86c121a37873000fe",
+      "identity": "1f:50cda29f4ec3a165a7b46e6c7fe0d0ada679919dc943b5f86c121a37873000fe",
+      "found_by": "same bytes"
     }
   ]
 }

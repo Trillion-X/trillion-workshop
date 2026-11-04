@@ -1,0 +1,109 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/index.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/ui/index.ts",
+      "source_identity": "1f:a6707a99016b6badbb5bd7ba5f098b4ba20c2a9dfacedd1681988f4fef85be39",
+      "identity": "1f:a6707a99016b6badbb5bd7ba5f098b4ba20c2a9dfacedd1681988f4fef85be39",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ui/motion/animation.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/ui/motion/animation.ts",
+      "source_identity": "1f:f3a78be4cd7e052d4158b9b838a3db56db993df659a172b15e2b2f962a648880",
+      "identity": "1f:f3a78be4cd7e052d4158b9b838a3db56db993df659a172b15e2b2f962a648880",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ui/motion/lazy-motion.tsx",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/ui/motion/lazy-motion.tsx",
+      "source_identity": "1f:9c00df17aba29832e134980b6b2d454a974b745c3e6973a5f253051df60182ca",
+      "identity": "1f:9c00df17aba29832e134980b6b2d454a974b745c3e6973a5f253051df60182ca",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ui/motion/motion-features.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/ui/motion/motion-features.ts",
+      "source_identity": "1f:262da27494446b5e156a19a4d1f230bf630a204b567f9135a7914dd4550bed25",
+      "identity": "1f:262da27494446b5e156a19a4d1f230bf630a204b567f9135a7914dd4550bed25",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ui/read-data/declared-selector.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/ui/read-data/declared-selector.ts",
+      "source_identity": "1f:309840630881e6c74572f918d5b0f25add6b8fc9cd27beaaa0cb1015943be0fe",
+      "identity": "1f:309840630881e6c74572f918d5b0f25add6b8fc9cd27beaaa0cb1015943be0fe",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ui/read-data/widest-text.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/ui/read-data/widest-text.ts",
+      "source_identity": "1f:e4eb76043217ccd3f7b215c89119cc267789923942982e3a7d897caef08efa66",
+      "identity": "1f:e4eb76043217ccd3f7b215c89119cc267789923942982e3a7d897caef08efa66",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ui/show/canvas-history/command-history.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/ui/show/canvas-history/command-history.ts",
+      "source_identity": "1f:1df00b13bc43b4a088e58ffd5523598a4e7659808441c303f5263ba1aa59a71e",
+      "identity": "1f:1df00b13bc43b4a088e58ffd5523598a4e7659808441c303f5263ba1aa59a71e",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ui/show/clipboard/copy-text.ts",
+      "commit": "9bed45cbd854d06a953109d47b6da06fdc733431",
+      "deleted_by": "5baa327e6077c09cb0ee90e055f4a0642c5cd7bd",
+      "to": "tools/ui/show/clipboard/copy-text.ts",
+      "source_identity": "1f:e971ae89e1d6157e547f2cb1e8e5dd71775d8b14dee7bd8e165ad2fe3207a6ab",
+      "identity": "1f:e971ae89e1d6157e547f2cb1e8e5dd71775d8b14dee7bd8e165ad2fe3207a6ab",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ui/show/loading-mark/LoadingMark.tsx",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/ui/show/loading-mark/LoadingMark.tsx",
+      "source_identity": "1f:eefa7851bc61be2ca953664f7d80d128a24be66065bf8c8a258d298a711f281b",
+      "identity": "1f:eefa7851bc61be2ca953664f7d80d128a24be66065bf8c8a258d298a711f281b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ui/show/record-picker/record-value.ts",
+      "commit": "9bed45cbd854d06a953109d47b6da06fdc733431",
+      "deleted_by": "5baa327e6077c09cb0ee90e055f4a0642c5cd7bd",
+      "to": "tools/ui/show/record-picker/record-value.ts",
+      "source_identity": "1f:978a764ca7eb3546fa7e5d4b3785ec131c73dacbfa1d78c2a557d356038c9a37",
+      "identity": "1f:978a764ca7eb3546fa7e5d4b3785ec131c73dacbfa1d78c2a557d356038c9a37",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/ui/show/loading-mark/index.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/ui/show/loading-mark/index.ts",
+      "source_identity": "1f:5d7520ede1ece43fb37433119d56c60c7c177341324b6e1a64e4ea1b5f508736",
+      "identity_at_move": "1f:5d7520ede1ece43fb37433119d56c60c7c177341324b6e1a64e4ea1b5f508736",
+      "byte_copy_commit": "5998eb5471c0f560a48b1de2dd390fc63526f39d",
+      "changed": true,
+      "found_by": "same bytes"
+    }
+  ]
+}

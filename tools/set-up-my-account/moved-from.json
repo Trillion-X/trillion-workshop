@@ -71,6 +71,44 @@
       "to": "tools/set-up-my-account/test/show-rules-in-use.test.mjs",
       "source_identity": "1f:8513ea4311e605d41abee88eee607f2a2afcd4259746178e5a56ea0e3423314a",
       "identity": "1f:1a5dde76582cd5ea5790439d14ff605676821756a077006e877a1d6adfa5be1e"
+    },
+    {
+      "from": "src/ask-your-ai.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/set-up-my-account/read-data/ask-your-ai.mjs",
+      "source_identity": "1f:401cb5fce1e161ba6046f7a68475a5c56ad22d172bfce50675070a310e9d9b79",
+      "identity": "1f:401cb5fce1e161ba6046f7a68475a5c56ad22d172bfce50675070a310e9d9b79",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "src/setup-checks.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/set-up-my-account/read-data/setup-checks.mjs",
+      "source_identity": "1f:2d3a36689aa7a48a6fdfbbb9e9d3dea31107a393a00fcb46f61e00e69cbb19f8",
+      "identity": "1f:2d3a36689aa7a48a6fdfbbb9e9d3dea31107a393a00fcb46f61e00e69cbb19f8",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "src/workspace/sidebar-rules.mjs",
+      "commit": "9bed45cbd854d06a953109d47b6da06fdc733431",
+      "deleted_by": "5baa327e6077c09cb0ee90e055f4a0642c5cd7bd",
+      "to": "tools/set-up-my-account/read-data/sidebar-rules.mjs",
+      "source_identity": "1f:2e6916ca36b06357412039d95b9e5c1fcbbc63858723813913c53768883384c4",
+      "identity": "1f:2e6916ca36b06357412039d95b9e5c1fcbbc63858723813913c53768883384c4",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "src/ai-app-guides.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/set-up-my-account/read-data/ai-app-guides.mjs",
+      "source_identity": "1f:8fedd8518e7239b5288e0d97c92da912039f209e4a4eae8049c237391aeb6982",
+      "identity_at_move": "1f:8fedd8518e7239b5288e0d97c92da912039f209e4a4eae8049c237391aeb6982",
+      "byte_copy_commit": "6e363424f4228367c5edbfc1404eea4d73cbd437",
+      "changed": true,
+      "found_by": "same bytes"
     }
   ]
 }

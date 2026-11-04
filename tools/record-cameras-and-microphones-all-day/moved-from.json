@@ -1,0 +1,26 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/record-audio/do-work/always-recording.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-cameras-and-microphones-all-day/always-recording.ts",
+      "source_identity": "1f:b8969b7b284cf09c231ab66ad89b88248480a2d3697da17f773a23541e5cdb1c",
+      "identity": "1f:b8969b7b284cf09c231ab66ad89b88248480a2d3697da17f773a23541e5cdb1c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/do-work/rolling-segments.mjs",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-cameras-and-microphones-all-day/rolling-segments.mjs",
+      "source_identity": "1f:87faf8b89451eaeb9698d7efe671d73534a1bfbe6f18c746dee4c0f3aa18ad28",
+      "identity": "1f:87faf8b89451eaeb9698d7efe671d73534a1bfbe6f18c746dee4c0f3aa18ad28",
+      "found_by": "same bytes"
+    }
+  ]
+}

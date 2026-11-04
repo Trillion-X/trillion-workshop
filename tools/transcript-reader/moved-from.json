@@ -1,0 +1,26 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/transcript-reader/read-data/read-transcript-records.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/transcript-reader/read-data/read-transcript-records.ts",
+      "source_identity": "1f:7c2113b2dd808aed096e17c143990211a2eb9c3bd41788fbf2d80eb071bc2fb5",
+      "identity": "1f:7c2113b2dd808aed096e17c143990211a2eb9c3bd41788fbf2d80eb071bc2fb5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/transcript-reader/show/TranscriptReaderSurface.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/transcript-reader/show/TranscriptReaderSurface.tsx",
+      "source_identity": "1f:bdb4b5858aa446a8bdd68e01d2cb1c4bf84e79cbb9ded6f4da76ee4e3a5b4748",
+      "identity": "1f:bdb4b5858aa446a8bdd68e01d2cb1c4bf84e79cbb9ded6f4da76ee4e3a5b4748",
+      "found_by": "same bytes"
+    }
+  ]
+}

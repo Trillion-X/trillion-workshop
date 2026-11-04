@@ -1,0 +1,410 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/screen-look/do-work/choose-current-screen-look.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/do-work/choose-current-screen-look.ts",
+      "source_identity": "1f:8a70a065f65f6056776099cf60fbea086267a459a648be0a8050da59e5a56cf5",
+      "identity": "1f:8a70a065f65f6056776099cf60fbea086267a459a648be0a8050da59e5a56cf5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/do-work/device-screen-look.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/do-work/device-screen-look.ts",
+      "source_identity": "1f:edaac7043a25d4ada2ccc72b005b02d7bd7c30e86368c1352439791fca13d247",
+      "identity": "1f:edaac7043a25d4ada2ccc72b005b02d7bd7c30e86368c1352439791fca13d247",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/do-work/screen-look-records.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/do-work/screen-look-records.ts",
+      "source_identity": "1f:4856170a8ede8b9928755b259d756b6eb44f82b37e8af19a72d0e18f1a502fa9",
+      "identity": "1f:4856170a8ede8b9928755b259d756b6eb44f82b37e8af19a72d0e18f1a502fa9",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/do-work/update-editable-screen-look-theme.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/do-work/update-editable-screen-look-theme.ts",
+      "source_identity": "1f:efcb40ddb1f59d342a1501d2f99b1c4e280fd9c1ee29d16de514c5bcb202188f",
+      "identity": "1f:efcb40ddb1f59d342a1501d2f99b1c4e280fd9c1ee29d16de514c5bcb202188f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/embedded-shell-css.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/embedded-shell-css.mjs",
+      "source_identity": "1f:6850c5c1cb40c1b2f9408d3f45f36a1cf7c0c705ab88c7fe89f821f30d2d70d3",
+      "identity": "1f:6850c5c1cb40c1b2f9408d3f45f36a1cf7c0c705ab88c7fe89f821f30d2d70d3",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/editable-screen-look-draft.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/read-data/editable-screen-look-draft.ts",
+      "source_identity": "1f:fc3a8f821baed1b0980b36a9ffb46adefd75b3d5f6ebbe444bf105d29e7b290d",
+      "identity": "1f:fc3a8f821baed1b0980b36a9ffb46adefd75b3d5f6ebbe444bf105d29e7b290d",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/look-document-css.js",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/read-data/look-document-css.js",
+      "source_identity": "1f:4f18872fdf1d795aaec587e9f62df7e7b02c9ec4cb6101953c043fd7678e8281",
+      "identity": "1f:4f18872fdf1d795aaec587e9f62df7e7b02c9ec4cb6101953c043fd7678e8281",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/look-now.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/read-data/look-now.ts",
+      "source_identity": "1f:e57fb61dfd4d8b3f657f9bbbe0e1602711f77f7f79e3cd5885a86ff1d5fa9b43",
+      "identity": "1f:e57fb61dfd4d8b3f657f9bbbe0e1602711f77f7f79e3cd5885a86ff1d5fa9b43",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/look-over-time.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/read-data/look-over-time.ts",
+      "source_identity": "1f:20c7c1584f2bc89853a5624875b65da2235c2eddfa2b275d9ac1dd1066e5b343",
+      "identity": "1f:20c7c1584f2bc89853a5624875b65da2235c2eddfa2b275d9ac1dd1066e5b343",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/read-current-screen-look.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/read-data/read-current-screen-look.ts",
+      "source_identity": "1f:c6f7e78f03697dce3274f23a7cb2a993ca7db039b841443fc9c8f81183988aae",
+      "identity": "1f:c6f7e78f03697dce3274f23a7cb2a993ca7db039b841443fc9c8f81183988aae",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/read-editable-screen-look-themes.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/read-data/read-editable-screen-look-themes.ts",
+      "source_identity": "1f:2620fb1f1d074f54ca4810bb2d160484083ba142a8c948cab9d79d8527b7519a",
+      "identity": "1f:2620fb1f1d074f54ca4810bb2d160484083ba142a8c948cab9d79d8527b7519a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/resolve-chosen-screen-look.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/read-data/resolve-chosen-screen-look.ts",
+      "source_identity": "1f:6b2e12593cf86b021d63e9ef280a1324bc7964fd639475b28ec83e10a067dbbf",
+      "identity": "1f:6b2e12593cf86b021d63e9ef280a1324bc7964fd639475b28ec83e10a067dbbf",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/resolve-screen-look-palette.js",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/read-data/resolve-screen-look-palette.js",
+      "source_identity": "1f:336d9505bd831f9776f0aae102758b2be39b508a342bff944a418c1d7b9dddb5",
+      "identity": "1f:336d9505bd831f9776f0aae102758b2be39b508a342bff944a418c1d7b9dddb5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/screen-look-record.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/read-data/screen-look-record.ts",
+      "source_identity": "1f:0e1a2cd2daa0f968b11b73e577d5b0c47df4b04ea914628bd486259a5256f04a",
+      "identity": "1f:0e1a2cd2daa0f968b11b73e577d5b0c47df4b04ea914628bd486259a5256f04a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/see-through.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/read-data/see-through.ts",
+      "source_identity": "1f:b6eb1036393c8f4f41fb97b682af4d3dbb7c2d36c61f4cd85acf7a43639eece5",
+      "identity": "1f:b6eb1036393c8f4f41fb97b682af4d3dbb7c2d36c61f4cd85acf7a43639eece5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/tokens-on-element.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/read-data/tokens-on-element.ts",
+      "source_identity": "1f:02b8853700941bd79db442f7a7ee07e1c6fcb8dd04d9557fe6379781b70d87d5",
+      "identity": "1f:02b8853700941bd79db442f7a7ee07e1c6fcb8dd04d9557fe6379781b70d87d5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/where-looks-apply.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/read-data/where-looks-apply.ts",
+      "source_identity": "1f:3b853db2e433965c79d82e90393c993a586afd9c711e3fbc5c0d135b5a93e787",
+      "identity": "1f:3b853db2e433965c79d82e90393c993a586afd9c711e3fbc5c0d135b5a93e787",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/apply-chosen-screen-look.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/apply-chosen-screen-look.ts",
+      "source_identity": "1f:1c862c8981ba058d604c54be04613b682ba2df0bcb856bec5e4b5ab45ebf7958",
+      "identity": "1f:1c862c8981ba058d604c54be04613b682ba2df0bcb856bec5e4b5ab45ebf7958",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/ApplyCurrentScreenLook.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/ApplyCurrentScreenLook.tsx",
+      "source_identity": "1f:1f4e4ba26e4157d3c40933239042a28296b3835e9fc9c10992bbf73900392d1b",
+      "identity": "1f:1f4e4ba26e4157d3c40933239042a28296b3835e9fc9c10992bbf73900392d1b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/ChooseScreenLook.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/ChooseScreenLook.tsx",
+      "source_identity": "1f:4a769f8553b7a6db41d3e4710fb576a89c072c45d0b73148b7dfe466efb06c63",
+      "identity": "1f:4a769f8553b7a6db41d3e4710fb576a89c072c45d0b73148b7dfe466efb06c63",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/CompactScreenLookThemeEditor.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/CompactScreenLookThemeEditor.tsx",
+      "source_identity": "1f:59264ef775b0b0a967be7e748ec445997328e17282ed240798054412d8567c20",
+      "identity": "1f:59264ef775b0b0a967be7e748ec445997328e17282ed240798054412d8567c20",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/dockable-panel-style.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/dockable-panel-style.ts",
+      "source_identity": "1f:d9917dcfb891ed4d0facd5bb1546eae9fab3334ee4ab7b6f38fffb449f5624c9",
+      "identity": "1f:d9917dcfb891ed4d0facd5bb1546eae9fab3334ee4ab7b6f38fffb449f5624c9",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/look-over-time-screen.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/look-over-time-screen.tsx",
+      "source_identity": "1f:702ddc1695553b46e24e1ee15168aa939bba053f0a29344e204e7962576c0581",
+      "identity": "1f:702ddc1695553b46e24e1ee15168aa939bba053f0a29344e204e7962576c0581",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/marketplace-listing.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/show/marketplace-listing.mjs",
+      "source_identity": "1f:dc731a906e04b5eb78820ecab3c6c3623695e7ebb88ab6fdc2fa9a017f7e01b1",
+      "identity": "1f:dc731a906e04b5eb78820ecab3c6c3623695e7ebb88ab6fdc2fa9a017f7e01b1",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/merchant-storefront.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/show/merchant-storefront.mjs",
+      "source_identity": "1f:256c6b02ad2334767c7bf7642d8d9bece90cf2cd0914d13b9a850db1a71ffcae",
+      "identity": "1f:256c6b02ad2334767c7bf7642d8d9bece90cf2cd0914d13b9a850db1a71ffcae",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/mount-screen-look-full-surface.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/mount-screen-look-full-surface.tsx",
+      "source_identity": "1f:54c49b181fbe2060857b7aed677434306c7fa83689f80fe6d7b26a73709ae443",
+      "identity": "1f:54c49b181fbe2060857b7aed677434306c7fa83689f80fe6d7b26a73709ae443",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/mount-screen-look-surface.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/mount-screen-look-surface.tsx",
+      "source_identity": "1f:e116a623d3269db2cfe043f7532b1f5afade81918c8c64924f4656127d282850",
+      "identity": "1f:e116a623d3269db2cfe043f7532b1f5afade81918c8c64924f4656127d282850",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/nested-navigation-style.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/nested-navigation-style.ts",
+      "source_identity": "1f:3ed3d3e7a56b2a847c4594a75be78714225caed43fa0d694a00e33d7d0c21dc1",
+      "identity": "1f:3ed3d3e7a56b2a847c4594a75be78714225caed43fa0d694a00e33d7d0c21dc1",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/placement-history-style.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/placement-history-style.ts",
+      "source_identity": "1f:1ab28f21bbb6dbb279ce9e6c166e319faafce22f153764fd441c73870ff21247",
+      "identity": "1f:1ab28f21bbb6dbb279ce9e6c166e319faafce22f153764fd441c73870ff21247",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/plan-card-style.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/show/plan-card-style.mjs",
+      "source_identity": "1f:d03d49263ab8dd87662e3d9ce147454163b20ce509d181b6a0359a0b70371bee",
+      "identity": "1f:d03d49263ab8dd87662e3d9ce147454163b20ce509d181b6a0359a0b70371bee",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/public-app-capability.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/show/public-app-capability.mjs",
+      "source_identity": "1f:49f969b7686b78ca571009aa84a9074090aeaf4b5b4e1ca82247a23c32e42f05",
+      "identity": "1f:49f969b7686b78ca571009aa84a9074090aeaf4b5b4e1ca82247a23c32e42f05",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/ScreenLookFullSurface.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/ScreenLookFullSurface.tsx",
+      "source_identity": "1f:08e59e2669ae8477fd4a26f26aa0f4471683d1909af3a767a6dfbe57cdb22d68",
+      "identity": "1f:08e59e2669ae8477fd4a26f26aa0f4471683d1909af3a767a6dfbe57cdb22d68",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/ScreenLookPopover.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/ScreenLookPopover.tsx",
+      "source_identity": "1f:b447eeba3978b5cdf6fd6ecded4ef01004d9572a15c9d1f115b3054933520f89",
+      "identity": "1f:b447eeba3978b5cdf6fd6ecded4ef01004d9572a15c9d1f115b3054933520f89",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/ScreenLookSurface.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/ScreenLookSurface.tsx",
+      "source_identity": "1f:b4c5fd54f446d83f289dd5c16e68218c34880a6383c541655a6063013a20f184",
+      "identity": "1f:b4c5fd54f446d83f289dd5c16e68218c34880a6383c541655a6063013a20f184",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/ScreenLookSwitch.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/ScreenLookSwitch.tsx",
+      "source_identity": "1f:de431227450fa221c5343a436d6214e7b67ae1ebc01421917470e442361a0b08",
+      "identity": "1f:de431227450fa221c5343a436d6214e7b67ae1ebc01421917470e442361a0b08",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/scroll-edge-style.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/show/scroll-edge-style.ts",
+      "source_identity": "1f:114aa45a664bb28c67ca914af7fc16951eef1f15647d9e80e80dcf0fc0ef653b",
+      "identity": "1f:114aa45a664bb28c67ca914af7fc16951eef1f15647d9e80e80dcf0fc0ef653b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/timed-text-style.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/timed-text-style.ts",
+      "source_identity": "1f:e67cfbd2577f4732ff514e646fd60e7a616c99758582f3d8407bd498f48a1392",
+      "identity": "1f:e67cfbd2577f4732ff514e646fd60e7a616c99758582f3d8407bd498f48a1392",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/use-look-rule.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/use-look-rule.ts",
+      "source_identity": "1f:877a624d68552b770a0bd638603c9b3f7b133682821b158feed40fb1143131d7",
+      "identity": "1f:877a624d68552b770a0bd638603c9b3f7b133682821b158feed40fb1143131d7",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/use-screen-look-choices.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/use-screen-look-choices.ts",
+      "source_identity": "1f:c6d4553393ac0d9d029d36631d72943587ccec1c0a8e6e18cf512c22c072729c",
+      "identity": "1f:c6d4553393ac0d9d029d36631d72943587ccec1c0a8e6e18cf512c22c072729c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/use-screen-looks.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/use-screen-looks.ts",
+      "source_identity": "1f:378ef94892f714e62f6368e08c0e36af678a25f37a22dc83609e7acd4ba75e07",
+      "identity": "1f:378ef94892f714e62f6368e08c0e36af678a25f37a22dc83609e7acd4ba75e07",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/work-flow-map-style.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-look/show/work-flow-map-style.ts",
+      "source_identity": "1f:8df93f187736dcc01681bf25bef63e08808e52c308379523554a281eac9bb961",
+      "identity": "1f:8df93f187736dcc01681bf25bef63e08808e52c308379523554a281eac9bb961",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/device-look-tokens.js",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/read-data/device-look-tokens.js",
+      "source_identity": "1f:80fef5dca31aa8a30ee3e230d1ad4a3f847868b7f4518763a3e533c32036f8fa",
+      "identity_at_move": "1f:80fef5dca31aa8a30ee3e230d1ad4a3f847868b7f4518763a3e533c32036f8fa",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/read-data/look-scheme.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/read-data/look-scheme.ts",
+      "source_identity": "1f:979672fbc29ce2ecb36dc51a048ad2b047a46a1eae9839b0511ca82e82e75ebd",
+      "identity_at_move": "1f:979672fbc29ce2ecb36dc51a048ad2b047a46a1eae9839b0511ca82e82e75ebd",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-look/show/plan-card-style.d.mts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/screen-look/show/plan-card-style.d.mts",
+      "source_identity": "1f:617c32b43b16e5df1d69fad52567d8fac50105bafdf804565bd6f94c3a50c9bf",
+      "identity_at_move": "1f:617c32b43b16e5df1d69fad52567d8fac50105bafdf804565bd6f94c3a50c9bf",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    }
+  ]
+}

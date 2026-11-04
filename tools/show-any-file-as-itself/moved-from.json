@@ -1,0 +1,181 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/file-content-renderer/show/classify-file-content.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/classify-file-content.ts",
+      "source_identity": "1f:e7c61ba19d19412f62d7dff518312244a088ad3cf8286b90c03deba498ef4bf0",
+      "identity": "1f:e7c61ba19d19412f62d7dff518312244a088ad3cf8286b90c03deba498ef4bf0",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/CodeRenderer.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/CodeRenderer.tsx",
+      "source_identity": "1f:ad446936cbdc1c130c60c33747ac1fed5cae9abbadce3a7857a7b9fc66e83cad",
+      "identity": "1f:ad446936cbdc1c130c60c33747ac1fed5cae9abbadce3a7857a7b9fc66e83cad",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/DiffRenderer.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/DiffRenderer.tsx",
+      "source_identity": "1f:248503132017f0ae7432a3de06dbaa2a3e6a1e338a5de814fe85ff420a6073c0",
+      "identity": "1f:248503132017f0ae7432a3de06dbaa2a3e6a1e338a5de814fe85ff420a6073c0",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/FileActions.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/FileActions.tsx",
+      "source_identity": "1f:cbd93a381cbf83cc08b1074c931f2b9056be97ae5a5a2bcb7fd5ff429e6c27e6",
+      "identity": "1f:cbd93a381cbf83cc08b1074c931f2b9056be97ae5a5a2bcb7fd5ff429e6c27e6",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/FileContentRenderer.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/FileContentRenderer.tsx",
+      "source_identity": "1f:7f1ecc1c170cbcbfa67b99cc1d833130d48a1a21538493bc4fff4701fc670216",
+      "identity": "1f:7f1ecc1c170cbcbfa67b99cc1d833130d48a1a21538493bc4fff4701fc670216",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/highlight-code-html.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/highlight-code-html.ts",
+      "source_identity": "1f:5607d4844bc098ac62a13d466d39129c3d2d1f5065df260a2bbf31123b874b4a",
+      "identity": "1f:5607d4844bc098ac62a13d466d39129c3d2d1f5065df260a2bbf31123b874b4a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/ImageRenderer.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/ImageRenderer.tsx",
+      "source_identity": "1f:219dfbdeda3c5efeea34d0fa5cb87cdc3e3625033783de71919ecad8b6139493",
+      "identity": "1f:219dfbdeda3c5efeea34d0fa5cb87cdc3e3625033783de71919ecad8b6139493",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/MarkdownRenderer.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/MarkdownRenderer.tsx",
+      "source_identity": "1f:335d6c97081f30b0c0d7374e8b7e99ce86f5428dde851a935237aaf55cb46054",
+      "identity": "1f:335d6c97081f30b0c0d7374e8b7e99ce86f5428dde851a935237aaf55cb46054",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/RawRenderer.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/RawRenderer.tsx",
+      "source_identity": "1f:5d7a8c52a9e45749d365731adcf9f514e8115da9747f13811f89e687c6a32ab8",
+      "identity": "1f:5d7a8c52a9e45749d365731adcf9f514e8115da9747f13811f89e687c6a32ab8",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/render-markdown-html.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/render-markdown-html.ts",
+      "source_identity": "1f:3d5b645e8d9b406e27ee068eb8c321a3be11af254e19d051e679caff9a48f3d5",
+      "identity": "1f:3d5b645e8d9b406e27ee068eb8c321a3be11af254e19d051e679caff9a48f3d5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/read-data/measure-media-length.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/read-data/measure-media-length.ts",
+      "source_identity": "1f:c7d1c5b838e48279bf94ce81c29a1d45e6e7a3e0cb37d3ec20974f8436fdc253",
+      "identity": "1f:c7d1c5b838e48279bf94ce81c29a1d45e6e7a3e0cb37d3ec20974f8436fdc253",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/read-data/private-object-request.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/read-data/private-object-request.ts",
+      "source_identity": "1f:757af39d94e214a77be82b5e15a78b6678814ba120e81ca501636432769bbe52",
+      "identity": "1f:757af39d94e214a77be82b5e15a78b6678814ba120e81ca501636432769bbe52",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/read-data/read-media-playback.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/read-data/read-media-playback.ts",
+      "source_identity": "1f:4f0eca9ba5c9e8e758b2c832cfa821cd90d0eb46666ce03b5c08b8d526986af9",
+      "identity": "1f:4f0eca9ba5c9e8e758b2c832cfa821cd90d0eb46666ce03b5c08b8d526986af9",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/read-data/timed-text-index.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/read-data/timed-text-index.ts",
+      "source_identity": "1f:2cbacbb6cae5e2794f77a82005ad23aafea71f97db4f71ccaeeb574593460f19",
+      "identity": "1f:2cbacbb6cae5e2794f77a82005ad23aafea71f97db4f71ccaeeb574593460f19",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/show/lazy-playback-surface.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/lazy-playback-surface.ts",
+      "source_identity": "1f:17c4776622ae0de948f0ce953aaff5f1781728ef84741ddd229e852481208446",
+      "identity": "1f:17c4776622ae0de948f0ce953aaff5f1781728ef84741ddd229e852481208446",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/show/MediaFrame.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/MediaFrame.tsx",
+      "source_identity": "1f:b372bfba3a8062833c210f9a330959138908bec2e7d1203ed852140e8c27da4c",
+      "identity": "1f:b372bfba3a8062833c210f9a330959138908bec2e7d1203ed852140e8c27da4c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/show/MediaPlaybackSurface.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/MediaPlaybackSurface.tsx",
+      "source_identity": "1f:9eb709591ff9fbb2a42047ac58fd790e3c4f6cf8662d8e55a2fcdc992348aaa3",
+      "identity": "1f:9eb709591ff9fbb2a42047ac58fd790e3c4f6cf8662d8e55a2fcdc992348aaa3",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/show/PlaybackControls.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/PlaybackControls.tsx",
+      "source_identity": "1f:f11f1256b35f6304788f6da37322a0c8dedde6525dbde76df9b5616bb40650cb",
+      "identity": "1f:f11f1256b35f6304788f6da37322a0c8dedde6525dbde76df9b5616bb40650cb",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/show/class-names.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/class-names.ts",
+      "source_identity": "1f:4e2449e71e9f1fb660f264b0e63a12e4177ca8b578f1e5fe9fa4086af90b6ebb",
+      "identity_at_move": "1f:4e2449e71e9f1fb660f264b0e63a12e4177ca8b578f1e5fe9fa4086af90b6ebb",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    }
+  ]
+}
