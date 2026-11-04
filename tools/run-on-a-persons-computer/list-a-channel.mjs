@@ -21,7 +21,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { hearingHere } from '../parts/computer-programs/read-data/program-here.mjs';
+import { hearingHere } from '../computer-programs/read-data/program-here.mjs';
 import { withTables } from '../src/data-rows.mjs';
 import fetcherRecords from '../records/hear-fetcher-records.json' with { type: 'json' };
 import ruleRecords from '../records/video-list-rule-records.json' with { type: 'json' };

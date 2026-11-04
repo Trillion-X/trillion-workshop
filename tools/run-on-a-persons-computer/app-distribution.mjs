@@ -2,8 +2,8 @@
 // Only configured apps are read. The shared observation is public and expires; it never contains a tester email.
 import { readFile } from 'node:fs/promises';
 import settings from './app-distribution.json' with { type: 'json' };
-import { appStoreConnect } from '../scripts/app-store-connect.mjs';
-import { readTestFlightAvailability } from '../scripts/testflight-readiness.mjs';
+import { appStoreConnect } from '../app-release-access/read-data/app-store-connect.mjs';
+import { readTestFlightAvailability } from '../app-release-access/read-data/testflight-readiness.mjs';
 import { distributionObservation, distributionSource } from '../src/device-distribution.mjs';
 
 export function makeAppDistributionTools({ connect = appStoreConnect, readAvailability = readTestFlightAvailability,

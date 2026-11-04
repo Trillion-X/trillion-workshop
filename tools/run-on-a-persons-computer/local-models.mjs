@@ -27,7 +27,7 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import { mergeEvent, newEntry } from '../src/keyed-parts.mjs';
+import { mergeEvent, newEntry } from '../stream-an-answer-in-keyed-parts/src/keyed-parts.mjs';
 import { withTables } from '../src/data-rows.mjs';
 import { makeHelperRuntimes } from './helper-runtimes.mjs';
 import { makeFastPathMeter } from './fast-path-meter.mjs';
