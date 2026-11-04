@@ -1,0 +1,54 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DEVICE-COPY-FRAME-COMPRESSION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "parts/device-copy/do-work/frame-compression.mjs",
+   "lines": [
+    1,
+    88
+   ],
+   "multihash": "1f:7822d0ab6214919e2bd505cb5e8581691b0c6eebbb4de215b2c3acfab30b1799",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T04:28:51Z",
+    "deleted_with": "already gone from Trillion-X/trillion main (27b458af26 holds no parts/device-copy/)"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/keep-my-records-on-this-device/do-work/frame-compression.mjs"
+  }
+ ],
+ "preserve": [
+  "a frame is compressed only when that makes it smaller",
+  "expandFrame gives back the exact bytes"
+ ],
+ "allowed_deltas": [],
+ "banned_substitutions": [
+  "a second copy of this file anywhere in trillion or the Workshop"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-04T04:28:51+00:00",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:7822d0ab6214919e2bd505cb5e8581691b0c6eebbb4de215b2c3acfab30b1799",
+  "target_multihash_at_baseline": "1f:7822d0ab6214919e2bd505cb5e8581691b0c6eebbb4de215b2c3acfab30b1799",
+  "commit": "18456392ed5c2dfc26f8a23a1dface7e9c92833e"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/keep-my-records-on-this-device/tool-rows.json sample run (tool:pack-my-device-copys-settle-upload)"
+  ]
+ }
+}

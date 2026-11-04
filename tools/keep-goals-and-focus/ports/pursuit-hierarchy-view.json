@@ -1,0 +1,54 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-KEEP-GOALS-PURSUIT-HIERARCHY-VIEW",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/pursuit-hierarchy-view.mjs",
+   "lines": [
+    1,
+    32
+   ],
+   "multihash": "1f:ae7d712842c7f2138af42ba6984e5f71d5f856f7bc708ecf39e69695e461d95d",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T04:34:19Z",
+    "deleted_with": "already gone from Trillion-X/trillion main (27b458af26 holds no src/pursuit-hierarchy-view.mjs)"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/keep-goals-and-focus/read-data/pursuit-hierarchy-view.mjs"
+  }
+ ],
+ "preserve": [
+  "each goal shown once, under its first parent that is shown",
+  "a missing parent or a loop never hides a goal"
+ ],
+ "allowed_deltas": [],
+ "banned_substitutions": [
+  "a second copy of this file anywhere in trillion or the Workshop"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-04T04:34:19+00:00",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:ae7d712842c7f2138af42ba6984e5f71d5f856f7bc708ecf39e69695e461d95d",
+  "target_multihash_at_baseline": "1f:ae7d712842c7f2138af42ba6984e5f71d5f856f7bc708ecf39e69695e461d95d",
+  "commit": "8ce8cc82b905d346c9fdbc4079471e9edaa01059"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/keep-goals-and-focus/tool-rows.json sample run (tool:order-my-goals-under-the-goals-they-serve)"
+  ]
+ }
+}
