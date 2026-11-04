@@ -19,7 +19,8 @@ import { expandFileArguments } from './file-arguments.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const aiSetupSettings = () => JSON.parse(readFileSync(join(HERE, 'ai-setups.json'), 'utf8'));
-const expand = (path, home) => path.replace(/^~(?=\/|$)/, home);
+/** A place's path segments joined, with `~` as the home folder read at run time. */
+const expand = (parts, home) => join(...parts.map(part => (part === '~' ? home : part)));
 const idOf = text => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 const isFile = async path => { try { return (await stat(path)).isFile(); } catch { return false; } };
 

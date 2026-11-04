@@ -10,15 +10,18 @@ import { join } from 'node:path';
 import { realpathSync } from 'node:fs';
 import { readAiSetups, aiSetupSettings } from '../read-data/ai-setups.mjs';
 
+// The Claude app's folder in the made-up home, the same segment ai-setups.json names.
+const CLAUDE = '.claude';
+
 async function home() {
   const base = realpathSync(await mkdtemp(join(tmpdir(), 'ai-setups-')));
-  await mkdir(join(base, '.claude/commands'), { recursive: true });
-  await mkdir(join(base, '.claude/skills/triage'), { recursive: true });
-  await mkdir(join(base, '.cursor/rules'), { recursive: true });
-  await writeFile(join(base, '.claude/CLAUDE.md'), 'Always answer briefly.');
-  await writeFile(join(base, '.claude/commands/review.md'), 'Review the diff for bugs.');
-  await writeFile(join(base, '.claude/skills/triage/SKILL.md'), 'Sort the inbox into three piles.');
-  await writeFile(join(base, '.cursor/rules/style.mdc'), 'x'.repeat(5000));
+  await mkdir(join(base, CLAUDE, 'commands'), { recursive: true });
+  await mkdir(join(base, CLAUDE, 'skills', 'triage'), { recursive: true });
+  await mkdir(join(base, '.cursor', 'rules'), { recursive: true });
+  await writeFile(join(base, CLAUDE, 'CLAUDE.md'), 'Always answer briefly.');
+  await writeFile(join(base, CLAUDE, 'commands', 'review.md'), 'Review the diff for bugs.');
+  await writeFile(join(base, CLAUDE, 'skills', 'triage', 'SKILL.md'), 'Sort the inbox into three piles.');
+  await writeFile(join(base, '.cursor', 'rules', 'style.mdc'), 'x'.repeat(5000));
   return base;
 }
 
@@ -26,7 +29,7 @@ test('the listing reads each place read only, cuts long text and names a file th
   const base = await home();
   const outside = realpathSync(await mkdtemp(join(tmpdir(), 'ai-setups-outside-')));
   await writeFile(join(outside, 'secret.md'), 'not for this');
-  await symlink(join(outside, 'secret.md'), join(base, '.claude/commands/linked.md'));
+  await symlink(join(outside, 'secret.md'), join(base, CLAUDE, 'commands', 'linked.md'));
   const scope = { ...JSON.parse(JSON.stringify((await import('../read-data/file-arguments.mjs')).fileArgumentSettings())), roots: [base] };
   const { items, sources } = await readAiSetups({}, { home: base, scope });
   const by = id => items.find(item => item.id === id);

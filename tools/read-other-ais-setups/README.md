@@ -7,7 +7,7 @@ Lists, read only, the instruction files, slash commands and skills that other AI
 | File | Purpose |
 |------|---------|
 | `read-data/ai-setups.mjs` | `readAiSetups` (every place in the settings, read through the file-scope reader, text cut and marked) and `read`, the tool function. Moved one to one; the only additions are the named export `read` and the import of the local file reader. |
-| `read-data/ai-setups.json` | The places, as rows: single files, or a folder's entries by ending, or folders holding one entry file; with their kind, the most items, the most characters per item and the label length. Moved unchanged but for the paths it names. |
+| `read-data/ai-setups.json` | The places, as rows: single files, or a folder's entries by ending, or folders holding one entry file; with their kind, the most items, the most characters per item and the label length. Moved unchanged but for the paths it names, which are path segments with `~` for the home folder read at run time. |
 | `read-data/file-arguments.mjs` | `expandFileArguments`, carried unchanged from Trillion-X/trillion `computer/file-arguments.mjs` (alive there for the Mac host's own tool boundary). A file is read only after its real path is inside a root and no segment or ending is protected, within a byte cap. |
 | `read-data/file-arguments.json` | Its settings, cut to what this tool uses: the `$file:` text prefix, the roots (`~`, the person's home), the protected names and endings (keys and credentials), the byte cap and the words. |
 | `tool-rows.json` | `tool:read-ai-setups`: a `computer` row with `capabilities: ["read-a-folder"]`, run by `tools/records-door`'s `run-an-export.mjs`. The id is the one the Mac host gave it. |
