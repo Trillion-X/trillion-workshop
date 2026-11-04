@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/retry-source-return-request.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/retry-source-return-request.test.mjs",
+      "source_identity": "1f:f9f48c9b95579fb75c48cb881350aa6808047f30974012f8ba0922727f1b2b16",
+      "identity": "1f:b46984c36734c3ed69085f6212b1be127015aafc99c091987e2f75782744f19a"
+    },
+    {
+      "from": "test/receiver-inbox.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/receiver-inbox.test.mjs",
+      "source_identity": "1f:6fc0d9ad331aeb0d4cf908373fe517c26f5c30b0eaad2e3afa690c2617004689",
+      "identity": "1f:6fc0d9ad331aeb0d4cf908373fe517c26f5c30b0eaad2e3afa690c2617004689"
+    },
+    {
+      "from": "test/tool-reach-fence.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/tool-reach-fence.test.mjs",
+      "source_identity": "1f:a13cfe95d3ac94085540024073f9d6d9f1f291f3ad7cc90ddc57206a8830e5cf",
+      "identity": "1f:a13cfe95d3ac94085540024073f9d6d9f1f291f3ad7cc90ddc57206a8830e5cf"
+    },
+    {
+      "from": "test/agent-receiver-replays-one-at-a-time.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/agent-receiver-replays-one-at-a-time.test.mjs",
+      "source_identity": "1f:6ceaace369ab54795b4eb53f0051c12e6cebcc1e7f8c526805dab001ad80ae39",
+      "identity": "1f:6ceaace369ab54795b4eb53f0051c12e6cebcc1e7f8c526805dab001ad80ae39"
+    }
+  ]
+}

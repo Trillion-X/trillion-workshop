@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/fixtures/fake-stdio-mcp.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/serve-command-line-mcp-servers-on-the-web/test/fixtures/fake-stdio-mcp.mjs",
+      "source_identity": "1f:9b07ddfc37560dc1330161e4ccbd4169f214c0334eae60957606d05fd13949b6",
+      "identity": "1f:9b07ddfc37560dc1330161e4ccbd4169f214c0334eae60957606d05fd13949b6"
+    }
+  ]
+}

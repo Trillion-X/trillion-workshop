@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/http-client-executor.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/http-client/test/http-client-executor.test.mjs",
+      "source_identity": "1f:2147cbf958ed4f01c1a59e5789c95d5784c17deeb65f720e6b7b9c47ac3aedbc",
+      "identity": "1f:ab72836d681314a072b8632a1116982808b8a1e58161ab6c1dc541a659ac24be"
+    },
+    {
+      "from": "test/node-public-fetch.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/http-client/test/node-public-fetch.test.mjs",
+      "source_identity": "1f:d1443c5ffa23c9e66679385c4b020a0235c1bbc0b6b43b329b07f8a8641e5454",
+      "identity": "1f:e8cc9adc60666682c2675c1f099c11f35f22a469ef6f081a3c00a4be0c812d5a"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/namespace-client-recovery.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/browse-and-upload-my-files/test/namespace-client-recovery.test.mjs",
+      "source_identity": "1f:be93c70185141ba9c37cfb868708ac040bea1463c4c3790a11a40dc56d9fc434",
+      "identity": "1f:73b932e59566ed1e003ee9207a2497534e58594c9602d2b19c1ca0576a94d1ad"
+    },
+    {
+      "from": "test/send-window.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/browse-and-upload-my-files/test/send-window.test.mjs",
+      "source_identity": "1f:69ada534f98cba6b9d2951d8be2168d551af9cfaf9e9d12e00179fa25aaaa37a",
+      "identity": "1f:8803765f210725591e86ad5a07883ff22bfc9380403c765fd78ea919a1b1579d"
+    },
+    {
+      "from": "test/send-without-copies.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/browse-and-upload-my-files/test/send-without-copies.test.mjs",
+      "source_identity": "1f:1c6bbac5d7f492f6ce69db4688e6c1daa2e04a3d44e16e504c63596f6c74aea9",
+      "identity": "1f:4b64351e8091adf3e42927b1072aa91409aa6ec91dcd0fe5a92ec33a82477380"
+    }
+  ]
+}
