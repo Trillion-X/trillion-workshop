@@ -1,0 +1,9 @@
+{
+  "_what": "The only requests a saved screen's declarations may name (module-surface-requests.mjs validateRequestPath and validateModuleSurfaceRequests). A saved screen's code is not the person's: it runs in an opaque-origin frame, and the page sends only the requests its row declares, so this list is what such code can reach with the person's session. `routes` are allowed (method, path): a path is matched whole, `:space_id` the one place a screen's own Space fills in; `query` names the one query a route may carry (`lesson-practice-label`: the lesson's own practice record, made from the screen's own space, course and lesson). A route is read-only unless it names `write`, the one write it allows (`lesson-practice`: one write of the lesson's own practice record, nothing else). `resource_operations` are the addressed resource operations a declaration may name (none). The door (/work/api/door/*: the person's records and tool runs), the account, logins and devices are never listed here, and test/isolated-module-surface.test.mjs refuses a list that names them. `unlisted_words` is what a save that declares any other request is told, in plain words; {name}, {method} and {path} are the refused declaration's own.",
+  "routes": [
+    { "method": "GET", "path": "/work/api/records", "query": "lesson-practice-label" },
+    { "method": "POST", "path": "/work/api/records", "write": "lesson-practice" }
+  ],
+  "resource_operations": [],
+  "unlisted_words": "screen.requests.{name} asks for {method} {path}, which a made screen may not send. A made screen may send only the requests in sandboxed-screen-routes.json, and no route to a list, the door, the account, logins or devices is there. Keep the screen's rows in its own state: put them under /state and change them with setState. A screen that keeps the person's records will declare the record kinds it reads and writes, and the person grants those kinds (granted kinds); that declaration is not open yet."
+}

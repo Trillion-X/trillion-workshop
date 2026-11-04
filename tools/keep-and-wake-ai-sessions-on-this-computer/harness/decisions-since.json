@@ -1,0 +1,12 @@
+{
+  "what_this_is": "Settings for decisions-since.mjs: where Trillion is, which Keychain item holds the account's personal key, how long the hook may take, where a harness's prompt event names its session, and the words printed before the decisions, the line said in a session record-every-message.mjs already records. The held thing is never a line of its own here: it reaches a chat as a notice, the same as on every other surface (src/waiting-on-you.json `hold.devices`). Adding a harness is a row in session_id_paths, never a code change.",
+  "origin": "https://app.gettrillion.ai",
+  "unseen_path": "/mcp/api/notices/unseen",
+  "keychain_item": "trillion-agent-work-key",
+  "time_box_ms": 2000,
+  "reader_prefix": "session:",
+  "session_id_paths": [["session_id"], ["sessionId"], ["payload", "session_id"]],
+  "transcript_paths": [["transcript_path"], ["transcriptPath"], ["payload", "transcript_path"]],
+  "recorded_line": "This session's messages are recorded in Trillion automatically; do not call record_messages for them.",
+  "heading": "Decided in this person's Trillion since this session last looked (settled; work from them, and read the whole decision with export_decision and its case_id when you need more):"
+}

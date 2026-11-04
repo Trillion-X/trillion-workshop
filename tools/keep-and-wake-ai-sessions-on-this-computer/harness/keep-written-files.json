@@ -1,0 +1,24 @@
+{
+  "what_this_is": "Settings for keep-written-files.mjs: where Trillion is, where the person's own list of watched folders lives, which folders are never walked, the largest file sent, and the secret patterns taken out before a file leaves the computer. Adding a folder is a row in the person's folders_file, never a change here or in code.",
+  "origin": "https://app.gettrillion.ai",
+  "write_path": "/mcp/api/namespace/write",
+  "keychain_item": "trillion-agent-work-key",
+  "time_box_ms": 8000,
+  "folders_file": "~/.trillion/keep-written-files/folders.json",
+  "state_file": "~/.trillion/keep-written-files/sent.json",
+  "media_type": "text/markdown",
+  "max_bytes": 4194304,
+  "kept_by": "keep-written-files turn-end hook; the original stays at source_path",
+  "never_folders": [".git", "node_modules", ".DS_Store"],
+  "secret_patterns": [
+    { "pattern": "sk_(live|test)_[A-Za-z0-9]{20,}", "label": "stripe key" },
+    { "pattern": "rk_(live|test)_[A-Za-z0-9]{20,}", "label": "stripe key" },
+    { "pattern": "(?<![A-Za-z0-9_-])sk-(ant-|proj-)?[A-Za-z0-9_]{20,}[A-Za-z0-9_-]*", "label": "api key" },
+    { "pattern": "AKIA[0-9A-Z]{16}", "label": "aws key id" },
+    { "pattern": "gh[pousr]_[A-Za-z0-9]{30,}", "label": "github token" },
+    { "pattern": "xox[abpr]-[A-Za-z0-9-]{20,}", "label": "slack token" },
+    { "pattern": "AIza[0-9A-Za-z_-]{35}", "label": "google key" },
+    { "pattern": "-----BEGIN [A-Z ]*PRIVATE KEY-----[\\s\\S]*?-----END [A-Z ]*PRIVATE KEY-----", "label": "private key" },
+    { "pattern": "eyJ[A-Za-z0-9_-]{20,}\\.[A-Za-z0-9_-]{20,}\\.[A-Za-z0-9_-]{20,}", "label": "jwt" }
+  ]
+}

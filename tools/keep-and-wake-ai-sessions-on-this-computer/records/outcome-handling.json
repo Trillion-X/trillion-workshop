@@ -1,0 +1,14 @@
+{
+  "schema": "trillion.outcome-handling/v1",
+  "about": "The existing decision, task and effect owners keep observations. These rows say what an independent readback must identify and how a failed current outcome reaches the existing work queue. They never authorize an external effect.",
+  "readback": {
+    "required_identity": ["provider", "account", "object_id", "route"],
+    "read_methods": ["GET", "HEAD"]
+  },
+  "correction": {
+    "said": "Correct the observed result: {goal}",
+    "job": "The current result of decision {case_id}, generation {generation}, was reported or observed to have failed. Evidence: {source_ref}. What happened: {summary}. Read the decision and its linked actions and provider receipts. Preserve the earlier evidence and add the failure as a finding. Correct the decision and carry the authorized work through the actual failing path to an independently checked result. Check existing effects before any outward action; an unknown effect must be reconciled at its target, never blindly repeated. This job supplies no new permission to contact anyone or change an external account.",
+    "outcome": "Decision {case_id} has a correction grounded in the actual failed result, and the requested outcome is independently observed on the same target or remains explicitly unresolved with its precise recovery step.",
+    "priority": 6
+  }
+}

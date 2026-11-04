@@ -1,0 +1,319 @@
+{
+  "_what": "How the Workshop screen (src/workspace/workshop-screen.tsx, through src/work-workshop.mjs) says each Workshop fact in plain words. made_by: the words the Workshop's own replies use for who made a tool (src/workshop.mjs madeByOf), each shown as `label`, sorted by `order`, with `badge` on the card when the person should notice it and `shareable` when its screen offers Share (the person's own tools: who it reaches, for how long and what they may do is the one share sheet's). run_states: a run's state (src/workshop.mjs view) as a label and a tone. status_tones: the shared status tone (parts/ui StatusVocabulary) each tone word takes on a run's status badge. reported: what the person said after a run (report_result), `none` when nothing was said. worked: the words for what people reported across every account's runs of a tool. places: where a tool runs, in the person's words, and the icon a card shows for the first place it may run, by the place's id (records/workshop-placement-records.json); a place not named here shows its own label with the `default` icon. A new state, maker or place is a row here, never a change to the screen. tool_tiles: the numbers an opened tool shows, each read from its earlier runs (`from`), counted across every account. inputs: how a tool's input reads when it must be given or may be left out. tag_colours: the colour a tone word takes as a tag in a table (parts/ui record-views). screen_icon: the icon a tool's own screen shows when its screen names none. own (on a maker): the tool is this account's own, so its screen offers Rename and Remove; own_tool: the words of those actions and what they answer (src/work-workshop.mjs /tool/<id>/rename and /remove, the same save and delete an AI uses).",
+  "made_by": {
+    "this account": {
+      "label": "You",
+      "order": 1,
+      "shareable": true,
+      "badge": {
+        "label": "Yours",
+        "tone": "info"
+      },
+      "own": true
+    },
+    "shared": {
+      "label": "Trillion",
+      "order": 2
+    },
+    "another account": {
+      "label": "Another account",
+      "order": 3
+    },
+    "a registry": {
+      "label": "A public registry",
+      "order": 4
+    }
+  },
+  "published_by_you": {
+    "label": "Published",
+    "tone": "good"
+  },
+  "status_tones": {
+    "good": "success",
+    "bad": "error",
+    "attention": "warning",
+    "info": "info",
+    "quiet": "neutral"
+  },
+  "run_states": {
+    "completed": {
+      "label": "Run finished",
+      "tone": "quiet"
+    },
+    "failed": {
+      "label": "Did not finish",
+      "tone": "bad"
+    },
+    "working": {
+      "label": "Working",
+      "tone": "info"
+    },
+    "waiting_for_input": {
+      "label": "Needs a few details",
+      "tone": "attention"
+    },
+    "scheduled": {
+      "label": "Scheduled",
+      "tone": "quiet"
+    },
+    "for_you_to_run": {
+      "label": "Waiting for your computer",
+      "tone": "attention"
+    }
+  },
+  "reported": {
+    "met": {
+      "label": "You said it worked",
+      "tone": "good"
+    },
+    "failed": {
+      "label": "You said it did not work",
+      "tone": "bad"
+    },
+    "unknown": {
+      "label": "You were not sure",
+      "tone": "quiet"
+    },
+    "none": {
+      "label": "No outcome report yet",
+      "tone": "quiet"
+    }
+  },
+  "reported_by_other": {
+    "met": {
+      "label": "{by} reported that it worked",
+      "tone": "quiet"
+    },
+    "failed": {
+      "label": "{by} reported that it did not work",
+      "tone": "bad"
+    },
+    "unknown": {
+      "label": "{by} could not confirm the result",
+      "tone": "quiet"
+    }
+  },
+  "reported_for_person": {
+    "met": {
+      "label": "Reported for the person: it worked",
+      "tone": "quiet"
+    },
+    "failed": {
+      "label": "Reported for the person: it did not work",
+      "tone": "bad"
+    },
+    "unknown": {
+      "label": "Reported for the person: result uncertain",
+      "tone": "quiet"
+    }
+  },
+  "reporter_unknown": "An unidentified source",
+  "outcome_report_form": {
+    "action": "Report what happened",
+    "title": "What actually happened?",
+    "about": "Record the outcome you observed. Your report is kept with this run, separately from provider readbacks and independent checks.",
+    "submit": "Save report",
+    "retry": "Retry saving report",
+    "retry_note": "Your previous save is unconfirmed. Retry the same report before adding a correction.",
+    "retry_unchanged": "Retry the unchanged report before adding a correction. Close and reopen this form to restore the report being saved.",
+    "choose_result": "Choose whether the outcome worked, failed or is still uncertain.",
+    "summary_length": "Describe what happened in 1 to 4000 characters.",
+    "unconfirmed": "The saved report could not be confirmed. Retry saving this same report.",
+    "saved": "Your report was saved.",
+    "source_incomplete": "Your report was saved, but its source link is incomplete. It does not need to be submitted again.",
+    "fields": [
+      {
+        "id": "result",
+        "control": "select",
+        "label": "Did it do what you needed?",
+        "required": true,
+        "options": [
+          {
+            "value": "met",
+            "label": "It worked"
+          },
+          {
+            "value": "failed",
+            "label": "It did not work"
+          },
+          {
+            "value": "unknown",
+            "label": "I am not sure yet"
+          }
+        ]
+      },
+      {
+        "id": "summary",
+        "control": "text",
+        "label": "What did you observe?",
+        "required": true,
+        "placeholder": "Describe the actual result and what you expected.",
+        "help": "Up to 4000 characters."
+      }
+    ]
+  },
+  "worked": {
+    "none": {
+      "label": "Nobody has said yet whether it worked",
+      "tone": "quiet",
+      "filter": "Not reported yet"
+    },
+    "mostly_met": {
+      "tone": "good",
+      "filter": "People said it worked"
+    },
+    "mostly_failed": {
+      "tone": "bad",
+      "filter": "People said it did not work"
+    },
+    "met_words": [
+      "Worked once",
+      "Worked {n} times"
+    ],
+    "failed_words": [
+      "did not work once",
+      "did not work {n} times"
+    ],
+    "failed_alone_words": [
+      "Did not work once",
+      "Did not work {n} times"
+    ]
+  },
+  "facts": {
+    "runs_on": {
+      "label": "Where it runs",
+      "icon": "MapPin"
+    },
+    "price": {
+      "label": "Price",
+      "icon": "Receipt"
+    }
+  },
+  "places": {
+    "placement:this-account": {
+      "words": "Runs in your Trillion account",
+      "icon": "House"
+    },
+    "placement:held-values": {
+      "words": "Runs with your connected account",
+      "icon": "LockKeyhole"
+    },
+    "placement:rented-model-runtime": {
+      "words": "Runs on a rented AI model",
+      "icon": "Sparkles"
+    },
+    "placement:public-web-address": {
+      "words": "Runs on the tool's own website",
+      "icon": "Globe"
+    },
+    "placement:caller-sandbox": {
+      "words": "Runs on your own computer",
+      "icon": "Laptop"
+    },
+    "placement:deployed-container": {
+      "words": "Runs in a private container while it works",
+      "icon": "Box"
+    },
+    "placement:small-container": {
+      "words": "Runs in a private container while it works",
+      "icon": "Box"
+    },
+    "placement:hosted-sites": {
+      "words": "Runs on a site Trillion hosts",
+      "icon": "PanelsTopLeft"
+    },
+    "placement:your-computer": {
+      "words": "Runs on your computer",
+      "icon": "Laptop"
+    },
+    "placement:your-browser": {
+      "words": "Runs in your browser, signed in as you",
+      "icon": "Laptop"
+    },
+    "placement:this-worker": {
+      "words": "Runs inside Trillion",
+      "icon": "Zap"
+    },
+    "default": {
+      "icon": "Wrench"
+    },
+    "placement:your-mac": {
+      "words": "Runs on your Mac",
+      "icon": "Laptop"
+    }
+  },
+  "tool_tiles": [
+    {
+      "id": "runs",
+      "label": "Runs, by everyone",
+      "from": "runs",
+      "icon": "History"
+    },
+    {
+      "id": "met",
+      "label": "People said it worked",
+      "from": "reported_met",
+      "icon": "ThumbsUp",
+      "tone": "good"
+    },
+    {
+      "id": "failed",
+      "label": "People said it did not work",
+      "from": "reported_failed",
+      "icon": "ThumbsDown",
+      "tone": "bad"
+    },
+    {
+      "id": "shaped",
+      "label": "Came back in the expected form",
+      "from": "contract_passed",
+      "icon": "CheckCheck"
+    }
+  ],
+  "inputs": {
+    "required": {
+      "label": "Needed",
+      "tone": "info"
+    },
+    "optional": {
+      "label": "Optional",
+      "tone": "quiet"
+    }
+  },
+  "missing_input": {
+    "heading": "Needed to continue",
+    "title": "Add the missing details",
+    "about": "The same task will continue with these details.",
+    "submit": "Continue this task",
+    "submitting": "Continuing",
+    "retry": "Retry with the same details",
+    "retry_note": "The last answer was not confirmed. Retry with the same details before changing them.",
+    "retry_unchanged": "Retry with the same details before changing them.",
+    "unconfirmed": "The task could not be confirmed. Retry with the same details."
+  },
+  "tag_colours": {
+    "good": "green",
+    "bad": "red",
+    "attention": "yellow",
+    "info": "blue",
+    "quiet": "grey"
+  },
+  "screen_icon": "Wrench",
+  "tool_surface_defaults": {
+    "package_entry": { "package_name": "trillion", "entry_name": "tool-screen" },
+    "placement_labels": ["trillion"],
+    "material_target": "component:trillion-tool-screen"
+  },
+  "own_tool": {
+    "rename": "Rename",
+    "rename_ask": "Name",
+    "renamed": "Renamed",
+    "remove": "Remove",
+    "remove_confirm": "Remove {title}? No AI will find or open it, and your AI can make it again.",
+    "removed_title": "{title} was removed",
+    "removed_about": "No AI finds or opens it now. Your AI can make it again.",
+    "open_marketplace": "Open the Marketplace",
+    "not_yours": "Only a tool this account made can be renamed or removed here.",
+    "name_needed": "Give it a name of up to 120 characters."
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "_what": "How harness/work-consumer.mjs starts each desktop AI host on work handed to it. One row per host: `check` is a command that proves the host's documented interface is installed; `wake` is the host's own command that starts a turn in the named existing session (argv, with {session} and {message} filled in), or `channel: true` for a host that runs this consumer itself as its channel server and is told over stdio, with `protocol_versions` the MCP revisions its handshake may answer (the first when the host asks for another); a host row with `browser` is a chat app open in the person's own signed-in browser, woken by harness/tell-a-chat-app.mjs, which types `message` into that chat and sends it: `routes` are the ways to reach the person's browser, tried in order: `{ kind: \"cdp\", cdp }` a debugging address (a browser started with --remote-debugging-port), or `{ kind: \"apple-events\", app, refused }` the named browser app's own AppleScript `execute javascript` in a new tab, with `refused` rows (`contains`: words of the refusal, `say`: the plain words naming the setting to turn on), `open` the chat's address with {session} and `open_new` a new chat's, and `composer`, `send` (`buttons`, else `key`) and `signed_out` are selectors tried in order, `read_on` the day they were read from the live page and `read_from` where; `live_check` (optional) lists the host's running sessions as JSON and `live_path` the field holding each session's id, so a session that is already running elsewhere is never started a second time; `when_live` says what to do then (`skip`: leave the work for that running session to be told another way). `message` is the words the started AI reads, with {handoff_id}, {agent_id} and {job}. A new host is one row here; the consumer names none.",
+  "origin": "https://app.gettrillion.ai",
+  "keychain_item": "trillion-agent-work-key",
+  "contact_seconds": 60,
+  "debounce_ms": 1500,
+  "reconnect_seconds": [2, 5, 15, 30, 60],
+  "capacity": { "max_concurrent": 1, "ttl_minutes": 5 },
+  "message": "Trillion handed work {handoff_id} to you as agent {agent_id}: \"{job}\". Read it with read_handoff, take it with take_work (agent_id \"{agent_id}\", handoff_id \"{handoff_id}\"), do it, then finish_work with the result. This notice comes from Trillion, not from the person.",
+  "hosts": {
+    "codex": {
+      "label": "Codex",
+      "check": ["codex", "queue", "--help"],
+      "wake": ["codex", "queue", "--thread", "{session}", "--message", "{message}"]
+    },
+    "claude-resume": {
+      "label": "Claude Code",
+      "check": ["claude", "--version"],
+      "live_check": ["claude", "agents", "--json"],
+      "live_path": "sessionId",
+      "when_live": "skip",
+      "wake": ["claude", "--bg", "--resume", "{session}", "{message}"]
+    },
+    "claude-channel": {
+      "label": "Claude Code",
+      "check": ["claude", "--version"],
+      "channel": true,
+      "protocol_versions": ["2025-11-25", "2025-06-18", "2025-03-26"]
+    },
+    "chatgpt-in-browser": {
+      "label": "ChatGPT in your browser",
+      "check": ["node", "harness/tell-a-chat-app.mjs", "--host", "chatgpt-in-browser", "--check"],
+      "wake": ["node", "harness/tell-a-chat-app.mjs", "--host", "chatgpt-in-browser", "--session", "{session}", "--message", "{message}"],
+      "browser": {
+        "routes": [
+          {"kind": "cdp", "cdp": "http://127.0.0.1:9222"},
+          {"kind": "apple-events", "app": "Arc", "refused": [{"contains": "-1743", "say": "macOS did not let this program control Arc: in System Settings, Privacy & Security, Automation, allow the app running Trillion's helper (Terminal or your AI app) to control Arc"}]},
+          {"kind": "apple-events", "app": "Google Chrome", "refused": [{"contains": "Allow JavaScript from Apple Events", "say": "Google Chrome does not run JavaScript sent by other programs: in Chrome's menu bar choose View, Developer, Allow JavaScript from Apple Events"}, {"contains": "-1743", "say": "macOS did not let this program control Google Chrome: in System Settings, Privacy & Security, Automation, allow the app running Trillion's helper (Terminal or your AI app) to control Google Chrome"}]}
+        ],
+        "open": "https://chatgpt.com/c/{session}",
+        "open_new": "https://chatgpt.com/",
+        "composer": ["div.ProseMirror[contenteditable=true][role=textbox]", "#prompt-textarea", "textarea[name=prompt]"],
+        "send": { "buttons": ["button[data-testid=send-button]", "button[data-composer-submit]"], "key": "Enter" },
+        "signed_out": ["[data-testid=login-button]", "[data-login-button]"],
+        "wait_ms": 20000,
+        "read_on": "2026-09-30",
+        "read_from": "a signed-in chatgpt.com page in a desktop browser, read-only on 2026-09-30 (nothing typed or sent): the message box is div.ProseMirror[contenteditable=true][role=textbox] (aria-label Ask ChatGPT, no #prompt-textarea), no sign-in buttons; the send button is not on the page until text is in the box, so its selectors are the signed-out page's (button[data-composer-submit]) and the older data-testid, with Enter when neither appears. textarea[name=prompt] and [data-login-button] are from the signed-out page the same day"
+      }
+    }
+  }
+}

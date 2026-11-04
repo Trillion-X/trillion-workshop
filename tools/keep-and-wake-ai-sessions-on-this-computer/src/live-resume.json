@@ -1,0 +1,5 @@
+{
+  "_what": "How a screen's live socket (src/live-screen.mjs) picks up where it left off. Each narrow frame (a change only some reads show) carries `seq`, a number that goes up by one, and `epoch`, which names the life of the store instance that numbered it. The store keeps the last `most_frames_replayed` narrow frames; a socket that reconnects naming the `epoch` and the `seq` it last heard (query `epoch` and `after`) is sent the frames it missed, in order. If the store no longer holds them (the epoch changed after a restart, or more frames passed than are kept) it sends one `reset` frame and the page reads every screen again. A page that names nothing is a first connection and is sent nothing extra.",
+  "most_frames_replayed": 64,
+  "query": { "epoch": "epoch", "after": "after" }
+}

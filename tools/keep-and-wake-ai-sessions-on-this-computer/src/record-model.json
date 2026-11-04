@@ -1,0 +1,2443 @@
+{
+  "_what": "The EEAF data model every person's record store keeps, as DATA read by src/record-engine.mjs and passed to parts/record-log (record-model.mjs, invariant 11 of record-log-store.mjs). A record's type is its entity type; its top-level fields are the type's properties (every property a record ever holds is seen and kept, declared or not, with the value kinds it held); `kinds` declares, for a type, the value kind of some properties (a live write that sets one to another kind is refused, model_refused) and its `parts`: participation, a record holding another thing under a role at `path` (an id, a list of ids, or a list of objects whose `each` path names the id; a list's members in order are an interaction set), so what holds any id is one range of keys (holdersOf). `value_kinds` says what each value kind is: `is` a string, number, boolean, object, list or id (a non-empty text without '/'), or `list_of` one of those; a kind with neither checks nothing. `declared_by` names records that declare kinds themselves: a list declares `record:<row_type>`, each of its fields a property of the value kind its field kind holds (src/lists.json field_kinds `value`, filled in by src/record-engine.mjs), and a field holding row ids a participation role over them. A kind's `erasable` fields are kept sealed under a key of each record's own, so erasing the record (erase_record) deletes the key and every copy of their words with it; its `erasable_key` names the field of the record whose words they are, sealed under that record's key so erasing it reaches them at once (an arrival's message, a job's message); its `erase_with` names the records that hold the same words and are erased with it (a record named from its id, by one of its fields, or through a declared index of another kind), followed from each in turn. A kind's `erase_action` ({ label, glyph, confirm }) is how a screen offers erasing one of its records to the person: a secondary action that asks `confirm` once in place, then calls erase_record (src/workspace/messages-screen.tsx). A new kind, property or part is a row here (or, for a person's own kinds, a list they make), never code.",
+  "relations": {
+    "self": "record:person:me",
+    "entity_kinds": [
+      "organisation",
+      "group",
+      "place"
+    ],
+    "side_most": 1000,
+    "_what": "Relations (src/record-model-tools.mjs relate, the relate_records tool): participation between any two things with the role as data. `self` is the record id `me` names (the person whose store it is); a subject or object `<entity kind>:<name>` is an entity record of that kind, made once by its name. Each relation keeps a fractional order key per side (subject_order among the subject's relations of that role, object_order among the object's), so each end orders its links on its own, and `alive` (false: ended, kept with its places so relating it again puts it back where it was). `side_most` is how many relations of one end and role are read to place a new one."
+  },
+  "activities": {
+    "_what": "Activities (src/record-model-tools.mjs relate, the relate_records tool's `activities`; read with read_model `history`): one record per thing that happened between people (an email, a call, a meeting, a message, an introduction, a note), with when it was (`at`, ISO), a few words, and every record that took part, each under a role of its own (a sender, a caller, an attendee). It is named by what it is (kind, time, source and who took part), so saying it again changes nothing. A person's history, a pair's shared history and when they were last in touch are filters over these records through the one `participant` part, never notes kept on the person. `kinds` and `participant_roles` are every word allowed; `participants_most` is how many may take part in one; `history_most` is how many an ordered history read goes through; `summary_most` is the longest summary.",
+    "kinds": [
+      "email",
+      "call",
+      "meeting",
+      "message",
+      "introduction",
+      "note"
+    ],
+    "participant_roles": [
+      "participant",
+      "sender",
+      "recipient",
+      "caller",
+      "attendee",
+      "organiser",
+      "introducer",
+      "introduced"
+    ],
+    "participants_most": 50,
+    "history_most": 1000,
+    "summary_most": 2000
+  },
+  "value_kinds": {
+    "text": {
+      "is": "string"
+    },
+    "number": {
+      "is": "number"
+    },
+    "boolean": {
+      "is": "boolean"
+    },
+    "object": {
+      "is": "object"
+    },
+    "id": {
+      "is": "id"
+    },
+    "ids": {
+      "list_of": "id"
+    },
+    "texts": {
+      "list_of": "string"
+    },
+    "objects": {
+      "list_of": "object"
+    },
+    "row-ids": {
+      "list_of": "id"
+    },
+    "rule": {
+      "is": "object"
+    },
+    "done-rule": {
+      "is": "object"
+    },
+    "computed": {},
+    "any": {},
+    "numbers": {
+      "list_of": "number"
+    },
+    "list": {
+      "is": "list"
+    }
+  },
+  "kinds": [
+    {
+      "type": "record-stance",
+      "properties": {
+        "record": "text",
+        "kind": "text",
+        "about": "objects",
+        "stance": "text",
+        "said": "text",
+        "why": "text",
+        "by": "text",
+        "at": "text",
+        "decision_generation": "number",
+        "earlier": "objects",
+        "correction": "object"
+      },
+      "_read_by": "src/record-stance.mjs: the person's stand, its history and durable correction recovery"
+    },
+    {
+      "type": "private-response",
+      "properties": {
+        "anchor": "object",
+        "rows": "objects"
+      },
+      "_read_by": "src/private-responses.mjs: the person's own reactions on one record or part of it"
+    },
+    {
+      "type": "customer-database",
+      "table": true,
+      "properties": {
+        "name": "text",
+        "created_at": "text",
+        "changed_at": "text",
+        "archived_at": "text",
+        "deleted_at": "text"
+      },
+      "_read_by": "src/customer-databases.mjs: a customer-named private record database backed by its own RecordBook Durable Object"
+    },
+    {
+      "type": "table-schema-change",
+      "properties": {
+        "kind": "text",
+        "event": "text",
+        "field": "text",
+        "old_type": "text",
+        "new_type": "text",
+        "changed_at": "text"
+      },
+      "_read_by": "parts/record-log/do-work/record-log-store.mjs: one dated change to a table kind's schema (kind_added, table_rebuilt, field_added, field_type_changed, field_removed, field_restored, index_added, index_removed), written in the transaction that made it"
+    },
+    {
+      "type": "ai",
+      "table": true,
+      "properties": {
+        "label": "text",
+        "kind": "text",
+        "runs_on": "object",
+        "agent_id": "text",
+        "can": "texts",
+        "order": "number",
+        "order_set_by_person": "boolean",
+        "live": "object",
+        "sign_ins": "texts",
+        "tool_id": "text",
+        "model": "text",
+        "ceiling": "object"
+      },
+      "parts": [
+        {
+          "role": "agent",
+          "path": [
+            "agent_id"
+          ]
+        },
+        {
+          "role": "runs on",
+          "path": [
+            "runs_on",
+            "device"
+          ]
+        }
+      ],
+      "_read_by": "src/ais.mjs: one of the person's AIs (a chat, a CLI on a computer, a model on a device, a connected account); setup, routing, find_agents and the AI screens read only these"
+    },
+    {
+      "type": "device",
+      "table": true,
+      "properties": {
+        "label": "text",
+        "first_seen_at": "text"
+      },
+      "_read_by": "src/ais.mjs: a computer or phone of the person's an AI runs on; what holds it under runs on is what runs there"
+    },
+    {
+      "type": "audience-answer-draft",
+      "parts": [
+        {
+          "role": "candidate",
+          "path": [
+            "candidate_id"
+          ]
+        }
+      ],
+      "_read_by": "src/audience-question-admission.mjs"
+    },
+    {
+      "type": "audience-question-work",
+      "parts": [
+        {
+          "role": "candidate",
+          "path": [
+            "candidate_id"
+          ]
+        }
+      ],
+      "_read_by": "src/audience-question-admission.mjs"
+    },
+    {
+      "type": "group",
+      "table": true,
+      "properties": {
+        "name": "text"
+      },
+      "_read_by": "src/record-model-tools.mjs relate: a group of people a relation names"
+    },
+    {
+      "type": "moment",
+      "properties": {
+        "members": "objects",
+        "files": "objects"
+      },
+      "parts": [
+        {
+          "role": "member",
+          "path": [
+            "members"
+          ],
+          "each": [
+            "id"
+          ]
+        },
+        {
+          "role": "message",
+          "path": [
+            "members"
+          ],
+          "each": [
+            "message_id"
+          ]
+        },
+        {
+          "role": "file",
+          "path": [
+            "files"
+          ],
+          "each": [
+            "id"
+          ]
+        }
+      ],
+      "_read_by": "src/moments.mjs: a moment holds the arrivals and asks gathered into it and their files",
+      "guard_properties": {
+        "at": "text",
+        "case_id": "text",
+        "chat_first_minutes": "number",
+        "closed_at": "text",
+        "closes_at": "text",
+        "from": "text",
+        "from_person": "boolean",
+        "handoff_id": "text",
+        "last_at": "text",
+        "message_id": "text",
+        "message_ids": "texts",
+        "once_per": "text",
+        "opened_at": "text",
+        "priority": "number",
+        "route": "text",
+        "row": "text",
+        "said": "text",
+        "send": "text",
+        "source_id": "text",
+        "title": "text",
+        "until": "text"
+      }
+    },
+    {
+      "type": "naming-fields-mark",
+      "properties": {
+        "due": "boolean",
+        "looked_at": "number"
+      },
+      "_read_by": "src/naming-fields.mjs: whether a change marked the lists to be looked at again for fields that name things, and when they last were"
+    },
+    {
+      "type": "organisation",
+      "table": true,
+      "properties": {
+        "name": "text"
+      },
+      "_read_by": "src/record-model-tools.mjs relate: a company, club, school or team a relation names, made once by its name"
+    },
+    {
+      "type": "place",
+      "table": true,
+      "properties": {
+        "name": "text"
+      },
+      "_read_by": "src/record-model-tools.mjs relate: a place a relation names"
+    },
+    {
+      "type": "plan",
+      "properties": {
+        "pursuit_ids": "ids"
+      },
+      "parts": [
+        {
+          "role": "pursuit",
+          "path": [
+            "pursuit_ids"
+          ]
+        },
+        {
+          "role": "decision",
+          "path": [
+            "decision_case_id"
+          ]
+        }
+      ],
+      "_read_by": "src/plan-records.mjs",
+      "guard_properties": {
+        "title": "text",
+        "goal": "text",
+        "status": "text",
+        "decision_case_id": "text",
+        "body": "text",
+        "next_action": "text",
+        "success_measure": "text",
+        "workflow_run_id": "text",
+        "progress_ids": "texts",
+        "latest_progress": "text",
+        "created_at": "text",
+        "updated_at": "text",
+        "created_by": "text",
+        "updated_by": "text"
+      }
+    },
+    {
+      "type": "pursuit",
+      "properties": {
+        "parents": "ids",
+        "children": "ids",
+        "space_id": "id"
+      },
+      "parts": [
+        {
+          "role": "parent",
+          "path": [
+            "parents"
+          ]
+        },
+        {
+          "role": "child",
+          "path": [
+            "children"
+          ]
+        },
+        {
+          "role": "space",
+          "path": [
+            "space_id"
+          ]
+        }
+      ],
+      "_read_by": "src/engine.mjs, src/pursuit-consolidate.mjs, src/pursuit-rooms.mjs",
+      "guard_properties": {
+        "after": "text",
+        "archived_at": "text",
+        "areas": "texts",
+        "changed_at": "text",
+        "drive_evidence": "text",
+        "ended_at": "text",
+        "evidence": "objects",
+        "from_room": "boolean",
+        "id": "text",
+        "kind": "text",
+        "last_seen": "text",
+        "merged_into": "text",
+        "needle_mover": "boolean",
+        "notes": "text",
+        "now": "text",
+        "open_url": "text",
+        "recorded_at": "text",
+        "room_left": "text",
+        "status": "text",
+        "title": "text",
+        "why_it_matters": "text"
+      }
+    },
+    {
+      "type": "record:people"
+    },
+    {
+      "type": "record:person",
+      "properties": {
+        "heard_as": "texts",
+        "same_as": "id"
+      },
+      "parts": [
+        {
+          "role": "same_as",
+          "path": [
+            "same_as"
+          ]
+        }
+      ],
+      "_read_by": "src/inbound.mjs nameHeardSpeaker: a heard voice belongs to a person (a row of their lists they chose, or the person record made from the name), so what holds a person row under same_as is every voice that is theirs",
+      "guard_properties": {
+        "first_heard_at": "text",
+        "name": "text",
+        "named_from": "text",
+        "voice": "text",
+        "named_at": "text",
+        "naming_window": "text",
+        "same_as_is_generated": "boolean",
+        "_generated_voice_link": "boolean",
+        "note": "text"
+      }
+    },
+    {
+      "type": "availability-link",
+      "erasable": [
+        "title",
+        "description",
+        "location",
+        "alias",
+        "calendar",
+        "cohosts",
+        "timezone",
+        "windows",
+        "duration_min",
+        "step_min",
+        "buffer_before_min",
+        "buffer_after_min",
+        "min_notice_min",
+        "horizon_days",
+        "expires_at",
+        "one_off_slots",
+        "preferred_times_snapshot"
+      ],
+      "erase_with": [
+        { "type": "availability-reservation", "index": "by-link", "equal": "{key}" }
+      ],
+      "properties": {
+        "id": "text",
+        "title": "text",
+        "calendar": "object",
+        "description": "any",
+        "location": "any",
+        "alias": "any",
+        "cohosts": "objects",
+        "timezone": "text",
+        "windows": "objects",
+        "duration_min": "number",
+        "step_min": "number",
+        "buffer_before_min": "number",
+        "buffer_after_min": "number",
+        "min_notice_min": "number",
+        "horizon_days": "number",
+        "expires_at": "any",
+        "one_off_slots": "objects",
+        "preferred_times_snapshot": "any",
+        "repeat": "boolean",
+        "per_grant_max": "any",
+        "per_day_max": "any",
+        "change_notice_min": "number",
+        "video_call": "boolean",
+        "seats_per_slot": "any",
+        "host_mode": "text",
+        "host_weight": "number",
+        "requires_confirmation": "boolean",
+        "pending_blocks_slot": "boolean",
+        "state": "text",
+        "created_at": "text",
+        "updated_at": "text",
+        "revision": "number"
+      },
+      "_read_by": "parts/calendar-booker personal availability links"
+    },
+    {
+      "type": "availability-reservation",
+      "erasable": [
+        "recipient_identity",
+        "calendar",
+        "start_ms",
+        "end_ms",
+        "occupied_start_ms",
+        "occupied_end_ms",
+        "external_event_id",
+        "recipient",
+        "pending_start_ms",
+        "pending_end_ms",
+        "pending_occupied_start_ms",
+        "pending_occupied_end_ms",
+        "host_calendars",
+        "pending_host_calendars"
+      ],
+      "erase_with": [
+        { "type": "availability-reservation-hold", "index": "by-reservation", "equal": "{key}" },
+        { "type": "availability-operation", "index": "by-reservation", "equal": "{key}" }
+      ],
+      "properties": {
+        "id": "text",
+        "link_id": "text",
+        "recipient_identity": "text",
+        "calendar": "object",
+        "state": "text",
+        "start_ms": "number",
+        "end_ms": "number",
+        "occupied_start_ms": "number",
+        "occupied_end_ms": "number",
+        "created_at": "text",
+        "updated_at": "text",
+        "external_event_id": "text",
+        "recipient": "object",
+        "grant_ref": "text",
+        "last_operation_id": "text",
+        "pending_operation_id": "text",
+        "holds_slot": "boolean",
+        "ended_by": "text",
+        "ended_reason": "text",
+        "pending_start_ms": "number",
+        "pending_end_ms": "number",
+        "pending_occupied_start_ms": "number",
+        "pending_occupied_end_ms": "number",
+        "host_calendars": "objects",
+        "pending_host_calendars": "objects"
+      },
+      "_read_by": "parts/calendar-booker personal availability reservations"
+    },
+    {
+      "type": "availability-operation",
+      "erasable": [
+        "external_event_id",
+        "requested_start_ms",
+        "requested_end_ms",
+        "error",
+        "effect_input",
+        ["effect_binding", "input"]
+      ],
+      "properties": {
+        "id": "text",
+        "identity": "text",
+        "request_key": "text",
+        "kind": "text",
+        "link_id": "text",
+        "reservation_id": "text",
+        "input_identity": "text",
+        "state": "text",
+        "requested_start_ms": "number",
+        "requested_end_ms": "number",
+        "external_event_id": "text",
+        "error": "any",
+        "created_at": "text",
+        "updated_at": "text",
+        "effect_input": "object",
+        "effect_binding": "object"
+      },
+      "_read_by": "parts/calendar-booker durable operation recovery"
+    },
+    {
+      "type": "availability-reservation-hold",
+      "erase_fields": [
+        "calendar",
+        "calendar_identity",
+        "occupied_start_ms",
+        "occupied_end_ms",
+        "occupied_start_sort_key",
+        "occupied_end_sort_key"
+      ],
+      "properties": {
+        "id": "text",
+        "reservation_id": "text",
+        "calendar": "object",
+        "calendar_identity": "text",
+        "interval_kind": "text",
+        "occupied_start_ms": "number",
+        "occupied_end_ms": "number",
+        "occupied_start_sort_key": "text",
+        "occupied_end_sort_key": "text",
+        "state": "text",
+        "updated_at": "text"
+      },
+      "_read_by": "parts/calendar-booker bounded per-calendar reservation hold index"
+    },
+    {
+      "type": "activity",
+      "table": true,
+      "properties": {
+        "kind": "text",
+        "at": "text",
+        "summary": "text",
+        "direction": "text",
+        "source": "text",
+        "said": "text",
+        "participants": "objects"
+      },
+      "parts": [
+        {
+          "role": "participant",
+          "path": [
+            "participants"
+          ],
+          "each": [
+            "record"
+          ]
+        }
+      ],
+      "_read_by": "src/record-model-tools.mjs relate (activities) and readRecordModel (history): what happened, when, and who took part; what holds a person under `participant` answers their history"
+    },
+    {
+      "type": "relation",
+      "table": true,
+      "properties": {
+        "subject": "id",
+        "role": "text",
+        "object": "id",
+        "said": "text",
+        "subject_order": "text",
+        "object_order": "text",
+        "alive": "boolean"
+      },
+      "parts": [
+        {
+          "role": "subject",
+          "path": [
+            "subject"
+          ]
+        },
+        {
+          "role": "is",
+          "path": [
+            "object"
+          ],
+          "role_from": [
+            "role"
+          ]
+        }
+      ],
+      "_read_by": "src/record-model-tools.mjs relate: subject is the role of object (\"Pat\" is the \"dad\" of me), so what holds the object answers under that role and what holds the subject under subject"
+    },
+    {
+      "type": "agent-card",
+      "guard_properties": {
+        "activation_binding": "object",
+        "agent_id": "text",
+        "capacity_claim": "object",
+        "delivered": "number",
+        "delivery": "object",
+        "description": "text",
+        "finished": "number",
+        "first_published_at": "text",
+        "found_by": "object",
+        "harness": "text",
+        "kind": "text",
+        "last_delivered_at": "text",
+        "last_seen_at": "text",
+        "last_undelivered_at": "text",
+        "model": "text",
+        "name": "text",
+        "published_at": "text",
+        "reader": "text",
+        "runs": "list",
+        "skills": "list",
+        "source_id": "text",
+        "takes_any_by_name": "boolean",
+        "takes_work": "boolean",
+        "where": "text"
+      }
+    },
+    {
+      "type": "agent-delivery",
+      "guard_properties": {
+        "agent_id": "text",
+        "attempts": "number",
+        "created_at": "text",
+        "delivered_at": "text",
+        "event": "object",
+        "event_id": "text",
+        "found_by": "object",
+        "last_attempt_at": "text",
+        "last_error": "text",
+        "next_at": "text",
+        "said": "text",
+        "state": "text"
+      }
+    },
+    {
+      "type": "agent-delivery-secret",
+      "guard_properties": {
+        "found_by": "object",
+        "secret": "text"
+      }
+    },
+    {
+      "type": "agent-handoff",
+      "erasable": [
+        "job",
+        "said",
+        "asked",
+        [
+          "input",
+          "said"
+        ]
+      ],
+      "erasable_key": [
+        "input",
+        "arrived",
+        "message_id"
+      ],
+      "erase_with": [
+        {
+          "field": "result_record",
+          "type": "agent-handoff-result"
+        },
+        {
+          "field": "corrections_record",
+          "type": "agent-handoff-result"
+        },
+        {
+          "type": "notice-list",
+          "index": "handoff",
+          "equal": "{key}"
+        },
+        {
+          "field": [
+            "input",
+            "arrived",
+            "message_id"
+          ],
+          "type": "message"
+        }
+      ],
+      "guard_properties": {
+        "asked": "object",
+        "attempts": "list",
+        "blocked_kind": "text",
+        "case_id": "text",
+        "closing": "object",
+        "corrections": "objects",
+        "corrections_record": "text",
+        "depends_on": "texts",
+        "done_when_rule": "object",
+        "effects": "object",
+        "finished_at": "text",
+        "found_by": "object",
+        "from_agent": "text",
+        "generation": "number",
+        "handed_at": "text",
+        "handed_by_reader": "text",
+        "handoff_id": "text",
+        "hold_minutes": "number",
+        "hold_until": "text",
+        "in_the_way": "text",
+        "in_the_way_at": "text",
+        "in_the_way_by": "text",
+        "input": "object",
+        "job": "text",
+        "max_attempts": "number",
+        "time_budget_seconds": "number",
+        "notice": "text",
+        "once_per": "text",
+        "outcome": "text",
+        "parent_handoff_id": "text",
+        "preferred_agent": "text",
+        "priority": "number",
+        "recovery": "text",
+        "released_because": "text",
+        "result": "any",
+        "result_record": "text",
+        "result_shape": "object",
+        "result_source_receipt": "object",
+        "review_at": "text",
+        "revision": "number",
+        "said": "text",
+        "schedule": "text",
+        "source_active_at": "text",
+        "source_return": "object",
+        "state": "text",
+        "success_condition": "text",
+        "summary": "text",
+        "take_by": "text",
+        "taken_at": "text",
+        "taken_by": "text",
+        "target": "object",
+        "to_agent": "text",
+        "waits_open": "number",
+        "wakes": "number",
+        "withdrawal": "object"
+      }
+    },
+    {
+      "type": "agent-handoff-result",
+      "erasable": [
+        "json"
+      ],
+      "guard_properties": {
+        "json": "text",
+        "json_encoding": "text",
+        "json_byte_length": "number"
+      },
+      "_read_by": "src/agent-records.mjs: complete answers and attributed correction history as sealed scalar JSON, referenced by their small handoff; result reopen removes the result payload, correction history persists, and handoff erasure erases both payloads"
+    },
+    {
+      "type": "agent-held-work",
+      "guard_properties": {
+        "found_by": "object",
+        "holds": "object",
+        "ids": "list"
+      }
+    },
+    {
+      "type": "agent-held-work-state",
+      "guard_properties": {
+        "enabled": "boolean",
+        "found_by": "object"
+      }
+    },
+    {
+      "type": "agent-review-mark",
+      "guard_properties": {
+        "after": "text",
+        "bestAt": "text",
+        "bestId": "text",
+        "cursor": "object",
+        "dirty": "boolean",
+        "done": "boolean",
+        "found_by": "object",
+        "index": "text",
+        "revision": "number",
+        "through": "text"
+      }
+    },
+    {
+      "type": "agent-schedule-state",
+      "guard_properties": {
+        "found_by": "object",
+        "revision": "number"
+      }
+    },
+    {
+      "type": "arrival",
+      "erasable": [
+        "job",
+        "said",
+        "resolved_text",
+        "entities"
+      ],
+      "erasable_key": [
+        "message_id"
+      ],
+      "erase_with": [
+        {
+          "field": "message_id",
+          "type": "message"
+        }
+      ],
+      "parts": [
+        {
+          "role": "message",
+          "path": [
+            "message_id"
+          ]
+        },
+        {
+          "role": "moment",
+          "path": [
+            "moment"
+          ]
+        },
+        {
+          "role": "decision",
+          "path": [
+            "case_id"
+          ]
+        },
+        {
+          "role": "follows",
+          "path": [
+            "follows"
+          ]
+        },
+        {
+          "role": "speaker",
+          "path": [
+            "speaker_record"
+          ]
+        },
+        {
+          "role": "file",
+          "path": [
+            "files"
+          ],
+          "each": [
+            "id"
+          ]
+        }
+      ],
+      "_read_by": "src/inbound.mjs: what arrived, the message it is, the moment it joined, its files",
+      "guard_properties": {
+        "at": "text",
+        "case_id": "text",
+        "chat_first_minutes": "number",
+        "clock": "object",
+        "depth": "number",
+        "entities": "objects",
+        "files": "objects",
+        "follows": "text",
+        "from": "text",
+        "from_person": "boolean",
+        "job": "text",
+        "message_id": "text",
+        "moment": "text",
+        "once_per": "text",
+        "priority": "number",
+        "resolved_text": "text",
+        "route": "text",
+        "said": "text",
+        "source_id": "text",
+        "speaker_record": "text",
+        "title": "text"
+      }
+    },
+    {
+      "type": "ask-again",
+      "erasable": ["facts"],
+      "erasable_key": ["message_id"],
+      "guard_properties": {
+        "at": "text",
+        "facts": "object",
+        "message_id": "text"
+      }
+    },
+    {
+      "type": "asked",
+      "parts": [
+        {
+          "role": "moment",
+          "path": [
+            "moment"
+          ]
+        }
+      ],
+      "_read_by": "src/queued-work.mjs",
+      "guard_properties": {
+        "at": "text",
+        "context": "object",
+        "item": "text",
+        "job": "text",
+        "job_id": "text",
+        "label": "text",
+        "moment": "text",
+        "priority": "number",
+        "said": "text",
+        "steps": "objects"
+      }
+    },
+    {
+      "type": "audience-question-decision",
+      "guard_properties": {
+        "candidate_id": "text",
+        "candidate_revision": "text",
+        "evidence_refs": "list",
+        "kind": "text",
+        "reason": "text",
+        "venture_ref": "text",
+        "verdict": "text"
+      }
+    },
+    {
+      "type": "audience-source",
+      "guard_properties": {
+        "id": "text",
+        "observed_at": "text",
+        "offer_ref": "text",
+        "quote": "text",
+        "role": "text",
+        "source_url": "text",
+        "venture_ref": "text"
+      }
+    },
+    {
+      "type": "block",
+      "guard_properties": {
+        "at": "text",
+        "source_id": "text",
+        "state": "text",
+        "title": "text"
+      }
+    },
+    {
+      "type": "commercial-event",
+      "guard_properties": {
+        "funnel_id": "text",
+        "stage": "text",
+        "converted": "boolean",
+        "amount_cents": "number",
+        "currency": "text",
+        "buyer_ref": "text",
+        "checkout_session_id": "text",
+        "contract_id": "text",
+        "event": "text",
+        "event_id": "text",
+        "kind": "text",
+        "occurred_at": "text",
+        "subject_id": "text",
+        "subject_kind": "text"
+      }
+    },
+    {
+      "type": "link-page",
+      "guard_properties": {
+        "about": "text",
+        "code": "text",
+        "links": "objects",
+        "on": "boolean",
+        "pending_code": "text",
+        "title": "text"
+      }
+    },
+    {
+      "type": "computer-sources",
+      "guard_properties": {
+        "browser_sites": "texts",
+        "computer_id": "text",
+        "gates": "list",
+        "name": "text",
+        "readers": "objects",
+        "reported_at": "text",
+        "sources": "objects"
+      }
+    },
+    {
+      "type": "content-resolution-failure",
+      "guard_properties": {
+        "address": "text",
+        "asserted_content_hash": "text"
+      }
+    },
+    {
+      "type": "decision",
+      "guard_properties": {
+        "actions": "list",
+        "answered_steps": "list",
+        "call_count": "number",
+        "calls": "objects",
+        "calls_with_submission": "list",
+        "carried_out": "objects",
+        "checks": "list",
+        "cited_pursuits": "object",
+        "corrected_at": "text",
+        "created_at": "text",
+        "decided_at": "text",
+        "decision": "object",
+        "decision_generation": "number",
+        "decision_history": "objects",
+        "decision_usage": "object",
+        "evidence_history": "objects",
+        "guidance": "objects",
+        "id": "text",
+        "input": "object",
+        "method": "object",
+        "method_history": "objects",
+        "original_input": "object",
+        "outcome_checks": "objects",
+        "outcome_question": "object",
+        "outcome_revision": "number",
+        "pursuits_known": "boolean",
+        "recheck_on": "text",
+        "reopened": "objects",
+        "reports": "objects",
+        "scratchpad": "list",
+        "source_id": "text",
+        "source_provenance": "object",
+        "status": "text",
+        "summary": "text",
+        "workflow_plan": "object"
+      }
+    },
+    {
+      "type": "decision-call",
+      "guard_properties": {
+        "accepted": "boolean",
+        "app": "text",
+        "at": "text",
+        "bytes": "number",
+        "problems": "texts",
+        "reason": "text",
+        "route": "text",
+        "step_id": "text",
+        "submission": "object"
+      }
+    },
+    {
+      "type": "decision-made",
+      "guard_properties": {
+        "app": "text",
+        "at": "text",
+        "case_id": "text",
+        "from_reader": "text",
+        "generation": "number"
+      }
+    },
+    {
+      "type": "decision-step",
+      "guard_properties": {
+        "answer": "object",
+        "answered_at": "text",
+        "checklist": "any",
+        "step_id": "text",
+        "usage": "object"
+      }
+    },
+    {
+      "type": "decision-step/checklist",
+      "guard_properties": {
+        "checks": "objects"
+      }
+    },
+    {
+      "type": "decision/method",
+      "guard_properties": {
+        "about": "text",
+        "answer_rules": "object",
+        "backbone": "objects",
+        "checks": "list",
+        "decision_fields": "list",
+        "id": "text",
+        "name": "text",
+        "observers": "objects",
+        "preset": "object",
+        "steps": "objects",
+        "workflows": "list"
+      }
+    },
+    {
+      "type": "decision/method_history/guidance/checklist",
+      "guard_properties": {
+        "checks": "objects"
+      }
+    },
+    {
+      "type": "entity-list",
+      "guard_properties": {
+        "before": "text",
+        "complete": "boolean"
+      }
+    },
+    {
+      "type": "entity-row",
+      "guard_properties": {
+        "keys": "text"
+      }
+    },
+    {
+      "type": "entity-spelling",
+      "guard_properties": {
+        "count": "number",
+        "key": "text",
+        "rows": "text"
+      }
+    },
+    {
+      "type": "execution",
+      "parts": [
+        {
+          "role": "record_refs",
+          "path": [
+            "links",
+            "record_refs"
+          ]
+        },
+        {
+          "role": "reference",
+          "path": [
+            "references"
+          ],
+          "each": [
+            "ref"
+          ],
+          "role_from": [
+            "role"
+          ]
+        }
+      ],
+      "_read_by": "src/record-scope.mjs and read_model: exact targets in links.record_refs, plus ordered references with their declared role, input/result basis and source field path; named input does not establish consumption",
+      "guard_properties": {
+        "actor": "object",
+        "batch_index": "number",
+        "call_id": "text",
+        "capture_kind": "text",
+        "captured_at": "text",
+        "claimed": "object",
+        "corrects": "text",
+        "coverage": "object",
+        "created_at": "text",
+        "error_code": "text",
+        "event_phase": "text",
+        "execution_ref": "text",
+        "links": "object",
+        "observation": "object",
+        "operation": "text",
+        "origin": "text",
+        "parent_call_id": "text",
+        "phase": "text",
+        "recorder": "object",
+        "references": "objects",
+        "request_id": "text",
+        "source_ref": "text",
+        "updated_at": "text",
+        "correction_reason": "text"
+      }
+    },
+    {
+      "type": "file-arrival",
+      "parts": [
+        {
+          "role": "file",
+          "path": [
+            "identity"
+          ]
+        }
+      ],
+      "_read_by": "src/person-store.mjs recordFileArrival: a file that arrived (a camera clip, an upload)",
+      "guard_properties": {
+        "at": "text",
+        "byte_length": "number",
+        "identity": "text",
+        "made_by_tool": "boolean",
+        "media_type": "text",
+        "names": "list"
+      }
+    },
+    {
+      "type": "item-of",
+      "guard_properties": {
+        "file": "text",
+        "item": "text"
+      }
+    },
+    {
+      "type": "list",
+      "guard_properties": {
+        "about": "text",
+        "fields": "objects",
+        "icon": "text",
+        "indexes": "objects",
+        "label": "text",
+        "managed_rows": "object",
+        "ordering": "object",
+        "placement": "object",
+        "public_page": "object",
+        "review": "object",
+        "review_changes": "boolean",
+        "row_sources": "objects",
+        "row_type": "text",
+        "share_when": "object",
+        "stamps": "boolean",
+        "title_field": "text",
+        "views": "objects"
+      }
+    },
+    {
+      "type": "list-open-mark",
+      "guard_properties": {
+        "before": "text",
+        "done": "boolean",
+        "shared": "objects",
+        "signature": "text"
+      }
+    },
+    {
+      "type": "list-key",
+      "_what": "Which row of a list holds one value of a unique field in its shared form (src/list-keys.mjs); the id carries a BLAKE3 of the form, never the form.",
+      "guard_properties": {
+        "field_id": "text",
+        "list_id": "text",
+        "row_id": "text"
+      }
+    },
+    {
+      "type": "list-snapshot",
+      "_what": "The ids a list or saved view held when a snapshot was taken (src/list-snapshots.mjs), kept for snapshots.minutes.",
+      "guard_properties": {
+        "complete": "boolean",
+        "created_at": "text",
+        "expires_at": "text",
+        "ids": "texts",
+        "list_id": "text",
+        "view_id": "text"
+      }
+    },
+    {
+      "type": "list-tombstone",
+      "_what": "Where a row merged away went (src/lists.mjs, lists.json history).",
+      "guard_properties": {
+        "at": "text",
+        "list_id": "text",
+        "merged_into": "text",
+        "row_id": "text"
+      }
+    },
+    {
+      "type": "list-heat",
+      "_what": "How much one list row is used, halving with time (src/lists.mjs noteUse, src/list-review.mjs coldRows).",
+      "guard_properties": {
+        "at": "text",
+        "heat": "number",
+        "list_id": "text",
+        "row_id": "text"
+      }
+    },
+    {
+      "type": "list-proposal",
+      "_what": "A change an AI proposed to a list, waiting for a person to approve or decline it (src/list-proposals.mjs).",
+      "guard_properties": {
+        "by": "text",
+        "conflicts": "objects",
+        "decided_at": "text",
+        "decided_by": "text",
+        "decided_via": "object",
+        "editable": "texts",
+        "evidence": "objects",
+        "list_id": "text",
+        "note": "text",
+        "proposed_at": "text",
+        "remove": "texts",
+        "rows": "objects",
+        "saw": "objects",
+        "scopes": "objects",
+        "status": "text",
+        "via": "object"
+      }
+    },
+    {
+      "type": "list-trash",
+      "_what": "A removed list row, listed as recently removed and put back from the log (src/lists.mjs removedRows, restoreRows).",
+      "guard_properties": {
+        "by": "text",
+        "list_id": "text",
+        "removed_at": "text",
+        "row_id": "text",
+        "via": "object"
+      }
+    },
+    {
+      "type": "list-filter",
+      "_what": "One saved filter of a list, kept on its own for views and other filters to use (lists.json filters, src/list-filters.mjs).",
+      "guard_properties": {
+        "filter": "object",
+        "list_id": "text"
+      }
+    },
+    {
+      "type": "list-view",
+      "_what": "One saved view of a list, kept on its own (lists.json view_records).",
+      "guard_properties": {
+        "list_id": "text",
+        "order": "text",
+        "view": "object"
+      }
+    },
+    {
+      "type": "message",
+      "erase_fields": ["conversation_id", "source_ref", "origin", "evidence", "attachments"],
+      "parts": [
+        {
+          "role": "about",
+          "path": [
+            "about"
+          ],
+          "each": [
+            "id"
+          ],
+          "role_from": [
+            "kind"
+          ]
+        }
+      ],
+      "erasable": [
+        "text"
+      ],
+      "erase_action": {
+        "label": "Forget",
+        "glyph": "🗑",
+        "confirm": "Forget this message? Replies and results that quoted it keep their own words."
+      },
+      "erase_with": [
+        {
+          "id": "message-duplicate-correction:{id}"
+        },
+        {
+          "type": "message-duplicate-correction",
+          "index": "kept"
+        },
+        {
+          "id": "message-provenance-correction:{id}"
+        },
+        {
+          "field": "corrected_from",
+          "type": "message"
+        },
+        {
+          "type": "arrival",
+          "index": "message_id"
+        },
+        {
+          "type": "agent-handoff",
+          "index": "message"
+        },
+        {
+          "type": "told-the-person",
+          "index": "message"
+        },
+        {
+          "id": "resource-input-provenance:{id}",
+          "type": "resource-input-provenance"
+        },
+        {
+          "id": "resource-input-interpretation:{id}",
+          "type": "resource-input-interpretation"
+        },
+        {
+          "id": "ask-again:{id}",
+          "type": "ask-again"
+        }
+      ],
+      "guard_properties": {
+        "about": "objects",
+        "app": "text",
+        "at": "text",
+        "attachments": "objects",
+        "authored_at": "text",
+        "captured_at": "text",
+        "captured_road": "text",
+        "clock": "object",
+        "conversation_id": "text",
+        "corrected_from": "text",
+        "entity_resolution": "object",
+        "evidence": "text",
+        "final_reply": "boolean",
+        "id": "text",
+        "model": "text",
+        "named_at": "text",
+        "named_from": "text",
+        "origin": "text",
+        "recorded_app": "text",
+        "recorded_at": "text",
+        "recorded_by": "text",
+        "reworded_at": "text",
+        "source_at": "text",
+        "source_ref": "text",
+        "speaker": "text",
+        "text": "text",
+        "unconfirmed_at": "text",
+        "unconfirmed_from": "text"
+      }
+    },
+    {
+      "type": "message-case",
+      "guard_properties": {
+        "case_id": "text",
+        "joined": "boolean",
+        "message_id": "text"
+      }
+    },
+    {
+      "type": "message-content-key",
+      "guard_properties": {
+        "message_id": "text"
+      }
+    },
+    {
+      "type": "message-duplicate-correction",
+      "erasable": [
+        "duplicate"
+      ],
+      "erase_with": [
+        {
+          "field": "duplicate_id",
+          "type": "message"
+        }
+      ],
+      "guard_properties": {
+        "corrected_at": "text",
+        "duplicate": "object",
+        "duplicate_id": "text",
+        "evidence": "text",
+        "kept_id": "text"
+      }
+    },
+    {
+      "type": "message-provenance-correction",
+      "erasable": [
+        "original"
+      ],
+      "erase_with": [
+        {
+          "field": "corrected_message_id",
+          "type": "message"
+        }
+      ],
+      "guard_properties": {
+        "corrected_at": "text",
+        "corrected_message_id": "text",
+        "evidence": "text",
+        "message_id": "text",
+        "original": "object",
+        "retired_arrival_ids": "list",
+        "speaker": "text"
+      }
+    },
+    {
+      "type": "message-resend-key",
+      "guard_properties": {
+        "message_id": "text"
+      }
+    },
+    {
+      "type": "message-source-key",
+      "guard_properties": {
+        "message_id": "text"
+      }
+    },
+    {
+      "type": "voice-session",
+      "guard_properties": {
+        "app": "text",
+        "first_at": "text",
+        "labels": "texts",
+        "labels_over": "boolean"
+      }
+    },
+    {
+      "type": "message-speaker-naming",
+      "guard_properties": {
+        "app": "text",
+        "evidence": "text",
+        "message_ids": "texts",
+        "name": "text",
+        "named_at": "text",
+        "since": "text",
+        "speaker": "text",
+        "until": "text",
+        "active": "boolean",
+        "previous_name": "text",
+        "correction_evidence": "text",
+        "corrected_at": "text",
+        "correction_history": "objects",
+        "removed_name": "text",
+        "removal_evidence": "text",
+        "removed_at": "text"
+      }
+    },
+    {
+      "type": "message-speaker-unconfirmed",
+      "guard_properties": {
+        "app": "text",
+        "as": "text",
+        "evidence": "text",
+        "message_ids": "texts",
+        "since": "text",
+        "unconfirmed_at": "text",
+        "until": "text"
+      }
+    },
+    {
+      "type": "message-thread-index",
+      "erasable": ["conversation_id"],
+      "erasable_key": ["message_id"],
+      "guard_properties": {
+        "app": "text",
+        "at": "text",
+        "conversation_id": "text",
+        "message_id": "text"
+      }
+    },
+    {
+      "type": "message-time-correction",
+      "guard_properties": {
+        "authored_at": "text",
+        "captured_at": "text",
+        "corrected_at": "text",
+        "evidence": "text",
+        "message_id": "text"
+      }
+    },
+    {
+      "type": "notice-list",
+      "erasable": [
+        [
+          "item",
+          "said"
+        ]
+      ],
+      "guard_properties": {
+        "item": "object",
+        "seqs": "numbers"
+      }
+    },
+    {
+      "type": "notice-readers",
+      "guard_properties": {
+        "readers": "object"
+      }
+    },
+    {
+      "type": "post",
+      "parts": [
+        {
+          "role": "file",
+          "path": [
+            "media"
+          ],
+          "each": [
+            "identity"
+          ]
+        }
+      ],
+      "_read_by": "src/social-posts.mjs: a post (a draft until sent) and its files",
+      "guard_properties": {
+        "abort_on_reply": "object",
+        "approved_at": "text",
+        "approved_by": "text",
+        "armed_at": "text",
+        "cancelled_because": "text",
+        "caption": "text",
+        "caption_by_platform": "object",
+        "caption_style_check": "text",
+        "created_at": "text",
+        "deliveries": "object",
+        "destinations": "list",
+        "drafted_by": "text",
+        "edited_by_person_at": "text",
+        "format_id": "text",
+        "grounded": "object",
+        "hold_seconds": "number",
+        "held_until": "text",
+        "link": "text",
+        "media": "object",
+        "post_id": "text",
+        "reaches": "objects",
+        "scheduled_for": "text",
+        "sent_at": "text",
+        "settings_by_platform": "object",
+        "source": "object",
+        "status": "text",
+        "time_zone": "text",
+        "updated_at": "text"
+      }
+    },
+    {
+      "type": "snippet",
+      "_read_by": "src/snippets.mjs: words the person sends again and again, with blanks",
+      "guard_properties": {
+        "set_at": "text",
+        "snippet_id": "text",
+        "tags": "texts",
+        "text": "text",
+        "title": "text",
+        "used_at": "text",
+        "uses": "number"
+      }
+    },
+    {
+      "type": "thread-summary",
+      "_read_by": "src/thread-summaries.mjs: an AI's summary of one conversation and the message it covers through",
+      "guard_properties": {
+        "app": "text",
+        "conversation_id": "text",
+        "set_at": "text",
+        "summary": "text",
+        "summary_id": "text",
+        "through_at": "text",
+        "through_message_id": "text"
+      }
+    },
+    {
+      "type": "voice-edit",
+      "_read_by": "Workshop tools/how-someone-does-their-thing (tool:keep-a-voice-edit, tool:read-voice, tool:forget-voice, tool:find-repeated-voice-edits): what the person changed in words an AI wrote (before and after), newest kept",
+      "guard_properties": {
+        "after": "text",
+        "at": "text",
+        "before": "text",
+        "before_by": "text",
+        "edit_id": "text",
+        "kind": "text",
+        "subject_id": "text"
+      }
+    },
+    {
+      "type": "voice-profile",
+      "_read_by": "Workshop tools/how-someone-does-their-thing (tool:read-voice, tool:save-voice, tool:forget-voice): what an AI learned about how the person writes, one per kind of writing",
+      "guard_properties": {
+        "fields": "object",
+        "kind": "text",
+        "name": "text",
+        "profile_id": "text",
+        "set_at": "text",
+        "set_by": "text"
+      }
+    },
+    {
+      "type": "record-scope",
+      "guard_properties": {
+        "changed_at": "text",
+        "kind": "text",
+        "not_pursuits": "list",
+        "not_spaces": "list",
+        "pursuits": "list",
+        "record": "text",
+        "spaces": "list"
+      }
+    },
+    {
+      "type": "record:audience-answer-evidence",
+      "guard_properties": {
+        "answer_note": "text",
+        "excerpt": "text",
+        "id": "text",
+        "kind": "text",
+        "rights_basis_ref": "text",
+        "rights_note": "text",
+        "rights_status": "text",
+        "source_ref": "text",
+        "supports_answer": "boolean",
+        "venture_ref": "text"
+      }
+    },
+    {
+      "type": "record:audience-question",
+      "guard_properties": {
+        "audience": "text",
+        "id": "text",
+        "kind": "text",
+        "locale": "text",
+        "offer_ref": "text",
+        "question": "text",
+        "question_key": "text",
+        "revision": "text",
+        "source_ref": "text",
+        "venture_ref": "text"
+      }
+    },
+    {
+      "type": "record:audience-question-review",
+      "guard_properties": {
+        "candidate_id": "text",
+        "candidate_revision": "text",
+        "evidence_refs": "list",
+        "kind": "text",
+        "reason": "text",
+        "venture_ref": "text",
+        "verdict": "text"
+      }
+    },
+    {
+      "type": "record:audience-question-work",
+      "guard_properties": {
+        "audience": "text",
+        "candidate_id": "text",
+        "candidate_revision": "text",
+        "grounding": "objects",
+        "id": "text",
+        "kind": "text",
+        "locale": "text",
+        "offer_ref": "text",
+        "question": "text",
+        "question_key": "text",
+        "source_observed_at": "text",
+        "source_ref": "text",
+        "source_url": "text",
+        "state": "text",
+        "venture_ref": "text"
+      }
+    },
+    {
+      "type": "record:court-notes.signup",
+      "guard_properties": {
+        "_public_app": "object",
+        "email": "text",
+        "level": "text"
+      }
+    },
+    {
+      "type": "record:configuration",
+      "parts": [
+        {
+          "role": "target",
+          "path": [
+            "target"
+          ]
+        },
+        {
+          "role": "copied_from",
+          "path": [
+            "copied_from"
+          ]
+        }
+      ],
+      "guard_properties": {
+        "label": "text",
+        "target": "text",
+        "format": "text",
+        "aspects": "texts",
+        "settings": "object",
+        "field_ids": "texts",
+        "revision": "number",
+        "owner": "object",
+        "owner_name": "text",
+        "created_at": "text",
+        "updated_at": "text",
+        "open_path": "text",
+        "copied_from": "text"
+      }
+    },
+    {
+      "type": "record:capability-check",
+      "guard_properties": {
+        "check": "text",
+        "label": "text",
+        "owner": "text",
+        "shipped_in": "text",
+        "every_hours": "number",
+        "probe": "object",
+        "facts": "objects",
+        "in_use": "any",
+        "pending_when": "any",
+        "expect": "object",
+        "state": "text",
+        "state_id": "text",
+        "last_checked": "text",
+        "last_worked": "text",
+        "pending": "boolean",
+        "problem": "text",
+        "read": "any",
+        "failures": "number",
+        "failing_since": "any"
+      },
+      "_read_by": "src/capability-checks.mjs: one configured capability probe (a row of the list in src/capability-checks.json) with its latest result"
+    },
+    {
+      "type": "record:customer",
+      "guard_properties": {
+        "crm": "texts",
+        "displayName": "text",
+        "email": "text",
+        "kind": "text",
+        "paid_on": "text",
+        "plan": "text",
+        "contactId": "text"
+      }
+    },
+    {
+      "type": "record:media-voice-cluster",
+      "guard_properties": {
+        "embedding": "numbers",
+        "files": "texts",
+        "id": "text",
+        "kind": "text",
+        "sample_count": "number",
+        "voice_id": "text"
+      }
+    },
+    {
+      "type": "record:program-application",
+      "guard_properties": {
+        "accepted_at": "text",
+        "answers": "object",
+        "applicant_ref": "text",
+        "applied_at": "text",
+        "program_id": "text",
+        "state": "text"
+      }
+    },
+    {
+      "type": "record:program-client",
+      "guard_properties": {
+        "client_ref": "text",
+        "name": "text",
+        "program_id": "text",
+        "since": "text",
+        "space_id": "text"
+      }
+    },
+    {
+      "type": "record:sent",
+      "guard_properties": {
+        "body_html": "text",
+        "body_markdown": "text",
+        "body_text": "text",
+        "by": "object",
+        "copies": "list",
+        "execution_ref": "text",
+        "from": "text",
+        "id": "text",
+        "kind": "text",
+        "open_url": "any",
+        "preheader": "text",
+        "provider": "text",
+        "provider_id": "text",
+        "reply_to": "text",
+        "sent_at": "text",
+        "state": "text",
+        "subject": "text",
+        "to": "texts",
+        "effect_ref": "text",
+        "observation": "object",
+        "origin": "text",
+        "provider_account": "any",
+        "recorded_by": "object"
+      }
+    },
+    {
+      "type": "record:tennis-intake",
+      "guard_properties": {
+        "_public_app": "object",
+        "email": "text",
+        "experience": "text",
+        "focus": "text",
+        "name": "text",
+        "note": "text"
+      }
+    },
+    {
+      "type": "record:untitled-list-10-2-2026",
+      "guard_properties": {
+        "name": "text"
+      }
+    },
+    {
+      "type": "schedule",
+      "guard_properties": {
+        "set_by": "text",
+        "backs": "objects",
+        "default": "boolean",
+        "enabled": "boolean",
+        "every": "object",
+        "label": "text",
+        "last_run": "object",
+        "once_at": "text",
+        "overlap": "text",
+        "revision": "number",
+        "scan_from": "text",
+        "schedule_id": "text",
+        "set_at": "text",
+        "starts_on": "text",
+        "then": "object"
+      }
+    },
+    {
+      "type": "schedule-state",
+      "guard_properties": {
+        "last_run": "object",
+        "scan_from": "text",
+        "schedule_id": "text"
+      }
+    },
+    {
+      "type": "scope-view",
+      "guard_properties": {
+        "changed_at": "text",
+        "coverage": "any",
+        "legacy_imported": "boolean",
+        "nodes": "object",
+        "pursuits": "list",
+        "screens": "any",
+        "spaces": "texts"
+      }
+    },
+    {
+      "type": "setting",
+      "guard_properties": {
+        "clock": "object",
+        "ids": "list",
+        "value": "any"
+      }
+    },
+    {
+      "type": "sharing",
+      "parts": [
+        {
+          "role": "record",
+          "path": [
+            "record"
+          ]
+        },
+        {
+          "role": "space",
+          "path": [
+            "spaces"
+          ]
+        },
+        {
+          "role": "person",
+          "path": [
+            "people"
+          ]
+        }
+      ],
+      "_read_by": "src/record-sharing.mjs: who and which spaces a record is shared with",
+      "guard_properties": {
+        "chain": "boolean",
+        "changed_at": "text",
+        "choice_made": "boolean",
+        "choice_revision": "text",
+        "leave_out": "list",
+        "link_grants": "objects",
+        "match_only": "list",
+        "network": "any",
+        "owner_intent_order": "number",
+        "people": "list",
+        "record": "text",
+        "spaces": "list"
+      }
+    },
+    {
+      "type": "sign-in-reach",
+      "guard_properties": {
+        "ceiling": "object",
+        "changed_at": "any",
+        "chosen": "any",
+        "made": "object"
+      }
+    },
+    {
+      "type": "signed_event_effect",
+      "guard_properties": {
+        "effect_id": "text",
+        "kind": "text",
+        "material": "object",
+        "object": "text",
+        "proof": "object",
+        "source_event_ids": "list",
+        "subject": "text"
+      }
+    },
+    {
+      "type": "space-calendar-event",
+      "guard_properties": {
+        "calendar": "text",
+        "calendar_event_id": "text",
+        "changed_at": "text",
+        "ends_at": "text",
+        "event_id": "text",
+        "placed": "number",
+        "space_id": "text",
+        "starts_at": "text",
+        "state": "text"
+      }
+    },
+    {
+      "type": "table-move",
+      "guard_properties": {
+        "after": "number",
+        "first_after": "number",
+        "first_done": "boolean",
+        "moved": "boolean"
+      }
+    },
+    {
+      "type": "told-the-person",
+      "erasable": [
+        [
+          "item",
+          "title"
+        ],
+        [
+          "item",
+          "body"
+        ]
+      ],
+      "guard_properties": {
+        "item": "object",
+        "seqs": "numbers",
+        "indexed_fields": "texts",
+        "field_counts": "objects"
+      }
+    },
+    {
+      "type": "trigger-dispatch-outcome",
+      "guard_properties": {
+        "address": "text",
+        "attempt": "number",
+        "attempt_ref": "text",
+        "correlation": "any",
+        "delivery_receipt": "any",
+        "dispatch": "object",
+        "envelope": "object",
+        "failure": "any",
+        "kind": "text",
+        "recorded_at": "text",
+        "rule_address": "text",
+        "rule_id": "text",
+        "started": "object",
+        "status": "text",
+        "target": "text"
+      }
+    },
+    {
+      "type": "default-change",
+      "properties": {
+        "id": "text",
+        "removed": "boolean",
+        "at": "text"
+      },
+      "_read_by": "src/shipped-defaults.mjs and src/starting-rules.mjs: a person's removed shipped default remains removed across deployments"
+    },
+    {
+      "type": "made-by-trillion",
+      "properties": {
+        "rule_id": "text",
+        "schedule_id": "text",
+        "at": "text"
+      },
+      "_read_by": "src/starting-rules.mjs keptAsChanges: historical default ownership marks consumed by migration"
+    },
+    {
+      "type": "trigger-rule-removed",
+      "properties": {
+        "rule_id": "text",
+        "removed_at": "text"
+      },
+      "_read_by": "src/starting-rules.mjs keptAsChanges: historical removed rule marks migrate to default-change"
+    },
+    {
+      "type": "schedule-removed",
+      "properties": {
+        "schedule_id": "text",
+        "removed_at": "text"
+      },
+      "_read_by": "src/starting-rules.mjs keptAsChanges: historical removed schedule marks migrate to default-change"
+    },
+    {
+      "type": "trigger-rule",
+      "guard_properties": {
+        "set_by": "text",
+        "backs": "objects",
+        "default": "boolean",
+        "dispatch": "object",
+        "enabled": "boolean",
+        "id": "text",
+        "is_active": "boolean",
+        "label": "text",
+        "match_condition": "object",
+        "set_at": "text",
+        "then": "object",
+        "when": "object"
+      }
+    },
+    {
+      "type": "workflow-dispatch-failure",
+      "guard_properties": {
+        "address": "text",
+        "change_kind": "text",
+        "envelope": "object",
+        "error": "text",
+        "kind": "text",
+        "phase": "text",
+        "recorded_at": "text",
+        "rule_address": "text",
+        "rule_id": "text",
+        "target": "text"
+      }
+    },
+    {
+      "type": "resource-command-result",
+      "guard_properties": {
+        "value": "object",
+        "source_record": "text"
+      },
+      "erasable": [
+        "value"
+      ],
+      "erasable_key": ["source_record"]
+    },
+    {
+      "type": "resource-action-binding",
+      "guard_properties": {
+        "owner": "text",
+        "resource": "text",
+        "operation": "text",
+        "tool_version": "text"
+      }
+    },
+    {
+      "type": "resource-dependency",
+      "guard_properties": {
+        "owner": "text",
+        "resource": "text",
+        "operation": "text"
+      }
+    },
+    {
+      "type": "resource-input-source",
+      "guard_properties": {
+        "message_id": "text",
+        "app": "text",
+        "conversation_id": "text",
+        "source_ref": "text"
+      },
+      "erasable": [
+        "conversation_id",
+        "source_ref"
+      ],
+      "erasable_key": [
+        "message_id"
+      ],
+      "_read_by": "src/resource-inbound.mjs: original source identity index for exact retained-input recovery, sealed under its message key"
+    },
+    {
+      "type": "resource-input-provenance",
+      "guard_properties": {
+        "message_id": "text",
+        "source": "object",
+        "classified": "object",
+        "recorded_by": "text",
+        "captured_at": "text"
+      },
+      "erasable": [
+        "source",
+        "classified"
+      ],
+      "erasable_key": [
+        "message_id"
+      ]
+    },
+    {
+      "type": "resource-input-interpretation",
+      "guard_properties": {
+        "message_id": "text",
+        "state": "text",
+        "next_due": "text",
+        "wake_at": "text",
+        "created_at": "text",
+        "worker": "text",
+        "claimed_at": "text",
+        "lease_until": "text",
+        "released_at": "text",
+        "completed_at": "text",
+        "cancelled_at": "text",
+        "generation": "number",
+        "attempts": "number",
+        "outcome": "any",
+        "source_revision": "text",
+        "reopened_at": "text",
+        "previous_outcome": "any"
+      },
+      "erasable": [
+        "outcome",
+        "previous_outcome"
+      ],
+      "erasable_key": [
+        "message_id"
+      ]
+    },
+    {
+      "type": "resource-input-erasure",
+      "guard_properties": {
+        "route": "text",
+        "conversation_id": "text",
+        "source_ref": "text",
+        "erased_at": "text"
+      }
+    },
+    {
+      "type": "addressed-capability",
+      "properties": {
+        "id": "text",
+        "owner": "text",
+        "revision": "text",
+        "created_at": "text",
+        "changed_at": "text",
+        "deleted_at": "text",
+        "label": "text",
+        "description": "text",
+        "interface": "text",
+        "role": "text",
+        "semantics": "texts",
+        "operations": "object",
+        "placements": "texts",
+        "needs": "texts",
+        "costs": "object",
+        "admission_contract": "text",
+        "admitted_operations": "object",
+        "contract_admissions": "object"
+      }
+    },
+    {
+      "type": "resource-binding",
+      "properties": {
+        "id": "text",
+        "owner": "text",
+        "revision": "text",
+        "created_at": "text",
+        "changed_at": "text",
+        "deleted_at": "text",
+        "resource_ref": "text",
+        "capability_id": "text",
+        "capability_revision": "text",
+        "requirements": "object"
+      }
+    },
+    {
+      "type": "resource-operation-binding",
+      "properties": {
+        "id": "text",
+        "owner": "text",
+        "revision": "text",
+        "created_at": "text",
+        "changed_at": "text",
+        "deleted_at": "text",
+        "request": "object"
+      }
+    },
+    {
+      "type": "database-dependency",
+      "properties": {
+        "resource_ref": "text",
+        "interface": "text",
+        "placement": "text",
+        "revision": "text"
+      }
+    },
+    {
+      "type": "sealed",
+      "properties": {
+        "sealed": "object"
+      },
+      "_read_by": "parts/sealed-records/do-work/sealed-records.mjs (SEALED_TYPE): a record a person's own devices sealed; only its ciphertext envelope is kept, read by src/record-sharing.mjs and src/record-copies.mjs"
+    },
+    {
+      "type": "plan-progress",
+      "properties": {
+        "plan_id": "id"
+      },
+      "parts": [
+        {
+          "role": "plan",
+          "path": [
+            "plan_id"
+          ]
+        }
+      ],
+      "_read_by": "src/plan-records.mjs",
+      "guard_properties": {
+        "summary": "text",
+        "status": "text",
+        "step": "text",
+        "at": "text",
+        "app": "text"
+      }
+    },
+    {
+      "type": "marketplace-content-section",
+      "guard_properties": {
+        "id": "text",
+        "logical_id": "text",
+        "author": "text",
+        "revision": "number",
+        "status": "text",
+        "value": "any",
+        "value_identity": "text",
+        "source": "object",
+        "title": "text",
+        "publication": "object",
+        "created_at": "text",
+        "updated_at": "text"
+      },
+      "erasable": [
+        "value",
+        "source",
+        "title"
+      ]
+    }
+  ],
+  "native_inspection": {
+    "limits": {
+      "value_bytes": 1500000,
+      "owner_reads": 4,
+      "nodes": 20000,
+      "facts": 2000,
+      "depth": 64,
+      "reference_chars": 500
+    },
+    "readers": [
+      {
+        "reader": "connection",
+        "type": "connection",
+        "pattern": "^(connection:[^/\\s]+)$",
+        "canonical": "$1"
+      },
+      {
+        "reader": "connection",
+        "type": "connection",
+        "pattern": "^(shared-connection:[^/\\s]+)$",
+        "canonical": "$1"
+      },
+      {
+        "reader": "setup-reference",
+        "type": "workflow-run",
+        "pattern": "^(?:workflow-run:)?(run:[A-Za-z0-9_-]+)$",
+        "canonical": "$1"
+      },
+      {
+        "reader": "setup-reference",
+        "type": "workflow-output",
+        "pattern": "^(workflow-output:run:[A-Za-z0-9_-]+:[a-z0-9][a-z0-9_-]*)$",
+        "canonical": "$1"
+      }
+    ]
+  },
+  "declared_by": [
+    {
+      "type": "list",
+      "kind": {
+        "path": [
+          "row_type"
+        ],
+        "prefix": "record:"
+      },
+      "properties": {
+        "path": [
+          "fields"
+        ],
+        "name": [
+          "id"
+        ],
+        "kind": [
+          "kind"
+        ]
+      },
+      "indexes": {
+        "path": [
+          "indexes"
+        ]
+      },
+      "kind_values_from": "src/lists.json field_kinds",
+      "parts_when": [
+        "row-ids",
+        "file"
+      ],
+      "part_references": {
+        "link": {
+          "path": [
+            "links_to"
+          ],
+          "prefix": "list:",
+          "absolute_prefix": "record:"
+        }
+      },
+      "_read_by": "src/lists.mjs: a list is a kind its person declared, its fields the kind's properties, and a field that names a thing is a link to it: a link field a set of rows of another list (row-ids), a file field one of their files (field kind file)"
+    }
+  ]
+}

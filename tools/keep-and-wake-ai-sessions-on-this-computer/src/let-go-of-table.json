@@ -1,0 +1,5 @@
+{
+  "comment": "How a table leaves a person's store (src/let-go-of-table.mjs): its indexes one per call, then rows delete_rows at a time while it spans more than drop_rows rowids, then its owner drops what is left in one statement. drop_rows bounds the pages one drop frees, so the drop stays inside the time a storage operation may take; rows below it cost no row written.",
+  "drop_rows": 20000,
+  "delete_rows": 2000
+}

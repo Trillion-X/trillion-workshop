@@ -1,0 +1,28 @@
+{
+  "descriptor": {
+    "id": "tool:count-words",
+    "label": "Count the words in a text",
+    "job": "Count the words in a piece of text and find the longest word",
+    "input_schema": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": { "text": { "type": "string", "minLength": 1, "description": "The text to count" } }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": ["words", "longest"],
+      "properties": { "words": { "type": "integer", "minimum": 0 }, "longest": { "type": "string" } }
+    },
+    "invoke": { "kind": "container", "argv": ["python3", "main.py", { "from": "text" }], "stdout": "json" },
+    "result_selector": "$.result",
+    "placements": ["placement:deployed-container"],
+    "licence_class": "licence:maker-own",
+    "verify": [
+      { "kind": "sample-run", "input": { "text": "ask not what your country can do for you" }, "output_selector": "$.longest", "contains": "country" }
+    ]
+  },
+  "files": {
+    "main.py": "import json, sys\nwords = sys.argv[1].split()\nprint(json.dumps({\"words\": len(words), \"longest\": max(words, key=len) if words else \"\"}))\n"
+  }
+}

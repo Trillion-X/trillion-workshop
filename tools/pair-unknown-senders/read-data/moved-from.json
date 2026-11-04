@@ -1,0 +1,16 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/sender-pairing.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/pair-unknown-senders/read-data/sender-pairing.json",
+      "source_identity": "1f:f9c7b055ef667da1774e708e89a8547e95fe1d24f0a6cfc54de27d9c5ca74e2e",
+      "identity": "1f:f9c7b055ef667da1774e708e89a8547e95fe1d24f0a6cfc54de27d9c5ca74e2e",
+      "reused": true
+    }
+  ]
+}

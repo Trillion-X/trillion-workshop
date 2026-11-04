@@ -1,0 +1,183 @@
+{
+  "_what": "What a Marketplace tool run on this computer may reach (harness/wake-handlers/tool-reach.mjs). A tool's descriptor declares `reach`, a list of { kind, ... } rows; each kind is a row in `kinds` below, whose `allow` lines are sandbox rules added to the base profile with {path} and {port} filled from the declared row. `base` is what every run gets ({ancestors} are the folders above its own folder and its program, which a program may look at but not list): the system as macOS ships it, its own folder, and nothing of the person's (their home folder, other disks) and no network. `protected_roots` are the person's places a run cannot read or write unless it declares them; `~` is this computer's home folder. `asks: true` means the person's approval is needed before a tool from another maker runs with that reach (tool-reach-approvals.json in the helper's folder, one row per tool, files fingerprint and reach); a tool this account saved, or one Trillion ships (made_by shared), runs with what it declared. `enforced` says whether macOS itself refuses what was not declared (`kernel`) or the declaration is only shown and approved (`declared`): microphone, camera, files and network are refused by the kernel; Accessibility and screen reading follow the app's own macOS grants. `env` names values the run is started with. A kind with `proxy` gets a local socket in the run's own folder ({socket}) that forwards each HTTP request to this computer's Trillion with this computer's key attached, so a tool that declared `trillion` acts in the person's Trillion without ever holding the key and without any internet reach. Adding a kind is a row here. `network-hosts` lets a run reach only the hosts it names (a comma list, `*.name` for a whole domain) through a loopback proxy that records every decision (harness/wake-handlers/egress-proxy.mjs); the profile lets the run connect to that proxy and nothing else. `exec` is what a run may start: `mode` \"open\" (the default) puts no limit on programs, \"allowlist\" adds a kernel rule that starts nothing but the run's own folder, its interpreter, /usr/bin/env, the program the descriptor names and the `allow` rows ({ path, match: literal | subpath }); the same rows say, in words, which programs the run has (describeRun), so the description and the fence cannot drift. `argument_rules` are checked against the command before it starts: `deny_regex` refuses a command of `command` (its program's file name, or * for any) whose arguments match; `only_values` refuses one whose value after `flag` is not in `values` (an empty list refuses any value). A row is off until `enabled` is true; a refusal is said in its `message`.",
+  "approvals_file": "tool-reach-approvals.json",
+  "trusted_makers": [
+    "this account",
+    "shared"
+  ],
+  "protected_roots": [
+    "~",
+    "/Volumes"
+  ],
+  "base": [
+    "(version 1)",
+    "(allow default)",
+    "(deny file-read* file-write* {protected})",
+    "(deny file-write*)",
+    "(allow file-read* file-write* (subpath \"{folder}\"))",
+    "(allow file-read* {interpreter})",
+    "(allow file-read-metadata {ancestors})",
+    "(allow file-write* (literal \"/dev/null\") (literal \"/dev/tty\") (literal \"/dev/stdout\") (literal \"/dev/stderr\"))",
+    "(deny network*)",
+    "(allow network* (local unix-socket))",
+    "(deny device-microphone)",
+    "(deny device-camera)"
+  ],
+  "kinds": {
+    "files-read": {
+      "asks": true,
+      "enforced": "kernel",
+      "needs": [
+        "path"
+      ],
+      "allow": [
+        "(allow file-read* (subpath \"{path}\"))"
+      ],
+      "said": "read {path}"
+    },
+    "files-write": {
+      "asks": true,
+      "enforced": "kernel",
+      "needs": [
+        "path"
+      ],
+      "allow": [
+        "(allow file-read* file-write* (subpath \"{path}\"))"
+      ],
+      "said": "read and change {path}"
+    },
+    "network": {
+      "asks": true,
+      "enforced": "kernel",
+      "needs": [
+        "port"
+      ],
+      "allow": [
+        "(allow network-outbound (remote tcp \"*:{port}\"))",
+        "(allow network-outbound (remote udp \"*:53\"))",
+        "(allow file-read* (literal \"/private/var/run/resolv.conf\"))"
+      ],
+      "said": "reach the internet on port {port}"
+    },
+    "microphone": {
+      "asks": true,
+      "enforced": "kernel",
+      "needs": [],
+      "allow": [
+        "(allow device-microphone)"
+      ],
+      "said": "use the microphone"
+    },
+    "camera": {
+      "asks": true,
+      "enforced": "kernel",
+      "needs": [],
+      "allow": [
+        "(allow device-camera)"
+      ],
+      "said": "use the camera"
+    },
+    "accessibility": {
+      "asks": true,
+      "enforced": "declared",
+      "needs": [],
+      "allow": [],
+      "said": "read and control other apps through Accessibility"
+    },
+    "screen": {
+      "asks": true,
+      "enforced": "declared",
+      "needs": [],
+      "allow": [],
+      "said": "see what is on the screen"
+    },
+    "trillion": {
+      "asks": true,
+      "enforced": "kernel",
+      "needs": [],
+      "allow": [],
+      "proxy": "trillion",
+      "env": {
+        "TRILLION_SOCKET": "{socket}"
+      },
+      "said": "act in your Trillion as this computer"
+    },
+    "environment": {
+      "asks": true,
+      "enforced": "declared",
+      "needs": [
+        "name"
+      ],
+      "allow": [],
+      "pass_env": "name",
+      "said": "see the {name} setting of this computer"
+    },
+    "network-hosts": {
+      "asks": true,
+      "enforced": "kernel",
+      "needs": [
+        "hosts"
+      ],
+      "allow": [
+        "(allow network-outbound (remote tcp \"localhost:{proxy_port}\"))"
+      ],
+      "proxy": "egress",
+      "env": {
+        "HTTP_PROXY": "http://127.0.0.1:{proxy_port}",
+        "HTTPS_PROXY": "http://127.0.0.1:{proxy_port}",
+        "http_proxy": "http://127.0.0.1:{proxy_port}",
+        "https_proxy": "http://127.0.0.1:{proxy_port}"
+      },
+      "said": "reach only {hosts} on the internet"
+    }
+  },
+  "environment": {
+    "what": "The variables a tool run sees. The run starts with an empty environment plus the names in `allow` (taken from this computer's own environment when it has them) and the names the tool declared with an `environment` reach, so a key in the helper's environment never reaches a tool that did not ask for it. `mode` \"inherit\" gives the run the helper's whole environment as before.",
+    "mode": "allowlist",
+    "allow": [
+      "PATH",
+      "LANG",
+      "LC_ALL",
+      "LC_CTYPE",
+      "TZ",
+      "USER",
+      "LOGNAME",
+      "SHELL",
+      "TERM"
+    ]
+  },
+  "exec": {
+    "mode": "open",
+    "allow": [
+      {
+        "path": "/bin/sh",
+        "match": "literal"
+      },
+      {
+        "path": "/bin/echo",
+        "match": "literal"
+      },
+      {
+        "path": "/bin/cat",
+        "match": "literal"
+      }
+    ]
+  },
+  "argument_rules": [
+    {
+      "id": "find-runs-programs",
+      "enabled": false,
+      "command": "find",
+      "deny_regex": "\\s-(exec|execdir|ok|okdir)\\s",
+      "message": "find with -exec, -execdir, -ok or -okdir is not allowed: it starts any program."
+    },
+    {
+      "id": "helper-agent-kinds",
+      "enabled": false,
+      "command": "*",
+      "flag": "--agent-type",
+      "only_values": [],
+      "message": "This run may not start an agent of that type."
+    }
+  ]
+}

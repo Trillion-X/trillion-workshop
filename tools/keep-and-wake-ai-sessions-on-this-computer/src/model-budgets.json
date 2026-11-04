@@ -1,0 +1,245 @@
+{
+  "_what": "How much model work Trillion lets run, owned by src/model-calls.mjs. Trillion never pays for a chat model: a conversation goes to the AI the person chose (order_your_ais) on their own account, and is refused, telling them once a day, when they chose none. `paid_inputs` say which work that is, by the shape of what is sent (a row names the input field such work always carries): any other call that is not a conversation (an image to draw, a prompt to complete) is refused with NotPaidByTrillion before anything is sent, whoever asks (a store, the shared pool, a hosted Site, a Marketplace model tool). The rows below bound that work, run on Trillion's AI binding; `binding_callers` are the only files that may call that binding (scripts/check-reaches.mjs, row ai-binding of scripts/reaches.json, refuses a change that adds another). Every model call is counted by day, purpose (what it is for, named by its caller) and model. A budget row is { id, label, scope, when, measure, most, alert_at, per, stop }: scope says whose calls it counts (person: one person's own store; account: every person's together, summed in the shared pool), when is a formula-engine rule tree over the call's facts (purpose, model; null covers every call), measure is one of measures, most is the daily threshold; stop false only alerts, otherwise such calls are refused, alert_at is the share of most at which the person is told it is getting close, and per: \"purpose\" counts and stops each purpose on its own (left out, the row counts every call it covers together). A paid_inputs row with remember keeps each item's answer by its identity (memory names where, answers_in the reply field holding one answer per item), so the same item is never paid for twice. A refused call is never dropped silently: its caller says so (the check judge marks the check unjudged). Adding a budget, a purpose or a model is a row here; nothing in code names one. Model price rows map token use or audio minutes to neurons. Billable priced models must have a verified price row; unpriced models remain visible in token reports and cannot be included in dollar admission.",
+  "measures": {
+    "calls": {
+      "label": "calls"
+    },
+    "input_tokens": {
+      "label": "tokens sent"
+    },
+    "output_tokens": {
+      "label": "tokens received"
+    }
+  },
+  "facts": [
+    {
+      "id": "purpose",
+      "kind": "choice"
+    },
+    {
+      "id": "model",
+      "kind": "choice"
+    }
+  ],
+  "paid_inputs": [
+    {
+      "id": "embedding",
+      "input_has": "text",
+      "why": "Turning words into numbers for search and closeness: no chat AI a person chose does this.",
+      "remember": {
+        "memory": "embedding",
+        "answers_in": "data",
+        "why": "The same words embedded by the same model give the same numbers: each text is kept by its identity and never paid for twice (src/model-calls.mjs invariant 6). On 2026-10-10 one person made 19,955 embedding calls of about 11 tokens each, most of them the same job and goal texts again."
+      }
+    },
+    {
+      "id": "speech-to-text",
+      "input_has": "audio",
+      "why": "Hearing a recording or a live microphone: no chat AI a person chose does this."
+    }
+  ],
+  "budgets": [
+    {
+      "id": "person-trillion-paid",
+      "label": "Searches and transcriptions Trillion runs for one person",
+      "scope": "person",
+      "when": null,
+      "measure": "calls",
+      "most": 20000,
+      "alert_at": 0.6,
+      "per": "purpose",
+      "_why": "Counted per purpose: only the kind of work that ran away stops for the day, every other search and transcription keeps going. On 2026-10-10 the whole-person count reached 20,000 at 08:10Z on repeated embeddings and stopped every search by meaning in the account."
+    },
+    {
+      "id": "account-trillion-paid",
+      "stop": false,
+      "notice": {
+        "body": "{used} of {most} {measure} on {day}. This is an operator alert; customer work continues. Customer-chosen caps remain independent."
+      },
+      "label": "Searches and transcriptions Trillion runs for everyone",
+      "scope": "account",
+      "when": null,
+      "measure": "calls",
+      "most": 60000,
+      "alert_at": 0.5,
+      "_why": "This shared threshold counts and alerts operators about all Trillion-paid calls. It does not stop customers, including after restart or through reservation admission. Per-person stopping budgets remain independent."
+    }
+  ],
+  "prices": [
+    {
+      "model": "@cf/baai/bge-small-en-v1.5",
+      "neurons_per_million_input": 1841,
+      "neurons_per_million_output": 0,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-20",
+        "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/ (Workers AI pricing table: $0.020 per million input tokens, 1,841 neurons per million input tokens)"
+      }
+    },
+    {
+      "model": "@cf/baai/bge-base-en-v1.5",
+      "neurons_per_million_input": 6058,
+      "neurons_per_million_output": 0,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-19",
+        "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/ (Workers AI pricing table: 6,058 neurons per million input tokens)"
+      }
+    },
+    {
+      "model": "@cf/openai/whisper-large-v3-turbo",
+      "neurons_per_audio_minute": 46.63,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-19",
+        "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/ (Workers AI audio pricing table: 46.63 neurons per audio minute)"
+      }
+    },
+    {
+      "model": "@cf/mistralai/mistral-small-3.1-24b-instruct",
+      "neurons_per_million_input": 31876,
+      "neurons_per_million_output": 50488,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-04",
+        "from": "Cloudflare GraphQL aiInferenceAdaptiveGroups: 15,580 calls, 21.98M input and 0.89M output tokens billed 746,081 neurons in the hour 2026-10-04T00 (scripts in agent-junk/2026-10-04/ai-spend-loop)"
+      },
+      "context_window_tokens": 128000,
+      "default_max_output_tokens": 256,
+      "output_ceiling_source": {
+        "kind": "read",
+        "read_on": "2026-10-20",
+        "from": "https://developers.cloudflare.com/workers-ai/models/mistral-small-3.1-24b-instruct/ (Model Info: context window 128,000 tokens; max_tokens default 256, no maximum stated)"
+      }
+    },
+    {
+      "model": "@cf/baai/bge-large-en-v1.5",
+      "neurons_per_million_input": 18582,
+      "neurons_per_million_output": 0,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-20",
+        "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/ (Workers AI pricing table: $0.204 per million input tokens, 18,582 neurons per million input tokens)"
+      }
+    },
+    {
+      "model": "@cf/openai/gpt-oss-120b",
+      "neurons_per_million_input": 31818,
+      "neurons_per_million_output": 68182,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-20",
+        "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/ (Workers AI pricing table: $0.350 per million input tokens and $0.750 per million output tokens; 31,818 and 68,182 neurons)"
+      },
+      "context_window_tokens": 128000,
+      "default_max_output_tokens": 256,
+      "output_ceiling_source": {
+        "kind": "read",
+        "read_on": "2026-10-20",
+        "from": "https://developers.cloudflare.com/workers-ai/models/gpt-oss-120b/ (Model Info: context window 128,000 tokens; max_tokens default 256, no maximum stated)"
+      }
+    },
+    {
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "neurons_per_million_input": 26668,
+      "neurons_per_million_output": 204805,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-20",
+        "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/ (Workers AI pricing table: $0.293 per million input tokens and $2.253 per million output tokens; 26,668 and 204,805 neurons)"
+      },
+      "context_window_tokens": 24000,
+      "default_max_output_tokens": 256,
+      "output_ceiling_source": {
+        "kind": "read",
+        "read_on": "2026-10-20",
+        "from": "https://developers.cloudflare.com/workers-ai/models/llama-3.3-70b-instruct-fp8-fast/ (Model Info: context window 24,000 tokens; max_tokens default 256, no maximum stated)"
+      }
+    },
+    {
+      "model": "@cf/meta/llama-3.1-8b-instruct",
+      "neurons_per_million_input": 25608,
+      "neurons_per_million_output": 75147,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-20",
+        "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/ (Workers AI pricing table: $0.282 per million input tokens and $0.827 per million output tokens; 25,608 and 75,147 neurons)"
+      }
+    },
+    {
+      "model": "@cf/google/gemma-4-26b-a4b-it",
+      "neurons_per_million_input": 9091,
+      "neurons_per_million_output": 27273,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-20",
+        "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/ (Workers AI pricing table: $0.100 per million input tokens and $0.300 per million output tokens; 9,091 and 27,273 neurons)"
+      },
+      "context_window_tokens": 256000,
+      "output_ceiling_source": {
+        "kind": "read",
+        "read_on": "2026-10-20",
+        "from": "https://developers.cloudflare.com/workers-ai/models/gemma-4-26b-a4b-it/ (Model Info: context window 256,000 tokens; max_tokens and max_completion_tokens state no default or maximum)"
+      }
+    },
+    {
+      "model": "@cf/deepgram/flux",
+      "neurons_per_audio_minute": 700,
+      "source": {
+        "kind": "read",
+        "read_on": "2026-10-20",
+        "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/ (Workers AI pricing table: $0.0077 per audio minute, 700 neurons per audio minute)"
+      }
+    }
+  ],
+  "neuron_price_usd_per_1000": 0.011,
+  "neuron_price_source": {
+    "read_on": "2026-10-19",
+    "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/ (Workers AI Paid price: $0.011 per 1,000 neurons)"
+  },
+  "characters_per_token": 4,
+  "report_every_seconds": 60,
+  "shown_days": 7,
+  "memory_days": {
+    "default": 7,
+    "check-judge": 14,
+    "embedding": 30
+  },
+  "words": {
+    "near_title": "{label}: {share} of today's limit used",
+    "reached_title": "{label}: today's limit is reached",
+    "body": "{used} of {most} {measure} used on {day}. Calls past the limit wait until tomorrow; the checks they would have made are marked unchecked, never skipped silently. Change the limit in Trillion's model budgets.",
+    "kind": "limit-status",
+    "no_ai_title": "AI checks paused: no model answered",
+    "no_ai_body": "Your Mac's local model did not answer. Open AI connections to reconnect it or choose another AI. Trillion will resume waiting checks when one is available.",
+    "no_ai_open": "/ai",
+    "open": "/spend",
+    "not_paid": "Trillion does not pay for this kind of model work. Ask your own AI, or use a model on your own computer.",
+    "no_model_road": "No model can be reached here right now.",
+    "matched_by_words": "Matched by the words you used, not by meaning: Trillion's search by meaning is paused for today, so a result worded differently may be missing."
+  },
+  "binding_callers": [
+    {
+      "file": "src/model-calls.mjs",
+      "why": "the one road: counts, remembers and bounds every call"
+    },
+    {
+      "file": "src/work-media.mjs",
+      "why": "live words open a speech-to-text socket, allowed and counted by the person's store first"
+    },
+    {
+      "file": "src/person-store.mjs",
+      "why": "takes the binding once at construction and hands it only to models()"
+    },
+    {
+      "file": "src/pool.mjs",
+      "why": "takes the binding once at construction and hands it only to models()"
+    }
+  ],
+  "unpriced_models": [
+    {
+      "model": "@cf/google/embeddinggemma-300m",
+      "why": "absent from Cloudflare's Workers AI pricing table read 2026-10-20; admission refuses it by name until a price is read"
+    }
+  ]
+}
