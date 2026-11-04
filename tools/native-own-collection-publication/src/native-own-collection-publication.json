@@ -1,0 +1,6 @@
+{
+  "_what": "How many changed sources one discovery page of a resource takes (src/native-own-collection-publication.mjs: collections:project { limit }). A page stopped at its command credit (credit_exhausted) is made again with half as many, down to least_page_limit; the page's credit is asked for its own size (src/own-resource-command-quota.mjs), so a smaller page is a smaller command.",
+  "_why": "A page is up to 100 changed sources and takes as many as its command credit holds: it stops between sources when the credit left cannot hold another of the costliest taken (src/native-own-collection-projection.mjs project), commits those and leaves the rest waiting, so a page is never rolled back for outgrowing its credit. On 2026-10-20 the founder account's own records could not publish any page: each page of 100 changed messages outgrew the credit of its command inside a source and was rolled back, and the next call was answered 'These records are catching up', so the halving never reached a size that fits; pages were then cut to 10, which took ten times the wakes for the same work. A page refused at its credit before its first source is still made again with half as many, down to least_page_limit.",
+  "page_limit": 100,
+  "least_page_limit": 2
+}

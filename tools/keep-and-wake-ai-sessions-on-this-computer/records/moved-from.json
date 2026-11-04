@@ -5,6 +5,14 @@
   "calls": [],
   "files": [
     {
+      "from": "records/sent-kinds.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/records/sent-kinds.json",
+      "source_identity": "1f:a9623854930082e8efee23d2f04dbe60e904e9b177d2969fffd33e2e335cc65b",
+      "identity": "1f:a9623854930082e8efee23d2f04dbe60e904e9b177d2969fffd33e2e335cc65b",
+      "reused": true
+    },
+    {
       "from": "records/workshop-screen-tool-records.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/records/workshop-screen-tool-records.json",

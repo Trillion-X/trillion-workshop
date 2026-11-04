@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/saved-logins.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/saved-logins/src/saved-logins.json",
+      "source_identity": "1f:2d2fbc8f163a0a408e24c9ed985831af3be6a35e19c8971a959396d024382425",
+      "identity": "1f:2d2fbc8f163a0a408e24c9ed985831af3be6a35e19c8971a959396d024382425"
+    }
+  ]
+}

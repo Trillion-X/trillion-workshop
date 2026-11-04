@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/proof-per-run.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/prove-a-commands-authority-once-for-a-run-of-back-to-back/src/proof-per-run.mjs",
+      "source_identity": "1f:f1fe674c6eb1a75c7c6de254d870e4f1e56f6a2f3156418f9145b973a5aa90b0",
+      "identity": "1f:f1fe674c6eb1a75c7c6de254d870e4f1e56f6a2f3156418f9145b973a5aa90b0"
+    },
+    {
+      "from": "test/proof-per-run.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/prove-a-commands-authority-once-for-a-run-of-back-to-back/test/proof-per-run.test.mjs",
+      "source_identity": "1f:d12201c03f3adfa207bf9f70bd05748e70b56af0514ce171fe316b1b4ee44745",
+      "identity": "1f:5de736c94f0ffe7715e5f44e5c02123b8a2af806eb49f48a170ec594e8249bba"
+    }
+  ]
+}

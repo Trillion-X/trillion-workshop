@@ -1,0 +1,4 @@
+{
+  "what_this_is": "Platform grants that let one account's site Worker send email from a named Trillion address; read by src/site-worker-installation.mjs. A grant is an account fact, so none ships: a grant is added for the account that is given it (user_id and the senders it may use).",
+  "grants": []
+}

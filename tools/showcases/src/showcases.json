@@ -1,0 +1,2253 @@
+{
+  "_what": "Trillion's own workspace shown live wherever it is described (src/showcases.mjs). Each visitor gets a throwaway account on `host`, its own address, so its sign-in never meets a real person's: the account reaches only the workspace routes minus `refused_paths` (each a path prefix, refused for every method but its `except_methods`: a screen may read what it shows, never change it), sends no email and runs no model (src/person-store.mjs), and empties itself `lifetime_minutes` after it starts. A showcase is one row of `showcases`: what the workspace opens on (`opens`, a workspace address), the tour that moves it (`tour`, the same DATA save_tour takes, with `play` so it moves by itself and each step's `look` choosing whether the page dims and blurs), its words for its page (`heading`, `body`), where to go next (`next`) and related showcases. A Marketplace tool with no row of its own gets one made from the tool (`tool_showcase`): its own screen, a tour that types its sample into its first box and points at its run button. Pages: `host`/<id> is the live workspace itself (embed it anywhere), app.gettrillion.ai/live/<id> is the page about it (`page_path`), and every Marketplace listing whose tool has a showcase shows it live. Adding a showcase is one row here. A row's `spare_accounts` keeps that many throwaway accounts already seeded for it, so a visitor's workspace starts at once; spares are prepared `spare_step_seconds` at a time after the live host answers, and one nobody took empties itself after `spare_hours`. How far a spare is prepared and who holds it are the `spare_facts`, kept in the spare's own records (src/showcase-spare-facts.mjs).",
+  "host": "live.gettrillion.ai",
+  "page_path": "/live",
+  "lifetime_minutes": 120,
+  "spare_hours": 6,
+  "spare_step_seconds": 20,
+  "spare_facts": ["throwaway_spare", "throwaway_claimed", "throwaway_spare_writer"],
+  "send_without_ai": {
+    "message": "In your own Trillion, your AI picks this up and answers here. This live copy has no AI connected, so nothing was sent.",
+    "next": { "label": "Connect your AI", "href": "https://app.gettrillion.ai/account?create" }
+  },
+  "starts_per_address_per_hour": 30,
+  "refused_paths": [
+    {
+      "path": "/work/api/account/"
+    },
+    {
+      "path": "/work/api/logins"
+    },
+    {
+      "path": "/work/api/devices"
+    },
+    {
+      "path": "/work/api/connectors"
+    },
+    {
+      "path": "/work/api/billing"
+    },
+    {
+      "path": "/work/api/commercial-events"
+    },
+    {
+      "path": "/work/api/price-experiments"
+    },
+    {
+      "path": "/work/api/source-projects"
+    },
+    {
+      "path": "/work/api/computer-sources"
+    },
+    {
+      "path": "/work/api/screen-picture"
+    },
+    {
+      "path": "/work/connect/"
+    },
+    {
+      "path": "/work/api/setup/stop"
+    },
+    {
+      "path": "/work/api/account",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/connections",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/plan",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/sharing",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/shares",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/share-destinations",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/share-agents",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/public-app",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/network",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/posts",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/book",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/link-page",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/community",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/read-link",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/clients",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/business",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    },
+    {
+      "path": "/work/api/sent",
+      "except_methods": [
+        "GET",
+        "HEAD"
+      ]
+    }
+  ],
+  "frame": {
+    "allow": "clipboard-write",
+    "title": "Trillion, live",
+    "height_px": 720,
+    "phone_height_px": 640
+  },
+  "words": {
+    "page_title": "{title} · Trillion, live",
+    "live_label": "This is Trillion running right now, with throwaway data. Click anything to try it yourself.",
+    "refused": "This part is in your own Trillion. Sign up to use it.",
+    "no_model": "A throwaway workspace has no AI of its own. Sign up and connect the AI you already use.",
+    "no_email": "A throwaway workspace sends no email. Sign up to send email from your own account.",
+    "too_many": "Too many live workspaces were opened from here in the last hour. Try again in a little while.",
+    "missing": "There is no live workspace by that name.",
+    "listing_heading": "See it working",
+    "listing_body": "This is the real tool in a real Trillion, with throwaway data. Watch it, then try it yourself.",
+    "index_heading": "Trillion, live",
+    "index_body": "Every workspace below is the real Trillion running with throwaway data. Watch one move, then try it yourself.",
+    "open_live": "Open it full size",
+    "sign_up": "Make your own Trillion",
+    "related": "More to see live"
+  },
+  "next_defaults": [
+    {
+      "label": "Make your own Trillion",
+      "href": "https://app.gettrillion.ai/account?create",
+      "tone": "primary"
+    },
+    {
+      "label": "Hand it to your AI",
+      "href": "https://app.gettrillion.ai/ai"
+    },
+    {
+      "label": "See every tool",
+      "href": "https://app.gettrillion.ai/marketplace/catalog"
+    }
+  ],
+  "item_showcases": {
+    "_what": "How a Marketplace item with no showcase row of its own is shown live, one row per kind (the item's `kind`, as src/pursuit-plan.mjs showcaseItem answers it). `opens` and `surface_input_key` open the item's screen ({id} is the item's id), `screens` are the screen ids it may show in, and each step is a card: `target` \"screen\" points at the screen, `inside` at the first of those controls inside it; `needs: \"sample\"` keeps a step only when the item has a sample to type, which its `act` types. {label}, {job} and {sample} are the item's own; `plain_body` stands for {job} when the item's own words are refused.",
+    "tool": {
+      "plain_body": "Here it is, running on throwaway data.",
+      "opens": "/use/{id}",
+      "surface": "trillion.use-tool",
+      "surface_input_key": "tool_id",
+      "screens": ["use-tool", "tool-screen"],
+      "step_ms": 4800,
+      "after_ms": 3600,
+      "title": "{label}, live",
+      "steps": [
+        { "id": "intro", "title": "{label}", "body": "{job}", "target": "screen", "placement": "below", "button": { "role": "advance", "label": "Next" } },
+        { "id": "type", "needs": "sample", "title": "Give it something to work on", "body": "Trillion types an example in for you.", "inside": ["textarea", "input[type=\"text\"]", "input:not([type])"], "placement": "below", "act": { "do": "type", "every_ms": 100 }, "button": { "role": "advance", "label": "Type it" } },
+        { "id": "run", "title": "Your turn", "body": "Click anything to try it yourself. This copy of Trillion empties itself in two hours.", "inside": ["button[type=\"submit\"]", "[data-tool-run]"], "placement": "above", "button": { "role": "done", "label": "Got it" } }
+      ]
+    },
+    "workflow": {
+      "plain_body": "Here it is, step by step, on throwaway data.",
+      "opens": "/workflows/{id}",
+      "surface": "trillion.workflow",
+      "surface_input_key": "id",
+      "screens": ["workflow"],
+      "step_ms": 4800,
+      "after_ms": 3600,
+      "title": "{label}, live",
+      "steps": [
+        { "id": "intro", "title": "{label}", "body": "{job}", "target": "screen", "placement": "below", "button": { "role": "advance", "label": "Next" } },
+        { "id": "steps", "title": "Every step, in order", "body": "Your AI does each step and Trillion checks it before the next one starts. Open a step to see what it does.", "inside": ["[data-workflow-graph]"], "placement": "above", "button": { "role": "advance", "label": "Next" } },
+        { "id": "run", "title": "Your turn", "body": "Click anything to look around. In your own Trillion, Run starts it with your AI. This copy empties itself in two hours.", "target": "screen", "placement": "below", "button": { "role": "done", "label": "Got it" } }
+      ]
+    }
+  },
+  "showcases": [
+    {
+      "id": "workspace", "spare_accounts": 4,
+      "title": "Trillion",
+      "heading": "A real week in Trillion",
+      "body": "This is the real Trillion with a design studio's week already in it. Watch the tour, then click anything.",
+      "opens": "/",
+      "related": [],
+      "seed": [
+        {
+          "path": "/records",
+          "body": {
+            "writes": [
+              {
+                "address_label": "guided-overlay::walkthrough-progress",
+                "payload": {
+                  "kind": "walkthrough-progress",
+                  "consumed_once_keys": [
+                    "first-run"
+                  ],
+                  "consumed_at": {
+                    "first-run": "{{now}}"
+                  },
+                  "cursors": {},
+                  "transitions": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/lists",
+          "body": {
+            "label": "Clients",
+            "fields": [
+              {
+                "label": "Name",
+                "free_text_because": "The first field is the title of each client row, the name of the row itself, made by writing it."
+              },
+              {
+                "label": "Company",
+                "names": { "list": { "id": "companies", "label": "Companies" } }
+              },
+              {
+                "label": "Stage"
+              },
+              {
+                "label": "Next step"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/lists/clients/rows",
+          "body": {
+            "rows": [
+              {
+                "values": {
+                  "name": "Inês Ferreira",
+                  "company": "Ferreira Coffee",
+                  "stage": "Rebrand under way",
+                  "next-step": "Send her the logo directions"
+                }
+              },
+              {
+                "values": {
+                  "name": "Tomás Reis",
+                  "company": "Casa Reis Hotel",
+                  "stage": "Proposal sent",
+                  "next-step": "Follow up on Thursday"
+                }
+              },
+              {
+                "values": {
+                  "name": "Joana Matos",
+                  "company": "Matos Ceramics",
+                  "stage": "Finished",
+                  "next-step": "Ask for a testimonial"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/namespace/write",
+          "body": {
+            "name": "/Notes/workshop-plan.md",
+            "text": "# Design Systems for Small Teams\n\nFour weeks, one live session a week, twelve seats.\nWeek 1: audit what the team already has. Week 2: tokens and type. Week 3: components. Week 4: handing it to developers.\n\nPrice: 390 or 590 euros? Past clients said they would pay up to 600. Need the October dates filled before I announce it."
+          }
+        },
+        {
+          "path": "/namespace/write",
+          "body": {
+            "name": "/Notes/ferreira-coffee-kickoff.md",
+            "text": "# Ferreira Coffee kickoff\n\nInês wants the rebrand to feel like the roastery floor, warm and a bit worn in. Three directions for the logo by the 14th. She will share the old packaging photos in our pursuit.\nShe chose the middle tier of the proposal. The brief is next."
+          }
+        },
+        {
+          "path": "/namespace/write",
+          "body": {
+            "name": "/Notes/studio-week.md",
+            "text": "# Studio notes\n\nNovember overlaps two client projects and the workshop. I cannot run all of it alone. A part-time producer would take scheduling, invoices and the client emails. Ask Rita whether she knows anyone good."
+          }
+        },
+        {
+          "path": "/namespace/write",
+          "body": {
+            "name": "/Invoices/ferreira-coffee-discovery.txt",
+            "text": "Invoice 1042 for Ferreira Coffee\nBrand discovery workshop: 2,400 euros\nDue 15 November"
+          }
+        },
+        {
+          "path": "/messages",
+          "body": {
+            "messages": [
+              {
+                "conversation_id": "trillion:shared",
+                "app": "Trillion",
+                "speaker": "person",
+                "text": "Plan the launch of the October workshop"
+              },
+              {
+                "conversation_id": "trillion:shared",
+                "app": "Claude",
+                "speaker": "ai",
+                "text": "I wrote the outline: four weeks, one live session a week, twelve seats. I handed the signup page to Codex. It needs your price before seats open."
+              },
+              {
+                "conversation_id": "trillion:shared",
+                "app": "ChatGPT",
+                "speaker": "ai",
+                "text": "I can draft the announcement email for your mailing list once the price is set."
+              }
+            ]
+          },
+          "keep": {
+            "launch_message": "ids.0"
+          }
+        },
+        {
+          "path": "/pursuits",
+          "body": {
+            "pursuits": [
+              {
+                "id": "fill-the-october-workshop",
+                "title": "Fill the October workshop",
+                "now": "3 of 12 seats booked",
+                "after": "All 12 seats booked by October 20",
+                "why_it_matters": "Your workshop notes say it pays for the quieter months."
+              },
+              {
+                "id": "ferreira-coffee-rebrand",
+                "title": "Ferreira Coffee rebrand",
+                "now": "Inês chose the middle tier. Logo directions due the 14th",
+                "after": "Logo signed off and the first payment in",
+                "why_it_matters": "Your kickoff notes call it the biggest project of the year."
+              },
+              {
+                "id": "hire-a-part-time-producer",
+                "title": "Hire a part-time producer",
+                "now": "No one yet",
+                "after": "A producer starts in January",
+                "why_it_matters": "Your studio notes say November overlaps two clients and the workshop."
+              }
+            ]
+          },
+          "method": "PUT"
+        },
+        {
+          "path": "/cases",
+          "body": {
+            "source_id": "{{launch_message}}",
+            "method": "message-intake",
+            "goal": "Plan the launch of the October workshop",
+            "evidence": [
+              {
+                "ref": "{{launch_message}}",
+                "claim": "Plan the launch of the October workshop"
+              },
+              {
+                "ref": "source",
+                "claim": "Sent in Trillion, conversation trillion:shared."
+              }
+            ],
+            "options": [
+              {
+                "id": "act",
+                "label": "Act on the message and verify the result"
+              },
+              {
+                "id": "keep",
+                "label": "Keep it as context when no action is called for"
+              }
+            ]
+          },
+          "keep": {
+            "msg_case": "id"
+          }
+        },
+        {
+          "path": "/cases",
+          "body": {
+            "source_id": "workshop-price",
+            "goal": "Price the October workshop",
+            "evidence": [
+              {
+                "ref": "survey",
+                "claim": "Past clients said they would pay up to 600 euros."
+              },
+              {
+                "ref": "cost",
+                "claim": "Twelve seats at 390 euros barely cover the venue and a producer."
+              }
+            ],
+            "options": [
+              {
+                "id": "low",
+                "label": "390 euros"
+              },
+              {
+                "id": "high",
+                "label": "590 euros"
+              },
+              {
+                "id": "mid",
+                "label": "490 euros"
+              }
+            ]
+          },
+          "keep": {
+            "price_case": "id"
+          }
+        },
+        {
+          "path": "/cases/{{price_case}}/guide",
+          "body": {
+            "step_id": "scope",
+            "answer": {
+              "evidence_refs": [
+                "survey",
+                "cost",
+                "pursuit:fill-the-october-workshop"
+              ],
+              "decision_context": {
+                "compare_existing": true,
+                "diagnose_failure": true,
+                "many_requirements": true,
+                "running_product": true,
+                "human_facing": true,
+                "consequential": true,
+                "builds_reusable_system": true,
+                "involves_others": true,
+                "reaches_other_accounts": true,
+                "sets_price": true,
+                "worth_weighing": true
+              }
+            }
+          }
+        },
+        {
+          "path": "/cases/{{price_case}}/decision",
+          "body": {
+            "option_id": "mid",
+            "reason": "Enough to cover costs at twelve seats, and still under what past clients said they would pay.",
+            "evidence_refs": [
+              "survey",
+              "cost",
+              "pursuit:fill-the-october-workshop"
+            ],
+            "next_action": "Put 490 euros and 12 seats on the signup page",
+            "success_measure": "Twelve seats sold by October 20",
+            "who_it_changes": "Small design teams who sign up"
+          }
+        },
+        {
+          "path": "/cases/{{msg_case}}",
+          "body": {},
+          "method": "GET",
+          "keep": {
+            "msg_ref": "input.evidence.0.ref",
+            "msg_opt": "input.options.0.id"
+          }
+        },
+        {
+          "path": "/cases/{{msg_case}}/guide",
+          "body": {
+            "step_id": "scope",
+            "answer": {
+              "evidence_refs": [
+                "{{msg_ref}}",
+                "pursuit:fill-the-october-workshop"
+              ],
+              "decision_context": {}
+            }
+          }
+        },
+        {
+          "path": "/cases",
+          "body": {
+            "source_id": "hire-producer",
+            "goal": "Hire a part-time producer",
+            "evidence": [
+              {
+                "ref": "load",
+                "claim": "Two client projects and the workshop overlap in November."
+              }
+            ],
+            "options": [
+              {
+                "id": "now",
+                "label": "Hire now"
+              },
+              {
+                "id": "jan",
+                "label": "Wait until January"
+              }
+            ]
+          },
+          "keep": {
+            "hire_case": "id"
+          }
+        },
+        {
+          "path": "/cases/{{hire_case}}/guide",
+          "body": {
+            "step_id": "scope",
+            "answer": {
+              "evidence_refs": [
+                "load",
+                "pursuit:hire-a-part-time-producer"
+              ],
+              "decision_context": {
+                "compare_existing": true,
+                "diagnose_failure": true,
+                "many_requirements": true,
+                "running_product": true,
+                "human_facing": true,
+                "consequential": true,
+                "builds_reusable_system": true,
+                "involves_others": true,
+                "reaches_other_accounts": true,
+                "sets_price": true,
+                "worth_weighing": true
+              }
+            }
+          }
+        },
+        {
+          "path": "/cases/{{hire_case}}/decision",
+          "body": {
+            "option_id": "jan",
+            "reason": "November is covered if I hold the workshop to twelve seats, and the budget is clearer once the Ferreira deposit lands.",
+            "evidence_refs": [
+              "load",
+              "pursuit:hire-a-part-time-producer"
+            ],
+            "next_action": "Ask Rita for two names to talk to in December",
+            "success_measure": "A producer starts in January",
+            "who_it_changes": "Maya and her clients"
+          }
+        },
+        {
+          "path": "/cases",
+          "body": {
+            "source_id": "ferreira-quote",
+            "goal": "Quote Ferreira Coffee one price or three tiers",
+            "evidence": [
+              {
+                "ref": "past",
+                "claim": "Two of the last three clients asked for a cheaper option after a single quote."
+              },
+              {
+                "ref": "scope",
+                "claim": "The rebrand covers the logo, packaging and the shop sign."
+              }
+            ],
+            "options": [
+              {
+                "id": "one",
+                "label": "One price"
+              },
+              {
+                "id": "tiers",
+                "label": "Three tiers"
+              }
+            ]
+          },
+          "keep": {
+            "quote_case": "id"
+          }
+        },
+        {
+          "path": "/cases/{{quote_case}}/guide",
+          "body": {
+            "step_id": "scope",
+            "answer": {
+              "evidence_refs": [
+                "past",
+                "scope",
+                "pursuit:ferreira-coffee-rebrand"
+              ],
+              "decision_context": {
+                "compare_existing": true,
+                "diagnose_failure": true,
+                "many_requirements": true,
+                "running_product": true,
+                "human_facing": true,
+                "consequential": true,
+                "builds_reusable_system": true,
+                "involves_others": true,
+                "reaches_other_accounts": true,
+                "sets_price": true,
+                "worth_weighing": true
+              }
+            }
+          }
+        },
+        {
+          "path": "/cases/{{quote_case}}/decision",
+          "body": {
+            "option_id": "tiers",
+            "reason": "Three tiers let Inês choose the scope herself instead of asking for a discount.",
+            "evidence_refs": [
+              "past",
+              "scope",
+              "pursuit:ferreira-coffee-rebrand"
+            ],
+            "next_action": "Send the proposal with three tiers",
+            "success_measure": "Inês picks a tier within a week",
+            "who_it_changes": "Ferreira Coffee"
+          }
+        },
+        {
+          "path": "/cases/{{quote_case}}/done",
+          "body": {
+            "state": "done",
+            "what_happened": "Sent Inês the proposal with three tiers"
+          }
+        },
+        {
+          "path": "/cases/{{quote_case}}/result",
+          "body": {
+            "result": "met",
+            "summary": "Inês chose the middle tier the next day, with no discount asked.",
+            "answered_by": "person",
+            "source_ref": "ferreira-quote-outcome"
+          }
+        },
+        {
+          "path": "/waiting-on-you?settle=no",
+          "body": {},
+          "method": "GET"
+        },
+        {
+          "path": "/lists/waiting-on-you/rows",
+          "body": {
+            "rows": [
+              {
+                "values": {
+                  "what": "Approve 490 euros for the October workshop",
+                  "why": "Claude weighed it against what past clients said they would pay. Seats open on the signup page once you agree.",
+                  "only_you_because": "It sets what your clients pay",
+                  "tried": "Claude read the survey answers and the venue costs and worked out 490 euros. Setting the price is yours.",
+                  "unlocks": "Seats open on the signup page",
+                  "pursuit": "Fill the October workshop",
+                  "status": "Waiting",
+                  "added": "{{now}}",
+                  "finish": "Tap done",
+                  "do_it_in": "/decisions/{{price_case}}?show_row={{price_case}}",
+                  "asked_by": "Claude"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/agents/publish",
+          "body": {
+            "agent_id": "claude",
+            "name": "Claude",
+            "description": "Drafts outlines, copy and plans",
+            "harness": "Claude",
+            "model": "Claude Opus",
+            "takes_work": true,
+            "capacity": {
+              "max_concurrent": 2,
+              "ttl_minutes": 120
+            }
+          },
+          "headers": {
+            "x-trillion-reader": "app:Claude"
+          }
+        },
+        {
+          "path": "/agents/publish",
+          "body": {
+            "agent_id": "trillion-web",
+            "name": "Maya on the web",
+            "description": "Maya typing in her own Trillion",
+            "harness": "Trillion",
+            "model": "Trillion",
+            "takes_work": false
+          },
+          "headers": {
+            "x-trillion-reader": "app:Maya"
+          }
+        },
+        {
+          "path": "/agents/publish",
+          "body": {
+            "agent_id": "codex",
+            "name": "Codex",
+            "description": "Builds and ships web pages",
+            "harness": "Codex",
+            "model": "GPT-5 Codex",
+            "takes_work": true,
+            "capacity": {
+              "max_concurrent": 2,
+              "ttl_minutes": 120
+            }
+          },
+          "headers": {
+            "x-trillion-reader": "app:Codex"
+          }
+        },
+        {
+          "path": "/handoffs",
+          "body": {
+            "job": "Draft the outline for the Design Systems for Small Teams workshop",
+            "request_key": "workshop-outline",
+            "to_agent": "claude"
+          },
+          "headers": {
+            "x-trillion-reader": "app:Maya"
+          }
+        },
+        {
+          "path": "/handoffs/take",
+          "body": {
+            "agent_id": "claude"
+          },
+          "headers": {
+            "x-trillion-reader": "app:Claude"
+          },
+          "keep": {
+            "outline_job": "handoff.handoff_id"
+          }
+        },
+        {
+          "path": "/handoffs",
+          "body": {
+            "job": "Build the workshop signup page from the outline",
+            "request_key": "workshop-signup",
+            "to_agent": "codex",
+            "from_agent": "claude",
+            "parent_handoff_id": "{{outline_job}}",
+            "hold_minutes": 120
+          },
+          "headers": {
+            "x-trillion-reader": "app:Claude"
+          }
+        },
+        {
+          "path": "/handoffs/finish",
+          "body": {
+            "handoff_id": "{{outline_job}}",
+            "agent_id": "claude",
+            "result": "Four weeks, one live session a week, twelve seats.",
+            "summary": "Workshop outline drafted; signup page handed to Codex"
+          },
+          "headers": {
+            "x-trillion-reader": "app:Claude"
+          }
+        },
+        {
+          "path": "/handoffs/take",
+          "body": {
+            "agent_id": "codex",
+            "hold_minutes": 120
+          },
+          "headers": {
+            "x-trillion-reader": "app:Codex"
+          }
+        },
+        {
+          "path": "activity:record",
+          "body": {
+            "rows": [
+              {
+                "tool": "hand_off",
+                "app": "Claude",
+                "input": {
+                  "job": "Build the workshop signup page from the outline"
+                },
+                "result": {
+                  "handoff": {
+                    "handoff_id": "{{outline_job}}",
+                    "said": "Build the workshop signup page from the outline"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/namespace/write",
+          "body": {
+            "name": "/Recordings/ferreira-coffee-kickoff-call.mp4",
+            "content_asset": "ferreira-kickoff-call.mp4",
+            "media_type": "video/mp4"
+          },
+          "keep": {
+            "call_file": "identity"
+          }
+        },
+        {
+          "path": "/media/edit",
+          "body": {
+            "id": "ferreira-clips",
+            "title": "Ferreira Coffee call: three clips",
+            "clips": [
+              {
+                "identity": "{{call_file}}",
+                "name": "Wordmark approved",
+                "start": 7.25,
+                "end": 15.02,
+                "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                "media_type": "video/mp4",
+                "media_kind": "video"
+              },
+              {
+                "identity": "{{call_file}}",
+                "name": "Wordmark is final",
+                "start": 21.04,
+                "end": 28.41,
+                "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                "media_type": "video/mp4",
+                "media_kind": "video"
+              },
+              {
+                "identity": "{{call_file}}",
+                "name": "Warm palette directions",
+                "start": 28.73,
+                "end": 35.74,
+                "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                "media_type": "video/mp4",
+                "media_kind": "video"
+              }
+            ],
+            "captions": [
+              {
+                "id": "c1",
+                "text": "Good.",
+                "start": 0.0,
+                "end": 0.25,
+                "words": [
+                  {
+                    "text": "Good.",
+                    "start": 0.0,
+                    "end": 0.25
+                  }
+                ]
+              },
+              {
+                "id": "c2",
+                "text": "First, I have to say, the rounded",
+                "start": 0.27,
+                "end": 1.994,
+                "words": [
+                  {
+                    "text": "First,",
+                    "start": 0.27,
+                    "end": 0.577
+                  },
+                  {
+                    "text": "I",
+                    "start": 0.597,
+                    "end": 0.686
+                  },
+                  {
+                    "text": "have",
+                    "start": 0.706,
+                    "end": 0.958
+                  },
+                  {
+                    "text": "to",
+                    "start": 0.978,
+                    "end": 1.122
+                  },
+                  {
+                    "text": "say,",
+                    "start": 1.142,
+                    "end": 1.34
+                  },
+                  {
+                    "text": "the",
+                    "start": 1.36,
+                    "end": 1.558
+                  },
+                  {
+                    "text": "rounded",
+                    "start": 1.578,
+                    "end": 1.994
+                  }
+                ]
+              },
+              {
+                "id": "c3",
+                "text": "wordmark with the cut in the F,",
+                "start": 2.014,
+                "end": 3.684,
+                "words": [
+                  {
+                    "text": "wordmark",
+                    "start": 2.014,
+                    "end": 2.485
+                  },
+                  {
+                    "text": "with",
+                    "start": 2.505,
+                    "end": 2.757
+                  },
+                  {
+                    "text": "the",
+                    "start": 2.777,
+                    "end": 2.976
+                  },
+                  {
+                    "text": "cut",
+                    "start": 2.996,
+                    "end": 3.194
+                  },
+                  {
+                    "text": "in",
+                    "start": 3.214,
+                    "end": 3.357
+                  },
+                  {
+                    "text": "the",
+                    "start": 3.377,
+                    "end": 3.575
+                  },
+                  {
+                    "text": "F,",
+                    "start": 3.595,
+                    "end": 3.684
+                  }
+                ]
+              },
+              {
+                "id": "c4",
+                "text": "I love it.",
+                "start": 3.704,
+                "end": 4.229,
+                "words": [
+                  {
+                    "text": "I",
+                    "start": 3.704,
+                    "end": 3.793
+                  },
+                  {
+                    "text": "love",
+                    "start": 3.813,
+                    "end": 4.066
+                  },
+                  {
+                    "text": "it.",
+                    "start": 4.086,
+                    "end": 4.229
+                  }
+                ]
+              },
+              {
+                "id": "c5",
+                "text": "My brother saw it and asked if",
+                "start": 4.249,
+                "end": 5.92,
+                "words": [
+                  {
+                    "text": "My",
+                    "start": 4.249,
+                    "end": 4.393
+                  },
+                  {
+                    "text": "brother",
+                    "start": 4.413,
+                    "end": 4.829
+                  },
+                  {
+                    "text": "saw",
+                    "start": 4.849,
+                    "end": 5.047
+                  },
+                  {
+                    "text": "it",
+                    "start": 5.067,
+                    "end": 5.211
+                  },
+                  {
+                    "text": "and",
+                    "start": 5.231,
+                    "end": 5.429
+                  },
+                  {
+                    "text": "asked",
+                    "start": 5.449,
+                    "end": 5.756
+                  },
+                  {
+                    "text": "if",
+                    "start": 5.776,
+                    "end": 5.92
+                  }
+                ]
+              },
+              {
+                "id": "c6",
+                "text": "we had hired an agency from Milan.",
+                "start": 5.94,
+                "end": 7.77,
+                "words": [
+                  {
+                    "text": "we",
+                    "start": 5.94,
+                    "end": 6.083
+                  },
+                  {
+                    "text": "had",
+                    "start": 6.103,
+                    "end": 6.301
+                  },
+                  {
+                    "text": "hired",
+                    "start": 6.321,
+                    "end": 6.628
+                  },
+                  {
+                    "text": "an",
+                    "start": 6.648,
+                    "end": 6.792
+                  },
+                  {
+                    "text": "agency",
+                    "start": 6.812,
+                    "end": 7.174
+                  },
+                  {
+                    "text": "from",
+                    "start": 7.194,
+                    "end": 7.446
+                  },
+                  {
+                    "text": "Milan.",
+                    "start": 7.466,
+                    "end": 7.77
+                  }
+                ]
+              },
+              {
+                "id": "c7",
+                "text": "Yes, final.",
+                "start": 7.773,
+                "end": 8.304,
+                "words": [
+                  {
+                    "text": "Yes,",
+                    "start": 7.773,
+                    "end": 7.974
+                  },
+                  {
+                    "text": "final.",
+                    "start": 7.994,
+                    "end": 8.304
+                  }
+                ]
+              },
+              {
+                "id": "c8",
+                "text": "The palette is where I am still",
+                "start": 8.324,
+                "end": 10.069,
+                "words": [
+                  {
+                    "text": "The",
+                    "start": 8.324,
+                    "end": 8.525
+                  },
+                  {
+                    "text": "palette",
+                    "start": 8.545,
+                    "end": 8.966
+                  },
+                  {
+                    "text": "is",
+                    "start": 8.986,
+                    "end": 9.132
+                  },
+                  {
+                    "text": "where",
+                    "start": 9.152,
+                    "end": 9.463
+                  },
+                  {
+                    "text": "I",
+                    "start": 9.483,
+                    "end": 9.573
+                  },
+                  {
+                    "text": "am",
+                    "start": 9.593,
+                    "end": 9.738
+                  },
+                  {
+                    "text": "still",
+                    "start": 9.758,
+                    "end": 10.069
+                  }
+                ]
+              },
+              {
+                "id": "c9",
+                "text": "unsure.",
+                "start": 10.089,
+                "end": 10.455,
+                "words": [
+                  {
+                    "text": "unsure.",
+                    "start": 10.089,
+                    "end": 10.455
+                  }
+                ]
+              },
+              {
+                "id": "c10",
+                "text": "The old green feels tired to me.",
+                "start": 10.475,
+                "end": 12.22,
+                "words": [
+                  {
+                    "text": "The",
+                    "start": 10.475,
+                    "end": 10.676
+                  },
+                  {
+                    "text": "old",
+                    "start": 10.696,
+                    "end": 10.896
+                  },
+                  {
+                    "text": "green",
+                    "start": 10.916,
+                    "end": 11.227
+                  },
+                  {
+                    "text": "feels",
+                    "start": 11.247,
+                    "end": 11.558
+                  },
+                  {
+                    "text": "tired",
+                    "start": 11.578,
+                    "end": 11.889
+                  },
+                  {
+                    "text": "to",
+                    "start": 11.909,
+                    "end": 12.055
+                  },
+                  {
+                    "text": "me.",
+                    "start": 12.075,
+                    "end": 12.22
+                  }
+                ]
+              },
+              {
+                "id": "c11",
+                "text": "I want something warmer, like the colour",
+                "start": 12.24,
+                "end": 14.426,
+                "words": [
+                  {
+                    "text": "I",
+                    "start": 12.24,
+                    "end": 12.33
+                  },
+                  {
+                    "text": "want",
+                    "start": 12.35,
+                    "end": 12.606
+                  },
+                  {
+                    "text": "something",
+                    "start": 12.626,
+                    "end": 13.157
+                  },
+                  {
+                    "text": "warmer,",
+                    "start": 13.177,
+                    "end": 13.544
+                  },
+                  {
+                    "text": "like",
+                    "start": 13.564,
+                    "end": 13.819
+                  },
+                  {
+                    "text": "the",
+                    "start": 13.839,
+                    "end": 14.04
+                  },
+                  {
+                    "text": "colour",
+                    "start": 14.06,
+                    "end": 14.426
+                  }
+                ]
+              },
+              {
+                "id": "c12",
+                "text": "of the crema.",
+                "start": 14.446,
+                "end": 15.14,
+                "words": [
+                  {
+                    "text": "of",
+                    "start": 14.446,
+                    "end": 14.591
+                  },
+                  {
+                    "text": "the",
+                    "start": 14.611,
+                    "end": 14.812
+                  },
+                  {
+                    "text": "crema.",
+                    "start": 14.832,
+                    "end": 15.14
+                  }
+                ]
+              },
+              {
+                "id": "c13",
+                "text": "Understood.",
+                "start": 15.143,
+                "end": 15.671,
+                "words": [
+                  {
+                    "text": "Understood.",
+                    "start": 15.143,
+                    "end": 15.671
+                  }
+                ]
+              },
+              {
+                "id": "c14",
+                "text": "I can give you two warm directions",
+                "start": 15.691,
+                "end": 17.414,
+                "words": [
+                  {
+                    "text": "I",
+                    "start": 15.691,
+                    "end": 15.77
+                  },
+                  {
+                    "text": "can",
+                    "start": 15.79,
+                    "end": 15.97
+                  },
+                  {
+                    "text": "give",
+                    "start": 15.99,
+                    "end": 16.219
+                  },
+                  {
+                    "text": "you",
+                    "start": 16.239,
+                    "end": 16.418
+                  },
+                  {
+                    "text": "two",
+                    "start": 16.438,
+                    "end": 16.617
+                  },
+                  {
+                    "text": "warm",
+                    "start": 16.637,
+                    "end": 16.866
+                  },
+                  {
+                    "text": "directions",
+                    "start": 16.886,
+                    "end": 17.414
+                  }
+                ]
+              },
+              {
+                "id": "c15",
+                "text": "by Wednesday.",
+                "start": 17.434,
+                "end": 18.062,
+                "words": [
+                  {
+                    "text": "by",
+                    "start": 17.434,
+                    "end": 17.563
+                  },
+                  {
+                    "text": "Wednesday.",
+                    "start": 17.583,
+                    "end": 18.062
+                  }
+                ]
+              },
+              {
+                "id": "c16",
+                "text": "One is a toasted terracotta, the other",
+                "start": 18.082,
+                "end": 19.954,
+                "words": [
+                  {
+                    "text": "One",
+                    "start": 18.082,
+                    "end": 18.261
+                  },
+                  {
+                    "text": "is",
+                    "start": 18.281,
+                    "end": 18.41
+                  },
+                  {
+                    "text": "a",
+                    "start": 18.43,
+                    "end": 18.51
+                  },
+                  {
+                    "text": "toasted",
+                    "start": 18.53,
+                    "end": 18.908
+                  },
+                  {
+                    "text": "terracotta,",
+                    "start": 18.928,
+                    "end": 19.456
+                  },
+                  {
+                    "text": "the",
+                    "start": 19.476,
+                    "end": 19.655
+                  },
+                  {
+                    "text": "other",
+                    "start": 19.675,
+                    "end": 19.954
+                  }
+                ]
+              },
+              {
+                "id": "c17",
+                "text": "is a deeper roasted brown with a",
+                "start": 19.974,
+                "end": 21.598,
+                "words": [
+                  {
+                    "text": "is",
+                    "start": 19.974,
+                    "end": 20.104
+                  },
+                  {
+                    "text": "a",
+                    "start": 20.124,
+                    "end": 20.203
+                  },
+                  {
+                    "text": "deeper",
+                    "start": 20.223,
+                    "end": 20.552
+                  },
+                  {
+                    "text": "roasted",
+                    "start": 20.572,
+                    "end": 20.95
+                  },
+                  {
+                    "text": "brown",
+                    "start": 20.97,
+                    "end": 21.249
+                  },
+                  {
+                    "text": "with",
+                    "start": 21.269,
+                    "end": 21.498
+                  },
+                  {
+                    "text": "a",
+                    "start": 21.518,
+                    "end": 21.598
+                  }
+                ]
+              },
+              {
+                "id": "c18",
+                "text": "soft cream.",
+                "start": 21.618,
+                "end": 22.146,
+                "words": [
+                  {
+                    "text": "soft",
+                    "start": 21.618,
+                    "end": 21.847
+                  },
+                  {
+                    "text": "cream.",
+                    "start": 21.867,
+                    "end": 22.146
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "path": "/public-app/definitions",
+          "body": {
+            "id": "okafor-workshop-{{account}}",
+            "actions": [],
+            "files": {
+              "index.html": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Design Systems for Small Teams</title><style>body{font-family:Georgia,serif;margin:0;background:#f6f1ea;color:#231f1b}main{max-width:560px;margin:0 auto;padding:56px 24px}h1{font-size:34px;line-height:1.15;margin:0 0 12px}p{font-size:18px;line-height:1.5}.facts{display:flex;gap:24px;margin:24px 0;font-size:16px}.facts b{display:block;font-size:22px}label{display:block;margin:14px 0 4px;font-size:15px}input{width:100%;box-sizing:border-box;padding:10px;font-size:16px;border:1px solid #c9bfb2;border-radius:6px}button{margin-top:20px;padding:12px 20px;font-size:16px;background:#231f1b;color:#f6f1ea;border:0;border-radius:6px}small{display:block;margin-top:28px;color:#6b6258}</style></head><body><main><h1>Design Systems for Small Teams</h1><p>Four weeks, one live session a week. You leave with a working system your whole team can use, from audit to handoff.</p><div class=\"facts\"><div><b>4 weeks</b>Live on Thursdays</div><div><b>12 seats</b>Small on purpose</div><div><b>490 euros</b>All sessions</div></div><form><label>Your name</label><input name=\"name\"><label>Email</label><input name=\"email\" type=\"email\"><label>Team size</label><input name=\"team\" type=\"number\"><button type=\"button\">Save my seat</button></form><small>Okafor Studio, Lisbon. Run by Maya Okafor.</small></main></body></html>"
+            }
+          },
+          "keep": {
+            "site_version": "version"
+          }
+        },
+        {
+          "path": "/public-app/installations",
+          "body": {
+            "app_id": "okafor-workshop-{{account}}",
+            "version": "{{site_version}}",
+            "context": "private"
+          },
+          "keep": {
+            "site_id": "installation_id",
+            "site_url": "public_url"
+          }
+        },
+        {
+          "path": "/spaces",
+          "body": {
+            "title": "Ferreira Coffee rebrand",
+            "members": [
+              {
+                "name": "Inês Ferreira",
+                "email": "ines@ferreira-coffee.example"
+              }
+            ]
+          },
+          "keep": {
+            "space": "space_id"
+          }
+        },
+        {
+          "path": "/spaces/{{space}}/name",
+          "body": {
+            "name": "Maya Okafor"
+          }
+        },
+        {
+          "path": "/spaces/{{space}}/about",
+          "body": {
+            "title": "Ferreira Coffee rebrand",
+            "description": "The new look for Ferreira Coffee, a roastery in Lisbon: logo, packaging and the shop sign."
+          }
+        },
+        {
+          "path": "/spaces/{{space}}/items",
+          "body": {
+            "items": [
+              {
+                "kind": "message",
+                "body": "Welcome, Inês. This is where the rebrand lives. Logo directions will land here by the 14th."
+              },
+              {
+                "kind": "message",
+                "body": "I shared the cuts from our call so you can hear how we understood the brief."
+              }
+            ]
+          }
+        },
+        {
+          "path": "/spaces/{{space}}/share",
+          "body": {
+            "file": "/Recordings/ferreira-coffee-kickoff-call.mp4"
+          }
+        },
+        {
+          "path": "/spaces/{{space}}/share",
+          "body": {
+            "file": "/Notes/ferreira-coffee-kickoff.md"
+          }
+        }
+      ],
+      "tour": {
+        "id": "showcase-workspace",
+        "title": "Trillion, live",
+        "play": {
+          "step_ms": 10000,
+          "after_ms": 4000
+        },
+        "steps": [
+          {
+            "id": "ask",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "Say it once",
+                "body": "Maya types what she wants here once, instead of repeating it in every AI she uses."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.home"
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-screen=\"home\"] .composer-field"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "below",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.0)",
+                "blur_px": 0
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "advance",
+                  "label": "Type it"
+                }
+              ]
+            },
+            "act": {
+              "do": "type",
+              "text": "Draft the email announcing the workshop.",
+              "every_ms": 90
+            }
+          },
+          {
+            "id": "send",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "It reaches all her AIs",
+                "body": "Claude, Codex and ChatGPT all see it. No pasting between them."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.home"
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-screen=\"home\"] button[type=\"submit\"]"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "above",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.35)",
+                "blur_px": 3
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "advance",
+                  "label": "Send it"
+                }
+              ]
+            },
+            "act": {
+              "do": "press"
+            }
+          },
+          {
+            "id": "waiting",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "What only Maya can do",
+                "body": "Claude priced the workshop at 490 euros. Codex needs her yes before seats open. Only she can give it, so it waits here."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.waiting"
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-screen=\"waiting\"]"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "below",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.0)",
+                "blur_px": 0
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "advance",
+                  "label": "Next"
+                }
+              ]
+            }
+          },
+          {
+            "id": "pursuits",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "Goals found in her notes",
+                "body": "Nobody filled this in. Trillion read her notes and messages and found the three things she is after this month."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.pursuits"
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-screen=\"pursuits\"]"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "below",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.0)",
+                "blur_px": 0
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "advance",
+                  "label": "Next"
+                }
+              ]
+            }
+          },
+          {
+            "id": "decision",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "Decisions, with their reasons",
+                "body": "She weighed 390 euros against 590 and chose 490 for 12 seats. The reason and the goal it serves are saved with it."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.decisions"
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-screen=\"decisions\"] .record-views"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "below",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.0)",
+                "blur_px": 0
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "advance",
+                  "label": "Next"
+                }
+              ]
+            }
+          },
+          {
+            "id": "clips",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "Her client call, cut into clips",
+                "body": "Three moments from her kickoff call with Ferreira Coffee. Each one plays from the real recording."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.media-edit",
+                "surfaceInput": {
+                  "editId": "ferreira-clips",
+                  "title": "Ferreira Coffee call: three clips",
+                  "clips": [
+                    {
+                      "identity": "{{call_file}}",
+                      "name": "Wordmark approved",
+                      "start": 7.25,
+                      "end": 15.02,
+                      "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                      "media_type": "video/mp4",
+                      "media_kind": "video"
+                    },
+                    {
+                      "identity": "{{call_file}}",
+                      "name": "Wordmark is final",
+                      "start": 21.04,
+                      "end": 28.41,
+                      "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                      "media_type": "video/mp4",
+                      "media_kind": "video"
+                    },
+                    {
+                      "identity": "{{call_file}}",
+                      "name": "Warm palette directions",
+                      "start": 28.73,
+                      "end": 35.74,
+                      "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                      "media_type": "video/mp4",
+                      "media_kind": "video"
+                    }
+                  ]
+                }
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-media-edit] [data-media-edit-panel=\"sources\"]"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "below",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.0)",
+                "blur_px": 0
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "advance",
+                  "label": "Next"
+                }
+              ]
+            }
+          },
+          {
+            "id": "captions",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "Captions from what was said",
+                "body": "Open Captions. Every line is the words of the call, timed to the voices."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.media-edit",
+                "surfaceInput": {
+                  "editId": "ferreira-clips",
+                  "title": "Ferreira Coffee call: three clips",
+                  "clips": [
+                    {
+                      "identity": "{{call_file}}",
+                      "name": "Wordmark approved",
+                      "start": 7.25,
+                      "end": 15.02,
+                      "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                      "media_type": "video/mp4",
+                      "media_kind": "video"
+                    },
+                    {
+                      "identity": "{{call_file}}",
+                      "name": "Wordmark is final",
+                      "start": 21.04,
+                      "end": 28.41,
+                      "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                      "media_type": "video/mp4",
+                      "media_kind": "video"
+                    },
+                    {
+                      "identity": "{{call_file}}",
+                      "name": "Warm palette directions",
+                      "start": 28.73,
+                      "end": 35.74,
+                      "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                      "media_type": "video/mp4",
+                      "media_kind": "video"
+                    }
+                  ]
+                }
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-media-edit] [aria-label=\"Editor tools\"] button[aria-label=\"Captions\"]"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "left",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.0)",
+                "blur_px": 0
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "advance",
+                  "label": "Open captions"
+                }
+              ]
+            },
+            "act": {
+              "do": "press"
+            }
+          },
+          {
+            "id": "captionlines",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "Her words, timed",
+                "body": "Click a line to jump to it in the call. Change its words and the caption on the video changes too."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.media-edit",
+                "surfaceInput": {
+                  "editId": "ferreira-clips",
+                  "title": "Ferreira Coffee call: three clips",
+                  "clips": [
+                    {
+                      "identity": "{{call_file}}",
+                      "name": "Wordmark approved",
+                      "start": 7.25,
+                      "end": 15.02,
+                      "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                      "media_type": "video/mp4",
+                      "media_kind": "video"
+                    },
+                    {
+                      "identity": "{{call_file}}",
+                      "name": "Wordmark is final",
+                      "start": 21.04,
+                      "end": 28.41,
+                      "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                      "media_type": "video/mp4",
+                      "media_kind": "video"
+                    },
+                    {
+                      "identity": "{{call_file}}",
+                      "name": "Warm palette directions",
+                      "start": 28.73,
+                      "end": 35.74,
+                      "bytes": "/work/api/namespace/bytes/{{call_file}}",
+                      "media_type": "video/mp4",
+                      "media_kind": "video"
+                    }
+                  ]
+                }
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-media-edit] [aria-label=\"Captions in order\"]"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "left",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.0)",
+                "blur_px": 0
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "advance",
+                  "label": "Next"
+                }
+              ]
+            }
+          },
+          {
+            "id": "site",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "Her workshop page, live",
+                "body": "Codex built the signup page from Claude's outline and published it. Anyone with the link can save a seat."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.public-apps"
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-screen=\"public-apps\"]"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "below",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.0)",
+                "blur_px": 0
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "advance",
+                  "label": "Next"
+                }
+              ]
+            }
+          },
+          {
+            "id": "space",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "Shared with her client",
+                "body": "Inês Ferreira is invited to this pursuit. She sees the call and the notes here, and nothing else of Maya's."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.space",
+                "surfaceInput": {
+                  "id": "{{space}}"
+                }
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-screen=\"space\"]"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "below",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.0)",
+                "blur_px": 0
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "advance",
+                  "label": "Next"
+                }
+              ]
+            }
+          },
+          {
+            "id": "handoff",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "AIs hand work to each other",
+                "body": "Maya asked Claude for the outline. Claude passed the page to Codex. You can see who did what."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.ai-work"
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-screen=\"ai-work\"]"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "below",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.0)",
+                "blur_px": 0
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "advance",
+                  "label": "Next"
+                }
+              ]
+            }
+          },
+          {
+            "id": "yours",
+            "content": {
+              "content_kind": "text",
+              "payload": {
+                "title": "Your turn",
+                "body": "Click anything here. When you want your own, make your Trillion and connect the AI you already use."
+              }
+            },
+            "target_preparation": {
+              "surface": {
+                "id": "trillion.home"
+              }
+            },
+            "target_ref": {
+              "from": "selector",
+              "query": "[data-trillion-screen=\"home\"] .composer-field"
+            },
+            "cutout": {
+              "shapes": [
+                {
+                  "shape": "rounded-rect",
+                  "padding": 6,
+                  "radius": 12
+                }
+              ]
+            },
+            "placement": {
+              "prefer": "below",
+              "auto_flip": true,
+              "gap": 14
+            },
+            "look": {
+              "spotlight": {
+                "scrim_color": "rgba(0, 0, 0, 0.35)",
+                "blur_px": 3
+              }
+            },
+            "centered_when_target_missing": true,
+            "nav": {
+              "buttons": [
+                {
+                  "role": "done",
+                  "label": "Try it myself"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "allowed_paths": [
+    {
+      "path": "/work/api/share-destinations/deliver",
+      "methods": [
+        "POST"
+      ]
+    }
+  ]
+}

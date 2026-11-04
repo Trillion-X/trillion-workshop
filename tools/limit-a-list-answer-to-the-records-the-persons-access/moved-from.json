@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-scoped-lists.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/limit-a-list-answer-to-the-records-the-persons-access/src/native-scoped-lists.mjs",
+      "source_identity": "1f:88d076a42b160ec866250ffe2bcbc3f9b143562ed0308868dc38fc2021abffd3",
+      "identity": "1f:9310be80efe71664841c98ec4bfc634995666789d8686aa9d32cc5fb61c1b865"
+    },
+    {
+      "from": "test/native-scoped-lists.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/limit-a-list-answer-to-the-records-the-persons-access/test/native-scoped-lists.test.mjs",
+      "source_identity": "1f:0a9a9cb55398e3a57ac26508025cf84b202d8ec64e85c7a117f10ad403690d97",
+      "identity": "1f:0a9a9cb55398e3a57ac26508025cf84b202d8ec64e85c7a117f10ad403690d97"
+    }
+  ]
+}

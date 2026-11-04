@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/handoff-notice.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-one-notice-list-to-a-persons-ais-for-every-screen/src/handoff-notice.mjs",
+      "source_identity": "1f:5ddc9e9ba3b521ba5f17436b307092d90137a4a008f595ac7ba35b9b1ecf8ee4",
+      "identity": "1f:8e3e5169ced27d213b2d2259e750afd2d768ab3887160532a6203cee12536e9a"
+    },
+    {
+      "from": "src/notices.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-one-notice-list-to-a-persons-ais-for-every-screen/src/notices.mjs",
+      "source_identity": "1f:810fbd7290d0984cbbef72aba645bbe0dedbf3dcc174d53aecffbdec25443feb",
+      "identity": "1f:ea6e71fedc715ad81d009818f203f79e4f6ca3e4a908c911be5354b6acc832b8"
+    }
+  ]
+}

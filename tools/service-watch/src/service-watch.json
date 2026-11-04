@@ -1,0 +1,199 @@
+{
+  "what_this_is": "What the service watches about itself without any person's store, read by src/service-watch.mjs. Every call the Worker makes to a store bound under `calls.bindings` is counted per store and minute in the isolate that made it and kept in APP_KV under `calls.key_prefix` (`calls.keep_minutes`), the counts also in each key's metadata so a read lists them without reading values; a call counts as failed when the store did not answer (its failure code, src/failure.mjs, is one of `calls.failed_codes`) or answered with one of `calls.failed_statuses`. Each row of `watches` has its own owner, one record book per watch (src/book-handlers.mjs 'service-watch'), woken by its own alarm every `every_minutes` of its row (else the top-level `every_minutes`; a Cron Trigger was registered on the Worker from 15:22 to 17:20 on 2026-10-06, as 2-59/5 and then */5, with the scheduled handler exported, and Cloudflare never ran it once while every store's alarm ran; the shared pool's one alarm then ran every watch, which made it one object everyone waited on). Each reads its watch with the reader its `read` names and keeps what it saw under `state_key`:{id}: whether it is failing, since when, what it said, the evidence and when it runs next. An owner that never ran or lost its alarm is started by the Worker at most once per isolate every `starter_minutes`, and by the deploy right after the switch. scripts/deploy-worker.mjs keeps every build it runs under `builds_key_prefix` for `builds_keep_days` (commit, start, outcome and the last `build_words` lines it wrote), which the `deploys` reader compares with the version that is live. The service's own `checks` (src/service-checks.mjs) are each kept, scheduled and run by their own owner, one record book per check woken by its own alarm; the schedule wakes one whose watch just changed, or that never started or lost its alarm, and each reads the state through tool:read-service-watch, publishes what it saw where the account that runs Trillion reads it beside its own Everything still working checks, and hands a stopped check to that account's AIs once per stop. An account that does not answer is skipped and asked again on the next run. A watch with `every_minutes` is read again only that often. A watch with `tell_setting` (the service usage estimate) tells each notice its last read asked for to the account that Worker setting names, once: kept under `told_key_prefix` for `told_keep_days` only after the account took it. A watch with `hand` (the deploys) gives the AIs of the account its `setting` names one job per failing episode, at once when the watch flips, with the watch's words, its evidence and how to fix it: kept under `handed_key_prefix` for `told_keep_days` only after the account took it. A watch with `release` (the deploys) starts a commit that waits for its restart window (`waiting_key`) once the window is open: when the newest commit on its `repository` branch is older than `young_minutes`, or the window opened `late_minutes` ago with nothing gone live, it adds an empty commit (`message`) on that branch through the account its `setting` names, with that account's own connection (`read_tool`, `commit_tool`, `move_tool`), so the build of that commit takes the window; never when the newest commit is already such a commit (its build ran and did not go live, so the next push repairs it). One release per waiting commit, kept under `released_key_prefix` only after the branch moved. Thresholds, windows, accounts and words are DATA here; the readers are the only code.",
+  "service_work_setting": "OPERATOR_ACCOUNT_ID",
+  "_service_work_why": "The Worker setting naming the one account the service's own work reaches: its AIs are handed a failing watch or a stopped check, its notices are told (a row with `tell`), and the tool steps that need its own connections (the repository, a page critique) run there. A watch's `hand` or `release` with its own `setting` names another account for that row alone. Everything else is the service's own: the watches' state, and each check's state and schedule, kept by that check's own owner (src/service-checks.mjs).",
+  "check_stopped": {
+    "priority": 5,
+    "said": "Get \"{label}\" working again",
+    "job": "Trillion's own service check \"{label}\" (check {check}, kept and run by the service itself, src/service-checks.mjs) has failed {failures} times in a row since {since}. It last worked: {last_worked}. What it saw: {problem}. It asks {probe}, reads {read}, and working looks like {expect}. Who fixes it: {owner}. Find why it stopped from what really arrives and what really comes out (read_service_watch, timed_work, read_activity with failed true, the owner's code and logs) and fix the cause; the service checks it again on its next pass. If the cause is a wall you cannot pass, say exactly what it is with say_what_is_in_the_way.",
+    "outcome": "The service check {check} (\"{label}\") reads Working again.",
+    "tool_job": "Run one of Trillion's own service checks"
+  },
+  "every_minutes": 5,
+  "starter_minutes": 10,
+  "state_key": "service-watch:state",
+  "told_key_prefix": "service-watch:told:",
+  "told_keep_days": 40,
+  "handed_key_prefix": "service-watch:handed:",
+  "released_key_prefix": "service-watch:released:",
+  "builds_key_prefix": "service-watch:build:",
+  "build_progress_key_prefix": "service-watch:build-progress:",
+  "build_progress_every_ms": 15000,
+  "builds_keep_days": 3,
+  "build_words": 12,
+  "store_classes": {
+    "PERSON": "PersonStore",
+    "ACCOUNT_CONTROL": "AccountControl",
+    "POOL": "SharedPool",
+    "NETWORK": "Network",
+    "BOARD_ROOM": "BoardRoom",
+    "RECORD_REPLICA": "RecordReplica",
+    "PERSON_WORK": "PersonWork",
+    "PUBLIC_APP_NAME_CLAIM": "PublicAppNameClaim",
+    "EVENT_INBOX": "EventInbox",
+    "RECORD_BOOK": "RecordBook",
+    "INTERACTION_LOG": "InteractionLog",
+    "SITE_WORKER_DATABASE": "SiteWorkerDatabase"
+  },
+  "calls": {
+    "bindings": ["PERSON"],
+    "key_prefix": "service-watch:calls:",
+    "flush_every_ms": 30000,
+    "keep_minutes": 60,
+    "failed_codes": ["service-interrupted", "service-busy", "resource-exhausted"],
+    "failed_statuses": [500, 502, 503, 504],
+    "failure_chars": 200
+  },
+  "watches": [
+    {
+      "id": "stores-answer",
+      "read": "store_calls",
+      "window_minutes": 10,
+      "least_calls": 10,
+      "most_failed_share": 0.2,
+      "critical_codes": ["resource-exhausted"],
+      "says_working": "Every store answered at least {answered}% of its calls in the last {window_minutes} minutes.",
+      "says_failing": "{stores} store(s) failed more than {most_percent}% of their calls in the last {window_minutes} minutes: {worst}.",
+      "says_critical": "{stores} account(s) hit a resource limit in the last {window_minutes} minutes. The service needs repair."
+    },
+    {
+      "id": "deploys-go-live",
+      "read": "deploys",
+      "_why": "2026-10-08 08:52Z to 10:34Z: 23 builds in a row were refused by the visual check and no AI was told, because a failing watch only reached an AI through the continuity-watch account's checks (two failures, a 10-minute recheck, an hourly sweep at priority 4, no AI taking that account's work). A refused newest build is main not deployable, so one refusal fails the watch, and `hand` gives the operator account's AIs one job at once per failing episode.",
+      "most_quiet_minutes": 40,
+  "waiting_key": "deploy:waiting",
+  "most_late_minutes": 10,
+  "most_refused_in_a_row": 1,
+      "served_outcomes": ["went-live", "already-live"],
+      "says_working": "The live version went live {live_since}; no build has waited longer than {most_quiet_minutes} minutes since.",
+      "says_failing": "Nothing has gone live since {live_since}: {builds} build(s) ran since then, the first {waiting_minutes} minutes ago. The last said: {why}",
+  "says_refused": "The newest build was refused ({refused} in a row) and nothing has gone live since {live_since}. The last said: {why}",
+  "says_late": "{commit} was ready to go live at {ready_at}, {late_minutes} minutes ago, and nothing has gone live since {live_since}.",
+      "hand": {
+        "priority": 6,
+        "evidence_chars": 5000,
+        "said": "Get production deploys going live again",
+        "job": "Trillion's own service watch \"{watch}\" has been failing since {since}: {said} What it saw (the live version and the builds since it went live, newest last, each with its commit, outcome and the last lines it wrote): {evidence} Main is not deployable until a build goes live. Read the newest build with read-service-watch (build_commit), find why it was refused or stopped, and fix the cause: a visual check refusal keeps what it saw, so a change that is meant is accepted with node scripts/visual-check.mjs --accept --from-build <commit>, and an unmeant one is fixed in the code; a guard test named in scripts/deploy-guard-tests.json that failed is fixed at its cause, never skipped or loosened; a commit that is ready and not live (deploy:waiting) is read in scripts/deploy-worker.mjs. Land the fix on main the way AGENTS.md says, then check that the next build is went-live. Finish this job saying what failed, what you changed and the commit that went live.",
+        "outcome": "A build on main went live and the service watch {watch} reads Working."
+      },
+      "release": {
+        "_why": "A commit handed on to the restart window (deploy:waiting) went live only when a GitHub Actions job pushed an empty commit every 10 minutes; on 2026-10-11 GitHub stopped starting jobs for the organisation (its free minutes were used up), so ready builds waited with nothing to start them. The service's own schedule now starts them itself, through the operator account's own GitHub connection.",
+        "repository": { "owner": "Trillion-X", "repo": "trillion", "branch": "main" },
+        "late_minutes": 10,
+        "young_minutes": 20,
+        "message": "Deploy the changes waiting for the restart window",
+        "read_tool": "tool:github-read_branch",
+        "commit_tool": "tool:github-create_git_commit",
+        "move_tool": "tool:github-update_git_ref",
+        "tool_job": "Start the deploy waiting for its restart window",
+        "tool_wait_seconds": 30,
+        "build_trigger": { "_why": "Cloudflare Workers Builds starts a build of the branch itself, so a waiting version goes live without any person's store or the repository connection; the account connection above remains the route when this token is absent or refused.", "trigger_uuid": "5234a0e5-d32b-489e-b4ff-8448b8d928e1", "account_setting": "CLOUDFLARE_ACCOUNT_ID", "token_setting": "CLOUDFLARE_BUILDS_TOKEN" }
+      }
+    },
+    {
+      "id": "services-within-budget",
+      "read": "service_bill",
+      "_why": "Cloudflare usage was estimated at $103, $80, $101, $171 and $215 a day from 2026-09-30 to 2026-10-04 against a $25 budget, and the only meter read its numbers inside the store that was doing the work (one busy store's). This reads Cloudflare's own usage counters with the service's read-only token, prices them at listed rates and tells whoever runs Trillion the same hour an estimate heads past its budget. The estimate is not a provider invoice.",
+      "every_minutes": 15,
+      "token_secret": "CLOUDFLARE_ANALYTICS_TOKEN",
+      "settings": ["CLOUDFLARE_ACCOUNT_ID"],
+      "connection_fields": { "account_id": "CLOUDFLARE_ACCOUNT_ID" },
+      "readings": {
+        "cloudflare-usage": { "record": "package::service-connections::how-to-ask-something-else-to-do-things::cloudflare", "request": "read_usage" }
+      },
+      "refused_at": ["errors", 0, "message"],
+      "tell": true,
+      "words": {
+        "reached_body": "{used} of {most} this {period}, read from Cloudflare's own count.",
+        "told_body": "{used} of {most} this {period}, read from Cloudflare's own count.",
+        "near_body": "{used} of {most} so far this {period}, read from Cloudflare's own count."
+      },
+      "evidence_lines": 5,
+      "says_working": "Cloudflare usage read at {as_of} is estimated at {today} so far today and {month} from {period_start} through {period_end}, within every budget.",
+      "says_failing": "Cloudflare usage read at {as_of} is estimated at {today} so far today and {month} from {period_start} through {period_end}: {budgets}",
+      "says_unread": "Cloudflare usage could not be read: {why}",
+      "says_not_set": "Cloudflare usage is not read: the Worker setting {name} is not set."
+    },
+    {
+      "id": "former-names-retire",
+      "read": "former_names",
+      "kind": "former_id_used",
+      "every_minutes": 1440,
+      "_why": "2026-10-10: 18 tools, an agent, a configuration and a placement were renamed so no device is part of a tool's identity (src/renamed-tools.json). Older device apps still send the former ids, so the rows stay until nothing sends them; nobody remembers to look, so the service counts each use (records/interactions.json former_id_used) and this watch hands the operator's AIs the removal once a row has gone unused for quiet_days. It is not a check on Everything still working: a row due for removal is work, not a failure.",
+      "says_counting": "Former names are counted since {counted_since}; a row can retire from {retire_from} once unused for {quiet_days} days. Used in the last {quiet_days} days: {used}.",
+      "says_working": "Every former name was used in the last {quiet_days} days: {used}.",
+      "says_failing": "These former names have not been used in {quiet_days} days: {silent}.",
+      "hand": {
+        "priority": 3,
+        "evidence_chars": 3000,
+        "said": "Remove former names nobody uses",
+        "job": "Trillion's own service watch \"{watch}\" found former names nobody has sent for their quiet period (since {since}): {said} Evidence: {evidence} Delete those keys from src/renamed-tools.json (tools, agents or agent_prefixes) and any test that names them, keep every row still used, land the change on main the way AGENTS.md says, and check that the next read of {watch} no longer lists them. Finish this job naming the rows removed and the commit that went live.",
+        "outcome": "The rows {watch} listed are gone from src/renamed-tools.json on the live version and the watch no longer lists them."
+      }
+    }
+  ],
+  "checks": [
+    {
+      "check": "stores-answer",
+      "label": "Every store answers its calls",
+      "owner": "store-memory (src/service-watch.mjs, the Worker's own schedule)",
+      "shipped_in": "service watch: store calls counted in the Worker (src/service-watch.mjs)",
+      "every_hours": 0.25,
+      "probe": { "tool": "account_action", "input": { "action": "read-service-watch" } },
+      "facts": [
+        { "id": "failing", "kind": "boolean", "path": ["watches", "stores-answer", "failing"], "read": "value" },
+        { "id": "said", "kind": "text", "path": ["watches", "stores-answer", "said"], "read": "value" },
+        { "id": "evidence", "kind": "text", "path": ["watches", "stores-answer", "evidence"], "read": "value" }
+      ],
+      "in_use": null,
+      "expect": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "failing", "operator": "is_false", "params": {} }] }
+    },
+    {
+      "check": "deploys-go-live",
+      "label": "What lands on main goes live within an hour",
+      "owner": "store-memory (scripts/deploy-worker.mjs, deploy batching)",
+      "shipped_in": "service watch: every build kept (scripts/deploy-worker.mjs)",
+      "every_hours": 0.25,
+      "probe": { "tool": "account_action", "input": { "action": "read-service-watch" } },
+      "facts": [
+        { "id": "failing", "kind": "boolean", "path": ["watches", "deploys-go-live", "failing"], "read": "value" },
+        { "id": "said", "kind": "text", "path": ["watches", "deploys-go-live", "said"], "read": "value" },
+        { "id": "evidence", "kind": "text", "path": ["watches", "deploys-go-live", "evidence"], "read": "value" }
+      ],
+      "in_use": null,
+      "expect": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "failing", "operator": "is_false", "params": {} }] }
+    },
+    {
+      "check": "service-watch-runs",
+      "label": "The service's own watch keeps running",
+      "owner": "continuity-watch (src/service-watch.mjs, the shared pool's alarm every every_minutes)",
+      "shipped_in": "service watch: the Worker's Cron Trigger",
+      "every_hours": 0.5,
+      "probe": { "tool": "account_action", "input": { "action": "read-service-watch" } },
+      "facts": [
+        { "id": "hours_since_read", "kind": "number", "path": ["read_at"], "read": "hours_since" }
+      ],
+      "in_use": null,
+      "expect": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "hours_since_read", "operator": "less_than", "params": { "value": 0.5 } }] }
+    },
+    {
+      "check": "services-within-budget",
+      "label": "Cloudflare cost estimate stays within budget",
+      "owner": "store-memory (src/service-watch.mjs, Cloudflare usage counters priced at listed rates)",
+      "shipped_in": "service watch: Cloudflare usage estimate",
+      "every_hours": 0.25,
+      "probe": { "tool": "account_action", "input": { "action": "read-service-watch" } },
+      "facts": [
+        { "id": "failing", "kind": "boolean", "path": ["watches", "services-within-budget", "failing"], "read": "value" },
+        { "id": "said", "kind": "text", "path": ["watches", "services-within-budget", "said"], "read": "value" },
+        { "id": "evidence", "kind": "text", "path": ["watches", "services-within-budget", "evidence"], "read": "value" }
+      ],
+      "in_use": null,
+      "expect": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "failing", "operator": "is_false", "params": {} }] }
+    },
+    {"check": "public-pages-craft", "label": "Every public page, articles included, follows the craft rules and fits inside its container at 240, 390 and 1280", "owner": "launch-landing (parts/page-critic/read-data/page-craft-rules.json)", "shipped_in": "tool:critique-a-public-page (parts/page-critic)", "every_hours": 24, "probe": {"tool": "run_tool", "input": {"tool_id": "tool:critique-a-public-page", "request_key": "public-pages-craft-{checked_on}", "wait_seconds": 0, "input": {"pages_from": "https://gettrillion.ai/sitemap.xml", "fresh_within_days": {"/changelog": 3}}}}, "facts": [{"id": "run", "kind": "choice", "path": ["state"], "read": "value"}, {"id": "findings", "kind": "number", "path": ["output", "result", "findings_count"], "read": "value"}, {"id": "said", "kind": "text", "path": ["output", "result", "said"], "read": "value"}, {"id": "what_was_found", "kind": "text", "path": ["output", "result", "findings"], "read": "value"}, {"id": "pictures", "kind": "text", "path": ["output", "files", "pictures"], "read": "value"}], "in_use": null, "pending_when": {"kind": "group", "combinator": "and", "negate": false, "rules": [{"kind": "rule", "field": "run", "operator": "is_any_of", "params": {"values": ["working", "scheduled"]}}]}, "expect": {"kind": "group", "combinator": "and", "negate": false, "rules": [{"kind": "rule", "field": "findings", "operator": "less_than", "params": {"value": 1}}]}}
+  ],
+  "words": {
+    "no_state": "The service's own watch has not run yet."
+  }
+}

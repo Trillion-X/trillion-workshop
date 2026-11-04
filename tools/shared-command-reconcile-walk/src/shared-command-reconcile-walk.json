@@ -1,0 +1,6 @@
+{
+  "window": 16,
+  "reconcile_again_ms": 300000,
+  "captured_cut_off_after_ms": 600000,
+  "_why": "Shared commands an owner could not settle were kept 'uncertain' (2026-10-20: 3,184 on one account, each holding a quota credit open, 5.8k permits pending). The walk asks the owner of each one's effect, by command identity (src/shared-command-effects.mjs), one rowid window of this many rows per pass from a kept cursor; found means committed and nothing there means aborted. Commands whose effect cannot be read are asked again every reconcile_again_ms. A command still 'captured' with no frame running it in this instance for captured_cut_off_after_ms was cut off by a reset or deploy and is asked the same way; one with no reader stays uncertain for the meter's own rule, never charged in full."
+}
