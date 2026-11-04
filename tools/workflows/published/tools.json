@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:f6d4803f51655e35b484f88dc21687797d350c938718c167791f27b86bc3a40c"
+  "blake3": "1f:7d7ea580809389f04aeb2e572d927856a4442aacd06e4651a07d7b23823b660b"
  },
  "fields": [
   {
@@ -3091,6 +3091,22 @@
      "placement:small-container"
     ],
     "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
+   "id": "tool:find-rows-needing-review",
+   "values": {
+    "title": "Find the rows of a list that need review, by owner",
+    "job": "List the rows of a list set up for review that need someone to look at them, for each owner, with why: never checked, flagged outdated or asked about, past the date it must be checked again by, or empty",
+    "description": "Give list ({ id, title_field, fields, views }: the list as review set_up left it, with its review views), rows ([{ id, title, values }]) and, if you like, owner (one owner's rows only) and now (an ISO time; the current time by default). Each review view is read over the rows: a view's rules by the rule filter of the formulas tool, the expired view by its check-again date against now. Answers owners [{ owner, rows: [{ id, title, reasons }] }], reasons being not_verified, expired or empty, and complete (false when more rows needed review than one answer lists).",
+    "status": "active",
+    "maker": "maker:review-what-a-list-says",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T18:00:00Z",
+    "folder": "review-what-a-list-says"
    }
   },
   {
