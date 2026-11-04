@@ -1,6 +1,6 @@
 {
   "id": "move:trillion-app-screens-to-apps",
-  "about": "The app-screen rows of trillion-workshop docs/worker-retirement-port-backlog.json that had no home on any main and are not carried by trillion-apps PR #11, moved byte for byte from the tag old-trillion-before-worker-retire into trillion-apps web/ under their source paths (the two native app build scripts to scripts/). records/workshop-screen-tool-records.json is read as rows: trillion-apps main already holds it at web/records/ (changed there since, PR #8), and the moved files read that copy at the same relative path.",
+  "about": "The app-screen rows of trillion-workshop docs/worker-retirement-port-backlog.json that had no home on any main and are not carried by trillion-apps PR #11, moved byte for byte from the tag old-trillion-before-worker-retire into trillion-apps web/ under their source paths (the two native app build scripts to scripts/). records/workshop-screen-tool-records.json is read as rows: trillion-apps main already holds it at web/records/ (changed there since, PR #8), and the moved files read that copy at the same relative path. homes_in_packages: the parts/eeaf and parts/record-log files these screens import already have a home in the Workshop (the EEAF job carried them, each named in the receipt beside it), so the screens import them from the trillion-workshop package; this lane moves none of them.",
   "source": {
     "name": "Trillion-X/trillion",
     "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
@@ -404,5 +404,85 @@
   ],
   "read_as_rows": [
     "records/workshop-screen-tool-records.json"
+  ],
+  "homes_in_packages": [
+    {
+      "from": "parts/eeaf/do-work/eeaf-field-reads.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-field-reads.mjs",
+      "source_identity": "1f:446045ad05461a3658056088e19e0557bf17f408f668698cee2ec3b5348b9cf3",
+      "receipt": "tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json"
+    },
+    {
+      "from": "parts/eeaf/do-work/eeaf-sqlite-store.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs",
+      "source_identity": "1f:5a705f6b672dd838ab5e1cdbc0373a16840a52af3ca5a8d8ba47292e3743c920",
+      "receipt": "tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json"
+    },
+    {
+      "from": "parts/record-log/do-work/erasable.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/erasable.mjs",
+      "source_identity": "1f:c3b899872ebae588966c82c7945d05e2a2b5f3bcb635049c9ca9299c2eede89e",
+      "receipt": "tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json"
+    },
+    {
+      "from": "parts/record-log/do-work/json-members.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/json-members.mjs",
+      "source_identity": "1f:4c79381dd381723ffc1be8afc3e1cbcf434a8a6635a28dea06a29e6ae2fe0f01",
+      "receipt": "tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json"
+    },
+    {
+      "from": "parts/record-log/do-work/kept-runs.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/kept-runs.mjs",
+      "source_identity": "1f:023aabf645a7be1649955fce7c776556860e057f04565f98dab6ffbde3a20a0e",
+      "receipt": "tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json"
+    },
+    {
+      "from": "parts/record-log/do-work/maintenance-pacing.json",
+      "home": "trillion-workshop/tools/record-log/do-work/maintenance-pacing.json",
+      "source_identity": "1f:ee98583c243681527253b922b7f5245eb942a286e2daa6a3ab7bf6fcc8ed1358",
+      "receipt": "tools/record-log/do-work/moved-from.json"
+    },
+    {
+      "from": "parts/record-log/do-work/record-digest.mjs",
+      "home": "trillion-workshop/tools/record-log/do-work/record-digest.mjs",
+      "source_identity": "1f:5f96ceb443f1915f547ad1598b1778fee51e5a7b1075aba29b211a6e040c3543",
+      "receipt": "tools/record-log/do-work/moved-from.json"
+    },
+    {
+      "from": "parts/record-log/do-work/record-log-store.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs",
+      "source_identity": "1f:544d97defcec5db7ed61cd57dfb1a09fb8a067886fab6e3ef52d543122593aab",
+      "receipt": "tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json"
+    },
+    {
+      "from": "parts/record-log/do-work/record-model.mjs",
+      "home": "trillion-workshop/tools/record-log/do-work/record-model.mjs",
+      "source_identity": "1f:7e83122fea5a0c5edf11e925c81cdd1ede98d1c3af5787e47b71e061c0cb7c9f",
+      "receipt": "tools/record-log/do-work/moved-from.json"
+    },
+    {
+      "from": "parts/record-log/do-work/record-stamps.mjs",
+      "home": "trillion-workshop/tools/record-log/do-work/record-stamps.mjs",
+      "source_identity": "1f:630bd6b3c3507b5bcd13aad263922b71f1d21ee608cc0f3fdd1bab6a7b2ca5a8",
+      "receipt": "tools/record-log/do-work/moved-from.json"
+    },
+    {
+      "from": "parts/record-log/do-work/record-tables.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-tables.mjs",
+      "source_identity": "1f:b8c30e83224059452c67505954e476ed39c236b18dc0b112b7cefff1ebd52a2a",
+      "receipt": "tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json"
+    },
+    {
+      "from": "src/carry-tables-into-records.mjs",
+      "home": "trillion-workshop/tools/recently-deleted-and-storage/carry-tables-into-records.mjs",
+      "source_identity": "1f:42893a8e7360c845ccb5d9d553cad0fa3ee3d9c213ffb54ddd94d7c0c380a4f5",
+      "why": "same bytes once import paths are set aside, on trillion-workshop main"
+    },
+    {
+      "from": "src/reach.mjs",
+      "home": "trillion-workshop/tools/limit-what-one-sign-in-may-reach-the-persons/src/reach.mjs",
+      "source_identity": "1f:378df3e9eb67fbfbb389a723b8328cd2e18c4dea96f66f365c523510305231e5",
+      "why": "same bytes once import paths are set aside, on trillion-workshop main"
+    }
   ]
 }
