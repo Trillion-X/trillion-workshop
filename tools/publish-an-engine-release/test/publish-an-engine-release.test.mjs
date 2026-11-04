@@ -18,11 +18,7 @@ const here = fileURLToPath(new URL('.', import.meta.url));
 const PUBLISH = fileURLToPath(new URL('../do-work/publish-an-engine-release.mjs', import.meta.url));
 const canary = 'repository-token-canary-0123456789';
 // Each file's mode, read from its ustar header.
-function modesOf(gzipped) {
-  const tar = gunzipSync(gzipped), modes = {};
-  for (let at = 0; tar[at]; at += 512 + Math.ceil(parseInt(tar.toString('latin1', at + 124, at + 135), 8) / 512) * 512) modes[tar.toString('latin1', at, at + 100).replace(/\0.*$/s, '')] = parseInt(tar.toString('latin1', at + 100, at + 107), 8);
-  return modes;
-}
+const modesOf = (tar, modes = {}) => { for (let at = 0; tar[at]; at += 512 + Math.ceil(parseInt(tar.toString('latin1', at + 124, at + 135), 8) / 512) * 512) modes[tar.toString('latin1', at, at + 100).replace(/\0.*$/s, '')] = parseInt(tar.toString('latin1', at + 100, at + 107), 8); return modes; };
 const folder = () => mkdtempSync(join(tmpdir(), 'publish-an-engine-release-'));
 const sh = (cwd, ...args) => {
   const ran = spawnSync('git', ['-C', cwd, ...args], { encoding: 'utf8', env: { ...process.env, GIT_AUTHOR_NAME: 'A', GIT_AUTHOR_EMAIL: 'a@example.com', GIT_COMMITTER_NAME: 'A', GIT_COMMITTER_EMAIL: 'a@example.com' } });
@@ -109,22 +105,19 @@ test('a release and the shipped files pack with no tar program: same bytes and e
   mkdirSync(join(top, 'bin'));
   mkdirSync(join(source, 'product', 'deep', '__pycache__'), { recursive: true });
   writeFileSync(program, Buffer.from([0x7f, 0x45, 0x4c, 0x46, 0, 255]), { mode: 0o755 });
-  writeFileSync(join(source, 'product', 'deep', 'run.sh'), '#!/bin/sh\n', { mode: 0o755 });
-  writeFileSync(join(source, 'product', 'data.json'), '{}\n', { mode: 0o644 });
-  writeFileSync(join(source, 'product', 'deep', '__pycache__', 'x.pyc'), 'cache');
+  for (const [name, text, mode] of [['deep/run.sh', '#!/bin/sh\n', 0o755], ['data.json', '{}\n', 0o644], ['deep/__pycache__/x.pyc', 'cache', 0o644]]) writeFileSync(join(source, 'product', name), text, { mode });
   const packed = packRelease({ program, source, file }), bytes = readFileSync(file);
   assert.deepEqual(packed, { content: makeHashCodeHexFromBytes(new Uint8Array(bytes)), bytes: bytes.length });
   const files = untarGz(bytes, { withBytes: true });
   assert.deepEqual(files.map(entry => entry.name), ['product/data.json', 'product/deep/__pycache__/x.pyc', 'product/deep/run.sh', 'trillion-local']);
   for (const entry of files) assert.deepEqual(Buffer.from(entry.bytes), readFileSync(entry.name === 'trillion-local' ? program : join(source, entry.name)), entry.name);
-  assert.deepEqual(modesOf(bytes), { 'product/data.json': 0o644, 'product/deep/__pycache__/x.pyc': 0o644, 'product/deep/run.sh': 0o755, 'trillion-local': 0o755 });
+  assert.deepEqual(modesOf(gunzipSync(bytes)), { 'product/data.json': 0o644, 'product/deep/__pycache__/x.pyc': 0o644, 'product/deep/run.sh': 0o755, 'trillion-local': 0o755 });
   packRelease({ program, source, file: `${file}.again` });
   assert.deepEqual(readFileSync(`${file}.again`), bytes, 'the same files pack to the same bytes');
 
   assert.deepEqual(filesUnder(source, ['product'], ['__pycache__']).map(entry => entry.name), ['product/data.json', 'product/deep/run.sh']);
   const shipped = untarGz(shippedTarball()).map(entry => entry.name);
-  for (const name of SHIPPED.filter(path => /\.m?js$/.test(path))) assert.ok(shipped.includes(name), name);
-  assert.ok(shipped.includes('tools/publish-an-engine-release/do-work/publish-an-engine-release.mjs'));
+  for (const name of [...SHIPPED.filter(path => /\.m?js$/.test(path)), 'tools/publish-an-engine-release/do-work/publish-an-engine-release.mjs']) assert.ok(shipped.includes(name), name);
   assert.ok(!shipped.some(name => name.includes('__pycache__')));
 });
 
