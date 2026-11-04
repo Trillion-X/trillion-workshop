@@ -42,13 +42,23 @@ files declares a `files` rights item and calls `door.files(...)`. No engine chan
 
 ## What is still open
 
-1. **The person's own page has no route to files.** The page routes under `/work/api` are `@workshop-tools`
-   and `@own-records` (GET) only (trillion-rust `src/server/owner-routes.json`). So the screen in
-   `tools/browse-and-upload-my-files`, run in a browser, cannot reach `@namespace`. It still targets the hosted
-   `/mcp/api`. Fixing this means one generic page-route family for the files door, owned by the engine (a new
-   `owner-routes.json` row needs an owner the workspace executor mounts). It belongs in its own trillion-rust change.
-2. **Recent files and kept file facts** (`recent_files`, `record_file_use`, `read_file_results`, `set_file_facts`)
-   lived only in the Worker's person store, which has been deleted. Old trillion `4ffa1dc4^:src/recent-files.mjs`
-   is store-shaped (`sql.exec` over a `recent_file_uses` table). It can be moved as a Workshop tool over the records
-   door (one record kind for uses, one for facts) once that record kind is named. Until then no owner answers these
-   four calls.
+Updated 2026-11-04 by trillion-rust #83 and trillion-apps #15.
+
+1. **The person's own page reaches files.** Done in trillion-rust #83: one `owner-routes.json` row (`@namespace`,
+   prefix `/files/`) and the files door's own `page_call`. `GET /work/api/files/<operation>?input=<JSON>` serves the
+   door's `page.reads`, and `POST /work/api/files/<operation>` with the input as its body serves the rest. The page's
+   session admits the call, and it runs through `AccountFilesDoor::call_while`, the same call an AI's key makes.
+   The door's byte admission is now DATA (`door_bytes`). Before this, every byte read and write at the door was
+   refused for AIs too.
+   trillion-apps #15 moves the page's `uploadFiles`, `keepText`, `removeNames` and `readListing` to it
+   (`web/src/workspace/files-door.mjs`). These page calls still name retired hosted routes:
+   - growing files, saved text versions and leases
+   - byte reads (`/work/api/namespace/bytes/...`)
+   - results, set-aside and storage
+   This tool's `do-work/namespace-client.mjs` is still the hosted service's client.
+2. **Recent files and kept file facts are account rows.** trillion-rust #83 ports old `src/recent-files.mjs` one to
+   one, plus the `facts` merge of `src/namespace-results.mjs:424`. The rows are `@namespace/recent/files`,
+   `@namespace/recent/order` and `@namespace/facts`, in the account's files store. The door answers four
+   operations: `recent_files`, `record_file_use`, `set_file_facts` and `read_file_facts`. `write_file`,
+   `write_file_finish`, `show_file` and `read_file` (from offset 0) keep a use when they answer (DATA
+   `recent.uses`). `read_file_results` for other kinds (transcripts, summaries) still has no owner.
