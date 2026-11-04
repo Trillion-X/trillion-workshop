@@ -11,13 +11,27 @@
 //
 // With `branch` (and no rules) it is the branch mode (do-work/check-a-branch.mjs): the rules and the rule document are
 // read from the person's own method and check rows through the records door handed to the run on descriptor 3, and
-// the answer adds branch, lineage and rows_used.
+// the answer adds branch, lineage, rows_used and read_by_a_model.
+//
+// The two piece rows run the same command with their name as its one argument:
+//   split-a-document-into-pieces  { text, file?, file_identity? } -> { pieces } (do-work/pieces.mjs pieceRows), no records
+//   check-every-piece-is-covered  {} -> coverage of the person's piece rows (do-work/piece-sweep.mjs), door on descriptor 3
 import { text } from 'node:stream/consumers';
 import { check, compileVerdictRules, linesOf, statusOf } from './rules-and-verdicts.mjs';
 
 const input = JSON.parse((await text(process.stdin)) || '{}');
 try {
-  if (input.branch !== undefined) {
+  if (process.argv[2] === 'split-a-document-into-pieces') {
+    const { pieceRows } = await import('./pieces.mjs');
+    const { default: PIECES } = await import('../read-data/pieces.json', { with: { type: 'json' } });
+    if (typeof input.text !== 'string') throw new Error(PIECES.words.text);
+    if (input.file !== undefined && typeof input.file !== 'string') throw new Error(PIECES.words.file_name);
+    console.log(JSON.stringify({ result: { pieces: pieceRows([{ text: input.text, file: input.file, file_identity: input.file_identity }]) } }));
+  } else if (process.argv[2] === 'check-every-piece-is-covered') {
+    const { coverageInRecords } = await import('./piece-sweep.mjs');
+    const { openRecordsDoor } = await import('../../records-door/read-data/records-door.mjs');
+    console.log(JSON.stringify({ result: await coverageInRecords(openRecordsDoor()) }));
+  } else if (input.branch !== undefined) {
     const { checkABranch } = await import('./check-a-branch.mjs');
     const { openRecordsDoor } = await import('../../records-door/read-data/records-door.mjs');
     console.log(JSON.stringify({ result: await checkABranch(input, openRecordsDoor()) }));

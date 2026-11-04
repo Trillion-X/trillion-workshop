@@ -1,5 +1,5 @@
 {
- "what_this_is": "DATA for do-work/pieces.mjs and do-work/piece-sweep.mjs, and for the two piece rows (do-work/split-a-document-into-pieces.mjs, do-work/check-every-piece-is-covered.mjs). A piece is a row of the person's one Checks list (list:checks, records `record_prefix`<id> of type `check_type`) whose `kind_field` is `piece_kind`; the coverage row reads them with the door's where on that field, then reads each check row a piece names, one by one. `no_file`: the file a piece with no source counts under. `words`: every line and refusal, {name} filled from the answer.",
+ "what_this_is": "DATA for do-work/pieces.mjs and do-work/piece-sweep.mjs, and for the two piece rows (tool:split-a-document-into-pieces and tool:check-every-piece-is-covered, both run by do-work/check-against-their-rules-and-verdicts.mjs with the row's name as its argument). A piece is a row of the person's one Checks list (list:checks, records `record_prefix`<id> of type `check_type`) whose `kind_field` is `piece_kind`; the coverage row reads them with the door's where on that field, then reads each check row a piece names, one by one. `no_file`: the file a piece with no source counts under. `words`: every line and refusal, {name} filled from the answer.",
  "check_type": "record:check",
  "record_prefix": "record:check:",
  "kind_field": "kind",

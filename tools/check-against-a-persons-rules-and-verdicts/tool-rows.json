@@ -1091,6 +1091,28 @@
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
        {
+        "package": "judge-words",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/judge-words"
+       },
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
         "module": "@noble/hashes",
         "paths": [
          "LICENSE",
@@ -1111,7 +1133,8 @@
      "stdout": "json",
      "argv": [
       "node",
-      "do-work/split-a-document-into-pieces.mjs"
+      "do-work/check-against-their-rules-and-verdicts.mjs",
+      "split-a-document-into-pieces"
      ],
      "stdin": {
       "fill": {
@@ -1280,6 +1303,21 @@
         "at": "/opt/records-door"
        },
        {
+        "package": "judge-words",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/judge-words"
+       },
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
         "package": "content-identity",
         "paths": [
          "read-data"
@@ -1307,7 +1345,8 @@
      "stdout": "json",
      "argv": [
       "node",
-      "do-work/check-every-piece-is-covered.mjs"
+      "do-work/check-against-their-rules-and-verdicts.mjs",
+      "check-every-piece-is-covered"
      ],
      "stdin": {
       "fill": {
