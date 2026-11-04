@@ -1,0 +1,264 @@
+{
+  "id": "move:trillion-pr243-tests-to-workshop-2",
+  "about": "A second round of the tests Trillion-X/trillion PR #243 (4ffa1dc4a2) deleted with no home and no port-backlog row (its backlog listed only source and data), carried byte for byte from 1e886c3f68 (the parent of 7fd8838475, which moved 1,028 of the files they import into this repository; each test there has the same bytes as at the tag old-trillion-before-worker-retire, and its imports still name a file) into the Workshop tool that now holds the code each one tests. Each group is one tool and the tests whose subject it holds; every file they import is already home in this repository (an earlier lane moved it), so only the tests and their test help move. the first round is trillion-pr243-tests-to-workshop.json; docs/pr243-deleted-tests.json lists every such test and where it went. Test help a test reads by its address (a fixture page) is named as an owner of its group, since the import closure does not follow a path read.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "groups": [
+    {
+      "id": "tests-of-answer-one-search-over-my-results-by-matching-words",
+      "owner": [
+        "test/search-relative-floor.test.mjs"
+      ],
+      "to": "tools/answer-one-search-over-my-results-by-matching-words"
+    },
+    {
+      "id": "tests-of-find-my-records-by-the-words-i-type-on-the-hosted",
+      "owner": [
+        "test/search-word-index.test.mjs"
+      ],
+      "to": "tools/find-my-records-by-the-words-i-type-on-the-hosted"
+    },
+    {
+      "id": "tests-of-hand-off-jobs-between-agents",
+      "owner": [
+        "test/live-work-output-limit.test.mjs"
+      ],
+      "to": "tools/hand-off-jobs-between-agents"
+    },
+    {
+      "id": "tests-of-keep-a-running-owners-own-counters-a-readers-place",
+      "owner": [
+        "test/operational-state.test.mjs"
+      ],
+      "to": "tools/keep-a-running-owners-own-counters-a-readers-place"
+    },
+    {
+      "id": "tests-of-keep-an-accounts-private-sites-and-what-their-visitors",
+      "owner": [
+        "test/public-app-record-bridge.test.mjs"
+      ],
+      "to": "tools/keep-an-accounts-private-sites-and-what-their-visitors"
+    },
+    {
+      "id": "tests-of-keep-and-wake-ai-sessions-on-this-computer",
+      "owner": [
+        "test/activity-history.test.mjs",
+        "test/agent-content-retractions.test.mjs",
+        "test/agent-delivery.test.mjs",
+        "test/agent-loop-guard.test.mjs",
+        "test/agent-open-work-page.test.mjs",
+        "test/agent-surface.test.mjs",
+        "test/agents-authenticated-claim.test.mjs",
+        "test/agents-authenticated-legacy-recovery.test.mjs",
+        "test/agents-state-model.test.mjs",
+        "test/agents-take-review-due.test.mjs",
+        "test/availability-link-eeaf-store.test.mjs",
+        "test/board-bytes-bounded.test.mjs",
+        "test/broadcast-waiting-counts.test.mjs",
+        "test/checklist-kept-once.test.mjs",
+        "test/claimed-time.test.mjs",
+        "test/delivery-card-reads-bounded.test.mjs",
+        "test/duplicate-prompts-are-one-message.test.mjs",
+        "test/eeaf-deletes-search-by-index.test.mjs",
+        "test/eeaf-memory-bounds.test.mjs",
+        "test/eeaf-operation-sequence-model.test.mjs",
+        "test/eeaf-read-many.test.mjs",
+        "test/eeaf-record-memory.test.mjs",
+        "test/eeaf-scoped-list.test.mjs",
+        "test/eeaf-selected-fields.test.mjs",
+        "test/eeaf-write-batch-atomic.test.mjs",
+        "test/erasure-keys-current-roots.test.mjs",
+        "test/event-retry-timing.test.mjs",
+        "test/field-after-compound-cursor.test.mjs",
+        "test/handoff-result-completion-receipt.test.mjs",
+        "test/handoff-result-legacy-integration.test.mjs",
+        "test/handoff-result-source.test.mjs",
+        "test/handoff-steer.test.mjs",
+        "test/kept-range-reader-frontiers.test.mjs",
+        "test/kept-ranges-budget-progress.test.mjs",
+        "test/kept-records.test.mjs",
+        "test/kept-runs-backlog-before-cleanup.test.mjs",
+        "test/kept-runs-backlog-boot-filters.test.mjs",
+        "test/kept-runs-batch-fences.test.mjs",
+        "test/kept-runs-big-cleanup.test.mjs",
+        "test/kept-runs-damaged-catalog.test.mjs",
+        "test/kept-runs-fill-filter.test.mjs",
+        "test/kept-runs-filter-memory.test.mjs",
+        "test/kept-runs-filter-reads-per-lookup.test.mjs",
+        "test/kept-runs-get-many.test.mjs",
+        "test/kept-runs-group-seek.test.mjs",
+        "test/kept-runs-inflight-backlog.test.mjs",
+        "test/kept-runs-merge-replay.test.mjs",
+        "test/kept-runs-merge-space.test.mjs",
+        "test/kept-runs-meta-writes.test.mjs",
+        "test/kept-runs-page-layout.test.mjs",
+        "test/kept-runs-page-lengths.test.mjs",
+        "test/kept-runs-partial-fold.test.mjs",
+        "test/kept-runs-range-values-bounded.test.mjs",
+        "test/kept-runs-range-winner.test.mjs",
+        "test/kept-runs-sparse-positive-filter.test.mjs",
+        "test/kept-runs-sparse-reader.test.mjs",
+        "test/kept-runs-streaming-boot-catalog.test.mjs",
+        "test/kept-runs-warm-format.test.mjs",
+        "test/kept-successor-cache-proof.test.mjs",
+        "test/key-admission-current-roots.test.mjs",
+        "test/key-admission-table.test.mjs",
+        "test/let-go-of-table.test.mjs",
+        "test/live-resume.test.mjs",
+        "test/live-screen-quiet.test.mjs",
+        "test/local-store-safety.test.mjs",
+        "test/messages-batch-order.test.mjs",
+        "test/messages-capture-integrity.test.mjs",
+        "test/messages-clip-metadata.test.mjs",
+        "test/messages-conversation-pagination.test.mjs",
+        "test/model-spend-all-groups.test.mjs",
+        "test/native-event-rule-commit.test.mjs",
+        "test/native-look-mutation.test.mjs",
+        "test/native-post-owner.test.mjs",
+        "test/next-review-stops-at-the-first-due-job.test.mjs",
+        "test/notification-child-ids.test.mjs",
+        "test/own-ais-held-schedule-projection.test.mjs",
+        "test/public-app-analytics.test.mjs",
+        "test/quiet-open-source-work.test.mjs",
+        "test/record-committed-result-inventory.test.mjs",
+        "test/record-durable-frontier.test.mjs",
+        "test/record-erasure-metadata.test.mjs",
+        "test/record-feed-log-streaming.test.mjs",
+        "test/record-index-coverage.test.mjs",
+        "test/record-index-retirement.test.mjs",
+        "test/record-intents.test.mjs",
+        "test/record-log-bounded-turns.test.mjs",
+        "test/record-log-first-row-seek.test.mjs",
+        "test/record-log-fragmented-store.test.mjs",
+        "test/record-log-maintenance-merge-fairness.test.mjs",
+        "test/record-log-memory-bounds.test.mjs",
+        "test/record-log-open-short-tail.test.mjs",
+        "test/record-log-replay-checkpoint.test.mjs",
+        "test/record-log-sizing.test.mjs",
+        "test/record-log-sliced-replay.test.mjs",
+        "test/record-log-store.test.mjs",
+        "test/record-log-write-prior-reads.test.mjs",
+        "test/record-maintenance-fairness.test.mjs",
+        "test/record-model-read-bounds.test.mjs",
+        "test/record-move-stream.test.mjs",
+        "test/record-project-budget-progress.test.mjs",
+        "test/record-requests.test.mjs",
+        "test/record-runs-copy-only-what-changed.test.mjs",
+        "test/record-sync-outbound-read-bounds.test.mjs",
+        "test/record-sync-vectors.test.mjs",
+        "test/record-tables.test.mjs",
+        "test/record-type-counts-bounded.test.mjs",
+        "test/relation-order-and-alive.test.mjs",
+        "test/review-next-dependency-release.test.mjs",
+        "test/saved-instruction-budget.test.mjs",
+        "test/saved-instruction-provenance.test.mjs",
+        "test/sealing-hold-read-once.test.mjs",
+        "test/search-feed-rows-plan.test.mjs",
+        "test/setup-finished-projection.test.mjs",
+        "test/setup-time-carry.test.mjs",
+        "test/source-work-open-to-anyone.test.mjs",
+        "test/withdraw-waiting-work.test.mjs",
+        "test/work-agent-projection.test.mjs",
+        "test/work-lifecycle.test.mjs",
+        "test/work-time-budget.test.mjs",
+        "test/work-title.test.mjs",
+        "test/workshop-facts-range.test.mjs",
+        "test/workshop-reference-pending-index.test.mjs",
+        "test/workshop-status-bounded.test.mjs",
+        "test/your-records-tool-input-bound.test.mjs"
+      ],
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer"
+    },
+    {
+      "id": "tests-of-keep-one-notice-list-to-a-persons-ais-for-every-screen",
+      "owner": [
+        "test/notices-backlog.test.mjs"
+      ],
+      "to": "tools/keep-one-notice-list-to-a-persons-ais-for-every-screen"
+    },
+    {
+      "id": "tests-of-move-the-rows-a-persons-store-kept-in-tables",
+      "owner": [
+        "test/agent-records.test.mjs"
+      ],
+      "to": "tools/move-the-rows-a-persons-store-kept-in-tables"
+    },
+    {
+      "id": "tests-of-offer-my-work-as-ag-ui-events",
+      "owner": [
+        "test/ag-ui.test.mjs"
+      ],
+      "to": "tools/offer-my-work-as-ag-ui-events"
+    },
+    {
+      "id": "tests-of-organize-my-files",
+      "owner": [
+        "test/file-type.test.mjs",
+        "test/file-versions.test.mjs"
+      ],
+      "to": "tools/organize-my-files"
+    },
+    {
+      "id": "tests-of-price-and-sell-by-contract",
+      "owner": [
+        "test/commercial-events.test.mjs"
+      ],
+      "to": "tools/price-and-sell-by-contract"
+    },
+    {
+      "id": "tests-of-recently-deleted-and-storage",
+      "owner": [
+        "test/namespace-child-folders.test.mjs",
+        "test/namespace-folder-conditional.test.mjs",
+        "test/namespace-list-cursor.test.mjs",
+        "test/namespace-names-promised.test.mjs",
+        "test/namespace-summary-cost.test.mjs",
+        "test/namespace-view.test.mjs"
+      ],
+      "to": "tools/recently-deleted-and-storage",
+      "joins_tool": "the tests of code this tool already holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    },
+    {
+      "id": "tests-of-record-log",
+      "owner": [
+        "test/copy-page-key-metadata.test.mjs",
+        "test/copy-page-key-owners.test.mjs",
+        "test/record-bucket-directory.test.mjs",
+        "test/record-copies.test.mjs"
+      ],
+      "to": "tools/record-log"
+    },
+    {
+      "id": "tests-of-slot-table",
+      "owner": [
+        "test/slot-table.test.mjs"
+      ],
+      "to": "tools/slot-table",
+      "joins_tool": "the tests of code this tool already holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
+    }
+  ],
+  "calls": [
+    {
+      "id": "made-up-owner-name",
+      "means": "This repository is public and holds made-up data only: a real person's first name used as a test's sample owner becomes a made-up one. Nothing else in the file changes.",
+      "find": "'Jibran'",
+      "replace": "'Sam Example'"
+    },
+    {
+      "id": "made-up-owner-name-in-notes",
+      "means": "This repository is public and holds made-up data only: a real person's first name in a test's note about whose store a measure came from becomes a made-up one. Nothing else in the file changes.",
+      "find": "Jibran's",
+      "replace": "Sam Example's"
+    }
+  ]
+}

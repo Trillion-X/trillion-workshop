@@ -10,6 +10,21 @@
       "to": "tools/find-my-records-by-the-words-i-type-on-the-hosted/src/search-word-index.mjs",
       "source_identity": "1f:fce39b4f7875762cb4975c66fdd39adbaf38b1b55ca5095e19b8634b07c1d0ae",
       "identity": "1f:fce39b4f7875762cb4975c66fdd39adbaf38b1b55ca5095e19b8634b07c1d0ae"
+    },
+    {
+      "from": "src/search-word-index.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/find-my-records-by-the-words-i-type-on-the-hosted/src/search-word-index.mjs",
+      "source_identity": "1f:fce39b4f7875762cb4975c66fdd39adbaf38b1b55ca5095e19b8634b07c1d0ae",
+      "identity": "1f:fce39b4f7875762cb4975c66fdd39adbaf38b1b55ca5095e19b8634b07c1d0ae",
+      "reused": true
+    },
+    {
+      "from": "test/search-word-index.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/find-my-records-by-the-words-i-type-on-the-hosted/test/search-word-index.test.mjs",
+      "source_identity": "1f:cc7ec333f5f389db08d0a9e5266f574a74b354eefc80c2f1d2c1a480205e7a81",
+      "identity": "1f:55268d1010a7f1ca2c57f3a44a5c933d691b97211b004ffe66d466c25e572fff"
     }
   ]
 }
