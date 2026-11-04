@@ -110,6 +110,31 @@ export function membersOf(graph: GroupGraph, groupRef: AddressRef): GroupMember[
   return group.memberOrder.map((id) => group.members[id]).filter(Boolean) as GroupMember[];
 }
 
+/** Each record's parents and the records under each record, in order, by the identity `identityOf` names for an
+ *  address (by default its `id` part): the one reading of a list's nesting every view shares (a tree, a thread). A
+ *  group naming nothing, and a member naming its own group, are skipped. */
+export function nestedByIdentity(
+  graph: GroupGraph,
+  identityOf: (ref: AddressRef) => string | null = (ref) => (ref?.parts?.id as string | undefined) ?? null,
+): { parents: Map<string, string[]>; children: Map<string, string[]> } {
+  const parents = new Map<string, string[]>();
+  const children = new Map<string, string[]>();
+  for (const group of Object.values(graph.groups)) {
+    const parent = identityOf(group.groupRef);
+    if (!parent) continue;
+    const under = group.memberOrder
+      .map((memberId) => group.members[memberId])
+      .map((member) => (member ? identityOf(member.nodeRef) : null))
+      .filter((child): child is string => Boolean(child) && child !== parent);
+    for (const child of under) {
+      const known = parents.get(child) ?? [];
+      if (!known.includes(parent)) parents.set(child, [...known, parent]);
+    }
+    if (!children.has(parent)) children.set(parent, under);
+  }
+  return { parents, children };
+}
+
 export function memberById(graph: GroupGraph, groupRef: AddressRef, memberId: string): GroupMember | null {
   return getGroup(graph, groupRef)?.members[memberId] ?? null;
 }
