@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "scripts/compare-arms.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/compare-two-ai-builds-on-trap-tasks/scripts/compare-arms.mjs",
+      "source_identity": "1f:26fd0a3604dc90ab19069614550b7713ba1916c4e06fda11f312debaecb6f858",
+      "identity": "1f:26fd0a3604dc90ab19069614550b7713ba1916c4e06fda11f312debaecb6f858"
+    },
+    {
+      "from": "src/behavior-compare.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/compare-two-ai-builds-on-trap-tasks/src/behavior-compare.mjs",
+      "source_identity": "1f:f76aa2ef2421d9fbdda5a63ca5a57cd457bcdd20f64aa09ced89806780aa5baa",
+      "identity": "1f:f76aa2ef2421d9fbdda5a63ca5a57cd457bcdd20f64aa09ced89806780aa5baa"
+    },
+    {
+      "from": "src/behavior-evals.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/compare-two-ai-builds-on-trap-tasks/src/behavior-evals.json",
+      "source_identity": "1f:74b249f91d0696d5a1c07938dc960ac30ef53a1c69436d12e429489e490d972c",
+      "identity": "1f:74b249f91d0696d5a1c07938dc960ac30ef53a1c69436d12e429489e490d972c"
+    },
+    {
+      "from": "test/behavior-compare.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/compare-two-ai-builds-on-trap-tasks/test/behavior-compare.test.mjs",
+      "source_identity": "1f:4c81b5c08bd801aa6d05df751e135daa423b0a0b0688e6bc014eff4c23ddf43e",
+      "identity": "1f:4c81b5c08bd801aa6d05df751e135daa423b0a0b0688e6bc014eff4c23ddf43e"
+    }
+  ]
+}

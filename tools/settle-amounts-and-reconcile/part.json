@@ -1,0 +1,7 @@
+{
+  "public": [
+    "read-data/list-settlements.mjs",
+    "read-data/list-settlements.json",
+    "do-work/settle-over-records.mjs"
+  ]
+}

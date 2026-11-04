@@ -1,0 +1,20 @@
+import type {SavedRecordView, RecordViewsOptions} from '../../ui/show/record-views/record-views';
+export type ConfigurationRecord = {id: string; label: string; target: string; format?: string; aspects?: string[]; settings: Record<string, unknown>; owner?: {id: string; name: string}; revision: number; record_ref?: string; open_path: string; readOnly?: boolean; share_code?: string; offer_id?: string};
+export type ConfigurationPage = {configurations: ConfigurationRecord[]; next_before?: string | null; unavailable?: number};
+export type ConfigurationSource = {
+  context?: RecordViewsOptions['configurationContext'];
+  list(input: {target: string; before?: string}): Promise<ConfigurationPage>;
+  listShared?(input: {target: string; before?: string}): Promise<ConfigurationPage>;
+  read(id: string): Promise<{configuration: ConfigurationRecord}>;
+  readShared(code: string): Promise<{configuration: ConfigurationRecord}>;
+  readOffer(id: string): Promise<{configuration: ConfigurationRecord}>;
+  save(input: Record<string, unknown>): Promise<{configuration: ConfigurationRecord}>;
+  editShared(code: string, input: Record<string, unknown>): Promise<{configuration: ConfigurationRecord}>;
+  remove(id: string, revision: number): Promise<unknown>;
+  share(record: ConfigurationRecord): Promise<void>;
+  copyLink(record: ConfigurationRecord): Promise<void>;
+};
+export type ConfigurationOptions = Pick<RecordViewsOptions, 'configurationContext' | 'savedViews' | 'initialSavedViewId' | 'savedViewsState' | 'onSaveView' | 'onUpdateSavedView' | 'onRemoveSavedView' | 'onApplySavedView' | 'onShareSavedView' | 'onCopySavedViewLink' | 'onReloadSavedViews' | 'onLoadMoreSavedViews'>;
+export type ConfigurationController = {load(options?: {more?: boolean}): Promise<void>; dispose(): void; has(id: string): boolean; snapshot(): ConfigurationOptions; options(): ConfigurationOptions; save(view: Partial<SavedRecordView>): Promise<ConfigurationRecord>; update(view: Partial<SavedRecordView> & {id: string}): Promise<void>; remove(id: string): Promise<void>; apply(view: SavedRecordView): void; share(id: string): Promise<void>; copyLink(id: string): Promise<void>};
+export function configurationView(record: ConfigurationRecord): SavedRecordView;
+export function makeConfigurationController(options: {source: ConfigurationSource; target: string; openPath: string; fieldIds: () => string[]; initialId?: string; sharedCode?: string; sharedOffer?: string; beforeSave?: (view: Partial<SavedRecordView>) => Promise<void>; applied?: (view: SavedRecordView) => void; changed?: () => void}): ConfigurationController;

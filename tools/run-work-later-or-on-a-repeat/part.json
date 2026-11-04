@@ -1,0 +1,13 @@
+{
+  "public": [
+    "do-work/when-to-wake.ts",
+    "do-work/materialize-recurring-windows.ts",
+    "do-work/wall-time.ts",
+    "do-work/quiet-hours.ts",
+    "do-work/quiet-hours.json",
+    "do-work/zone-drift.ts",
+    "do-work/evaluate-due-scheduled-actions.ts",
+    "do-work/write-scheduled-action-record.ts",
+    "do-work/spread-fires.ts"
+  ]
+}

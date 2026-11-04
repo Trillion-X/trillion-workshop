@@ -1,0 +1,36 @@
+/* parts/screen-look/show/region-map.css
+   The look of the region map (parts/ui/show/region-map): one drawing of named regions. Regions wear roles only: the
+   worn look's accent (--accent-primary) mixed into the card surface in five steps (--region-heat-0 palest to
+   --region-heat-4 strongest), a quiet empty fill for a region with no reading, the foreground as outline, and the look's
+   focus ring. Heat arrives as data-heat="0".."4" or "empty", the picked region as data-picked, so no colour is ever set
+   inline and a theme can retune the five steps by setting the roles. Reduced motion drops the colour transition. */
+
+.region-map {
+  --region-surface: var(--color-card, #fff);
+  --region-ink: var(--color-foreground, #111);
+  --region-heat-0: color-mix(in oklab, var(--accent-primary, #2a78d6) 12%, var(--region-surface));
+  --region-heat-1: color-mix(in oklab, var(--accent-primary, #2a78d6) 30%, var(--region-surface));
+  --region-heat-2: color-mix(in oklab, var(--accent-primary, #2a78d6) 50%, var(--region-surface));
+  --region-heat-3: color-mix(in oklab, var(--accent-primary, #2a78d6) 72%, var(--region-surface));
+  --region-heat-4: color-mix(in oklab, var(--accent-primary, #2a78d6) 92%, var(--region-surface));
+  --region-empty: color-mix(in oklab, var(--region-ink) 6%, var(--region-surface));
+  display: block; width: 100%; height: 100%;
+}
+.region-map-region {
+  fill: var(--region-empty); stroke: color-mix(in oklab, var(--region-ink) 30%, transparent); stroke-width: 1;
+  cursor: pointer; outline: none; transition: fill 160ms var(--ease-enter, ease-out);
+}
+.region-map-region[data-heat="0"] { fill: var(--region-heat-0); }
+.region-map-region[data-heat="1"] { fill: var(--region-heat-1); }
+.region-map-region[data-heat="2"] { fill: var(--region-heat-2); }
+.region-map-region[data-heat="3"] { fill: var(--region-heat-3); }
+.region-map-region[data-heat="4"] { fill: var(--region-heat-4); }
+.region-map-region:hover { stroke: var(--region-ink); }
+.region-map-region[data-picked="true"] { stroke: var(--region-ink); stroke-width: 2.5; }
+.region-map-region:focus-visible { stroke: var(--color-ring, var(--accent-primary, #2a78d6)); stroke-width: 3; }
+@media (prefers-reduced-motion: reduce) { .region-map-region { transition: none; } }
+
+/* The view that draws a list on a map: the drawing fills the pane, one line under it reads the picked region. */
+.region-map-view { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; min-width: 0; padding: 1rem; color: var(--color-foreground, #111); }
+.region-map-view .region-map { max-width: 28rem; height: auto; max-height: 60vh; }
+.region-map-readout { margin: 0; font-size: 0.875rem; color: var(--color-muted-foreground, #6b6a66); text-align: center; }

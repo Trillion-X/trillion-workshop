@@ -1,0 +1,56 @@
+{
+  "schema": "ai-orchestra.reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-RECORD-AUDIO-CONSOLIDATION",
+  "status": "VERIFIED",
+  "directive": {
+    "quote": "For valuable work, inspect the actual behavior and integrate the final correct implementation into the default branch using ordinary commits.",
+    "message_sha256": "cce66acd2fc5f90f85208e7ee9d5c9099c91015cfed5263ff398626125969c38"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "path": "packages/record-audio/things-to-store-and-run.json",
+      "sha256": "6f7199a55ec2a3c153179acdf0d2c4cd04d24dd0cab89364f2592914392f0221",
+      "ownership": "repository-owned"
+    }
+  ],
+  "targets": [
+    {
+      "path": "packages/record-audio/show/RecordAudioPanel.tsx"
+    },
+    {
+      "path": "packages/record-audio/show/mount-record-audio.tsx"
+    },
+    {
+      "path": "packages/record-audio/show/live-recording.ts"
+    },
+    {
+      "path": "packages/record-audio/do-work/recorded-file-store.ts"
+    },
+    {
+      "path": "packages/record-audio/do-work/evidence-completion.ts"
+    }
+  ],
+  "preserve": [
+    "Current recording session ownership, journals, pause/resume, device cleanup and VisualDatabase-owned recording library."
+  ],
+  "allowed_deltas": [
+    "Return saved source and optional transcription references through an owner-declared completion target captured at session start and retained in its journal."
+  ],
+  "banned_substitutions": [
+    "Do not restore obsolete component-owned recording lifetimes or duplicate library rendering.",
+    "No running-app changes or promotion."
+  ],
+  "baseline": {
+    "copied_before_adaptation": false,
+    "note": "Retained repository behavior; no appearance redesign or deployed proof claim."
+  },
+  "proof": {
+    "test_refs": [
+      "packages/record-audio/show/RecordAudioPanel.test.tsx",
+      "packages/record-audio/show/live-recording.test.ts",
+      "packages/record-audio/do-work/evidence-completion.test.ts"
+    ],
+    "note": "Source/component tests; the owner must validate completion requests."
+  }
+}

@@ -1,0 +1,758 @@
+{
+  "what_this_is": "The board (parts/group/show/board-screen.tsx, the screen of tool:screen-board): how it lays out the pictures and links shared into the space (a picture as an image card, a link as a link card), where a picture dropped on it is kept, and the actions it offers. Each action is an action-affordance row the ported board reads (parts/ui/show/action-affordance): its triggers say where it shows (the add shelf, the command palette, the right-click menu on a selection or on the board) and what it asks; its dispatch names `board:<job>`, the row of src/queued-work.json that hands the job to the person's own AIs with the space, its title, the words `what` and the chosen cards (`items`). A new action is a row here (and, for a new kind of job, a row in src/queued-work.json). A frame (`frame`) is a picture put here at a page's shape with where it was drawn from; the Draw again action (definition_prefix `board-frame:`) draws chosen frames anew, done here rather than by an AI.",
+  "definition_prefix": "board:",
+  "artifact_role": "board-artifact",
+  "folder": "/Boards",
+  "picture_kind": "image",
+  "link_kind": "link",
+  "items_read": 100,
+  "card_width": 280,
+  "card_height": 280,
+  "link_card_height": 160,
+  "note_card_height": 200,
+  "heading_card_height": 72,
+  "note_kind": "note",
+  "section_fact": "section",
+  "section_order_fact": "section_order",
+  "card_gap": 32,
+  "cards_per_row": 4,
+  "reread_after_ms": 150,
+  "source_layout": { "_what": "How a board lays out the records a source draws on it (its `source` input, invariant 10): where the first card goes, each card's size, the room between columns and rows, how many cards it shows before it frames them by group, the room inside each frame, how its lines are routed, and the colour of each kind of line (a kind named in `kinds`, else the next `palette` colour in turn), and the least zoom it opens at when its cards run past the screen (`open_least_zoom`: they are framed whole down to it, and start at the top left below it).", "origin": { "x": 0, "y": 0 }, "card": { "w": 260, "h": 132 }, "gap": { "x": 96, "y": 40 }, "most": 12, "framePadding": 40, "reread_after_ms": 2500, "routing": "curved", "kinds": {}, "palette": ["#6366f1", "#0ea5e9", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6", "#14b8a6", "#f97316"], "open_least_zoom": 0.6 },
+  "kept_surface": { "_what": "Where a screen a board keeps (its `surface` input, invariant 9) is first placed, and its size: big enough to read and work in, with room around it to draw.", "x": 0, "y": 0, "w": 1120, "h": 720 },
+  "own_board": {
+    "id": "my-board",
+    "title": "My board"
+  },
+  "words": {
+    "board_closed": "This board is not open any more. Open it again and try once more.",
+    "picture": "picture, space item",
+    "link": "link",
+    "empty_board": "nothing on the board yet",
+    "no_words": "see what is on the board",
+    "unreadable_picture": "The picture could not be read.",
+    "dropped_name": "Picture",
+    "add_from_source": "Add"
+  },
+  "action_catalog": [
+    { "kind": "affordance-definition-option", "id": "board:board-act-on-selection", "label": "Ask my AI to do this", "order": 1 },
+    { "kind": "affordance-definition-option", "id": "board:board-make-pictures", "label": "Make pictures with my AI", "order": 2 },
+    { "kind": "affordance-channel", "id": "board-channel:add-shelf", "channel": "group.add-shelf", "label": "Add shelf", "order": 1 },
+    { "kind": "affordance-channel", "id": "board-channel:context-menu", "channel": "group.context-menu", "label": "Right-click menu", "order": 2 },
+    { "kind": "affordance-channel", "id": "board-channel:palette", "channel": "group.palette", "label": "Command palette", "order": 3 }
+  ],
+  "actions": [
+    {
+      "kind": "action-affordance",
+      "id": "board-draw-frames-again",
+      "version": 1,
+      "label": "Draw again",
+      "icon": "RefreshCw",
+      "section": "Frames",
+      "triggers": [
+        {
+          "id": "board-draw-frames-again-context-menu",
+          "channel": "group.context-menu",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            }
+          },
+          "contexts": [
+            "selection"
+          ]
+        },
+        {
+          "id": "board-draw-frames-again-palette",
+          "channel": "group.palette",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            }
+          }
+        }
+      ],
+      "dispatch": {
+        "target": "slot::workflow",
+        "payload_template": {
+          "operation": "execute_definition",
+          "definition_id": "board-frame:draw-again",
+          "include_output": false,
+          "input": {
+            "$kind": "binding",
+            "select": {
+              "from": "trigger",
+              "path": "input"
+            }
+          }
+        }
+      },
+      "hint": "Draws the chosen frames again from their page, so the board shows the page as it is now"
+    },
+    {
+      "kind": "action-affordance",
+      "id": "board-make-pictures",
+      "version": 1,
+      "label": "Make pictures with my AI",
+      "icon": "ImagePlus",
+      "section": "Your AI",
+      "triggers": [
+        {
+          "id": "board-make-pictures-add-shelf",
+          "channel": "group.add-shelf",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            },
+            "what": {
+              "$kind": "binding",
+              "select": {
+                "from": "answers",
+                "path": "what"
+              }
+            }
+          },
+          "ask": {
+            "title": "Make pictures with my AI",
+            "fields": [
+              {
+                "id": "what",
+                "control": "text",
+                "label": "What should the pictures show?",
+                "placeholder": "Four takes on the label, warm and hand-drawn"
+              }
+            ],
+            "submit_label": "Send to my AI"
+          }
+        },
+        {
+          "id": "board-make-pictures-palette",
+          "channel": "group.palette",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            },
+            "what": {
+              "$kind": "binding",
+              "select": {
+                "from": "answers",
+                "path": "what"
+              }
+            }
+          },
+          "ask": {
+            "title": "Make pictures with my AI",
+            "fields": [
+              {
+                "id": "what",
+                "control": "text",
+                "label": "What should the pictures show?",
+                "placeholder": "Four takes on the label, warm and hand-drawn"
+              }
+            ],
+            "submit_label": "Send to my AI"
+          }
+        },
+        {
+          "id": "board-make-pictures-context-menu",
+          "channel": "group.context-menu",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            },
+            "what": {
+              "$kind": "binding",
+              "select": {
+                "from": "answers",
+                "path": "what"
+              }
+            }
+          },
+          "contexts": [
+            "board"
+          ],
+          "ask": {
+            "title": "Make pictures with my AI",
+            "fields": [
+              {
+                "id": "what",
+                "control": "text",
+                "label": "What should the pictures show?",
+                "placeholder": "Four takes on the label, warm and hand-drawn"
+              }
+            ],
+            "submit_label": "Send to my AI"
+          }
+        }
+      ],
+      "dispatch": {
+        "target": "slot::workflow",
+        "payload_template": {
+          "operation": "execute_definition",
+          "definition_id": "board:board-make-pictures",
+          "include_output": false,
+          "input": {
+            "$kind": "binding",
+            "select": {
+              "from": "trigger",
+              "path": "input"
+            }
+          }
+        }
+      },
+      "hint": "Your AI makes them with its own image tools; they appear here"
+    },
+    {
+      "kind": "action-affordance",
+      "id": "board-make-a-post",
+      "version": 1,
+      "label": "Make a post from this",
+      "icon": "Send",
+      "section": "Your AI",
+      "triggers": [
+        {
+          "id": "board-make-a-post-context-menu",
+          "channel": "group.context-menu",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            },
+            "what": "Make a post from these"
+          },
+          "contexts": [
+            "selection"
+          ]
+        },
+        {
+          "id": "board-make-a-post-palette",
+          "channel": "group.palette",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            },
+            "what": "Make a post from these"
+          }
+        }
+      ],
+      "dispatch": {
+        "target": "slot::workflow",
+        "payload_template": {
+          "operation": "execute_definition",
+          "definition_id": "board:board-act-on-selection",
+          "include_output": false,
+          "input": {
+            "$kind": "binding",
+            "select": {
+              "from": "trigger",
+              "path": "input"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "action-affordance",
+      "id": "board-post-where-it-goes",
+      "version": 1,
+      "label": "Post it where it should go",
+      "icon": "Megaphone",
+      "section": "Your AI",
+      "triggers": [
+        {
+          "id": "board-post-where-it-goes-context-menu",
+          "channel": "group.context-menu",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            },
+            "what": "Post this where it should go"
+          },
+          "contexts": [
+            "selection"
+          ]
+        },
+        {
+          "id": "board-post-where-it-goes-palette",
+          "channel": "group.palette",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            },
+            "what": "Post this where it should go"
+          }
+        }
+      ],
+      "dispatch": {
+        "target": "slot::workflow",
+        "payload_template": {
+          "operation": "execute_definition",
+          "definition_id": "board:board-act-on-selection",
+          "include_output": false,
+          "input": {
+            "$kind": "binding",
+            "select": {
+              "from": "trigger",
+              "path": "input"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "action-affordance",
+      "id": "board-add-to-a-vlog",
+      "version": 1,
+      "label": "Add to a vlog",
+      "icon": "Clapperboard",
+      "section": "Your AI",
+      "triggers": [
+        {
+          "id": "board-add-to-a-vlog-context-menu",
+          "channel": "group.context-menu",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            },
+            "what": {
+              "$kind": "template",
+              "parts": [
+                "Add these to the vlog: ",
+                {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "answers",
+                    "path": "vlog"
+                  }
+                }
+              ]
+            }
+          },
+          "contexts": [
+            "selection"
+          ],
+          "ask": {
+            "title": "Add to a vlog",
+            "fields": [
+              {
+                "id": "vlog",
+                "control": "text",
+                "label": "Which vlog?",
+                "free_text_because": "The board's ask form (parts/ui/show/action-affordance) has no record control and no list keeps vlogs yet; the words go to the person's AI, which finds the vlog itself."
+              }
+            ],
+            "submit_label": "Send to my AI"
+          }
+        },
+        {
+          "id": "board-add-to-a-vlog-palette",
+          "channel": "group.palette",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            },
+            "what": {
+              "$kind": "template",
+              "parts": [
+                "Add these to the vlog: ",
+                {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "answers",
+                    "path": "vlog"
+                  }
+                }
+              ]
+            }
+          },
+          "ask": {
+            "title": "Add to a vlog",
+            "fields": [
+              {
+                "id": "vlog",
+                "control": "text",
+                "label": "Which vlog?",
+                "free_text_because": "The board's ask form (parts/ui/show/action-affordance) has no record control and no list keeps vlogs yet; the words go to the person's AI, which finds the vlog itself."
+              }
+            ],
+            "submit_label": "Send to my AI"
+          }
+        }
+      ],
+      "dispatch": {
+        "target": "slot::workflow",
+        "payload_template": {
+          "operation": "execute_definition",
+          "definition_id": "board:board-act-on-selection",
+          "include_output": false,
+          "input": {
+            "$kind": "binding",
+            "select": {
+              "from": "trigger",
+              "path": "input"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "action-affordance",
+      "id": "board-ask-my-ai",
+      "version": 1,
+      "label": "Ask my AI",
+      "icon": "Sparkles",
+      "section": "Your AI",
+      "triggers": [
+        {
+          "id": "board-ask-my-ai-context-menu",
+          "channel": "group.context-menu",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            },
+            "what": {
+              "$kind": "binding",
+              "select": {
+                "from": "answers",
+                "path": "what"
+              }
+            }
+          },
+          "contexts": [
+            "selection",
+            "board"
+          ],
+          "ask": {
+            "title": "Ask my AI",
+            "fields": [
+              {
+                "id": "what",
+                "control": "text",
+                "label": "What should your AI do with this?"
+              }
+            ],
+            "submit_label": "Send to my AI"
+          }
+        },
+        {
+          "id": "board-ask-my-ai-palette",
+          "channel": "group.palette",
+          "event": "invoke",
+          "input_template": {
+            "space_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "root_ref.parts.board"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "run",
+                "path": "id"
+              }
+            },
+            "member_ids": {
+              "$kind": "binding",
+              "select": {
+                "from": "selection",
+                "path": "member_ids"
+              }
+            },
+            "what": {
+              "$kind": "binding",
+              "select": {
+                "from": "answers",
+                "path": "what"
+              }
+            }
+          },
+          "ask": {
+            "title": "Ask my AI",
+            "fields": [
+              {
+                "id": "what",
+                "control": "text",
+                "label": "What should your AI do with this?"
+              }
+            ],
+            "submit_label": "Send to my AI"
+          }
+        }
+      ],
+      "dispatch": {
+        "target": "slot::workflow",
+        "payload_template": {
+          "operation": "execute_definition",
+          "definition_id": "board:board-act-on-selection",
+          "include_output": false,
+          "input": {
+            "$kind": "binding",
+            "select": {
+              "from": "trigger",
+              "path": "input"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "as_document": {
+    "what_this_is": "A note shown as a document (board-screen.tsx invariant 7): the screen that draws a document (`screen`, a row of the workspace's screens), where its first page is written (`address_prefix` + the note's id, at `path`), and what the card hands that screen besides the document's address (`card_input`, a card has no page list).",
+    "screen": "trillion.write",
+    "address_prefix": "package::documents::documents::note-",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "card_input": {
+      "sidebar_settings": {
+        "unpin": false,
+        "auto_hide": false,
+        "stay_open": false
+      }
+    },
+    "words": {
+      "open": "Open as document",
+      "untitled": "Untitled",
+      "no_screen": "Documents are not available in this account."
+    }
+  },
+  "space_place": "space-room:",
+  "frame": {
+    "about": "A picture put on the board as a frame of a page (src/workspace/put-sizes-on-board.ts) is placed at the page's shape, at most `tallest` times as tall as it is wide, and Draw again draws the chosen frames anew from where they came from.",
+    "definition_prefix": "board-frame:",
+    "tallest": 3,
+    "words": {
+      "frame": "Frame",
+      "none_chosen": "Choose a frame on the board, then draw it again."
+    }
+  }
+}

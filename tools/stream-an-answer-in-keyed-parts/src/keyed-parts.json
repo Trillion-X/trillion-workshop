@@ -1,0 +1,17 @@
+{
+  "_what": "The shape of a streamed answer (src/keyed-parts.mjs): an entry is keyed parts, each with a type from this table. `merge` says what a new event of that type does to the part already under its key: append (its `text` is added), replace (its `value` is the part), patch (its `ops` change the value of the part named by `target`). Adding a part type is a row here. `resume.max_stalls` is how many re-attach attempts in a row may bring nothing new before the client gives up; `snapshot_type` is the event a re-attach answers with.",
+  "types": {
+    "text": { "merge": "append" },
+    "sources": { "merge": "replace", "paged": true },
+    "related": { "merge": "replace" },
+    "claims": { "merge": "replace" },
+    "patch": { "merge": "patch" }
+  },
+  "patch_ops": ["add", "replace", "remove"],
+  "resume": { "max_stalls": 3, "snapshot_type": "snapshot" },
+  "words": {
+    "unknown_type": "{type} is not a part type this reader knows; the part was kept as it came.",
+    "patch_failed": "A change to {target} did not apply ({why}); it was added as its own part.",
+    "gave_up": "The answer stopped arriving after {count} tries."
+  }
+}

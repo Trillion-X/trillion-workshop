@@ -1,0 +1,38 @@
+{
+  "_what": "Words the transcript reader's note tools say (parts/transcript-reader/show/TranscriptReaderSurface.tsx, src/workspace/note-transcript.tsx): the speaker picker, the moment link, Reprocess in, Copy transcript, Export PDF and Split.",
+  "speaker": {
+    "open": "Rename {speaker}",
+    "heading": "Speakers in this recording",
+    "search": "Search or add name",
+    "add": "Add name",
+    "add_aria": "Add this name",
+    "take_back": "Use the original label",
+    "named": "{from} is now {name}.",
+    "taken_back": "{name} is back to its original label.",
+    "failed": "The speaker could not be renamed."
+  },
+  "moment": { "copy": "Copy link to {time}", "done": "Link to {time} copied", "failed": "The link could not be copied", "detail": "This browser did not let Trillion copy it." },
+  "reprocess": {
+    "label": "Reprocess in",
+    "search": "Search languages",
+    "started": "Listening again in {language}",
+    "done": "The words were made again in {language}",
+    "failed": "The words could not be made again",
+    "stale": "The transcript changed while you were editing it. Open it again to continue."
+  },
+  "copy": {
+    "label": "Copy transcript",
+    "done": "Transcript copied",
+    "failed": "The transcript could not be copied",
+    "detail": "This browser did not let Trillion copy it, or there are no words yet."
+  },
+  "pdf": {
+    "label": "Export PDF",
+    "done": "Transcript saved as a PDF",
+    "failed": "The transcript could not be saved as a PDF",
+    "detail": "There are no words to save yet."
+  },
+  "split": { "label": "Split", "hint": "Enter", "aria": "Split this passage at the caret", "done": "Passage split.", "failed": "The passage could not be split." },
+  "tools_label": "Transcript tools",
+  "more": "More transcript actions"
+}

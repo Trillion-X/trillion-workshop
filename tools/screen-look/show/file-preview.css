@@ -1,0 +1,190 @@
+/* packages/screen-look/show/file-preview.css
+ *
+ * Appearance of THE one file preview (packages/ui/show/file-preview/FilePreview): every viewer fits the box it is
+ * placed in, so the whole file is visible the moment it opens. Anatomy follows Dropbox Dash's side preview (the file
+ * alone on a quiet ground, the name above it; mobbin.com/screens/a6bd0b0c-be56-46c7-bf72-68804e1d7a48) and
+ * Cofounder's document reader (a readable column with real headings; mobbin.com/screens/7ba20fd8-7a09-4f78-8e2e-8736e07f4f3c);
+ * a workbook, and delimited text (CSV, TSV), read like 21st.dev's Excel Viewer (id 15580: a grid with column letters,
+ * row numbers that stay in view while scrolling, sheets below).
+ */
+
+.file-preview { display: flex; flex-direction: column; width: 100%; height: 100%; min-height: 0; min-width: 0; }
+.file-preview > * { flex: 1 1 auto; min-height: 0; }
+.trillion-file-transcript { flex: none; min-height: 10rem; max-height: 22rem; padding: 0 18px 18px; overflow: auto; }
+.trillion-file-transcript[hidden] { display: none; }
+.trillion-file-transcript-content { display: flex; flex-direction: column; gap: 0.65rem; height: clamp(10rem, 28vh, 22rem); }
+.trillion-file-transcript-content > .file-preview { flex: 1 1 auto; min-height: 0; }
+.trillion-file-review { flex: none; min-width: 0; padding: 0 18px 18px; }
+.trillion-file-review > [aria-label="Recording review"] { min-width: 0; }
+/* Written files stay readable inside a media carousel's dark video frame, in either screen look. */
+.file-preview:is([data-file-viewer="text"], [data-file-viewer="markdown"], [data-file-viewer="table"], [data-file-viewer="office"], [data-file-viewer="file"]) {
+  background: var(--color-background, #fff);
+  color: var(--color-foreground, #111);
+}
+
+/* A video or sound: the player box is a size container, and the player (media-playback, which reports the video's
+ * own shape as --media-aspect) takes the widest size whose height still fits, centred. A sound has no picture, so
+ * its face is a card no wider than a line of reading and no taller than the box; its words scroll inside it (the
+ * compact waveform player of 21st.dev's MP3 Player, id 31602, with words under it as Mistral's speech-to-text page
+ * shows them, mobbin.com/screens/3768d985-f9d9-4a1c-a1a6-2a3c012742dd). */
+[data-file-preview-player] { container-type: size; align-items: center; }
+[data-file-preview-player] [data-media-playback-kind="video"] { width: min(100%, calc(100cqh * var(--media-aspect, 1.7778))); max-height: 100cqh; margin-inline: auto; }
+[data-file-preview-player] [data-media-playback-kind="audio"] { width: min(100%, 44rem); max-height: 100cqh; margin-inline: auto; }
+
+.file-preview-picture { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+.file-preview-page { display: block; width: 100%; height: 100%; border: 0; border-radius: 8px; background: #fff; }
+
+/* A PDF drawn as its pages (FilePreview Pdf): a quiet ground with each page a sheet of paper on it, a slim bar with the
+ * page count and zoom above, and a strip of numbered page pictures to jump by on the left when the box is wide
+ * (anatomy: Preview and Gemini Notebook's slide strip, mobbin.com/screens/af9c1d3b-3ad9-4db3-934b-1eccac821991; a page
+ * on a quiet ground as AirOps shows a report, mobbin.com/screens/65ce500f-f8c3-4f83-b484-60c115f9f590). */
+.file-preview-pdf { container-type: inline-size; display: flex; flex-direction: column; min-height: 0; border-radius: 10px; overflow: hidden; background: color-mix(in srgb, var(--color-foreground, #eee) 5%, var(--color-background, #fff)); }
+.file-preview-pdf-bar { flex: none; display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 4px 8px; border-bottom: 1px solid color-mix(in srgb, var(--color-foreground, #eee) 8%, transparent); background: var(--color-background, #fff); }
+.file-preview-pdf-count { flex: 1 1 auto; min-width: 0; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--color-muted-foreground, #6b7280); white-space: nowrap; }
+.file-preview-pdf-zoom { flex: none; display: flex; align-items: center; gap: 2px; font-variant-numeric: tabular-nums; }
+.file-preview-pdf-body { flex: 1 1 auto; display: flex; min-height: 0; }
+.file-preview-pdf-rail { flex: none; display: flex; flex-direction: column; align-items: center; gap: 14px; width: 132px; padding: 16px 0; overflow-y: auto; overscroll-behavior: contain; border-inline-end: 1px solid color-mix(in srgb, var(--color-foreground, #eee) 8%, transparent); }
+.file-preview-pdf-rail-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.file-preview-pdf-rail-page.file-preview-pdf-rail-page { height: auto; padding: 4px; border-radius: 8px; }
+.file-preview-pdf-rail-item[data-current] .file-preview-pdf-rail-page { background: color-mix(in srgb, var(--color-primary, #2563eb) 14%, transparent); }
+.file-preview-pdf-rail-number { font-size: 11px; color: var(--color-muted-foreground, #6b7280); font-variant-numeric: tabular-nums; }
+.file-preview-pdf-rail-item[data-current] .file-preview-pdf-rail-number { color: var(--color-foreground, #111); font-weight: 600; }
+.file-preview-pdf-pages { flex: 1 1 auto; min-width: 0; overflow: auto; overscroll-behavior: contain; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 24px; outline: none; }
+.file-preview-pdf-page { position: relative; flex: none; width: var(--pdf-page-width); height: var(--pdf-page-height); border-radius: 3px; background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 4px 16px rgb(0 0 0 / 0.08); --scale-round-x: 1px; --scale-round-y: 1px; }
+.file-preview-pdf-page:not([data-drawn]) { background: linear-gradient(90deg, #fff, #f4f4f5, #fff); }
+.file-preview-pdf-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: inherit; }
+.file-preview-pdf-rail .file-preview-pdf-page { box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08); }
+.file-preview-pdf[data-glance] { border-radius: 0; background: none; }
+.file-preview-pdf[data-glance] .file-preview-pdf-pages { padding: 0; overflow: hidden; }
+/* The strip of pages shows when the box has room for it beside a readable page; a narrow box reads the pages alone. */
+@container (max-width: 640px) {
+  .file-preview-pdf-rail, .file-preview-pdf-rail-toggle { display: none; }
+  .file-preview-pdf-pages { padding: 12px; gap: 12px; }
+}
+/* The page's words, laid invisibly over it so they can be selected and copied (the reader's own text layer rules). */
+.file-preview-pdf-words.textLayer { position: absolute; inset: 0; overflow: clip; line-height: 1; text-align: initial; transform-origin: 0 0; z-index: 0; -webkit-text-size-adjust: none; text-size-adjust: none; forced-color-adjust: none; --min-font-size: 1; --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size)); --min-font-size-inv: calc(1 / var(--min-font-size)); }
+.file-preview-pdf-words.textLayer :is(span, br) { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; user-select: text; }
+
+.file-preview-pdf-words.textLayer ::selection { background: color-mix(in srgb, var(--color-primary, #2563eb) 30%, transparent); }
+
+.file-preview-reading { display: flex; align-items: center; justify-content: center; color: var(--color-muted-foreground, #9298a6); }
+
+.file-preview-note { padding: 8px 2px 0; font-size: 12px; color: var(--color-muted-foreground, #9298a6); }
+
+/* Text and code: the file's own lines, monospaced, scrolling inside the box. */
+.file-preview-text { display: flex; flex-direction: column; overflow: auto; overscroll-behavior: contain; }
+.file-preview-text-body {
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-foreground, #eee) 5%, transparent);
+  font-family: var(--t-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 2;
+}
+.file-preview-text[data-glance] .file-preview-text-body { padding: 10px 12px; font-size: 12px; background: none; }
+
+/* Markdown: the file's words as a readable document in the look's own type (MarkdownBlock over the one markdown
+ * renderer's doc-* parts); a code block keeps its lines and scrolls sideways. Pair every document word with the
+ * foreground of this file-preview surface, including links and marks, rather than MarkdownBlock's separate text role. */
+.file-preview .file-preview-markdown { box-sizing: border-box; padding: 14px 18px; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; color: var(--color-foreground, var(--text-primary)); }
+.file-preview-markdown .doc-h2 { font-size: 1.35em; font-weight: 650; line-height: 1.3; margin: 1.1em 0 0.45em; }
+.file-preview-markdown .doc-h3 { font-size: 1.15em; font-weight: 620; line-height: 1.35; margin: 1em 0 0.4em; }
+.file-preview-markdown .doc-h4 { font-size: 1em; font-weight: 600; margin: 0.9em 0 0.35em; }
+.file-preview-markdown .doc-p { margin: 0 0 0.75em; }
+.file-preview-markdown .doc-list { margin: 0 0 0.75em; padding-inline-start: 1.4em; list-style: disc; }
+.file-preview-markdown ol.doc-list { list-style: decimal; }
+.file-preview-markdown .doc-list li { margin: 0.2em 0; }
+.file-preview-markdown .doc-quote { margin: 0 0 0.75em; font-family: var(--font-display, inherit); font-size: 1.12em; line-height: 1.45; color: var(--color-muted-foreground, #9298a6); }
+.file-preview-markdown code { font-family: var(--t-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace); font-size: 0.88em; padding: 0.1em 0.35em; border-radius: 4px; background: color-mix(in srgb, var(--color-foreground, #eee) 7%, transparent); }
+.file-preview-markdown .doc-code { margin: 0 0 0.9em; padding: 12px 14px; border-radius: 8px; overflow-x: auto; white-space: pre; line-height: 1.5; background: color-mix(in srgb, var(--color-foreground, #eee) 5%, transparent); }
+.file-preview-markdown .doc-code code { padding: 0; background: none; font-size: 12.5px; }
+.file-preview-markdown .doc-rule { border: 0; border-top: 1px solid color-mix(in srgb, var(--color-foreground, #eee) 12%, transparent); margin: 1.2em 0; }
+.file-preview-markdown .doc-quote--held { font-family: inherit; font-size: 1em; line-height: inherit; color: inherit; padding: 10px 14px; border-radius: 8px; background: color-mix(in srgb, var(--color-foreground, #eee) 5%, transparent); }
+.file-preview-markdown .doc-quote--held > :last-child { margin-bottom: 0; }
+.file-preview-markdown .doc-table-wrap { margin: 0 0 0.9em; overflow-x: auto; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--color-foreground, #eee) 10%, transparent); }
+.file-preview-markdown .doc-table { width: 100%; border-collapse: collapse; font-size: 0.94em; }
+.file-preview-markdown .doc-table th, .file-preview-markdown .doc-table td { padding: 7px 12px; text-align: start; vertical-align: top; border-top: 1px solid color-mix(in srgb, var(--color-foreground, #eee) 8%, transparent); }
+.file-preview-markdown .doc-table thead th { border-top: 0; font-weight: 600; background: color-mix(in srgb, var(--color-foreground, #eee) 4%, transparent); }
+.file-preview-markdown .doc-table [data-align="right"] { text-align: end; }
+.file-preview-markdown .doc-table [data-align="center"] { text-align: center; }
+.file-preview-markdown .doc-img { display: block; max-width: 100%; height: auto; border-radius: 8px; }
+.file-preview-markdown .doc-task { list-style: none; margin-inline-start: -1.4em; display: flex; gap: 0.55em; align-items: baseline; }
+.file-preview-markdown .doc-task-box { flex: none; width: 0.85em; height: 0.85em; border-radius: 4px; border: 1.5px solid color-mix(in srgb, var(--color-foreground, #eee) 35%, transparent); transform: translateY(0.1em); }
+.file-preview-markdown .doc-task[data-done="true"] .doc-task-box { border-color: var(--color-primary, currentColor); background: var(--color-primary, currentColor); }
+.file-preview-markdown .doc-task[data-done="true"] { color: var(--color-muted-foreground, #9298a6); }
+.file-preview-markdown del { color: var(--color-muted-foreground, #9298a6); }
+.file-preview-markdown .file-preview-link { color: var(--color-foreground, currentColor); text-decoration: underline; text-underline-offset: 2px; }
+/* Marks in plain words (document-page word-marks.json): a #tag as a small tinted tag, an @handle in the accent
+ * colour, a bare address as a link that breaks anywhere so a long one never widens the passage. */
+.file-preview-markdown .doc-mark[data-mark="tag"] { display: inline-block; padding: 0 0.4em; border-radius: 999px; font-size: 0.92em; line-height: 1.45; color: var(--color-foreground, currentColor); background: color-mix(in srgb, var(--color-primary, #6b7cff) 12%, transparent); white-space: nowrap; }
+.file-preview-markdown .doc-mark[data-mark="handle"] { color: var(--color-foreground, currentColor); font-weight: 550; }
+.file-preview-markdown .doc-mark[data-mark="link"] { overflow-wrap: anywhere; }
+.file-preview-text[data-glance] .file-preview-markdown { padding: 10px 12px; font-size: 12px; }
+/* The document starts and ends at its padding, whatever its first and last parts are. */
+.file-preview-markdown > :first-child { margin-top: 0; }
+.file-preview-markdown > :last-child { margin-bottom: 0; }
+
+/* A Word document: a readable column on a sheet of paper, headings by the document's own styles. */
+.file-preview-document { overflow: auto; overscroll-behavior: contain; }
+.file-preview-page-sheet {
+  box-sizing: border-box;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 40px 48px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-foreground, #eee) 4%, transparent);
+  line-height: 1.6;
+}
+.file-preview-document[data-glance] .file-preview-page-sheet { padding: 12px 14px; font-size: 12px; }
+.file-preview-paragraph { margin: 0 0 0.6em; white-space: pre-wrap; overflow-wrap: anywhere; }
+.file-preview-paragraph[data-heading="1"] { font-size: 1.6em; font-weight: 650; line-height: 1.25; margin-block: 0.4em 0.5em; }
+.file-preview-paragraph[data-heading="2"] { font-size: 1.3em; font-weight: 620; line-height: 1.3; margin-block: 0.6em 0.4em; }
+.file-preview-paragraph[data-heading="3"],
+.file-preview-paragraph[data-heading="4"] { font-size: 1.1em; font-weight: 600; margin-block: 0.6em 0.3em; }
+
+/* An Excel workbook: a grid with column letters and row numbers, its sheets as tabs below. */
+.file-preview-workbook { display: flex; flex-direction: column; min-height: 0; }
+.file-preview-workbook-grid { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.file-preview-grid { font-size: 12px; font-variant-numeric: tabular-nums; }
+.file-preview-grid td, .file-preview-grid th { white-space: nowrap; max-width: 24rem; overflow: hidden; text-overflow: ellipsis; border-inline-end: 1px solid color-mix(in srgb, var(--color-foreground, #eee) 8%, transparent); }
+.file-preview-grid-corner, .file-preview-grid-row { width: 3rem; text-align: end; color: var(--color-muted-foreground, #9298a6); }
+.file-preview-workbook-grid .file-preview-grid thead { position: sticky; top: 0; z-index: 1; background: var(--color-background, #111); }
+.file-preview-workbook-grid .file-preview-grid-row { position: sticky; left: 0; z-index: 1; background: var(--color-background, #111); }
+.file-preview-workbook-grid .file-preview-grid thead .file-preview-grid-corner { position: sticky; left: 0; z-index: 2; background: var(--color-background, #111); }
+.file-preview-workbook-grid .file-preview-grid thead th { text-align: center; font-weight: 500; color: var(--color-muted-foreground, #9298a6); }
+.file-preview-workbook-grid .file-preview-grid td { border-bottom: 1px solid color-mix(in srgb, var(--color-foreground, #eee) 6%, transparent); }
+.file-preview-workbook[data-glance] .file-preview-grid { font-size: 11px; }
+.file-preview-document .file-preview-grid { margin-block: 0.6em 1em; }
+.file-preview-sheets { flex: none; display: flex; gap: 4px; overflow-x: auto; padding-top: 8px; }
+
+/* A PowerPoint deck: each slide a card with its number and its words. */
+.file-preview-slides { display: flex; flex-direction: column; gap: 12px; overflow: auto; overscroll-behavior: contain; }
+.file-preview-slide {
+  position: relative;
+  box-sizing: border-box;
+  aspect-ratio: 16 / 9;
+  flex: none;
+  padding: 28px 36px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-foreground, #eee) 5%, transparent);
+  overflow: hidden;
+}
+.file-preview-slide-number { position: absolute; top: 10px; right: 14px; font-size: 11px; color: var(--color-muted-foreground, #9298a6); }
+
+/* Anything else: its icon, name and a Download button, centred. */
+.file-preview-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; text-align: center; }
+.file-preview-card .file-preview-note { padding: 0; }
+.file-preview-card-name { font-weight: 600; overflow-wrap: anywhere; }
+
+/* Files a run made (file-preview/KeptFiles.tsx): each file shown whole in a quiet framed box, a video or sound
+ * playable in place, its name and Open along its foot. */
+.kept-files { display: grid; gap: 1rem; min-width: 0; }
+.kept-file { display: grid; gap: 0.5rem; min-width: 0; }
+.kept-file-preview { height: clamp(12rem, 40vw, 24rem); overflow: hidden; border: 1px solid var(--border-subtle, var(--border)); border-radius: var(--radius-lg, 0.5rem); background: var(--bg-surface, transparent); }
+.kept-file-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; min-width: 0; }
+.kept-file-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
