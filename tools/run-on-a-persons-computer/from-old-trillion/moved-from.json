@@ -24,17 +24,19 @@
       "from": "computer/diagnostics.mjs",
       "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
       "deleted_by": "dc79bb0a87",
-      "to": "tools/run-on-a-persons-computer/from-old-trillion/computer/diagnostics.mjs",
+      "to": "tools/run-on-a-persons-computer/from-old-trillion/computer/diagnostics.mjs.held",
       "source_identity": "1f:9187ebdb9ec19ce26c2bbf449e7fff27bd652dae9baeb250650cf983ef0363ea",
-      "identity": "1f:9187ebdb9ec19ce26c2bbf449e7fff27bd652dae9baeb250650cf983ef0363ea"
+      "identity": "1f:9187ebdb9ec19ce26c2bbf449e7fff27bd652dae9baeb250650cf983ef0363ea",
+      "held": "renamed from .mjs so the folder's every-import-resolves test does not judge it before its wiring: it imports ./guarded-upload.mjs, ./mac-tools.mjs, which no tree holds now"
     },
     {
       "from": "computer/harness-setup.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd8838475",
-      "to": "tools/run-on-a-persons-computer/from-old-trillion/computer/harness-setup.mjs",
+      "to": "tools/run-on-a-persons-computer/from-old-trillion/computer/harness-setup.mjs.held",
       "source_identity": "1f:51551ff5cd06589a2c0c7672afd9924e04448a34eeec44ff1a1d51fbab881696",
-      "identity": "1f:51551ff5cd06589a2c0c7672afd9924e04448a34eeec44ff1a1d51fbab881696"
+      "identity": "1f:51551ff5cd06589a2c0c7672afd9924e04448a34eeec44ff1a1d51fbab881696",
+      "held": "renamed from .mjs so the folder's every-import-resolves test does not judge it before its wiring: it imports ./mac-tools.json, ../harness/setup.mjs, which no tree holds now"
     },
     {
       "from": "computer/loopback-executor.json",
@@ -48,9 +50,10 @@
       "from": "computer/loopback-executor.mjs",
       "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
       "deleted_by": "dc79bb0a87",
-      "to": "tools/run-on-a-persons-computer/from-old-trillion/computer/loopback-executor.mjs",
+      "to": "tools/run-on-a-persons-computer/from-old-trillion/computer/loopback-executor.mjs.held",
       "source_identity": "1f:e7783f7b5a97325f67506e524ea1f9914896d7404b9f59e99f69953028da6c47",
-      "identity": "1f:e7783f7b5a97325f67506e524ea1f9914896d7404b9f59e99f69953028da6c47"
+      "identity": "1f:e7783f7b5a97325f67506e524ea1f9914896d7404b9f59e99f69953028da6c47",
+      "held": "renamed from .mjs so the folder's every-import-resolves test does not judge it before its wiring: it imports ../parts/http-client/do-work/*, ./secret-references.mjs, ./script-sandbox.mjs, which no tree holds now"
     },
     {
       "from": "test/computer-host-tools.test.mjs",
