@@ -107,6 +107,7 @@
           ] }
         },
         "result_selector": "$.result",
+        "verify": [{ "kind": "sample-run", "input": { "source_path": "source.md", "output_path": "editable.json" }, "files": [{ "grant": "change-a-folder", "path": "source.md", "text": "# Sample\n\nA paragraph.\n" }] }],
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
         "maker": "maker:import-markdown-to-editable-document",

@@ -155,16 +155,7 @@
     "provenance": {
      "source": "the Workshop's ai-readiness folder: the served-HTML audit engine, its check rows and the container seam that fetches a page"
     },
-    "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "url": "https://example.com"
-      },
-      "output_selector": "$.final_url",
-      "contains": "example.com"
-     }
-    ]
+    "verify": [{"kind": "sample-run", "input": {"url": "https://example.com"}, "output_selector": "$.final_url", "contains": "example.com", "shape_read_at": "2026-11-03", "replies": [{"request": {"method": "GET", "url": "https://example.com/"}, "status": 200, "headers": {"content-type": "text/html; charset=utf-8"}, "body": "<!doctype html><html lang=\"en\"><head><title>Example page</title><meta name=\"description\" content=\"A made-up page.\"></head><body><main><h1>Example page</h1><p>A made-up paragraph.</p></main></body></html>"}, {"request": {"method": "GET", "url": "https://example.com/robots.txt"}, "status": 200, "headers": {"content-type": "text/plain"}, "body": "User-agent: *\nAllow: /\n"}]}]
    }
   }
  ]

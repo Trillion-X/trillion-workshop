@@ -170,7 +170,8 @@
         "maker": "maker:keep-measurements-current",
         "provenance": {
           "source": "Generic source/package revisions and execution receipts reconciled against current meter and price DATA; content identities use the Workshop BLAKE3 owner."
-        }
+        },
+        "verify": [{"kind": "sample-run", "input": {"action": "read_source_config"}, "records": [{"id": "measurement-source-config:default", "type": "measurement_source_config", "value": {"schema": "measurement-source-config/1", "source_roots": [{"id": "workshop", "path": "/made-up/source"}], "receipt_roots": [{"id": "workshop", "path": "/made-up/receipts", "source_id": "workshop"}], "meter_book": {"path": "meter-definitions.json"}, "price_book": {"source_tool": "tool:refresh-provider-prices"}}}]}]
       }
     },
     {
@@ -259,7 +260,8 @@
         "maker": "maker:keep-measurements-current",
         "provenance": {
           "source": "Dated public provider tariff DATA, filtered by the source-owned unconditional-rate eligibility flag; no customer invoice or plan evidence."
-        }
+        },
+        "verify": [{"kind": "sample-run", "input": {}}]
       }
     },
     {
@@ -474,7 +476,8 @@
               "wall_ms": 120000
             }
           }
-        ]
+        ],
+        "verify": [{"kind": "sample-run", "input": {}, "records": [{"id": "measurement-source-config:default", "type": "measurement_source_config", "value": {"schema": "measurement-source-config/1", "source_roots": [{"id": "workshop", "path": "{grant:read-a-folder}/source"}], "receipt_roots": [{"id": "workshop", "path": "{grant:read-a-folder}/receipts", "source_id": "workshop"}], "meter_book": {"path": "meter-definitions.json"}, "price_book": {"source_tool": "tool:refresh-provider-prices"}}}], "files": [{"grant": "read-a-folder", "path": "source/tool-rows.json", "text": "{\"kind\":\"tool-rows\",\"records\":[{\"payload\":{\"kind\":\"ai-tool-descriptor\",\"id\":\"tool:sample-operation\"}}]}"}, {"grant": "read-a-folder", "path": "receipts/.keep", "text": ""}]}]
       }
     }
   ]

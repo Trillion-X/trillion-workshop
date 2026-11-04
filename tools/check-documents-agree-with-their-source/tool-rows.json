@@ -135,7 +135,8 @@
             }
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"sets": [{"set_id": "guide-translations", "source": "guide.en.md", "unit_pattern": "RFC-(\\d+)", "required_markers": ["TRANSLATION STATUS"], "mirrors": [{"document": "guide.fr.md"}]}]}, "files": [{"grant": "read-a-folder", "path": "guide.en.md", "text": "RFC-42 only"}, {"grant": "read-a-folder", "path": "guide.fr.md", "text": "RFC-42 TRANSLATION STATUS: current"}]}]
       }
     }
   ]

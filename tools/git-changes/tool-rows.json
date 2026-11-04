@@ -126,7 +126,8 @@
     "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/git-worktree (refresh-git-worktree)"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"folder": "/projects/sample"}, "stand_in_programs": {"git": "case \"$3\" in status) printf '## main...origin/main [ahead 1]\\n M notes.txt\\n?? scratch.txt\\n' ;; diff) printf 'diff --git a/notes.txt b/notes.txt\\n--- a/notes.txt\\n+++ b/notes.txt\\n@@ -1 +1 @@\\n-first line\\n+second line\\n' ;; esac"}}]
    }
   },
   {
@@ -227,7 +228,8 @@
     "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/git-worktree (fetch-git-diff)"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"folder": "/projects/sample", "file_path": "notes.txt"}, "stand_in_programs": {"git": "case \"$3\" in status) printf '## main...origin/main [ahead 1]\\n M notes.txt\\n?? scratch.txt\\n' ;; diff) printf 'diff --git a/notes.txt b/notes.txt\\n--- a/notes.txt\\n+++ b/notes.txt\\n@@ -1 +1 @@\\n-first line\\n+second line\\n' ;; esac"}}]
    }
   },
   {
@@ -332,7 +334,8 @@
     "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/git-worktree (stage-git-files)"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"folder": "/projects/sample", "paths": ["notes.txt"]}, "stand_in_programs": {"git": "case \"$3\" in status) printf '## main...origin/main [ahead 1]\\n M notes.txt\\n?? scratch.txt\\n' ;; diff) printf 'diff --git a/notes.txt b/notes.txt\\n--- a/notes.txt\\n+++ b/notes.txt\\n@@ -1 +1 @@\\n-first line\\n+second line\\n' ;; esac"}}]
    }
   },
   {
@@ -437,7 +440,8 @@
     "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/git-worktree (unstage-git-files)"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"folder": "/projects/sample", "paths": ["notes.txt"]}, "stand_in_programs": {"git": "case \"$3\" in status) printf '## main...origin/main [ahead 1]\\n M notes.txt\\n?? scratch.txt\\n' ;; diff) printf 'diff --git a/notes.txt b/notes.txt\\n--- a/notes.txt\\n+++ b/notes.txt\\n@@ -1 +1 @@\\n-first line\\n+second line\\n' ;; esac"}}]
    }
   },
   {
@@ -538,7 +542,8 @@
     "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/git-worktree (commit-git-changes)"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"folder": "/projects/sample", "message": "Sample commit"}, "stand_in_programs": {"git": "case \"$3\" in status) printf '## main...origin/main [ahead 1]\\n M notes.txt\\n?? scratch.txt\\n' ;; diff) printf 'diff --git a/notes.txt b/notes.txt\\n--- a/notes.txt\\n+++ b/notes.txt\\n@@ -1 +1 @@\\n-first line\\n+second line\\n' ;; esac"}}]
    }
   }
  ]

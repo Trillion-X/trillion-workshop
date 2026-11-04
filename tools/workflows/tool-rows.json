@@ -81,7 +81,8 @@
               }
             }
           ]
-        }
+        },
+        "verify": [{"kind": "sample-run", "input": {"row": "workflow:bring-in-a-framework"}}]
       }
     },
     {
@@ -166,7 +167,8 @@
         "maker": "maker:gate-a-piece-against-a-checklist",
         "provenance": {
           "source": "A pre-delivery gate over a person's own checklist where every answer is bound to the identity of the files it judged and every measuring tool's answer to the reviewed version of that tool"
-        }
+        },
+        "verify": [{"kind": "sample-run", "input": {"schema": "schema.json", "command": "checklist --problems"}, "files": [{"grant": "read-a-folder", "path": "schema.json", "text": "{\"checklist\":\"checklist.json\"}"}, {"grant": "read-a-folder", "path": "checklist.json", "text": "{\"stages\":[{\"id\":\"S1\",\"name\":\"Bake\",\"checks\":[{\"id\":\"S1.1\",\"check\":\"Oven is preheated\",\"routes\":\"all\",\"verify\":\"Read the dial\",\"kind\":\"habit\",\"must\":true}]}],\"check_count\":1,\"must_count\":1,\"delivery_stages\":{}}"}]}]
       }
     },
     {
@@ -290,7 +292,8 @@
         "maker": "maker:gate-a-piece-against-a-checklist",
         "provenance": {
           "source": "tools/workflows/do-work/checklist_gate.py: answer and checker operations share the same criterion, file and checker pins as the read-only gate"
-        }
+        },
+        "verify": [{"kind": "sample-run", "input": {"schema": "schema.json", "command": "checklist --write"}, "files": [{"grant": "change-a-folder", "path": "schema.json", "text": "{\"checklist\":\"checklist.json\",\"checklist_source\":{\"file\":\"checklist-source.md\",\"header\":{\"note\":\"Generated from checklist-source.md.\"},\"stage\":{\"pattern\":\"^## (S[0-9])[.] (.+?)$([^#]*)\",\"fields\":{}},\"delivery\":{\"pattern\":\"^[*][*]Delivery stages:[*][*] (.+)$\",\"default\":\"final\"},\"row_kinds\":[{\"pattern\":\"^[|] (S[0-9][.][0-9]) [|] (.+?) [|] (.+?) [|] (.+?) [|] (.+?) [|] (yes|no) [|]$\",\"fields\":[\"id\",\"check\",\"routes\",\"verify\",\"kind\",\"must\"]}]}}"}, {"grant": "change-a-folder", "path": "checklist-source.md", "text": "# Sample checklist\n\n**Delivery stages:** final = a loaf put on the shelf.\n\n## S1. Bake\n| S1.1 | Oven is preheated | all | Read the dial | habit | yes |\n| S1.2 | Tray is clean | all | Look at it | habit | no |\n\n## Notes\n"}]}]
       }
     }
   ,

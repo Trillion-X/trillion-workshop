@@ -41,7 +41,8 @@
           {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
         ]}
       },
-      "result_selector": "$.result", "licence_class": "licence:maker-own", "maker": "maker:measurement-ledger"
+      "result_selector": "$.result", "licence_class": "licence:maker-own", "maker": "maker:measurement-ledger",
+      "verify": [{"kind": "sample-run", "input": {"action": "save_billing", "request_key": "sample-billing-1", "billing": {"provider": "vendor", "billing_id": "invoice-1", "version": 1, "billing_period_start": "2026-10-01", "billing_period_end": "2026-10-31", "currency": "USD", "unit": "invoice", "source_revision": "rev", "observed_at": "2026-10-31", "scope": "unknown", "amount": null}}}]
     }
   }]
 }

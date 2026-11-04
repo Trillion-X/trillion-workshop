@@ -1,6 +1,8 @@
 // A stand-in for the records door: an MCP endpoint on this computer's loopback that keeps records in memory, checks
 // the bearer capability and its rights, pages lists, and can answer busy or as an event stream, the way the engine's
-// door does (tools/records-door/README.md, the contract).
+// door does (tools/records-door/README.md, the contract). Given `files` ({ name: text }) and a files right, it is also
+// the run's files door: the descriptor names `files_resource`, and list_files and read_file answer from those made-up
+// files under the right's folder, a file's identity being the BLAKE3 identity of its bytes.
 import { createServer } from 'node:http';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -11,7 +13,10 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 // Engine-wide cap on the records one write carries (own-record-writes.json maxItems); a row may declare fewer.
 const WRITE_CAP = 256;
 
-export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false } = {}) {
+const FILES_RESOURCE = '@own-files';
+const FILE_SPAN = 65_536;
+
+export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], files = {}, workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false } = {}) {
   const capability = 'run_fake_capability';
   const kept = new Map(records.map(record => [record.id, record]));
   const receipts = new Map();
@@ -103,6 +108,29 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       return { structuredContent: receipt };
     },
   };
+  // The files door: a files right names the folder it reaches and the operations it may call there.
+  const fileRights = rights.filter(item => typeof item.files === 'string');
+  const mayFile = (operation, name) => fileRights.some(item => item.operations.includes(operation) && name.startsWith(item.files));
+  const bytesOf = name => Buffer.from(files[name] ?? '', 'utf8');
+  const fileOperations = {
+    list_files: ({ folder = '/', after, limit = 50 }) => {
+      const base = folder.endsWith('/') ? folder : `${folder}/`;
+      if (!mayFile('list_files', base)) return refuse(OUTSIDE);
+      const under = Object.keys(files).filter(name => name.startsWith(base)).sort();
+      const names = under.filter(name => !name.slice(base.length).includes('/') && (!after || name > after));
+      const shown = names.slice(0, limit);
+      const folders = after ? [] : [...new Set(under.map(name => name.slice(base.length)).filter(rest => rest.includes('/')).map(rest => `${base}${rest.split('/')[0]}`))];
+      return { structuredContent: { names: shown.map(name => ({ name, identity: makeHashCodeHexFromBytes(bytesOf(name)), byte_length: bytesOf(name).length })),
+        next_after: shown.length < names.length ? shown.at(-1) : null, folders } };
+    },
+    read_file: ({ name_or_identity: wanted, offset = 0, length = FILE_SPAN }) => {
+      const name = Object.keys(files).find(each => each === wanted || makeHashCodeHexFromBytes(bytesOf(each)) === wanted);
+      if (!name || !mayFile('read_file', name)) return refuse(OUTSIDE);
+      const bytes = bytesOf(name);
+      const part = bytes.subarray(offset, offset + Math.min(length || FILE_SPAN, FILE_SPAN));
+      return { structuredContent: { identity: makeHashCodeHexFromBytes(bytes), byte_length: bytes.length, offset, bytes_returned: part.length, encoding: 'base64', content: part.toString('base64') } };
+    },
+  };
   const server = createServer((request, reply) => {
     const chunks = [];
     request.on('data', chunk => chunks.push(chunk));
@@ -112,7 +140,7 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       calls.push({ method: args.method, input: args.input, key: args.request_key, authorization: request.headers.authorization, protocol: request.headers['mcp-protocol-version'] });
       if (busy > 0) { busy -= 1; reply.writeHead(503).end(); return; }
       if (request.headers.authorization !== `Bearer ${capability}`) { reply.writeHead(401).end(); return; }
-      const operation = operations[args.method];
+      const operation = args.address === FILES_RESOURCE && fileRights.length ? fileOperations[args.method] : operations[args.method];
       const { after_byte: afterByte, ...input } = args.input ?? {};
       let result = operation ? operation(input, args.request_key) : refuse('not_runnable_here');
       // An answer bigger than `bytePage` comes as pages of its own bytes, the way the engine's door answers a record too
@@ -140,6 +168,7 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
   });
   await new Promise(done => server.listen(0, '127.0.0.1', done));
   const descriptor = join(mkdtempSync(join(tmpdir(), 'records-door-')), 'descriptor.json');
-  writeFileSync(descriptor, JSON.stringify({ url: `http://127.0.0.1:${server.address().port}/mcp`, resource: '@own-records', capability }));
+  writeFileSync(descriptor, JSON.stringify({ url: `http://127.0.0.1:${server.address().port}/mcp`, resource: '@own-records', capability,
+    ...(fileRights.length ? { files_resource: FILES_RESOURCE } : {}) }));
   return { descriptor, calls, kept, capability, close: () => new Promise(done => server.close(done)) };
 }

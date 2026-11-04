@@ -3908,6 +3908,14 @@
       "kind": "output-contains-input",
       "output_selector": "$.person_name",
       "input_field": "person_name"
+     },
+     {
+      "kind": "sample-run",
+      "input": {
+       "voice_id": "voice-1",
+       "person_name": "Sam Example",
+       "known_voices": [{ "value": { "voice_id": "voice-1" } }]
+      }
      }
     ]
    }
@@ -4657,6 +4665,14 @@
       "kind": "output-contains",
       "output_selector": "$.said",
       "text": "."
+     },
+     {
+      "kind": "sample-run",
+      "input": {
+       "moves": [{ "from": "/work/sample/Card/CLIP", "to": "/work/sample/Drive/Clips" }],
+       "projects": []
+      },
+      "stand_in_programs": { "python3": "exit 1" }
      }
     ],
     "screen": {
