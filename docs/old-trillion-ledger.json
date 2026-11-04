@@ -259,14 +259,14 @@
    "path": "computer/__pycache__/know-who.cpython-310.pyc",
    "verdict": "retired",
    "home": "none (build product); source at trillion-workshop:tools/run-on-a-persons-computer/know-who.py",
-   "evidence": "old trillion .gitignore:21-23: \"# Python bytecode is a build product of the scripts, never source.\" / \"__pycache__/\" / \"*.pyc\"; the .py sources were deleted from old trillion by 7fd88384 (\"Old trillion deletes 1028 feature files that now live in the Workshop\") and live in trillion-workshop tools/run-on-a-persons-computer/. The .pyc also embeds a /Users/example path, so it must not go public.",
+   "evidence": "old trillion .gitignore:21-23: \"# Python bytecode is a build product of the scripts, never source.\" / \"__pycache__/\" / \"*.pyc\"; the .py sources were deleted from old trillion by 7fd88384 (\"Old trillion deletes 1028 feature files that now live in the Workshop\") and live in trillion-workshop tools/run-on-a-persons-computer/. The .pyc also embeds a /Users/<owner> path, so it must not go public.",
    "group": "records-docs"
   },
   {
    "path": "computer/__pycache__/resident.cpython-310.pyc",
    "verdict": "retired",
    "home": "none (build product); source at trillion-workshop:tools/run-on-a-persons-computer/resident.py",
-   "evidence": "old trillion .gitignore:21-23: \"# Python bytecode is a build product of the scripts, never source.\" / \"__pycache__/\" / \"*.pyc\"; the .py sources were deleted from old trillion by 7fd88384 (\"Old trillion deletes 1028 feature files that now live in the Workshop\") and live in trillion-workshop tools/run-on-a-persons-computer/. The .pyc also embeds a /Users/example path, so it must not go public.",
+   "evidence": "old trillion .gitignore:21-23: \"# Python bytecode is a build product of the scripts, never source.\" / \"__pycache__/\" / \"*.pyc\"; the .py sources were deleted from old trillion by 7fd88384 (\"Old trillion deletes 1028 feature files that now live in the Workshop\") and live in trillion-workshop tools/run-on-a-persons-computer/. The .pyc also embeds a /Users/<owner> path, so it must not go public.",
    "group": "records-docs"
   },
   {
@@ -5635,7 +5635,7 @@
   {
    "path": "records/sales-contract-template-records.json",
    "verdict": "to_move",
-   "evidence": "personal data: belongs in the account's rows, not a public repo. Names a real person (offer:one-on-one-with-Avery, \"Avery sees what the customer works through\") and real customer deals (tennis-client-services, cpg-venture-studio, peptide-price-experiment); its reader is held at trillion-workshop tools/draft-and-send-a-sales-contract-to-a-customer-from/from-old-trillion/src/sales-contract-templates.mjs.held. Like commercial-offer-records.json it is the operator's commercial content; no private repo holds account rows.",
+   "evidence": "personal data: belongs in the account's rows, not a public repo. Names a real person (offer:one-on-one-with-a real first name, \"a real first name sees what the customer works through\") and real customer deals (tennis-client-services, cpg-venture-studio, peptide-price-experiment); its reader is held at trillion-workshop tools/draft-and-send-a-sales-contract-to-a-customer-from/from-old-trillion/src/sales-contract-templates.mjs.held. Like commercial-offer-records.json it is the operator's commercial content; no private repo holds account rows.",
    "group": "records-docs"
   },
   {
