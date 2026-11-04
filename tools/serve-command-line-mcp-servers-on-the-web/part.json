@@ -1,0 +1,6 @@
+{
+  "public": [
+    "do-work/gateway.mjs",
+    "do-work/serve.mjs"
+  ]
+}

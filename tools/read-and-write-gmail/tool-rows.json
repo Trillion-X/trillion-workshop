@@ -72,6 +72,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs/{send_as_email}",
      "method": "PATCH",
@@ -173,6 +174,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts",
      "method": "POST",
@@ -264,6 +266,7 @@
      "type": "object"
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/{draft_id}",
      "method": "DELETE",
@@ -350,6 +353,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/profile",
      "method": "GET",
@@ -443,6 +447,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts?maxResults=50",
      "method": "GET",
@@ -544,6 +549,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/history?startHistoryId={since}&historyTypes=messageAdded&labelId=INBOX&maxResults=100",
      "method": "GET",
@@ -644,6 +650,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs",
      "method": "GET",
@@ -753,6 +760,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}/modify",
      "method": "POST",
@@ -865,6 +873,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}/modify",
      "method": "POST",
@@ -966,6 +975,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}?format=full",
      "method": "GET",
@@ -1058,6 +1068,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/{draft_id}?format=full",
      "method": "GET",
@@ -1152,6 +1163,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date",
      "method": "GET",
@@ -1243,6 +1255,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Cc&metadataHeaders=Subject&metadataHeaders=Date&metadataHeaders=Message-ID",
      "method": "GET",
@@ -1338,6 +1351,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}/untrash",
      "method": "POST",
@@ -1426,6 +1440,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}/untrash",
      "method": "POST",
@@ -1522,6 +1537,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages?q={query}&maxResults=50&includeSpamTrash=true",
      "method": "GET",
@@ -1620,6 +1636,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/send",
      "method": "POST",
@@ -1720,6 +1737,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}/trash",
      "method": "POST",
@@ -1808,6 +1826,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}/trash",
      "method": "POST",
@@ -1909,6 +1928,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/{draft_id}",
      "method": "PUT",
@@ -2021,6 +2041,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "http",
      "url": "https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs/{send_as_email}",
      "method": "PATCH",

@@ -1,0 +1,46 @@
+/* parts/screen-look/show/composer.css
+ *
+ * The look of the shared message box (parts/ui/show/composer/Composer.tsx): its words (the shared document editor)
+ * above its tools. The message box screen (src/workspace/global-composer.tsx) fills the window the screen
+ * arrangement floats it in, its box at the bottom as a chat box is; where that window sits is the arrangement's.
+ */
+.message-box {
+  display: flex; flex-direction: column; justify-content: flex-end; box-sizing: border-box;
+  inline-size: 100%; block-size: 100%; padding: 0.5rem; overflow-y: auto;
+}
+/* The words and the tools, laid out as a chat input (21st.dev Input Bar 12400, Prompt Input 28187): the words fill the
+ * box, and under them one row holds the ways to add, bare and flush with the words' start, with Send at its end. The
+ * box measures itself (a size container, so a narrow pane on a desktop behaves as a phone does): when the ways to add
+ * do not fit beside Send they wrap onto a second row instead of leaving the box. */
+.composer { container: composer / inline-size; }
+.composer-field { box-shadow: 0 10px 30px rgb(46 35 85 / 8%); border-radius: 1rem; }
+.composer-words { min-inline-size: 0; }
+.composer-tools > [data-expandable-tabs] { flex: 1 1 0; min-width: 0; margin-inline-start: -0.25rem; }
+@container composer (max-width: 18rem) {
+  .composer-tools > [data-expandable-tabs] { flex-wrap: wrap; }
+}
+/* What the next message answers or carries, one small removable pill each above the words, after 21st.dev 28500
+ * "attachment composer tray" and 12400 "input bar" staged chips. Colours come from the surface tokens only. */
+.composer-context { padding: 0 0.25rem; }
+.composer-context-chip {
+  max-width: 100%; min-height: 1.75rem; padding: 0.15rem 0.3rem 0.15rem 0.6rem; border-radius: var(--radius-chip, 0.375rem);
+  border: 1px solid var(--border-primary); background: var(--surface-secondary); color: var(--text-secondary);
+}
+.composer-context-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 16rem; }
+.composer-context-chip:not(:has(button)) { padding-right: 0.6rem; }
+/* The choices a message is sent with (where it goes, what the AI does): a quiet button each above the words, its
+ * current choice after its label, opening the shared action menu. */
+.composer-pickers { padding: 0 0.25rem; }
+.composer-picker {
+  display: inline-flex; align-items: center; gap: 0.35rem; max-width: 100%; min-height: 1.75rem; padding: 0.15rem 0.6rem;
+  border-radius: 999px; border: 1px solid var(--border-primary); background: var(--surface-secondary); color: var(--text-secondary);
+}
+.composer-picker-choice { color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 14rem; }
+/* What scrolls beneath a corner's controls ends with room for them, so its last card can be scrolled out from under
+   them (parts/ui/show/floating-occlusion/clear-scroll-beneath.ts marks the area and gives it the height). */
+[data-floating-clearance]::after { content: ''; display: block; flex: none; block-size: var(--floating-clearance, 0px); }
+/* A box pinned at the bottom of its screen gets room under it while a control floats over the window's bottom edge
+   (parts/ui/show/floating-occlusion/lift-above-floating.ts marks it and gives it the height), so it lifts clear. */
+[data-floating-lift] { margin-block-end: var(--floating-lift, 0px); }
+/* What the last send said, with the one next step its answer names (Connect your AI) beside it. */
+.composer-said { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }

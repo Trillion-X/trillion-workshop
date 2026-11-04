@@ -1,0 +1,20 @@
+/* Shared compact workspace roles. BeautifulUI SidebarNav/SelectionActions anatomy;
+   existing ui Button primary/secondary/ghost sizing. MIT notice beside this file. */
+:root{--control-height:34px;--control-radius:8px;--workspace-gap:24px}
+
+/* Placed in the shared record-views toolbar, the bar is one item of that row and adds no spacing of its own. */
+
+.ui-action-menu{position:relative;display:inline-block;font-size:12px}.ui-action-menu summary{list-style:none;cursor:pointer;padding:8px 12px;border-radius:8px;color:var(--muted);user-select:none}.ui-action-menu summary::-webkit-details-marker{display:none}.ui-action-menu summary:hover,.ui-action-menu[open]>summary{background:var(--surface-soft);color:var(--text)}
+
+.ui-workspace :focus-visible,.ui-action-menu :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+.coss-action-card p,.coss-action-card small{white-space:pre-wrap;overflow-wrap:anywhere}
+.coss-record-editor,.coss-record-editor-fields{display:grid;gap:12px;min-width:0}
+.coss-record-editor-row label{display:grid;gap:6px;min-width:0}
+.coss-record-editor-row>button{justify-self:start}
+.coss-record-editor-row>[data-slot=card-footer]{flex-wrap:wrap;gap:8px}
+.coss-record-editor-grid .coss-record-editor-fields{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 12px}
+.coss-record-editor-grid .coss-record-field-wide{grid-column:1/-1}
+.coss-record-field-value{display:block;padding:10px 12px;border:1px solid var(--color-border);border-radius:10px;background:color-mix(in srgb,var(--color-muted) 55%,transparent);font-size:15px;font-weight:600;overflow-wrap:anywhere}
+@media(max-width:700px){.coss-record-editor-grid .coss-record-editor-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+

@@ -1,0 +1,16 @@
+{
+  "_what": "How a sealed local log is written (computer/sealed-log.mjs): each flushed batch is one chunk sealed to a public key the writer holds and cannot reverse, so this computer's other programs, its backups and the person cannot read it, and only the holder of the matching private key can. A chunk is a plain header (magic, version, key id, flags, ciphertext length, the batch's own ephemeral public key, a nonce) that is also the authenticated data, then the AES-256-GCM ciphertext. The header's length lets a reader skip to the next chunk without any key and cut off a torn last chunk.",
+  "magic": "TRSL",
+  "version": 1,
+  "kdf_info": "trillion sealed log v1",
+  "deflate_over_bytes": 256,
+  "max_plaintext_bytes": 1048576,
+  "flush_bytes": 65536,
+  "file_mode": "0600",
+  "words": {
+    "bad_key": "A sealed log needs the 32-byte public key of its reader.",
+    "too_big": "A batch of {bytes} bytes is larger than the {limit} a sealed log accepts.",
+    "not_a_chunk": "The bytes at {offset} are not a sealed chunk.",
+    "wrong_key": "This private key does not open that chunk."
+  }
+}

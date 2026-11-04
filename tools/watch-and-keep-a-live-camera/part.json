@@ -1,0 +1,13 @@
+{
+  "public": [
+    "do-work/receive-a-camera-stream.mjs",
+    "do-work/take-a-stream.mjs",
+    "do-work/capabilities/file-pieces-into-trillion.mjs",
+    "do-work/capabilities/relay-to-an-address.mjs",
+    "do-work/capabilities/public-address-through-tailscale-funnel.mjs",
+    "do-work/capabilities/this-network.mjs",
+    "do-work/capabilities/router-port-forward.mjs",
+    "stream-settings.json",
+    "RTMPcert.pem"
+  ]
+}

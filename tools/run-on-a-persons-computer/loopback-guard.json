@@ -1,0 +1,12 @@
+{
+  "_what": "How the Mac app checks its local runtime (macos/App/ComputerReader.swift with macos/Shared/LocalRuntimeReadiness.swift): `runtime_readiness` is how fresh and how bounded its readiness answer must be, and how big a frame on the runtime's private launch pipe may be. The app refuses to start the runtime unless the row holds exactly these bounds. The runtime decides the app's account key itself; the launch frame carries this launch's owner binding and the blob the runtime last handed the app (`kept`), which is why it may be 4096 bytes, and the runtime's only lines back are `keep` frames with that blob. `owner_page_path` is the engine's way into its page: this app opens it with the launch's owner binding and keeps the session cookie it answers (App/LocalWorkspaceBrowserSession.swift).",
+  "runtime_readiness": {
+    "version": "trillion.local-runtime-readiness/v1",
+    "path": "/__trillion-runtime-ready",
+    "challenge_header": "x-trillion-runtime-challenge",
+    "max_age_ms": 5000,
+    "launch_version": "trillion.local-runtime-launch/v1",
+    "max_frame_bytes": 4096,
+    "owner_page_path": "/__runtime-owner-page"
+  }
+}

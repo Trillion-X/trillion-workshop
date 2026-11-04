@@ -1,0 +1,99 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-KEEP-COPIES-IN-STEP-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: empty trillion-rust product/ in parallel lanes, lane 4",
+  "message_multihash": "1f:13036fc8f75273156b9e6e722b129b4d38d2709fe03d90c77c8d9b1c67e29fb6",
+  "quote": "For catch-up: delete the old catch-up files, the GET /catch-up route [...]. The tool is keep-copies-in-step, from old trillion src/catch-up.mjs and its tests. Move code, never rewrite it."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b4e3c05abe",
+   "path": "src/catch-up.mjs",
+   "multihash": "1f:290b9239019f83a88b2c97d511035eae6e458291a41e0452f541b2c8ee9733a3",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that deletes src/catch-up.mjs, records/catch-up.json, test/catch-up.test.mjs and the /work/api/catch-up route in src/worker.mjs"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b4e3c05abe",
+   "path": "records/catch-up.json",
+   "multihash": "1f:ef72d3ac0c66f04c50c841d71446dcc7e8c607f2ddae62485bdd21bb022e2f69",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that deletes src/catch-up.mjs, records/catch-up.json, test/catch-up.test.mjs and the /work/api/catch-up route in src/worker.mjs"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/keep-copies-in-step/read-data/catch-up.mjs"
+  },
+  {
+   "path": "tools/keep-copies-in-step/read-data/catch-up.json"
+  }
+ ],
+ "preserve": [
+  "a state is the open key the device sent; nothing names a kind of device, state or record",
+  "a device row is written only when its state, waiting count, kind, title or copy changed, or its last catch-up moved by more than rewrite_after_ms",
+  "the versions live only in the record store's kept-apart records; settling writes the choice first and removes the kept versions in the same write",
+  "at most most_devices device rows and most_apart records kept apart are read",
+  "a copy of the records is shown once, as the device that named it or as a device of its own titled words.copy_title, never by its id",
+  "keep both never replaces a record already at a proposed name"
+ ],
+ "allowed_deltas": [
+  "the settings import reads ./catch-up.json beside the code",
+  "KEPT_APART is declared in read-data/catch-up.mjs, the same value trillion parts/record-log/do-work/record-sync.mjs exports, since the Workshop has no record log",
+  "the header names the Workshop rows that run it instead of the old workspace route and MCP tools",
+  "the store binding is do-work/copies.mjs: the person's rows are read through the records door before the synchronous run, and every write carries expected"
+ ],
+ "banned_substitutions": [
+  "a rewritten catch-up decision",
+  "a second copy of catch-up left in trillion-rust (src/catch_up.rs is deleted in the same move)",
+  "a copy of this code left in Trillion-X/trillion after its deleted_by"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:290b9239019f83a88b2c97d511035eae6e458291a41e0452f541b2c8ee9733a3",
+  "target_multihash_at_baseline": "1f:290b9239019f83a88b2c97d511035eae6e458291a41e0452f541b2c8ee9733a3",
+  "recorded_at": "2026-11-03T20:00:00Z",
+  "rows": [
+   {
+    "path": "tools/keep-copies-in-step/read-data/catch-up.mjs",
+    "source_multihash": "1f:290b9239019f83a88b2c97d511035eae6e458291a41e0452f541b2c8ee9733a3",
+    "target_multihash_at_baseline": "1f:290b9239019f83a88b2c97d511035eae6e458291a41e0452f541b2c8ee9733a3"
+   },
+   {
+    "path": "tools/keep-copies-in-step/read-data/catch-up.json",
+    "source_multihash": "1f:ef72d3ac0c66f04c50c841d71446dcc7e8c607f2ddae62485bdd21bb022e2f69",
+    "target_multihash_at_baseline": "1f:ef72d3ac0c66f04c50c841d71446dcc7e8c607f2ddae62485bdd21bb022e2f69"
+   }
+  ],
+  "commit": "786994a726b0f3bb563824bbc7a6089fa0cdd06c"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.8,
+  "required_mechanisms": [
+   "function apartState",
+   "function presentApart",
+   "export function apartOf",
+   "export function catchUp",
+   "function here",
+   "function settle",
+   "export async function handleCatchUpRequest"
+  ],
+  "test_refs": [
+   "tools/keep-copies-in-step/test/catch-up.test.mjs",
+   "tools/keep-copies-in-step/test/copies.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

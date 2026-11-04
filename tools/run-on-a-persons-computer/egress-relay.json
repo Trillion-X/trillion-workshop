@@ -1,0 +1,115 @@
+{
+  "_what": "Opt-in 'use my connection': this Mac relays the network streams of a cloud AI over one authenticated WebSocket (computer/egress-relay.mjs), so a tool behind the person's own network can be reached only through their machine. Off unless `on` is true. Nothing is relayed to a private or reserved address unless `allow_private_targets` is true; every name is resolved first and the policy is checked on the address that will be connected. `path` is the account address the Mac attaches to (computer/mac-tools.mjs starts the relay beside the live connection when `on` is true).",
+  "on": false,
+  "allow_private_targets": false,
+  "allowed_hosts": [],
+  "blocked_ranges": [
+    {
+      "cidr": "0.0.0.0/8",
+      "why": "this network"
+    },
+    {
+      "cidr": "10.0.0.0/8",
+      "why": "private"
+    },
+    {
+      "cidr": "100.64.0.0/10",
+      "why": "carrier-grade NAT"
+    },
+    {
+      "cidr": "127.0.0.0/8",
+      "why": "loopback"
+    },
+    {
+      "cidr": "169.254.0.0/16",
+      "why": "link-local and cloud metadata"
+    },
+    {
+      "cidr": "172.16.0.0/12",
+      "why": "private"
+    },
+    {
+      "cidr": "192.0.0.0/24",
+      "why": "protocol assignments"
+    },
+    {
+      "cidr": "192.0.2.0/24",
+      "why": "documentation"
+    },
+    {
+      "cidr": "192.168.0.0/16",
+      "why": "private"
+    },
+    {
+      "cidr": "198.18.0.0/15",
+      "why": "benchmarking"
+    },
+    {
+      "cidr": "198.51.100.0/24",
+      "why": "documentation"
+    },
+    {
+      "cidr": "203.0.113.0/24",
+      "why": "documentation"
+    },
+    {
+      "cidr": "224.0.0.0/4",
+      "why": "multicast"
+    },
+    {
+      "cidr": "240.0.0.0/4",
+      "why": "reserved"
+    },
+    {
+      "cidr": "::1/128",
+      "why": "loopback"
+    },
+    {
+      "cidr": "::/128",
+      "why": "unspecified"
+    },
+    {
+      "cidr": "fc00::/7",
+      "why": "private"
+    },
+    {
+      "cidr": "fe80::/10",
+      "why": "link-local"
+    },
+    {
+      "cidr": "ff00::/8",
+      "why": "multicast"
+    }
+  ],
+  "frames": {
+    "open": 1,
+    "data": 2,
+    "close": 3
+  },
+  "attach": {
+    "claim": "claim",
+    "if_free": "if-free",
+    "header": "x-egress-attach",
+    "client_header": "x-egress-client",
+    "replaced_code": 4001,
+    "occupied_code": 4002,
+    "occupied_status": 409
+  },
+  "max_buffer_bytes": 1048576,
+  "drain_check_ms": 20,
+  "silence_ms": 60000,
+  "standby_ms": [
+    2000,
+    5000,
+    15000,
+    30000
+  ],
+  "max_streams": 64,
+  "words": {
+    "private_target": "{host} is a private or reserved address ({why}); this connection is not relayed there.",
+    "host_not_allowed": "{host} is not on the list of places this connection may reach.",
+    "unresolved": "{host} could not be found.",
+    "too_many": "Too many streams are open at once."
+  },
+  "path": "/mcp/api/egress"
+}

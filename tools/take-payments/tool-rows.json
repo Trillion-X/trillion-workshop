@@ -3129,6 +3129,102 @@
             "node",
             "/opt/records-door/do-work/run-an-export.mjs",
             "/opt/take-payments/do-work/take-payments.mjs",
+            "observeLiveUsage"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [{"kind": "resource-usage-observation", "operations": ["records:read", "records:list", "records:write"]}, {"kind": "resource-usage-receipt", "operations": ["records:read", "records:list", "records:write"]}, {"files": "/", "operations": ["usage_days"]}]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "Live counts of trillion-rust src/namespace/usage.rs (usage_days) read as take-payments' usage input; meter definitions ported one to one from trillion src/usage-meters.json (b92aa549 :17-104) into read-data/usage-meters.json; observations kept by the existing keepResourceUsageObservation."
+        },
+        "id": "tool:observe-live-usage",
+        "label": "Observe my live usage",
+        "job": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
+        "description": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
+        "input_schema": {"type": "object", "properties": {"request_key": {"type": "string"}, "payer_id": {"type": "string"}, "day_from": {"type": "string"}, "day_to": {"type": "string"}, "today": {"type": "string"}, "settlement_keys": {"type": "object"}, "included_units": {"type": "object"}}, "required": ["request_key", "payer_id", "day_from", "day_to", "today", "settlement_keys"], "additionalProperties": false},
+        "output_schema": {"type": "object", "properties": {"observation_refs": {"type": "object"}, "quantities": {"type": "object"}, "missing_days": {"type": "array"}}, "required": ["observation_refs", "quantities", "missing_days"]},
+        "verify": [],
+        "kind": "ai-tool-descriptor"
+      }
+    },
+    {
+      "payload": {
+        "status": "active",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
             "settleSharedResourceCost"
           ],
           "stdin": {

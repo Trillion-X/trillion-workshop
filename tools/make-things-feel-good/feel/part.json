@@ -1,0 +1,7 @@
+{
+  "public": [
+    "read-data/choose-feel.mjs",
+    "show/mount-feel.ts",
+    "show/FeelSettings.tsx"
+  ]
+}

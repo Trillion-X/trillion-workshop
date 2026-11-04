@@ -1,0 +1,45 @@
+{
+  "_what": "Words and choices for sharing calendar time from the calendar header: the Share links list and the bar shown while dragging out slots.",
+  "shareButton": "Share",
+  "shareIcon": "Share2",
+  "popoverTitle": "Share links",
+  "loading": "Loading shared slots",
+  "loadError": "Shared slots could not be loaded.",
+  "empty": "No slots shared yet",
+  "createLink": "Create link",
+  "rowMenu": "Actions for {title}",
+  "rowActions": {
+    "share": {
+      "label": "Share",
+      "icon": "share-2"
+    },
+    "makeRecurring": {
+      "label": "Make recurring",
+      "icon": "repeat"
+    },
+    "discard": {
+      "label": "Discard link",
+      "icon": "trash-2"
+    }
+  },
+  "actionError": "That change could not be saved. Try again.",
+  "toastTitle": "Create a new slot",
+  "toastDetail": "Start dragging on the calendar to create slots",
+  "barLabel": "New shared slots",
+  "repeat": "Repeat",
+  "repeatHelp": "Allows re-using slots in future weeks",
+  "duration": "Slot duration",
+  "copyPreferred": "Copy from Preferred Times",
+  "choosePreferred": "Choose preferred times",
+  "noPreferred": "No preferred times saved",
+  "slotCount": "{count} slots chosen",
+  "slotCountOne": "1 slot chosen",
+  "dragHint": "Drag on the calendar to choose times.",
+  "removeSlot": "Remove {when}",
+  "create": "Create",
+  "discard": "Discard",
+  "createError": "The link could not be created. Your slots are still here; try again.",
+  "created": "Link created. Choose how to share it.",
+  "madeRecurring": "Now repeats every week.",
+  "discarded": "Link discarded."
+}

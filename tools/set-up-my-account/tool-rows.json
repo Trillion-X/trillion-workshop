@@ -1,0 +1,222 @@
+{
+  "kind": "tool-rows",
+  "record_set": "set-up-my-account-tool-rows",
+  "what_this_is": "The Workshop row for tools/set-up-my-account: the Get started screen (which setup steps apply, which are done, who does each and how to connect an AI) from the facts the request sends.",
+  "records": [
+    {
+      "id": "package::set-up-my-account::tool::see-what-is-left-to-set-up",
+      "address": "package::set-up-my-account::tool::see-what-is-left-to-set-up",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-what-is-left-to-set-up",
+        "label": "See what is left to set up",
+        "status": "active",
+        "job": "Show me what is left to set up in my account, who does each step and what to do next",
+        "description": "Draws the Get started screen from your setup facts: which setup steps apply to your account (picked by the setup show rules, yours and the operator's), which are done, which only you can do, whether your workspace is ready, and the steps for connecting your AI. A step whose facts were not sent is unknown, never done, and a rule set or setup context the request leaves out is unknown too, so the screen stays not ready rather than opening on a guess. It reads and changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "The account whose setup this is (it picks the account's own setup context and its rollout bucket)"
+            },
+            "facts": {
+              "type": "object",
+              "description": "The setup facts: runtime, aiConnected, aiApps, owned, devices, notificationDevices, access, freeDecisionAccess, computers, knownAt. A fact left out is unknown."
+            },
+            "system": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The asking device's system (mac, windows, ios, android, linux)"
+            },
+            "shared_rules": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "The operator's show-rules record; leave it out when it could not be read"
+            },
+            "rules": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "Your own show-rules record ({ rules: [...] }); leave it out when it could not be read"
+            },
+            "context": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "The operator's setup context for this account"
+            },
+            "personal_context": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "Your own setup context record"
+            },
+            "setup_access": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "App access requests to show as your own steps (confirm email, accept the invitation)"
+            },
+            "installs": {
+              "type": "object",
+              "description": "Install words the AI app guides fill in ({ name: text })"
+            },
+            "origin": {
+              "type": "string",
+              "description": "The Trillion address an AI connects to (https://...)"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "title",
+            "ready",
+            "requirements",
+            "sections"
+          ],
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "lead": {
+              "type": "string"
+            },
+            "ready": {
+              "type": "boolean"
+            },
+            "setup_complete": {
+              "type": "boolean"
+            },
+            "workspace_mode": {
+              "type": "string"
+            },
+            "requirements": {
+              "type": "array"
+            },
+            "policy": {
+              "type": "object"
+            },
+            "sections": {
+              "type": "array"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work/compile-rules.mjs",
+                  "do-work/evaluate-binding.mjs",
+                  "read-data/rule-operators.json"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data/score-candidates.ts"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/set-up-my-account",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/set-up-my-account/do-work/see-what-is-left-to-set-up.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:set-up-my-account",
+        "provenance": {
+          "source": "trillion src/setup-steps.mjs (setupStepsWithRules) and src/account-screens.mjs (getStartedFacts) at d273ef3, with their imports, moved here; the Get started screen trillion-rust served from src/workspace_setup and src/local_workspace/setup.rs leaves the engine in the same change"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account_id": "acct-sample",
+              "facts": {
+                "aiConnected": false,
+                "aiApps": []
+              },
+              "origin": "https://app.example.test",
+              "now": "2026-01-01T00:00:00.000Z"
+            },
+            "output_selector": "$.result.sections[1].id",
+            "contains": "setup-with-ai"
+          }
+        ]
+      }
+    }
+  ]
+}
