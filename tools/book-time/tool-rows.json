@@ -216,7 +216,29 @@
         "maker": "maker:book-time",
         "result_selector": "$.result",
         "provenance": { "source": "bitfield-packages packages/calendar-booker (request-booking action and booking-status contract), ported to the records door" },
-        "verify": [{ "kind": "output-number-within", "output_selector": "$.booking.attendees.length", "at_least": 0 }],
+        "verify": [{ "kind": "output-number-within", "output_selector": "$.booking.attendees.length", "at_least": 0 }, {
+          "kind": "sample-run",
+          "input": {
+            "idempotency_key": "sample-booking-1",
+            "start": "2030-08-12T14:00:00Z",
+            "timezone": "UTC",
+            "windows": [
+              {
+                "weekday": 1,
+                "start": "09:00",
+                "end": "17:00"
+              }
+            ],
+            "duration_minutes": 30,
+            "title": "Sample session",
+            "attendees": [
+              {
+                "name": "Sample Person",
+                "email": "sample.person@example.test"
+              }
+            ]
+          }
+        }],
         "record_model": {
           "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
           "kinds": [
@@ -498,7 +520,33 @@
         "maker": "maker:book-time",
         "result_selector": "$.result",
         "provenance": { "source": "bitfield-packages packages/calendar-booker booking-status state contract" },
-        "verify": [{ "kind": "output-contains-input", "output_selector": "$.booking.id", "input_field": "booking_id" }]
+        "verify": [{ "kind": "output-contains-input", "output_selector": "$.booking.id", "input_field": "booking_id" }, {
+          "kind": "sample-run",
+          "input": {
+            "booking_id": "booking:sample-booking-1",
+            "to": "cancelled",
+            "reason": "Sample reason"
+          },
+          "records": [
+            {
+              "id": "booking:sample-booking-1",
+              "type": "booking",
+              "value": {
+                "id": "booking:sample-booking-1",
+                "status": "confirmed",
+                "scheduled_start": "2030-08-12T14:00:00.000Z",
+                "scheduled_end": "2030-08-12T14:30:00.000Z",
+                "timezone": "UTC",
+                "attendees": [
+                  {
+                    "name": "Sample Person",
+                    "email": "sample.person@example.test"
+                  }
+                ]
+              }
+            }
+          ]
+        }]
       }
     },
     {
@@ -551,7 +599,54 @@
         "placements": ["placement:small-container"],
         "maker": "maker:book-time",
         "result_selector": "$.result",
-        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/external-calendar-busy-and-changes.ts" }
+        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/external-calendar-busy-and-changes.ts" },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "from": "2030-08-12T00:00:00Z",
+            "to": "2030-08-13T00:00:00Z"
+          },
+          "held": {
+            "calendar-account": "{\"provider\":\"google\",\"client_id\":\"sample-client-id.example.test\",\"client_secret\":\"sample-client-secret\",\"refresh_token\":\"sample-refresh-token\"}"
+          },
+          "replies": [
+            {
+              "request": {
+                "method": "POST",
+                "url": "https://oauth2.googleapis.com/token"
+              },
+              "status": 200,
+              "body": {
+                "access_token": "sample-access-token",
+                "expires_in": 3599,
+                "token_type": "Bearer"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "url": "https://www.googleapis.com/calendar/v3/freeBusy"
+              },
+              "status": 200,
+              "body": {
+                "kind": "calendar#freeBusy",
+                "timeMin": "2030-08-12T00:00:00.000Z",
+                "timeMax": "2030-08-13T00:00:00.000Z",
+                "calendars": {
+                  "primary": {
+                    "busy": [
+                      {
+                        "start": "2030-08-12T15:00:00Z",
+                        "end": "2030-08-12T16:00:00Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     },
     {
@@ -615,7 +710,89 @@
         "placements": ["placement:small-container"],
         "maker": "maker:book-time",
         "result_selector": "$.result",
-        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/create-external-calendar-event.ts" }
+        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/create-external-calendar-event.ts" },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "title": "Sample session",
+            "start_local": "2030-08-12T09:00",
+            "end_local": "2030-08-12T09:30",
+            "timezone": "UTC",
+            "attendees": [
+              {
+                "email": "sample.person@example.test",
+                "displayName": "Sample Person"
+              }
+            ],
+            "booking_id": "booking:sample-booking-1"
+          },
+          "held": {
+            "calendar-account": "{\"provider\":\"google\",\"client_id\":\"sample-client-id.example.test\",\"client_secret\":\"sample-client-secret\",\"refresh_token\":\"sample-refresh-token\"}"
+          },
+          "records": [
+            {
+              "id": "booking:sample-booking-1",
+              "type": "booking",
+              "value": {
+                "id": "booking:sample-booking-1",
+                "status": "confirmed",
+                "scheduled_start": "2030-08-12T09:00:00.000Z",
+                "scheduled_end": "2030-08-12T09:30:00.000Z",
+                "timezone": "UTC",
+                "attendees": [
+                  {
+                    "name": "Sample Person",
+                    "email": "sample.person@example.test"
+                  }
+                ]
+              }
+            }
+          ],
+          "replies": [
+            {
+              "request": {
+                "method": "POST",
+                "url": "https://oauth2.googleapis.com/token"
+              },
+              "status": 200,
+              "body": {
+                "access_token": "sample-access-token",
+                "expires_in": 3599,
+                "token_type": "Bearer"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "url": "https://www.googleapis.com/calendar/v3/calendars/primary/events"
+              },
+              "status": 200,
+              "body": {
+                "kind": "calendar#event",
+                "id": "sampleevent1",
+                "status": "confirmed",
+                "htmlLink": "https://calendar.example.test/event?eid=sampleevent1",
+                "summary": "Sample session",
+                "start": {
+                  "dateTime": "2030-08-12T09:00:00Z",
+                  "timeZone": "UTC"
+                },
+                "end": {
+                  "dateTime": "2030-08-12T09:30:00Z",
+                  "timeZone": "UTC"
+                },
+                "attendees": [
+                  {
+                    "email": "sample.person@example.test",
+                    "displayName": "Sample Person",
+                    "responseStatus": "needsAction"
+                  }
+                ]
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     },
     {
@@ -665,7 +842,51 @@
         "placements": ["placement:small-container"],
         "maker": "maker:book-time",
         "result_selector": "$.result",
-        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/external-calendar-busy-and-changes.ts" }
+        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/external-calendar-busy-and-changes.ts" },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "event_id": "sampleevent1",
+            "start": "2030-08-12T10:00:00Z",
+            "end": "2030-08-12T10:30:00Z"
+          },
+          "held": {
+            "calendar-account": "{\"provider\":\"google\",\"client_id\":\"sample-client-id.example.test\",\"client_secret\":\"sample-client-secret\",\"refresh_token\":\"sample-refresh-token\"}"
+          },
+          "replies": [
+            {
+              "request": {
+                "method": "POST",
+                "url": "https://oauth2.googleapis.com/token"
+              },
+              "status": 200,
+              "body": {
+                "access_token": "sample-access-token",
+                "expires_in": 3599,
+                "token_type": "Bearer"
+              }
+            },
+            {
+              "request": {
+                "method": "PATCH",
+                "url": "https://www.googleapis.com/calendar/v3/calendars/primary/events/sampleevent1"
+              },
+              "status": 200,
+              "body": {
+                "kind": "calendar#event",
+                "id": "sampleevent1",
+                "status": "confirmed",
+                "start": {
+                  "dateTime": "2030-08-12T10:00:00Z"
+                },
+                "end": {
+                  "dateTime": "2030-08-12T10:30:00Z"
+                }
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     },
     {
@@ -711,7 +932,39 @@
         "placements": ["placement:small-container"],
         "maker": "maker:book-time",
         "result_selector": "$.result",
-        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/external-calendar-busy-and-changes.ts" }
+        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/external-calendar-busy-and-changes.ts" },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "event_id": "sampleevent1"
+          },
+          "held": {
+            "calendar-account": "{\"provider\":\"google\",\"client_id\":\"sample-client-id.example.test\",\"client_secret\":\"sample-client-secret\",\"refresh_token\":\"sample-refresh-token\"}"
+          },
+          "replies": [
+            {
+              "request": {
+                "method": "POST",
+                "url": "https://oauth2.googleapis.com/token"
+              },
+              "status": 200,
+              "body": {
+                "access_token": "sample-access-token",
+                "expires_in": 3599,
+                "token_type": "Bearer"
+              }
+            },
+            {
+              "request": {
+                "method": "DELETE",
+                "url": "https://www.googleapis.com/calendar/v3/calendars/primary/events/sampleevent1"
+              },
+              "status": 204,
+              "body": ""
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     },
     {

@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:210e169b853374d4ed7bd33931c77e3968aa1a561df45fda8f771e9ce767022a"
+  "blake3": "1f:a698e192dce79a4684f5b48ce6938c98e17a34e8e784c04e28bd54f2d214d6d7"
  },
  "fields": [
   {
@@ -271,6 +271,21 @@
      "placement:deployed-container"
     ],
     "folder": "work-breakdown"
+   }
+  },
+  {
+   "id": "tool:admit-attachments-to-a-message",
+   "values": {
+    "title": "Admit the files sent with a message",
+    "job": "Decide how many of the files sent with a message are accepted, and which limit stopped the rest, in words to show the person",
+    "description": "Give files ([{ name, size }] in the order offered), and when wanted limits ({ per_turn_cap, absolute_bytes, max_bytes, binding_words }; defaults from src/attachment-admission.json), daily ({ remaining, resets_at } when the plan keeps a daily count) and now (milliseconds). A file over the size ceiling is left out; the first files that fit min(per-turn cap, remaining daily count) are accepted in order. Returns accepted (indexes), left_out ([{ index, because }]), binding (size, per_turn, daily or null), banner (the words naming the limit) and blocked. A null limit does not bind. Pure: reads no clock, plan or network.",
+    "status": "active",
+    "maker": "maker:admit-attachments-to-a-message",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "admit-attachments-to-a-message"
    }
   },
   {
@@ -1725,6 +1740,21 @@
    }
   },
   {
+   "id": "tool:compare-two-ai-builds-on-trap-tasks",
+   "values": {
+    "title": "Compare two AI builds on trap tasks",
+    "job": "Score two builds of an AI's behaviour on the same trap tasks from the calls each run recorded, and say on which tasks they differ",
+    "description": "Give left and right: each arm's trace { arm, runs: [{ task_id, state, calls: [{ tool }] }] }, written from the calls its runs recorded (never from what a run said about itself). Both are scored over the whole trap battery this tool carries (src/behavior-evals.json; each task drawn from a waste or failure class, scored by max_calls, forbids_tool, requires_tool, calls_before and ends_in), or over battery when given. A task an arm has no run for scores 0 and stays in the denominator. Returns arms (score, of, ran, classes, tasks), same_denominator and differ.",
+    "status": "active",
+    "maker": "maker:compare-two-ai-builds-on-trap-tasks",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "compare-two-ai-builds-on-trap-tasks"
+   }
+  },
+  {
    "id": "tool:compare-two-diagrams",
    "values": {
     "title": "Compare two versions of a diagram",
@@ -1978,6 +2008,21 @@
      "placement:small-container"
     ],
     "folder": "describe-the-workshop"
+   }
+  },
+  {
+   "id": "tool:describe-connected-accounts",
+   "values": {
+    "title": "Describe my connected accounts",
+    "job": "Say in plain words, for each of my connected accounts, which one is primary, what its sign-in allowed, what Trillion copies from it, what stays live and what Trillion may do with it",
+    "description": "Give connections ([{ connection_id, vendor, service, account_label, status, connected_at, grant_scopes_known, grant_scopes, can_send, visibility, carried_by, capabilityChoices }]) and when wanted chosen ({ vendor: connection_id }, the kept primary choice), arriving ({ vendor: [labels of event sources listening] }), local_copies (connection ids a computer may keep the sign-in of) and capabilities ({ vendor: [{ id, label }] }). A service with several accounts and no choice uses its earliest; a choice that no longer holds is ignored. Groups say only what the provider reported. Returns primary and accounts [{ connection_id, primary, allowed_groups, words: { copied, live, allowed }, steps }].",
+    "status": "active",
+    "maker": "maker:describe-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "describe-connected-accounts"
    }
   },
   {
@@ -2525,6 +2570,21 @@
      "placement:small-container"
     ],
     "folder": "person-list"
+   }
+  },
+  {
+   "id": "tool:find-pictures-by-colour-and-likeness",
+   "values": {
+    "title": "Find pictures by colour or likeness",
+    "job": "Find my pictures by a colour I type or name, or find pictures like one I pick",
+    "description": "Give rows (the pictures' facts: [{ id, palette: ['#rrggbb', ...], embedding? }]) and one of question (words with typed #rrggbb colours or colour words), colour (one #rrggbb) or like (the id of a picture). Colour is compared in CIE-LAB (delta-E 1976): a typed hex within 22 of any palette colour, a colour word within 16 of the top three. like ranks by embedding cosine (floor 0.30) and falls back to palette distance when embeddings are missing or weak; the picture itself is never its own result. Returns ids, by (colour, embedding or palette) and the colours asked.",
+    "status": "active",
+    "maker": "maker:find-pictures-by-colour-and-likeness",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "find-pictures-by-colour-and-likeness"
    }
   },
   {
@@ -5333,6 +5393,21 @@
    }
   },
   {
+   "id": "tool:places-left-out-of-screen-capture",
+   "values": {
+    "title": "Places left out of screen capture",
+    "job": "List, check and turn on or off the categories of places (banking, health, social and more) the person's screen capture must leave out, and take new coverage as a cursor diff",
+    "description": "Runs on the person's own Mac. action list gives each category, whether it is on and how many domains it holds; check says which category on an address is in, or null; set turns one category on or off in the person's own file; diff applies a cursor diff of added domains and tombstones only when it starts at this Mac's cursor. A subdomain belongs to its domain's category, a look-alike does not, and a removed domain stays gone after a seed reload.",
+    "status": "active",
+    "maker": "maker:record-the-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "record-the-screen"
+   }
+  },
+  {
    "id": "tool:plan-a-column-fill",
    "values": {
     "title": "Fill a column by asking my sources in order",
@@ -7034,6 +7109,21 @@
     ],
     "listed_on": "2026-10-30T20:00:00Z",
     "folder": "take-requests"
+   }
+  },
+  {
+   "id": "tool:record-the-screen",
+   "values": {
+    "title": "Record my screen",
+    "job": "Record one display or one window of the person's Mac as a movie the person chose, pause, resume and stop it, note the pointer (positions and presses, never keys) beside it, and save it only to a place the person's allow-list names",
+    "description": "Runs on the person's own Mac. action start needs a source ({ kind: display | window, id }) that is there now; the first capturer row that this Mac has, that can take that kind of source and that can leave out the apps and window titles the person listed records it (a ScreenCaptureKit helper, then the system's screencapture). pause and resume reach it as its row says, or are refused in words. The recording ends by itself, saying so, when its source goes away. It is written as a 0600 file in a fresh 0700 folder; save moves it, and the pointer sidecar, to a path under the allow-list, never through a link and never over a file. prefs and exclude edit the person's own settings and leave-out list. status says what is recording.",
+    "status": "active",
+    "maker": "maker:record-the-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "record-the-screen"
    }
   },
   {
@@ -8770,6 +8860,21 @@
    }
   },
   {
+   "id": "tool:show-what-a-tool-would-give-members",
+   "values": {
+    "title": "Show what a tool would give members",
+    "job": "Before I add a tool for my space's members, tell me what it would give each member beyond what they already hold, what it reaches or could cost, and whether I must decide it myself",
+    "description": "Give descriptor (the tool's row: id, placements, needs, price_ref...), toolVersion (the content identity of that definition, so exactly one immutable version is judged), members ([{ member_id, name }]), held ({ member_id: [operations their grants already give] }), and when wanted operations (some of discover, describe, run, read; all when left out) and memberId (one member; * for everyone now and later). Returns per member gains and already, reaches (what the descriptor says it does: runs on a member's computer, sends data off the device, can cost money, keeps results), needs_owner and says. Read-only: it grants nothing.",
+    "status": "active",
+    "maker": "maker:show-what-a-tool-would-give-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "show-what-a-tool-would-give-members"
+   }
+  },
+  {
    "id": "tool:show-which-offers-a-buyer-may-see",
    "values": {
     "title": "Show which offers a buyer may see",
@@ -9026,6 +9131,21 @@
    }
   },
   {
+   "id": "tool:suggest-connections-from-links",
+   "values": {
+    "title": "Suggest connections from links",
+    "job": "Offer to connect a service when words I wrote link to one I have not connected",
+    "description": "Give text (the words to read links from, with or without https://) and tools (the connection rows, each { id, invoke: { provider, connects: { domain } } }), and connected (providers already connected, left out of the answer). A link matches a domain when its host is that domain or a name under it; the longest matching domain wins, and services sharing it are all named. Returns hosts and suggestions [{ provider, host, reason }]. It only proposes: connecting stays the person's own step.",
+    "status": "active",
+    "maker": "maker:suggest-connections-from-links",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "suggest-connections-from-links"
+   }
+  },
+  {
    "id": "tool:suggest-media-cuts",
    "values": {
     "title": "Suggest cuts from a recording's words",
@@ -9114,6 +9234,21 @@
      "placement:small-container"
     ],
     "folder": "take-me-there"
+   }
+  },
+  {
+   "id": "tool:take-pictures-out-of-a-zip-archive",
+   "values": {
+    "title": "Take the pictures out of a zip archive",
+    "job": "Take the pictures out of a zip archive as files to import, without ever unpacking it to disk by entry name",
+    "description": "Give zip_base64 (the archive's bytes), and when wanted profile (chat_export: the conversations*.json files of an account export) or limits (max_entries, max_entry_bytes, max_total_bytes, max_ratio, media_types, title_prefix). Only entries of an admitted extension are read; archive litter (__MACOSX, ._ files, .DS_Store, Thumbs.db) and folders never are. An entry's name is never a path: it gives only a title (its last segment without the extension). An archive over a limit is refused whole, naming the limit. Returns entries [{ title, media_type, byte_count, bytes_base64 }] in archive order and count.",
+    "status": "active",
+    "maker": "maker:take-pictures-out-of-a-zip-archive",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-pictures-out-of-a-zip-archive"
    }
   },
   {
@@ -9351,6 +9486,22 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "git-changes"
+   }
+  },
+  {
+   "id": "tool:upload-a-file-to-a-signed-slot",
+   "values": {
+    "title": "Upload a file to a signed storage slot",
+    "job": "Upload one file from a folder the person granted to a signed storage slot a page hands over, only to a destination the tool's own list allows, so the page never sees the file",
+    "description": "Give file (its name inside the folder the person granted this tool, such as reports/diag.zip), content_type (the file's media type) and slot ({ url, fields }: the https address and the text form fields the storage service signed). The slot is checked as a whole before a byte leaves: https, a host equal to a destination row's, a path inside that row's folder, no query, fragment, credentials or port, text-only fields within the row's field cap, and a content type the row lists. The file is read from the granted folder only (a name that leaves it, or a link out of it, names nothing), held once, and posted as the form's last field. Returns sent, size and said; the signed fields are never in an answer or an error. The shipped destination list is empty, so it uploads nowhere until a destination row is added to read-data/guarded-upload.json.",
+    "status": "active",
+    "maker": "maker:upload-a-file-to-a-signed-slot",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "upload-a-file-to-a-signed-slot"
    }
   },
   {
