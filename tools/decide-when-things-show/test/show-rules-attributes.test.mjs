@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
 import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
-import { makeShowRules } from '../show-rules-store.mjs';
+import { makeShowRules } from '../read-data/show-rules-store.mjs';
 
 const wasm = () => readFileSync(new URL(import.meta.resolve('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')));
 const filter = makeRowFilter({ operators, wasm });
