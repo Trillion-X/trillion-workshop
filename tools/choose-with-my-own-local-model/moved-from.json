@@ -12,11 +12,33 @@
       "identity": "1f:a238a2b296114bf4b0a8022f4bcab0d7feffdadb583351f1f04901e3928b4361"
     },
     {
+      "from": "src/local-choice-observations.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/choose-with-my-own-local-model/src/local-choice-observations.mjs",
+      "source_identity": "1f:a238a2b296114bf4b0a8022f4bcab0d7feffdadb583351f1f04901e3928b4361",
+      "identity": "1f:a238a2b296114bf4b0a8022f4bcab0d7feffdadb583351f1f04901e3928b4361",
+      "reused": true
+    },
+    {
+      "from": "test/fixtures/local-choice-observations-before.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/choose-with-my-own-local-model/test/fixtures/local-choice-observations-before.mjs",
+      "source_identity": "1f:185235b9d3ef8181c6823f7faf9a6e3f0a91593c55f0e66be22f6ac9885c1866",
+      "identity": "1f:185235b9d3ef8181c6823f7faf9a6e3f0a91593c55f0e66be22f6ac9885c1866"
+    },
+    {
       "from": "test/local-choice-observations.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/choose-with-my-own-local-model/test/local-choice-observations.test.mjs",
       "source_identity": "1f:f1632e646df8ebb83c9ccebe6a126bb97f29ed2753a191336b595ad66a9b5d4d",
       "identity": "1f:f1632e646df8ebb83c9ccebe6a126bb97f29ed2753a191336b595ad66a9b5d4d"
+    },
+    {
+      "from": "test/local-choice-retention.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/choose-with-my-own-local-model/test/local-choice-retention.test.mjs",
+      "source_identity": "1f:9507d1d39b0a56d75cf6c0fe66fa163a2bef22d347ae9b39fa401851f3ca10de",
+      "identity": "1f:9507d1d39b0a56d75cf6c0fe66fa163a2bef22d347ae9b39fa401851f3ca10de"
     }
   ]
 }
