@@ -113,7 +113,8 @@ export async function cutIntoRecords({ root, mapping, check = false } = {}) {
   const plan = typeof mapping === 'string' ? JSON.parse(await readFile(join(base, mapping), 'utf8')) : mapping;
   if (plan?.cut !== 'atoms') throw say('bad_input', { what: 'The mapping needs `cut: "atoms"`.' });
   const sources = await atomSources(files, plan);
-  const readText = async file => { try { return (await files.read(null, Infinity, file)).text; } catch { return ''; } };
+  // The text and the identity of the file's exact bytes (the atoms rule writes it as each source's file_identity).
+  const readText = async file => { try { const { text, identity } = await files.read(null, Infinity, file); return { text, identity }; } catch { return { text: '', identity: null }; } };
   const result = await splitDocuments({ ...plan, sources }, readText);
   return { report: { ...result.report, documents: sources.length }, ...(check ? {} : { records: atomRecords(result.items, plan) }) };
 }
