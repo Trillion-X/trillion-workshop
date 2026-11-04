@@ -15,7 +15,7 @@
 //      unnamed row that is not live is in no group (it is still in the rows list the caller returns).
 //   3. Liveness is liveProblem (src/own-ais.mjs), the same test the routing uses; one app is live when any instance is.
 //   4. The order of the groups is the person's order: the lowest order among an app's instances.
-import { harnessWithin } from './harnesses.mjs';
+import { harnessWithin } from '../../keep-and-wake-ai-sessions-on-this-computer/src/harnesses.mjs';
 import { liveProblem } from '../../shared-code/src/own-ais.mjs';
 import aisData from '../../shared-code/src/ais.json' with { type: 'json' };
 

@@ -5,13 +5,6 @@
   "calls": [],
   "files": [
     {
-      "from": "src/harnesses.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/group-my-ais-by-the-app-they-connected-claude/src/harnesses.mjs",
-      "source_identity": "1f:33ac36f42befc61d08cb075bd2c6fbc78022f38e26f9c117da884b22233b8dd6",
-      "identity": "1f:ca5c1149e57f326c51f3d48fadd9d1d9b66cd92ec60bc53e12f509f92c1bd990"
-    },
-    {
       "from": "src/own-ais-apps.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/group-my-ais-by-the-app-they-connected-claude/src/own-ais-apps.mjs",

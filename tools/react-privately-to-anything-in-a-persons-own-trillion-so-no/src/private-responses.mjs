@@ -3,7 +3,7 @@
 // record engine, so neither a Space audience nor another account can read these rows.
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { VOTE, anchorFrom, foldReactions, reactionFrom, responseAnchorKey } from '../../shared-code/src/responses.mjs';
+import { VOTE, anchorFrom, foldReactions, reactionFrom, responseAnchorKey } from '../../keep-and-wake-ai-sessions-on-this-computer/src/responses.mjs';
 
 const TYPE = 'private-response';
 const idOf = anchor => `${TYPE}:${bytesToHex(blake3(new TextEncoder().encode(responseAnchorKey(anchor))))}`;

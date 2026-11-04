@@ -4,7 +4,7 @@ import {
   expectedValueAdmission,
   needleMoverScopeKey,
   selectionBoundary,
-} from "./bounded-candidates.mjs";
+} from "../../../../match-community-members/src/community-logic/match/bounded-candidates.mjs";
 
 export function pairKey(a, b) {
   return JSON.stringify([String(a), String(b)].sort());

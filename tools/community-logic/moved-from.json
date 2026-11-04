@@ -1,53 +1,43 @@
 {
-  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
-  "source": "Trillion-X/trillion",
-  "package": "trillion-workshop",
-  "calls": [],
-  "files": [
-    {
-      "from": "src/community-logic/nudge-gate.ts",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/community-logic/src/community-logic/nudge-gate.ts",
-      "source_identity": "1f:fa6289d7a7334f12ec3fda577279c767851e28cc37ebcd2db474097e3443c87e",
-      "identity": "1f:fa6289d7a7334f12ec3fda577279c767851e28cc37ebcd2db474097e3443c87e"
-    },
-    {
-      "from": "src/community-logic/project-progress-to-path.ts",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/community-logic/src/community-logic/project-progress-to-path.ts",
-      "source_identity": "1f:a36e6f4dc1d33b17db00d8703ec654d2c6540d63a5ee4098243a35d847945909",
-      "identity": "1f:a36e6f4dc1d33b17db00d8703ec654d2c6540d63a5ee4098243a35d847945909"
-    },
-    {
-      "from": "src/community-logic/tribe-chains.ts",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/community-logic/src/community-logic/tribe-chains.ts",
-      "source_identity": "1f:b8a2f254020b6c66167e9db8fc8e1089e1f61cc9dbc1338355b0cdb746cab54e",
-      "identity": "1f:b8a2f254020b6c66167e9db8fc8e1089e1f61cc9dbc1338355b0cdb746cab54e"
-    },
-    {
-      "from": "test/community-logic/nudge-gate.test.ts",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/community-logic/test/community-logic/nudge-gate.test.ts",
-      "source_identity": "1f:14ba321b196adfe92f892e232df814de2a38c9fbe347c37e65661d1e2c14f879",
-      "identity": "1f:524da5981f7b2f16a55e920f9c078bf8c14b8018b3b9e7e2482c59ead11a7ccf"
-    },
-    {
-      "from": "test/community-logic/project-progress-to-path.test.ts",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/community-logic/test/community-logic/project-progress-to-path.test.ts",
-      "source_identity": "1f:c33dcb1b1caeae3279d2b3f54f614c63765b27f26de4c57c5639c9fb9a7377e3",
-      "identity": "1f:93ebf07d0b81b8495b1efffdd82be4088f8b1eebbd59b23d62d8d560aefcaac7"
-    },
-    {
-      "from": "test/community-tribes.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/community-logic/test/community-tribes.test.mjs",
-      "source_identity": "1f:5737ae7d617a76a7a2ed0216f44ead5778b46bd653dd18c15435308a09bec272",
-      "identity": "1f:5737ae7d617a76a7a2ed0216f44ead5778b46bd653dd18c15435308a09bec272",
-      "reads_rows": [
-        "communities/trillion.json"
-      ]
-    }
-  ]
+ "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+ "source": "Trillion-X/trillion",
+ "package": "trillion-workshop",
+ "calls": [],
+ "files": [
+  {
+   "from": "src/community-logic/nudge-gate.ts",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/community-logic/src/community-logic/nudge-gate.ts",
+   "source_identity": "1f:fa6289d7a7334f12ec3fda577279c767851e28cc37ebcd2db474097e3443c87e",
+   "identity": "1f:fa6289d7a7334f12ec3fda577279c767851e28cc37ebcd2db474097e3443c87e"
+  },
+  {
+   "from": "src/community-logic/project-progress-to-path.ts",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/community-logic/src/community-logic/project-progress-to-path.ts",
+   "source_identity": "1f:a36e6f4dc1d33b17db00d8703ec654d2c6540d63a5ee4098243a35d847945909",
+   "identity": "1f:a36e6f4dc1d33b17db00d8703ec654d2c6540d63a5ee4098243a35d847945909"
+  },
+  {
+   "from": "src/community-logic/tribe-chains.ts",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/community-logic/src/community-logic/tribe-chains.ts",
+   "source_identity": "1f:b8a2f254020b6c66167e9db8fc8e1089e1f61cc9dbc1338355b0cdb746cab54e",
+   "identity": "1f:b8a2f254020b6c66167e9db8fc8e1089e1f61cc9dbc1338355b0cdb746cab54e"
+  },
+  {
+   "from": "test/community-logic/nudge-gate.test.ts",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/community-logic/test/community-logic/nudge-gate.test.ts",
+   "source_identity": "1f:14ba321b196adfe92f892e232df814de2a38c9fbe347c37e65661d1e2c14f879",
+   "identity": "1f:524da5981f7b2f16a55e920f9c078bf8c14b8018b3b9e7e2482c59ead11a7ccf"
+  },
+  {
+   "from": "test/community-logic/project-progress-to-path.test.ts",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "to": "tools/community-logic/test/community-logic/project-progress-to-path.test.ts",
+   "source_identity": "1f:c33dcb1b1caeae3279d2b3f54f614c63765b27f26de4c57c5639c9fb9a7377e3",
+   "identity": "1f:93ebf07d0b81b8495b1efffdd82be4088f8b1eebbd59b23d62d8d560aefcaac7"
+  }
+ ]
 }

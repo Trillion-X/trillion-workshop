@@ -30,7 +30,7 @@
 //   }
 //
 
-import { letGoStep } from './let-go-of-table.mjs';
+import { letGoStep } from '../../keep-and-wake-ai-sessions-on-this-computer/src/let-go-of-table.mjs';
 
 const PLACE = 'table-move';
 const ACTOR = { actor: { by: 'trillion' } };

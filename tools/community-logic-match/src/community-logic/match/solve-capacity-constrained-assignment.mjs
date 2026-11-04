@@ -3,7 +3,7 @@ import {
   expectedValueAdmission,
   needleMoverScopeKey,
   selectionBoundary,
-} from "./bounded-candidates.mjs";
+} from "../../../../match-community-members/src/community-logic/match/bounded-candidates.mjs";
 
 const OWNER_REUSE_REFS = Object.freeze([
   "group",

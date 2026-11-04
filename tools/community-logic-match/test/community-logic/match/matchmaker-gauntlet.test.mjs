@@ -8,7 +8,7 @@ import {
   EXPECTED_VALUE_FACTORS,
   buildCandidates,
   scoreExpectedValue,
-} from "../../../src/community-logic/match/bounded-candidates.mjs";
+} from "../../../../match-community-members/src/community-logic/match/bounded-candidates.mjs";
 import { pairKey, selectPairs } from "../../../src/community-logic/match/select-pairs.mjs";
 
 const GROUPING = {
@@ -168,7 +168,7 @@ test("CONFORMANCE / SCALING: shortlist access stays subject x configured bound",
 
 test("CONFORMANCE: production matcher contains no all-pairs or persona-specific branch", () => {
   const source = [
-    "../../../src/community-logic/match/bounded-candidates.mjs",
+    "../../../../match-community-members/src/community-logic/match/bounded-candidates.mjs",
     "../../../src/community-logic/match/select-pairs.mjs",
   ].map((relative) => readFileSync(new URL(relative, import.meta.url), "utf8")).join("\n");
   assert.doesNotMatch(source, /every unordered pair|Math\.random\s*\(|cosine|similarity/i);

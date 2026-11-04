@@ -6,7 +6,7 @@ import {
   buildCandidates,
   expectedValueAdmission,
   scoreExpectedValue,
-} from "../../../src/community-logic/match/bounded-candidates.mjs";
+} from "../../../../match-community-members/src/community-logic/match/bounded-candidates.mjs";
 import { selectPairs } from "../../../src/community-logic/match/select-pairs.mjs";
 
 const ACCESS_TIERS = [

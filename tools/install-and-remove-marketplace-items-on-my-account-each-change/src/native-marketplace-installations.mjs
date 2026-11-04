@@ -14,7 +14,7 @@
 //   2. Removal keeps the row with removed_at, so the sequence the reads page over only grows.
 //   3. Excluding a component writes only over the exact row the caller checked (expected: the configurationIdentity of its current row, currentInstallRow): a
 //      row that changed since is refused (409), so a check made on an older set never removes from a newer one.
-import { configurationIdentity } from './marketplace-configurations.mjs';
+import { configurationIdentity } from '../../see-what-an-account-has-installed/src/marketplace-configurations.mjs';
 import { currentInstallRow } from '../../shared-code/src/renamed-tools.mjs';
 
 const fail = (message, status = 400) => Object.assign(new Error(message), { status });
