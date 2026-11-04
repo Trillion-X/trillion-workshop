@@ -67,7 +67,8 @@
               {
                 "package": "decide-when-things-show",
                 "paths": [
-                  "do-work"
+                  "do-work",
+                  "read-data"
                 ],
                 "at": "/opt/decide-when-things-show"
               },
@@ -88,9 +89,45 @@
               {
                 "package": "formula-engine",
                 "paths": [
-                  "rules"
+                  "rules",
+                  "built-stored-bytes"
                 ],
                 "at": "/opt/formula-engine"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "find-anything-from-one-box",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/find-anything-from-one-box"
+              },
+              {
+                "package": "organize-the-sidebar",
+                "paths": [
+                  "sidebar/part.json"
+                ],
+                "at": "/opt/organize-the-sidebar"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/ui"
               },
               {
                 "package": "records-door",
@@ -161,7 +198,7 @@
         "maker": "maker:decide-when-things-show",
         "result_selector": "$.result",
         "provenance": {
-          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+          "source": "trillion src/show-rules-store.mjs (190f72754e) makeShowRules read, set and remove, moved here as read-data/show-rules-store.mjs with only its imports changed, over src/workspace/show-rules.mjs changedRecord (tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's copy and grant records"
         },
         "verify": [
           {
@@ -274,7 +311,8 @@
               {
                 "package": "decide-when-things-show",
                 "paths": [
-                  "do-work"
+                  "do-work",
+                  "read-data"
                 ],
                 "at": "/opt/decide-when-things-show"
               },
@@ -295,9 +333,45 @@
               {
                 "package": "formula-engine",
                 "paths": [
-                  "rules"
+                  "rules",
+                  "built-stored-bytes"
                 ],
                 "at": "/opt/formula-engine"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "find-anything-from-one-box",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/find-anything-from-one-box"
+              },
+              {
+                "package": "organize-the-sidebar",
+                "paths": [
+                  "sidebar/part.json"
+                ],
+                "at": "/opt/organize-the-sidebar"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/ui"
               },
               {
                 "package": "records-door",
@@ -368,7 +442,7 @@
         "maker": "maker:decide-when-things-show",
         "result_selector": "$.result",
         "provenance": {
-          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+          "source": "trillion src/show-rules-store.mjs (190f72754e) makeShowRules read, set and remove, moved here as read-data/show-rules-store.mjs with only its imports changed, over src/workspace/show-rules.mjs changedRecord (tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's copy and grant records"
         },
         "verify": [
           {
@@ -484,7 +558,8 @@
               {
                 "package": "decide-when-things-show",
                 "paths": [
-                  "do-work"
+                  "do-work",
+                  "read-data"
                 ],
                 "at": "/opt/decide-when-things-show"
               },
@@ -505,9 +580,45 @@
               {
                 "package": "formula-engine",
                 "paths": [
-                  "rules"
+                  "rules",
+                  "built-stored-bytes"
                 ],
                 "at": "/opt/formula-engine"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "find-anything-from-one-box",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/find-anything-from-one-box"
+              },
+              {
+                "package": "organize-the-sidebar",
+                "paths": [
+                  "sidebar/part.json"
+                ],
+                "at": "/opt/organize-the-sidebar"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/ui"
               },
               {
                 "package": "records-door",
@@ -578,7 +689,7 @@
         "maker": "maker:decide-when-things-show",
         "result_selector": "$.result",
         "provenance": {
-          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+          "source": "trillion src/show-rules-store.mjs (190f72754e) makeShowRules read, set and remove, moved here as read-data/show-rules-store.mjs with only its imports changed, over src/workspace/show-rules.mjs changedRecord (tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's copy and grant records"
         },
         "verify": [
           {
@@ -688,7 +799,8 @@
               {
                 "package": "decide-when-things-show",
                 "paths": [
-                  "do-work"
+                  "do-work",
+                  "read-data"
                 ],
                 "at": "/opt/decide-when-things-show"
               },
@@ -709,9 +821,45 @@
               {
                 "package": "formula-engine",
                 "paths": [
-                  "rules"
+                  "rules",
+                  "built-stored-bytes"
                 ],
                 "at": "/opt/formula-engine"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "find-anything-from-one-box",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/find-anything-from-one-box"
+              },
+              {
+                "package": "organize-the-sidebar",
+                "paths": [
+                  "sidebar/part.json"
+                ],
+                "at": "/opt/organize-the-sidebar"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/ui"
               },
               {
                 "package": "records-door",
@@ -782,7 +930,7 @@
         "maker": "maker:decide-when-things-show",
         "result_selector": "$.result",
         "provenance": {
-          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+          "source": "trillion src/show-rules-store.mjs (190f72754e) makeShowRules read, set and remove, moved here as read-data/show-rules-store.mjs with only its imports changed, over src/workspace/show-rules.mjs changedRecord (tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's copy and grant records"
         },
         "verify": [
           {
@@ -896,7 +1044,8 @@
               {
                 "package": "decide-when-things-show",
                 "paths": [
-                  "do-work"
+                  "do-work",
+                  "read-data"
                 ],
                 "at": "/opt/decide-when-things-show"
               },
@@ -917,9 +1066,45 @@
               {
                 "package": "formula-engine",
                 "paths": [
-                  "rules"
+                  "rules",
+                  "built-stored-bytes"
                 ],
                 "at": "/opt/formula-engine"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "find-anything-from-one-box",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/find-anything-from-one-box"
+              },
+              {
+                "package": "organize-the-sidebar",
+                "paths": [
+                  "sidebar/part.json"
+                ],
+                "at": "/opt/organize-the-sidebar"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/ui"
               },
               {
                 "package": "records-door",
@@ -990,7 +1175,7 @@
         "maker": "maker:decide-when-things-show",
         "result_selector": "$.result",
         "provenance": {
-          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+          "source": "trillion src/show-rules-store.mjs (190f72754e) makeShowRules read, set and remove, moved here as read-data/show-rules-store.mjs with only its imports changed, over src/workspace/show-rules.mjs changedRecord (tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's copy and grant records"
         },
         "verify": [
           {
@@ -1113,7 +1298,8 @@
               {
                 "package": "decide-when-things-show",
                 "paths": [
-                  "do-work"
+                  "do-work",
+                  "read-data"
                 ],
                 "at": "/opt/decide-when-things-show"
               },
@@ -1134,9 +1320,45 @@
               {
                 "package": "formula-engine",
                 "paths": [
-                  "rules"
+                  "rules",
+                  "built-stored-bytes"
                 ],
                 "at": "/opt/formula-engine"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "find-anything-from-one-box",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/find-anything-from-one-box"
+              },
+              {
+                "package": "organize-the-sidebar",
+                "paths": [
+                  "sidebar/part.json"
+                ],
+                "at": "/opt/organize-the-sidebar"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/ui"
               },
               {
                 "package": "records-door",
@@ -1214,7 +1436,7 @@
         "maker": "maker:decide-when-things-show",
         "result_selector": "$.result",
         "provenance": {
-          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+          "source": "trillion src/show-rules-store.mjs (190f72754e) makeShowRules read, set and remove, moved here as read-data/show-rules-store.mjs with only its imports changed, over src/workspace/show-rules.mjs changedRecord (tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's copy and grant records"
         },
         "verify": [
           {
@@ -1283,28 +1505,27 @@
         "label": "Share a kept show type",
         "status": "active",
         "job": "Share one of my show-rule presets with people so they see Trillion that way",
-        "description": "Shares a type you keep: answers two records to keep, show-types-shared:<id> = { label, types } (the preset copied whole, with the presets it inherits) and sharing:<that label> = { record, people, changed_at }, which keeps who may read it. people is everyone it is shared with, each { principal, key_blake3 }, the BLAKE3 of the share key you hand them; the key itself is never sent.",
+        "description": "Shares a type you keep with one person or account (principal), as the Account visibility screen does: answers two records to keep, in order, the preset's copy show-types-shared:<id> = { label, types } (the preset with every preset it inherits) and its grant sharing:<that label> = { record, people: [{ principal, key_blake3 }], changed_at }. It makes the share key and answers it once as key, to hand to that person; the grant keeps only its BLAKE3. Someone it is already shared with is refused, and nothing is kept.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "required": [
             "type",
-            "people"
+            "principal",
+            "grant"
           ],
           "properties": {
             "type": {
               "type": "string",
               "description": "The id of a type you keep"
             },
-            "people": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": [
-                  "principal",
-                  "key_blake3"
-                ]
-              }
+            "principal": {
+              "type": "string",
+              "description": "The person or account"
+            },
+            "grant": {
+              "type": "string",
+              "description": "Where the type's share is kept: sharing:show-types-shared:<type id> (see-when-things-show names it for each type as grant)"
             },
             "now": {
               "type": "string",
@@ -1317,6 +1538,7 @@
           "required": [
             "shared",
             "people",
+            "key",
             "keep",
             "said"
           ],
@@ -1325,7 +1547,13 @@
               "type": "string"
             },
             "people": {
-              "type": "array"
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "key": {
+              "type": "string"
             },
             "keep": {
               "type": "array",
@@ -1350,7 +1578,8 @@
               {
                 "package": "decide-when-things-show",
                 "paths": [
-                  "do-work"
+                  "do-work",
+                  "read-data"
                 ],
                 "at": "/opt/decide-when-things-show"
               },
@@ -1371,9 +1600,45 @@
               {
                 "package": "formula-engine",
                 "paths": [
-                  "rules"
+                  "rules",
+                  "built-stored-bytes"
                 ],
                 "at": "/opt/formula-engine"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "find-anything-from-one-box",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/find-anything-from-one-box"
+              },
+              {
+                "package": "organize-the-sidebar",
+                "paths": [
+                  "sidebar/part.json"
+                ],
+                "at": "/opt/organize-the-sidebar"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/ui"
               },
               {
                 "package": "records-door",
@@ -1429,6 +1694,18 @@
                 "operations": [
                   "workspace:read"
                 ]
+              },
+              {
+                "kind": "@own-records",
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "grant"
+                  }
+                },
+                "operations": [
+                  "workspace:read"
+                ]
               }
             ]
           }
@@ -1444,19 +1721,15 @@
         "maker": "maker:decide-when-things-show",
         "result_selector": "$.result",
         "provenance": {
-          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+          "source": "trillion src/show-rules-store.mjs (190f72754e) makeShowRules read, set and remove, moved here as read-data/show-rules-store.mjs with only its imports changed, over src/workspace/show-rules.mjs changedRecord (tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's copy and grant records"
         },
         "verify": [
           {
             "kind": "sample-run",
             "input": {
               "type": "sample-preset",
-              "people": [
-                {
-                  "principal": "sample-account",
-                  "key_blake3": "0000000000000000000000000000000000000000000000000000000000000000"
-                }
-              ]
+              "principal": "sample-account",
+              "grant": "sharing:show-types-shared:sample-preset"
             },
             "output_selector": "$",
             "contains": "show-types-shared:sample-preset",
@@ -1500,28 +1773,49 @@
         "id": "tool:stop-sharing-a-show-type",
         "label": "Stop sharing a show type",
         "status": "active",
-        "job": "Stop sharing one of my show-rule presets",
-        "description": "Answers the two records of a shared type (sharing:show-types-shared:<id> and show-types-shared:<id>) to remove, so nobody it was shared with reads it any more.",
+        "job": "Stop sharing one of my show-rule presets with someone",
+        "description": "Takes one person or account out of a shared type's grant (sharing:show-types-shared:<id>), so their share key reads nothing any more; the others it is shared with keep reading it. Answers keep, the grant to write.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "type"
+            "type",
+            "principal",
+            "grant"
           ],
           "properties": {
             "type": {
               "type": "string",
-              "description": "The id of a type you share"
+              "description": "The id of a type you keep"
+            },
+            "principal": {
+              "type": "string",
+              "description": "The person or account"
+            },
+            "grant": {
+              "type": "string",
+              "description": "Where the type's share is kept: sharing:show-types-shared:<type id> (see-when-things-show names it for each type as grant)"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
             }
           }
         },
         "output_schema": {
           "type": "object",
           "required": [
+            "people",
             "keep",
             "said"
           ],
           "properties": {
+            "people": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "keep": {
               "type": "array",
               "description": "The records to keep, each { label, value, expected? }: written by whoever holds the person's write (the page's records write, or a grant the person gives); this run writes nothing",
@@ -1545,7 +1839,8 @@
               {
                 "package": "decide-when-things-show",
                 "paths": [
-                  "do-work"
+                  "do-work",
+                  "read-data"
                 ],
                 "at": "/opt/decide-when-things-show"
               },
@@ -1566,9 +1861,45 @@
               {
                 "package": "formula-engine",
                 "paths": [
-                  "rules"
+                  "rules",
+                  "built-stored-bytes"
                 ],
                 "at": "/opt/formula-engine"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "find-anything-from-one-box",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/find-anything-from-one-box"
+              },
+              {
+                "package": "organize-the-sidebar",
+                "paths": [
+                  "sidebar/part.json"
+                ],
+                "at": "/opt/organize-the-sidebar"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/ui"
               },
               {
                 "package": "records-door",
@@ -1614,6 +1945,23 @@
             "fill": {
               "from": "input"
             }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "grant"
+                  }
+                },
+                "operations": [
+                  "workspace:read"
+                ]
+              }
+            ]
           }
         },
         "needs": {
@@ -1627,16 +1975,32 @@
         "maker": "maker:decide-when-things-show",
         "result_selector": "$.result",
         "provenance": {
-          "source": "trillion src/show-rules-store.mjs (190f72754e) read, set and remove, over src/workspace/show-rules.mjs changedRecord (moved here as tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's two records"
+          "source": "trillion src/show-rules-store.mjs (190f72754e) makeShowRules read, set and remove, moved here as read-data/show-rules-store.mjs with only its imports changed, over src/workspace/show-rules.mjs changedRecord (tools/set-up-my-account/read-data/show-rules.mjs); sharing a kept preset is a2e1365f33's copy and grant records"
         },
         "verify": [
           {
             "kind": "sample-run",
             "input": {
-              "type": "sample-preset"
+              "type": "sample-preset",
+              "principal": "sample-account",
+              "grant": "sharing:show-types-shared:sample-preset"
             },
             "output_selector": "$",
-            "contains": "sample-preset"
+            "contains": "sharing:show-types-shared:sample-preset",
+            "doorOptions": {
+              "workspaceRecords": {
+                "sharing:show-types-shared:sample-preset": {
+                  "record": "show-types-shared:sample-preset",
+                  "people": [
+                    {
+                      "principal": "sample-account",
+                      "key_blake3": "0000000000000000000000000000000000000000000000000000000000000000"
+                    }
+                  ],
+                  "changed_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            }
           }
         ]
       }

@@ -1,3 +1,14 @@
+// read-data/account-facts.mjs
+//
+// The account facts an audience reads, moved byte for byte from trillion src/work-for-ais.mjs (190f72754e) lines 74-122:
+// accountFacts, createdAtFor, ACCOUNT_RULE_FIELDS, declaredAccountTags, accountRuleFields and tagAttributes, the part of
+// that module src/show-rules-store.mjs imports. Only the imports are this folder's (ports/account-facts.json). The rest of
+// work-for-ais.mjs (sending work rows to AIs) is not here.
+
+import settings from './work-for-ais.json' with { type: 'json' };
+import setupSettings from '../../set-up-my-account/read-data/setup-steps.json' with { type: 'json' };
+import { observerBucket } from '../../run-experiments/read-data/score-candidates.ts';
+
 
 /** The facts an audience reads for one account (settings.facts). Read from the account's own record, never from an editable one. */
 export function accountFacts({ accountId, plan = 'free', offers = null, capabilities = null, createdAt = null, context = null, setupIncluded = false, setupDone = false, operator = false, attributes = null }) {

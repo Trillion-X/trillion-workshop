@@ -13,11 +13,11 @@
 //      at the top, so the list is a tree however deep the paths go.
 //   3. A path is declared once; the first declaration's words are kept.
 
-import arrangement from '../../../screen-arrangement/part.json' with { type: 'json' };
-import palette from '../../../command-palette/part.json' with { type: 'json' };
-import sidebar from '../../../sidebar/part.json' with { type: 'json' };
-import ui from '../../part.json' with { type: 'json' };
-import openChoices from '../placeable-surface-intent/open-choices.json' with { type: 'json' };
+import arrangement from '../../arrange-screens-in-panes/part.json' with { type: 'json' };
+import palette from '../../find-anything-from-one-box/part.json' with { type: 'json' };
+import sidebar from '../../organize-the-sidebar/sidebar/part.json' with { type: 'json' };
+import ui from '../../ui/part.json' with { type: 'json' };
+import openChoices from './open-choices.json' with { type: 'json' };
 
 const rows = [
   ...[sidebar, arrangement, palette, ui].flatMap(manifest => manifest.controls ?? []),

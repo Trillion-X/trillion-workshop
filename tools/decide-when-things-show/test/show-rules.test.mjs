@@ -9,6 +9,8 @@ import data from '../../set-up-my-account/read-data/show-rules.json' with { type
 import causes from '../../workflows/recipe-wake-causes.json' with { type: 'json' };
 import { profileRules, ruleProblem } from '../../set-up-my-account/read-data/show-rules.mjs';
 import { USE_ASKED } from '../do-work/show-rules.mjs';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
 
 const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
 const row = slug => rowOf(ROWS, `tool:${slug}`);
@@ -31,13 +33,16 @@ const kept = result => {
   return result.keep[0];
 };
 
-test('every action is one row, and every row reads only the show-rules record', () => {
+test('every action is one row, and every row reads only the show-rules record or the grant it is asked about', () => {
   const ids = ROWS.records.map(one => one.payload.id);
   assert.deepEqual(ids, ['see-when-things-show', 'keep-a-show-rule', 'take-a-show-rule-away', 'keep-a-show-type', 'take-a-show-type-away',
     'switch-a-kept-show-type', 'share-a-kept-show-type', 'stop-sharing-a-show-type'].map(slug => `tool:${slug}`));
   for (const one of ROWS.records.map(record => record.payload)) {
     for (const right of one.invoke.records?.rights ?? []) {
-      if (right.kind === '@own-records') assert.deepEqual([right.id, right.operations], [data.record, ['workspace:read']], `${one.id} reads only its record`);
+      if (right.kind === '@own-records') {
+        assert.deepEqual(right.operations, ['workspace:read'], `${one.id} only reads`);
+        assert.ok(right.id === data.record || right.id?.fill?.field === 'grant', `${one.id} reads its record or the grant named`);
+      }
       assert.ok(!right.operations.includes('workspace:write'), `${one.id} claims no workspace write`);
     }
   }
@@ -143,21 +148,52 @@ test('a wake: a record of the declared kind written switches the type it names',
   assert.match(none.error, new RegExp(USE_ASKED));
 });
 
-test('share a kept type: the preset copied whole with what it inherits, and who may read it', async () => {
-  const people = [{ principal: 'sample-account', key_blake3: 'a'.repeat(64) }];
-  const { status, result } = await run('share-a-kept-show-type', { type: 'child', people });
+const GRANT = id => `sharing:${data.sharing.record_prefix}${id}`;
+const share = (input, records = {}) => runRow(row('share-a-kept-show-type'), { now: NOW, grant: GRANT(input.type), ...input },
+  { doorOptions: { workspaceRecords: { [data.record]: RECORD, ...records } } });
+
+test('share a kept type: the copy first, with what it inherits, then the grant, holding only the key\'s BLAKE3 (a2e1365f33)', async () => {
+  const { status, result } = await share({ type: 'child', principal: 'sample-account' });
   assert.equal(status, 0);
   const label = `${data.sharing.record_prefix}child`;
-  assert.deepEqual(result.keep.map(one => one.label), [label, `sharing:${label}`]);
-  assert.deepEqual(result.keep[0].value.types.map(one => one.id), ['child', 'base']);
-  assert.deepEqual(result.keep[1].value, { record: label, people, changed_at: NOW });
-  assert.match((await run('share-a-kept-show-type', { type: 'nobody', people })).error, /^No profile nobody/);
-  assert.match((await run('share-a-kept-show-type', { type: 'child', people: [{ principal: 'x', key: 'secret' }] })).error, /key_blake3/);
+  assert.deepEqual(result.keep.map(one => one.label), [label, GRANT('child')], 'the copy is kept before the grant names anyone');
+  assert.deepEqual(result.keep[0].value.types.map(one => one.id), ['child', 'base'], 'an inheriting preset carries what it inherits');
+  assert.equal(result.keep[0].value.label, 'Sample child');
+  assert.match(result.key, /^shr_[A-Za-z0-9_-]{43}$/);
+  assert.deepEqual(result.keep[1].value, { record: label, people: [{ principal: 'sample-account', key_blake3: bytesToHex(blake3(new TextEncoder().encode(result.key))) }], changed_at: NOW });
+  assert.equal(result.keep[1].expected, null, 'a grant nobody kept is written only while it is still absent');
+  assert.ok(!JSON.stringify(result.keep).includes(result.key), 'no record holds the key');
+  assert.equal(result.said, data.sharing.words.added.replace('{principal}', 'sample-account'));
 });
 
-test('stop sharing removes both records of the shared type', async () => {
-  const { status, result } = await runRow(row('stop-sharing-a-show-type'), { type: 'child' });
+test('a share with someone already named is refused in the screen\'s words, with nothing to keep', async () => {
+  const grant = { record: `${data.sharing.record_prefix}child`, people: [{ principal: 'sample-account', key_blake3: 'a'.repeat(64) }], changed_at: NOW };
+  const again = await share({ type: 'child', principal: 'sample-account' }, { [GRANT('child')]: grant });
+  assert.equal(again.error, data.sharing.words.already.replace('{principal}', 'sample-account'));
+  const other = await share({ type: 'child', principal: 'sample-other' }, { [GRANT('child')]: grant });
+  assert.deepEqual(other.result.people, ['sample-account', 'sample-other']);
+  assert.deepEqual(other.result.keep[1].expected, grant);
+  assert.match((await share({ type: 'nobody', principal: 'x' })).error, /no preset nobody/);
+  assert.match((await share({ type: 'child', principal: 'x', grant: 'sharing:elsewhere' })).error, /grant is where the share of child is kept/);
+});
+
+test('stop sharing takes the person out of the grant and leaves the others', async () => {
+  const people = [{ principal: 'sample-account', key_blake3: 'a'.repeat(64) }, { principal: 'sample-other', key_blake3: 'b'.repeat(64) }];
+  const grant = { record: `${data.sharing.record_prefix}child`, people, changed_at: NOW };
+  const { status, result } = await runRow(row('stop-sharing-a-show-type'), { type: 'child', principal: 'sample-account', grant: GRANT('child'), now: NOW },
+    { doorOptions: { workspaceRecords: { [GRANT('child')]: grant } } });
   assert.equal(status, 0);
-  const label = `${data.sharing.record_prefix}child`;
-  assert.deepEqual(result.keep, [{ label: `sharing:${label}`, value: null }, { label, value: null }]);
+  assert.deepEqual(result.keep, [{ label: GRANT('child'), value: { ...grant, people: [people[1]] }, expected: grant }]);
+  const none = await runRow(row('stop-sharing-a-show-type'), { type: 'child', principal: 'sample-account', grant: GRANT('child') });
+  assert.match(none.error, /not shared with sample-account/);
+});
+
+test('the moved store\'s edit rules decide through a row: an edit rule that denies changing rules refuses it', async () => {
+  const actions = data.edit_authority.actions;
+  const edit_rules = [{ id: 'owner', effect: 'allow', who: { kind: 'account_owner' }, actions }, { id: 'no-rule-changes', effect: 'deny', who: { kind: 'account_owner' }, actions: ['change_rule'] }];
+  const { status, error } = await run('keep-a-show-rule', { rule: { label: 'Sample new', subject: SUBJECT, when: null, effect: EFFECT } }, { ...RECORD, edit_rules });
+  assert.notEqual(status, 0);
+  assert.match(error, /do not let this account actor change rule/);
+  const read = await run('see-when-things-show', {}, { ...RECORD, edit_rules });
+  assert.deepEqual(read.result.edit_authority.rules.map(one => one.id), ['owner', 'no-rule-changes']);
 });

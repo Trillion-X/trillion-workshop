@@ -3,30 +3,46 @@
 // PURPOSE
 //   The rows of this tool, run by tools/records-door/do-work/run-an-export.mjs over the person's own `show-rules` record
 //   (show-rules.json `record`): see when things show, keep or change a rule, take a rule away, keep a type, take a type
-//   away, switch a kept type on or off, share a kept type, stop sharing. A person, an AI and a wake all run the same rows,
-//   so each change is the same change wherever it starts.
+//   away, switch a kept type on or off, share a kept type with someone, stop sharing it with them. A person, an AI and a
+//   wake all run the same rows, so each change is the same change wherever it starts.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. The decisions are the moved code's: every change is set-up-my-account/read-data/show-rules.mjs changedRecord (the
-//      one change function show-rules-store.mjs set and remove call), each refusal in its words or the store's. This
-//      file reads the record, hands it over, and answers what to keep.
+//   1. The decisions are the moved store's: read-data/show-rules-store.mjs makeShowRules (trillion src/show-rules-store.mjs)
+//      read, set and remove, with its edit rules and its refusals in its words, over changedRecord. Sharing is
+//      a2e1365f33's two records, in its words (show-rules.json `sharing.words`). This file reads the records through the
+//      door, hands them to that code, and answers what it would write.
 //   2. Nothing here names a person, subject, control or type: show-rules.json and the request say them.
-//   3. The record is read through the door (`workspace:read`, one exact label). A run's key may not write a workspace
-//      record, so a change answers `keep`: the records to write, each with the value read as `expected`, written by
-//      whoever holds the person's write (the page's own generic records write, or a grant the person gives). Nothing is
-//      written here and no second store is kept.
-//   4. A shipped default is an overlay the reader lays under the person's record; it is never written into the record.
+//   3. A run's key may not write a workspace record, so a change answers `keep`: the records to write, in order, each
+//      with the value read as `expected`, written by whoever holds the person's write (the page's generic records write,
+//      or a grant the person gives). A record changed meanwhile is not written over. Nothing here keeps a second store.
+//   4. A share key is made here and answered once (`key`, to hand to the person); the grant keeps only its BLAKE3.
+//   5. A shipped default is an overlay the reader lays under the person's record; it is never written into the record.
 //
+import { readFileSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
 import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { changedRecord, everyRule, heldTypes, profileRules, typesOf } from '../../set-up-my-account/read-data/show-rules.mjs';
+import sharing from '../read-data/record-sharing.json' with { type: 'json' };
+import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
+import { typesOf, heldTypes } from '../../set-up-my-account/read-data/show-rules.mjs';
+import { makeShowRules } from '../read-data/show-rules-store.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const word = value => typeof value === 'string' && value.trim().length > 0;
-const words = list => (list ?? []).map(({ id, label, kind, choices }) => ({ id, label, ...(kind ? { kind } : {}), ...(choices ? { choices } : {}) }));
-const current = (list, at) => list.filter(rule => !rule.until || Date.parse(rule.until) > at);
+const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
+// The person's own door: the account owner, as the store's edit rules read the actor.
+const OWN = { account_id: 'own' };
 // The kind of record a wake reads for a switch it is asked to make: { type, on }, one per type.
 export const USE_ASKED = 'show-type-use';
+
+const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
+let loaded = null;
+async function rowFilter() {
+  if (!loaded) loaded = (async () => { const filter = makeRowFilter({ operators, wasm }); await filter.load(); return filter.filterRowsByRulesNow; })();
+  return loaded;
+}
 
 function nowOf(input) {
   if (input.now === undefined) return Date.now();
@@ -35,88 +51,81 @@ function nowOf(input) {
   return at;
 }
 
-/** The person's show-rules record as the door holds it: an object, or null when they keep none yet. */
-async function readRecord(door) {
-  const { records } = await door.readWorkspace([data.record]);
-  const value = records[data.record];
-  if (value === undefined || value === null) return null;
-  if (!object(value)) throw new Error(`${data.record} is not a show-rules record: it must be an object.`);
-  return value;
+/** The records the door holds for these labels: label → value, absent labels left out. */
+async function readLabels(door, labels) {
+  const { records } = await door.readWorkspace(labels);
+  return new Map(labels.filter(label => records[label] !== undefined && records[label] !== null).map(label => [label, records[label]]));
 }
 
-const keepOf = (next, prior) => [{ label: data.record, value: next, expected: prior }];
-
-// The answer show-rules-store.mjs set gives (rules, types, said), with the record to keep.
-function answerOf(next, prior, at, extra) {
-  return { ...extra, rules: current(everyRule(data, next), at), types: typesOf(next).map(type => type.id), keep: keepOf(next, prior) };
-}
-
-async function changed(door, input, change) {
+/**
+ * The moved store over what was read. Its writes are kept aside, in order, and each later read sees them, so several
+ * changes in one run (a wake's switches) build on each other. `keep()` answers them against what was first read.
+ */
+async function storeOver(door, input) {
+  const first = await readLabels(door, [data.record]);
+  const held = new Map(first);
+  const writes = [];
+  const records = {
+    read: label => held.get(label) ?? null,
+    write: rows => {
+      for (const row of rows) { held.set(row.address_label, row.payload); writes.push(row.address_label); }
+      return {};
+    },
+  };
   const at = nowOf(input);
-  const prior = await readRecord(door);
-  return { prior, next: changedRecord(data, prior, change, at, 'personal'), at };
+  const store = makeShowRules({ records, filterRows: await rowFilter(), authority: 'personal', now: () => new Date(at) });
+  const keep = () => [...new Set(writes)].map(label => ({ label, value: held.get(label) ?? null, expected: first.get(label) ?? null }));
+  return { store, keep, held };
 }
+
+const changeOnly = (input, field) => {
+  if (!object(input)) throw new Error('The request is one object.');
+  const { now: _now, ...rest } = input;
+  return field ? { [field]: rest[field] } : rest;
+};
 
 /** tool:see-when-things-show (show-rules-store.mjs read) */
 export async function seeWhenThingsShow(input = {}, { door } = {}) {
   if (!object(input)) throw new Error('The request is one object.');
-  const record = await readRecord(door);
-  const at = nowOf(input);
-  const spaceId = word(input.space_id) ? input.space_id.trim() : null;
-  const rules = current([...everyRule(data, record), ...profileRules(data, record, spaceId)], at);
-  return {
-    rules,
-    subjects: Object.fromEntries(Object.entries(data.subjects).map(([id, subject]) => [id, { label: subject.label, facts: words(subject.facts),
-      ...(subject.allowed_effects ? { allowed_effects: subject.allowed_effects } : {}) }])),
-    types: typesOf(record).map(type => ({ id: type.id, label: type.label ?? type.id, inherits: type.inherits ?? [], rules: type.rules ?? [], ...(type.scope != null ? { scope: type.scope } : {}) })),
-    in_use: Array.isArray(record?.in_use) ? record.in_use : [],
-    record: data.record,
-    moment_facts: words(data.moment_facts),
-    effects: words(data.effects),
-    quick: words(data.quick),
-    operators: (operators.operators ?? []).map(row => row.id ?? row).filter(Boolean),
-    said: rules.some(rule => rule.on) ? `${rules.filter(rule => rule.on).length} rules are on.` : 'No rules are on: everything shows.',
-  };
+  const { store } = await storeOver(door, input);
+  const answer = await store.read({ space_id: input.space_id ?? null });
+  // Where each kept type's share is kept, for share-a-kept-show-type and stop-sharing-a-show-type to name.
+  return { ...answer, types: answer.types.map(type => ({ ...type, grant: grantLabel(type.id) })) };
+}
+
+async function set(door, input, change) {
+  const { store, keep } = await storeOver(door, input);
+  const answer = await store.set(change, { actor: OWN });
+  return { ...answer, keep: keep() };
 }
 
 /** tool:keep-a-show-rule (show-rules-store.mjs set { rule } | { starting }) */
 export async function keepAShowRule(input = {}, { door } = {}) {
-  if (!object(input)) throw new Error('The request is one object.');
-  const change = object(input.starting) ? { starting: input.starting } : { save: input.rule };
-  if (!change.starting && !object(change.save)) throw new Error('rule is { label, subject, when, effect, until? }; starting is { id, on } for a starting rule.');
-  const { prior, next, at } = await changed(door, input, change);
-  const rule = change.save ? next.rules.find(one => change.save.id ? one.id === change.save.id : !(prior?.rules ?? []).some(before => before.id === one.id)) : null;
-  return answerOf(next, prior, at, { ...(rule ? { rule } : {}), said: rule ? `Kept: ${rule.label || rule.subject}.` : 'Changed.' });
+  const change = changeOnly(input);
+  if (!object(change.rule) && !object(change.starting)) throw new Error('rule is { label, subject, when, effect, until? }; starting is { id, on } for a starting rule.');
+  return set(door, input, object(change.starting) ? { starting: change.starting } : { rule: change.rule });
 }
 
 /** tool:take-a-show-rule-away (show-rules-store.mjs remove) */
 export async function takeAShowRuleAway(input = {}, { door } = {}) {
-  if (!object(input)) throw new Error('The request is one object.');
-  if (typeof input.id !== 'string' || !input.id) throw new Error('id is a rule id from read_show_rules.');
-  const { prior, next, at } = await changed(door, input, { remove: input.id });
-  return answerOf(next, prior, at, { said: 'Taken away.' });
+  const change = changeOnly(input, 'id');
+  const { store, keep } = await storeOver(door, input);
+  const answer = await store.remove(change, { actor: OWN });
+  return { ...answer, keep: keep() };
 }
 
 /** tool:keep-a-show-type (show-rules-store.mjs set { type }) */
 export async function keepAShowType(input = {}, { door } = {}) {
-  if (!object(input)) throw new Error('The request is one object.');
-  if (!object(input.type)) throw new Error('A type is { id, label, inherits?, rules }: id is lowercase words joined by hyphens.');
-  const at = nowOf(input);
-  const prior = await readRecord(door);
-  let type = input.type;
-  const existing = typesOf(prior).find(one => one.id === type.id);
-  // Omission preserves a nested policy; an explicit [] intentionally clears the profile override.
-  if (existing && !Object.hasOwn(type, 'edit_rules') && Object.hasOwn(existing, 'edit_rules')) type = { ...type, edit_rules: existing.edit_rules };
-  const next = changedRecord(data, prior, { type }, at, 'personal');
-  return answerOf(next, prior, at, { said: `Kept the type ${type.label || type.id}.` });
+  const change = changeOnly(input, 'type');
+  if (!object(change.type)) throw new Error('A type is { id, label, inherits?, rules }: id is lowercase words joined by hyphens.');
+  return set(door, input, change);
 }
 
 /** tool:take-a-show-type-away (show-rules-store.mjs set { remove_type }) */
 export async function takeAShowTypeAway(input = {}, { door } = {}) {
-  if (!object(input)) throw new Error('The request is one object.');
-  if (typeof input.remove_type !== 'string' || !input.remove_type) throw new Error('remove_type names the id of a type you keep.');
-  const { prior, next, at } = await changed(door, input, { remove_type: input.remove_type });
-  return answerOf(next, prior, at, { said: 'Changed.' });
+  const change = changeOnly(input, 'remove_type');
+  if (!word(change.remove_type)) throw new Error('remove_type names the id of a type you keep.');
+  return set(door, input, change);
 }
 
 /**
@@ -127,60 +136,74 @@ export async function switchAKeptShowType(input = {}, { door } = {}) {
   if (!object(input)) throw new Error('The request is one object.');
   let uses = object(input.use) ? [input.use] : null;
   if (!uses) {
-    uses = [];
-    for await (const asked of door.list({ type: USE_ASKED })) if (object(asked.value)) uses.push({ id: asked.id, use: { type: asked.value.type, on: asked.value.on } });
-    uses = uses.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)).map(one => one.use);
+    const asked = [];
+    for await (const record of door.list({ type: USE_ASKED })) if (object(record.value)) asked.push({ id: record.id, use: { type: record.value.type, on: record.value.on } });
+    uses = asked.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)).map(one => one.use);
     if (!uses.length) throw new Error(`use names type, the id of a profile you keep, and on: true to switch it on, false to switch it off; or write a ${USE_ASKED} record { type, on } for a wake to switch.`);
   }
-  const at = nowOf(input);
-  const prior = await readRecord(door);
-  let next = prior;
-  for (const use of uses) next = changedRecord(data, next, { use }, at, 'personal');
-  const last = uses.at(-1);
-  return answerOf(next, prior, at, { in_use: next.in_use ?? [],
-    said: uses.length === 1 ? `${last.on ? 'Switched on' : 'Switched off'} ${next.types.find(type => type.id === last.type)?.label ?? last.type}.`
-      : `${uses.length} switches made; on now: ${(next.in_use ?? []).join(', ') || 'none'}.` });
+  const { store, keep } = await storeOver(door, input);
+  let answer;
+  for (const use of uses) answer = await store.set({ use }, { actor: OWN });
+  return { ...answer, ...(uses.length > 1 ? { said: `${uses.length} switches made; on now: ${answer.in_use.join(', ') || 'none'}.` } : {}), keep: keep() };
 }
 
-// A shared preset's two records (show-rules.json `sharing`): show-types-shared:<id> = { label, types } and
-// sharing:<that label> = { record, people: [{ principal, key_blake3 }], changed_at }.
-const sharedLabel = id => `${data.sharing.record_prefix}${id}`;
-const sharingLabel = id => `sharing:${sharedLabel(id)}`;
+// A shared preset's two records (a2e1365f33): its copy, show-rules.json sharing.record_prefix + id = { label, types }, and
+// its grant, record-sharing.json door_grant.record_prefix + that label = { record, people: [{ principal, key_blake3 }], changed_at }.
+const copyLabel = id => `${data.sharing.record_prefix}${id}`;
+const grantLabel = id => `${sharing.door_grant.record_prefix}${copyLabel(id)}`;
+const words = data.sharing.words;
+/** The people a grant names, read as the store holds it; anything that is not a grant names nobody. */
+const peopleOf = value => (object(value) && Array.isArray(value.people)
+  ? value.people.filter(person => object(person) && typeof person.principal === 'string' && typeof person.key_blake3 === 'string') : []);
+/** A share key: the door's bearer prefix and 32 random bytes. */
+const shareKey = () => `${sharing.door_grant.token_prefix}${randomBytes(32).toString('base64url')}`;
+
+function shareInput(input) {
+  if (!object(input)) throw new Error('The request is one object.');
+  if (!word(input.type)) throw new Error('type names the id of a preset you keep.');
+  if (!word(input.principal)) throw new Error('principal names the person or account to share with.');
+  if (input.grant !== grantLabel(input.type)) throw new Error(`grant is where the share of ${input.type} is kept: ${grantLabel(input.type)}.`);
+  return { type: input.type, principal: input.principal.trim() };
+}
 
 /** tool:share-a-kept-show-type */
 export async function shareAKeptShowType(input = {}, { door } = {}) {
-  if (!object(input)) throw new Error('The request is one object.');
-  if (!word(input.type)) throw new Error('type names the id of a preset you keep.');
-  if (!Array.isArray(input.people) || !input.people.length || input.people.length > 100
-    || input.people.some(one => !object(one) || !word(one.principal) || typeof one.key_blake3 !== 'string' || !/^[0-9a-f]{64}$/.test(one.key_blake3))) {
-    throw new Error('people is everyone the preset is shared with: [{ principal, key_blake3 }], key_blake3 the BLAKE3 hex of the share key you hand them.');
-  }
-  if (new Set(input.people.map(one => one.principal)).size !== input.people.length) throw new Error('Each person is named once in people.');
+  const { type, principal } = shareInput(input);
   const at = nowOf(input);
-  const record = await readRecord(door);
-  const kept = typesOf(record);
-  const preset = kept.find(type => type.id === input.type);
-  if (!preset) throw new Error(`No profile ${input.type} is kept here; keep it with { type } first. Kept profiles: ${kept.map(one => one.id).join(', ') || 'none'}.`);
-  // The preset is copied whole, with the presets it inherits.
-  const types = heldTypes(kept, [preset.id]).map(id => kept.find(type => type.id === id));
-  const label = sharedLabel(preset.id);
+  const read = await readLabels(door, [data.record, grantLabel(type)]);
+  const presets = typesOf(read.get(data.record));
+  const preset = presets.find(one => one.id === type);
+  if (!preset) throw new Error(`${words.share_failed}: no preset ${type} is kept here. ${words.none}`);
+  const before = read.get(grantLabel(type)) ?? null;
+  const people = peopleOf(before);
+  if (people.some(person => person.principal === principal)) throw new Error(fill(words.already, { principal }));
+  const key = shareKey();
+  const key_blake3 = bytesToHex(blake3(new TextEncoder().encode(key)));
+  const label = copyLabel(type);
+  // The copy is kept before the grant names anyone, so a key never reaches a record that is not there.
   return {
     shared: label,
-    people: input.people.map(one => one.principal),
+    people: [...people.map(person => person.principal), principal],
+    key,
     keep: [
-      { label, value: { label: preset.label ?? preset.id, types } },
-      { label: sharingLabel(preset.id), value: { record: label, people: input.people.map(({ principal, key_blake3 }) => ({ principal, key_blake3 })), changed_at: new Date(at).toISOString() } },
+      { label, value: { label: preset.label, types: heldTypes(presets, [preset.id]).map(id => presets.find(one => one.id === id)) } },
+      { label: grantLabel(type), value: { record: label, people: [...people, { principal, key_blake3 }], changed_at: new Date(at).toISOString() }, expected: before },
     ],
-    said: `Shared ${preset.label ?? preset.id} with ${input.people.map(one => one.principal).join(', ')}.`,
+    said: fill(words.added, { principal }),
   };
 }
 
 /** tool:stop-sharing-a-show-type */
-export async function stopSharingAShowType(input = {}) {
-  if (!object(input)) throw new Error('The request is one object.');
-  if (!word(input.type)) throw new Error('type names the id of a preset you share.');
+export async function stopSharingAShowType(input = {}, { door } = {}) {
+  const { type, principal } = shareInput(input);
+  const at = nowOf(input);
+  const before = (await readLabels(door, [grantLabel(type)])).get(grantLabel(type)) ?? null;
+  const people = peopleOf(before);
+  if (!people.some(person => person.principal === principal)) throw new Error(`${type} is not shared with ${principal}.`);
+  const left = people.filter(person => person.principal !== principal);
   return {
-    keep: [{ label: sharingLabel(input.type), value: null }, { label: sharedLabel(input.type), value: null }],
-    said: `Stopped sharing ${input.type}.`,
+    people: left.map(person => person.principal),
+    keep: [{ label: grantLabel(type), value: { record: copyLabel(type), people: left, changed_at: new Date(at).toISOString() }, expected: before }],
+    said: `${words.remove}: ${principal}.`,
   };
 }
