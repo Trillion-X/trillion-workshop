@@ -1,0 +1,58 @@
+{
+  "_what": "The operator account's records that every account reads, published by their one owner into the service's edge store (Workers KV, src/service-records.mjs), so reading one never reaches the operator's store or any one shared service object. Every account's rule decision, setup screen, device list and AI connection used to read these from that one store, which made one person's account the service for everyone (2026-10-14: it refused writes for days). The operator's store, which writes them, publishes each one whenever it changes and once when it starts; readers read their region's copy and keep a read read_seconds per isolate. A record is named by its label (labels) or by the start of its label (prefixes); a label not named here stays the operator's own and is never published. A label never published reads as none. publish_most: how many records one publication sends.",
+  "labels": [
+    "show-rules",
+    "setup-context",
+    "setup-access-policy",
+    "service-value-states",
+    "service-plain-values",
+    "service-relay",
+    "client-programs",
+    "brand-presentation"
+  ],
+  "prefixes": [
+    "device-distribution:"
+  ],
+  "read_seconds": 30,
+  "publish_most": 50,
+  "derived": {
+    "_what": "Records the operator's store works out rather than keeps as a workspace record: label → the store's method that answers it. service-value-states says which of the service's own values (sign-in apps, signing secrets) its box holds, names only, never a value; service-plain-values are the plain ones every sign-in link carries in the open (a sign-in app's id). service-relay is the operator account's Network relay, under which every account holds the service's own plans. client-programs are the client programs the operator account hosts (its client_programs setting), which every account lists. brand-presentation (the operator's brand, which every page and email is drawn in) is not worked out here: the operator's own records resource owns and publishes it (own_record_sources), on every write that touches it and when the deploy's service-records step asks (src/service-warm.mjs).",
+    "service-value-states": "serviceValueStates",
+    "service-plain-values": "servicePlainValues",
+    "service-relay": "relay",
+    "client-programs": "hostedPrograms"
+  },
+  "own_record_sources": {
+    "_what": "What, written in the operator's own records resource, changes a derived record that resource publishes itself (src/service-record-publication.mjs): record_types are record types of its EEAF rows, workspace_labels its saved workspace records. A matching write publishes the label again once the write's transaction ends. A label named here that is not derived is a workspace record its owner writes in that resource and nowhere else: the operator's earlier store no longer publishes it.",
+    "brand-presentation": {
+      "record_types": [
+        "record:brand-assets"
+      ],
+      "workspace_labels": [
+        "screen-look",
+        "screen-look-own-themes"
+      ]
+    },
+    "show-rules": {
+      "workspace_labels": [
+        "show-rules"
+      ]
+    },
+    "setup-context": {
+      "workspace_labels": [
+        "setup-context"
+      ]
+    },
+    "setup-access-policy": {
+      "workspace_labels": [
+        "setup-access-policy"
+      ]
+    },
+    "device-distribution:": {
+      "_what": "A family of workspace records (workspace_prefixes): each one written under the prefix is published under its own label, as that record.",
+      "workspace_prefixes": [
+        "device-distribution:"
+      ]
+    }
+  }
+}
