@@ -1,0 +1,14 @@
+{
+  "_what": "A summary an AI keeps of one conversation (src/thread-summaries.mjs), so the next AI that opens the thread reads a few lines instead of every message, and knows whether newer messages have come since. The record type, the size and every word are rows here.",
+  "record_type": "thread-summary",
+  "max_summary": 4000,
+  "words": {
+    "needs_conversation": "Name the conversation: conversation_id (and app) as read_messages shows them.",
+    "needs_summary": "A summary needs its words.",
+    "nothing_there": "That conversation has no messages to summarize.",
+    "none_yet": "No summary is kept for this conversation yet. Read its messages with read_messages, then keep a summary with save_thread_summary.",
+    "fresh": "Up to date through {at}.",
+    "stale": "{count} newer message(s) since this was written. Read them with read_messages and keep a new summary with save_thread_summary.",
+    "removed": "Removed the summary of this conversation."
+  }
+}

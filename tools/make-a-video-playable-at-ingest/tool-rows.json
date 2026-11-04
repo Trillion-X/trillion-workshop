@@ -1,0 +1,139 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:make-a-video-playable-at-ingest",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:decide-a-video-at-ingest",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Decide what happens to a video at ingest",
+        "job": "Decide whether an uploaded video is kept as it came, converted to the one playable format (MP4), or kept with the reason it could not be converted, and give the conversion's arguments",
+        "description": "Give name (the file's name), media_type and byte_length. Answers action (keep or convert), said (the plain sentence for the person or the AI, null for a file that is not a video) and, for a conversion, plan: from, to, output_name and the ffmpeg args (with {input} and {output} for the runner to fill). converts lists the types it converts. An upload is never refused: a type with no conversion row, or a file over the size one conversion takes, is kept and said says why. It runs nothing: a computer's ffmpeg or a container does the work.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "media_type": {
+              "type": "string"
+            },
+            "byte_length": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "said": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "plan": {
+              "type": "object"
+            },
+            "converts": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/make-a-video-playable-at-ingest",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/make-a-video-playable-at-ingest/do-work/make-a-video-playable-at-ingest.mjs",
+            "decideAVideoAtIngest"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "make-a-video-playable-at-ingest",
+                "paths": [
+                  "do-work",
+                  "src"
+                ],
+                "at": "/opt/make-a-video-playable-at-ingest"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/ingest-normalization.mjs at b92aa549f23873750ec918e86e7ed3896c9c4c0c, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "name": "/clips/take 1.mov",
+              "media_type": "video/quicktime",
+              "byte_length": 1000000
+            },
+            "output_selector": "$.plan.output_name",
+            "contains": "take 1.mp4"
+          }
+        ]
+      }
+    }
+  ]
+}

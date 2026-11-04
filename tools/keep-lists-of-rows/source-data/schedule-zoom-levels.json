@@ -1,0 +1,40 @@
+{
+  "_what": "How the Gantt view (show/views/ScheduleView.tsx) draws time, one row per step of its zoom: `day_px` how wide a day is, `head` what the second heading row counts (each day, or each week by its first day), `before_days` and `after_days` how far the time axis reaches before the earliest bar or today and after the latest bar or today. `row_px` is how tall every row is, `max_days` the most days an axis may cover (an axis longer than that keeps today in view and drops the rest), `scroll_lead_px` how much room it leaves before today when it opens. Adding a zoom step is one row. `words` is every sentence the view says. Dragging a bar or its ends, or nudging it with arrow keys, writes the dates through the surface's record writer so Undo takes it back.",
+  "row_px": 36,
+  "max_days": 900,
+  "scroll_lead_px": 160,
+  "levels": [
+    {
+      "id": "week",
+      "label": "Weeks",
+      "day_px": 32,
+      "head": "day",
+      "before_days": 21,
+      "after_days": 70
+    },
+    {
+      "id": "month",
+      "label": "Months",
+      "day_px": 11,
+      "head": "week",
+      "before_days": 56,
+      "after_days": 182
+    }
+  ],
+  "words": {
+    "empty": "Nothing to place on the schedule yet.",
+    "today": "Today",
+    "zoom": "Zoom",
+    "not_scheduled": "Not scheduled",
+    "names": "Name",
+    "outside_before": "Earlier than the schedule shows",
+    "outside_after": "Later than the schedule shows",
+    "follows": "Follows",
+    "precedes": "Comes before",
+    "cannot_edit": "You can't change these dates.",
+    "dates_scope": "the new dates",
+    "edge_start": "First day",
+    "edge_end": "Last day",
+    "moved": "Dates changed"
+  }
+}

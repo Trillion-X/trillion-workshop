@@ -1,0 +1,87 @@
+/* parts/screen-look/show/catch-up.css
+ *
+ * How whether every copy is in step looks (parts/ui/show/catch-up): the small mark, its dot and ring, the whole picture
+ * and the view that settles two versions. Tones are the plain tone words every screen passes (good, attention, bad,
+ * info, quiet), in the same colours listing-card.css gives a card, so a device's row and the mark read alike. The pill
+ * is 21st.dev diceui "Status" (component 25395, MIT): a soft tint, a hairline in the tone and a dot that breathes; the
+ * breathing is a ring that grows and fades from the dot, still for anyone who asked for less motion.
+ */
+.catch-up-mark, [data-catch-up-panel], [data-catch-up-versions] {
+  --catch-up-tone: color-mix(in srgb, var(--color-foreground, #1f1f1f) 38%, transparent);
+  --catch-up-ink: color-mix(in srgb, var(--color-foreground, #1f1f1f) 72%, transparent);
+}
+[data-tone="good"] { --catch-up-tone: #16865c; --catch-up-ink: #0f6b48; }
+[data-tone="attention"] { --catch-up-tone: #d97706; --catch-up-ink: #92400e; }
+[data-tone="bad"] { --catch-up-tone: #b42318; --catch-up-ink: #b42318; }
+[data-tone="info"] { --catch-up-tone: #2563eb; --catch-up-ink: #1d4ed8; }
+
+/* The mark: a pill with the dot (or the ring) and the state's words, or the state's icon with its dot. */
+.catch-up-mark {
+  display: inline-flex; align-items: center; gap: 0.4rem; flex-shrink: 0; max-width: 100%; min-width: 0;
+  height: 1.75rem; padding: 0 0.65rem 0 0.55rem; border-radius: 999px; cursor: pointer;
+  font-size: 0.75rem; font-weight: 500; line-height: 1; color: var(--catch-up-ink);
+  background: color-mix(in srgb, var(--catch-up-tone) 10%, var(--color-background, #fff));
+  border: 1px solid color-mix(in srgb, var(--catch-up-tone) 26%, transparent);
+  transition: background-color .15s ease, border-color .15s ease, transform .1s ease;
+}
+.catch-up-mark:hover { background: color-mix(in srgb, var(--catch-up-tone) 16%, var(--color-background, #fff)); }
+.catch-up-mark:active { transform: scale(0.97); }
+.catch-up-mark:focus-visible { outline: 2px solid color-mix(in srgb, var(--catch-up-tone) 60%, transparent); outline-offset: 2px; }
+.catch-up-mark[data-quiet] { background: transparent; border-color: color-mix(in srgb, var(--color-foreground, #1f1f1f) 12%, transparent); color: color-mix(in srgb, var(--color-foreground, #1f1f1f) 60%, transparent); }
+[data-catch-up-mark-words] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.catch-up-mark[data-catch-up-mark="icon"] { width: 2rem; height: 2rem; padding: 0; justify-content: center; border-radius: 0.6rem; }
+[data-catch-up-mark-icon] { position: relative; display: inline-flex; }
+[data-catch-up-mark-icon] [data-catch-up-dot] { position: absolute; right: -0.2rem; top: -0.2rem; box-shadow: 0 0 0 2px var(--color-background, #fff); }
+
+[data-catch-up-dot] { position: relative; width: 0.5rem; height: 0.5rem; border-radius: 999px; flex-shrink: 0; background: var(--catch-up-tone); }
+[data-catch-up-dot][data-moving]::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--catch-up-tone);
+  animation: catch-up-breathe 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes catch-up-breathe { 0% { transform: scale(1); opacity: 0.55; } 80%, 100% { transform: scale(2.6); opacity: 0; } }
+[data-catch-up-ring] circle { fill: none; stroke-width: 2.6; }
+[data-catch-up-ring-track] { stroke: color-mix(in srgb, var(--catch-up-tone) 20%, transparent); }
+[data-catch-up-ring-value] { stroke: var(--catch-up-tone); stroke-linecap: round; transition: stroke-dashoffset var(--motion-slow) var(--ease-snap); }
+@media (prefers-reduced-motion: reduce) {
+  [data-catch-up-dot][data-moving]::after { animation: none; opacity: 0; }
+  [data-catch-up-ring-value], .catch-up-mark { transition: none; }
+}
+
+/* The whole picture: a tinted head, then the devices, then the records kept as two versions. */
+[data-catch-up-panel] { padding: 1rem; container-type: inline-size; }
+/* As a screen (a window, a pane, a placed piece) it fills its frame and scrolls inside it. */
+.catch-up-screen { height: 100%; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+/* Beside its mark, the picture scrolls within the window; as a screen, its pane scrolls it. */
+.catch-up-popup { max-height: min(42rem, 80vh); overflow-y: auto; }
+[data-catch-up-head] { padding-bottom: 0.25rem; }
+[data-catch-up-apart-row][data-open] > [data-slot="listing-card"] { border-color: color-mix(in srgb, #d97706 34%, transparent); }
+
+/* Two versions: each version a column with its own head when there is room; one stacked list on a phone. */
+[data-catch-up-versions] {
+  container-type: inline-size; padding: 0.85rem; border-radius: var(--radius-card, 0.75rem);
+  background: color-mix(in srgb, var(--color-foreground, #1f1f1f) 3%, var(--color-background, #fff));
+  border: 1px solid color-mix(in srgb, var(--color-foreground, #1f1f1f) 9%, transparent);
+}
+[data-catch-up-columns], [data-catch-up-field] { display: grid; grid-template-columns: minmax(5rem, 0.6fr) repeat(var(--catch-up-sides, 2), minmax(0, 1fr)); align-items: start; }
+[data-catch-up-versions][data-single] [data-catch-up-columns], [data-catch-up-versions][data-single] [data-catch-up-field] { grid-template-columns: repeat(var(--catch-up-sides, 2), minmax(0, 1fr)); }
+[data-catch-up-versions][data-sides="3"] { --catch-up-sides: 3; }
+[data-catch-up-versions][data-sides="4"] { --catch-up-sides: 4; }
+[data-catch-up-field-name] { padding-top: 0.55rem; overflow-wrap: anywhere; }
+[data-catch-up-side-head] { min-width: 0; padding: 0 0.75rem; }
+[data-catch-up-pick] {
+  position: relative; min-width: 0; border-radius: 0.6rem; border: 1px solid color-mix(in srgb, var(--color-foreground, #1f1f1f) 10%, transparent);
+  background: var(--color-background, #fff); text-align: start; transition: border-color .15s ease, background-color .15s ease;
+}
+[data-catch-up-pick]:hover { border-color: color-mix(in srgb, #2563eb 34%, transparent); }
+[data-catch-up-pick][data-picked] { border-color: color-mix(in srgb, #2563eb 55%, transparent); background: color-mix(in srgb, #2563eb 7%, var(--color-background, #fff)); color: inherit; }
+[data-catch-up-pick][data-picked] svg { color: #2563eb; }
+[data-catch-up-value] { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+[data-catch-up-value][data-empty] { font-style: italic; opacity: 0.6; }
+[data-catch-up-pick-from] { display: none; }
+/* No side-by-side room: the version heads give way, each field stacks its versions, and each version names itself. */
+@container (max-width: 32rem) {
+  [data-catch-up-columns] { display: none; }
+  [data-catch-up-field], [data-catch-up-versions][data-single] [data-catch-up-field] { grid-template-columns: minmax(0, 1fr); }
+  [data-catch-up-field-name] { padding-top: 0.25rem; }
+  [data-catch-up-pick-from] { display: inline; flex-shrink: 0; }
+}

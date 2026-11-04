@@ -1,0 +1,63 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-AGAINST-CHECK-A-BRANCH",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: one judge for every check, reading one check list by branch",
+  "message_multihash": "1f:2b260cf27649ba578ebdd23b332371a2ec98a7f3b4b3d10de6d3696152706406",
+  "quote": "Turn all his checks into ONE generic check system; everything in lists, one generic process, the decision engine under it too, for any kind of thing: book, script, article, post."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "check against a branch: read the rules and verdict rows of a branch from the person's check rows through the records door, then check with the one judge",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-branch.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/rules-and-verdicts.mjs",
+   "why": "The check itself (check, compileVerdictRules), unchanged; this file only reads a branch's rows and hands them to it."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/decide-with-a-method/read-data/decisions.mjs",
+   "why": "Reads one decision step's check rows (questions asked of a step) by where; this file reads the rows judged on an artifact and leaves step rows out."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "check against a branch: read the rules and verdict rows of a branch from the person's check rows through the records door, then check with the one judge",
+    "rules of a branch",
+    "check a branch",
+    "verdict rows of a branch"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "rulesOfBranch",
+    "checkABranch"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "f5c02c07688ba2c15ec6fbe24252979b57e72dc9"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/check-against-a-persons-rules-and-verdicts/test/branch.test.mjs",
+   "tools/check-against-a-persons-rules-and-verdicts/test/rows.test.mjs"
+  ]
+ }
+}

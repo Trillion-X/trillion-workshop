@@ -1,0 +1,11 @@
+/* parts/screen-look/show/opened-beside-list.css
+ *
+ * A list with one of its items opened beside it (the host row carries data-opened-beside-list, the list
+ * data-opened-list, the opened item data-opened-item), as Posts opens a post beside its posts. In a pane too narrow
+ * for both, the opened item takes the whole pane and the list waits behind it until the item is closed, the way Mail
+ * and Linear show one message or issue at a time on a phone. Panes size through the named `surface` container.
+ */
+@container surface (max-width: 759px) {
+  [data-opened-beside-list]:has(> [data-opened-item]) > [data-opened-list] { display: none; }
+  [data-opened-beside-list] > [data-opened-item] { flex: 1 1 auto; width: 100% !important; border-inline: 0; }
+}

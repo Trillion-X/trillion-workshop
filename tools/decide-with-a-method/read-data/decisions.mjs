@@ -13,7 +13,7 @@
 // own fields, its evidence and summaries, its scope answer and the step it repeats, never every earlier answer whole.
 // The Decisions screen reads these same records.
 //
-// The methods are the person's: rows of their Methods list (one per method) and of their Method checks list (one per
+// The methods are the person's: rows of their Methods list (one per method) and of their Checks list (one per
 // check, naming its step and method), row types in `records` of read-data/decide-with-a-method.json, so they see and
 // edit them. Trillion asks no model: the calling AI judges each check and sends its verdicts.
 //

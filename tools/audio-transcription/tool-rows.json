@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "audio-transcription-tool-rows",
-  "what_this_is": "The Workshop row for tools/audio-transcription: the audio-transcription package's own local Whisper transcription with word times, plus finding where Whisper looped and hearing only those windows again.",
+  "what_this_is": "The Workshop rows for tools/audio-transcription: hearing a recording or a link's video into timed words on the person's computer (computer rows), and the audio-transcription package's own local Whisper transcription with word times, plus finding where Whisper looped and hearing only those windows again.",
   "records": [
     {
       "payload": {
@@ -52,6 +52,101 @@
         "provenance": {
           "source": "The audio-transcription package's transcribe-audio.py (copied unchanged), run with whisper.cpp (MIT, https://github.com/ggml-org/whisper.cpp) and ffmpeg"
         }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:hear-a-recording",
+        "status": "active",
+        "label": "Hear a recording into timed words on my computer",
+        "job": "Turn a recording in my files into its words with times, heard free on my own computer",
+        "description": "Reads a recording from the person's files (`file`, its name or identity) through the run's door into the run's own folder, hears it with the whisper-cli and ggml model the person granted (do-work/audio_transcription.py transcribe), and answers text, timed segments and language. The copy is removed once heard; the person's file is never changed. Nothing is sent to a paid speech service.",
+        "input_schema": {
+          "type": "object",
+          "required": ["file","model_path"],
+          "additionalProperties": false,
+          "properties": {
+            "file": {"type":"string","minLength":1,"maxLength":400,"description":"The recording's name or identity in the person's files","x-free-text-because":"A file name in the person's files."},
+            "model_path": {"type":"string","maxLength":400,"description":"The ggml Whisper model file on this computer, in the models folder the person granted","x-free-text-because":"A file path on this computer."},
+            "whisper_cli": {"type":"string","maxLength":400,"description":"The whisper-cli program the person granted (default: the one on PATH)","x-free-text-because":"A file path on this computer."},
+            "ffmpeg": {"type":"string","maxLength":400,"description":"The ffmpeg program the person granted (default: the one on PATH)","x-free-text-because":"A file path on this computer."},
+            "language": {"type":"string","maxLength":12,"description":"The language spoken, when known (for example en)"}
+          }
+        },
+        "output_schema": {"type":"object","required":["text","segments","heard_whole"],"properties":{"text":{"type":"string"},"segments":{"type":"array","items":{"type":"object","properties":{"start":{"type":"number"},"end":{"type":"number"},"text":{"type":"string"}}}},"language":{"type":["string","null"]},"heard_whole":{"type":"boolean"},"produced_by":{"type":"string"}}},
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["start-a-program"],
+          "workdir": "/opt/audio-transcription",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/audio-transcription/read-data/hear-here.mjs", "hearARecording"],
+          "stdin": {"fill": {"from": "input"}},
+          "records": {"fd": 3, "rights": [{"files":"/","operations":["find_file","read_file"]}]},
+          "files": {
+            "package_files": [
+              {"package":"audio-transcription","paths":["do-work","read-data"],"at":"/opt/audio-transcription"},
+              {"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},
+              {"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},
+              {"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"}
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {"expected_seconds": 300, "network_egress": false, "memory_mb": 4096},
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:audio-transcription",
+        "provenance": {"source": "audio-transcription/read-data/hear-here.mjs, moved from the product repo's computer/listen.mjs and computer/hear-a-link.mjs"}
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:hear-a-link",
+        "status": "active",
+        "label": "Hear the words of a video or recording at a link",
+        "job": "Get the words said in a video or recording at a link, from its captions or heard on my own computer",
+        "description": "Reads the page at `url` with the link reader the person has (read-data/hear-a-link.json fetchers, such as yt-dlp; `link_reader` names its program). The page's own captions win when it has them; otherwise its sound is fetched and heard with the whisper-cli and ggml model the person granted. The heard sound is kept in the person's files (/Heard links, named by the page's title) with its words beside it, unless keep_sound is false. A link with no words always fails with why. Nothing is kept on the computer after the run.",
+        "input_schema": {
+          "type": "object",
+          "required": ["url"],
+          "additionalProperties": false,
+          "properties": {
+            "url": {"type":"string","minLength":1,"maxLength":2000,"description":"The link to a video or a recording","x-free-text-because":"A web address."},
+            "languages": {"type":"string","maxLength":80,"description":"Caption languages to ask for, in the link reader's words (default en.*,en)"},
+            "link_reader": {"type":"string","maxLength":400,"description":"The link reader program (such as yt-dlp) on this computer","x-free-text-because":"A file path on this computer."},
+            "keep_sound": {"type":"boolean","description":"Keep the heard sound in the person's files (default true)"},
+            "model_path": {"type":"string","maxLength":400,"description":"The ggml Whisper model file on this computer, in the models folder the person granted","x-free-text-because":"A file path on this computer."},
+            "whisper_cli": {"type":"string","maxLength":400,"description":"The whisper-cli program the person granted (default: the one on PATH)","x-free-text-because":"A file path on this computer."},
+            "ffmpeg": {"type":"string","maxLength":400,"description":"The ffmpeg program the person granted (default: the one on PATH)","x-free-text-because":"A file path on this computer."},
+            "language": {"type":"string","maxLength":12,"description":"The language spoken, when known (for example en)"}
+          }
+        },
+        "output_schema": {"type":"object","required":["url","text","segments","source"],"properties":{"url":{"type":"string"},"title":{"type":["string","null"]},"duration_seconds":{"type":["number","null"]},"text":{"type":"string"},"segments":{"type":"array","items":{"type":"object","properties":{"start":{"type":"number"},"end":{"type":"number"},"text":{"type":"string"}}}},"language":{"type":["string","null"]},"heard_whole":{"type":"boolean"},"source":{"enum":["captions","heard"]},"produced_by":{"type":"string"},"file":{"type":"string"},"file_name":{"type":"string"},"kept_error":{"type":"string"}}},
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["start-a-program"],
+          "workdir": "/opt/audio-transcription",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/audio-transcription/read-data/hear-here.mjs", "hearALink"],
+          "stdin": {"fill": {"from": "input"}},
+          "records": {"fd": 3, "rights": [{"files":"/Heard links","operations":["write_file_start","write_file_piece","write_file_finish"]}]},
+          "files": {
+            "package_files": [
+              {"package":"audio-transcription","paths":["do-work","read-data"],"at":"/opt/audio-transcription"},
+              {"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},
+              {"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},
+              {"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"}
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {"expected_seconds": 900, "network_egress": true, "memory_mb": 4096},
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:audio-transcription",
+        "provenance": {"source": "audio-transcription/read-data/hear-here.mjs, moved from the product repo's computer/listen.mjs and computer/hear-a-link.mjs"}
       }
     }
   ]

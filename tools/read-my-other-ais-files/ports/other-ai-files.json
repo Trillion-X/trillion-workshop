@@ -1,0 +1,64 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-OTHER-AI-FILES-FROM-THE-MAC-TOOLS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-computer-computer",
+  "message_multihash": "1f:827e11f497beb5bc3eae6bc96581694c3c297dc90ac9bd52a6850ff0fd40122a",
+  "quote": "Move the meeting ledger and other-AI-app modules of old trillion computer/ into trillion-workshop tools: move code, never rewrite it; port the correct parts one to one with their original tests and assertions, and drop only Cloudflare Worker coupling, fixed addresses and the old Mac host's wiring."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+   "path": "computer/other-ai-files.mjs",
+   "multihash": "1f:568d192b0e9b7fbe3ccae4e706c05e708f4bf28e1099adeb91eba19c7708da1d",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T12:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/read-my-other-ais-files/read-data/other-ai-files.mjs",
+   "baseline_commit_message": "Move meeting-ledger, open-in-ai and other-ai-files byte for byte from old trillion computer/"
+  }
+ ],
+ "preserve": [
+  "read only: nothing is written into those folders or imported",
+  "every place is a path under the home folder named by the DATA, and a link inside a folder is never followed",
+  "an MCP server is described with the names of its variables and headers, never their values, and nothing switches it on",
+  "a listing carries no contents; read returns named entries labelled by app and kind, cut at most_chars saying so"
+ ],
+ "allowed_deltas": [
+  "the header names the Workshop row instead of computer/mac-tools.mjs",
+  "otherAiFilesInGrantedFolder: the row export, reading under the folder the person granted (run-an-export.mjs passes it after the export name) instead of the operating system home"
+ ],
+ "banned_substitutions": [
+  "a write into another app's folder",
+  "an environment or header value returned"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:568d192b0e9b7fbe3ccae4e706c05e708f4bf28e1099adeb91eba19c7708da1d",
+  "target_multihash_at_baseline": "1f:568d192b0e9b7fbe3ccae4e706c05e708f4bf28e1099adeb91eba19c7708da1d",
+  "commit": "352f4111bbf3338a6132e52225ab3706bb4ba624",
+  "recorded_at": "2026-11-03T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "function mcpServersOf",
+   "export function otherAiEntries",
+   "export function otherAiFiles"
+  ],
+  "test_refs": [
+   "tools/read-my-other-ais-files/test/other-ai-files.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_old_copy": "Already gone from Trillion-X/trillion main: dc79bb0a deleted computer/other-ai-files.mjs, its JSON and its test; this is the copy from the commit before it."
+}

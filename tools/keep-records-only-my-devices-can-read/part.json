@@ -1,0 +1,6 @@
+{
+  "public": [
+    "do-work/sealed-records.mjs",
+    "do-work/sealed-copy.mjs"
+  ]
+}

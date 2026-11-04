@@ -1,0 +1,20 @@
+{
+  "_what": "Reusable words a person sends again and again (src/snippets.mjs): a reply they give often, an introduction, a sign-off. A snippet is a saved piece of writing with a title, its words and optional tags; `{name}` in its words is a named blank filled when it is used. Everything that varies is a row here: the record type, the blank's pattern, the sizes and every word shown.",
+  "record_type": "snippet",
+  "variable_pattern": "\\{([a-z][a-z0-9_]{0,29})\\}",
+  "max_snippets": 500,
+  "max_title": 120,
+  "max_text": 8000,
+  "max_tags": 10,
+  "max_tag": 40,
+  "list_limit": 100,
+  "words": {
+    "needs_title": "A snippet needs a title (what you call it when you look for it).",
+    "needs_text": "A snippet needs its words.",
+    "too_many": "An account keeps at most {max} snippets. Remove one first.",
+    "missing": "There is no snippet {snippet_id}. list_snippets shows them.",
+    "stale": "{snippet_id} was saved again at {set_at}, not at {expected}, since you read it. Read it again with list_snippets and edit from what it shows now.",
+    "removed": "Removed the snippet \"{title}\".",
+    "unfilled": "Left blank: {names}."
+  }
+}

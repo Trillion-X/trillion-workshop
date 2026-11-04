@@ -1,0 +1,52 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-VISUAL-DATABASE-LIST-RECORD-WRITER-TO-KEEP-LISTS-OF-ROWS",
+  "status": "BASELINED",
+  "directive": {
+    "message_multihash": "1f:33ee3cb6076f630f7272796fbd34deedea9e2460531d4993a4856a5bd65e02b5",
+    "quote": "move do-work/list-record-writer.ts (the one file missing from the tool) byte for byte from trillion c9f7c79e64 into tools/keep-lists-of-rows/do-work/"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "path": "parts/visual-database/do-work/list-record-writer.ts",
+      "multihash": "1f:6dfe1524bafcd075e01545eb77e3c7748d2425bf931144520eda4020e9cc672b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T23:06:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/keep-lists-of-rows/do-work/list-record-writer.ts"
+    }
+  ],
+  "preserve": [
+    "listKeeper(read): writeRecord and place, one change at a time, each worked out against the list read again",
+    "listChangesFromWrites and listPlacementChanges",
+    "a move into a record's own sub-tasks throws and changes nothing"
+  ],
+  "allowed_deltas": [
+    "none: the file moves byte for byte; show/list-as-visual-database.tsx already imports it from ../do-work/list-record-writer"
+  ],
+  "banned_substitutions": [
+    "a rewritten list writer",
+    "a second copy of the list writer in another folder"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:6dfe1524bafcd075e01545eb77e3c7748d2425bf931144520eda4020e9cc672b",
+    "target_multihash_at_baseline": "1f:6dfe1524bafcd075e01545eb77e3c7748d2425bf931144520eda4020e9cc672b",
+    "recorded_at": "2026-11-04T00:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 1,
+    "required_mechanisms": [
+      "export function listKeeper"
+    ],
+    "test_refs": []
+  }
+}

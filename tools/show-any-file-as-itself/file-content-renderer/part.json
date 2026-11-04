@@ -1,0 +1,9 @@
+{
+  "public": [
+    "show/FileContentRenderer.tsx",
+    "show/GuardedArtifactFileContent.tsx",
+    "show/classify-file-content.ts",
+    "show/render-markdown-html.ts",
+    "show/highlight-code-html.ts"
+  ]
+}

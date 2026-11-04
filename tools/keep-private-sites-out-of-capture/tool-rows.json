@@ -1,0 +1,195 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-private-sites-out-of-capture",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:capture-exclusion",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "label": "Places capture must not read",
+        "job": "Say which categories of places (banking, health, social, shopping, adult content, entertainment) a screen or browser capture must not read, whether one address is in them, turn a category on or off for the person, and take in more domains as a cursor diff",
+        "description": "action list (the default) answers each category, whether it is on and how many domains it holds, and the cursor. check with address answers its category among the ones on, or null; a subdomain counts, a look-alike does not. set with category and on answers the categories on and prefs, the person's choices to keep. diff with diff ({ from, to, add: [{ domain, category }], remove: [domain] }) is applied only when from is the state's cursor, and answers the cursor and state to keep; a removed domain stays removed over the seed. Give prefs and state from the last answers (defaults when left out). Settings and the seed: read-data/capture-exclusion.json.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "list",
+                "check",
+                "set",
+                "diff"
+              ]
+            },
+            "address": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            },
+            "on": {
+              "type": "boolean"
+            },
+            "diff": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "number"
+                },
+                "to": {
+                  "type": "number"
+                },
+                "add": {
+                  "type": "array"
+                },
+                "remove": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "prefs": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "boolean"
+              }
+            },
+            "state": {
+              "type": "object",
+              "properties": {
+                "cursor": {
+                  "type": "number"
+                },
+                "added": {
+                  "type": "object"
+                },
+                "removed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "categories": {
+              "type": "array"
+            },
+            "cursor": {
+              "type": "number"
+            },
+            "category": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "on": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "prefs": {
+              "type": "object"
+            },
+            "state": {
+              "type": "object",
+              "properties": {
+                "cursor": {
+                  "type": "number"
+                },
+                "added": {
+                  "type": "object"
+                },
+                "removed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/keep-private-sites-out-of-capture",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-private-sites-out-of-capture/read-data/capture-exclusion.mjs",
+            "exclusion"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-private-sites-out-of-capture",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/keep-private-sites-out-of-capture"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion capture-exclusion (computer/, deleted in dc79bb0a87)"
+        }
+      }
+    }
+  ]
+}

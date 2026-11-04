@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/connection-accounts.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/describe-connected-accounts/src/connection-accounts.json",
+      "source_identity": "1f:1ea6d412606ffeb19c06c702558cd5584218f8f6f8ac9b92c35194e34e255859",
+      "identity": "1f:1ea6d412606ffeb19c06c702558cd5584218f8f6f8ac9b92c35194e34e255859"
+    },
+    {
+      "from": "src/connection-accounts.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/describe-connected-accounts/src/connection-accounts.mjs",
+      "source_identity": "1f:9f7979501c0f1ab9fa842b28d9cd4b93ff026248c6beeb37a3d6a0a3d370bf0f",
+      "identity": "1f:9f7979501c0f1ab9fa842b28d9cd4b93ff026248c6beeb37a3d6a0a3d370bf0f"
+    },
+    {
+      "from": "src/connection-card-words.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/describe-connected-accounts/src/connection-card-words.json",
+      "source_identity": "1f:1a54eac5be1f53c1fcaa75d5a11d4258e8d76304aeff11455a8cb458da9c5c8d",
+      "identity": "1f:1a54eac5be1f53c1fcaa75d5a11d4258e8d76304aeff11455a8cb458da9c5c8d"
+    },
+    {
+      "from": "src/connection-card-words.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/describe-connected-accounts/src/connection-card-words.mjs",
+      "source_identity": "1f:47f9e40598bd030a76f27d941401d0acbf3f3d44666170d37220690759a094c1",
+      "identity": "1f:47f9e40598bd030a76f27d941401d0acbf3f3d44666170d37220690759a094c1"
+    }
+  ]
+}
