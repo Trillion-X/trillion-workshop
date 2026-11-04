@@ -1,0 +1,12 @@
+{
+  "about": "Door rows code that read and rewrote the shipped tools/connect-a-service-and-seal-its-key/records.json. Each was already ported one to one (ports/move-public-door.json, REF-PUBLIC-DOOR-MOVE) into a file here that reads and writes the person's Service connections list through the records door; the shipped copies leave with the door rows, and commit is the last one that has them.",
+  "source": "trillion-workshop",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    { "from": "tools/connect-a-service-and-seal-its-key/read-data/public-door-rows.mjs", "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a", "to": "tools/move-the-public-door/read-data/public-door-rows.mjs" },
+    { "from": "tools/move-the-public-door/move-public-door.mjs", "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a", "to": "tools/move-the-public-door/do-work/move-public-door.mjs" },
+    { "from": "tools/move-the-public-door/portable-dns-cutover.mjs", "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a", "to": "tools/move-the-public-door/do-work/portable-dns-cutover.mjs" },
+    { "from": "tools/move-the-public-door/portable-host-lease.mjs", "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a", "to": "tools/move-the-public-door/do-work/portable-host-lease.mjs" }
+  ]
+}

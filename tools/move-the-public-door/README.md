@@ -24,6 +24,7 @@ The move (`do-work/move-public-door.mjs` `movePublicDoor`) is a function whose h
 | `do-work/move-public-door.mjs` | `movePublicDoor`: rent, set up, publish the download, cut DNS, prove the new address, release the old lease, save the current-door row. A failed proof rolls DNS back and keeps the old lease. |
 | `do-work/door-tools.mjs` | The rows' functions (`seeWhereTheDoorRuns`, `rentAHost`, `releaseAHost`, `cutAHostnameOver`) and `heldFrom`/`heldVariable`. |
 | `tool-rows.json` | `tool:see-where-the-public-door-runs`, `tool:rent-a-host-for-the-public-door`, `tool:release-a-host-of-the-public-door`, `tool:cut-a-hostname-over-to-a-new-address`. |
+| `moved-from.json` | The receipt for the door code that read and rewrote the shipped `connect-a-service-and-seal-its-key/records.json`: each now lives in the file named, over the person's list. |
 | `ports/` | The contracts: each ported file names its older owner, the byte-copy commit and what it keeps. |
 | `test/door-world.mjs` | The test world: synthetic Service connections rows in the stand-in records door. |
 | `test/public-door.test.mjs`, `test/host-lease.test.mjs`, `test/dns-cutover.test.mjs` | The older owner's tests, carried over with their assertions, on the stand-in door. |
