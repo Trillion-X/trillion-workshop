@@ -1,0 +1,18 @@
+{
+  "about": "The one introduction lifecycle (src/introduction-states.mjs): a community's matches (src/community-matching.mjs) and the Network's requests (src/network.mjs, src/network-first-matches.mjs) move between these states only along next, and every view shows a state with its says, the same words for both people. A community match is proposed, then one_yes, and makes its shared space only when everyone said yes (waiting_for_ais); passed or expired end it.",
+  "states": {
+    "proposed": { "says": "Trillion thinks you two should meet. Nothing has been sent yet.", "next": ["sent", "one_yes", "passed", "expired"] },
+    "one_yes": { "says": "Waiting for everyone to answer. Trillion makes the introduction once everyone says yes.", "next": ["waiting_for_ais", "passed", "expired"] },
+    "sent": { "says": "Asked to meet. No answer yet.", "next": ["accepted", "declined", "expired"] },
+    "accepted": { "says": "Both said yes. You can talk in the pursuit you now share.", "next": ["talked", "passed"] },
+    "declined": { "says": "You chose not to meet this time.", "next": [] },
+    "waiting_for_ais": { "says": "Trillion introduced you. Your AIs are finding what you could talk about first.", "next": ["introduced", "talked", "passed"] },
+    "introduced": { "says": "Trillion introduced you, with a few things to talk about first.", "next": ["talked", "passed"] },
+    "talked": { "says": "You have both written in your shared pursuit.", "next": ["passed"] },
+    "passed": { "says": "Passed. Trillion will not suggest this again.", "next": [] },
+    "expired": { "says": "Nobody answered in time, so this introduction ended.", "next": [] }
+  },
+  "words": {
+    "cannot_move": "An introduction cannot move from {from} to {to}."
+  }
+}

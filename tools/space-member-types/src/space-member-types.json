@@ -1,0 +1,124 @@
+{
+  "schema": "trillion.space-member-types",
+  "about": "The kinds of member a space has (src/space-member-types.mjs), as DATA. A member's type is the `role` of their membership row in that space, and the space's rules (src/space-permission-rules.json) name a type by its id in `who: { kind: \"member_type\", member_type }`. A type can inherit one or more other type ids; inherited permissions include every ancestor, and cycles or missing parents fail closed. Per space label (the membership's `label`, src/network-settings.json membership_labels): `types` in the order they are offered, each { id, label (what the person reads), about (one line on what it is for), inherits? (type ids whose permissions it also takes) }; `joins_as` is the type a person gets when they join (an invite accepted, an invite link used); `earlier_roles` names roles written before types existed and the type each now is, so a member who joined earlier reads as the type they would get now. A label not named here uses `default`; a community's types are its own configured roles (src/community.mjs), not these. Whoever the space's rules let do `set_member_type` gives a member another type; whoever they let do `change_rules` adds a space's own type by its name (at most `own_types.max`, each name at most `own_types.max_label` characters), offered next to these wherever a type is chosen. The person who starts a space is always `owner`.",
+  "labels": {
+    "project": {
+      "types": [
+        {
+          "id": "owner",
+          "label": "Owner",
+          "about": "Runs it: changes who can do what and gives people their type."
+        },
+        {
+          "id": "contributor",
+          "label": "Contributor",
+          "about": "Writes, shares, invites people and hands work to AIs."
+        },
+        {
+          "id": "viewer",
+          "label": "Viewer",
+          "about": "Reads everything and follows along, without adding anything."
+        }
+      ],
+      "joins_as": "contributor",
+      "earlier_roles": {
+        "accepted": "contributor"
+      }
+    },
+    "group": {
+      "types": [
+        {
+          "id": "owner",
+          "label": "Owner",
+          "about": "Runs it: changes who can do what and gives people their type."
+        },
+        {
+          "id": "member",
+          "label": "Member",
+          "about": "Writes, shares, invites people and hands work to AIs."
+        },
+        {
+          "id": "guest",
+          "label": "Guest",
+          "about": "Reads and writes, without inviting anyone or changing the group."
+        }
+      ],
+      "joins_as": "member",
+      "earlier_roles": {
+        "accepted": "member"
+      }
+    },
+    "one-to-one": {
+      "types": [
+        {
+          "id": "asked",
+          "label": "Asked",
+          "about": "Asked for the introduction."
+        },
+        {
+          "id": "accepted",
+          "label": "Accepted",
+          "about": "Said yes to the introduction."
+        }
+      ],
+      "joins_as": "accepted",
+      "earlier_roles": {}
+    },
+    "stay": {
+      "types": [
+        {
+          "id": "asked",
+          "label": "Guest",
+          "about": "Asked to stay."
+        },
+        {
+          "id": "accepted",
+          "label": "Host",
+          "about": "Hosts the stay."
+        }
+      ],
+      "joins_as": "accepted",
+      "earlier_roles": {}
+    },
+    "event": {
+      "types": [
+        {
+          "id": "owner",
+          "label": "Host",
+          "about": "Puts the event on."
+        },
+        {
+          "id": "going",
+          "label": "Going",
+          "about": "Said they are going."
+        }
+      ],
+      "joins_as": "going",
+      "earlier_roles": {}
+    }
+  },
+  "default": {
+    "types": [
+      {
+        "id": "owner",
+        "label": "Owner",
+        "about": "Runs it: changes who can do what and gives people their type."
+      },
+      {
+        "id": "member",
+        "label": "Member",
+        "about": "Takes part in it."
+      }
+    ],
+    "joins_as": "member",
+    "earlier_roles": {
+      "accepted": "member"
+    }
+  },
+  "own_types": {
+    "max": 20,
+    "max_label": 40,
+    "copy_rows_per_run": 50,
+    "copy_pace_ms": 5000
+  }
+}

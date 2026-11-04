@@ -1,0 +1,368 @@
+// Book a session in the workspace: a time picked before paying is kept from everyone else while the person pays, the
+// purchase books that very time (or, when it went meanwhile, sends the booking link as before), the screen is drawn
+// from the offer and bookable rows in the viewer's own time zone, the host sees every upcoming session, and every road
+// to buying the session (Plan, the landing's price card, the signed-out account page, the AI's buy_session)
+// leads to the screen where the time is picked. The three-hour session is no longer sold: a person who bought it still
+// books it, and no card, link or AI road sells it again.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { sqliteHost } from '../src/local-store.mjs';
+import { readFileSync } from 'node:fs';
+import { bookables, bookingScreenPath, openTimes } from '../src/booking.mjs';
+import { HostBookings } from '../src/host-bookings.mjs';
+import * as bookingRoutes from '../src/booking-routes.mjs';
+import { bookingScreenFacts, handleBookingCall, pickTime } from '../src/booking-routes.mjs';
+import { bookSessionScreen, pickerDays } from '../src/booking-screen.mjs';
+import { saleOffers } from '../src/payment.mjs';
+import { visitorOffers } from '../src/visitor-offers.mjs';
+import surfaces from '../src/workspace/screens.mjs';
+
+function sqlite() { return sqliteHost(':memory:').sql; }
+const row = bookables()[0];
+const offer = saleOffers().find(item => (item.access_refs ?? []).includes(row.access));
+// Friday 2026-10-02 12:00 in the row's zone; the row asks for two days' notice.
+const NOW = Date.parse('2026-10-02T19:00:00Z');
+const ORIGIN = 'https://t.example';
+const iso = ms => new Date(ms).toISOString();
+const open = openTimes(row, { nowMs: NOW });
+
+// The host's calendar connected: busy is read (nothing busy) and each event is made with its call.
+function host({ now = () => NOW, people = new Map() } = {}) {
+  const mail = [];
+  let made = 0;
+  const effects = {
+    mail: async (_, message) => { mail.push(message); return { sent: true }; },
+    busy: async () => ({ status: 'read', busy: [] }),
+    place: async () => { made += 1; return { route: 'calendar', event_id: `event-${made}`, video_link: `https://meet.google.com/call-${made}` }; },
+    move: async booking => ({ route: 'calendar', event_id: booking.event_id }),
+    cancel: async booking => ({ route: 'calendar', event_id: booking.event_id }),
+  };
+  const entitled = async (bookable, grant) => people.get(grant.person_ref)?.includes(bookable.access) ?? true;
+  return { host: new HostBookings({ sql: sqlite(), effects, entitled, now }), mail };
+}
+
+test('a picked time is kept from everyone else while its person pays, and let go when they pick another or the hold ends', async () => {
+  let now = NOW;
+  const { host: calendar } = host({ now: () => now });
+  const first = iso(open[0].start_ms);
+  const held = await calendar.hold({ bookable_id: row.id, person_ref: 'ref:ana', start: first });
+  assert.equal(held.held.start, first);
+  assert.equal(Date.parse(held.held.until) - NOW, row.rules.hold_minutes * 60000, 'kept for the row\'s hold_minutes');
+  assert.ok(!(await calendar.times({ bookable_id: row.id, person_ref: 'ref:ben' })).times.some(time => time.start === first), 'another person is not offered it');
+  const own = await calendar.times({ bookable_id: row.id, person_ref: 'ref:ana' });
+  assert.ok(own.times.some(time => time.start === first), 'the person paying still sees it');
+  assert.equal(own.picked.start, first, 'and it is named as their pick');
+  assert.equal((await calendar.hold({ bookable_id: row.id, person_ref: 'ref:ben', start: first })).refused.status, 409, 'nobody else can hold it');
+
+  const later = iso(open.find(time => time.start_ms > open[0].start_ms + 86400000).start_ms);
+  await calendar.hold({ bookable_id: row.id, person_ref: 'ref:ana', start: later });
+  assert.ok((await calendar.times({ bookable_id: row.id, person_ref: 'ref:ben' })).times.some(time => time.start === first), 'picking another lets the first go');
+
+  now = NOW + (row.rules.hold_minutes + 1) * 60000;
+  assert.ok((await calendar.times({ bookable_id: row.id, person_ref: 'ref:ben' })).times.some(time => time.start === later), 'an ended hold keeps nothing');
+  assert.equal((await calendar.hold({ bookable_id: row.id, person_ref: 'ref:ana', start: 'soon' })).refused.status, 400);
+});
+
+test('the purchase books the time picked before paying; when it went meanwhile, the buyer gets their link as before', async () => {
+  const { host: calendar, mail } = host();
+  const first = iso(open[0].start_ms);
+  await calendar.hold({ bookable_id: row.id, person_ref: 'ref:ana', start: first });
+  const bought = await calendar.grantFromPurchase({ bookable_id: row.id, key: 'pay-ana', person_ref: 'ref:ana', email: 'ana@example.org', offer, origin: ORIGIN });
+  assert.equal(bought.booked.starts_at, first);
+  assert.equal(bought.booked.video_link, 'https://meet.google.com/call-1');
+  assert.deepEqual(mail.map(message => message.subject.split(':')[0]), [`You're booked with ${row.host.name}`, 'Booked'], 'the booking\'s own messages, no "pick a time" email');
+  assert.equal(calendar.book.holdOf(row.id, 'ref:ana'), null, 'the hold is let go once booked');
+  const state = await calendar.state({ person_ref: 'ref:ana', origin: ORIGIN });
+  assert.equal(state.grants[0].invited, 'ana@example.org');
+  assert.equal(state.grants[0].sessions_left, 0);
+  assert.equal((await calendar.grantFromPurchase({ bookable_id: row.id, key: 'pay-ana', person_ref: 'ref:ana', email: 'ana@example.org', offer, origin: ORIGIN })).created, false, 'a repeated payment notice books nothing twice');
+
+  // Ben's hold ended and Cleo booked his time before his payment landed.
+  let now = NOW;
+  const other = host({ now: () => now });
+  const second = iso(open[1].start_ms);
+  await other.host.hold({ bookable_id: row.id, person_ref: 'ref:ben', start: second });
+  now = NOW + (row.rules.hold_minutes + 1) * 60000;
+  await other.host.grantFromPurchase({ bookable_id: row.id, key: 'pay-cleo', person_ref: 'ref:cleo', email: 'cleo@example.org', offer, origin: ORIGIN });
+  await other.host.bookTime({ person_ref: 'ref:cleo', bookable_id: row.id, start: second, origin: ORIGIN });
+  other.mail.length = 0;
+  const late = await other.host.grantFromPurchase({ bookable_id: row.id, key: 'pay-ben', person_ref: 'ref:ben', email: 'ben@example.org', offer, origin: ORIGIN });
+  assert.equal(late.booked, undefined);
+  assert.equal(other.mail[0].subject, `Book your time with ${row.host.name}`, 'the buyer gets their booking link to pick another');
+});
+
+test('a mail outage leaves the credit usable and a repeated payment retries only the failed notice', async () => {
+  const sent = [];
+  let hostAvailable = false;
+  const calendar = new HostBookings({
+    sql: sqlite(), now: () => NOW, entitled: async () => true,
+    effects: {
+      mail: async (_row, message) => {
+        sent.push(message.to[0]);
+        return { sent: message.to[0] !== row.host.email || hostAvailable };
+      },
+      busy: async () => ({ status: 'read', busy: [] }),
+    },
+  });
+  const purchase = { bookable_id: row.id, key: 'paid-once', person_ref: 'ref:buyer', email: 'buyer@example.org', offer, origin: ORIGIN };
+  const first = await calendar.grantFromPurchase(purchase);
+  assert.equal(first.sent[1].sent, false);
+  assert.equal(calendar.book.grantsFor('ref:buyer').length, 1);
+  assert.equal((await calendar.state({ person_ref: 'ref:buyer', origin: ORIGIN })).grants[0].sessions_left, 1);
+  hostAvailable = true;
+  assert.equal((await calendar.grantFromPurchase(purchase)).created, false);
+  assert.deepEqual(sent, ['buyer@example.org', row.host.email, row.host.email]);
+  assert.equal((await calendar.grantFromPurchase(purchase)).sent.length, 0);
+  assert.equal(calendar.book.grantsFor('ref:buyer').length, 1);
+});
+
+test('a passkey buyer can spend and restore a signed contract credit without an email address', async () => {
+  const { host: calendar, mail } = host();
+  const purchase = { bookable_id: row.id, key: 'signed-contract', person_ref: 'ref:buyer', email: null, name: 'Proof Buyer', offer, origin: ORIGIN };
+  await calendar.grantFromPurchase(purchase);
+  assert.equal((await calendar.state({ person_ref: 'ref:buyer', origin: ORIGIN })).grants[0].sessions_left, 1);
+  mail.length = 0;
+  const booked = await calendar.bookTime({ person_ref: 'ref:buyer', bookable_id: row.id, start: iso(open[0].start_ms), origin: ORIGIN });
+  assert.equal(booked.booked.buyer_has_email, false);
+  assert.deepEqual(mail.map(message => message.to), [[row.host.email]], 'an absent buyer email is never sent to the mail provider');
+  assert.match(mail[0].subject, /Proof Buyer/);
+  assert.equal((await calendar.upcoming({ bookable_ids: [row.id], origin: ORIGIN }))[0].with, 'Proof Buyer');
+  assert.equal((await calendar.state({ person_ref: 'ref:buyer', origin: ORIGIN })).grants[0].sessions_left, 0);
+  const token = booked.booked.change_or_cancel.split('/').at(-1);
+  assert.equal((await calendar.change({ booking_token: token, cancel: true, origin: ORIGIN })).cancelled, true);
+  assert.equal((await calendar.state({ person_ref: 'ref:buyer', origin: ORIGIN })).grants[0].sessions_left, 1);
+  assert.deepEqual(mail.map(message => message.to), [[row.host.email], [row.host.email]], 'the host hears about cancellation without trying an absent buyer inbox');
+});
+
+test('a calendar creation error leaves an unemailed buyer their credit', async () => {
+  const calendar = new HostBookings({
+    sql: sqlite(), now: () => NOW, entitled: async () => true,
+    effects: {
+      mail: async () => ({ sent: true }),
+      busy: async () => ({ status: 'read', busy: [] }),
+      place: async () => { throw new Error('calendar unavailable'); },
+    },
+  });
+  await calendar.grantFromPurchase({ bookable_id: row.id, key: 'signed-retry', person_ref: 'ref:buyer', email: null, name: 'Proof Buyer', offer, origin: ORIGIN });
+  const result = await calendar.bookTime({ person_ref: 'ref:buyer', bookable_id: row.id, start: iso(open[0].start_ms), origin: ORIGIN });
+  assert.equal(result.refused.status, 503);
+  assert.equal((await calendar.state({ person_ref: 'ref:buyer', origin: ORIGIN })).grants[0].sessions_left, 1);
+  assert.deepEqual(calendar.book.bookingsFor('ref:buyer'), []);
+});
+
+test('the host sees every upcoming session with who, when, the call link and its change link', async () => {
+  const { host: calendar } = host();
+  await calendar.grantFromPurchase({ bookable_id: row.id, key: 'pay-ana', person_ref: 'ref:ana', email: 'ana@example.org', offer, origin: ORIGIN });
+  await calendar.bookTime({ person_ref: 'ref:ana', bookable_id: row.id, start: iso(open[0].start_ms), origin: ORIGIN });
+  const upcoming = await calendar.upcoming({ bookable_ids: [row.id], origin: ORIGIN });
+  assert.equal(upcoming.length, 1);
+  assert.equal(upcoming[0].with, 'ana@example.org');
+  assert.equal(upcoming[0].video_link, 'https://meet.google.com/call-1');
+  assert.match(upcoming[0].change_or_cancel, /^https:\/\/t\.example\/book\/[0-9a-f]+$/);
+});
+
+test('the screen lists the session from its offer, shows open times in the viewer\'s zone, and one Pay and book', () => {
+  const times = open.slice(0, 6).map(time => ({ start: iso(time.start_ms), when: '' }));
+  const screen = bookSessionScreen({ sessions: [{ row, offer, held: [], open: { times }, hosting: null }], time_zone: 'Europe/London', now_ms: NOW });
+  assert.equal(screen.title, row.session.title, 'one session is named by its own title');
+  assert.equal(screen.lead, offer.summary, 'the price and length are the offer\'s own words');
+  assert.deepEqual(screen.sections[0].offer.features, offer.benefits, 'its feature lines are the offer\'s benefits, opening words bold');
+  assert.equal(screen.sections[0].offer.price, '$1,500');
+  assert.equal(screen.sections[0].offer.price_note, 'one payment');
+  const pick = screen.sections[1];
+  assert.match(pick.body, /Times are in your time zone, (BST|GMT\+1)\. Each session is 3 hours\./);
+  assert.equal(pick.choose.days[0].options[0].label, '5:00 PM', '9:00 AM in Los Angeles is 5:00 PM in London');
+  assert.equal(pick.choose.days[0].label, 'Monday, October 5');
+  assert.deepEqual(pick.actions.map(action => [action.label, action.busy_label, action.send.path, action.send.with_fields, action.full]), [['Pay and book', 'Opening secure checkout…', '/work/api/book/pick', true, true]]);
+  assert.match(pick.footnote, /Nothing is charged until you confirm on Stripe's page/);
+  // A zone the browser made up reads as the host's.
+  assert.equal(pickerDays(times, 'America/Los_Angeles')[0].options[0].label, '9:00 AM');
+  assert.equal(bookSessionScreen({ sessions: [{ row, offer, held: [], open: { times }, hosting: null }], time_zone: 'Not/AZone', now_ms: NOW }).sections[1].choose.days[0].options[0].label, '9:00 AM');
+  // No open times: the row's own words say why, and there is nothing to press.
+  const none = bookSessionScreen({ sessions: [{ row, offer, held: [], open: { times: [], note: 'Ana\'s calendar is not connected yet.' }, hosting: null }], now_ms: NOW });
+  assert.equal(none.sections[1].body, 'Ana\'s calendar is not connected yet.');
+  assert.equal(none.sections[1].actions, undefined);
+});
+
+test('after paying, the screen shows the booked session in the viewer\'s zone, says it once, and where the invite went', () => {
+  const booking = { booking_id: 'booking_1', starts_at: iso(open[0].start_ms), video_link: 'https://meet.google.com/call-1', change_or_cancel: `${ORIGIN}/book/abc123`, booked_at: iso(NOW - 60000) };
+  const held = [{ bookable_id: row.id, sessions_left: 0, bookings: [booking], invited: 'ana@example.org' }];
+  const screen = bookSessionScreen({ sessions: [{ row, offer, held, open: null, hosting: null }], time_zone: 'America/New_York', now_ms: NOW });
+  assert.deepEqual(screen.announce, { id: 'booking_1', text: 'Your session is booked' });
+  const [session] = screen.sections;
+  assert.equal(session.rows[0].title, 'Monday, October 5 at 12:00 PM EDT');
+  assert.deepEqual(session.rows[0].actions.map(action => action.label), ['Join the video call', 'Move to another time', 'Cancel']);
+  assert.equal(session.rows[0].actions[0].href, 'https://meet.google.com/call-1');
+  assert.deepEqual(session.rows[0].actions[2].send.body, { token: 'abc123' });
+  assert.equal(session.note, 'The invite is in ana@example.org: add it to your Google Calendar.');
+  assert.equal(screen.sections.length, 1, 'nothing left to pick or pay for');
+  const onCalendar = bookSessionScreen({ sessions: [{ row, offer, held, open: null, hosting: null }], calendar_of: email => (email === 'ana@example.org' ? 'Google Calendar' : null), now_ms: NOW });
+  assert.equal(onCalendar.sections[0].note, 'It is on your Google Calendar for ana@example.org.');
+  assert.equal(bookSessionScreen({ sessions: [{ row, offer, held, open: null, hosting: null }], now_ms: NOW + 2 * 3600000 }).announce, undefined, 'said only right after booking');
+});
+
+test('a paid contract session does not headline another session\'s subscription offer', () => {
+  const times = open.slice(0, 1).map(time => ({ start: iso(time.start_ms), when: '' }));
+  const paid = { row, offer: null, held: [{ sessions_left: 1, bookings: [], times }], open: null, hosting: null };
+  const another = { row: { ...row, id: 'bookable:another', session: { ...row.session, title: 'Another session' } }, offer, held: [], open: { times }, hosting: null };
+  const screen = bookSessionScreen({ sessions: [paid, another], now_ms: NOW });
+  assert.equal(screen.lead, undefined);
+  assert.equal(screen.title, row.session.title);
+  assert.equal(screen.sections.length, 1, 'another price waits until this purchased session is booked');
+  assert.equal(screen.sections[0].actions[0].label, 'Book this time');
+  assert.equal(screen.sections[0].footnote, 'Your session is included. Pick a time to book it.');
+});
+
+test('the host sees "Your upcoming sessions" first, with who, when, the call, move and cancel', () => {
+  const hosting = [{ booking_id: 'booking_1', with: 'ana@example.org', starts_at: iso(open[0].start_ms), video_link: 'https://meet.google.com/call-1', change_or_cancel: `${ORIGIN}/book/abc123` }];
+  const screen = bookSessionScreen({ sessions: [{ row, offer, held: [], open: { times: [] }, hosting }], time_zone: 'America/Los_Angeles', now_ms: NOW });
+  const [first] = screen.sections;
+  assert.equal(first.heading, 'Your upcoming sessions');
+  assert.equal(first.rows[0].title, 'ana@example.org');
+  assert.equal(first.rows[0].detail, 'Monday, October 5 at 9:00 AM PDT');
+  assert.deepEqual(first.rows[0].actions.map(action => action.label), ['Join the video call', 'Move', 'Cancel']);
+  assert.equal(bookSessionScreen({ sessions: [{ row, offer, held: [], open: { times: [] }, hosting: [] }] }).sections[0].empty.title, 'No sessions booked yet');
+});
+
+// The Worker's road for one signed-in person, with the stores it reaches stood in. `paid` names the payments whose
+// purchase is still active (a session grant counts only inside the active purchase that made it).
+function world({ capabilities = [], links = true, paid = [] } = {}) {
+  const effects = paid.map(key => ({ kind: 'payment.confirmed', effect_id: key, object: offer.id }));
+  const episodes = paid.map(key => ({ state: 'active', episode_ref: `episode:${key}`, events: [{ effect_id: key }] }));
+  const kv = new Map([['payment:config', JSON.stringify({ mode: 'test', links: links ? saleOffers().flatMap(item => (item.price_options ?? []).map(option => ({ price_option_id: option.id, url: `https://buy.stripe.com/${option.id}` }))) : [] })]]);
+  const { host: calendar, mail } = host();
+  const env = {
+    APP_KV: { get: async (key, type) => (kv.has(key) ? (type === 'json' ? JSON.parse(kv.get(key)) : kv.get(key)) : null), put: async (key, value) => { kv.set(key, value); }, list: async ({ prefix = '' } = {}) => ({ keys: [...kv.keys()].filter(name => name.startsWith(prefix)).map(name => ({ name })), list_complete: true }) },
+    PERSON: { idFromName: name => ({ toString: () => `ref:${name}` }), idFromString: text => ({ toString: () => text }), get: () => ({ readAccess: async () => ({ capabilities, active_offers: [], episodes }), paymentEffects: async () => effects }) },
+    BOOKING: { idFromName: name => name, get: () => calendar },
+    OPERATOR_ACCOUNT_ID: 'host-account',
+  };
+  return { env, calendar, mail };
+}
+
+test('a session no longer sold keeps no time for anyone who has not paid; one already paid for is booked at once', async () => {
+  assert.equal(offer.for_sale, false, 'the three-hour session is retired from sale');
+  const buyer = world();
+  const start = iso(open[0].start_ms);
+  await assert.rejects(pickTime(buyer.env, { userId: 'ana', bookable_id: row.id, start, origin: ORIGIN }), /not on sale/);
+  assert.equal(buyer.calendar.book.holdOf(row.id, 'ref:ana'), null, 'no time is kept when there is nothing to buy');
+
+  // With no calendar that can make the call, nothing points to a purchase email that does not exist.
+  const unconnected = new HostBookings({ sql: sqlite(), effects: { busy: async () => ({ status: 'unknown', busy: [] }) }, entitled: async () => true, now: () => NOW });
+  const note = (await unconnected.times({ bookable_id: row.id, person_ref: 'ref:ana' })).note;
+  assert.equal(note, `${row.host.name}'s calendar is not connected yet, so the video call cannot be set up. Write to ${row.host.email} and ${row.host.name} will find a time with you.`);
+
+  const holder = world({ capabilities: [row.access], paid: ['pay-ana'] });
+  await holder.calendar.grantFromPurchase({ bookable_id: row.id, key: 'pay-ana', person_ref: 'ref:ana', email: 'ana@example.org', offer, origin: ORIGIN });
+  const booked = await pickTime(holder.env, { userId: 'ana', bookable_id: row.id, start: iso(open[1].start_ms), origin: ORIGIN });
+  assert.equal(booked.booked.starts_at, iso(open[1].start_ms));
+});
+
+test('a temporarily unreadable host calendar is retried and described accurately', async () => {
+  let reads = 0;
+  const calendar = new HostBookings({
+    sql: sqlite(), now: () => NOW, entitled: async () => true,
+    effects: { busy: async () => ++reads === 1 ? { status: 'unreadable', busy: [], error: 'calendar read failed' } : { status: 'read', busy: [] } },
+  });
+  const first = await calendar.times({ bookable_id: 'bookable:intro-call-with-ana' });
+  assert.deepEqual(first.times, []);
+  assert.match(first.note, /calendar could not be read right now/);
+  assert.doesNotMatch(first.note, /not connected/);
+  const second = await calendar.times({ bookable_id: 'bookable:intro-call-with-ana' });
+  assert.ok(second.times.length > 0, 'the next read can use a recovered calendar');
+  assert.equal(reads, 2, 'an unreadable answer is not cached as a disconnected calendar');
+});
+
+test('the host account is shown its upcoming sessions on the same screen; anyone else is not', async () => {
+  const shared = world();
+  const facts = await bookingScreenFacts(shared.env, 'host-account', ORIGIN);
+  assert.deepEqual(facts[0].hosting, []);
+  assert.equal((await bookingScreenFacts(shared.env, 'ana', ORIGIN))[0].hosting, null);
+});
+
+test('a retired session never reads open times while the intro call is shown', async () => {
+  const shared = world();
+  const times = shared.calendar.times.bind(shared.calendar);
+  shared.calendar.times = async input => {
+    if (input.bookable_id === row.id) throw new Error('retired calendar is unavailable');
+    return times(input);
+  };
+  const facts = await bookingScreenFacts(shared.env, 'ana', ORIGIN);
+  assert.equal(facts.find(item => item.row.id === row.id).open, null);
+  assert.ok(facts.find(item => item.row.id === 'bookable:intro-call-with-ana').offer);
+});
+
+test('session offers and the default buying path exclude a retired session for a new account', async () => {
+  const shared = world();
+  const sessions = await handleBookingCall(shared.env, { userId: 'ana', origin: ORIGIN, path: '/booking/offers' });
+  assert.deepEqual(sessions.sessions.map(item => item.bookable_id), ['bookable:intro-call-with-ana']);
+  const buying = await handleBookingCall(shared.env, { userId: 'ana', origin: ORIGIN, path: '/booking/buy' });
+  assert.equal(buying.offer.id, 'offer:trillion', 'the one plan sells the intro call its spots include');
+  const priorBuyer = world({ capabilities: [row.access] });
+  const nextBuying = await handleBookingCall(priorBuyer.env, { userId: 'ana', origin: ORIGIN, path: '/booking/buy' });
+  assert.equal(nextBuying.offer.id, 'offer:trillion', 'an old held session does not hide the current offer');
+  await assert.rejects(handleBookingCall(shared.env, { userId: 'ana', origin: ORIGIN, path: '/booking/buy', body: { bookable_id: row.id } }), /not on sale/);
+});
+
+test('ended access does not advertise old, unusable session credits', async () => {
+  const ended = world();
+  await ended.calendar.grantFromPurchase({ bookable_id: row.id, key: 'earlier-payment', person_ref: 'ref:ana', email: 'ana@example.org', offer, origin: ORIGIN });
+  assert.equal(ended.calendar.book.grantsFor('ref:ana').length, 1, 'the historical grant remains recoverable');
+  const listed = await handleBookingCall(ended.env, { userId: 'ana', origin: ORIGIN, path: '/booking/offers' });
+  assert.ok(!listed.sessions.some(session => session.bookable_id === row.id));
+  assert.deepEqual((await bookingScreenFacts(ended.env, 'ana', ORIGIN)).find(item => item.row.id === row.id).held, []);
+
+  const active = world({ capabilities: [row.access], paid: ['current-payment'] });
+  await active.calendar.grantFromPurchase({ bookable_id: row.id, key: 'current-payment', person_ref: 'ref:ana', email: 'ana@example.org', offer, origin: ORIGIN });
+  assert.equal((await handleBookingCall(active.env, { userId: 'ana', origin: ORIGIN, path: '/booking/offers' })).sessions.find(session => session.bookable_id === row.id).sessions_left, 1);
+});
+
+test('Book a session is one screen at /book, and the retired session is offered nowhere', async () => {
+  assert.equal(bookingScreenPath(), '/book');
+  const surface = surfaces.surfaces.find(item => item.id === 'trillion.book');
+  assert.equal(surface.label, 'Book a session');
+  assert.equal(surface.sidebar_collection, 'information-being-acted-on');
+
+  const kv = new Map();
+  const env = { APP_KV: { get: async (key, type) => (kv.has(key) ? (type === 'json' ? JSON.parse(kv.get(key)) : kv.get(key)) : null), put: async (key, value) => { kv.set(key, value); }, list: async ({ prefix = '' } = {}) => ({ keys: [...kv.keys()].filter(name => name.startsWith(prefix)).map(name => ({ name })), list_complete: true }) } };
+  const offers = await (await visitorOffers(new Request('https://app.gettrillion.ai/billing/offers'), env, 'https://app.gettrillion.ai', 'https://app.gettrillion.ai')).json();
+  assert.ok(!offers.offers.some(item => item.id === offer.id), 'no price card sells the retired session');
+  const answer = await handleBookingCall(world().env, { userId: 'ana', origin: ORIGIN, path: '/booking/buy', body: {} }).catch(error => ({ error: error.message }));
+  assert.ok(!answer.checkout_link, 'the AI cannot buy it either');
+});
+
+test('looking at open times reads the host calendar at most once a minute; booking reads it fresh', async () => {
+  let now = NOW;
+  let reads = 0;
+  let busy = [];
+  const effects = {
+    busy: async () => { reads += 1; return { status: 'read', busy }; },
+    mail: async () => ({ sent: true }),
+    place: async () => ({ route: 'calendar', event_id: 'event-1', video_link: 'https://meet.google.com/call-1' }),
+  };
+  const calendar = new HostBookings({ sql: sqlite(), effects, entitled: async () => true, now: () => now });
+  await Promise.all([calendar.times({ bookable_id: row.id }), calendar.times({ bookable_id: row.id })]);
+  await calendar.times({ bookable_id: row.id });
+  assert.equal(reads, 1, 'three looks within a minute, one read');
+  busy = [{ start_ms: open[0].start_ms, end_ms: open[0].end_ms }];
+  await calendar.grantFromPurchase({ bookable_id: row.id, key: 'pay-ana', person_ref: 'ref:ana', email: 'ana@example.org', offer, origin: ORIGIN });
+  const refused = await calendar.bookTime({ person_ref: 'ref:ana', bookable_id: row.id, start: iso(open[0].start_ms), origin: ORIGIN });
+  assert.ok(refused.refused, 'a time the host filled since the last look is not booked');
+  assert.equal(reads, 2, 'booking read the calendar again');
+  now += 61000;
+  const later = (await calendar.times({ bookable_id: row.id })).times;
+  assert.ok(later.length && !later.some(time => time.start === iso(open[0].start_ms)), 'a minute on, the look reads it again');
+  assert.equal(reads, 3);
+});
+
+// Ana 2026-10-03: a booking link opened a second page of red time pills that booked on its own. A link from an email
+// is only an address of the one Book a session screen (its surface's route_prefix); no other page may draw booking
+// controls, and none may come back.
+test('a booking link is only an address of Book a session: no page of its own draws booking controls', () => {
+  const source = path => readFileSync(new URL(`../src/${path}`, import.meta.url), 'utf8');
+  assert.doesNotMatch(source('worker.mjs'), /pathname\.startsWith\('\/book\/'\)/, 'the Worker answers /book/<key> with the workspace, not a page');
+  assert.equal(bookingRoutes.handleBookingPage, undefined, 'there is no booking page renderer');
+  assert.doesNotMatch(source('client/passkey.mjs'), /book-time|move-time|cancel-session/, 'no page script books, moves or cancels');
+  const book = surfaces.surfaces.find(row => row.id === 'trillion.book');
+  assert.deepEqual([book.route_prefix, book.route_input], ['/book/', 'key']);
+});

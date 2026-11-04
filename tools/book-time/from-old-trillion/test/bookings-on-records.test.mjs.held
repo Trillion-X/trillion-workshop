@@ -1,0 +1,96 @@
+// test/bookings-on-records.test.mjs
+// A host's grants and bookings are records of its booking calendar's own log (kinds booking-grant and booking), and
+// who each is for is kept apart in booking_parties: a calendar kept before moves its tables in and drops them, a
+// booking is one log row, and forgetting a buyer leaves their email and name nowhere but the rows that may still need
+// them (an upcoming session), never in the log, whose earlier values are kept for good.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { sqliteHost } from '../src/local-store.mjs';
+import { BookingBook, bookables } from '../src/booking.mjs';
+
+const row = bookables()[0];
+const NOW = Date.parse('2026-10-02T19:00:00Z');
+const HOUR = 60 * 60 * 1000;
+const tables = sql => sql.exec("SELECT name FROM sqlite_master WHERE type = 'table'").toArray().map(table => table.name);
+const text = value => (typeof value === 'string' ? value : value instanceof Uint8Array ? new TextDecoder().decode(value) : '');
+// The tables, other than booking_parties, that hold `words` anywhere: where a person could outlive being forgotten.
+const holding = (sql, words) => tables(sql).filter(name => name !== 'booking_parties')
+  .filter(name => sql.exec(`SELECT * FROM "${name}"`).toArray().some(found => Object.values(found).some(value => text(value).includes(words))));
+
+// The grants and bookings tables as a calendar kept them before they were records (every column it had grown).
+function earlierCalendar(sql) {
+  sql.exec('CREATE TABLE grants (key TEXT PRIMARY KEY, token TEXT UNIQUE NOT NULL, bookable_id TEXT NOT NULL, person_ref TEXT, email TEXT, offer_id TEXT, sessions INTEGER NOT NULL, created_at TEXT NOT NULL, series_key TEXT, period_start INTEGER, period_end INTEGER, customer_name TEXT, buyer_notified_at TEXT, host_notified_at TEXT)');
+  sql.exec('CREATE TABLE bookings (id TEXT PRIMARY KEY, token TEXT UNIQUE NOT NULL, grant_key TEXT NOT NULL, bookable_id TEXT NOT NULL, start_ms INTEGER NOT NULL, end_ms INTEGER NOT NULL, state TEXT NOT NULL, person_ref TEXT, email TEXT, case_id TEXT, event_id TEXT, route TEXT, sequence INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, customer_name TEXT, video_link TEXT)');
+  sql.exec('CREATE TABLE reminders (booking_id TEXT NOT NULL, minutes_before INTEGER NOT NULL, due_ms INTEGER NOT NULL, sent_at TEXT, sent_to TEXT, tries INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (booking_id, minutes_before))');
+  const at = new Date(NOW - 48 * HOUR).toISOString();
+  sql.exec('INSERT INTO grants (key, token, bookable_id, person_ref, email, offer_id, sessions, created_at, customer_name, buyer_notified_at, host_notified_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'purchase-1', 'grant-token-1', row.id, 'person-pat', 'pat@example.org', null, 2, at, 'Pat Example', at, at);
+  sql.exec("INSERT INTO bookings (id, token, grant_key, bookable_id, start_ms, end_ms, state, person_ref, email, customer_name, sequence, created_at, updated_at) VALUES ('booking_past', 'booking-token-past', 'purchase-1', ?, ?, ?, 'cancelled', 'person-pat', 'pat@example.org', 'Pat Example', 1, ?, ?)",
+    row.id, NOW - 30 * HOUR, NOW - 29 * HOUR, at, at);
+  sql.exec("INSERT INTO bookings (id, token, grant_key, bookable_id, start_ms, end_ms, state, person_ref, email, customer_name, route, sequence, created_at, updated_at) VALUES ('booking_next', 'booking-token-next', 'purchase-1', ?, ?, ?, 'booked', 'person-pat', 'pat@example.org', 'Pat Example', 'invite', 0, ?, ?)",
+    row.id, NOW + 72 * HOUR, NOW + 73 * HOUR, at, at);
+  sql.exec('INSERT INTO reminders (booking_id, minutes_before, due_ms) VALUES (?, ?, ?)', 'booking_next', 60, NOW + 71 * HOUR);
+}
+
+// The first time the row's rules leave open after two days.
+function openTime(book) {
+  for (let start = NOW + 48 * HOUR; start < NOW + 40 * 24 * HOUR; start += 15 * 60 * 1000) if (book.isOpen(row, start, [])) return start;
+  throw new Error('no open time');
+}
+
+test('a calendar kept before moves its grants and bookings into records, keeps who they are for apart, and drops the tables', () => {
+  const host = sqliteHost(':memory:');
+  earlierCalendar(host.sql);
+  let now = NOW;
+  const book = new BookingBook(host.sql, { now: () => now, transaction: host.transaction });
+  assert.ok(!tables(host.sql).includes('grants') && !tables(host.sql).includes('bookings'), 'the tables are dropped once moved');
+
+  const grant = book.grantByKey('purchase-1');
+  assert.equal(grant.email, 'pat@example.org');
+  assert.equal(book.grantByToken('grant-token-1').key, 'purchase-1');
+  assert.equal(book.left(grant), 1, 'the upcoming booking still counts against the grant; the cancelled one does not');
+  const next = book.bookingByToken('booking-token-next');
+  assert.equal(next.id, 'booking_next');
+  assert.equal(next.grant_key, 'purchase-1');
+  assert.deepEqual(book.held(row.id).map(time => time.start_ms), [NOW + 72 * HOUR], 'the moved booking keeps its time from everyone else');
+  const record = book.records.read('booking:booking_next');
+  for (const field of ['email', 'customer_name', 'person_ref', 'token']) assert.equal(record[field], undefined, `a booking record holds no ${field}`);
+  assert.equal(record.state, 'booked');
+  now = NOW + 71 * HOUR + 1;
+  assert.deepEqual(book.dueReminders().map(due => [due.id, due.minutes_before]), [['booking_next', 60]], 'its reminder is still due');
+
+  // Forgetting the buyer: their email and name are in no table but booking_parties, and there only for the session
+  // still booked (it is returned for cancelling, as before).
+  now = NOW;
+  assert.ok(holding(host.sql, 'booking_next').includes('record_log'), 'the scan reads what the log holds (a moved booking is there)');
+  assert.deepEqual(book.forget('person-pat').map(booking => booking.id), ['booking_next']);
+  assert.deepEqual(holding(host.sql, 'pat@example.org'), [], 'no record_log row, typed table or index holds the email');
+  assert.deepEqual(holding(host.sql, 'Pat Example'), []);
+  assert.deepEqual(holding(host.sql, 'person-pat'), []);
+  assert.equal(book.grantByKey('purchase-1').email, null, 'the grant forgets them');
+  assert.equal(book.bookingByToken('booking-token-past').email, null, 'the cancelled booking forgets them');
+  assert.equal(book.bookingByToken('booking-token-next').email, 'pat@example.org', 'the session still booked keeps them until it is cancelled');
+});
+
+test('a booking is one log row, its record names no one, and a buyer forgotten with nothing booked is in no table', () => {
+  const host = sqliteHost(':memory:');
+  let counter = 0;
+  const book = new BookingBook(host.sql, { now: () => NOW, transaction: host.transaction, token: () => `${(counter += 1).toString(16).padStart(4, '0')}${'ab'.repeat(20)}` });
+  const { grant } = book.grant({ key: 'purchase-2', bookable_id: row.id, person_ref: 'person-sam', email: 'sam@example.org', name: 'Sam Example' });
+  const logRows = () => host.sql.exec('SELECT COUNT(*) AS n FROM record_log').toArray()[0].n;
+  const start = openTime(book);
+  const before = logRows();
+  const booked = book.book({ grant, start_ms: start });
+  assert.equal(logRows() - before, 1, 'one booking is one record_log row');
+  assert.equal(book.bookingByToken(booked.token).id, booked.id);
+  assert.equal(book.bookingsFor('person-sam').length, 1);
+  assert.equal(book.left(grant), grant.sessions - 1);
+  assert.equal(book.cancel(booked).state, 'cancelled');
+  assert.equal(book.left(grant), grant.sessions, 'a cancelled time gives its session back');
+  assert.deepEqual(book.held(row.id), [], 'and frees its time');
+
+  book.forget('person-sam');
+  assert.deepEqual(holding(host.sql, 'sam@example.org'), []);
+  assert.deepEqual(holding(host.sql, 'Sam Example'), []);
+  assert.equal(host.sql.exec("SELECT COUNT(*) AS n FROM booking_parties WHERE email = 'sam@example.org' OR customer_name = 'Sam Example'").toArray()[0].n, 0, 'with nothing still booked they are forgotten everywhere');
+});

@@ -1,0 +1,23 @@
+{
+  "_what": "What a person's PersonWork objects do, as DATA read by src/person-work.mjs. One object per person per concern, named `${userId}|${concern}` (the PERSON_WORK binding); each call names its user and concern (src/person-work-identity.mjs). `moves_sources` names the scheduler sources a concern took over from the person's store (src/person-store.mjs), which no longer runs them. `feed_page` is how many store changes one wake reads; `values_per_wake` how many results it admits to the index (as src/search.json catch_up does); `record_page` how many record-log transactions one wake reads through the store's records RPCs (src/person-store.mjs records*), so a wake's record reads do not grow with the store; `namespace_wait_rest_ms` the rest of a wake that found the account's results unreadable until its Namespace publishes (own records moved, Namespace not carried), `slow_pass_ms` how long a wake may stand before it logs what it waited on (src/person-work.mjs alarm), `failure_rest_ms` the gap before the wake that follows one that failed with an error, `embed_wait_ms` the most a wake waits for the account's model road to embed a batch, `results_wait_ms` the most a wake waits for one call to the results' owner (a call whose callee was reset is never answered, and the wake held its object for 240 to 900 s; the wake gives up as busy and the next follows at building_rest_ms), `failure_backoff_max_ms` the most the rest after a failed wake grows to when wakes keep failing (it doubles from the failure's own rest with each failed wake in a row and starts again after a wake that works; src/person-work.mjs failureRestMs), `rest_ms` the gap between wakes while work waits once the follower is ready, and `building_rest_ms` while it is not (a lane still being built: the follower has its own object, so nothing it shares a thread with is waiting; each wake is bounded by values_per_wake and src/search.json catch_up bytes_per_wake, and its reads of the results are one bounded rows read per lane, not one per value); `ahead_rows` how many store changes after the follower's position a search reads to name the lanes they touch still reading (a full page names every index lane); `notice_every_ms` the least time between the store's notices of a change (src/person-store.mjs noticeSearch); `overdue_ms` how long past its time a set alarm may be before a notice sets it again, since it did not fire (src/person-work-wake.mjs); `record_source_ms` how long the follower keeps reading the account's records from the store before asking again whether they moved to the account's own record book (src/person-work.mjs recordSource; once they have, it never asks again).",
+  "concerns": {
+    "search": {
+      "moves_sources": ["search-catch-up"],
+      "feed_page": 200,
+      "values_per_wake": 5000,
+      "record_page": 200,
+      "results_wait_ms": 30000,
+      "embed_wait_ms": 120000,
+      "failure_rest_ms": 5000,
+      "failure_backoff_max_ms": 60000,
+      "slow_pass_ms": 5000,
+      "namespace_wait_rest_ms": 60000,
+      "rest_ms": 2000,
+      "building_rest_ms": 250,
+      "ahead_rows": 50,
+      "notice_every_ms": 1000,
+      "overdue_ms": 60000,
+      "record_source_ms": 60000
+    }
+  }
+}

@@ -1,0 +1,137 @@
+// test/model-relay.test.mjs
+//
+// The model relay (computer/model-relay.mjs) that lets an AI inside a place of its own reach a model provider: it listens
+// only on this Mac's side of the place's network, forwards only a call that carries a live token of the place at that
+// address, puts the person's credential (read at the call) on the forwarded call and nowhere else, keeps what the call
+// used on the place, and refuses a call with no token, an expired one, or one whose place was removed.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { hostSideOf, inSubnet, makeModelRelay, relaySettings, usageOf } from '../computer/model-relay.mjs';
+import { makePlaces, placeSettings, tokenAtIn } from '../computer/work-places.mjs';
+
+const SECRET = 'sk-person-REAL-credential-0123456789';
+const LOOP = () => ({ lo0: [{ address: '127.0.0.1', netmask: '255.0.0.0', family: 'IPv4', internal: false }] });
+const idOf = token => bytesToHex(blake3(new TextEncoder().encode(token)));
+
+test('the relay listens on the interface whose subnet holds the place, and knows who is inside it', () => {
+  const interfaces = { en0: [{ address: '192.168.0.43', netmask: '255.255.255.0', family: 'IPv4', internal: false }],
+    bridge100: [{ address: '192.168.64.1', netmask: '255.255.255.0', family: 'IPv4', internal: false }] };
+  assert.deepEqual(hostSideOf('192.168.64.4', interfaces), { address: '192.168.64.1', netmask: '255.255.255.0' });
+  assert.equal(hostSideOf('10.9.9.9', interfaces), null);
+  assert.equal(inSubnet('192.168.64.9', { address: '192.168.64.1', netmask: '255.255.255.0' }), true);
+  assert.equal(inSubnet('192.168.0.20', { address: '192.168.64.1', netmask: '255.255.255.0' }), false, 'the LAN is not the place network');
+});
+
+test('what a call used is read from a JSON answer or from each line of a stream', () => {
+  const usage = relaySettings().providers.anthropic.usage;
+  assert.deepEqual(usageOf(JSON.stringify({ model: 'claude-x', usage: { input_tokens: 12, output_tokens: 34 } }), usage), { model: 'claude-x', input_tokens: 12, output_tokens: 34 });
+  const stream = ['event: message_start', `data: ${JSON.stringify({ type: 'message_start', message: { model: 'claude-y', usage: { input_tokens: 7, output_tokens: 1 } } })}`, '',
+    `data: ${JSON.stringify({ type: 'message_delta', usage: { output_tokens: 99 } })}`, ''].join('\n');
+  assert.deepEqual(usageOf(stream, usage), { model: 'claude-y', input_tokens: 7, output_tokens: 99 });
+});
+
+async function relayOn({ tokenAt, credentials = { anthropic: 'secret://pretend/anthropic' } } = {}) {
+  const home = await mkdtemp(join(tmpdir(), 'model-relay-'));
+  await mkdir(join(home, '.trillion'), { recursive: true });
+  if (credentials) await writeFile(join(home, '.trillion/model-relay.json'), JSON.stringify({ credentials }));
+  const settings = { ...relaySettings(), port: 0 };
+  const upstream = [], recorded = [];
+  const relay = makeModelRelay({
+    settings, home, interfaces: LOOP, tokenAt, record: (placeId, call) => recorded.push({ placeId, call }),
+    resolver: { resolve: async reference => (reference === 'secret://pretend/anthropic' ? SECRET : Promise.reject(new Error('unknown'))) },
+    fetchImpl: async (url, init) => {
+      upstream.push({ url, headers: init.headers, body: String(init.body) });
+      return new Response(JSON.stringify({ model: 'claude-x', content: [{ text: 'hi' }], usage: { input_tokens: 5, output_tokens: 8 } }), { status: 200, headers: { 'content-type': 'application/json' } });
+    },
+  });
+  const at = await relay.listenFor('127.0.0.1');
+  return { relay, at, upstream, recorded };
+}
+const call = (at, headers = {}) => fetch(`${at.url}/anthropic/v1/messages`, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify({ model: 'claude-x', messages: [] }) });
+
+test('a call with a live place token is forwarded with the person\'s credential, which never comes back; others are refused', async () => {
+  const { relay, at, upstream, recorded } = await relayOn({ tokenAt: (token, peer) => (token === 'place-token' && peer === '127.0.0.1' ? { id: 'place-1' } : null) });
+  try {
+    assert.equal(relay.listening()[0].address, '127.0.0.1', 'it listens on the place network side only, never on every interface');
+    const none = await call(at);
+    assert.equal(none.status, 401);
+    assert.match((await none.json()).error.message, /no live token of a place/);
+    const wrong = await call(at, { 'x-api-key': 'guessed' });
+    assert.equal(wrong.status, 401);
+    assert.equal(upstream.length, 0, 'nothing was forwarded for a refused call');
+
+    const good = await call(at, { 'x-api-key': 'place-token', 'anthropic-version': '2023-06-01' });
+    assert.equal(good.status, 200);
+    const text = await good.text();
+    assert.ok(!text.includes(SECRET));
+    assert.equal(upstream[0].url, 'https://api.anthropic.com/v1/messages');
+    assert.equal(upstream[0].headers['x-api-key'], SECRET, 'the person\'s credential is on the forwarded call');
+    assert.equal(upstream[0].headers['anthropic-version'], '2023-06-01');
+    assert.ok(!JSON.stringify(upstream[0].headers).includes('place-token'), 'the place token never leaves this Mac');
+    assert.deepEqual(recorded.map(row => row.placeId), ['place-1']);
+    assert.equal(recorded[0].call.model, 'claude-x');
+    assert.equal(recorded[0].call.input_tokens, 5);
+    assert.equal(recorded[0].call.output_tokens, 8);
+    assert.ok(!JSON.stringify(recorded).includes(SECRET));
+
+    const route = await fetch(`${at.url}/elsewhere`, { headers: { 'x-api-key': 'place-token' } });
+    assert.equal(route.status, 404);
+  } finally { await relay.close(); }
+});
+
+test('with no credential named the relay refuses and says where to name one', async () => {
+  const { relay, at, upstream } = await relayOn({ tokenAt: () => ({ id: 'place-1' }), credentials: null });
+  try {
+    const answer = await call(at, { 'x-api-key': 'place-token' });
+    assert.equal(answer.status, 503);
+    assert.match((await answer.json()).error.message, /No credential for anthropic is set: name a secret reference for it under credentials\.anthropic in ~\/\.trillion\/model-relay\.json/);
+    assert.equal(upstream.length, 0);
+  } finally { await relay.close(); }
+});
+
+test('a run token lives in the places file: live while its place is ready at that address, refused once expired, stopped or removed', async () => {
+  const home = await mkdtemp(join(tmpdir(), 'relay-places-'));
+  let time = Date.parse('2026-10-21T09:00:00Z');
+  const puts = [];
+  const settings = placeSettings();
+  const relay = { listenFor: async () => ({ url: 'http://192.168.64.1:47311' }), guestEnv: (provider, url, token) => makeModelRelay({ settings: relaySettings(), tokenAt: () => null, record: () => {} }).guestEnv(provider, url, token) };
+  const places = makePlaces({ settings, home, now: () => time, wait: async () => { time += 2000; }, relay, key: () => 'run-token-abc',
+    detached: () => 4321,
+    exec: async (argv, options) => {
+      if (options?.input !== undefined) puts.push({ argv, input: options.input });
+      if (argv[1] === 'ip') return { code: 0, stdout: Buffer.from('192.168.64.4\n'), stderr: '' };
+      if (argv.includes('place-status')) return { code: 0, stdout: Buffer.from('running\n\nworking\n'), stderr: '' };
+      return { code: 0, stdout: Buffer.alloc(0), stderr: '' };
+    } });
+  await places.make({ kind: 'linux-vm', name: 'box' });
+  const started = await places.run_agent({ place: 'box', harness: 'claude-code', prompt: 'fix the failing test' });
+  assert.match(started.run, /^run-[0-9a-f]{12}$/);
+  const file = join(home, '.trillion/work-places/places.json');
+  const kept = JSON.parse(await readFile(file, 'utf8'));
+  const record = Object.values(kept.places)[0];
+  assert.equal(record.address, '192.168.64.4');
+  assert.deepEqual(record.tokens.map(row => [row.id, row.purpose]), [[idOf('run-token-abc'), `claude-code run ${started.run}`]]);
+  assert.ok(!JSON.stringify(kept).includes('run-token-abc'), 'only the BLAKE3 of the token is kept');
+  const env = puts.find(row => row.argv.at(-1) === 'env');
+  assert.equal(env.input, 'ANTHROPIC_BASE_URL="http://192.168.64.1:47311/anthropic"\nANTHROPIC_API_KEY="run-token-abc"\n', 'the place gets its own token and the relay, through standard input');
+  assert.ok(!puts.some(row => row.argv.some(part => part.includes('run-token-abc'))), 'the token is never an argument');
+  assert.ok(!JSON.stringify(puts).includes('sk-'), 'no credential of the person is sent into the place');
+
+  assert.equal(tokenAtIn(file, 'run-token-abc', '192.168.64.4', time).id, record.id);
+  assert.equal(tokenAtIn(file, 'run-token-abc', '192.168.64.9', time), null, 'another address of the network is refused');
+  assert.equal(tokenAtIn(file, 'nope', '192.168.64.4', time), null);
+  assert.equal(tokenAtIn(file, 'run-token-abc', '192.168.64.4', time + 241 * 60_000), null, 'an expired token is refused');
+
+  await assert.rejects(places.message_agent({ place: 'box', run: started.run, text: 'now the docs' }), /still on its turn/);
+  const status = await places.agent_status({ place: 'box', run: started.run });
+  assert.equal(status.state, 'running');
+  assert.equal(status.token.purpose, `claude-code run ${started.run}`);
+
+  await places.remove({ place: 'box' });
+  assert.equal(tokenAtIn(file, 'run-token-abc', '192.168.64.4', time), null, 'a call after remove is refused');
+});

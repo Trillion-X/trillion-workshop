@@ -1,0 +1,144 @@
+{
+  "_what": "The words and settings of the layer diagram's typed graph contract (graph-contract.mjs): the document version it reads, the id shape, the most it accepts (derived once, so a document that validates always draws), the change states every node and edge says, which look each change state and each kind wears, the kinds a node and an edge may name, what an unknown kind does, the fields a document may never carry (positions), and the words each refusal is said in. Every list here is DATA: add a kind, a change state or a limit by editing this file; nothing in code names one.",
+  "schema_version": 1,
+  "oldest_schema_version": 1,
+  "id_pattern": "^[a-z0-9][a-z0-9._:-]{0,63}$",
+  "limits": {
+    "lanes": 12,
+    "nodes": 200,
+    "edges": 400,
+    "label_characters": 120,
+    "detail_characters": 240,
+    "caption_characters": 400,
+    "floor_height_most": 400
+  },
+  "allowed_fields": {
+    "document": [
+      "schema_version",
+      "id",
+      "label",
+      "caption",
+      "lanes",
+      "edges"
+    ],
+    "lane": [
+      "id",
+      "label",
+      "nodes"
+    ],
+    "node": [
+      "id",
+      "label",
+      "detail",
+      "kind",
+      "delta",
+      "mark",
+      "min_height"
+    ],
+    "mark": [
+      "image",
+      "letters"
+    ],
+    "edge": [
+      "from",
+      "to",
+      "kind",
+      "label",
+      "delta"
+    ]
+  },
+  "delta": {
+    "required": true,
+    "states": {
+      "added": {
+        "node": "highlighted",
+        "edge": "strong",
+        "label": "Added"
+      },
+      "modified": {
+        "node": "strong",
+        "edge": "strong",
+        "label": "Changed"
+      },
+      "removed": {
+        "node": "refused",
+        "edge": "refused",
+        "label": "Removed"
+      },
+      "unchanged": {
+        "node": null,
+        "edge": null
+      }
+    }
+  },
+  "kinds": {
+    "node": {
+      "person": {
+        "letters": "P"
+      },
+      "service": {
+        "letters": "S"
+      },
+      "store": {
+        "letters": "D"
+      },
+      "record": {
+        "letters": "R"
+      },
+      "other": {}
+    },
+    "edge": {
+      "calls": {
+        "label": "calls"
+      },
+      "reads": {
+        "label": "reads"
+      },
+      "writes": {
+        "label": "writes"
+      },
+      "owns": {
+        "label": "owns"
+      },
+      "other": {}
+    },
+    "unknown": "draw_plain"
+  },
+  "forbidden_fields": [
+    "x",
+    "y",
+    "w",
+    "h",
+    "width",
+    "height",
+    "d",
+    "label_x",
+    "label_y",
+    "position",
+    "style"
+  ],
+  "words": {
+    "errors": {
+      "NOT_AN_OBJECT": "{path} must be an object.",
+      "MISSING_FIELD": "{path} is required.",
+      "WRONG_TYPE": "{path} has the wrong type: {expected} was expected.",
+      "BAD_ID": "{path} is not a valid id: use lower-case letters, digits and . _ : - (at most 64 characters).",
+      "TOO_LONG": "{path} is longer than {most} characters.",
+      "TOO_MANY": "{path} holds more than {most} entries.",
+      "UNSUPPORTED_VERSION": "{path} is version {found}; this reader draws versions {oldest} to {newest}.",
+      "MISSING_DELTA": "{path} must say its change state: one of {states}.",
+      "INVALID_DELTA": "{path} names the change state \"{found}\"; the change states are {states}.",
+      "UNKNOWN_KIND": "{path} names the kind \"{found}\"; it is drawn plain.",
+      "REFUSED_KIND": "{path} names the kind \"{found}\", which is not one of {kinds}.",
+      "POSITION_NOT_ALLOWED": "{path} gives a position or size; a document says what and how connected, never where. Use min_height for a floor.",
+      "BAD_FLOOR": "{path} must be a whole number from 0 to {most}.",
+      "UNKNOWN_FIELD": "{path} is not a supported field.",
+      "EMPTY_GRAPH": "{path} must contain at least one node.",
+      "DUPLICATE_ID": "{path} repeats the id \"{found}\", first used at {first}.",
+      "BROKEN_REFERENCE": "{path} points to \"{found}\", which no node declares.",
+      "SELF_EDGE": "{path} joins \"{found}\" to itself."
+    },
+    "invalid_heading": "This graph cannot be drawn:",
+    "refusal_fallback": "This part of the graph does not follow the graph rules."
+  }
+}

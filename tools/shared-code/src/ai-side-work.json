@@ -1,0 +1,4 @@
+{
+  "_what": "Senders whose hand-offs are work for the person's AIs only (src/agents.mjs): the job waits for an AI like any other, but the person's AI work screen, Home's workstreams card, the work feed and their notifications never list it, and nothing tells them it exists. The person asked that Trillion's own checks page an AI, never them. Trillion running one of its tools on one of the person's own devices (src/agent-tool-runs.mjs) is such work too: the person sees that tool's result where they asked for it, never a job.",
+  "from_agents": ["trillion-store-health", "trillion-workshop"]
+}

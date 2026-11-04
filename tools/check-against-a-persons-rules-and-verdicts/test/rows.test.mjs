@@ -17,7 +17,7 @@ for (const row of rows) {
   test(`${row.id} answers its own sample on the last line`, async () => {
     for (const sample of row.verify.filter(item => item.kind === 'sample-run')) {
       // A sample that seeds records runs as the container does, with the stand-in records door holding them.
-      const ran = sample.records ? await runRow(row, sample.input, { records: sample.records }) : run(row.invoke.argv.slice(1), sample.input);
+      const ran = sample.records ? await runRow(row, sample.input, { records: sample.records, door_files: sample.door_files }) : run(row.invoke.argv.slice(1), sample.input);
       assert.equal(ran.status ?? ran.code, 0, ran.stderr ?? ran.stdout);
       const answer = at(JSON.parse(ran.stdout.trim().split('\n').at(-1)), row.result_selector);
       assert.ok(String(at(answer, sample.output_selector)).includes(sample.contains), JSON.stringify(answer));

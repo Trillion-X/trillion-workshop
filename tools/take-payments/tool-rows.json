@@ -4242,7 +4242,17 @@
         "description": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
         "input_schema": {"type": "object", "properties": {"request_key": {"type": "string"}, "payer_id": {"type": "string"}, "day_from": {"type": "string"}, "day_to": {"type": "string"}, "today": {"type": "string"}, "settlement_keys": {"type": "object"}, "included_units": {"type": "object"}}, "required": ["request_key", "payer_id", "day_from", "day_to", "today", "settlement_keys"], "additionalProperties": false},
         "output_schema": {"type": "object", "properties": {"observation_refs": {"type": "object"}, "quantities": {"type": "object"}, "missing_days": {"type": "array"}}, "required": ["observation_refs", "quantities", "missing_days"]},
-        "verify": [],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {"request_key": "sample-usage-1", "payer_id": "payer:sample", "day_from": "2026-11-01", "day_to": "2026-11-02", "today": "2026-11-04", "settlement_keys": {"meter:stored-gigabytes": {"supplier_pool": "pool:sample", "tariff_version": "tariff:sample", "cost_class": "meter:stored-gigabytes", "invoice_period": "2026-11", "currency": "usd", "resource_id": "meter:stored-gigabytes"}, "meter:service-work": {"supplier_pool": "pool:sample", "tariff_version": "tariff:sample", "cost_class": "meter:service-work", "invoice_period": "2026-11", "currency": "usd", "resource_id": "meter:service-work"}, "resource:source-bytes": {"supplier_pool": "pool:sample", "tariff_version": "tariff:sample", "cost_class": "resource:source-bytes", "invoice_period": "2026-11", "currency": "usd", "resource_id": "resource:source-bytes"}}},
+            "doorOptions": {"usageDays": [
+              {"kind": "namespace-usage-day", "day": "2026-11-01", "stored_bytes": 2500000000, "stored_bytes_written": 2500000000, "source_bytes_read": 4096, "work_ms": 1200, "tool_runs": 3, "flushes": 4, "updated_at": "2026-11-01T23:55:00.000Z"},
+              {"kind": "namespace-usage-day", "day": "2026-11-02", "stored_bytes": 2500000000, "stored_bytes_written": 0, "source_bytes_read": 0, "work_ms": 0, "tool_runs": 0, "flushes": 1, "updated_at": "2026-11-02T00:05:00.000Z"},
+              {"kind": "namespace-usage-day", "day": "2026-11-03", "stored_bytes": 2600000000, "stored_bytes_written": 100000000, "source_bytes_read": 10, "work_ms": 5, "tool_runs": 1, "flushes": 1, "updated_at": "2026-11-03T12:00:00.000Z"}
+            ]}
+          }
+        ],
         "kind": "ai-tool-descriptor"
       }
     },

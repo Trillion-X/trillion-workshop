@@ -1,0 +1,55 @@
+{
+  "_what": "The one version store for every versioned thing kept in a person's saved records (src/native-workspace-records.mjs, collections read by src/workspace-revision-selection.mjs). Each `records` row is an owner type: the record address (or address prefix) it versions, `owner_type` (the name a reader sees), and `collection`: the members versioned one by one ({ path, identity_field }, path [] when the record itself is the list) or { whole: <member id> } when the whole record is one member. `kinds` is per-kind retention: `keep` versions of that kind per member (null: never pruned by count and never evicted for room; a version of that kind is refused when there is no room). A row may override a kind's keep with `retention`. `asked: true` kinds are the ones a person or AI may keep a version as on request (POST /records/revisions/keep); the others are kept by the store itself. `writer_kinds` names the kind a write is kept as from the road it came by (src/write-via.mjs `road`), and `turn: true` keeps what that one admitted command changed as a turn that can be put back together (`turns_kept` newest turns). Every other write is `default_kind`. A new owner type, kind or road is one row here.",
+  "max_revisions_per_member": 50,
+  "max_total_bytes": 33554432,
+  "default_kind": "save",
+  "kinds": {
+    "save": { "keep": 50 },
+    "ai": { "keep": 10 },
+    "publish": { "keep": 25, "asked": true },
+    "manual": { "keep": null, "asked": true }
+  },
+  "writer_kinds": [
+    { "road": "key", "kind": "ai", "turn": true }
+  ],
+  "turns_kept": 50,
+  "records": [
+    {
+      "address": "package::documents::documents",
+      "owner_type": "document",
+      "collection": {
+        "path": [
+          "children"
+        ],
+        "identity_field": "id"
+      }
+    },
+    {
+      "prefix": "package::documents::documents::",
+      "owner_type": "document",
+      "collection": {
+        "path": [
+          "children"
+        ],
+        "identity_field": "id"
+      }
+    },
+    {
+      "address": "screen-arrangement-own-layouts",
+      "owner_type": "layout",
+      "collection": { "path": [], "identity_field": "id", "duplicate_members": "last" }
+    },
+    {
+      "prefix": "screen-arrangement-of::",
+      "owner_type": "screen-arrangement",
+      "collection": { "whole": "arrangement" }
+    },
+    {
+      "address": "screen-look-own-themes",
+      "owner_type": "look",
+      "collection": { "path": [], "identity_field": "id" }
+    }
+  ],
+  "max_total_revisions": 10000,
+  "max_evictions_per_save": 64
+}

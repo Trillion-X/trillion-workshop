@@ -1,0 +1,163 @@
+{
+  "kind": "package-set-record-set",
+  "package_set": "trillion",
+  "record_set": "bookable-access",
+  "comment": "An access that is fulfilled by booking time with a host. Any offer whose access_refs include `access` makes its buyer able to book: the purchase sends the buyer their booking link and tells the host, the buyer picks an open time, the time lands on the host's calendar with the buyer invited, and reminders go out before it. Open times are the rules below minus the host's busy calendar minus sessions already booked. `host.calendar` is the host's own calendar connection, made on the Connections screen of the host's Trillion account (the Worker setting `account.setting` names it): the shared Workshop tools `tools` names read its busy times, put the event on it with the buyer invited (a row whose sessions are video calls names a tool that makes the call with the event), move it and cancel it, each run in the host's account on `calendar_id`; `reply` says where each reply keeps what is read (`busy`: the part of the busy reply that holds every busy stretch, each an object with `fields.start` and `fields.end`, and `fields.errors` when the calendar could not be read; `event_id` and each `video_link` path: where the made event keeps its id and its call's join address, first address wins). With no calendar connected, busy times are unknown and an event goes out as an invitation file. `mention` says when a person's AI may bring the session up during a decision: `when` is read against the decision record (a path of keys, where an object segment picks the array element whose fields match), and `at_most_every_days` / never-to-holders keep it from repeating; the offer's own summary (its price and length) is said before `line`, so a price lives only in the offer row. Every email a booking sends comes from Trillion's one sender (src/mail-settings.json), with replies going to `host.email`. `host.calendar_service` books through the host's own calendar service once the host's Trillion account (the Worker setting `account.setting` names) has connected it: open times, booking, moving and cancelling run through the shared Workshop tools `tools` names, in the host's account, on the one event type for which `event_type.when` holds (the same condition language as `mention.when`), and `event_type.missing` is what the person's AI and screen are told when the service is connected but has no such event type; `reply` says where each reply keeps what is read (`fields.video_link` lists the reply fields that may hold the call's link, first address wins). `session.video_call` means every booking carries a video call link, whichever way it is booked: through the calendar service's event type, or on the Google calendar with a Meet call made with the event; a way that cannot make one books nothing. Until then, and for a host with no such service, times come from `rules` as above. `rules.hold_minutes` is how long a time a person picked before paying is kept from everyone else; the purchase books that time when it is still open when the payment lands, and otherwise the buyer gets their booking link to pick another. `session.once_per_person` gives each person one grant however many times they pay for an offer that grants it (a monthly plan that includes a free call), and `session.included` marks a session that comes with an offer selling something else: buying the offer sends no booking email and does not lead to Book a session, and the person books it there when they want. `session.pick_heading` is the heading over the row's open times on Book a session, and `session.held_note` what is said under them to someone who holds the session. Adding a bookable service is one row here; nothing in code names a host.",
+  "records": [
+    {
+      "kind": "bookable-access",
+      "id": "bookable:session-with-ana",
+      "access": "access:session-with-ana",
+      "host": {
+        "id": "host:ana",
+        "name": "Ana",
+        "email": "host@example.test",
+        "calendar": {
+          "account": { "setting": "OPERATOR_ACCOUNT_ID" },
+          "calendar_id": "primary",
+          "tools": {
+            "busy": "tool:google-calendar-read_busy_times",
+            "create": "tool:google-calendar-create_an_event_with_a_video_call",
+            "move": "tool:google-calendar-move_an_event",
+            "cancel": "tool:google-calendar-cancel_an_event"
+          },
+          "reply": {
+            "busy": ["calendars"],
+            "fields": { "start": "start", "end": "end", "errors": "errors" },
+            "event_id": ["id"],
+            "video_link": [["hangoutLink"], ["conferenceData", "entryPoints", { "entryPointType": "video" }, "uri"]]
+          }
+        },
+        "calendar_service": {
+          "account": { "setting": "OPERATOR_ACCOUNT_ID" },
+          "tools": {
+            "event_types": "tool:calcom-list_event_types",
+            "open_times": "tool:calcom-find_open_times",
+            "book": "tool:calcom-book_a_time",
+            "move": "tool:calcom-reschedule_a_booking",
+            "cancel": "tool:calcom-cancel_a_booking",
+            "read": "tool:calcom-read_a_booking"
+          },
+          "event_type": {
+            "when": {
+              "all": [
+                { "path": ["lengthInMinutes"], "equals": 180 },
+                { "path": ["locations", { "integration": "google-meet" }, "type"], "equals": "integration" }
+              ]
+            },
+            "missing": "Ana's Cal.com has no 3-hour event type that meets on Google Meet yet."
+          },
+          "reply": {
+            "event_types": ["data"],
+            "times": ["data"],
+            "booking": ["data"],
+            "fields": { "event_type_id": "id", "start": "start", "end": "end", "booking_ref": "uid", "state": "status", "moved_to": "rescheduledToUid", "video_link": ["meetingUrl", "location"] },
+            "cancelled_states": ["cancelled", "rejected"]
+          }
+        }
+      },
+      "session": {
+        "title": "The method, run with Ana",
+        "place": "Google Meet video call. The link is in your calendar invite.",
+        "video_call": true,
+        "sessions_per_purchase": 1
+      },
+      "rules": {
+        "timezone": "America/Los_Angeles",
+        "windows": [
+          { "weekday": 1, "start": "09:00", "end": "17:00" },
+          { "weekday": 2, "start": "09:00", "end": "17:00" },
+          { "weekday": 3, "start": "09:00", "end": "17:00" },
+          { "weekday": 4, "start": "09:00", "end": "17:00" },
+          { "weekday": 5, "start": "09:00", "end": "17:00" }
+        ],
+        "session_minutes": 180,
+        "step_minutes": 60,
+        "buffer_before_minutes": 30,
+        "buffer_after_minutes": 30,
+        "min_notice_minutes": 2880,
+        "horizon_days": 42,
+        "max_per_day": 1,
+        "cancel_until_minutes_before": 1440,
+        "hold_minutes": 30
+      },
+      "reminders": [
+        { "minutes_before": 1440 },
+        { "minutes_before": 120 }
+      ],
+      "mention": {
+        "when": {
+          "any": [
+            { "path": ["decision_history"], "count_at_least": 1 },
+            { "path": ["status"], "equals": "correction_needed" },
+            {
+              "all": [
+                { "path": ["guidance", { "step_id": "scope" }, "answer", "decision_context", "consequential"], "equals": true },
+                { "path": ["guidance", { "step_id": "scope" }, "answer", "decision_context", "worth_weighing"], "equals": true },
+                { "path": ["guidance", { "step_id": "scope" }, "answer", "decision_context", "involves_others"], "equals": true }
+              ]
+            }
+          ]
+        },
+        "at_most_every_days": 30,
+        "line": "If you would like to work this decision through with Ana on a video call, I can show his open times, send the checkout link, and book the time you pick."
+      }
+    },
+    {
+      "kind": "bookable-access",
+      "id": "bookable:intro-call-with-ana",
+      "access": "access:intro-call-with-ana",
+      "host": {
+        "id": "host:ana",
+        "name": "Ana",
+        "email": "host@example.test",
+        "calendar": {
+          "account": { "setting": "OPERATOR_ACCOUNT_ID" },
+          "calendar_id": "primary",
+          "tools": {
+            "busy": "tool:google-calendar-read_busy_times",
+            "create": "tool:google-calendar-create_an_event_with_a_video_call",
+            "move": "tool:google-calendar-move_an_event",
+            "cancel": "tool:google-calendar-cancel_an_event"
+          },
+          "reply": {
+            "busy": ["calendars"],
+            "fields": { "start": "start", "end": "end", "errors": "errors" },
+            "event_id": ["id"],
+            "video_link": [["hangoutLink"], ["conferenceData", "entryPoints", { "entryPointType": "video" }, "uri"]]
+          }
+        }
+      },
+      "session": {
+        "title": "Free intro call with Ana",
+        "place": "Google Meet video call. The link is in your calendar invite.",
+        "video_call": true,
+        "sessions_per_purchase": 1,
+        "once_per_person": true,
+        "included": true,
+        "pick_heading": "Pick a time for your free intro call",
+        "held_note": "Your membership includes this call. Pick a time to book it."
+      },
+      "rules": {
+        "timezone": "America/Los_Angeles",
+        "windows": [
+          { "weekday": 1, "start": "09:00", "end": "17:00" },
+          { "weekday": 2, "start": "09:00", "end": "17:00" },
+          { "weekday": 3, "start": "09:00", "end": "17:00" },
+          { "weekday": 4, "start": "09:00", "end": "17:00" },
+          { "weekday": 5, "start": "09:00", "end": "17:00" }
+        ],
+        "session_minutes": 30,
+        "step_minutes": 30,
+        "buffer_before_minutes": 15,
+        "buffer_after_minutes": 15,
+        "min_notice_minutes": 1440,
+        "horizon_days": 21,
+        "max_per_day": 4,
+        "cancel_until_minutes_before": 120,
+        "hold_minutes": 30
+      },
+      "reminders": [{ "minutes_before": 1440 }, { "minutes_before": 60 }]
+    }
+  ]
+}

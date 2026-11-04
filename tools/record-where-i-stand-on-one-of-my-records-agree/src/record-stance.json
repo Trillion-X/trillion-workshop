@@ -1,0 +1,28 @@
+{
+  "schema": "trillion.record-stance",
+  "about": "Where the person stands on one of their own records, read by src/record-stance.mjs: a decision, a message, a file, a tool, a pursuit or any record their Trillion keeps. One `record-stance` record per record they took a stand on, naming it in `about` like a message does, so src/record-scope.json links it to that record and the record's trace (trace_item, a decision page's What came after) shows it. `stances` are the stands a person can take, one row each: `label` on its button, `said` what the record's page and its trace read once taken, `tone` how loudly on the record's page and `list_tone` in a list's column. `reopens` names the kinds of record this stand sends back for a new decision: a decision the person disagrees with is open for a corrected decision, and one of their AIs is handed the job of making it (`hand_off`, filled from the decision). A new stand is one row here; a new kind of record it reopens is one word in `reopens`.",
+  "type": "record-stance",
+  "stances": [
+    { "id": "agree", "label": "I agree", "icon": "ThumbsUp", "tone": "good", "list_tone": "success", "said": "You agree with this." },
+    { "id": "disagree", "label": "I disagree", "icon": "ThumbsDown", "tone": "attention", "list_tone": "warning", "said": "You disagree with this.", "reopens": ["decision"] }
+  ],
+  "words": {
+    "heading": "Do you agree?",
+    "ask": "Do you agree with this decision?",
+    "why_label": "Why, in your words (optional)",
+    "earlier": "On an earlier version of this decision.",
+    "followed_heading": "What came after",
+    "saved": "Saved. {said}",
+    "reopened": "Saved. {said} One of your AIs makes a new decision from what you said.",
+    "refused_stance": "stance is one of: {stances}.",
+    "refused_answered_by": "Ask your person whether they agree, and set answered_by to \"person\": a stance is only ever theirs.",
+    "refused_record": "record names one of this person's own records: a decision case_id, pursuit id, message id, file name or identity, or tool:<tool id>."
+  },
+  "hand_off": {
+    "said": "Make a new decision: {goal}",
+    "job": "The person disagrees with the decision {case_id} ({goal}), which chose: {chosen}. In their words: \"{why}\". Read it with export_decision. Add what they said as evidence with revise_evidence, work out what the right decision is now, and decide again: the case is open for a corrected decision. Then do its next action in the same turn and call say_what_was_done for {case_id}. If what they said is a question rather than a reason, answer it from the facts as part of the decision.",
+    "outcome": "{case_id} holds a corrected decision made from the person's disagreement, and say_what_was_done is recorded for it.",
+    "no_words": "no reason given",
+    "priority": 6
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "window_days": 90,
+  "lookback_days": 400,
+  "processor_prefixes": ["sq", "square", "tst", "paypal", "pp", "sp"],
+  "suffixes": ["inc", "llc", "ltd", "co", "corp", "gmbh", "pbc", "limited", "com", "io", "ai"],
+  "same_payment": { "cents": 100, "days": 3 },
+  "cycles": {
+    "weekly": [6, 8],
+    "monthly": [26, 35],
+    "yearly": [350, 380]
+  },
+  "trend": { "flat_percent": 5, "window_days": 30 },
+  "duplicate_days": 5,
+  "duplicate_percent": 1,
+  "min_label_length": 3,
+  "flag_duplicate": "duplicate"
+}

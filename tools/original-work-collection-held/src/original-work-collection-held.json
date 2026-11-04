@@ -1,0 +1,8 @@
+{
+  "_what": "How long a list read passes over a resource whose discovery page could not be published when the read asked for it (src/original-work-resource-catalogue.mjs collectionPage, src/native-own-consumer-context.mjs referencesPage). The read answers with the other resources' references and names each one passed over with its reason (held); after held_ms a read asks that resource again.",
+  "_why": "On 2026-10-20 one resource of the founder account that could never publish (its page was refused for a list id another resource held) was the first a list read asked, so every list read failed or answered 'catching up' for hours.",
+  "held_ms": 600000,
+  "reason_chars": 300,
+  "busy_held_ms": 15000,
+  "busy_why": "A resource that answered busy (service-busy: an own-records book opened cold answers 'These records are catching up' once and wakes its own upkeep, src/record-book.mjs rebuildRecordProjection) is passed over for busy_held_ms only, not held_ms: by then its upkeep has rebuilt it. The account's index asks a busy holder of a list copy whether it holds rows (src/original-work-list-owner.mjs) again while it answers busy, within the one ask-again budget (src/ask-again-while-busy.json). On 2026-10-20 the founder's own records were held 10 minutes six times running: each time their page asked a stray copy's work book, cold again after 10 minutes, which answered busy, and 168 work books were held the same way, so list_lists stayed empty."
+}

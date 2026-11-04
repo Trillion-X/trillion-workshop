@@ -6,13 +6,35 @@
 // its key and changes its identity, while a new piece arrives with a new key. Titles, horizontal rules and table
 // headers are not atoms.
 //
-// Ported from the earlier Trillion app (scripts/method-atoms.mjs there). Two changes, nothing else:
+// Ported from the earlier Trillion app (scripts/method-atoms.mjs there). Three changes, nothing else:
 //   1. The identity hash is read from the one owner (tools/content-identity), not imported again.
 //   2. Each atom also carries `line`, the 1-based line of the document where it starts, so a row can name its source.
+//   3. A fenced block is fenced as CommonMark (0.31, section 4.5) defines it, where the old cutter knew only ``` and
+//      closed on any line starting with ```: a fence is at least three backticks or at least three tildes (~~~), a
+//      backtick fence's info string holds no backtick, and it closes only on a line of the same character, at least as
+//      many, with nothing after them but spaces or tabs. One left open runs to the end of the document. A line that
+//      opens no fence (``` with a backtick after it) is words. Indentation is not counted, as before, since the cutter
+//      keeps no list containers and a fence inside a list item is indented by its item.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const LEAD_WORDS = 8;
 const identity = text => makeHashCodeHexFromBytes(new TextEncoder().encode(text.replace(/\s+/g, ' ').trim()));
+const FENCE = /^\s*(`{3,}|~{3,})(.*)$/;
+const CLOSING = /^\s*(`{3,}|~{3,})[ \t]*$/;
+
+/** The fence `line` opens ({ mark, length }), or null. */
+export function fenceOpenedBy(line) {
+  const found = line.match(FENCE);
+  if (!found || (found[1][0] === '`' && found[2].includes('`'))) return null;
+  return { mark: found[1][0], length: found[1].length };
+}
+
+/** Whether `line` closes `fence`: the same character, at least as many, then only spaces or tabs. */
+export function fenceClosedBy(line, fence) {
+  const found = line.match(CLOSING);
+  return Boolean(found) && found[1][0] === fence.mark && found[1].length >= fence.length;
+}
+
 const plain = text => text.replace(/[`*_]/g, '').replace(/\s+/g, ' ').trim();
 
 export function lead(text) {
@@ -29,7 +51,7 @@ export function atomsOf(markdown) {
   const atoms = [];
   let block = [];
   let blockLine = 0;
-  let fence = false;
+  let fence = null;
   let firstHeading = true;
   const push = (line, index) => { if (!block.length) blockLine = index + 1; block.push(line); };
   const flush = () => {
@@ -41,8 +63,9 @@ export function atomsOf(markdown) {
     atoms.push({ key: `${where ? `${where} / ` : ''}${lead(text)}`, heading_path: where, text, identity: identity(text), line: at });
   };
   for (const [index, line] of lines.entries()) {
-    if (fence) { push(line, index); if (/^\s*```/.test(line)) { fence = false; flush(); } continue; }
-    if (/^\s*```/.test(line)) { flush(); fence = true; push(line, index); continue; }
+    if (fence) { push(line, index); if (fenceClosedBy(line, fence)) { fence = null; flush(); } continue; }
+    const opened = fenceOpenedBy(line);
+    if (opened) { flush(); fence = opened; push(line, index); continue; }
     const heading = line.match(/^(#{1,6})\s+(.*)$/);
     if (heading) {
       flush();

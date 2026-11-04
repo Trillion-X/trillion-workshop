@@ -1,0 +1,172 @@
+{
+  "_what": "The ONE source for how a person starts with Trillion, as told to App Review (iPhone and Mac), the Chrome Web Store, the Claude and ChatGPT directories, the README and the setup skill, and as the Terms page says it. Every other copy is written from this file by `node scripts/how-to-start-for-reviewers.mjs` (add --check to see whether they are current) and test/how-to-start-for-reviewers.test.mjs fails when a copy differs, so a stale copy cannot be committed or deployed. Change the words here, run the script, commit what it writes. `sentences` are the words, `ui` are words quoted from the product's own screens (the test finds each in the file that draws it), `review_accounts` name the vault keys that hold a reviewer's sign-in (names only, never a value), and `places` say which words go into which file, in which field, at what length. A `{path.to.text}` in a sentence is replaced by that text from this file. Secrets and promo codes are never written here: a promo code is named by the record that holds it.",
+  "ui": {
+    "create_account": { "words": "Create your Trillion account", "found_in": "src/pages.mjs" },
+    "first_name": { "words": "First name", "found_in": "src/pages.mjs" },
+    "last_name": { "words": "Last name", "found_in": "src/pages.mjs" },
+    "submit_sign_up": { "words": "Create account", "found_in": "src/pages.mjs" },
+    "sign_up_passkey": { "words": "Sign up with a passkey", "found_in": "src/pages.mjs" },
+    "email_code": { "words": "Email me a code", "found_in": "src/pages.mjs" },
+    "account_screen": { "words": "Account & security", "found_in": "src/account-screens.mjs" },
+    "delete_heading": { "words": "Delete your account", "found_in": "records/marketplace-screens.json" },
+    "delete_button": { "words": "Delete my account", "found_in": "records/marketplace-screens.json" },
+    "get_started": { "words": "Connect your AI to start", "found_in": "src/setup-steps.json" },
+    "extension_sign_in": { "words": "Sign in to Trillion", "found_in": "extension/words.json" },
+    "extension_name": { "words": "Send to Trillion", "found_in": "extension/manifest.json" }
+  },
+  "review_accounts": {
+    "apple": {
+      "store": "Apple App Review (iPhone and Mac)",
+      "demo_account": false,
+      "reviewers_make_their_own": "Apple's reviewers make a new account with a passkey, so no demo account is sent.",
+      "screenshot_account_vault_key_name": "trillion-app-review-key",
+      "screenshot_account_is": "a proof account (user-f67b60ea@example.com) the store screenshots are taken on; it is not given to Apple and is never a customer's",
+      "contact_phone_vault_key_name": "trillion-app-review-contact-phone"
+    },
+    "directories": {
+      "store": "The Claude and ChatGPT directories",
+      "demo_account": true,
+      "vault_key_name": "needle-mover-review-account-key",
+      "plan_code_record": "checkout-code-adjustment:trillion-review-2026",
+      "plan_code_record_file": "records/checkout-code-adjustment-records.json"
+    },
+    "chrome": {
+      "store": "The Chrome Web Store",
+      "demo_account": false,
+      "reviewers_make_their_own": "Chrome's reviewers make a new account on the sign-in page the extension opens, so no demo account is sent."
+    }
+  },
+  "sentences": {
+    "what_it_is": "Trillion helps your AI find the one thing that moves your work forward most, then gives it the tools, people and files to get it done.",
+    "sign_in_ways_plain": "You sign in with your email and password, a passkey, or a code sent to your email.",
+    "make_account_ways": "Make an account with your first name, last name, email and a password (a code is emailed to confirm the email), or with {ui.sign_up_passkey.words} (first and last name only, nothing is emailed). Both names are required.",
+    "no_demo_account": "No demo account is needed: an account is free to make and starts empty.",
+    "setup_by_ai": "Nobody sets Trillion up by hand. Your own AI does it: when you add Trillion to your AI app, the AI starts setup and carries it through, and the screen on Home called \"{ui.get_started.words}\" shows where it stands.",
+    "review_without_ai": "An AI app is not needed to review this app: setup is done by the person's own AI after they add Trillion to it.",
+    "delete_account": "Account deletion: open {ui.account_screen.words}, then {ui.delete_heading.words}, then {ui.delete_button.words}.",
+    "apple_ios_start": "On Home, tap {ui.create_account.words}.",
+    "apple_mac_start": "Open the app and choose {ui.create_account.words}. A passkey on the Mac uses Touch ID.",
+    "apple_ios_test": "To try the Share extension, open Photos or Safari, tap Share, then Add to Trillion. Record (tab bar) asks for the microphone and speech recognition, and keeps recording with the screen locked because it is a voice memo recorder.",
+    "apple_mac_test": "Record (in the sidebar) asks for the microphone, the camera for video, and speech recognition to show your words while you record. Notices from your Trillion appear as Mac notifications with their own buttons. The app is sandboxed and only opens files the person picks or their Downloads.",
+    "store_home": "Home is your whole Trillion: your biggest needle mover, your goals, what your AIs are deciding and what they did, and every screen of Trillion, the moment it is new.",
+    "store_sign_in_ios": "Make an account with your email and a password or a passkey, or sign in with a code we email you. Your own AI does the setup.",
+    "store_sign_in_mac": "Make an account with your email and a password or a passkey and Touch ID, or sign in with a code we email you. Your own AI does the setup.",
+    "store_share": "Add to Trillion from anywhere. In any app, tap Share, then Add to Trillion. Links, words, photos, videos and files go to your own Trillion, to a pursuit you share with other people, or to both. Choose what your AI should do with it, add a note, and send.",
+    "store_record_ios": "Record a voice memo and read your words as you say them. Your iPhone writes the words down as you talk, and recording keeps going with the screen locked. When you are done, the recording and its words are kept in your Files and handed to your AI.",
+    "store_record_mac": "Record a voice memo or a video from your Mac and read your words as you say them. The recording and its words are kept in your Files and handed to your AI.",
+    "store_formats": "Formats turns one thought into scripts for every kind of post you make. Open a script and record with it on screen.",
+    "store_notices_mac": "Trillion tells you on your Mac when something needs you: a notice with its own buttons, so you can reply or open it right there.",
+    "store_also_ios": "Also on your iPhone: your Files, your shared pursuits, your decisions, what your AIs did, your automations and your connections.",
+    "store_also_mac": "Also on your Mac: your Files, your shared pursuits, your decisions, what your AIs did, your automations and your connections.",
+    "store_this_ios": "This app is Trillion on your iPhone.",
+    "store_this_mac": "This app is Trillion on your Mac, in its own window.",
+    "store_need_account": "You need a Trillion account. You can make one in the app.",
+    "store_buy_once": "Buy once, and Trillion Workspace is yours on iPhone and Mac.",
+    "directory_demo": "Sign in with the demo account whose sign-in and free-plan code are given in the submission form (never in this file). Or make a new account: it is free and starts empty.",
+    "readme_accounts": "Reviewers of the Claude and ChatGPT directories sign in with a demo account whose personal key is in the local vault as `{review_accounts.directories.vault_key_name}`; their free plan is the code on the `{review_accounts.directories.plan_code_record}` row (`{review_accounts.directories.plan_code_record_file}`), whose use count and state are read there, never copied. Apple's reviewers are given no account: they make their own with a passkey (`ios/app-store/listing.json` and `macos/app-store/listing.json`, `review`), and the account the store screenshots are taken on is the proof account whose key is in the Keychain as `{review_accounts.apple.screenshot_account_vault_key_name}`. The review contact phone is in the Keychain as `{review_accounts.apple.contact_phone_vault_key_name}`. These are two different accounts for two different stores, so both key names stay. A review code that has been used up is inactive; never write its value into docs.",
+    "readme_sign_up": "Signed out, `/account` offers making an account: **{ui.first_name.words}** and **{ui.last_name.words}** (both required), the email and a password with **{ui.submit_sign_up.words}** (a code emailed to the address confirms it), or **{ui.sign_up_passkey.words}**, which needs only the two names and saves a passkey in the person's Passwords app / iCloud Keychain under the name Trillion. **{ui.email_code.words}** signs in with a code. A quiet link below switches to signing in; the page's heading is **{ui.create_account.words}**. {sentences.setup_by_ai}",
+    "skill_intro": "Trillion keeps what all of this person's AIs know and can do. Setup is how it learns what this person already has, so the first thing it shows them is real.",
+    "extension_what": "Save a web page, selected text, a picture or a recording in your Trillion account.",
+    "extension_how": "Click the Send to Trillion button (or press Alt+Shift+S) on a page, or right-click a selection, a picture or a link and choose Add to Trillion. Choose one of your lists, or send to your own Trillion. Add a note if you like, and send.",
+    "extension_privacy": "The extension reads a page only when you click its button or use its right-click menu item, and sends only what you choose to your own Trillion account at app.gettrillion.ai.",
+    "extension_test": "Choose {ui.extension_sign_in.words} from the toolbar and sign in to your account. Open a page, choose one of your lists or your own Trillion, add a note and press Send. Confirm the item appears in that account. Right-click text or a picture and choose Add to Trillion to try the menu. Tab or voice recording requests access only when Record is pressed. No test credentials are bundled.",
+    "extension_single_purpose": "Send what the person is looking at on a web page (the page, a selection, a picture, a link, a recording of the tab or their voice) to their own Trillion account, so their AIs can act on it."
+  },
+  "extension_permissions": {
+    "optional:nativeMessaging": "Optional connection to the Trillion desktop app installed on the same computer. This permission is requested only when the person chooses to enable that connection. It lets the extension send its declared account requests to the native messaging host registered by the Trillion app for this extension ID, so sharing can use the person's native Trillion account. The person can use the web account connection without granting nativeMessaging.",
+    "activeTab": "Reads the page, selection or picture only when the person clicks the toolbar button or the menu item, in that tab.",
+    "scripting": "Reads the selection and the page's title and description in the tab the person clicked, once they click.",
+    "storage": "Keeps the person's sign-in with Trillion, the draft of what they were sending, and their choices.",
+    "contextMenus": "Adds the Add to Trillion item to the right-click menu.",
+    "tabCapture": "Records the tab's audio and picture only when the person presses Record this tab.",
+    "offscreen": "Holds the recorder and the uploader open while a recording is being kept, which a service worker cannot do.",
+    "notifications": "Tells the person when Trillion needs a reply, or a send has finished or needs another try.",
+    "alarms": "Retries a send that could not reach Trillion, and checks for notices to show.",
+    "content_script:<all_urls>": "Notes which post, comment or card was right-clicked, as the page itself marks it, so Add to Trillion adds that and not only the page address. It reads only on a right-click and answers only this extension.",
+    "host:https://app.gettrillion.ai/*": "The extension talks only to the person's own Trillion account here: signing in, sending, and reading notices."
+  },
+  "places": [
+    {
+      "id": "apple-ios",
+      "file": "ios/app-store/listing.json",
+      "kind": "fields",
+      "set": [
+        { "path": ["listing", "description"], "limit": 4000, "join": "\n\n", "say": ["what_it_is", "store_this_ios", ["store_home", "store_sign_in_ios"], "store_share", "store_record_ios", "store_formats", "store_also_ios", "store_need_account"] },
+        { "path": ["listing", "review", "notes"], "limit": 4000, "join": " ", "say": ["apple_ios_start", "make_account_ways", "no_demo_account", "review_without_ai", "apple_ios_test", "delete_account"] }
+      ]
+    },
+    {
+      "id": "apple-mac",
+      "file": "macos/app-store/listing.json",
+      "kind": "fields",
+      "set": [
+        { "path": ["listing", "description"], "limit": 4000, "join": "\n\n", "say": ["what_it_is", "store_this_mac", ["store_home", "store_sign_in_mac"], "store_record_mac", "store_notices_mac", "store_also_mac", ["store_need_account", "store_buy_once"]] },
+        { "path": ["listing", "review", "notes"], "limit": 4000, "join": " ", "say": ["apple_mac_start", "make_account_ways", "no_demo_account", "review_without_ai", "apple_mac_test", "delete_account"] }
+      ]
+    },
+    {
+      "id": "chatgpt-plugin",
+      "file": "src/directory-listing.json",
+      "kind": "fields",
+      "set": [
+        { "path": ["chatgpt_plugin", "reviewer_notes"], "limit": 4000, "join": " ", "say": ["directory_demo", "setup_by_ai", "delete_account"] }
+      ]
+    },
+    {
+      "id": "readme-accounts",
+      "file": "README.md",
+      "kind": "block",
+      "block": "review-accounts",
+      "join": " ",
+      "say": ["readme_accounts"]
+    },
+    {
+      "id": "readme-sign-up",
+      "file": "README.md",
+      "kind": "block",
+      "block": "sign-up",
+      "join": " ",
+      "say": ["readme_sign_up"]
+    },
+    {
+      "id": "setup-skill",
+      "file": "skills/setup/SKILL.md",
+      "kind": "text",
+      "lines": [
+        "---",
+        "name: setup",
+        "description: Sets up Trillion for the person who just added it: calls start_setup and carries the saved setup workflow through to the end. Use right after installing Trillion, and whenever the person asks to finish setting up.",
+        "---",
+        "",
+        "# Set up Trillion",
+        "",
+        { "say": ["skill_intro"] },
+        "",
+        "1. Answer what the person asked first, if they asked anything. Setup never makes their own request wait.",
+        "2. Call `start_setup` with no input. It prepares the account, starts or resumes the saved setup workflow for setup and returns the next step.",
+        "3. Follow that workflow. Each time it names a next call, make it. Do the work you are able to do yourself, and keep going on the parts that do not depend on the person.",
+        "4. Ask the person only for what Trillion cannot find or do for them: a sign-in, an approval, or a fact it does not have. Give them the prepared link or the exact step in this conversation, then carry on.",
+        "5. If setup was already started, `start_setup` resumes it; use `read_setup` to check where it stands without restarting anything.",
+        "6. Finish by telling the person, in a few plain sentences, what is now connected and one useful thing Trillion found. Offer to open their Trillion home with `open_trillion`.",
+        "",
+        "Never post, publish, email or message anyone in their name without them approving the exact words first.",
+        ""
+      ]
+    },
+    {
+      "id": "chrome-web-store",
+      "file": "extension/store-listing.json",
+      "kind": "json",
+      "value": {
+        "_what": "What the Chrome Web Store developer dashboard asks for, written by node scripts/how-to-start-for-reviewers.mjs from src/how-to-start-for-reviewers.json and extension/manifest.json. Do not edit by hand.",
+        "name": { "from_json": ["extension/manifest.json", "name"], "limit": 45 },
+        "summary": { "from_json": ["extension/manifest.json", "description"], "limit": 132 },
+        "single_purpose": { "say": ["extension_single_purpose"], "limit": 1000 },
+        "description": { "say": ["extension_what", "extension_how", "extension_privacy"], "join": "\n\n", "limit": 16000 },
+        "test_instructions": { "say": ["extension_test"], "limit": 500 },
+        "demo_account_required": false,
+        "permission_justifications": { "permissions_of": "extension/manifest.json" }
+      }
+    }
+  ]
+}

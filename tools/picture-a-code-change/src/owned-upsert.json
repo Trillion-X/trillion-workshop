@@ -1,0 +1,11 @@
+{
+  "_what": "How an adapter keeps ONE message of its own on a surface where several writers can post (owned-upsert.mjs): the message is found by a hidden marker AND its author (anyone can copy a marker), made if absent, rewritten if present, and never written if the thing it speaks about moved on while it was being composed. `outcomes` name what a run ends in; `words` say each in plain words for a log or the person.",
+  "outcomes": ["created", "updated", "overtaken", "unchanged"],
+  "words": {
+    "created": "Posted a new message.",
+    "updated": "Updated the message already there.",
+    "overtaken": "The thing moved on while this message was being made, so it was not posted.",
+    "unchanged": "The message already says this.",
+    "duplicates": "{count} older copies of this message were found and left alone."
+  }
+}

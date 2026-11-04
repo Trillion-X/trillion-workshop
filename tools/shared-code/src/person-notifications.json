@@ -1,0 +1,70 @@
+{
+  "_what": "The person's notifications on app.gettrillion.ai, owned by src/person-notifications.mjs: what each kind of notification says and offers, read from records Trillion already keeps (requests in the network, a space's unread items, work handed to the person's AIs). A kind's `title` and `detail` fill {names} from the row's facts; a missing fact leaves its line out. `chips` say short facts (who has it, what state it is in) as one row of chips instead of a sentence; each is { text, tone? } (tone a badge colour), and a chip whose fact is missing is left out. Work handed to an AI is named by its `said`, the work as the person sees it (their own words or a plain title), never by its `job`, the instructions written for the AI, which no row here may name. `face` is who the row is about, drawn as its lead ({ name, app }: the app's mark or picture, else initials), left out when its name is missing; `working: true` marks a kind whose face is at it now, so the face turns. `actions` are what a row offers: `post` sends the named body (with {facts} filled) to a workspace path and the list is read again; `open` opens a screen on one item; `press: true` makes the action the row's own press, so the whole row opens it and no button is drawn; every kind names one, so a press anywhere on any notification opens its thing, and its other actions stay buttons beside it. `running: true` marks a kind that says work is still going on (an AI has it or will take it): it draws the one loading mark and stays under In progress until the work is done. `icon` and `tone` for each kind are in parts/ui/show/notifications/notification-kinds.json. `window_days` is how far back a list reaches; the read marks are one per notification, kept in the person's own store. Adding a kind is a row here and a row in notification-kinds.json; a new source of records is one reader in person-notifications.mjs. `not_work_from` names who hands an agent a job that is not work the person sent: a Workshop tool run handed to the agent that runs it (src/agent-tool-runs.mjs, from `trillion-workshop`) is the run itself, shown where the run was started (the Drives screen, a run_tool answer), so it is never also a notification.",
+  "window_days": 30,
+  "not_work_from": ["trillion-workshop"],
+  "most": 60,
+  "kinds": {
+    "space-invitation": {
+      "title": "{from} invited you to {space}",
+      "title_without": { "from": "You are invited to {space}" },
+      "detail": "{why}",
+      "actions": [
+        { "id": "accept", "label": "Accept", "post": { "path": "/work/api/spaces/invitations/answer", "body": { "request_id": "{request_id}", "accept": true } } },
+        { "id": "decline", "label": "Decline", "post": { "path": "/work/api/spaces/invitations/answer", "body": { "request_id": "{request_id}", "accept": false } } },
+        { "id": "open", "label": "Open Network", "press": true, "open": { "surface_id": "trillion.network" } }
+      ]
+    },
+    "introduction": {
+      "title": "{from} would like to meet you",
+      "title_without": { "from": "Someone would like to meet you" },
+      "detail": "{why}",
+      "actions": [
+        { "id": "accept", "label": "Accept", "post": { "path": "/work/api/network/answer", "body": { "request_id": "{request_id}", "accept": true } } },
+        { "id": "decline", "label": "Decline", "post": { "path": "/work/api/network/answer", "body": { "request_id": "{request_id}", "accept": false } } },
+        { "id": "open", "label": "Open Network", "press": true, "open": { "surface_id": "trillion.network" } }
+      ]
+    },
+    "space-joined": {
+      "title": "You joined {space}",
+      "detail": "Invited by {from}",
+      "actions": [{ "id": "open", "label": "Open pursuit", "press": true, "open": { "surface_id": "trillion.space", "title": "{space}", "input": { "id": "{space_id}" } } }]
+    },
+    "introduction-accepted": {
+      "title": "You and {from} are connected",
+      "title_without": { "from": "You accepted a request to meet" },
+      "actions": [{ "id": "open", "label": "Open Network", "press": true, "open": { "surface_id": "trillion.network" } }]
+    },
+    "space-new-items": {
+      "title": "{count} new in {space}",
+      "detail": "Shared by the people in this pursuit",
+      "actions": [{ "id": "open", "label": "Open pursuit", "press": true, "open": { "surface_id": "trillion.space", "title": "{space}", "input": { "id": "{space_id}" } } }]
+    },
+    "work-waiting": {
+      "title": "{said}",
+      "title_without": { "said": "Sent to your AIs" },
+      "detail": "Waiting for {agent}",
+      "detail_without": { "agent": "Waiting for any of your AIs" },
+      "face": { "name": "{agent}", "app": "{agent_app}" },
+      "running": true,
+      "actions": [{ "id": "open", "label": "See AI work", "press": true, "open": { "surface_id": "trillion.job-run", "title": "{said}", "input": { "handoff": "{handoff_id}" } } }]
+    },
+    "work-taken": {
+      "title": "{said}",
+      "title_without": { "said": "{agent} is working on it" },
+      "detail": "Working · {steps}",
+      "detail_without": { "steps": "Starting" },
+      "face": { "name": "{agent}", "app": "{agent_app}" },
+      "running": true,
+      "working": true,
+      "actions": [{ "id": "open", "label": "See AI work", "press": true, "open": { "surface_id": "trillion.job-run", "title": "{said}", "input": { "handoff": "{handoff_id}" } } }]
+    },
+    "work-finished": {
+      "title": "{said}",
+      "title_without": { "said": "{agent} finished the work you sent" },
+      "detail": "{summary}",
+      "detail_without": { "summary": "Done · {steps}" },
+      "face": { "name": "{agent}", "app": "{agent_app}" },
+      "actions": [{ "id": "open", "label": "See AI work", "press": true, "open": { "surface_id": "trillion.job-run", "title": "{said}", "input": { "handoff": "{handoff_id}" } } }]
+    }
+  }
+}

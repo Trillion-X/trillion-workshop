@@ -1,0 +1,48 @@
+{
+  "_what": "Where a person can start talking to their Trillion AI from, as data (src/entry-points.mjs). An entry point is a landing page, an invite, an event or a partner: one row naming the `from` value it is reached by, what its first message says, the persona the AI opens with and the channels it may use. A channel is a row too: a way to open a conversation from a link (a text message address, an app link), named by the environment value that holds its address, so adding a channel or an entry point is one row here and changes no code.",
+  "lead_days": 30,
+  "_lead_days": "How long a start is kept so the first message that arrives can be matched to the entry point it came from. Only keyed digests of the email and phone are kept, never the values.",
+  "channels": [
+    {
+      "id": "sms",
+      "label": "Text message",
+      "address_env": "SMS_TWILIO_FROM",
+      "link": "sms:{address}?&body={body}",
+      "_what": "Opens the phone's messages app with the opening message ready. Apple phones open it as iMessage when the address supports it."
+    }
+  ],
+  "entry_points": [
+    {
+      "id": "default",
+      "from": "default",
+      "persona": "Trillion",
+      "opening_message": "Hi, I just signed up for Trillion and want to get started.",
+      "channels": [
+        "sms"
+      ],
+      "voice_note": {
+        "allowed": true,
+        "max_seconds": 60
+      }
+    }
+  ],
+  "words": {
+    "no_entry": "There is no start called {id}.",
+    "needs_contact": "Give an email address, a phone number in international form like +14155550123, or both.",
+    "bad_email": "That email address does not look right.",
+    "bad_phone": "That phone number is not in international form like +14155550123.",
+    "no_channel": "No way to start a conversation is set up for {id} yet: {missing}.",
+    "channel_missing": "{label} has no address set ({env})",
+    "not_configured": "Starting from a link needs the contact key set.",
+    "inbound_reply": "{persona} here. Thanks for texting. Your account is one step away, and your AI picks up from this text as soon as it exists: {link}"
+  },
+  "inbound": {
+    "_what": "The text-message address Twilio calls for each message that arrives (src/sms-inbound.mjs). Twilio's signature is checked with the auth token held under auth_token_secret. A sender who is a known account's verified phone has the text delivered to that person's AIs through the shared message owner; a sender who started from an entry point gets the entry point's welcome; any other number gets no answer.",
+    "path": "/sms/inbound",
+    "auth_token_secret": "SMS_TWILIO_AUTH_TOKEN",
+    "url_override_env": "SMS_INBOUND_URL",
+    "max_text_chars": 1600,
+    "seen_seconds": 86400,
+    "max_body_bytes": 8192
+  }
+}

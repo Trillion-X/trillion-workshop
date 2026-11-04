@@ -1,0 +1,5 @@
+{
+  "what_this_is": "How long a source chat may be silent before work that arrived from it is released to any of the person's own AIs (src/agents.mjs). A new transcript row, source-agent presence heartbeat, publish or capacity heartbeat restarts this silence window, so work queued during a long live turn stays with that chat. A carrier whose place has no resumable chat says so on the arrival itself (`arrived.chat_silence_minutes`, or the older `arrived.chat_first_minutes`, 0 for no wait), and that wins over this default. After this much silence, any of the person's own AIs may take the work, so nothing waits forever for a closed chat. The same holds for work handed to a named AI (`named_agent_unseen_minutes`): once that AI has not been seen (presence, capacity report or publish) for this long after the later of the hand-off and its last sighting, or has no card at all, any of the person's own AIs may take it, unless the job is pinned `target.strict: true` (it may name a capability only that AI has).",
+  "chat_silence_minutes": 60,
+  "named_agent_unseen_minutes": 1440
+}

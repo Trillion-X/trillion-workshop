@@ -44,8 +44,10 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
   const receipts = receiptsIn(destinationFolder, folders);
   // A tree that keeps its moved files outside tools/ (an app's web/) has its receipts only in the folders named.
   const allReceipts = folders?.length ? [...receipts, ...receiptsIn(destinationFolder).filter(item => !folders.includes(item.folder))] : receipts;
+  // A source file an earlier lane moved and a later one found home already (or two lanes each carried) has every place a
+  // receipt names: an import reaching any of them reaches that file.
   const landing = new Map();
-  for (const { receipt } of allReceipts) for (const file of receipt.files) landing.set(`${file.commit}:${file.from}`, file.to);
+  for (const { receipt } of allReceipts) for (const file of receipt.files) landing.set(`${file.commit}:${file.from}`, [...(landing.get(`${file.commit}:${file.from}`) ?? []), file.to]);
   const destinationExists = path => existsSync(join(destinationFolder, path)) && statSync(join(destinationFolder, path)).isFile();
 
   const results = receipts.map(({ folder, receipt }) => {
@@ -61,7 +63,7 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
       if (file.reused) { if (isCode(file.from) ? withoutRequests(now.toString('utf8')) !== withoutRequests(before.toString('utf8')) : !now.equals(before)) problems.push(`${file.to} was reused but differs from ${file.from}${isCode(file.from) ? ' beyond its import paths' : ''}`); }
       else if (isCode(file.from)) {
         const used = new Set(file.calls ?? []);
-        const swapped = swapCalls(before.toString('utf8'), receipt.calls.filter(row => used.has(row.id))).text;
+        const swapped = swapCalls(before.toString('utf8'), (receipt.calls ?? []).filter(row => used.has(row.id))).text;
         if (withoutRequests(swapped) !== withoutRequests(now.toString('utf8'))) problems.push(`${file.to} differs from ${file.from} beyond its import paths and swapped calls`);
         const was = requestsIn(swapped);
         const is = requestsIn(now.toString('utf8'));
@@ -78,7 +80,7 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
           const target = targetOf(file.from, was[at].specifier, tree.exists, alias);
           const expected = target && (landing.get(`${file.commit}:${target}`) ?? null);
           const reached = resolveRequest(file.to, is[at].specifier, destinationExists);
-          if (target && reached !== expected) problems.push(`${file.to}: ${is[at].specifier} reaches ${reached ?? 'nothing'}, where ${file.from} reached ${target} (now ${expected ?? 'not moved'})`);
+          if (target && (expected ? !expected.includes(reached) : reached !== null)) problems.push(`${file.to}: ${is[at].specifier} reaches ${reached ?? 'nothing'}, where ${file.from} reached ${target} (now ${expected?.join(' or ') ?? 'not moved'})`);
         }
       } else if (!now.equals(before)) problems.push(`${file.to} differs from ${file.from}`);
       if (sourceAfterFolder && existsSync(join(sourceAfterFolder, file.from))) problems.push(`${file.from} is still in the source: two copies`);

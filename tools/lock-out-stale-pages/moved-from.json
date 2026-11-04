@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/client-version.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/lock-out-stale-pages/src/client-version.json",
+      "source_identity": "1f:a66c9227dd49e60c4da48fa16e78c59010a7b58b5645fa0d1993eb9bf522a6c0",
+      "identity": "1f:a66c9227dd49e60c4da48fa16e78c59010a7b58b5645fa0d1993eb9bf522a6c0"
+    },
+    {
+      "from": "src/client-version.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/lock-out-stale-pages/src/client-version.mjs",
+      "source_identity": "1f:1dac417b42425b423a9b4d5ca73dece4c12e1805ab5390955f729dba85d290f9",
+      "identity": "1f:1dac417b42425b423a9b4d5ca73dece4c12e1805ab5390955f729dba85d290f9"
+    }
+  ]
+}

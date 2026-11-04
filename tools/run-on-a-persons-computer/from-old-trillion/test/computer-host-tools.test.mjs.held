@@ -1,0 +1,55 @@
+// test/computer-host-tools.test.mjs
+//
+// The Mac host's tool rows that put the helper manager, the device-file audit and the app-hardening audit in a person's reach
+// (computer/mac-tools.json): each is run the way the host runs a tool (runHere), on a pretend home, and refusals carry `retry`.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { chmodSync, mkdirSync, mkdtempSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+const home = mkdtempSync(join(tmpdir(), 'host-tools-'));
+process.env.HOME = home;
+const { runHere, settingsOf } = await import('../computer/mac-tools.mjs');
+const settings = settingsOf();
+const tool = (tool_id, input) => runHere(settings, { tool_id, input });
+
+test('tool:manage-helpers lists the helpers this Mac keeps and refuses an unknown action in words that say a retry will not help', async () => {
+  const listed = await tool('tool:manage-helpers', { action: 'list' });
+  assert.deepEqual(listed.helpers.map(row => [row.id, row.installed, row.pinned]), [['model-server', false, false]]);
+  const bad = await tool('tool:manage-helpers', { action: 'burn' });
+  assert.match(bad.error, /no helper action named burn/);
+  assert.equal(bad.retry, false);
+  const unknown = await tool('tool:manage-helpers', { action: 'ensure', id: 'nothing' });
+  assert.match(unknown.error, /no helper named nothing/);
+  const off = await tool('tool:manage-helpers', { action: 'disable', id: 'model-server' });
+  assert.equal(off.enabled, false);
+  assert.equal((await tool('tool:manage-helpers', { action: 'list' })).helpers[0].enabled, false);
+  const refused = await tool('tool:manage-helpers', { action: 'ensure', id: 'model-server' });
+  assert.match(refused.error, /was turned off/);
+  assert.equal((await tool('tool:manage-helpers', { action: 'enable', id: 'model-server' })).enabled, true);
+});
+
+test('tool:check-device-files audits without touching anything, and repairs only the rows it is told to', async () => {
+  const state = join(home, '.trillion', 'installed-programs.json');
+  const other = join(home, '.trillion', 'device-stores-receipt.json');
+  mkdirSync(join(home, '.trillion'), { recursive: true });
+  for (const file of [state, other]) { writeFileSync(file, '{}'); chmodSync(file, 0o644); }
+  const audit = await tool('tool:check-device-files', { action: 'audit' });
+  assert.equal(audit.counts.wrong_mode >= 2, true);
+  assert.equal(statSync(state).mode & 0o777, 0o644);
+  const repaired = await tool('tool:check-device-files', { action: 'repair', only: ['installed-programs'] });
+  assert.ok(repaired.repaired.length >= 1);
+  assert.equal(statSync(state).mode & 0o777, 0o600);
+  assert.equal(statSync(other).mode & 0o777, 0o644, 'a row not named is left as it was');
+  assert.match((await tool('tool:check-device-files', { action: 'wipe' })).error, /no files action named wipe/);
+});
+
+test('tool:check-an-app reports what is missing from an app bundle and says when there is no app at all', async () => {
+  const app = join(home, 'Fake.app');
+  mkdirSync(join(app, 'Contents'), { recursive: true });
+  const found = await tool('tool:check-an-app', { app });
+  assert.equal(found.ok, false);
+  assert.ok(found.findings.some(item => item.kind === 'unsigned'));
+  assert.equal((await tool('tool:check-an-app', { app: join(home, 'Nothing.app') })).findings[0].kind, 'no_app');
+});

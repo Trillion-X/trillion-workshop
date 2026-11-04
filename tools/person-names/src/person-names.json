@@ -1,0 +1,13 @@
+{
+  "_what": "A person's optional unique public name (src/person-names.mjs makePersonNames), layered on the opaque store id that stays the only key: it is shown instead of a random code and is the readable address of their link-in-bio page (/l/<name>, src/link-page-pages.mjs), while the page's random code keeps working. One name points at one holder at a time: its claim owner is one record book per name (src/book-handlers.mjs 'person-name'), the first holder to claim it keeps it until that holder releases it, and `kv_prefix` + name is the read index ({ holder, code }) the public page resolves. A change of name claims the new one and releases the old one, so a released name may be claimed by someone else. A name matches `pattern`, never looks like a random code, and never takes a `reserved` word. `words` are every refusal.",
+  "kv_prefix": "person-name:",
+  "pattern": "^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$",
+  "longest": 30,
+  "reserved": ["www", "app", "api", "mcp", "admin", "root", "mail", "help", "support", "status", "login", "signin", "sign-in", "account", "billing", "trillion", "gettrillion", "share", "invite", "marketplace", "workshop", "security", "abuse", "official", "go", "l"],
+  "words": {
+    "refused": "A name is 3 to 30 lowercase letters, numbers and hyphens, like sam-rivera.",
+    "reserved": "That name is kept for Trillion. Choose another.",
+    "taken": "Someone else already has that name. Choose another.",
+    "not_here": "Names cannot be claimed here. Change your name from the Link in bio screen or set_link_page."
+  }
+}

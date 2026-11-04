@@ -160,7 +160,102 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "propose",
+              "list_id": "payments",
+              "source_kind": "record:settle-payment",
+              "target_kind": "record:settle-invoice",
+              "source": {
+                "row_id": "pay-1",
+                "amount_field": "amount"
+              },
+              "targets": {
+                "list_id": "invoices",
+                "amount_field": "total",
+                "order_field": "due"
+              }
+            },
+            "records": [
+              {
+                "id": "list:invoices",
+                "type": "list",
+                "value": {
+                  "label": "invoices",
+                  "row_type": "settle-invoice",
+                  "indexes": [],
+                  "title_field": "name",
+                  "fields": [
+                    {
+                      "id": "name",
+                      "label": "name"
+                    },
+                    {
+                      "id": "total",
+                      "label": "total",
+                      "kind": "number"
+                    },
+                    {
+                      "id": "due",
+                      "label": "due",
+                      "kind": "date"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "list:payments",
+                "type": "list",
+                "value": {
+                  "label": "payments",
+                  "row_type": "settle-payment",
+                  "indexes": [],
+                  "title_field": "name",
+                  "fields": [
+                    {
+                      "id": "name",
+                      "label": "name"
+                    },
+                    {
+                      "id": "amount",
+                      "label": "amount",
+                      "kind": "number"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "record:settle-invoice:inv-jan",
+                "type": "record:settle-invoice",
+                "value": {
+                  "name": "January",
+                  "total": 50,
+                  "due": "2026-01-01"
+                }
+              },
+              {
+                "id": "record:settle-invoice:inv-feb",
+                "type": "record:settle-invoice",
+                "value": {
+                  "name": "February",
+                  "total": 80.2,
+                  "due": "2026-02-01"
+                }
+              },
+              {
+                "id": "record:settle-payment:pay-1",
+                "type": "record:settle-payment",
+                "value": {
+                  "name": "Wire",
+                  "amount": 100
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -305,7 +400,64 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "check",
+              "list_id": "bank",
+              "lines_kind": "record:settle-bank",
+              "lines": {
+                "amount_field": "amount"
+              }
+            },
+            "records": [
+              {
+                "id": "list:bank",
+                "type": "list",
+                "value": {
+                  "label": "bank",
+                  "row_type": "settle-bank",
+                  "indexes": [],
+                  "title_field": "name",
+                  "fields": [
+                    {
+                      "id": "name",
+                      "label": "name"
+                    },
+                    {
+                      "id": "amount",
+                      "label": "amount",
+                      "kind": "number"
+                    },
+                    {
+                      "id": "reconciled_in",
+                      "label": "reconciled_in",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "record:settle-bank:l1",
+                "type": "record:settle-bank",
+                "value": {
+                  "name": "Sale",
+                  "amount": 100
+                }
+              },
+              {
+                "id": "record:settle-bank:l2",
+                "type": "record:settle-bank",
+                "value": {
+                  "name": "Fee",
+                  "amount": -2.5
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -442,7 +594,66 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "balance",
+              "list_id": "journal",
+              "lines_kind": "record:settle-journal",
+              "lines": {
+                "amount_field": "amount",
+                "group_field": "entry"
+              }
+            },
+            "records": [
+              {
+                "id": "list:journal",
+                "type": "list",
+                "value": {
+                  "label": "journal",
+                  "row_type": "settle-journal",
+                  "indexes": [],
+                  "title_field": "name",
+                  "fields": [
+                    {
+                      "id": "name",
+                      "label": "name"
+                    },
+                    {
+                      "id": "amount",
+                      "label": "amount",
+                      "kind": "number"
+                    },
+                    {
+                      "id": "entry",
+                      "label": "entry"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "record:settle-journal:a1",
+                "type": "record:settle-journal",
+                "value": {
+                  "name": "Cash",
+                  "amount": 100.1,
+                  "entry": "e1"
+                }
+              },
+              {
+                "id": "record:settle-journal:a2",
+                "type": "record:settle-journal",
+                "value": {
+                  "name": "Sales",
+                  "amount": -100.1,
+                  "entry": "e1"
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -576,7 +787,87 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "totals",
+              "list_id": "quote",
+              "lines_kind": "record:settle-quote",
+              "lines": {
+                "order_field": "pos"
+              }
+            },
+            "records": [
+              {
+                "id": "list:quote",
+                "type": "list",
+                "value": {
+                  "label": "quote",
+                  "row_type": "settle-quote",
+                  "indexes": [],
+                  "title_field": "name",
+                  "fields": [
+                    {
+                      "id": "name",
+                      "label": "name"
+                    },
+                    {
+                      "id": "kind",
+                      "label": "kind"
+                    },
+                    {
+                      "id": "value",
+                      "label": "value",
+                      "kind": "number"
+                    },
+                    {
+                      "id": "base",
+                      "label": "base"
+                    },
+                    {
+                      "id": "pos",
+                      "label": "pos",
+                      "kind": "number"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "record:settle-quote:a",
+                "type": "record:settle-quote",
+                "value": {
+                  "name": "Design",
+                  "kind": "amount",
+                  "value": 200,
+                  "pos": 1
+                }
+              },
+              {
+                "id": "record:settle-quote:b",
+                "type": "record:settle-quote",
+                "value": {
+                  "name": "Build",
+                  "kind": "amount",
+                  "value": 800,
+                  "pos": 2
+                }
+              },
+              {
+                "id": "record:settle-quote:c",
+                "type": "record:settle-quote",
+                "value": {
+                  "name": "Discount",
+                  "kind": "percent",
+                  "value": -10,
+                  "base": "previous_line",
+                  "pos": 3
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -717,7 +1008,101 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "basis",
+              "list_id": "invoices",
+              "target_kind": "record:settle-invoice",
+              "targets": {
+                "amount_field": "total",
+                "date_field": "due"
+              },
+              "allocations": {
+                "list_id": "payments-to-invoices-allocations"
+              },
+              "from": "2026-01-01",
+              "to": "2026-03-31"
+            },
+            "records": [
+              {
+                "id": "list:invoices",
+                "type": "list",
+                "value": {
+                  "label": "invoices",
+                  "row_type": "settle-invoice",
+                  "indexes": [],
+                  "title_field": "name",
+                  "fields": [
+                    {
+                      "id": "name",
+                      "label": "name"
+                    },
+                    {
+                      "id": "total",
+                      "label": "total",
+                      "kind": "number"
+                    },
+                    {
+                      "id": "due",
+                      "label": "due",
+                      "kind": "date"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "list:payments",
+                "type": "list",
+                "value": {
+                  "label": "payments",
+                  "row_type": "settle-payment",
+                  "indexes": [],
+                  "title_field": "name",
+                  "fields": [
+                    {
+                      "id": "name",
+                      "label": "name"
+                    },
+                    {
+                      "id": "amount",
+                      "label": "amount",
+                      "kind": "number"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "record:settle-invoice:inv-jan",
+                "type": "record:settle-invoice",
+                "value": {
+                  "name": "January",
+                  "total": 50,
+                  "due": "2026-01-01"
+                }
+              },
+              {
+                "id": "record:settle-invoice:inv-feb",
+                "type": "record:settle-invoice",
+                "value": {
+                  "name": "February",
+                  "total": 80.2,
+                  "due": "2026-02-01"
+                }
+              },
+              {
+                "id": "record:settle-payment:pay-1",
+                "type": "record:settle-payment",
+                "value": {
+                  "name": "Wire",
+                  "amount": 100
+                }
+              }
+            ]
+          }
+        ]
       }
     }
   ]

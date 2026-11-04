@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/layer-diagram/change-graph.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/picture-a-code-change/parts/ui/show/layer-diagram/change-graph.json",
+      "source_identity": "1f:cdb07376ccabda5873a2b1a5fe2f31005bec97f6fe487f99d3d644706e6a3dc4",
+      "identity": "1f:cdb07376ccabda5873a2b1a5fe2f31005bec97f6fe487f99d3d644706e6a3dc4"
+    },
+    {
+      "from": "parts/ui/show/layer-diagram/change-graph.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/picture-a-code-change/parts/ui/show/layer-diagram/change-graph.mjs",
+      "source_identity": "1f:193ed0786cc2b7fa765805dc9bab0ded9e1c34138d176bcb187cd3a99dbe3293",
+      "identity": "1f:193ed0786cc2b7fa765805dc9bab0ded9e1c34138d176bcb187cd3a99dbe3293"
+    },
+    {
+      "from": "src/change-picture.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/picture-a-code-change/src/change-picture.json",
+      "source_identity": "1f:63df6bfceae1bc5c34d18d9462416441155452288a17a207079ae4a1dc7f1d0a",
+      "identity": "1f:63df6bfceae1bc5c34d18d9462416441155452288a17a207079ae4a1dc7f1d0a"
+    },
+    {
+      "from": "src/change-picture.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/picture-a-code-change/src/change-picture.mjs",
+      "source_identity": "1f:510e152c7da298aeb553cacb0219ddf0ef8dcf1485668a788a0a99978fe2a940",
+      "identity": "1f:981b91b5439749b56a0d9c67bd15c736921b5f3020fc74f9cca907453dfa754c"
+    },
+    {
+      "from": "src/owned-upsert.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/picture-a-code-change/src/owned-upsert.json",
+      "source_identity": "1f:566117e6bd44175abd3053e8113332d5cec835a99667fa4c625896526a3935e4",
+      "identity": "1f:566117e6bd44175abd3053e8113332d5cec835a99667fa4c625896526a3935e4"
+    },
+    {
+      "from": "src/owned-upsert.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/picture-a-code-change/src/owned-upsert.mjs",
+      "source_identity": "1f:725836709c22d782d1b1f2c1d8d4be13210f8474713080413655bad38d702093",
+      "identity": "1f:725836709c22d782d1b1f2c1d8d4be13210f8474713080413655bad38d702093"
+    },
+    {
+      "from": "src/surface-compose.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/picture-a-code-change/src/surface-compose.mjs",
+      "source_identity": "1f:45fc76d5de3696637b3846294e16f28a92cf1a11278b9c78f2b2341d31a3cc85",
+      "identity": "1f:3a9d9e38000047fdd44669af0793ca1f678fff05113309267a0d77ede984e17e"
+    }
+  ]
+}

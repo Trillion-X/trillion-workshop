@@ -1,0 +1,211 @@
+{
+  "_what": "Account routes answered by an owner mounted in the account's own records resource, each as one <family>:request operation carrying its path, method and body. The family's owner module answers the route exactly as its HTTP handler always has (src/standalone-resource-behavior.mjs binds each family to it). A row's addressed entries name one more spelling of a route: a <method> to <prefix><rest> is asked as to_method to_path with the rest of the path as body field rest_field (the browser reads one interface as GET /controls/<id>). A row with `host` names where its owner runs when that is not the account's records resource: `edge` is the Worker answering the route itself (src/worker.mjs edgeOwners), so such a row is never asked as a <family>:request command. A row with `browser` true carries the asking browser's own facts with its command (its User-Agent, the origin it asked at and its visitor mark, src/own-resource-compatibility.mjs), and nothing else of the browser.",
+  "families": [
+    {"family":"messages","exact":["/messages/correct-duplicate","/messages/correct-provenance","/messages/correct-authored-at","/messages/send-all","/messages/name-speaker","/messages/name-speaker-session","/messages/unconfirm-person"],"prefix":[]},
+    {"family":"media","exact":["/media/next-edit","/recent-files","/media/edit","/media/render","/media/transcribe","/media/send-to-editor","/media/finished","/drives/cloud","/media/library"],"prefix":[]},
+    {"family":"saved-logins","exact":["/saved-logins"],"prefix":[]},
+    {"family":"own-ais","exact":["/own-ais"],"prefix":[]},
+    {"family":"ais","exact":["/ais"],"prefix":[]},
+    {"family":"use","methods":["GET"],"exact":["/use"],"prefix":[]},
+    {"family":"screen-view","host":"edge","methods":["POST"],"exact":["/screen-view/read"],"prefix":[]},
+    {"family":"screen-host","methods":["GET"],"browser":true,"exact":["/screens","/screens/get-the-app","/screens/account","/screens/apply","/screens/clients","/screens/business","/screens/ai","/screens/progress","/screens/plan","/screens/connections","/screens/get-started"],"prefix":["/screens/tool:","/screens/tool%3A"]},
+    {"family":"screen-picture","methods":["GET"],"browser":true,"exact":["/screen-picture"],"prefix":[]},
+    {"family":"awareness","exact":["/awareness","/awareness/map"],"prefix":[]},
+    {"family":"sharing-state","methods":["GET"],"exact":["/sharing/state"],"prefix":[]},
+    {"family":"scheduler","exact":["/scheduler","/scheduler/retry"],"prefix":[]},
+    {"family":"asks-for-your-ais","exact":["/asks-for-your-ais"],"prefix":[]},
+    {"family":"chats","exact":["/chats/import","/chats/import-history"],"prefix":[]},
+    {"family":"setup","methods":["GET","POST"],"exact":["/setup/runtime","/setup/evidence","/setup/facts"],"prefix":[]},
+    {"family":"computer-sources","exact":["/computer-sources","/computer-sources/services","/computer-sources/forget"],"prefix":[]},
+    {"family":"moments","exact":["/moments/gather"],"prefix":[]},
+    {"family":"local-choices","exact":["/local-choices/choose","/local-choices/coverage","/score"],"prefix":[]},
+    {"family":"show-rules","exact":["/show-rules","/show-rules/set","/show-rules/remove","/show-rules/resolve","/show-rules/accounts","/show-rules/decide"],"prefix":[]},
+    {"family":"saved-examples","exact":["/saved-examples","/saved-examples/remove"],"prefix":[]},
+    {"family":"read-link","exact":["/read-link"],"prefix":[]},
+    {"family":"carried","exact":["/carried/read-incoming","/carried/status","/carried/disconnect","/carried/revoke","/carried/erase-incoming","/carried/connect","/carried/pause","/carried/resume","/carried/send","/carried/read"],"prefix":[]},
+    {"family":"automations","exact":["/automations/rules","/automations/rules/history","/automations/rules/remove","/automations/schedules","/automations/schedules/remove","/automations/run-now","/automations/health","/automations/watched-run"],"prefix":[]},
+    {
+      "family": "looks",
+      "exact": [
+        "/looks"
+      ],
+      "prefix": [
+        "/looks/"
+      ]
+    },
+    {
+      "family": "tours",
+      "exact": [
+        "/tours"
+      ],
+      "prefix": [
+        "/tours/"
+      ]
+    },
+    {
+      "family": "layouts",
+      "exact": [
+        "/layouts"
+      ],
+      "prefix": [
+        "/layouts/"
+      ]
+    },
+    {
+      "family": "controls",
+      "exact": [
+        "/controls/make",
+        "/controls/read",
+        "/controls/inspect",
+        "/controls/keep",
+        "/controls/run",
+        "/controls/list"
+      ],
+      "prefix": [],
+      "addressed": [
+        {
+          "method": "GET",
+          "prefix": "/controls/",
+          "to_method": "POST",
+          "to_path": "/controls/read",
+          "rest_field": "id"
+        }
+      ]
+    },
+    {
+      "family": "content-formats",
+      "exact": [
+        "/content-formats",
+        "/content-formats/sources",
+        "/content-formats/shape",
+        "/content-formats/follow"
+      ],
+      "prefix": []
+    },
+    {
+      "family": "sidebar",
+      "exact": [
+        "/sidebar"
+      ],
+      "prefix": [
+        "/sidebar/"
+      ]
+    },
+    {
+      "family": "capabilities",
+      "exact": [
+        "/capabilities"
+      ],
+      "prefix": []
+    },
+    {
+      "family": "link-page",
+      "exact": [
+        "/link-page"
+      ],
+      "prefix": []
+    },
+    {
+      "family": "configurations",
+      "exact": [
+        "/configurations"
+      ],
+      "prefix": [
+        "/configurations/"
+      ]
+    },
+    {
+      "family": "scope",
+      "exact": [
+        "/scope",
+        "/scope/values",
+        "/scope/record",
+        "/scope/views",
+        "/scope/filters",
+        "/scope/filters/import"
+      ],
+      "prefix": []
+    },
+    {
+      "family": "audience-questions",
+      "exact": [
+        "/audience-questions",
+        "/audience-questions/observe",
+        "/audience-questions/keep",
+        "/audience-questions/review",
+        "/audience-questions/admit",
+        "/audience-questions/draft"
+      ],
+      "prefix": []
+    },
+    {
+      "family": "public-insights",
+      "exact": [
+        "/public-insights"
+      ],
+      "prefix": [
+        "/public-insights/"
+      ]
+    },
+    {
+      "family": "network",
+      "exact": [
+        "/network",
+        "/network/person",
+        "/network/on-your-path",
+        "/network/ai-pings",
+        "/network/leave",
+        "/network/ensure-profile",
+        "/network/people",
+        "/network/find",
+        "/network/request",
+        "/network/answer",
+        "/network/label",
+        "/network/memberships",
+        "/network/stays",
+        "/network/stays/ask",
+        "/network/stays/request"
+      ],
+      "prefix": []
+    },
+    {
+      "family": "events-listen",
+      "exact": [
+        "/events/listen"
+      ],
+      "prefix": []
+    },
+    {
+      "family": "marketplace-for-you",
+      "exact": [
+        "/marketplace/for-you"
+      ],
+      "prefix": []
+    },
+    {"family":"marketplace-configurations","methods":["GET"],"exact":["/marketplace/configurations/installations","/marketplace/configurations/installations/current"],"prefix":[]},
+    {
+      "family": "tell-us",
+      "exact": [
+        "/tell-us"
+      ],
+      "prefix": []
+    },
+    {
+      "family": "attention",
+      "exact": [
+        "/attention",
+        "/attention/retriage"
+      ],
+      "prefix": []
+    },
+    {
+      "family": "shared-library",
+      "exact": [
+        "/shared-library"
+      ],
+      "prefix": [
+        "/shared-library/"
+      ]
+    }
+  ]
+}

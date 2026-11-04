@@ -1,0 +1,213 @@
+{
+  "_says": "The internal callers that may act for an account without a person's sign-in (src/service-actor.mjs). Each origin is a row naming the file that mints it and the kinds of scope it may mint: a new caller or a new kind of work is a new row here, not code. A service actor is minted by the account's own policy owner only (AccountControl mintServiceActor), as the principal service:<origin> with a proof only that owner can make (keyed BLAKE3 over the account, the origin, the time it was minted and its scope, with a key the owner generated for the account and never returns). Every account gate refuses a service: or system: principal whose proof its policy owner has not verified, so no request, header or forwarded claims object can stand as one. A gate opens for it only the gates its scope kind names (a gate row with resource_is_scope opens only the resource its scope id names; one with resource_prefix opens each resource whose address starts with it, such as an original-work affinity gate @affinity:<key>), with the operations named there, and, where a gate names a bound field, only for its own scope id. A gate row naming inputs for an operation admits that operation only with one of them exactly; one marked plan_free is work every account is given, which no plan withholds. The gate then decides it as it decides a sign-in: the reach its scope kind names at most, plan, budgets and stops, an ended principal, deletion, disconnection before its mint, and erasure.",
+  "reserved_prefixes": ["service:", "system:"],
+  "_reserved_prefixes": "Sign-ins with these prefixes are service principals: only a minted one with a verified proof stands. Minted actors are service:<origin>.",
+  "scope_kinds": [
+    {
+      "id": "tool-run",
+      "says": "One tool run of the account: describing and running its tool, and its run's own rights.",
+      "id_pattern": "^task_[0-9a-f]{32}$",
+      "reach": { "private": true, "spaces": "all" },
+      "gates": [
+        { "resource": "@tool-runs", "bound": "run_id", "says": "Only the run it was minted for." },
+        { "resource": "@own-records", "operations": ["tools:describe", "tools:execute", "tools:handOver", "tools:checkAnswer"], "says": "Describing and running the tool of its own run." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "brand-read",
+      "says": "Reading the operator account's Brand assets list and worn Screen look, which every page and email draws.",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": "all" },
+      "_reach": "The reach its gates already recorded for service:brand-presentation before it was minted: a different reach is refused there as a changed sign-in. Its operations are what narrow it.",
+      "gates": [
+        { "resource": "@own-records", "operations": ["lists:read", "looks:request"], "says": "The Brand assets list and the looks routes." },
+        { "resource_prefix": "@affinity:", "operations": ["lists:read"], "says": "Which records resource holds the Brand assets list (its original-work affinity), for that list read only." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "public-app-visitor",
+      "says": "A visitor of a site the account installed, once the account's own records were carried to its own records book: the site's committed snapshot and Worker settings, its installation and public records, its page views, form answers and shop reads, asked of the account's own records (src/public-app-visitor-call.mjs). The installer's records check that each call names one of their own live installations.",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@own-records", "operations": ["public-app:visitorRead", "public-app:visitorRecord"], "says": "The visitor methods of one installation (src/public-app-visitor-call.mjs PUBLIC_APP_VISITOR_OPERATIONS), nothing else." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "public-app-member",
+      "says": "Another member's Sites call on a Space site the account installed, once the account's own records were carried to its own records book: the call is asked of the installer's own records in that member's name (src/account-app-state.mjs accountAppReply), which answer it as the installer's store did, the member's own Space access checked there (src/native-public-apps.mjs public-app:memberRequest).",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@own-records", "operations": ["public-app:memberRequest"], "says": "One member's Sites API call on one of the installer's Space sites, nothing else." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "import",
+      "says": "The operator's one-time import of a retiring store's lists and rows into the account's own records: saving a list, putting its rows and reading them back.",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@own-records", "operations": ["lists:put", "lists:putRows", "lists:read", "lists:readView", "import:records", "import:workspace-records"], "says": "save_list, put_list_rows and read_list, import:records for the typed records the import names (src/import-record-types.json), and import:workspace-records for the workspace records it does not refuse (src/import-workspace-not-imported.json)." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "archive-merge",
+      "says": "The operator's one-time carry of a retiring store's sealed saved-login box into the same account's live box (src/native-saved-logins-owner.mjs merge_archived): the scope id is the BLAKE3 identity of the one archived snapshot it carries, which that owner checks.",
+      "id_pattern": "^[0-9a-f]{64}$",
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@own-records", "operations": ["saved-logins:request"], "says": "Only its merge_archived body: the saved-logins owner refuses any other body from a service actor." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "namespace-lifecycle",
+      "says": "A Namespace resource's own background work (its alarm and housekeeping), on that one resource of the account.",
+      "id_pattern": "^@namespace$",
+      "_id_pattern": "The Namespace resources a Namespace book is ever mounted for. Every route to one (namespace-native-routing ensureNativeNamespace and routedNativeNamespaceHttp, namespace-native-command, account-native-move, and the resource-dependency:namespace record a book installs from its own resource) names @namespace; an independent Namespace has no creator in src (namespace-native-host createIndependentNamespace has no caller, and namespace-book-resource createIndependent refuses @namespace). The creator of an independent Namespace adds its resource format here.",
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource_is_scope": true, "operations": ["namespace-system"], "says": "Only the Namespace resource it was minted for, and only its own lifecycle work." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "showcase-seed",
+      "says": "Writing a showcase's seed DATA into the throwaway account the live host made for it.",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": "all" },
+      "gates": [
+        { "resource": "@namespace", "says": "The showcase's files." },
+        { "resource": "@own-records", "operations": ["activity:keep"], "says": "The activity rows the showcase names." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "sign-up",
+      "says": "What every new account is given when it is made, whatever its plan: its own directory profile (its relay and the names it signed up with) and its own community.",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@own-records", "operations": ["network:request", "community:request", "profile:publish"], "inputs": { "network:request": [{ "path": "/network/ensure-profile", "method": "POST" }], "community:request": [{ "path": "/community", "method": "GET" }] }, "plan_free": true, "says": "Only filling its directory profile, publishing the profile that fill committed (profile:publish verifies its completed control intent) and reading its communities, which makes its own one: each admitted request's input is the one named, and no plan withholds them." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "purchase-names",
+      "says": "Keeping the names a purchase's checkout carries in the buyer's own directory profile, where the profile has none the person wrote.",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@own-records", "operations": ["profile:purchaseNameNeed", "profile:keepPurchaseNames", "profile:publish"], "plan_free": true, "says": "Only whether the profile still wants a purchase's names, keeping them (never over a name the person wrote), and publishing the profile that keep committed (profile:publish verifies its completed control intent); a buyer's own names are kept whatever their plan." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "plan-usage",
+      "says": "Reading the bytes the account's Namespace keeps, the one reading of its plan's daily usage count its policy owner cannot read itself.",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@namespace", "operations": ["namespaceHttp"], "inputs": { "namespaceHttp": [{ "url": "https://app.gettrillion.ai/mcp/api/namespace/summary", "method": "GET", "headers": {}, "body_identity": "1f:af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262", "body_bytes": 0 }] }, "plan_free": true, "says": "Only the Namespace summary read (src/account-plan-usage.mjs NAMESPACE_SUMMARY_URL), whatever the plan: a plan that charges by use is counted on every account it covers." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "rule-run",
+      "says": "Starting the runs the account's own rules and schedules start when they fire, and reading those runs on: the account's rule authority, never a caller's.",
+      "id_is_account": true,
+      "kept": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@own-records", "operations": ["tools:run", "tools:runEach", "tools:read", "workflows:start"], "says": "Starting a rule's or schedule's tool or workflow run, and reading its run on." },
+        { "resource_prefix": "work:", "operations": ["tools:run", "tools:runEach", "tools:read", "workflows:start"], "says": "The same, for a rule or schedule of one of the account's own independent work resources." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "service-work",
+      "says": "Handing one job of Trillion's own work (a failing watch, a stopped service check, a client health issue) to the AIs of the account that runs Trillion.",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@own-records", "operations": ["claims:handOff"], "says": "hand_off, one job per episode (once_per)." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "service-notice",
+      "says": "Telling the person of one account a notice from one of Trillion's own owners (a bill heading past its budget, everyone's model spend reaching its budget).",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@own-records", "operations": ["tell:serviceNotice"], "says": "One notice under its own key (src/tell-the-person.mjs keeps one notice per key)." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "follow-up-stop",
+      "says": "Ending one account's follow-up emails from the stop link they carry, when the link's token is that account's own.",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@own-records", "operations": ["sends:stopFollowUps"], "says": "Ends them only for the token the account's own follow-ups keep (src/follow-up-emails.mjs stop)." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "carry-out",
+      "says": "The operator's one-time carry of a fenced store's Namespace into the same account's own Namespace book (src/carry-out.mjs carryOutNamespace, POST /mcp/api/storage/carry-out with part namespace).",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@namespace", "operations": ["carry-namespace"], "plan_free": true, "paid_by": "service", "says": "Only the Namespace carry's own pages, whatever the plan: the account's files carry as they are. The operator's restore work is paid by Trillion's service, never counted against the person's own daily cap (spend-meter.json plan-daily-cap)." },
+        { "resource": "@own-records", "operations": ["resolve", "resource:dependencies"], "paid_by": "service", "says": "Only reading and naming the published Namespace on the account's own records (src/namespace-book-resource.mjs carryStep)." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    },
+    {
+      "id": "inbound",
+      "says": "Taking one arrival a carrier brought for an account with no person's sign-in behind it (mail to the account's own address, and that mail when it is sent again from the edge).",
+      "id_is_account": true,
+      "reach": { "private": true, "spaces": [] },
+      "gates": [
+        { "resource": "@own-records", "operations": ["inbound:take"], "says": "Only taking the arrival, under the account's plan as any carrier's is (src/standalone-resource-behavior.mjs inbound:take)." },
+        { "resource": "@sign-in-use", "says": "Its use is noted like any sign-in's." }
+      ]
+    }
+  ],
+  "readers": ["src/namespace-native-command.mjs", "src/own-record-resource-composition.mjs"],
+  "_readers": "Files that read what a service actor's scope row says (the origin of its claims, who pays for its work: src/service-actor.mjs serviceWorkPayer) and mint nothing. test/service-actor.test.mjs lets exactly these, and the files of the origin rows below, import src/service-actor.mjs.",
+  "origins": [
+    { "id": "service-usage-pricing", "file": "src/tool-run-call.mjs", "scopes": ["tool-run"], "says": "The payment owner prepares prospective resource prices through the service seller's own Workshop rules; payer fields never choose another seller." },
+    { "id": "automations", "file": "src/standalone-resource-behavior.mjs", "scopes": ["tool-run", "rule-run"], "says": "A rule or schedule the person set up runs its tool or workflow when it fires, as the account's own rule actor its policy owner mints (src/standalone-resource-behavior.mjs ruleActor), never as a caller of the account's records." },
+    { "id": "service-watch", "file": "src/tool-run-call.mjs", "scopes": ["tool-run"], "says": "Trillion's own watch runs the account's tools that start a deploy waiting for its restart window." },
+    { "id": "service-checks", "file": "src/tool-run-call.mjs", "scopes": ["tool-run"], "says": "One of Trillion's own service checks runs a probe tool on the account's own connections." },
+    { "id": "workflow-steps", "file": "src/person-store.mjs", "scopes": ["tool-run"], "says": "A workflow step that runs a tool, on the run the person started." },
+    { "id": "connection-notice", "file": "src/person-store.mjs", "scopes": ["tool-run"], "says": "A connection's own tool tells the person about a change in that connection." },
+    { "id": "setup-access", "file": "src/tool-run-call.mjs", "scopes": ["tool-run"], "says": "The operator fulfils an access request the account made during setup." },
+    { "id": "device-distribution", "file": "src/tool-run-call.mjs", "scopes": ["tool-run"], "says": "The operator refreshes a device distribution source on its window." },
+    { "id": "brand-presentation", "file": "src/brand-assets.mjs", "scopes": ["brand-read"], "says": "The service reads the operator's brand to draw its pages and emails." },
+    { "id": "public-app-visitor", "file": "src/public-app-visitor-call.mjs", "scopes": ["public-app-visitor"], "says": "A site's visitor reaches the carried account that installed it: the site's snapshot and Worker settings, its installation and public records, page views, answers and shop." },
+    { "id": "public-app-member", "file": "src/account-app-state.mjs", "scopes": ["public-app-member"], "says": "A member edits a Space site whose installer's own records were carried: the call is asked of the installer's book in the member's name." },
+    { "id": "operator-import", "file": "src/worker.mjs", "scopes": ["import", "archive-merge"], "says": "The operator imports a retiring store's lists and its sealed saved-login box into a named account (POST /mcp/api/storage/import)." },
+    { "id": "namespace-lifecycle", "file": "src/namespace-book-resource.mjs", "scopes": ["namespace-lifecycle"], "says": "A Namespace resource runs its alarm and housekeeping once it was activated by an admitted command." },
+    { "id": "showcase-seed", "file": "src/worker.mjs", "scopes": ["showcase-seed"], "says": "The live host writes a showcase's seed DATA into its throwaway account." },
+    { "id": "source-build-pin", "file": "src/tool-run-call.mjs", "scopes": ["tool-run"], "says": "Trillion reads the owner's own connected GitHub source project for one request: a pinned source build check, or a source project request the account makes to its own Sites." },
+    { "id": "sign-up", "file": "src/worker.mjs", "scopes": ["sign-up"], "says": "A new account is given its own directory profile and community when it is made (src/worker.mjs accountMade)." },
+    { "id": "purchase-names", "file": "src/purchase-name-fill.mjs", "scopes": ["purchase-names"], "says": "A purchase's checkout names are kept in the buyer's own directory profile: by the payment notice as it arrives (src/payment.mjs) and by the operator's fill for purchases made before it did." },
+    { "id": "plan-usage", "file": "src/account-plan-usage.mjs", "scopes": ["plan-usage"], "says": "A policy owner counts its account's plan usage each day: the bytes its Namespace keeps, for a plan that charges by use." },
+    { "id": "service-work", "file": "src/record-book.mjs", "scopes": ["service-work"], "says": "The service's own watch, check, client health and community matching owners hand their work to the AIs of the account its service_work_setting names, through that account's own records (RecordBook handServiceWork)." },
+    { "id": "service-notice", "file": "src/record-book.mjs", "scopes": ["service-notice"], "says": "Trillion's own owners (the service watch's bill notices, the model budget alert of everyone's spend) tell the person of the account a notice through that account's own records (RecordBook tellServiceNotice, src/service-notice.mjs)." },
+    { "id": "follow-up-stop", "file": "src/record-book.mjs", "scopes": ["follow-up-stop"], "says": "The stop link of an account's follow-up emails ends them in that account's own records (RecordBook stopOwnFollowUps, src/worker.mjs)." },
+    { "id": "carry-out", "file": "src/carry-out.mjs", "scopes": ["carry-out"], "says": "The operator carries a fenced store's Namespace into its account's own Namespace book (POST /mcp/api/storage/carry-out)." },
+    { "id": "carry-out-alarm", "file": "src/namespace-bulk-carry.mjs", "scopes": ["carry-out"], "says": "The destination Namespace book's own alarm carries the Namespace on, in bulk, once the operator started it (POST /mcp/api/storage/carry-out with bulk start): the same carry as the operator's, driven from Cloudflare." },
+    { "id": "inbound-mail", "file": "src/inbound-own-records.mjs", "scopes": ["inbound"], "says": "Mail to an account's own address, and that mail when the edge sends it again, is taken by the account's own records (src/inbound-mail.mjs, src/share-inbox.mjs)." }
+  ]
+}

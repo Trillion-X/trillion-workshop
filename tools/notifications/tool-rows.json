@@ -2121,7 +2121,10 @@
             "kind": "sample-run",
             "input": {},
             "output_selector": "$.said",
-            "contains": "ready"
+            "contains": "ready",
+            "held": {
+              "notification-signing-keys": "{\"web_push\":{\"jwk\":{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"hH5vpfA8FLioDAh5aoryShrRptgLZnj5lJCvsmg3dko\",\"y\":\"5aGcsSiJ2yKtRbyPqxUYYXAzht-qfd4wD4jL4a0cj6w\",\"d\":\"MyixYf2H7l1eUrFT_tKSD-sj2G7AKUhdsuLt5AcMMXY\"},\"contact\":\"mailto:ada@example.invalid\"}}"
+            }
           }
         ],
         "result_selector": "$.result"

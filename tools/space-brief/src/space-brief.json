@@ -1,0 +1,17 @@
+{
+  "what_this_is": "What an AI working in a shared space is handed with its tool replies (src/space-brief.mjs): what people said there most recently, what has already been shared there and the work still open, so it acts on what was asked instead of guessing. reply_field is the field the reply carries it under. space_field is the tool argument that names a space: any tool call naming one is handed that space's brief the first time this AI works there and again whenever the space changed since it last saw it; the tools in every_reply_in_the_space are handed it on every reply. The tools in every_space_with_something_new name no space, and are handed the brief of each space this AI reaches that changed since it last saw it (a space it never saw only when it changed within first_look_hours). recent, shared and open_work are how many of each one brief lists; recent_origins are the origins of items counted as what people said (made in the space), shared_origins the ones counted as shared (from a private Trillion, or brought in from a chat). text_fields are the fields an item's words are read from when its body is not plain words, and text_max cuts them. A reader nobody has briefed for forget_reader_days is forgotten. said is the one line at the top of every brief. Changing any of these is a change here, never in code.",
+  "reply_field": "asked_of_you_here",
+  "space_field": "space_id",
+  "every_reply_in_the_space": ["read_space", "add_to_space", "share_to_space", "take_space_work"],
+  "every_space_with_something_new": ["write_file", "start_file_upload"],
+  "recent": 8,
+  "shared": 20,
+  "open_work": 10,
+  "recent_origins": ["space"],
+  "shared_origins": ["private", "import"],
+  "text_fields": ["text", "message", "body", "said"],
+  "text_max": 600,
+  "first_look_hours": 72,
+  "forget_reader_days": 30,
+  "said": "Before you act in \"{title}\", read what people asked there and do all of it, not one part: said is what members wrote most recently, newest first; shared is what is already there; open_work is work handed out and not finished."
+}

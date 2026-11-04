@@ -7,6 +7,8 @@ import assert from 'node:assert/strict';
 import { recordsDoorFromCall, RecordsDoorError } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { searchEverything } from '../do-work/search-everything.mjs';
+import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
+import { readFileSync } from 'node:fs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const K = 60;
@@ -148,4 +150,50 @@ test('the one-list row runs with a right on the kind its type names, and finds t
   // A kind the run was not granted is refused, not widened.
   const other = await answerOf({ ...row, invoke: { ...row.invoke, records: { fd: 3, rights: [{ kind: 'note', operations: ['records:search'] }] } } }, { question: 'zephyrine', type: 'secret' }, { records });
   assert.ok(other.error, JSON.stringify(other));
+});
+
+test('the container row searches every kind and the file names with its read-only right, and a run without it is refused', async () => {
+  const row = rowOf(rows, 'tool:search-everything-in-a-small-container');
+  assert.deepEqual(row.invoke.records.rights, [{ kind: '*', operations: ['records:search'] }, { files: '/', operations: ['search'] }]);
+  const sample = row.verify.find(check => check.kind === 'sample-run');
+  const ran = await answerOf(row, sample.input, sample);
+  assert.equal(ran.status, 0, JSON.stringify(ran));
+  // One hit of each of three kinds, each first in its own lane, then the file whose name holds the word.
+  assert.deepEqual(ran.result.results.map(hit => hit.type ?? hit.source).slice(0, 3).sort(), ['sample-contacts', 'sample-invoices', 'sample-places']);
+  assert.deepEqual(ran.result.results.map(hit => hit.id), ['record:c1', 'record:i1', 'record:p1', 'file:/Notes/merlinfalcon care.txt']);
+  assert.deepEqual(ran.result.unavailable, []);
+  assert.deepEqual(ran.calls.map(item => item.method).sort(), ['records:search', 'search']);
+  assert.equal(ran.calls.find(item => item.method === 'records:search').input.type, undefined, 'the search names no kind');
+  // The same row with a right on one kind only: the search over every kind is refused, and so is the answer.
+  const narrow = { ...row, invoke: { ...row.invoke, records: { fd: 3, rights: [{ kind: 'sample-places', operations: ['records:search'] }] } } };
+  const refused = await answerOf(narrow, sample.input, sample);
+  assert.ok(refused.error, JSON.stringify(refused));
+  assert.notEqual(refused.status, 0, JSON.stringify(refused));
+  assert.equal(refused.result, undefined, 'a refused search answers nothing');
+});
+
+test('the right over every kind never writes, reads one record or lists, and "*" is not a kind', async () => {
+  const row = rowOf(rows, 'tool:search-everything-in-a-small-container');
+  const records = [{ id: 'c1', type: 'sample-contacts', value: { title: 'kestrel' } }];
+  const door = await startFakeDoor({ rights: row.invoke.records.rights, records });
+  try {
+    const ask = async (method, input) => {
+      const reply = await fetch(JSON.parse(readFileSync(door.descriptor, 'utf8')).url, { method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${door.capability}` },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { arguments: { method, address: '@own-records', request_key: `k-${method}`, input } } }) });
+      return (await reply.json()).result;
+    };
+    assert.equal((await ask('records:search', { question: 'kestrel' })).structuredContent.results[0].record, 'c1');
+    for (const [method, input] of [
+      ['records:write', { records: [{ id: 'c1', type: 'sample-contacts', value: { title: 'changed' } }] }],
+      ['records:write', { records: [{ id: 'c1', type: '*', value: { title: 'changed' } }] }],
+      ['records:read', { id: 'c1', type: 'sample-contacts' }],
+      ['records:list', { type: 'sample-contacts' }],
+      ['records:search', { question: 'kestrel', type: 'sample-contacts' }],
+      ['records:search', { question: 'kestrel', type: '*' }],
+    ]) {
+      assert.equal((await ask(method, input)).structuredContent.code, 'current_workspace_rights_refused', `${method} ${JSON.stringify(input)}`);
+    }
+    assert.equal(door.kept.get('c1').value.title, 'kestrel', 'nothing was written');
+  } finally { await door.close(); }
 });

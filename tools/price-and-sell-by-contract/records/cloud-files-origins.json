@@ -1,0 +1,42 @@
+{
+ "records": [
+  {
+   "kind": "cloud-files.origin",
+   "id": "backblaze-b2",
+   "interface": "s3-compatible",
+   "vendor": "Backblaze B2",
+   "price": {
+    "usd_per_gb_month": 0.00695,
+    "egress": "free to Cloudflare; otherwise free up to 3x stored",
+    "requests": "class A/B/C free"
+   },
+   "credential": {
+    "key_id_secret_name": "backblaze-b2-key-id",
+    "key_secret_name": "backblaze-b2-application-key"
+   },
+   "key_describes_itself": {
+    "comment": "Backblaze answers which bucket an application key opens when the key signs in to its own API; a key limited to one bucket may not list buckets over S3, so the bucket is read here.",
+    "request": {
+     "url": "https://api.backblazeb2.com/b2api/v2/b2_authorize_account",
+     "method": "GET",
+     "authorization": "basic-key-id-and-key"
+    },
+    "bucket_name_pointer": [
+     "allowed",
+     "bucketName"
+    ]
+   }
+  },
+  {
+   "kind": "cloud-files.origin",
+   "id": "cloudflare-r2",
+   "interface": "object-bucket",
+   "vendor": "Cloudflare R2",
+   "price": {
+    "usd_per_gb_month": 0.015,
+    "egress": "none",
+    "requests": "class A $4.50 and class B $0.36 per million"
+   }
+  }
+ ]
+}

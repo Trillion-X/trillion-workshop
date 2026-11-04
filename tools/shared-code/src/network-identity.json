@@ -1,0 +1,21 @@
+{
+  "_what": "Which network a person's Trillion is on, as explicit data, so features that need other people to reach it (share links, email shares, the network, spaces) show as unavailable up front with the reason instead of failing when someone opens them (src/network-identity.mjs). The identity is derived from facts: `host`, the host of the address the store serves under (the one share links are made with), and `attached_storage`, whether the person's files are kept in storage they attached. The first `identities` row whose `when` holds is the identity; a `when` holds when any one of its conditions holds, and a row with no `when` is the fallback. A condition is { fact, equals } or { fact, in_group } or { fact, outside_group }, a group being a `host_groups` row ({ hosts, suffixes }); an empty host is in no group and outside none, so an address that is not known never decides. `reachable_by_others` says whether people other than the person can reach it. A `features` row with `needs_others` is unavailable where they cannot, and `unavailable` is what the person is told; its `when_unreachable` says what then happens: `say` (it is still made, because it still opens on this computer, and the sharing sheet says nobody else can open it) or `refuse` (it is refused before anything is sent, because it would hand someone else an address they cannot open).",
+  "host_groups": [
+    { "id": "this-computer", "hosts": ["localhost", "127.0.0.1", "[::1]", "0.0.0.0"], "suffixes": [".localhost", ".local", ".internal"] },
+    { "id": "trillion-cloud", "hosts": [], "suffixes": ["gettrillion.ai"] }
+  ],
+  "identities": [
+    { "id": "local-only", "label": "Only on this computer", "when": [{ "fact": "host", "in_group": "this-computer" }], "reachable_by_others": false,
+      "unavailable": "This Trillion runs only on this computer, so nobody else can open {feature}. Use it from your Trillion at app.gettrillion.ai, or serve this one at an address others can reach." },
+    { "id": "custom", "label": "Your own server or storage", "when": [{ "fact": "attached_storage", "equals": true }, { "fact": "host", "outside_group": "trillion-cloud" }], "reachable_by_others": true,
+      "unavailable": "{feature} is not available on your own server." },
+    { "id": "embedded", "label": "Trillion's cloud", "reachable_by_others": true,
+      "unavailable": "{feature} is not available here." }
+  ],
+  "features": [
+    { "id": "share_link", "label": "a share link", "needs_others": true, "when_unreachable": "say" },
+    { "id": "share_by_email", "label": "a share sent by email", "needs_others": true, "when_unreachable": "refuse" },
+    { "id": "network", "label": "what you put in the network", "needs_others": true, "when_unreachable": "say" },
+    { "id": "spaces", "label": "what you share into a space", "needs_others": true, "when_unreachable": "say" }
+  ]
+}

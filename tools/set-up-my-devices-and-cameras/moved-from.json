@@ -1,0 +1,64 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/camera-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-devices-and-cameras/src/camera-tools.mjs",
+      "source_identity": "1f:caff71c16ebb4657d3cf3872c3cd9243a9651a2088ed2015ce5486f4c2f81146",
+      "identity": "1f:caff71c16ebb4657d3cf3872c3cd9243a9651a2088ed2015ce5486f4c2f81146"
+    },
+    {
+      "from": "src/device-distribution.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-devices-and-cameras/src/device-distribution.mjs",
+      "source_identity": "1f:5ced1d8073f4fae14f2e20f91b8818cbd0c1547893e4c20bb5775dfa5b460a5c",
+      "identity": "1f:2f42a94ed4d5057de69868a02623ceb47e771eac34989bb7ad5970282ed8f0e7"
+    },
+    {
+      "from": "src/device-facts-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-devices-and-cameras/src/device-facts-tools.mjs",
+      "source_identity": "1f:4517989c95aae159ca8733ce6824463966065abafea71b45180a1bb647921992",
+      "identity": "1f:4517989c95aae159ca8733ce6824463966065abafea71b45180a1bb647921992"
+    },
+    {
+      "from": "src/devices.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-devices-and-cameras/src/devices.json",
+      "source_identity": "1f:a1e179d52364497179e248b462a6335dbb6fb5977fab38650dfdbfcae6049a4b",
+      "identity": "1f:a1e179d52364497179e248b462a6335dbb6fb5977fab38650dfdbfcae6049a4b"
+    },
+    {
+      "from": "src/devices.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-devices-and-cameras/src/devices.mjs",
+      "source_identity": "1f:bd940c6c2dcfa62aedef7207a7323f8aba73e1cc5df472a9e8995747393c2ec4",
+      "identity": "1f:7b88bdb3a9f99a782c7442f1c3589fb78c26398a06f776bc22428788409485e2"
+    },
+    {
+      "from": "test/device-distribution.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-devices-and-cameras/test/device-distribution.test.mjs",
+      "source_identity": "1f:343ba47808f66606411626999207e33edd36c91f5e2871f6c31bb7331c1cd922",
+      "identity": "1f:be792135c5693a10458877b6a096e1cb13adb472458c279a9452828a72e171e5"
+    },
+    {
+      "from": "test/device-facts-tools.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-devices-and-cameras/test/device-facts-tools.test.mjs",
+      "source_identity": "1f:cb326684c2c523eeadbb82ccbc5f140d53daea2a8f9a5c8e085c02888e9d2186",
+      "identity": "1f:cb326684c2c523eeadbb82ccbc5f140d53daea2a8f9a5c8e085c02888e9d2186"
+    },
+    {
+      "from": "test/devices-data.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-devices-and-cameras/test/devices-data.test.mjs",
+      "source_identity": "1f:b611b6cb694f6372fd8874e30a86b440f84c92d978ea5f9cf756101120ef358f",
+      "identity": "1f:b611b6cb694f6372fd8874e30a86b440f84c92d978ea5f9cf756101120ef358f"
+    }
+  ]
+}

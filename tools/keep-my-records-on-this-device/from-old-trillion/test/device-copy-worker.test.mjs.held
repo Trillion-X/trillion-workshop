@@ -1,0 +1,34 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { start } from '../computer/device-copy.mjs';
+import { callerOf } from '../computer/mac-tools.mjs';
+
+test('the record copy runs in an owned worker and its stop ends that worker', async () => {
+  const handlers = new Map();
+  const logged = [];
+  let terminated = false;
+  let received;
+  class CopyWorker {
+    constructor(url, options) { received = { url, options }; }
+    on(name, fn) { handlers.set(name, fn); }
+    async terminate() { terminated = true; }
+  }
+  const copy = start({ key: 'test-only', origin: 'https://example.test', log: item => logged.push(item), WorkerImpl: CopyWorker });
+  assert.equal(received.url.pathname.endsWith('/computer/device-copy.mjs'), true);
+  assert.deepEqual(received.options.workerData, { key: 'test-only', origin: 'https://example.test' });
+  handlers.get('message')({ device_copy_settled: { equal: true } });
+  assert.deepEqual(logged, [{ device_copy_settled: { equal: true } }]);
+  await copy.stop();
+  assert.equal(terminated, true);
+});
+
+test('native account reads and writes both carry a cancellation deadline', async () => {
+  const seen = [];
+  const call = callerOf('https://example.test', 'test-only', async (_url, options) => { seen.push(options); return Response.json({ ok: true }); });
+  await call('/account');
+  await call('/agents/publish', { agent_id: 'test' });
+  assert.deepEqual(seen.map(row => row.method), ['GET', 'POST']);
+  assert.ok(seen.every(row => row.signal instanceof AbortSignal));
+  assert.equal(seen[0].body, undefined);
+  assert.equal(seen[1].body, '{"agent_id":"test"}');
+});

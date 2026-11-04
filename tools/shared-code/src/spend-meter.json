@@ -1,0 +1,1917 @@
+{
+  "_what": "Estimated service costs from measured usage, read and capped in one place, owned by src/spend-meter.mjs. A line is one thing a service bills for: { id, label, group, unit, reading, price, source, in_total }. reading says where its amount comes from: kind names a reader the host hands the meter (a service the person connected, read by a Workshop tool on their own connection; Trillion's own count of model calls or store work; a fixed monthly charge, counted only while the service it is billed with can be read when it names that reading in with), and the rest of the row is that reader's. price is dollars per unit (dollars_per_million or dollars_per_unit) beyond what the plan includes (included_per_month, included_per_day), read from the vendor's own page on read_on. in_total false marks a line that breaks another line down (Trillion's own count of the model calls Cloudflare also bills), so the total never counts it twice. A line whose reading says split is one line per row its reader answers (one per account it counted: { rows: [{ key, label, amount, shown }] }), each with the line fact key. A budget row is { id, label, scope, each?, when, period, most_dollars, alert_at, stop }: each caps every line it covers on its own (each account its own budget), else the covered lines together; when is a formula-engine rule tree over a line's facts (line, group, kind; null covers every line counted in the total), period is day or month (the month runs from the person's cycle_day), most_dollars how much the period may cost, alert_at the share at which the person is told (and they are told earlier, once pace_from_hours of the period have gone, when the rate spent so far would carry the period past most_dollars: the pace state), and stop is a rule tree over a piece of work's facts (kind: store-work or model-call, purpose, entry, paid_by), the work refused until the period turns once the row is reached, or null to only tell; work whose purpose unstopped_work lists (reading or changing the person's own budgets, status reads) is never stopped by any row. scope service rows bind what Trillion itself pays and act only for whoever runs the service; scope person rows are anyone's own. A person's own rows (set_spend_budget) replace a starting row with the same id or add one. Adding a service, a line, a price or a budget is a row here; nothing in code names one. A person-scope row's stop is checked where its work starts: an API send on the person's own account asks capsFor before anything is sent (src/api-spend.mjs). A service reading may list things first and read each one on its own (each: [{ list, tool_id, input with { item: path }, keep_as }]) and be a snapshot (what is running or kept now, read once for both periods). Each service reading row has every_minutes, how often the store reads it on its own (src/outside-readings.mjs); what shows spend reads the kept answer and never asks the service, and a read that finds nothing new writes nothing. A line may price each item of a list on its own (items, where rows, each: { terms, at_least, times_by } with times_by looking the item up in a named table here), for a bill that is per server, per seat or per line. A line may say what it is made of (`inside`): the reading that answers it piece by piece (`from`, a readings row), where the pieces are in that answer (`rows`, '*' walking each list), each piece's amount (`amount`, a path, `times` as the line's) and what tells the pieces apart (`dimensions`: id, label, path, and `as`, how the value reads: hour, short-id). A reading that answers only the largest pieces (a provider capped at so many rows) still shares out against the line's whole amount today. Its Spend row then opens into those pieces (GET /work/api/spend/inside/<line id>, `inside_address`), each with its amount and its share of the line's cost today, so a person goes from the total to one service, one line, one store and one hour in place. A reading row's `periods` names the periods it is read for (today, month; both when left out).",
+  "line_facts": [
+    {
+      "id": "line",
+      "kind": "text"
+    },
+    {
+      "id": "group",
+      "kind": "choice"
+    },
+    {
+      "id": "kind",
+      "kind": "choice"
+    },
+    {
+      "id": "key",
+      "kind": "choice"
+    }
+  ],
+  "work_facts": [
+    {
+      "id": "kind",
+      "kind": "choice"
+    },
+    {
+      "id": "purpose",
+      "kind": "text"
+    },
+    {
+      "id": "entry",
+      "kind": "choice"
+    },
+    {
+      "id": "paid_by",
+      "kind": "choice"
+    }
+  ],
+  "unstopped_work_why": "A spend budget's stop never refuses the work that reads or changes the person's own budgets, nor the status reads the workspace loads with. The cap is the person's own to lift (set_spend_budget, remove_spend_budget, the Spend screen), so a cap that refused those would lock the person out of lifting it (Avery, 2026-10-19: every call refused by plan-daily-cap, set_spend_budget included). These calls cannot lift a cap past its finite ceiling: the budget owners refuse that before any write (src/cap-change.json), so the exemption never lets anyone through to unlimited work. A resource's own bounded read (native_reads: its status and projection reads, which the set_spend_budget call itself makes first, ownRecordStatus among them) is never stopped either. Paid work is not listed here and stays stopped.",
+  "unstopped_work": {
+    "native_reads": true,
+    "purposes": [
+      "rpc:spend:refresh",
+      "rpc:spend:setBudget",
+      "rpc:spend:removeBudget",
+      "rpc:use:budgets",
+      "rpc:use:setBudget",
+      "rpc:use:removeBudget",
+      "rpc:screens:spend",
+      "rpc:screens:spendInside",
+      "rpc:ownRecordStatus"
+    ]
+  },
+  "readings": {
+    "cloudflare-usage": {
+      "kind": "service",
+      "every_minutes": 15,
+      "connection": "cloudflare",
+      "tool_id": "tool:cloudflare-read_usage",
+      "input": {
+        "account_id": {
+          "connection_field": "account_id"
+        },
+        "since": {
+          "period": "since"
+        },
+        "until": {
+          "period": "until"
+        }
+      }
+    },
+    "fly-machines": {
+      "kind": "service",
+      "every_minutes": 60,
+      "connection": "fly",
+      "tool_id": "tool:fly-list_apps",
+      "input": {
+        "org_slug": {
+          "connection_field": "org_slug"
+        }
+      },
+      "snapshot": true,
+      "each": [
+        {
+          "list": [
+            "apps",
+            "*"
+          ],
+          "tool_id": "tool:fly-list_machines",
+          "input": {
+            "which_app": {
+              "item": [
+                "name"
+              ]
+            }
+          },
+          "keep_as": "machines"
+        },
+        {
+          "list": [
+            "apps",
+            "*"
+          ],
+          "tool_id": "tool:fly-list_storage_volumes",
+          "input": {
+            "which_app": {
+              "item": [
+                "name"
+              ]
+            }
+          },
+          "keep_as": "volumes"
+        }
+      ]
+    },
+    "cloudflare-usage-by-hour": {
+      "kind": "service",
+      "every_minutes": 60,
+      "_why_every_minutes": "Hour-by-store numbers change by the hour, and each answer replaces a large kept row (2.3 MB before c6831507), so it is read once an hour, not every 15 minutes (2026-10-05).",
+      "periods": [
+        "today"
+      ],
+      "connection": "cloudflare",
+      "tool_id": "tool:cloudflare-read_usage_by_hour",
+      "input": {
+        "account_id": {
+          "connection_field": "account_id"
+        },
+        "since": {
+          "period": "since"
+        },
+        "until": {
+          "period": "until"
+        }
+      }
+    }
+  },
+  "lines": [
+    {
+      "id": "cloudflare-plan",
+      "label": "Workers Paid plan",
+      "group": "Cloudflare",
+      "unit": "month",
+      "reading": {
+        "kind": "fixed",
+        "per_month": 1,
+        "with": "cloudflare-usage"
+      },
+      "price": {
+        "dollars_per_unit": 5
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers/platform/pricing/"
+      }
+    },
+    {
+      "id": "cloudflare-workers-requests",
+      "label": "Worker requests",
+      "group": "Cloudflare",
+      "unit": "requests",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "sum": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "workers",
+            "*",
+            "sum",
+            "requests"
+          ]
+        ]
+      },
+      "price": {
+        "dollars_per_million": 0.3,
+        "included_per_month": 10000000
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers/platform/pricing/"
+      },
+      "inside": {
+        "from": "cloudflare-usage-by-hour",
+        "rows": [
+          "data",
+          "viewer",
+          "accounts",
+          "*",
+          "workers",
+          "*"
+        ],
+        "amount": [
+          "sum",
+          "requests"
+        ],
+        "dimensions": [
+          {
+            "id": "worker",
+            "label": "Worker",
+            "path": [
+              "dimensions",
+              "scriptName"
+            ]
+          },
+          {
+            "id": "hour",
+            "label": "Hour",
+            "path": [
+              "dimensions",
+              "datetimeHour"
+            ],
+            "as": "hour"
+          }
+        ],
+        "group": [
+          {
+            "field": "worker"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cloudflare-workers-cpu",
+      "label": "Worker CPU time",
+      "group": "Cloudflare",
+      "unit": "CPU ms",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "sum": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "workers",
+            "*",
+            "sum",
+            "cpuTimeUs"
+          ]
+        ],
+        "times": 0.001
+      },
+      "price": {
+        "dollars_per_million": 0.02,
+        "included_per_month": 30000000
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers/platform/pricing/"
+      },
+      "inside": {
+        "from": "cloudflare-usage-by-hour",
+        "rows": [
+          "data",
+          "viewer",
+          "accounts",
+          "*",
+          "workers",
+          "*"
+        ],
+        "amount": [
+          "sum",
+          "cpuTimeUs"
+        ],
+        "dimensions": [
+          {
+            "id": "worker",
+            "label": "Worker",
+            "path": [
+              "dimensions",
+              "scriptName"
+            ]
+          },
+          {
+            "id": "hour",
+            "label": "Hour",
+            "path": [
+              "dimensions",
+              "datetimeHour"
+            ],
+            "as": "hour"
+          }
+        ],
+        "group": [
+          {
+            "field": "worker"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cloudflare-do-requests",
+      "label": "Store requests",
+      "group": "Cloudflare",
+      "unit": "requests",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "sum": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "durable_object_requests",
+            "*",
+            "sum",
+            "requests"
+          ]
+        ]
+      },
+      "price": {
+        "dollars_per_million": 0.15,
+        "included_per_month": 1000000
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers/platform/pricing/"
+      }
+    },
+    {
+      "id": "cloudflare-do-duration",
+      "label": "Store running time",
+      "group": "Cloudflare",
+      "unit": "GB-s",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "sum": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "durable_objects",
+            "*",
+            "sum",
+            "duration"
+          ]
+        ]
+      },
+      "price": {
+        "dollars_per_million": 12.5,
+        "included_per_month": 400000
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers/platform/pricing/"
+      }
+    },
+    {
+      "id": "cloudflare-do-rows-read",
+      "label": "Store rows read",
+      "group": "Cloudflare",
+      "unit": "rows",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "sum": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "durable_objects",
+            "*",
+            "sum",
+            "rowsRead"
+          ]
+        ]
+      },
+      "price": {
+        "dollars_per_million": 0.001,
+        "included_per_month": 25000000000
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers/platform/pricing/"
+      },
+      "inside": {
+        "from": "cloudflare-usage-by-hour",
+        "rows": [
+          "data",
+          "viewer",
+          "accounts",
+          "*",
+          "durable_objects_read",
+          "*"
+        ],
+        "amount": [
+          "sum",
+          "rowsRead"
+        ],
+        "dimensions": [
+          {
+            "id": "store",
+            "label": "Store",
+            "path": [
+              "dimensions",
+              "objectId"
+            ],
+            "as": "short-id"
+          },
+          {
+            "id": "hour",
+            "label": "Hour",
+            "path": [
+              "dimensions",
+              "datetimeHour"
+            ],
+            "as": "hour"
+          }
+        ],
+        "group": [
+          {
+            "field": "store"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cloudflare-do-rows-written",
+      "label": "Store rows written",
+      "group": "Cloudflare",
+      "unit": "rows",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "sum": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "durable_objects",
+            "*",
+            "sum",
+            "rowsWritten"
+          ]
+        ]
+      },
+      "price": {
+        "dollars_per_million": 1,
+        "included_per_month": 50000000
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers/platform/pricing/"
+      },
+      "inside": {
+        "from": "cloudflare-usage-by-hour",
+        "rows": [
+          "data",
+          "viewer",
+          "accounts",
+          "*",
+          "durable_objects_written",
+          "*"
+        ],
+        "amount": [
+          "sum",
+          "rowsWritten"
+        ],
+        "dimensions": [
+          {
+            "id": "store",
+            "label": "Store",
+            "path": [
+              "dimensions",
+              "objectId"
+            ],
+            "as": "short-id"
+          },
+          {
+            "id": "hour",
+            "label": "Hour",
+            "path": [
+              "dimensions",
+              "datetimeHour"
+            ],
+            "as": "hour"
+          }
+        ],
+        "group": [
+          {
+            "field": "store"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cloudflare-workers-ai",
+      "label": "Workers AI",
+      "group": "Cloudflare",
+      "unit": "neurons",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "sum": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "workers_ai",
+            "*",
+            "sum",
+            "totalNeurons"
+          ]
+        ]
+      },
+      "price": {
+        "dollars_per_million": 11,
+        "included_per_day": 10000
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/"
+      }
+    },
+    {
+      "id": "cloudflare-kv-reads",
+      "label": "KV reads",
+      "group": "Cloudflare",
+      "unit": "reads",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "sum": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "kv_operations",
+            "*",
+            "sum",
+            "requests"
+          ]
+        ],
+        "where": {
+          "path": [
+            "dimensions",
+            "actionType"
+          ],
+          "one_of": [
+            "read"
+          ]
+        }
+      },
+      "price": {
+        "dollars_per_million": 0.5,
+        "included_per_month": 10000000
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers/platform/pricing/"
+      }
+    },
+    {
+      "id": "cloudflare-kv-changes",
+      "label": "KV writes, deletes and lists",
+      "group": "Cloudflare",
+      "unit": "operations",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "sum": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "kv_operations",
+            "*",
+            "sum",
+            "requests"
+          ]
+        ],
+        "where": {
+          "path": [
+            "dimensions",
+            "actionType"
+          ],
+          "one_of": [
+            "write",
+            "delete",
+            "list"
+          ]
+        }
+      },
+      "price": {
+        "dollars_per_million": 5,
+        "included_per_month": 3000000
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers/platform/pricing/"
+      }
+    },
+    {
+      "id": "cloudflare-r2-class-a",
+      "label": "File writes and lists",
+      "group": "Cloudflare",
+      "unit": "operations",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "sum": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "r2_operations",
+            "*",
+            "sum",
+            "requests"
+          ]
+        ],
+        "where": {
+          "path": [
+            "dimensions",
+            "actionType"
+          ],
+          "one_of": [
+            "PutObject",
+            "CopyObject",
+            "CreateMultipartUpload",
+            "UploadPart",
+            "UploadPartCopy",
+            "CompleteMultipartUpload",
+            "ListObjects",
+            "ListBuckets",
+            "ListMultipartUploads",
+            "ListParts",
+            "PutBucket",
+            "LifecycleStorageTierTransition"
+          ]
+        }
+      },
+      "price": {
+        "dollars_per_million": 4.5,
+        "included_per_month": 1000000
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/r2/pricing/"
+      }
+    },
+    {
+      "id": "cloudflare-r2-class-b",
+      "label": "File reads",
+      "group": "Cloudflare",
+      "unit": "operations",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "sum": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "r2_operations",
+            "*",
+            "sum",
+            "requests"
+          ]
+        ],
+        "where": {
+          "path": [
+            "dimensions",
+            "actionType"
+          ],
+          "one_of": [
+            "GetObject",
+            "HeadObject",
+            "HeadBucket",
+            "UsageSummary",
+            "GetBucketEncryption",
+            "GetBucketLocation",
+            "GetBucketCors",
+            "GetBucketLifecycleConfiguration"
+          ]
+        }
+      },
+      "price": {
+        "dollars_per_million": 0.36,
+        "included_per_month": 10000000
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/r2/pricing/"
+      }
+    },
+    {
+      "id": "cloudflare-r2-storage",
+      "label": "Files kept",
+      "group": "Cloudflare",
+      "unit": "GB-month",
+      "reading": {
+        "kind": "service",
+        "from": "cloudflare-usage",
+        "most": [
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "r2_storage",
+            "*",
+            "max",
+            "payloadSize"
+          ],
+          [
+            "data",
+            "viewer",
+            "accounts",
+            "*",
+            "r2_storage",
+            "*",
+            "max",
+            "metadataSize"
+          ]
+        ],
+        "times": 1e-09,
+        "per_month": true
+      },
+      "price": {
+        "dollars_per_unit": 0.015,
+        "included_per_month": 10
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/r2/pricing/"
+      }
+    },
+    {
+      "id": "own-api",
+      "label": "Your API accounts",
+      "group": "Your API accounts",
+      "unit": "dollars",
+      "reading": {
+        "kind": "own-api",
+        "split": true
+      },
+      "price": {
+        "dollars_per_unit": 1
+      },
+      "price_words": "Each call at its model's price on the account's own page",
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "src/api-spend.json: each service's own price page, applied to what the service said each call used"
+      }
+    },
+    {
+      "id": "trillion-model-calls",
+      "label": "Model calls Trillion paid for",
+      "group": "Counted inside Trillion",
+      "unit": "neurons",
+      "reading": {
+        "kind": "model-calls",
+        "measure": "neurons",
+        "paid_by": "trillion"
+      },
+      "price": {
+        "dollars_per_million": 11
+      },
+      "in_total": false,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers-ai/platform/pricing/"
+      }
+    },
+    {
+      "id": "own-ai-model-calls",
+      "label": "Model calls on your own AI",
+      "group": "Counted inside Trillion",
+      "unit": "calls",
+      "reading": {
+        "kind": "model-calls",
+        "measure": "calls",
+        "paid_by": "person"
+      },
+      "price": {
+        "dollars_per_unit": 0
+      },
+      "in_total": false,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "Paid on the person's own AI account (src/model-calls.mjs paid_by person)"
+      }
+    },
+    {
+      "id": "store-rows-read",
+      "label": "Your store's rows read",
+      "group": "Counted inside Trillion",
+      "unit": "rows",
+      "reading": {
+        "kind": "store-work",
+        "measure": "rows_read"
+      },
+      "price": {
+        "dollars_per_million": 0.001
+      },
+      "in_total": false,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers/platform/pricing/"
+      }
+    },
+    {
+      "id": "store-rows-written",
+      "label": "Your store's rows written",
+      "group": "Counted inside Trillion",
+      "unit": "rows",
+      "reading": {
+        "kind": "store-work",
+        "measure": "rows_written"
+      },
+      "price": {
+        "dollars_per_million": 1
+      },
+      "in_total": false,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://developers.cloudflare.com/workers/platform/pricing/"
+      }
+    },
+    {
+      "id": "fly-shared-cpus",
+      "label": "Shared CPUs running",
+      "group": "Fly.io",
+      "unit": "vCPU-month",
+      "reading": {
+        "kind": "service",
+        "from": "fly-machines",
+        "per_month": true,
+        "items": [
+          "apps",
+          "*",
+          "machines",
+          "*"
+        ],
+        "where": [
+          {
+            "path": [
+              "state"
+            ],
+            "one_of": [
+              "started"
+            ]
+          },
+          {
+            "path": [
+              "config",
+              "guest",
+              "cpu_kind"
+            ],
+            "one_of": [
+              "shared"
+            ]
+          }
+        ],
+        "each": {
+          "terms": [
+            {
+              "path": [
+                "config",
+                "guest",
+                "cpus"
+              ]
+            }
+          ],
+          "times_by": [
+            {
+              "path": [
+                "region"
+              ],
+              "table": "fly_region_markup",
+              "otherwise": 1.25
+            }
+          ]
+        }
+      },
+      "price": {
+        "dollars_per_unit": 2.1941
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://docs.fly.io/about/pricing"
+      }
+    },
+    {
+      "id": "fly-performance-cpus",
+      "label": "Performance CPUs running",
+      "group": "Fly.io",
+      "unit": "vCPU-month",
+      "reading": {
+        "kind": "service",
+        "from": "fly-machines",
+        "per_month": true,
+        "items": [
+          "apps",
+          "*",
+          "machines",
+          "*"
+        ],
+        "where": [
+          {
+            "path": [
+              "state"
+            ],
+            "one_of": [
+              "started"
+            ]
+          },
+          {
+            "path": [
+              "config",
+              "guest",
+              "cpu_kind"
+            ],
+            "one_of": [
+              "performance"
+            ]
+          }
+        ],
+        "each": {
+          "terms": [
+            {
+              "path": [
+                "config",
+                "guest",
+                "cpus"
+              ]
+            }
+          ],
+          "times_by": [
+            {
+              "path": [
+                "region"
+              ],
+              "table": "fly_region_markup",
+              "otherwise": 1.25
+            }
+          ]
+        }
+      },
+      "price": {
+        "dollars_per_unit": 33
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://docs.fly.io/about/pricing"
+      }
+    },
+    {
+      "id": "fly-shared-memory",
+      "label": "Memory beyond what shared CPUs include",
+      "group": "Fly.io",
+      "unit": "GB-month",
+      "reading": {
+        "kind": "service",
+        "from": "fly-machines",
+        "per_month": true,
+        "items": [
+          "apps",
+          "*",
+          "machines",
+          "*"
+        ],
+        "where": [
+          {
+            "path": [
+              "state"
+            ],
+            "one_of": [
+              "started"
+            ]
+          },
+          {
+            "path": [
+              "config",
+              "guest",
+              "cpu_kind"
+            ],
+            "one_of": [
+              "shared"
+            ]
+          }
+        ],
+        "each": {
+          "terms": [
+            {
+              "path": [
+                "config",
+                "guest",
+                "memory_mb"
+              ],
+              "times": 0.0009765625
+            },
+            {
+              "path": [
+                "config",
+                "guest",
+                "cpus"
+              ],
+              "times": -0.25
+            }
+          ],
+          "at_least": 0,
+          "times_by": [
+            {
+              "path": [
+                "region"
+              ],
+              "table": "fly_region_markup",
+              "otherwise": 1.25
+            }
+          ]
+        }
+      },
+      "price": {
+        "dollars_per_unit": 6.003
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://docs.fly.io/about/pricing"
+      }
+    },
+    {
+      "id": "fly-performance-memory",
+      "label": "Memory beyond what performance CPUs include",
+      "group": "Fly.io",
+      "unit": "GB-month",
+      "reading": {
+        "kind": "service",
+        "from": "fly-machines",
+        "per_month": true,
+        "items": [
+          "apps",
+          "*",
+          "machines",
+          "*"
+        ],
+        "where": [
+          {
+            "path": [
+              "state"
+            ],
+            "one_of": [
+              "started"
+            ]
+          },
+          {
+            "path": [
+              "config",
+              "guest",
+              "cpu_kind"
+            ],
+            "one_of": [
+              "performance"
+            ]
+          }
+        ],
+        "each": {
+          "terms": [
+            {
+              "path": [
+                "config",
+                "guest",
+                "memory_mb"
+              ],
+              "times": 0.0009765625
+            },
+            {
+              "path": [
+                "config",
+                "guest",
+                "cpus"
+              ],
+              "times": -2
+            }
+          ],
+          "at_least": 0,
+          "times_by": [
+            {
+              "path": [
+                "region"
+              ],
+              "table": "fly_region_markup",
+              "otherwise": 1.25
+            }
+          ]
+        }
+      },
+      "price": {
+        "dollars_per_unit": 6.003
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://docs.fly.io/about/pricing"
+      }
+    },
+    {
+      "id": "fly-volumes",
+      "label": "Volumes kept",
+      "group": "Fly.io",
+      "unit": "GB-month",
+      "reading": {
+        "kind": "service",
+        "from": "fly-machines",
+        "per_month": true,
+        "items": [
+          "apps",
+          "*",
+          "volumes",
+          "*"
+        ],
+        "each": {
+          "terms": [
+            {
+              "path": [
+                "size_gb"
+              ]
+            }
+          ]
+        }
+      },
+      "price": {
+        "dollars_per_unit": 0.15
+      },
+      "in_total": true,
+      "source": {
+        "read_on": "2026-10-05",
+        "from": "https://docs.fly.io/about/pricing"
+      }
+    }
+  ],
+  "budgets": [
+    {
+      "id": "plan-daily-cap",
+      "label": "Daily limit for Trillion-paid work",
+      "scope": "person",
+      "when": null,
+      "period": "day",
+      "most_dollars": 25,
+      "alert_at": 0.5,
+      "stop": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "kind",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "store-work",
+                "model-call"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "paid_by",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "trillion"
+              ]
+            }
+          }
+        ]
+      },
+      "short_label": "Trillion-paid work, a day",
+      "measurement_owner": "resource-quota",
+      "work_when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "kind",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "store-work",
+                "model-call"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "paid_by",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "trillion"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "service-day",
+      "label": "What Trillion's own services may cost in a day",
+      "scope": "service",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "group",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "Cloudflare"
+              ]
+            }
+          }
+        ]
+      },
+      "period": "day",
+      "most_dollars": 25,
+      "alert_at": 0.5,
+      "stop": null,
+      "short_label": "Trillion's services, a day"
+    },
+    {
+      "id": "service-model-day",
+      "label": "What Trillion's own model work may cost in a day",
+      "_why": "Trillion pays only for embeddings and speech to text, which fit in Workers AI's free daily allotment (10K neurons, about $0.11). On 2026-10-04 Trillion-paid models cost $60 in a day and $162 in the month while the $25 service-day row never stopped them, because store reads and writes reached it first. This operator threshold now only reports the cost; it does not publish a stop for customer work. Customer-chosen caps are independent.",
+      "scope": "service",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "line",
+            "operator": "is_text",
+            "params": {
+              "text": "cloudflare-workers-ai"
+            }
+          }
+        ]
+      },
+      "period": "day",
+      "most_dollars": 1,
+      "alert_at": 0.5,
+      "stop": null,
+      "short_label": "Trillion's model work, a day"
+    },
+    {
+      "id": "service-month",
+      "label": "What Trillion's own services may cost in a billing cycle",
+      "scope": "service",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "group",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "Cloudflare"
+              ]
+            }
+          }
+        ]
+      },
+      "period": "month",
+      "most_dollars": 300,
+      "alert_at": 0.5,
+      "stop": null,
+      "notice": {
+        "kind": "update",
+        "update": true,
+        "open": "/spend",
+        "revision": "dated-cycle-2026-10-07",
+        "reached_title": "Service cost estimate passed {most} for this billing cycle",
+        "near_title": "Service cost estimate is near {most} for this billing cycle",
+        "pace_title": "Service cost estimate for this billing cycle needs review",
+        "told_body": "At {as_of}, estimated cost was {used} since {period_start}; this billing cycle ends {period_end}. That includes {today} so far today. Earlier expensive days remain in the total. This watch does not stop work. Open Spend for current figures.",
+        "near_body": "At {as_of}, estimated cost was {used} since {period_start}; this billing cycle ends {period_end}. That includes {today} so far today. Open Spend for current figures.",
+        "pace_body": "At {as_of}, estimated cost was {used} since {period_start}; this billing cycle ends {period_end}. That includes {today} so far today. Earlier days affect this cycle's pace. Open Spend for current figures.",
+        "budget_words": "{used} of {most} since {period_start} (through {period_end})"
+      },
+      "short_label": "Trillion's services, a billing cycle"
+    },
+    {
+      "id": "own-api-day",
+      "label": "Day budget",
+      "_why": "0 until the person sets their own (set_spend_budget): a key billed by the word is never sent anything they did not choose to spend (the founder, 2026-10-05, after $103 of Gemini calls in a few hours). Trillion asks the model on their own computer first (src/model-routes.json).",
+      "scope": "person",
+      "each": true,
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "kind",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "own-api"
+              ]
+            }
+          }
+        ]
+      },
+      "period": "day",
+      "most_dollars": 0,
+      "alert_at": 0.5,
+      "stop": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "kind",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "api-call"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "cycle_day": 1,
+  "pace_from_hours": 1,
+  "states": [
+    {
+      "id": "ok",
+      "label": "Under budget",
+      "icon": "CircleCheck"
+    },
+    {
+      "id": "counted",
+      "label": "Counted",
+      "icon": "Check"
+    },
+    {
+      "id": "pace",
+      "label": "Heading past its budget",
+      "icon": "TrendingUp"
+    },
+    {
+      "id": "near",
+      "label": "Near its budget",
+      "icon": "TriangleAlert"
+    },
+    {
+      "id": "reached",
+      "label": "Budget reached",
+      "icon": "OctagonX"
+    },
+    {
+      "id": "not-connected",
+      "label": "Not connected",
+      "icon": "PlugZap"
+    },
+    {
+      "id": "unread",
+      "label": "Could not read",
+      "icon": "CircleHelp"
+    }
+  ],
+  "kinds": [
+    {
+      "id": "total",
+      "label": "Total",
+      "icon": "Sigma"
+    },
+    {
+      "id": "budget",
+      "label": "Budget",
+      "icon": "Gauge"
+    },
+    {
+      "id": "line",
+      "label": "Service",
+      "icon": "Receipt"
+    },
+    {
+      "id": "connect",
+      "label": "To connect",
+      "icon": "PlugZap"
+    },
+    {
+      "id": "merchant",
+      "label": "Paid to",
+      "icon": "Store"
+    },
+    {
+      "id": "payments",
+      "label": "Payments",
+      "icon": "Mail"
+    }
+  ],
+  "view": {
+    "label": "Spend",
+    "preference_key": "trillion-spend",
+    "first_view": {
+      "wide": "table",
+      "narrow": "gallery"
+    },
+    "empty": {
+      "icon": "Receipt",
+      "title": "Nothing to count yet",
+      "description": "When a connected service reports usage, its estimated cost shows here."
+    },
+    "no_match": "No spend matches.",
+    "fields": [
+      {
+        "id": "logo",
+        "label": "",
+        "kind": "thumbnail",
+        "rule_kind": "text",
+        "width": 56
+      },
+      {
+        "id": "title",
+        "label": "What",
+        "icon": "Text",
+        "rule_kind": "text",
+        "filterable": true,
+        "sortable": true,
+        "width": 260
+      },
+      {
+        "id": "budget",
+        "label": "Budget",
+        "icon": "Gauge",
+        "rule_kind": "text",
+        "width": 320
+      },
+      {
+        "id": "per_month",
+        "label": "Per month",
+        "icon": "CalendarRange",
+        "kind": "money",
+        "rule_kind": "number",
+        "sortable": true,
+        "width": 120,
+        "total": "sum"
+      },
+      {
+        "id": "days_90",
+        "label": "Last 90 days",
+        "icon": "CalendarDays",
+        "kind": "money",
+        "rule_kind": "number",
+        "sortable": true,
+        "width": 120,
+        "total": "sum"
+      },
+      {
+        "id": "renews_at",
+        "label": "Renews",
+        "icon": "CalendarClock",
+        "kind": "date",
+        "rule_kind": "date",
+        "sortable": true,
+        "width": 120
+      },
+      {
+        "id": "trend",
+        "label": "Trend",
+        "icon": "TrendingUp",
+        "kind": "tag",
+        "rule_kind": "text",
+        "width": 110
+      },
+      {
+        "id": "flags",
+        "label": "Check",
+        "icon": "TriangleAlert",
+        "kind": "tag",
+        "rule_kind": "choice",
+        "filterable": true,
+        "width": 150
+      },
+      {
+        "id": "plan",
+        "label": "Plan",
+        "icon": "Tag",
+        "rule_kind": "text",
+        "width": 180
+      },
+      {
+        "id": "today_dollars",
+        "label": "Estimated today",
+        "icon": "CalendarDays",
+        "kind": "money",
+        "rule_kind": "number",
+        "sortable": true,
+        "width": 110,
+        "total": "sum"
+      },
+      {
+        "id": "month_dollars",
+        "label": "Estimated this billing cycle",
+        "icon": "CalendarRange",
+        "kind": "money",
+        "rule_kind": "number",
+        "sortable": true,
+        "width": 120,
+        "total": "sum"
+      },
+      {
+        "id": "state",
+        "label": "State",
+        "icon": "CircleDot",
+        "kind": "tag",
+        "rule_kind": "choice",
+        "filterable": true,
+        "groupable": true,
+        "width": 150,
+        "values_from": {
+          "path": [
+            "states"
+          ],
+          "label": "label",
+          "icon": "icon"
+        }
+      },
+      {
+        "id": "group",
+        "label": "Service",
+        "icon": "Server",
+        "kind": "tag",
+        "rule_kind": "choice",
+        "filterable": true,
+        "groupable": true,
+        "width": 180
+      },
+      {
+        "id": "kind",
+        "label": "Kind",
+        "icon": "Shapes",
+        "kind": "tag",
+        "rule_kind": "choice",
+        "filterable": true,
+        "groupable": true,
+        "width": 120,
+        "values_from": {
+          "path": [
+            "kinds"
+          ],
+          "label": "label",
+          "icon": "icon"
+        }
+      },
+      {
+        "id": "today_amount",
+        "label": "Used today",
+        "icon": "Activity",
+        "rule_kind": "text",
+        "width": 170
+      },
+      {
+        "id": "month_amount",
+        "label": "Used this billing cycle",
+        "icon": "BarChart3",
+        "rule_kind": "text",
+        "width": 180,
+        "hidden_by_default": true
+      },
+      {
+        "id": "price",
+        "label": "Price",
+        "icon": "Tag",
+        "rule_kind": "text",
+        "width": 220,
+        "hidden_by_default": true
+      },
+      {
+        "id": "read_at",
+        "label": "Read",
+        "icon": "Clock",
+        "kind": "date",
+        "rule_kind": "date",
+        "sortable": true,
+        "width": 150,
+        "hidden_by_default": true
+      }
+    ],
+    "summary": [
+      {
+        "id": "effective-daily-cap",
+        "label": "Daily cap for Trillion-paid work",
+        "path": ["plan_spending", "effective_daily_cap_dollars"],
+        "kind": "money"
+      },
+      {
+        "id": "plan-usage",
+        "label": "Plan usage",
+        "path": ["plan_spending", "usage"],
+        "values": {
+          "available": "Available",
+          "unavailable": "Plan usage unavailable"
+        }
+      },
+      {
+        "id": "effective-cap-source",
+        "label": "Cap set by",
+        "path": ["plan_spending", "effective_cap_source"],
+        "values": {
+          "person-override": "Your override",
+          "plan-offer": "Your plan",
+          "default": "Default"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "id": "edit-plan-daily-cap",
+        "label": "Edit cap",
+        "target": "own-api.request",
+        "field_id": "budget",
+        "when": {"path": ["id"], "equals": "budget:plan-daily-cap"},
+        "input": {
+          "method": "POST",
+          "path": "/work/api/spend/budgets/set",
+          "body": {"budget": {"id": "plan-daily-cap"}}
+        },
+        "input_prompts": [
+          {
+            "key": "most_dollars",
+            "label": "Daily cap in dollars",
+            "kind": "number",
+            "input_path": ["body", "budget", "most_dollars"],
+            "start_from": "most_dollars",
+            "placeholder": "Enter an amount above 0"
+          }
+        ]
+      },
+      {
+        "id": "restore-plan-daily-cap",
+        "label": "Restore plan default",
+        "target": "own-api.request",
+        "field_id": "budget",
+        "when": {"path": ["effective_cap_override"], "equals": true},
+        "input": {
+          "method": "POST",
+          "path": "/work/api/spend/budgets/remove",
+          "body": {"id": "plan-daily-cap"}
+        }
+      }
+    ],
+    "open": {
+      "kinds": [
+        "kinds"
+      ],
+      "kind_field": [
+        "kind"
+      ],
+      "fallback_view": "text",
+      "link": [
+        "open"
+      ],
+      "link_words": "Open",
+      "roles": {
+        "title": [
+          [
+            "title"
+          ]
+        ],
+        "words": [
+          [
+            "words"
+          ]
+        ],
+        "when": [
+          [
+            "read_at"
+          ]
+        ]
+      }
+    },
+    "charts": [
+      {
+        "id": "cost-per-day",
+        "title": "Estimated cost this billing cycle",
+        "mark": "stacked-bar",
+        "records_path": [
+          "days"
+        ],
+        "reading": "dollars",
+        "headline_path": [
+          "total",
+          "month"
+        ],
+        "formula": "sum",
+        "group": "group",
+        "over": {
+          "field": "day",
+          "bucket": "day",
+          "since_path": [
+            "cycle_start"
+          ],
+          "through_path": [
+            "today"
+          ],
+          "buckets": [
+            "day",
+            "week",
+            "month"
+          ]
+        },
+        "limit": 5,
+        "value_kind": "money",
+        "partial_last": true,
+        "wide": true,
+        "lines": [
+          {
+            "id": "budget",
+            "from": [
+              "budgets"
+            ],
+            "where": {
+              "path": [
+                "covers_total"
+              ],
+              "one_of": [
+                true
+              ]
+            },
+            "value_path": [
+              "most_dollars"
+            ],
+            "label_path": [
+              "line_label"
+            ],
+            "bucket_path": [
+              "period"
+            ]
+          }
+        ],
+        "empty": {
+          "title": "Daily costs have not been recorded yet",
+          "description": "The cycle total comes from current service readings. The daily chart fills as those readings are saved."
+        }
+      },
+      {
+        "id": "month-by-service",
+        "title": "This billing cycle by service",
+        "mark": "donut",
+        "records_path": [
+          "groups"
+        ],
+        "reading": "month_dollars",
+        "formula": "sum",
+        "group": "title",
+        "limit": 6,
+        "value_kind": "money",
+        "empty": {
+          "title": "Nothing counted this billing cycle yet",
+          "description": "When a connected service reports usage, its estimated share shows here."
+        }
+      },
+      {
+        "id": "service-by-day",
+        "title": "Each service, day by day",
+        "mark": "heatmap",
+        "records_path": [
+          "days"
+        ],
+        "reading": "dollars",
+        "formula": "sum",
+        "group": "group",
+        "over": {
+          "field": "day",
+          "bucket": "day",
+          "buckets": [
+            "day",
+            "week",
+            "month"
+          ]
+        },
+        "limit": 8,
+        "value_kind": "money",
+        "empty": {
+          "title": "Nothing counted yet",
+          "description": "Each service's cost per day shows here as it is kept."
+        }
+      }
+    ],
+    "inside": {
+      "path": [
+        "inside"
+      ]
+    },
+    "group": [
+      {
+        "field": "group"
+      }
+    ]
+  },
+  "words": {
+    "near_title": "{label}: {share} used",
+    "reached_title": "{label}: reached",
+    "near_body": "{used} of {most} so far this {period}.",
+    "reached_body": "{used} of {most} this {period}. Trillion-paid background work and model calls wait until the {period} turns. Ask your AI to raise or remove it.",
+    "told_body": "{used} of {most} this {period}. Nothing was stopped. Ask your AI to raise or remove it.",
+    "refused": "{label} is reached ({used} of {most} this {period}). This waits until the {period} turns.",
+    "total_title": "Estimated total",
+    "budget_words": "{used} of {most} a {period}",
+    "kind": "limit-status",
+    "cost_today": "{dollars} estimated today",
+    "cost_month": "{dollars} estimated this billing cycle",
+    "group_title": "{group}",
+    "first_read": "Being read for the first time.",
+    "each_budget_words": "Up to {most} a {period} for each account",
+    "inside_label": "{line}, piece by piece",
+    "inside_amount": "Used",
+    "inside_share": "Share of today's estimate",
+    "inside_empty": "Nothing used yet today",
+    "inside_no_match": "No piece matches.",
+    "inside_unread": "Not read yet",
+    "pace_title": "{label}: heading past {most}",
+    "pace_body": "{used} so far. At this rate the {period} ends near {projected}.",
+    "open": "/spend",
+    "connect_title": "Connect {service} to see what's inside its cost",
+    "connect_words": "Trillion reads its usage and prices each piece.",
+    "connect_open": "/connections?show_row={vendor}",
+    "money_connect_title": "Connect your bank or email to see everything you pay for",
+    "money_connect_words": "Trillion finds each merchant you pay from your bank feed and receipt emails, and shows what each costs you.",
+    "bank_connect_title": "Connect your bank to see every payment, not only emailed receipts",
+    "bank_connect_words": "Receipts show what was emailed to you. Your bank feed shows everything that left your account, so the totals match your statements.",
+    "payments_unread": "Payments could not be read",
+    "merchant_words": "Payments seen in the last {days} days: {count}, from {source}",
+    "merchant_inside_label": "{title}, breakdown",
+    "trend_up": "Up {percent}%",
+    "trend_up_plain": "Up",
+    "inside_money": "Amount",
+    "trend_down": "Down {percent}%",
+    "trend_flat": "Flat",
+    "trend_new": "New",
+    "flag_duplicate": "Duplicate",
+    "flag_unused": "Unused",
+    "charge_kind_usage": "Usage this cycle",
+    "charge_kind_charge": "Charge",
+    "inside_what": "What",
+    "inside_when": "When",
+    "inside_source": "Source",
+    "inside_kind": "Kind"
+  },
+  "tables": {
+    "fly_region_markup": {
+      "ams": 1.038461538,
+      "iad": 1,
+      "ord": 1.25,
+      "dfw": 1.25,
+      "fra": 1.153846154,
+      "jnb": 1.302884615,
+      "lhr": 1.134615385,
+      "lax": 1.199519231,
+      "cdg": 1.134615385,
+      "sjc": 1.192307692,
+      "gru": 1.615384615,
+      "ewr": 1,
+      "sin": 1.269230769,
+      "arn": 1.038461538,
+      "syd": 1.269230769,
+      "nrt": 1.307692308,
+      "yyz": 1.115384615
+    }
+  },
+  "keep_days": 400,
+  "history_days": 30,
+  "history_settle_hours": 6,
+  "_why_history": "A past day is read from where its amounts are counted (a provider's analytics by day, Trillion's own counts by day), so a new person sees their measured usage history priced at listed rates at once instead of a chart that starts the first day they open Spend. history_days reaches back from today (from the start of the billing month that day falls in); a day is settled once it is read history_settle_hours after it ended, when providers have finished counting it (2026-10-05).",
+  "inside_address": "/work/api/spend/inside/{line}"
+}

@@ -1,0 +1,8 @@
+{
+  "describeSpace": {
+    "policy_fields": [
+      "title",
+      "description"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/tables-into-records.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/move-the-rows-a-persons-store-kept-in-tables/src/tables-into-records.mjs",
+      "source_identity": "1f:1b31ae1ca12b9c5a2f0598db75b10808192e4c1aacd5c00bdc678fa4b2b6d8a4",
+      "identity": "1f:cef7a93a87b5c894a8d75781a800c13eed78d2df8543cbb788a08296274fc911"
+    }
+  ]
+}

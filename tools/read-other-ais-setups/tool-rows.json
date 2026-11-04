@@ -104,7 +104,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind":"sample-run","input":{"sources":["claude-instructions"]}}]
       }
     }
   ]

@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/work-scope.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/narrow-any-list-the-workspace-shows-to-the-part/src/work-scope.mjs",
+      "source_identity": "1f:b4f21cfb1fa895d371a7173269351525e3c5d59fc92d4c1a3232c8b829167de5",
+      "identity": "1f:e27658e6c3d0dc6d00e2c19e40d750833b402534075a805ea6aa03fb2ed3a906"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/waiting-ask-notices.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-exactly-one-notice-when-a-new-item/src/waiting-ask-notices.mjs",
+      "source_identity": "1f:4983f4472fde9e607f1094da3185a64fcf93d4b39e4373e49cfe15cd7af0021f",
+      "identity": "1f:0fc363dbf0b0ded1224acf899824bcc9526cb76c5e97b3957387e8b62c65967d"
+    },
+    {
+      "from": "test/waiting-ask-notices.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-exactly-one-notice-when-a-new-item/test/waiting-ask-notices.test.mjs",
+      "source_identity": "1f:4d05681a23eb8849ad1cc905cb44d1467128ed702420148aa4d06fc9790cbd93",
+      "identity": "1f:4d05681a23eb8849ad1cc905cb44d1467128ed702420148aa4d06fc9790cbd93"
+    }
+  ]
+}

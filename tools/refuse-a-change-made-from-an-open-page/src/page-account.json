@@ -1,0 +1,7 @@
+{
+  "_what": "A page that wrote a change was drawn for one account; when the browser has since signed in as another (in another tab), the change is refused instead of being made as the new account. Read by src/page-account.mjs.",
+  "header": "x-trillion-page-store",
+  "methods": ["POST", "PUT", "PATCH", "DELETE"],
+  "path_prefix": "/work/api/",
+  "words": "This was not sent because the account signed in on this browser changed. Reload the page and try again."
+}

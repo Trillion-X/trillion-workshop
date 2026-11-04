@@ -1,0 +1,58 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on with no home and no backlog row, moved here byte for byte from the parent of the commit that deleted each (commit; deleted_by names the deleting commit). Nothing here is rewritten: a file waits here for its wiring, under its old path, so the files keep importing each other as they did. A redaction replaces a real person's name or address with a made-up one, and is listed on the file; source_identity is the BLAKE3 identity of the bytes at commit, identity of the bytes here.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "computer/model-helper.json",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/models-on-this-computer/from-old-trillion/computer/model-helper.json",
+      "source_identity": "1f:721f43809343a1c9492a502473cda1b15ed485990f5a2edeef5d42bb055e4331",
+      "identity": "1f:721f43809343a1c9492a502473cda1b15ed485990f5a2edeef5d42bb055e4331"
+    },
+    {
+      "from": "computer/model-helper.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/models-on-this-computer/from-old-trillion/computer/model-helper.mjs",
+      "source_identity": "1f:02e847d01fa3d06cf2b83d2a9f749ea4996af3dea6118fcb3f90aed4098ab0b1",
+      "identity": "1f:02e847d01fa3d06cf2b83d2a9f749ea4996af3dea6118fcb3f90aed4098ab0b1"
+    },
+    {
+      "from": "computer/model-relay.json",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/models-on-this-computer/from-old-trillion/computer/model-relay.json",
+      "source_identity": "1f:0e1c7bc9212eb2404f678862b1f51289583b61e6b10511b8db49dbf261188fab",
+      "identity": "1f:0e1c7bc9212eb2404f678862b1f51289583b61e6b10511b8db49dbf261188fab"
+    },
+    {
+      "from": "computer/model-relay.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/models-on-this-computer/from-old-trillion/computer/model-relay.mjs",
+      "source_identity": "1f:0d457d5da75c85fba2df3cd947e8545c7d0733f89b8cd111c7a5054496c2eec6",
+      "identity": "1f:0d457d5da75c85fba2df3cd947e8545c7d0733f89b8cd111c7a5054496c2eec6"
+    },
+    {
+      "from": "test/model-helper.test.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/models-on-this-computer/from-old-trillion/test/model-helper.test.mjs.held",
+      "source_identity": "1f:74d332443c6c3ee8ebe4e68694fb9d57a5b22c2b7ca7b4c647ef126d853a7897",
+      "identity": "1f:74d332443c6c3ee8ebe4e68694fb9d57a5b22c2b7ca7b4c647ef126d853a7897",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/model-relay.test.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/models-on-this-computer/from-old-trillion/test/model-relay.test.mjs.held",
+      "source_identity": "1f:2e872488a8415b49498df1b943dbf9b75408837fb4c9fcf426373820ca1d71c4",
+      "identity": "1f:2e872488a8415b49498df1b943dbf9b75408837fb4c9fcf426373820ca1d71c4",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    }
+  ]
+}

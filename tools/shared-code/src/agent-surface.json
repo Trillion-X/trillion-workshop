@@ -1,0 +1,10 @@
+{
+  "what_this_is": "How an agent's card widens (src/agents.mjs publish, decideSurface). The first card an agent publishes is its device approval: the skills it names are its approved surface. With approve_widening on, publishing a card that names a skill beyond the approved surface keeps the skill off the card, as pending_skills, until another key than the agent's own approves it (decide_agent_skills); skills it stops naming leave the surface at once, and a pending skill it stops naming is dropped. Off (the default) a card is whatever its agent publishes, as before.",
+  "approve_widening": false,
+  "words": {
+    "nothing_pending": "{agent} has no skills waiting for approval.",
+    "own_key": "{agent} cannot approve its own widening: approve it with another key or from the person's own screen.",
+    "approved": "{agent} now offers {skills}.",
+    "rejected": "{agent} will not offer {skills}; it can publish them again to ask again."
+  }
+}
