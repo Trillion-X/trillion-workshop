@@ -6,6 +6,8 @@ Moved here byte for byte from Trillion-X/trillion by `tools/move-code-between-tr
 
 One folder, not one per script: the scripts read each other's settings files by path (`harness/setup.mjs` reads `harness/setup.json`; `harness/take-open-work.json` names `harness/keychain-mcp-bridge.mjs` beside it), so a split would part a reader from what it reads.
 
+The person's Claude Code cloud sessions (claude.ai/code) are AI sessions too, run off this computer: `harness/read-cloud-sessions.mjs` lists them for one Claude sign-in on this computer (`list`), cuts each one's messages down to what it was asked, what it said last, its pull requests and pushes and the questions it asked (`read`), and sends one a message as the person's next turn (`send`). It uses the same account pages Claude Code's own `--teleport` and the claude.ai/code page use (`/v1/sessions`, `/v1/sessions/<id>/events`), with the sign-in Claude Code keeps in the Keychain for that config folder; the token stays in memory and in the Authorization header only. Written here, not moved: `moved-from.json` does not name it.
+
 ## Who imports it
 
 - `tools/run-on-a-persons-computer` (the computer's own tools) imports `../harness/account-key.mjs`, `../harness/setup.mjs` and `../harness/setup.json`, written for the old tree's layout; on this repository's main those paths reach nothing. They are repointed here by the lane that gives that folder its rows.
@@ -14,6 +16,8 @@ One folder, not one per script: the scripts read each other's settings files by 
 ## Tests
 
 The 21 test files moved with the group. Run here, they give the same results by test name as at the tag, but for the tests that need the old tree's own `computer/` and `scripts/` files (moved earlier to `tools/run-on-a-persons-computer` and to trillion-apps), named in the moving PR.
+
+`test/read-cloud-sessions.test.mjs` runs `whatItSaid` over made-up session events: the task, later asks and last messages kept apart, pull requests and pushes found in tool results, questions from the question tool, and sub-agent messages left out.
 
 ## Not yet
 
