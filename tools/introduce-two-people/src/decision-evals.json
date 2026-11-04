@@ -1,0 +1,1947 @@
+{
+  "_what": "One measured eval per decision a local judge model (records/local-model-records.json classify rows, such as decider-2b) might take, measured before any wiring (scripts/measure-decision-evals.mjs). Each eval names the decision, where it would be wired (`would_wire`), the words every case is asked as (`state`, filled from a case's values, and `question` with `means`), its labelled cases (`yes` is the right answer), and, when the decision already has an owner in source, that `incumbent` (a module export called with `args` filled from the case, whose result above 0 means yes). Cases marked held_out were written before the incumbent was last changed and were not looked at while changing it. When an eval has an incumbent, each judge is also measured behind it (`incumbent then <judge>`: the judge's score where the incumbent says yes, 0 where it says no), the shape of a server rule followed by a check on the person's Mac. A judge separates the cases when every yes case scores above every no case (`margin` above `separates_by`); only then is it a candidate for wiring. `last_measure` is written back by the script for each judge and the incumbent: right answers at the best cut, the cut, and the margin. A new decision is one row here.",
+  "evals": [
+    {
+      "id": "first-match-fit",
+      "decision": "Does what one person offers meet what another person seeks, so Trillion proposes them as a first match?",
+      "would_wire": "src/network-first-matches.mjs firstMatchFit on the server, then each proposal checked on the person's Mac",
+      "state": "One person seeks: {seeking}\nAnother person offers: {offering}",
+      "question": "Does what the second person offers meet what the first person seeks?",
+      "means": {
+        "true": "the offer gives the seeker what they are looking for",
+        "false": "the offer does not give the seeker what they are looking for, even if some words are the same"
+      },
+      "separates_by": 0.05,
+      "incumbent": {
+        "module": "src/network-first-matches.mjs",
+        "export": "firstMatchFit",
+        "args": [
+          {
+            "seeking": "{seeking}",
+            "offering": ""
+          },
+          {
+            "seeking": "",
+            "offering": "{offering}"
+          }
+        ]
+      },
+      "cases": [
+        {
+          "seeking": "investors for a seed round",
+          "offering": "I write angel cheques into early SaaS companies",
+          "yes": true
+        },
+        {
+          "seeking": "a VC intro",
+          "offering": "I was a partner at a venture fund and still introduce founders to funds",
+          "yes": true
+        },
+        {
+          "seeking": "someone to fund my hardware startup",
+          "offering": "I back deep-tech companies at pre-seed",
+          "yes": true
+        },
+        {
+          "seeking": "a technical cofounder",
+          "offering": "Senior backend engineer, looking to build a company as CTO",
+          "yes": true
+        },
+        {
+          "seeking": "an iOS developer",
+          "offering": "I ship SwiftUI apps for clients",
+          "yes": true
+        },
+        {
+          "seeking": "help hiring my first engineers",
+          "offering": "I'm a technical recruiter who placed 40 developers at startups",
+          "yes": true
+        },
+        {
+          "seeking": "a hiring manager who needs a data engineer",
+          "offering": "I lead a data team and have two open roles",
+          "yes": true
+        },
+        {
+          "seeking": "a job as a frontend developer",
+          "offering": "We are hiring React developers for our product team",
+          "yes": true
+        },
+        {
+          "seeking": "a designer for my landing page",
+          "offering": "Freelance web designer, Webflow and Figma",
+          "yes": true
+        },
+        {
+          "seeking": "brand identity work",
+          "offering": "I make logos and visual identities for small businesses",
+          "yes": true
+        },
+        {
+          "seeking": "advice on SaaS pricing",
+          "offering": "Ran monetisation at a B2B software company for six years",
+          "yes": true
+        },
+        {
+          "seeking": "a lawyer for incorporation",
+          "offering": "Startup attorney: formation, SAFEs and cap tables",
+          "yes": true
+        },
+        {
+          "seeking": "a mentor for first-time managers",
+          "offering": "Engineering director, I coach new managers",
+          "yes": true
+        },
+        {
+          "seeking": "beta users for a fitness app",
+          "offering": "I run a running club of 200 people who love trying new apps",
+          "yes": true
+        },
+        {
+          "seeking": "distribution in Germany",
+          "offering": "I run a sales agency covering the DACH region",
+          "yes": true
+        },
+        {
+          "seeking": "a copywriter for my website",
+          "offering": "I write conversion copy for startup websites",
+          "yes": true
+        },
+        {
+          "seeking": "someone who knows TikTok growth",
+          "offering": "Grew three TikTok accounts past a million followers",
+          "yes": true
+        },
+        {
+          "seeking": "a co-host for my podcast",
+          "offering": "Former radio presenter looking to co-host a show",
+          "yes": true
+        },
+        {
+          "seeking": "warm intros to hospital buyers",
+          "offering": "Ex-procurement lead at an NHS trust, happy to introduce",
+          "yes": true
+        },
+        {
+          "seeking": "a manufacturer for small batches of apparel",
+          "offering": "Our garment factory takes runs from 100 pieces",
+          "yes": true
+        },
+        {
+          "seeking": "a translator for Japanese",
+          "offering": "Native Japanese speaker and professional translator",
+          "yes": true
+        },
+        {
+          "seeking": "feedback on my pitch deck",
+          "offering": "Former VC associate, I review pitch decks",
+          "yes": true
+        },
+        {
+          "seeking": "a dev shop to build an MVP",
+          "offering": "We are a five-person agency building MVPs in eight weeks",
+          "yes": true
+        },
+        {
+          "seeking": "an accountant for a UK limited company",
+          "offering": "Chartered accountant for small UK companies",
+          "yes": true
+        },
+        {
+          "seeking": "speaking slots at fintech events",
+          "offering": "I programme the main stage at a fintech conference",
+          "yes": true
+        },
+        {
+          "seeking": "investors for a seed round",
+          "offering": "I'm raising a seed round too and looking for angels",
+          "yes": false
+        },
+        {
+          "seeking": "angel investors",
+          "offering": "First-time founder pitching angels this month",
+          "yes": false
+        },
+        {
+          "seeking": "a technical cofounder",
+          "offering": "Non-technical founder seeking a technical cofounder",
+          "yes": false
+        },
+        {
+          "seeking": "help hiring my first engineers",
+          "offering": "Founder also trying to hire my first engineers",
+          "yes": false
+        },
+        {
+          "seeking": "a designer for my landing page",
+          "offering": "I need a designer for my bakery website",
+          "yes": false
+        },
+        {
+          "seeking": "a lawyer for incorporation",
+          "offering": "Incorporating my startup and I need a lawyer",
+          "yes": false
+        },
+        {
+          "seeking": "advice on SaaS pricing",
+          "offering": "Struggling to price my own SaaS product",
+          "yes": false
+        },
+        {
+          "seeking": "a job as a frontend developer",
+          "offering": "Frontend developer looking for a new job",
+          "yes": false
+        },
+        {
+          "seeking": "beta users for a fitness app",
+          "offering": "Building a fitness app and looking for beta users",
+          "yes": false
+        },
+        {
+          "seeking": "a mentor for first-time managers",
+          "offering": "New manager looking for a mentor",
+          "yes": false
+        },
+        {
+          "seeking": "a backend engineer",
+          "offering": "I engineer bridges as a civil engineer",
+          "yes": false
+        },
+        {
+          "seeking": "an iOS developer",
+          "offering": "Property developer building flats in Leeds",
+          "yes": false
+        },
+        {
+          "seeking": "investors for a seed round",
+          "offering": "I sell seeds and garden supplies",
+          "yes": false
+        },
+        {
+          "seeking": "brand identity work",
+          "offering": "I verify identity documents for banks",
+          "yes": false
+        },
+        {
+          "seeking": "advice on SaaS pricing",
+          "offering": "I compare flight prices for travellers",
+          "yes": false
+        },
+        {
+          "seeking": "a copywriter for my website",
+          "offering": "Copyright lawyer for musicians",
+          "yes": false
+        },
+        {
+          "seeking": "someone who knows TikTok growth",
+          "offering": "I sell grow lights for indoor plants",
+          "yes": false
+        },
+        {
+          "seeking": "a translator for Japanese",
+          "offering": "I teach Japanese cooking classes",
+          "yes": false
+        },
+        {
+          "seeking": "a manufacturer for small batches of apparel",
+          "offering": "Fashion blogger who reviews clothing brands",
+          "yes": false
+        },
+        {
+          "seeking": "distribution in Germany",
+          "offering": "Student learning the German language",
+          "yes": false
+        },
+        {
+          "seeking": "feedback on my pitch deck",
+          "offering": "I build decks and patios for homes",
+          "yes": false
+        },
+        {
+          "seeking": "a dev shop to build an MVP",
+          "offering": "Former MVP basketball player, now a coach",
+          "yes": false
+        },
+        {
+          "seeking": "an accountant for a UK limited company",
+          "offering": "Account manager at a UK software company",
+          "yes": false
+        },
+        {
+          "seeking": "speaking slots at fintech events",
+          "offering": "Fintech founder looking for speaking slots",
+          "yes": false
+        },
+        {
+          "seeking": "warm intros to hospital buyers",
+          "offering": "Medtech founder trying to reach hospital buyers",
+          "yes": false
+        },
+        {
+          "seeking": "a Rust developer for a database project",
+          "offering": "Systems programmer, ten years of Rust and storage engines",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "seeking": "a seed investor in climate tech",
+          "offering": "I run a small fund backing climate startups",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "seeking": "a part-time CFO",
+          "offering": "Fractional finance lead for early-stage startups",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "seeking": "a nurse to advise on our health app",
+          "offering": "Registered nurse who consults for digital health teams",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "seeking": "customers for my bookkeeping software",
+          "offering": "I own three cafes and still do my books by hand",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "seeking": "a photographer for product shots",
+          "offering": "I shoot e-commerce product photography",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "seeking": "a cofounder with sales experience",
+          "offering": "Enterprise sales lead ready to start something of my own",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "seeking": "intros to supermarket buyers",
+          "offering": "Former category manager at Tesco, glad to make introductions",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "seeking": "a Spanish tutor",
+          "offering": "I teach Spanish online to adults",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "seeking": "a developer job at a startup",
+          "offering": "Our startup is hiring two full-stack developers",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "seeking": "a Rust developer",
+          "offering": "Rust remover for vintage cars",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "seeking": "a seed investor in climate tech",
+          "offering": "Climate founder raising our seed round",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "seeking": "a part-time CFO",
+          "offering": "Founder looking for a part-time CFO",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "seeking": "a photographer for product shots",
+          "offering": "Selling my old camera lenses",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "seeking": "a cofounder with sales experience",
+          "offering": "Technical founder looking for a sales cofounder",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "seeking": "intros to supermarket buyers",
+          "offering": "Food startup trying to get into supermarkets",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "seeking": "a Spanish tutor",
+          "offering": "I want to learn Spanish this year",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "seeking": "a developer job at a startup",
+          "offering": "Developer looking for a startup job",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "seeking": "a nurse to advise on our health app",
+          "offering": "Health app founder seeking clinical advisers",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "seeking": "customers for my bookkeeping software",
+          "offering": "Bookkeeping software founder looking for customers",
+          "yes": false,
+          "held_out": true
+        }
+      ],
+      "last_measure": {
+        "at": "2026-10-18T05:45:19.958Z",
+        "results": [
+          {
+            "judge": "incumbent src/network-first-matches.mjs firstMatchFit",
+            "right": 61,
+            "of": 70,
+            "cut": 1,
+            "margin": 0,
+            "separates": false,
+            "scores": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              0,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              1,
+              1,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "judge": "ollama-qwen2.5-14b-yes-no",
+            "right": 58,
+            "of": 70,
+            "cut": 1,
+            "margin": -0.8173,
+            "separates": false,
+            "scores": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0.1827,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0.0001,
+              0.9999,
+              1,
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0.9999,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.9964,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0.8994,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0.0247,
+              0,
+              0.1134,
+              0.999,
+              1
+            ]
+          },
+          {
+            "judge": "decider-2b",
+            "right": 52,
+            "of": 70,
+            "cut": 0.2311,
+            "margin": -0.6702,
+            "separates": false,
+            "scores": [
+              0.6834,
+              0.7935,
+              0.6404,
+              0.2311,
+              0.3596,
+              0.7935,
+              0.488,
+              0.6729,
+              0.7329,
+              0.7773,
+              0.476,
+              0.8088,
+              0.8232,
+              0.4402,
+              0.7513,
+              0.6514,
+              0.7855,
+              0.6834,
+              0.6622,
+              0.524,
+              0.942,
+              0.8013,
+              0.8556,
+              0.7329,
+              0.5833,
+              0.6622,
+              0.7855,
+              0.476,
+              0.6834,
+              0.0759,
+              0.7038,
+              0.2398,
+              0.7855,
+              0.8725,
+              0.7234,
+              0.0483,
+              0.0067,
+              0.0905,
+              0.0264,
+              0.0366,
+              0.0061,
+              0.0089,
+              0.0264,
+              0.3708,
+              0.1768,
+              0.0905,
+              0.2145,
+              0.133,
+              0.9013,
+              0.3935,
+              0.7137,
+              0.7935,
+              0.2863,
+              0.6834,
+              0.2398,
+              0.8877,
+              0.8088,
+              0.6065,
+              0.8433,
+              0.7234,
+              0.013,
+              0.7773,
+              0.8161,
+              0.1699,
+              0.1768,
+              0.2227,
+              0.524,
+              0.7689,
+              0.6065,
+              0.7855
+            ]
+          },
+          {
+            "judge": "incumbent then ollama-qwen2.5-14b-yes-no",
+            "right": 70,
+            "of": 70,
+            "cut": 0.1827,
+            "margin": 0.1827,
+            "separates": true,
+            "scores": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0.1827,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1,
+              0.8994,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "judge": "incumbent then decider-2b",
+            "right": 70,
+            "of": 70,
+            "cut": 0.2311,
+            "margin": 0.0166,
+            "separates": false,
+            "scores": [
+              0.6834,
+              0.7935,
+              0.6404,
+              0.2311,
+              0.3596,
+              0.7935,
+              0.488,
+              0.6729,
+              0.7329,
+              0.7773,
+              0.476,
+              0.8088,
+              0.8232,
+              0.4402,
+              0.7513,
+              0.6514,
+              0.7855,
+              0.6834,
+              0.6622,
+              0.524,
+              0.942,
+              0.8013,
+              0.8556,
+              0.7329,
+              0.5833,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.0483,
+              0.0067,
+              0,
+              0.0264,
+              0.0366,
+              0,
+              0,
+              0.0264,
+              0,
+              0,
+              0.0905,
+              0.2145,
+              0.133,
+              0,
+              0,
+              0.7137,
+              0.7935,
+              0.2863,
+              0.6834,
+              0.2398,
+              0.8877,
+              0.8088,
+              0.6065,
+              0.8433,
+              0.7234,
+              0.013,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "wired": {
+        "judge": "ollama-qwen2.5-14b-yes-no",
+        "act_at": 0.1827,
+        "behind_incumbent": true
+      }
+    },
+    {
+      "id": "outreach-message-grounded",
+      "decision": "Does a drafted first message to someone outside Trillion say only what the person saved of theirs and what the person seeks, inventing nothing and speaking only for the person?",
+      "would_wire": "src/social-posts.mjs groundedCheck, on the person's computer before a drafted first message to someone outside Trillion is shown to them",
+      "state": "What the person saved of theirs: {found}\nWhat the person is looking for: {seeking}\nThe person's first message to them: {message}",
+      "question": "Is this first message honest: does it mention only the saved post, what the person is looking for, and a question?",
+      "means": {
+        "true": "honest: it only refers to the saved post, says what the person is looking for, and asks something",
+        "false": "not honest: it invents a meeting, an agreement, a promise, money, an award, or speaks for someone else"
+      },
+      "separates_by": 0.05,
+      "cases": [
+        {
+          "found": "a post titled 'How we raised our seed round from angel investors'",
+          "seeking": "angel investors for a seed round",
+          "message": "@ana your thread on raising a seed round from angels helped me. I am looking for angel investors too. Would you share who answered first?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Hiring our first ten engineers'",
+          "seeking": "help hiring engineers",
+          "message": "@bo I saved your post on hiring your first ten engineers. I am hiring my first engineers now. What would you do first?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Pricing lessons from our SaaS'",
+          "seeking": "advice on pricing a SaaS product",
+          "message": "@cy your pricing lessons post stayed with me. I am pricing a SaaS product. Which lesson mattered most?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Design systems for small teams'",
+          "seeking": "a designer for my landing page",
+          "message": "@di I bookmarked your post on design systems for small teams. I need a designer for my landing page. Do you take small projects?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Our Delaware setup checklist'",
+          "seeking": "a lawyer who knows startup incorporation",
+          "message": "@ed thanks for your Delaware setup checklist. I am incorporating my startup. Who helped you with it?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'What I look for in a pitch deck'",
+          "seeking": "someone to review my pitch deck",
+          "message": "@fi I saved your post on what you look for in a pitch deck. Could you look at mine?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Selling to hospitals as a two-person startup'",
+          "seeking": "intros to hospital buyers",
+          "message": "@gu your post on selling to hospitals as a tiny team is the best I have read. I am trying to reach hospital buyers. Who should I talk to first?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Growing a TikTok account from zero'",
+          "seeking": "someone who knows TikTok growth",
+          "message": "@ha I liked your post on growing a TikTok account from zero. I am starting one for my shop. What would you skip?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Ten things I learned running a podcast'",
+          "seeking": "a co-host for my podcast",
+          "message": "@io your list of podcast lessons was useful. I am looking for a co-host for mine. Would you be open to a chat?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Small-batch apparel manufacturing in Portugal'",
+          "seeking": "a manufacturer for small batches of apparel",
+          "message": "@ju I saved your post on small-batch apparel factories in Portugal. I need a manufacturer for my first run. Which factory would you try?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Translating our app into Japanese'",
+          "seeking": "a Japanese translator",
+          "message": "@ko your post on translating your app into Japanese helped. I need a translator for mine. Who did you work with?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Our first fintech conference talk'",
+          "seeking": "speaking slots at fintech events",
+          "message": "@lu I liked your post about your first fintech conference talk. I want to speak at fintech events. How did you get your slot?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'How I coach first-time managers'",
+          "seeking": "a mentor for first-time managers",
+          "message": "@mo your post on coaching first-time managers was spot on. I just became a manager. Do you mentor anyone?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Building an MVP in six weeks'",
+          "seeking": "a dev shop to build an MVP",
+          "message": "@nu I bookmarked your post on building an MVP in six weeks. I need a team to build mine. Do you take clients?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'UK company accounts made simple'",
+          "seeking": "an accountant for a UK limited company",
+          "message": "@ol thanks for your post on UK company accounts. I need an accountant for my limited company. Do you take new clients?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Rust for storage engines'",
+          "seeking": "a Rust developer",
+          "message": "@pa your Rust storage engine post was great. I am looking for a Rust developer for a database project. Are you open to contract work?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Climate funds that answer cold emails'",
+          "seeking": "a seed investor in climate tech",
+          "message": "@qi I saved your list of climate funds that answer cold emails. I am raising for a climate startup. Which one replied fastest?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Running a fractional CFO practice'",
+          "seeking": "a part-time CFO",
+          "message": "@ra your post on fractional CFO work made me think of my startup. I need a part-time CFO. Do you have room?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Product photos on a budget'",
+          "seeking": "a photographer for product shots",
+          "message": "@si I liked your post on product photos on a budget. I need product shots for my shop. Do you shoot for others?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Teaching Spanish to busy adults'",
+          "seeking": "a Spanish tutor",
+          "message": "@ta your post on teaching Spanish to busy adults is exactly me. Do you have space for a new student?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Selling into supermarkets'",
+          "seeking": "intros to supermarket buyers",
+          "message": "@ul I saved your post on selling into supermarkets. I make sauces and want to reach buyers. What should I prepare?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Hiring React developers remotely'",
+          "seeking": "a job as a frontend developer",
+          "message": "@vi I read your post on hiring React developers remotely. I am a frontend developer looking for my next role. Are you still hiring?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Beta testing with a running club'",
+          "seeking": "beta users for a fitness app",
+          "message": "@wo your post on beta testing with a running club gave me an idea. I need beta users for my fitness app. How did you ask them?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Copy that converts for SaaS sites'",
+          "seeking": "a copywriter for my website",
+          "message": "@xa I bookmarked your post on copy that converts. I need a copywriter for my website. Do you take projects?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'Distribution in the DACH region'",
+          "seeking": "distribution in Germany",
+          "message": "@ye your post on distribution in DACH was useful. I want to sell in Germany. Which partner would you call first?",
+          "yes": true
+        },
+        {
+          "found": "a post titled 'How we raised our seed round from angel investors'",
+          "seeking": "angel investors for a seed round",
+          "message": "@ana great to reconnect after our dinner last month! As we discussed, I would love your intro to Sequoia.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Hiring our first ten engineers'",
+          "seeking": "help hiring engineers",
+          "message": "@bo Trillion has selected you as a top hiring expert. Reply to claim your guaranteed placement fee.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Pricing lessons from our SaaS'",
+          "seeking": "advice on pricing a SaaS product",
+          "message": "@cy I read your book on pricing and your company doubled revenue with my method. Let's partner.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Design systems for small teams'",
+          "seeking": "a designer for my landing page",
+          "message": "@di on behalf of my whole agency, we would like to hire you full time at double your salary.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Our Delaware setup checklist'",
+          "seeking": "a lawyer who knows startup incorporation",
+          "message": "@ed as your former client I know you will help me for free this time.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'What I look for in a pitch deck'",
+          "seeking": "someone to review my pitch deck",
+          "message": "@fi you promised in your talk to review every deck sent to you, so here is mine.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Selling to hospitals as a two-person startup'",
+          "seeking": "intros to hospital buyers",
+          "message": "@gu your colleague told me you would introduce me to the NHS buyers this week.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Growing a TikTok account from zero'",
+          "seeking": "someone who knows TikTok growth",
+          "message": "@ha I can guarantee you one million followers in 30 days if you work with me.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Ten things I learned running a podcast'",
+          "seeking": "a co-host for my podcast",
+          "message": "@io congratulations on joining my podcast as co-host, we start recording Monday.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Small-batch apparel manufacturing in Portugal'",
+          "seeking": "a manufacturer for small batches of apparel",
+          "message": "@ju your factory already agreed to make our first 5,000 shirts, just confirming the price.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Translating our app into Japanese'",
+          "seeking": "a Japanese translator",
+          "message": "@ko since you translated our last app so well, please start on the new one today.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Our first fintech conference talk'",
+          "seeking": "speaking slots at fintech events",
+          "message": "@lu the conference team asked me to tell you that I will replace you on stage.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'How I coach first-time managers'",
+          "seeking": "a mentor for first-time managers",
+          "message": "@mo Trillion says you are the best mentor in London and that you mentor for free.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Building an MVP in six weeks'",
+          "seeking": "a dev shop to build an MVP",
+          "message": "@nu my investors have already approved your team to build our MVP at a 50% discount.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'UK company accounts made simple'",
+          "seeking": "an accountant for a UK limited company",
+          "message": "@ol we met at the tax conference last spring, you said to send my accounts any time.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Rust for storage engines'",
+          "seeking": "a Rust developer",
+          "message": "@pa your old manager recommended you and said you are free from next week.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Climate funds that answer cold emails'",
+          "seeking": "a seed investor in climate tech",
+          "message": "@qi your fund has invested in companies like mine, so I expect a term sheet by Friday.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Running a fractional CFO practice'",
+          "seeking": "a part-time CFO",
+          "message": "@ra I represent a group of ten startups who all want you as their CFO.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Product photos on a budget'",
+          "seeking": "a photographer for product shots",
+          "message": "@si thanks again for the free shoot you promised me in your last post.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Teaching Spanish to busy adults'",
+          "seeking": "a Spanish tutor",
+          "message": "@ta my company will pay you to teach our whole team, as your manager agreed.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Selling into supermarkets'",
+          "seeking": "intros to supermarket buyers",
+          "message": "@ul Tesco told me you are the person who approves new suppliers, so I am sending samples.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Hiring React developers remotely'",
+          "seeking": "a job as a frontend developer",
+          "message": "@vi I accept the offer you made me, when do I start?",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Beta testing with a running club'",
+          "seeking": "beta users for a fitness app",
+          "message": "@wo your running club voted to test my app, I will send the links to everyone.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Copy that converts for SaaS sites'",
+          "seeking": "a copywriter for my website",
+          "message": "@xa our CEO read all your work and wants you to write for us for exposure.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'Distribution in the DACH region'",
+          "seeking": "distribution in Germany",
+          "message": "@ye as agreed on our call, you will be our exclusive partner in Germany.",
+          "yes": false
+        },
+        {
+          "found": "a post titled 'How we found our first 100 beta testers'",
+          "seeking": "beta testers for my budgeting app",
+          "message": "@ab your post on finding your first 100 beta testers was useful. I am looking for beta testers for my budgeting app. Where did most of yours come from?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Running a meal-prep club with 50 members'",
+          "seeking": "beta users for a meal-planning app",
+          "message": "@bc I saved your post about your meal-prep club. I am building a meal-planning app and need a few beta users. Would your members try it?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Our community of indie game devs'",
+          "seeking": "playtesters for my indie game",
+          "message": "@cd your post about your indie game dev community stuck with me. I need playtesters for my game. Could I share a build there?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Why I review every new note-taking app'",
+          "seeking": "early users for my note-taking app",
+          "message": "@de I bookmarked your post on reviewing new note-taking apps. I am building one and looking for early users. Would you try it?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Teaching coding to 30 teenagers'",
+          "seeking": "pilot classrooms for a coding course",
+          "message": "@ef your post on teaching coding to 30 teenagers was inspiring. I am looking for pilot classrooms for a coding course. Would your class try a lesson?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Lessons from selling to dentists'",
+          "seeking": "intros to dental practice owners",
+          "message": "@fg I saved your post on selling to dentists. I am trying to reach dental practice owners. Who would you talk to first?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Our remote team's favourite standup tools'",
+          "seeking": "teams to test a standup tool",
+          "message": "@gh your post on standup tools for remote teams was helpful. I am looking for a team to test mine. Would yours give it a week?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Hiring our first designer'",
+          "seeking": "advice on hiring a first designer",
+          "message": "@hi I liked your post on hiring your first designer. I am about to hire mine. What would you ask in the interview?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Pricing a newsletter at $8 a month'",
+          "seeking": "advice on pricing a paid newsletter",
+          "message": "@ij your post on pricing your newsletter at $8 a month was clear. I am pricing mine now. Would you choose monthly or yearly first?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'A running club that tests every new watch'",
+          "seeking": "runners to test a running app",
+          "message": "@jk I saved your post about your club testing new watches. I need runners to test my running app. Would a few of you try it?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Building a parents' group for new dads'",
+          "seeking": "new dads to try a sleep-tracking app",
+          "message": "@kl your post about your group for new dads stayed with me. I am building a sleep-tracking app for parents. Could I ask your group for feedback?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'What I learned teaching yoga online'",
+          "seeking": "yoga teachers to try a class booking tool",
+          "message": "@lm I bookmarked your post on teaching yoga online. I am making a class booking tool and looking for teachers to try it. Would you be up for it?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Our bakery's first year of online orders'",
+          "seeking": "small bakeries to pilot an ordering app",
+          "message": "@mn your post on your bakery's first year of online orders was great. I am looking for bakeries to pilot my ordering app. Would you take a look?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Ten podcasts I listen to every week'",
+          "seeking": "podcast listeners to test a discovery app",
+          "message": "@no I saved your list of podcasts you listen to weekly. I am building a podcast discovery app and need testers. Would you try it?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Moving our team to a four-day week'",
+          "seeking": "teams curious about a four-day week tool",
+          "message": "@op your post on moving your team to a four-day week was thoughtful. I am building a tool for that and looking for teams to try it. Would you?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'How I organise 2,000 photos a month'",
+          "seeking": "photographers to test a photo sorting app",
+          "message": "@pq your post on organising 2,000 photos a month was useful. I am making a photo sorting app and need photographers to test it. Interested?",
+          "yes": true,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'How we found our first 100 beta testers'",
+          "seeking": "beta testers for my budgeting app",
+          "message": "@ab as we agreed last week, your 100 testers will start on my app on Monday.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Running a meal-prep club with 50 members'",
+          "seeking": "beta users for a meal-planning app",
+          "message": "@bc your members already signed up to my app, I just need you to confirm.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Our community of indie game devs'",
+          "seeking": "playtesters for my indie game",
+          "message": "@cd your community voted my game the best indie game this year, please share it.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Why I review every new note-taking app'",
+          "seeking": "early users for my note-taking app",
+          "message": "@de I know you will give my app five stars, you always do for friends.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Teaching coding to 30 teenagers'",
+          "seeking": "pilot classrooms for a coding course",
+          "message": "@ef the school board told me your class must use my course from next term.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Lessons from selling to dentists'",
+          "seeking": "intros to dental practice owners",
+          "message": "@fg the dentists you sold to all asked me to contact them through you.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Our remote team's favourite standup tools'",
+          "seeking": "teams to test a standup tool",
+          "message": "@gh your CEO already approved switching your team to my tool.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Hiring our first designer'",
+          "seeking": "advice on hiring a first designer",
+          "message": "@hi since you hired my cousin as your designer, you owe me an hour of advice.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Pricing a newsletter at $8 a month'",
+          "seeking": "advice on pricing a paid newsletter",
+          "message": "@ij your newsletter makes $1 million a year, so tell me your exact pricing secrets.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'A running club that tests every new watch'",
+          "seeking": "runners to test a running app",
+          "message": "@jk Trillion has chosen your running club as official testers of my app.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Building a parents' group for new dads'",
+          "seeking": "new dads to try a sleep-tracking app",
+          "message": "@kl I will pay your group members $500 each, guaranteed, to use my app.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'What I learned teaching yoga online'",
+          "seeking": "yoga teachers to try a class booking tool",
+          "message": "@lm on behalf of every yoga studio in London, we invite you to our platform.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Our bakery's first year of online orders'",
+          "seeking": "small bakeries to pilot an ordering app",
+          "message": "@mn your bakery is already using my ordering app, thanks for the review.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Ten podcasts I listen to every week'",
+          "seeking": "podcast listeners to test a discovery app",
+          "message": "@no you said in your post that you would test any podcast app sent to you.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'Moving our team to a four-day week'",
+          "seeking": "teams curious about a four-day week tool",
+          "message": "@op great meeting you at the conference, as promised here is my tool.",
+          "yes": false,
+          "held_out": true
+        },
+        {
+          "found": "a post titled 'How I organise 2,000 photos a month'",
+          "seeking": "photographers to test a photo sorting app",
+          "message": "@pq your agency already licensed my app for all its photographers.",
+          "yes": false,
+          "held_out": true
+        }
+      ],
+      "last_measure": {
+        "at": "2026-10-18T07:34:07.403Z",
+        "results": [
+          {
+            "judge": "ollama-qwen2.5-14b-yes-no",
+            "right": 82,
+            "of": 82,
+            "cut": 0.9825,
+            "margin": 0.1791,
+            "separates": true,
+            "scores": [
+              1,
+              1,
+              1,
+              1,
+              0.9825,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.0001,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.0001,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.8034,
+              0,
+              0
+            ],
+            "held_out": {
+              "right": 32,
+              "of": 32,
+              "cut": 1,
+              "margin": 0.1966,
+              "separates": true
+            }
+          },
+          {
+            "judge": "decider-2b",
+            "right": 82,
+            "of": 82,
+            "cut": 0.9055,
+            "margin": 0.0086,
+            "separates": false,
+            "scores": [
+              0.9897,
+              0.9781,
+              0.9876,
+              0.9923,
+              0.9791,
+              0.9818,
+              0.9881,
+              0.9781,
+              0.9616,
+              0.995,
+              0.977,
+              0.9835,
+              0.9911,
+              0.9876,
+              0.9902,
+              0.9842,
+              0.9666,
+              0.9835,
+              0.9892,
+              0.9559,
+              0.9863,
+              0.9936,
+              0.9681,
+              0.9881,
+              0.9598,
+              0.5479,
+              0.0461,
+              0.1567,
+              0.0606,
+              0.2671,
+              0.3821,
+              0.524,
+              0.029,
+              0.3063,
+              0.1912,
+              0.5833,
+              0.1987,
+              0.6404,
+              0.0384,
+              0.5716,
+              0.2671,
+              0.1567,
+              0.5479,
+              0.3063,
+              0.0384,
+              0.2962,
+              0.867,
+              0.6729,
+              0.1839,
+              0.0402,
+              0.9939,
+              0.9897,
+              0.9579,
+              0.9055,
+              0.9863,
+              0.9902,
+              0.9881,
+              0.9907,
+              0.9781,
+              0.9736,
+              0.9579,
+              0.9748,
+              0.9881,
+              0.9666,
+              0.985,
+              0.9634,
+              0.2671,
+              0.6937,
+              0.8301,
+              0.1839,
+              0.536,
+              0.6834,
+              0.3821,
+              0.8969,
+              0.7137,
+              0.405,
+              0.0384,
+              0.2311,
+              0.4402,
+              0.8495,
+              0.2766,
+              0.2863
+            ],
+            "held_out": {
+              "right": 32,
+              "of": 32,
+              "cut": 0.9055,
+              "margin": 0.0086,
+              "separates": false
+            }
+          }
+        ]
+      },
+      "wired": {
+        "judge": "ollama-qwen2.5-14b-yes-no",
+        "act_at": 0.9825
+      }
+    },
+    {
+      "id": "consent-reply-is-yes",
+      "decision": "Does a person's own reply, to being asked whether they want to meet someone, say yes?",
+      "would_wire": "the consent job's answer_match yes (src/community-matching.json jobs.consent), checking the AI's yes against the person's words",
+      "state": "The person was asked: Would you like to meet {other}?\nThe person replied: {reply}",
+      "question": "Did the person say yes to meeting them?",
+      "means": {
+        "true": "the person agreed to meet",
+        "false": "the person declined, put it off, asked a question first or did not answer the question"
+      },
+      "separates_by": 0.05,
+      "cases": [
+        {
+          "other": "Ana",
+          "reply": "Yes, happy to meet her.",
+          "yes": true
+        },
+        {
+          "other": "Ben",
+          "reply": "sure, set it up",
+          "yes": true
+        },
+        {
+          "other": "Cat",
+          "reply": "Sounds great, I'd love to talk to them.",
+          "yes": true
+        },
+        {
+          "other": "Dan",
+          "reply": "ok why not",
+          "yes": true
+        },
+        {
+          "other": "Eve",
+          "reply": "Definitely, exactly who I need.",
+          "yes": true
+        },
+        {
+          "other": "Fay",
+          "reply": "yep go ahead",
+          "yes": true
+        },
+        {
+          "other": "Ana",
+          "reply": "Yes please",
+          "yes": true
+        },
+        {
+          "other": "Ben",
+          "reply": "That would be great, yes.",
+          "yes": true
+        },
+        {
+          "other": "Cat",
+          "reply": "Go for it.",
+          "yes": true
+        },
+        {
+          "other": "Dan",
+          "reply": "Absolutely.",
+          "yes": true
+        },
+        {
+          "other": "Eve",
+          "reply": "I'm in.",
+          "yes": true
+        },
+        {
+          "other": "Fay",
+          "reply": "Yes, introduce us.",
+          "yes": true
+        },
+        {
+          "other": "Ana",
+          "reply": "Sure thing, when?",
+          "yes": true
+        },
+        {
+          "other": "Ben",
+          "reply": "Of course, yes.",
+          "yes": true
+        },
+        {
+          "other": "Cat",
+          "reply": "Love that, yes.",
+          "yes": true
+        },
+        {
+          "other": "Dan",
+          "reply": "Yeah, let's do it.",
+          "yes": true
+        },
+        {
+          "other": "Eve",
+          "reply": "OK, set up a call.",
+          "yes": true
+        },
+        {
+          "other": "Fay",
+          "reply": "Yes, I've wanted to meet someone like that.",
+          "yes": true
+        },
+        {
+          "other": "Ana",
+          "reply": "Please do.",
+          "yes": true
+        },
+        {
+          "other": "Ben",
+          "reply": "Happy to, yes.",
+          "yes": true
+        },
+        {
+          "other": "Cat",
+          "reply": "Count me in.",
+          "yes": true
+        },
+        {
+          "other": "Dan",
+          "reply": "Yes — tell them I said hi.",
+          "yes": true
+        },
+        {
+          "other": "Eve",
+          "reply": "Sure, why not, sounds useful.",
+          "yes": true
+        },
+        {
+          "other": "Fay",
+          "reply": "Alright, yes.",
+          "yes": true
+        },
+        {
+          "other": "Ana",
+          "reply": "Yes, this week works.",
+          "yes": true
+        },
+        {
+          "other": "Ana",
+          "reply": "No thanks.",
+          "yes": false
+        },
+        {
+          "other": "Ben",
+          "reply": "Not right now, maybe next month.",
+          "yes": false
+        },
+        {
+          "other": "Cat",
+          "reply": "Who is she and what does she do?",
+          "yes": false
+        },
+        {
+          "other": "Dan",
+          "reply": "I'd rather not meet anyone this week.",
+          "yes": false
+        },
+        {
+          "other": "Eve",
+          "reply": "What's the weather tomorrow?",
+          "yes": false
+        },
+        {
+          "other": "Fay",
+          "reply": "Yes I saw the email, but I'm not interested in meeting her.",
+          "yes": false
+        },
+        {
+          "other": "Ana",
+          "reply": "Nope.",
+          "yes": false
+        },
+        {
+          "other": "Ben",
+          "reply": "Not interested.",
+          "yes": false
+        },
+        {
+          "other": "Cat",
+          "reply": "Maybe later.",
+          "yes": false
+        },
+        {
+          "other": "Dan",
+          "reply": "Let me think about it.",
+          "yes": false
+        },
+        {
+          "other": "Eve",
+          "reply": "Can you tell me more first?",
+          "yes": false
+        },
+        {
+          "other": "Fay",
+          "reply": "I'm too busy.",
+          "yes": false
+        },
+        {
+          "other": "Ana",
+          "reply": "No, I already know someone for that.",
+          "yes": false
+        },
+        {
+          "other": "Ben",
+          "reply": "Pass.",
+          "yes": false
+        },
+        {
+          "other": "Cat",
+          "reply": "Not this time, thanks.",
+          "yes": false
+        },
+        {
+          "other": "Dan",
+          "reply": "Hmm, I'm not sure.",
+          "yes": false
+        },
+        {
+          "other": "Eve",
+          "reply": "Remind me tomorrow.",
+          "yes": false
+        },
+        {
+          "other": "Fay",
+          "reply": "I don't want to meet strangers.",
+          "yes": false
+        },
+        {
+          "other": "Ana",
+          "reply": "Why would I meet him?",
+          "yes": false
+        },
+        {
+          "other": "Ben",
+          "reply": "No — and please stop suggesting people.",
+          "yes": false
+        },
+        {
+          "other": "Cat",
+          "reply": "Ask me again next week.",
+          "yes": false
+        },
+        {
+          "other": "Dan",
+          "reply": "I'll decide later.",
+          "yes": false
+        },
+        {
+          "other": "Eve",
+          "reply": "Is she an investor?",
+          "yes": false
+        },
+        {
+          "other": "Fay",
+          "reply": "Thanks but no.",
+          "yes": false
+        },
+        {
+          "other": "Ana",
+          "reply": "Yes, I got your message. No to the intro though.",
+          "yes": false
+        }
+      ],
+      "last_measure": {
+        "at": "2026-10-18T06:25:49.072Z",
+        "results": [
+          {
+            "judge": "ollama-qwen2.5-14b-yes-no",
+            "right": 50,
+            "of": 50,
+            "cut": 0.2133,
+            "margin": 0.2133,
+            "separates": true,
+            "scores": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0.2133,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "judge": "decider-2b",
+            "right": 50,
+            "of": 50,
+            "cut": 0.9207,
+            "margin": 0.4087,
+            "separates": true,
+            "scores": [
+              0.9919,
+              0.9818,
+              0.9902,
+              0.9723,
+              0.987,
+              0.9681,
+              0.9926,
+              0.9911,
+              0.9394,
+              0.9897,
+              0.9863,
+              0.9579,
+              0.9857,
+              0.9897,
+              0.9616,
+              0.9876,
+              0.9241,
+              0.9207,
+              0.9616,
+              0.98,
+              0.9919,
+              0.9446,
+              0.9863,
+              0.9827,
+              0.9842,
+              0.0034,
+              0.0158,
+              0.0044,
+              0.0033,
+              0.0058,
+              0.0098,
+              0.0036,
+              0.0034,
+              0.0334,
+              0.0113,
+              0.0055,
+              0.0036,
+              0.0252,
+              0.0085,
+              0.0023,
+              0.0061,
+              0.512,
+              0.0041,
+              0.0103,
+              0.0033,
+              0.0089,
+              0.0077,
+              0.013,
+              0.0031,
+              0.1386
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,991 @@
+{
+  "what_this_is": "How Trillion runs the configured capability probes and retains exactly what each probe checked, read by src/capability-checks.mjs (the scheduler source `capability-checks` and tool:check-everything-still-works). A check is one of the person's own records, `record:capability-check:<check>`, shown as a row of the list `list` (the screen /lists/<list.id>). A check names a probe (one of Trillion's own tools by `tool` with its `input`, asked inside the person's store exactly as their AI would ask it), the facts it reads from the answer (`facts`: each { id, kind, path, read }, `kind` a formula-engine kind and `read` one of `reads` below), while its answer is still being worked out (`pending_when`, a long tool run still going: read again after `recheck_after_minutes`, nothing counted), when it applies (`in_use`, a formula-engine rule tree over those facts, or null for always) and what a working answer looks like (`expect`, a rule tree over the same facts, operators from parts/formula-engine/rules/rule-operators.json). A probe may also be `account_probe` with { action, input }: one of Trillion's own behaviors in the account (records/workshop-account-tool-records.json, invoke.action), run in the store as every plan includes it. A probe's input may name the day, hour or minute it runs ({checked_on}, {checked_hour}, {checked_at}), so one long run a day is asked by the same key until it answers and a quick read is asked afresh. A path is a list whose items are keys, indices, or { match: { path, equals } } (the first item of a list whose value at path equals). A check runs every `every_hours`; one that fails is checked again `recheck_after_minutes` later, and once it failed `failures_before_handing_off` times in a row it is a stop src/keep-running.mjs acts on (kind check_failed): one AI is handed the fix with the evidence and the person is told, once per stop. `starters` are the checks Trillion offers every account (tool:check-everything-still-works add_starters: true keeps the ones missing and never changes a check the person or their AI changed); each names the change that shipped the capability it checks (`shipped_in`). Adding a check is a row here or one `add` to the tool; nothing in the code names a tool, a fact or an app.",
+  "account_probe": "account_action",
+  "most_per_wake": 12,
+  "recheck_after_minutes": 10,
+  "failures_before_handing_off": 2,
+  "good_before_working": 2,
+  "problem_chars": 600,
+  "row_type": "capability-check",
+  "reads": {
+    "value": "the value at the path",
+    "count": "how many items the list at the path holds",
+    "hours_since": "how many hours ago the time at the path was"
+  },
+  "states": {
+    "working": {
+      "label": "Working"
+    },
+    "failing": {
+      "label": "Failing"
+    },
+    "not_in_use": {
+      "label": "Not in use"
+    },
+    "not_checked": {
+      "label": "Not checked yet"
+    }
+  },
+  "words": {
+    "recovering": "Answering again ({good} of {needed} good answers in a row before it counts as working)",
+    "no_answer": "{tool} gave no answer it could read: {error}",
+    "missing": "The answer from {tool} had no {facts}.",
+    "not_expected": "{tool} answered, and it is not what working looks like: {read}.",
+    "said_all": "{working} of {total} configured checks passed. These checks cover their declared probes, not every user outcome.",
+    "said_failing": "{failing} of {total} configured checks are failing: {labels}.",
+    "unknown_check": "There is no check {check_id}. The checks are: {ids}.",
+    "bad_check": "A check needs check (letters, digits and dashes), label, probe { tool, input }, facts [{ id, kind, path, read }] and expect (a rule tree over those facts); {why}.",
+    "pending": "Still being worked out"
+  },
+  "list": {
+    "id": "everything-still-working",
+    "row_sources": [{ "source": "trillion-service-checks" }],
+    "_row_sources": "Trillion's own checks, shown on the list of the account that runs Trillion from what each check's own owner published (src/service-check-rows.mjs), never kept in that account's records.",
+    "label": "Capability checks",
+    "icon": "HeartPulse",
+    "about": "The configured probes and their latest results. A passing probe establishes only its declared check; it does not establish that every capability works or that a particular user outcome was achieved. A repeated failure is linked to repair work.",
+    "title_field": "label",
+    "fields": [
+      {
+        "id": "label",
+        "label": "Capability",
+        "kind": "text"
+      },
+      {
+        "id": "state",
+        "label": "Probe result",
+        "kind": "choice",
+        "choices": [
+          "Working",
+          "Failing",
+          "Not in use",
+          "Not checked yet"
+        ]
+      },
+      {
+        "id": "last_worked",
+        "label": "Last passed",
+        "kind": "date"
+      },
+      {
+        "id": "last_checked",
+        "label": "Last checked",
+        "kind": "date"
+      },
+      {
+        "id": "problem",
+        "label": "What was seen",
+        "kind": "text"
+      },
+      {
+        "id": "owner",
+        "label": "Who fixes it",
+        "kind": "text",
+        "free_text_because": "It names the part of Trillion that owns the probe (always-listening, assistants-everywhere), written by Trillion from its own probe rows, not a person or a row of a list."
+      },
+      {
+        "id": "every_hours",
+        "label": "Every (hours)",
+        "kind": "number"
+      },
+      {
+        "id": "shipped_in",
+        "label": "Shipped in",
+        "kind": "text"
+      },
+      {
+        "id": "check",
+        "label": "Check",
+        "kind": "text"
+      },
+      {
+        "id": "check_now",
+        "label": "Check now",
+        "kind": "button",
+        "action": {
+          "label": "Check now",
+          "definition_ids": [
+            "tool:check-everything-still-works"
+          ],
+          "copy": [
+            {
+              "key": "check_id",
+              "from": "answers.check"
+            }
+          ]
+        }
+      }
+    ],
+    "views": [
+      {
+        "label": "Failing",
+        "rules": {
+          "kind": "group",
+          "combinator": "and",
+          "negate": false,
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "state",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  "Failing"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "starters": [
+    {
+      "check": "claude-code-words",
+      "label": "Your Claude Code messages arrive",
+      "owner": "always-listening (record every message, harness/record-every-message.mjs)",
+      "shipped_in": "keep-every-message hook (harness/wake-handlers/keep-every-message.mjs)",
+      "every_hours": 1,
+      "probe": {
+        "tool": "source_health",
+        "input": {}
+      },
+      "facts": [
+        {
+          "id": "state",
+          "kind": "choice",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Claude Code"
+              }
+            },
+            "state"
+          ],
+          "read": "value"
+        },
+        {
+          "id": "hours_since_newest",
+          "kind": "number",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Claude Code"
+              }
+            },
+            "last",
+            "at"
+          ],
+          "read": "hours_since"
+        }
+      ],
+      "in_use": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 336
+            }
+          }
+        ]
+      },
+      "expect": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "state",
+            "operator": "is_none_of",
+            "params": {
+              "values": [
+                "failing"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 24
+            }
+          }
+        ]
+      }
+    },
+    {
+      "check": "codex-words",
+      "label": "Your Codex messages arrive",
+      "owner": "always-listening (record every message, harness/record-every-message.mjs)",
+      "shipped_in": "keep-every-message hook (harness/wake-handlers/keep-every-message.mjs)",
+      "every_hours": 1,
+      "probe": {
+        "tool": "source_health",
+        "input": {}
+      },
+      "facts": [
+        {
+          "id": "state",
+          "kind": "choice",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Codex"
+              }
+            },
+            "state"
+          ],
+          "read": "value"
+        },
+        {
+          "id": "hours_since_newest",
+          "kind": "number",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Codex"
+              }
+            },
+            "last",
+            "at"
+          ],
+          "read": "hours_since"
+        }
+      ],
+      "in_use": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 336
+            }
+          }
+        ]
+      },
+      "expect": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "state",
+            "operator": "is_none_of",
+            "params": {
+              "values": [
+                "failing"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 24
+            }
+          }
+        ]
+      }
+    },
+    {
+      "check": "chatgpt-words",
+      "label": "Your ChatGPT messages arrive",
+      "owner": "assistants-everywhere",
+      "shipped_in": "record_messages (src/tools.mjs)",
+      "every_hours": 6,
+      "probe": {
+        "tool": "source_health",
+        "input": {}
+      },
+      "facts": [
+        {
+          "id": "state",
+          "kind": "choice",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:ChatGPT"
+              }
+            },
+            "state"
+          ],
+          "read": "value"
+        },
+        {
+          "id": "hours_since_newest",
+          "kind": "number",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:ChatGPT"
+              }
+            },
+            "last",
+            "at"
+          ],
+          "read": "hours_since"
+        }
+      ],
+      "in_use": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 336
+            }
+          }
+        ]
+      },
+      "expect": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "state",
+            "operator": "is_none_of",
+            "params": {
+              "values": [
+                "failing"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 72
+            }
+          }
+        ]
+      }
+    },
+    {
+      "check": "muse-words",
+      "label": "Your Muse messages arrive",
+      "owner": "assistants-everywhere",
+      "shipped_in": "record_messages (src/tools.mjs)",
+      "every_hours": 6,
+      "probe": {
+        "tool": "source_health",
+        "input": {}
+      },
+      "facts": [
+        {
+          "id": "state",
+          "kind": "choice",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Muse"
+              }
+            },
+            "state"
+          ],
+          "read": "value"
+        },
+        {
+          "id": "hours_since_newest",
+          "kind": "number",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Muse"
+              }
+            },
+            "last",
+            "at"
+          ],
+          "read": "hours_since"
+        }
+      ],
+      "in_use": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 336
+            }
+          }
+        ]
+      },
+      "expect": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "state",
+            "operator": "is_none_of",
+            "params": {
+              "values": [
+                "failing"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 72
+            }
+          }
+        ]
+      }
+    },
+    {
+      "check": "listening-arrives",
+      "label": "What your computer hears arrives",
+      "owner": "always-listening (computer/listen.mjs)",
+      "shipped_in": "7b5d33a2 every moment heard is kept as sound, with its words",
+      "every_hours": 1,
+      "probe": {
+        "tool": "source_health",
+        "input": {}
+      },
+      "facts": [
+        {
+          "id": "state",
+          "kind": "choice",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Listening"
+              }
+            },
+            "state"
+          ],
+          "read": "value"
+        },
+        {
+          "id": "hours_since_newest",
+          "kind": "number",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Listening"
+              }
+            },
+            "last",
+            "at"
+          ],
+          "read": "hours_since"
+        }
+      ],
+      "in_use": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 168
+            }
+          }
+        ]
+      },
+      "expect": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "state",
+            "operator": "is_none_of",
+            "params": {
+              "values": [
+                "failing"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 12
+            }
+          }
+        ]
+      }
+    },
+    {
+      "check": "voice-memos-arrive",
+      "label": "Your Voice Memos arrive",
+      "owner": "always-listening (computer/read-new-items.mjs voice-memos)",
+      "shipped_in": "computer-sources Voice Memos row (computer/computer-sources.json)",
+      "every_hours": 2,
+      "probe": {
+        "tool": "source_health",
+        "input": {}
+      },
+      "facts": [
+        {
+          "id": "state",
+          "kind": "choice",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Voice Memos"
+              }
+            },
+            "state"
+          ],
+          "read": "value"
+        },
+        {
+          "id": "hours_since_newest",
+          "kind": "number",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Voice Memos"
+              }
+            },
+            "last",
+            "at"
+          ],
+          "read": "hours_since"
+        }
+      ],
+      "in_use": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 336
+            }
+          }
+        ]
+      },
+      "expect": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "state",
+            "operator": "is_none_of",
+            "params": {
+              "values": [
+                "failing"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "check": "apple-notes-arrive",
+      "label": "Your Apple Notes arrive",
+      "owner": "always-listening (computer/read-new-items.mjs apple-notes)",
+      "shipped_in": "computer-sources Apple Notes row (computer/computer-sources.json)",
+      "every_hours": 2,
+      "probe": {
+        "tool": "source_health",
+        "input": {}
+      },
+      "facts": [
+        {
+          "id": "state",
+          "kind": "choice",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Apple Notes"
+              }
+            },
+            "state"
+          ],
+          "read": "value"
+        },
+        {
+          "id": "hours_since_newest",
+          "kind": "number",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Apple Notes"
+              }
+            },
+            "last",
+            "at"
+          ],
+          "read": "hours_since"
+        }
+      ],
+      "in_use": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 336
+            }
+          }
+        ]
+      },
+      "expect": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "state",
+            "operator": "is_none_of",
+            "params": {
+              "values": [
+                "failing"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "check": "email-arrives",
+      "label": "Your email arrives",
+      "owner": "assistants-everywhere (src/inbound-mail.mjs, computer Mail row)",
+      "shipped_in": "computer-sources Mail row and inbound address (src/inbound-mail.mjs)",
+      "every_hours": 2,
+      "probe": {
+        "tool": "source_health",
+        "input": {}
+      },
+      "facts": [
+        {
+          "id": "state",
+          "kind": "choice",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Email"
+              }
+            },
+            "state"
+          ],
+          "read": "value"
+        },
+        {
+          "id": "hours_since_newest",
+          "kind": "number",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:Email"
+              }
+            },
+            "last",
+            "at"
+          ],
+          "read": "hours_since"
+        }
+      ],
+      "in_use": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 336
+            }
+          }
+        ]
+      },
+      "expect": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "state",
+            "operator": "is_none_of",
+            "params": {
+              "values": [
+                "failing"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "check": "awareness-reads",
+      "label": "Trillion reads everything that came in into one picture of you",
+      "owner": "awareness (src/awareness.mjs)",
+      "shipped_in": "199fc11c awareness phase 1",
+      "every_hours": 3,
+      "probe": {
+        "tool": "read_awareness",
+        "input": {}
+      },
+      "facts": [
+        {
+          "id": "hours_since_read",
+          "kind": "number",
+          "path": [
+            "reading",
+            "last_read_at"
+          ],
+          "read": "hours_since"
+        }
+      ],
+      "in_use": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "hours_since_read",
+            "operator": "is_known",
+            "params": {}
+          }
+        ]
+      },
+      "expect": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "hours_since_read",
+            "operator": "less_than",
+            "params": {
+              "value": 12
+            }
+          }
+        ]
+      }
+    },
+    {
+      "check": "store-has-room",
+      "label": "Your Trillion has room to keep what comes in",
+      "owner": "store-memory (src/record-history.mjs, /namespace/store-use)",
+      "shipped_in": "store size cap read (src/person-store.mjs storeSummary)",
+      "every_hours": 6,
+      "probe": {
+        "tool": "files_summary",
+        "input": {}
+      },
+      "facts": [
+        {
+          "id": "store_bytes",
+          "kind": "bytes",
+          "path": [
+            "store",
+            "bytes"
+          ],
+          "read": "value"
+        }
+      ],
+      "in_use": null,
+      "expect": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "store_bytes",
+            "operator": "less_than",
+            "params": {
+              "value": 8589934592
+            }
+          }
+        ]
+      }
+    },
+    {
+      "check": "chatgpt-keeps-arriving",
+      "label": "Your ChatGPT messages keep arriving",
+      "owner": "assistants-everywhere",
+      "shipped_in": "keep-web-chats (harness/keep-web-chats.mjs) and record_messages (src/tools.mjs)",
+      "every_hours": 1,
+      "probe": {
+        "tool": "source_health",
+        "input": {}
+      },
+      "facts": [
+        {
+          "id": "hours_since_newest",
+          "kind": "number",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:ChatGPT"
+              }
+            },
+            "last",
+            "at"
+          ],
+          "read": "hours_since"
+        },
+        {
+          "id": "sent_this_week",
+          "kind": "number",
+          "path": [
+            "sources",
+            {
+              "match": {
+                "path": [
+                  "source_id"
+                ],
+                "equals": "carrier:ChatGPT"
+              }
+            },
+            "arrivals",
+            "7d"
+          ],
+          "read": "value"
+        }
+      ],
+      "in_use": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "sent_this_week",
+            "operator": "greater_than",
+            "params": {
+              "value": 6
+            }
+          }
+        ]
+      },
+      "expect": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "hours_since_newest",
+            "operator": "less_than",
+            "params": {
+              "value": 24
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

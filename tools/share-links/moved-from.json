@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/link-page-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/share-links/src/link-page-tools.mjs",
+      "source_identity": "1f:79c301fe0c54dc46800b9119704eb0ff1eaeae242b06dfa46f6010b4b6e8a70d",
+      "identity": "1f:79c301fe0c54dc46800b9119704eb0ff1eaeae242b06dfa46f6010b4b6e8a70d"
+    },
+    {
+      "from": "src/link-preview-rules.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/share-links/src/link-preview-rules.json",
+      "source_identity": "1f:e11dd31081110b5391084fcd00ac1fed402a187a5dd020676679948b34ea1619",
+      "identity": "1f:e11dd31081110b5391084fcd00ac1fed402a187a5dd020676679948b34ea1619"
+    },
+    {
+      "from": "src/link-previews.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/share-links/src/link-previews.mjs",
+      "source_identity": "1f:49d584fed3acbd67bb53a8dc625a1abc34b83252b263999180a1680885cf9074",
+      "identity": "1f:500ffb1cd46f92239e41d81c689cf2ce2fd673ea208d1e6e7a2ec7754a5c174f"
+    },
+    {
+      "from": "test/link-previews.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/share-links/test/link-previews.test.mjs",
+      "source_identity": "1f:36648b4812745a2eb5e2f08e1505190aef4a0c0946ad24779fd448bc3ecef1b7",
+      "identity": "1f:36648b4812745a2eb5e2f08e1505190aef4a0c0946ad24779fd448bc3ecef1b7"
+    }
+  ]
+}

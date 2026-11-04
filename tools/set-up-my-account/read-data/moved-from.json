@@ -35,6 +35,22 @@
       "source_identity": "1f:ff05d10f2ec52e296ee5bb07efdbc630b106d7645b7a38ac3f84298ea102db68",
       "identity": "1f:ff05d10f2ec52e296ee5bb07efdbc630b106d7645b7a38ac3f84298ea102db68",
       "reused": true
+    },
+    {
+      "from": "src/workspace/conflicts.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-account/read-data/conflicts.mjs",
+      "source_identity": "1f:af7b83ef3ec87fcbead16588eb93c998ea4aad73142dca2b1c17125889c9dc5a",
+      "identity": "1f:af7b83ef3ec87fcbead16588eb93c998ea4aad73142dca2b1c17125889c9dc5a",
+      "reused": true
+    },
+    {
+      "from": "src/site-icon-url.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-account/read-data/site-icon-url.mjs",
+      "source_identity": "1f:3a1c3bcd2b97c7ac5959ca151d6339cf7ee57c8936ee71cae79ec667f2486976",
+      "identity": "1f:3a1c3bcd2b97c7ac5959ca151d6339cf7ee57c8936ee71cae79ec667f2486976",
+      "reused": true
     }
   ]
 }

@@ -1,0 +1,13 @@
+{
+  "_what": "Which builds of the page may keep working (src/client-version.mjs). `generation` is baked into each page build; the Worker answers `minimum_generation` and `lock_out_before` from the copy it was deployed with (GET /work/api/client-version, src/worker.mjs). A change that makes an older page write a shape the store no longer takes raises `generation` and `minimum_generation` together in the same change, so every tab opened before it is shown the reload screen at its next check instead of writing the old shape. `lock_out_before` (an ISO time or null) also locks out every tab opened before that moment, whatever its build. A tab checks every `check_every_ms` while it is shown and again when it is shown after being hidden for that long; a check that fails (offline, signed out, a malformed answer) never locks a tab out. `words`: what the reload screen says.",
+  "generation": 1,
+  "minimum_generation": 1,
+  "lock_out_before": null,
+  "check_every_ms": 600000,
+  "path": "/work/api/client-version",
+  "words": {
+    "title": "A newer Trillion is ready",
+    "description": "This tab was opened on an earlier version. Reload it to keep working; everything you saved is kept.",
+    "reload": "Reload"
+  }
+}

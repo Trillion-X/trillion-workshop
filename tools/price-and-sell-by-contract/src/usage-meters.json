@@ -1,0 +1,106 @@
+{
+  "comment": "What a paid plan counts and charges by use, as DATA (decision source:cnVuLXlvdXItYnVzaW5lc3Mtc3RvcmFnZS1hd2FyZS1wcmljaW5nLTIwMjYtMTAtMDM, Avery 2026-10-03: pricing must include storage; a flat plan loses money on someone keeping 18 TB; Avery 2026-10-05: $100/month per spot plus the actual usage plus a small margin, or Trillion goes bankrupt, decision source:cHJpY2luZy1hbmQtYmlsbGluZy11c2FnZS1zcG90cy1iaWxsaW5nLXNjcmVlbi1zZXR0aW5ncy0yMDI2LTEwLTA1). A meter names the `reading` its count comes from (a reading the person's store answers by name, src/person-store.mjs usageReadings: stored-bytes, work-cost; a new reading is one reader there and then any meter row can use it), how many of the read amount make one `unit` (`per_unit`), how many daily counts make one `per` of its price (`days_per`: 30 for a level kept each day and priced by the month, 1 for an amount used that day and priced per unit), the provider's `event_name` its daily count is sent under, and where its price comes from: `cost.records` reads every record of that kind at `path`, takes the `take` of them (highest: what the most expensive place Trillion keeps it costs), or `cost.unit_dollars` sets the listed base rate when the unit itself is a share of measured row usage; either way the price is that base rate times `margin`, rounded up to `round_up_cents` (a whole cent when absent) per unit per `per`. The work meter uses published marginal row rates before Cloudflare monthly allowances, so its base rate is not the provider invoice. Tests ensure prices stay above the configured base rates. `shown` says how a person reads an amount: `scale` turns units into the shown number, `before` and `after` go around it, `digits` how many places. An offer row names the meters it charges by in its own `usage` rows ({ meter, included, price_option_id, currency }): `included` units come with the plan and only what is above them is charged, counted once a day while the plan is paid for (a free trial is not charged). A usage row may name its own `margin` (a price experiment's arm testing the margin), which replaces the meter's for that offer and is never below 1, so no offer charges below its configured base rate. A subscription bought before an offer carried a usage row keeps what it bought until its next renewal (src/payment.mjs startPlanUsage), and each paying account's store sends its counts once a day through the operator account's `tool` (src/plan-usage.mjs). Adding a metered resource is one row here and one usage row on an offer: AI apps as paid members, like people, are one reader (the apps connected that day) and one row with its price, put on the offers that sell them. Team seats (offer:trillion-team, not for sale) carry no usage row, so a seat holder's files are not counted. Each agreement keeps its last `history_days` counted days (readings by name) so Billing can draw them. A meter's `words` may name `{cost}` (the listed base rate for one unit) and `{margin}`, and `words.included_none` is said instead of `words.included` when a plan includes none of it, so a plan says plainly that it charges the listed base rate plus the margin, with both numbers (Avery 2026-10-05).",
+  "tool": "tool:meter-plan-usage",
+  "_retry_minutes": "How long a policy owner waits to count a day again after its count failed (src/account-control.mjs countPlanUsage); the day is kept and never counted twice (src/plan-usage.mjs).",
+  "retry_minutes": 15,
+  "_ledger_days": "How many days of an account's priced settled work its quota owner keeps (src/resource-budget-owner.mjs resource_budget_ledger, with the day's budget usage and holds): longer than any report waits, so an account no plan counts still keeps a bounded ledger; a payer's acknowledged days go sooner.",
+  "ledger_days": 35,
+  "_permit_retention_hours": "How many hours a settled permit, its events and observations are kept after it settled (src/resource-budget-owner.mjs pruneSettled): longer than a command is retried (minutes) or its stored result erased; a permit an account erasure holds is kept. Hours, not days: one account settles 600,000 a day at about 5 KB each, so a week of them overran the 10 GB store. The accounting it settled into (usage, days) is not touched.",
+  "permit_retention_hours": 6,
+  "_settle_prune_slack_minutes": "How long past permit_retention_hours a settled permit or event may sit before a settle prunes it: the quota object's alarm prunes at the retention itself, so a settle finds nothing and writes nothing, and prunes only after an alarm was missed.",
+  "settle_prune_slack_minutes": 30,
+  "_service_key_scrub_days": "How many days the service-actor key an earlier version stored is kept, once the account has a derived one (src/derived-keys.mjs), to check claims it signed; claims are made again on use, so it is dropped after this.",
+  "service_key_scrub_days": 14,
+  "_permit_prune": "How the quota object's alarm and its full-store recovery take off settled permits past that retention: alarm_pages pages of alarm_page permits (and as many events) per turn with yield_ms between them so a waiting call runs, another turn continue_ms (longer than a turn) later while old ones remain, a check every check_minutes otherwise, retry_ms after a turn that threw (the alarm keeps retention, so a settle seldom prunes).",
+  "permit_prune": { "alarm_page": 100, "alarm_pages": 3, "yield_ms": 5, "continue_ms": 2000, "check_minutes": 10, "retry_ms": 30000 },
+  "history_days": 35,
+  "meters": [
+    {
+      "id": "meter:stored-gigabytes",
+      "label": "Storage for your files",
+      "reading": "stored-bytes",
+      "unit": "GB",
+      "units_word": "of files",
+      "per_unit": 1000000000,
+      "larger_unit": {
+        "unit": "TB",
+        "units": 1000
+      },
+      "counts": "the bytes of every file this person keeps in Trillion (each stored file once, however many names it has)",
+      "event_name": "trillion_stored_gigabyte_days",
+      "per": "month",
+      "days_per": 30,
+      "cost": {
+        "records": "cloud-files.origin",
+        "path": [
+          "price",
+          "usd_per_gb_month"
+        ],
+        "take": "highest",
+        "margin": 1.3
+      },
+      "words": {
+        "included": "{included} included, then {price} per {unit} a {per} (listed storage rate {cost} + {margin})",
+        "included_none": "{price} per {unit} a {per} (listed storage rate {cost} + {margin})",
+        "checkout_note": "Includes {included} {units_word}. Storage above {included} is {price} per {unit} a {per}, counted each day once your plan is paid.",
+        "kept": "{kept} of {included} included. Above {included}, {price} per {unit} a {per}, counted each day.",
+        "kept_until_renewal": "{kept} kept. What you bought has no storage charge; from your next renewal, storage above {included} is {price} per {unit} a {per}.",
+        "kept_over": "{kept} kept: {over} above the {included} included, at {price} per {unit} a {per}, counted each day."
+      }
+    },
+    {
+      "id": "meter:service-work",
+      "label": "Work Trillion does for you",
+      "reading": "work-cost",
+      "unit": "$0.00001 of work",
+      "units_word": "of work",
+      "per_unit": 1,
+      "shown": {
+        "scale": 1e-05,
+        "before": "$",
+        "digits": 2
+      },
+      "counts": "the measured store rows for this person's work, priced at published marginal rates before Cloudflare monthly included usage (src/metered-use.json prices), counted by the store itself (src/metered-use.mjs)",
+      "event_name": "trillion_service_work_cost",
+      "per": "month",
+      "days_per": 1,
+      "cost": {
+        "unit_dollars": 1e-05,
+        "margin": 1.3,
+        "round_up_cents": 1e-06
+      },
+      "words": {
+        "included": "Work Trillion does for you, priced from measured rows at listed rates plus {margin}",
+        "checkout_note": "The work Trillion does for you is charged from measured rows at listed rates plus {margin}, counted each day once your plan is paid.",
+        "kept": "{kept} of work yesterday at the listed row rates: {charged} with the {margin} added.",
+        "kept_until_renewal": "{kept} of work yesterday. What you bought has no work charge; from your next renewal, work is charged from measured rows at listed rates plus {margin}.",
+        "kept_over": "{kept} of work yesterday at the listed row rates: {charged} with the {margin} added."
+      }
+    }
+  ],
+  "resource_pricing": {
+    "default_rule": {
+      "id": "trillion:usage-default",
+      "label": "Service usage markup",
+      "scope": {},
+      "effective_at": "2026-10-31T00:00:00Z",
+      "markup_percent": "30"
+    },
+    "resources": [
+      {
+        "id": "meter:stored-gigabytes",
+        "label": "Storage"
+      },
+      {
+        "id": "meter:service-work",
+        "label": "Service work"
+      },
+      {
+        "id": "resource:source-bytes",
+        "label": "Source bytes read, including byte streaming",
+        "default_included_units": "0",
+        "unit": "source-byte"
+      }
+    ]
+  }
+}
