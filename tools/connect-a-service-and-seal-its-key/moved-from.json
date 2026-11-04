@@ -13,6 +13,13 @@
   ],
   "files": [
     {
+      "from": "src/held-sends.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/held-sends.json",
+      "source_identity": "1f:d44be7de2969c27fc64f3906b4762818d1efca03594fb84b75e03fcb05213acb",
+      "identity": "1f:d44be7de2969c27fc64f3906b4762818d1efca03594fb84b75e03fcb05213acb"
+    },
+    {
       "from": "parts/service-connections/do-work/connect-service.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/connect-a-service-and-seal-its-key/do-work/connect-service.ts",

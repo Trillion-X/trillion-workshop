@@ -11,6 +11,14 @@
       "source_identity": "1f:040e093b61e7aa894eee20862369ce50148e2f4f0ef21febb3363cb3d01eddf1",
       "identity": "1f:040e093b61e7aa894eee20862369ce50148e2f4f0ef21febb3363cb3d01eddf1",
       "reused": true
+    },
+    {
+      "from": "parts/live-namespace/do-work/shared-file-reference.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/shared-file-reference.mjs",
+      "source_identity": "1f:85a38373a91e16c6db6b8f52bdfba35256346e80e7b9b521e240dc17be0c8d9c",
+      "identity": "1f:85a38373a91e16c6db6b8f52bdfba35256346e80e7b9b521e240dc17be0c8d9c",
+      "reused": true
     }
   ]
 }

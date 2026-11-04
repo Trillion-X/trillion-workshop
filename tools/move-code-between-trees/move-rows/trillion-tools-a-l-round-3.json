@@ -302,13 +302,6 @@
       "to": "tools/carry-an-account-into-its-own-records"
     },
     {
-      "id": "carry-an-account-into-its-own-records::duplicate-work-fold.mjs",
-      "owner": [
-        "src/duplicate-work-fold.mjs"
-      ],
-      "to": "tools/carry-an-account-into-its-own-records"
-    },
-    {
       "id": "carry-an-account-into-its-own-records::growth-admission.mjs",
       "owner": [
         "src/growth-admission.mjs"

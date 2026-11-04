@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/automation-guards.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-rules-and-schedules-by-themselves/src/automation-guards.json",
+      "source_identity": "1f:2059daf17268b7b0255dd1e9c8911b049c837d11bf23a96acc5b2f2f5e2b00b7",
+      "identity": "1f:2059daf17268b7b0255dd1e9c8911b049c837d11bf23a96acc5b2f2f5e2b00b7"
+    },
+    {
+      "from": "src/automation-health-looks.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-rules-and-schedules-by-themselves/src/automation-health-looks.json",
+      "source_identity": "1f:ae5bf3507cfd6fe2d11b5be4a60a1cddb385f004a8eb64661bb6456f502a85a4",
+      "identity": "1f:ae5bf3507cfd6fe2d11b5be4a60a1cddb385f004a8eb64661bb6456f502a85a4"
+    },
+    {
+      "from": "src/automation-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-rules-and-schedules-by-themselves/src/automation-tools.mjs",
+      "source_identity": "1f:dd1bfa9226f0c33cd6c59eda9a6a9e3515ad83ed11bbda8ebccb6f5a334b4428",
+      "identity": "1f:d19a780b3c3c453935a798a396b82d2bb724ffd27de1e919a85f9da374f6aef2"
+    },
+    {
+      "from": "src/compare-readings.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-rules-and-schedules-by-themselves/src/compare-readings.mjs",
+      "source_identity": "1f:cfb2e9744c670511983a0515bfb4399a78637d951dbad258ec2f63ffd9f15c71",
+      "identity": "1f:cfb2e9744c670511983a0515bfb4399a78637d951dbad258ec2f63ffd9f15c71"
+    },
+    {
+      "from": "test/events-continuity.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-rules-and-schedules-by-themselves/test/events-continuity.test.mjs",
+      "source_identity": "1f:53532163431b2c2605f33ad56096bbeb6f1c6535ee166ffee91f1ec8785e7313",
+      "identity": "1f:9df40f0c4fcb9383e3ddc96e65d34e3b93002170895c9da6e0cc1163670cabc2"
+    }
+  ]
+}

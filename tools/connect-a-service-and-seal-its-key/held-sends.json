@@ -1,0 +1,22 @@
+{
+  "_what": "A send that waits a short while so the person can take it back (src/held-sends.mjs): an email, a message to an audience, a share, anything a Marketplace tool or workflow sends. `then` is what runs, exactly as set_schedule names it ({ tool_id, input } or { workflow_id, input }); it is run by the person's own schedules at send time, so a held send is retried, shown and recorded like any schedule. `undo_seconds` is how long it waits; `default_undo_seconds` when the caller gives none and `least_undo_seconds`/`most_undo_seconds` bound it. A held send's schedule id begins with `schedule_prefix`, followed by the token; the token is the cancel handle. `words` are every sentence the person or their AI reads.",
+  "schedule_prefix": "held-send-",
+  "default_undo_seconds": 20,
+  "least_undo_seconds": 5,
+  "most_undo_seconds": 900,
+  "label_chars": 80,
+  "states": {
+    "held": "Waiting; it can still be taken back until {until}.",
+    "sent": "It went out at {at}.",
+    "cancelled": "It was taken back and was never sent."
+  },
+  "words": {
+    "held": "Held. It goes out at {until}; take it back before then with cancel_held_send.",
+    "cancelled": "Taken back. It was never sent.",
+    "too_late": "It already went out at {at}, so it cannot be taken back.",
+    "unknown": "There is no held send {token}. list_held_sends shows the ones waiting or recently sent.",
+    "bad_then": "Name what to send: then is { tool_id, input } or { workflow_id, input }.",
+    "bad_seconds": "undo_seconds is a whole number from {least} to {most}.",
+    "bad_token": "Give the token held_send returned."
+  }
+}
