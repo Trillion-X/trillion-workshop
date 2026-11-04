@@ -2,7 +2,9 @@
 // the bearer capability and its rights, pages lists, and can answer busy or as an event stream, the way the engine's
 // door does (tools/records-door/README.md, the contract). Given `files` ({ name: text }) and a files right, it is also
 // the run's files door: the descriptor names `files_resource`, and list_files and read_file answer from those made-up
-// files under the right's folder, a file's identity being the BLAKE3 identity of its bytes. Given `usageDays` (the engine's
+// files under the right's folder, a file's identity being the BLAKE3 identity of its bytes. `pageBytes` cuts a list
+// page as the engine's door does, at the rows whose JSON fits (at least one, with a next while more remain), and
+// `mostRequestBytes` refuses a request body over it with 413, as the door refuses one over its message. Given `usageDays` (the engine's
 // usage day rows, { day, stored_bytes, source_bytes_read, work_ms }, made up) and a files right to usage_days, it
 // answers usage_days the way the engine's files door pages them: { days, next_after, stored_bytes_now }. find_file
 // finds a made-up file by name or identity, and write_file_start / _piece / _finish keep a file sent in pieces under
@@ -20,9 +22,15 @@ const WRITE_CAP = 256;
 const FILES_RESOURCE = '@own-files';
 const FILE_SPAN = 65_536;
 
-export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false } = {}) {
+export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null } = {}) {
   const capability = 'run_fake_capability';
-  const kept = new Map(records.map(record => [record.id, record]));
+  // The ids of each kind, sorted once for every page of a list until anything kept changes (a test may change it too).
+  const sorted = new Map();
+  const kept = new (class extends Map {
+    set(id, record) { sorted.clear(); return super.set(id, record); }
+    delete(id) { sorted.clear(); return super.delete(id); }
+    clear() { sorted.clear(); return super.clear(); }
+  })(records.map(record => [record.id, record]));
   const receipts = new Map();
   const calls = [];
   let busy = busyFirst;
@@ -58,14 +66,29 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
     'records:list': ({ type, prefix, order, limit = 50, after, fields, where, above, below, reverse = true }) => {
       if (!may(type, 'records:list', { prefix, order })) return refuse(OUTSIDE);
       if (!order && !reverse) return refuse('original_input_refused');
-      const ids = [...kept.values()].filter(record => record.type === type && (!prefix || record.id.startsWith(prefix)) && (above === undefined || record.id > above) && (below === undefined || record.id < below)).map(record => record.id).sort().reverse();
+      if (!sorted.has(type)) sorted.set(type, [...kept.values()].filter(record => record.type === type).map(record => record.id).sort().reverse());
+      const ids = sorted.get(type).filter(id => (!prefix || id.startsWith(prefix)) && (above === undefined || id > above) && (below === undefined || id < below));
       const from = after === undefined ? 0 : ids.indexOf(after) + 1;
-      const size = Math.min(limit, pageCut ?? limit);
-      const page = ids.slice(from, from + size);
-      const next = from + size < ids.length ? page.at(-1) : null;
+      let size = Math.min(limit, pageCut ?? limit);
       const matches = record => !where || Object.entries(where).every(([name, value]) => JSON.stringify(record.value?.[name]) === JSON.stringify(value));
       const shown = record => (fields ? { id: record.id, type: record.type, ...(fields.length ? { value: Object.fromEntries(fields.filter(name => name in (record.value ?? {})).map(name => [name, record.value[name]])) } : {}) } : record);
-      return { structuredContent: { records: page.map(id => kept.get(id)).filter(matches).map(shown), next } };
+      const rows = [];
+      if (pageBytes) {
+        // The rows read stop where the shown rows' JSON would pass the page's bytes (at least one row is read).
+        let held = 0, read = 0;
+        for (const id of ids.slice(from, from + size)) {
+          const record = kept.get(id);
+          const one = matches(record) ? shown(record) : null;
+          const cost = one ? JSON.stringify(one).length + 1 : 0;
+          if (read && held + cost > pageBytes) break;
+          read += 1; held += cost;
+          if (one) rows.push(one);
+        }
+        size = read;
+      }
+      const page = ids.slice(from, from + size);
+      const next = from + size < ids.length ? page.at(-1) : null;
+      return { structuredContent: { records: pageBytes ? rows : page.map(id => kept.get(id)).filter(matches).map(shown), next } };
     },
     // The records of the one kind a run may search that hold every asked word (an asked word starts a word of the text),
     // ranked 1 / (60 + rank), each with the records:read that opens it, the way the engine's records:search answers.
@@ -174,7 +197,9 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
     const chunks = [];
     request.on('data', chunk => chunks.push(chunk));
     request.on('end', () => {
-      const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      const sent = Buffer.concat(chunks);
+      if (mostRequestBytes && sent.length > mostRequestBytes) { calls.push({ refused_bytes: sent.length }); reply.writeHead(413).end(); return; }
+      const body = JSON.parse(sent.toString('utf8'));
       const args = body.params?.arguments ?? {};
       calls.push({ method: args.method, input: args.input, key: args.request_key, authorization: request.headers.authorization, protocol: request.headers['mcp-protocol-version'] });
       if (busy > 0) { busy -= 1; reply.writeHead(503).end(); return; }
