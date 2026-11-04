@@ -31,7 +31,10 @@ for(const count of [574,420,456])test(`declared30fps image sequence retains all$
  assert.equal(Number(probe.streams[0].nb_frames),count);
  assert.equal(decoded.length,count*3,'every declared real frame must decode');
  assert.equal(probe.streams[0].r_frame_rate,'30/1');
- assert.ok(Math.abs(Number(probe.streams[0].duration)-duration)<.000001);
+ // The frame count is pinned exactly above (nb_frames and every decoded frame); the stream's stated duration is the
+ // muxer's arithmetic on its time base, which moves between ffmpeg releases (6.1 states 19.112305 s for 574 frames
+ // that 7.x states as 19.133333 s), so it must only land within one frame of count/30.
+ assert.ok(Math.abs(Number(probe.streams[0].duration)-duration)<1/30,`stream duration ${probe.streams[0].duration} s is more than one frame from ${duration} s`);
  assert.ok(result.first[2]>220&&result.first[0]<30&&result.first[1]<30,'first actual source frame is blue');
  assert.ok(result.last[1]>220&&result.last[0]<30&&result.last[2]<30,'last actual source frame is green, not a repeated preceding red frame');
  t.diagnostic(join(dir,'readback.json'));
