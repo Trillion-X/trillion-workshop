@@ -14,7 +14,7 @@
 // - Refusing is the default: an address that cannot be parsed, or a host that cannot be read, is not public.
 
 import rules from './public-address.json' with { type: 'json' };
-import { hostWithin } from './same-origin.mjs';
+import { hostWithin } from '../http-client/do-work/same-origin.mjs';
 
 export class NotPublicAddress extends Error {}
 
