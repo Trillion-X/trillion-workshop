@@ -1,0 +1,1045 @@
+{
+ "id": "move:trillion-amie-to-apps",
+ "about": "The Amie rebuild (mail pane, shared calendar, task pane and task views, month cards, visual database views; Sep 27 to Nov 3 2026) left files in Trillion-X/trillion that no new tree held: every file at the tag old-trillion-before-worker-retire touched by a commit whose message names amie, shared calendar, mail pane, visual database, task pane or month card, that is not a row of trillion-workshop docs/worker-retirement-port-backlog.json and has no same-bytes, receipt or same-name home on trillion-apps, trillion-workshop or trillion-rust main. The screen side (the screens' tests, the Amie reference and its pixel index, the client's dev scripts and their data) moves byte for byte into trillion-apps web/ under its source paths; the two account features go to the Workshop (move-rows/trillion-amie-to-workshop.json). keep: the old Worker's stores (parts/eeaf, parts/record-log: storage is trillion-rust's) and every file a port backlog slice still owns (src/contract-*.mjs, src/native-workspace-record-reader.mjs, src/engine-tools.mjs, src/getting-there.*, src/who-does-it.*, src/work-marketplace.mjs, scripts/workshop-rows.mjs, ...): a test that imports one is held until that slice lands. read_as_rows: a file trillion-apps main already holds at the same place with newer bytes (web/package.json, web/scripts/compiled-modules.mjs, web/scripts/screen-modules.mjs, show-of.ts, placeable-surface-record.ts) is not copied: the moved file reads that copy. A file whose home is in the Workshop (wall-time.ts, ask-your-ai.mjs, configurations.mjs, open-choices.json, json-expansion.mjs, loading-mark) is not copied: the moved file imports it from the trillion-workshop package (import paths only). test/engine-tools-for-tests.mjs is not followed: the engines are trillion-rust's, and the stand-in reaches them only when a test runs one. wrangler.jsonc moves as data: test/workers-stand-in-for-tests.mjs reads its Durable Object binding names.",
+ "source": {
+  "name": "Trillion-X/trillion",
+  "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+  "test_folders": [
+   "test"
+  ]
+ },
+ "destination": {
+  "name": "Trillion-X/trillion-apps",
+  "package": "trillion-apps",
+  "shared_folder": "web"
+ },
+ "keep": [
+  "src/chat-import.mjs",
+  "src/chat-archives.mjs",
+  "src/ai-conversations-list.json",
+  "parts/record-log/**",
+  "parts/eeaf/**",
+  "src/contract-checkout.mjs",
+  "src/contract-entitlements.mjs",
+  "src/native-workspace-record-reader.mjs",
+  "parts/ui/show/coss/ui/toast.tsx",
+  "scripts/tool-bundles.mjs",
+  "scripts/workshop-rows.mjs",
+  "src/automation-health-looks.json",
+  "src/automation-health.mjs",
+  "src/built-in-tools.mjs",
+  "src/compare-readings.mjs",
+  "src/engine-tools.mjs",
+  "src/getting-there.json",
+  "src/getting-there.mjs",
+  "src/rules-over-records.mjs",
+  "src/who-does-it.json",
+  "src/who-does-it.mjs",
+  "src/work-marketplace.mjs",
+  "src/workflow-definition-runner.mjs"
+ ],
+ "provider_calls": [
+  {
+   "id": "durable-object",
+   "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+  },
+  {
+   "id": "kv",
+   "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+  }
+ ],
+ "calls": [],
+ "groups": [
+  {
+   "id": "docs-amie-rebuild-reference-md",
+   "owner": [
+    "docs/amie-rebuild-reference.md"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "docs-amie-reference-pixel-index-json",
+   "owner": [
+    "docs/amie-reference-pixel-index.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "parts-group-do-work-layout-producer-drafts-test-ts",
+   "owner": [
+    "parts/group/do-work/layout-producer-drafts.test.ts"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "parts-record-audio-do-work-meeting-join-recording-test-ts",
+   "owner": [
+    "parts/record-audio/do-work/meeting-join-recording.test.ts"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "parts-record-audio-tests-record-audio-backend-proof-mjs",
+   "owner": [
+    "parts/record-audio/tests/record-audio-backend-proof.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "parts-record-audio-tests-recording-condition-formula-test-mjs",
+   "owner": [
+    "parts/record-audio/tests/recording-condition-formula.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-check-lane-publish-backlog-mjs",
+   "owner": [
+    "scripts/check-lane-publish-backlog.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-make-icon-mjs",
+   "owner": [
+    "scripts/make-icon.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-narrow-widths-json",
+   "owner": [
+    "scripts/narrow-widths.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-port-sources-json",
+   "owner": [
+    "scripts/port-sources.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "src-calendar-actions-mjs",
+   "owner": [
+    "src/calendar-actions.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "src-calendar-task-views-d-mts",
+   "owner": [
+    "src/calendar-task-views.d.mts"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-account-screens-test-mjs",
+   "owner": [
+    "test/account-screens.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-activity-trace-bounds-test-mjs",
+   "owner": [
+    "test/activity-trace-bounds.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-addressed-cell-read-projection-test-mjs",
+   "owner": [
+    "test/addressed-cell-read-projection.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-amie-calendar-page-for-tests-mjs",
+   "owner": [
+    "test/amie-calendar-page-for-tests.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-amie-integrations-test-mjs",
+   "owner": [
+    "test/amie-integrations.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-amie-workspace-browser-test-mjs",
+   "owner": [
+    "test/amie-workspace-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-amie-workspace-test-mjs",
+   "owner": [
+    "test/amie-workspace.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-article-minimap-test-mjs",
+   "owner": [
+    "test/article-minimap.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-automations-shows-yours-test-mjs",
+   "owner": [
+    "test/automations-shows-yours.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-board-keep-winner-test-mjs",
+   "owner": [
+    "test/board-keep-winner.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-board-undo-history-test-mjs",
+   "owner": [
+    "test/board-undo-history.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-browser-json-fields-test-mjs",
+   "owner": [
+    "test/browser-json-fields.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-calcom-test-mjs",
+   "owner": [
+    "test/calcom.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-calendar-actions-test-mjs",
+   "owner": [
+    "test/calendar-actions.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-calendar-connections-test-mjs",
+   "owner": [
+    "test/calendar-connections.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-calendar-sharing-browser-test-mjs",
+   "owner": [
+    "test/calendar-sharing-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-calendar-task-messages-test-mjs",
+   "owner": [
+    "test/calendar-task-messages.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-calendar-task-recurrence-scheduler-test-mjs",
+   "owner": [
+    "test/calendar-task-recurrence-scheduler.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-calendar-task-recurrence-test-mjs",
+   "owner": [
+    "test/calendar-task-recurrence.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-calendar-task-verbs-test-mjs",
+   "owner": [
+    "test/calendar-task-verbs.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-calendar-tasks-amie-test-mjs",
+   "owner": [
+    "test/calendar-tasks-amie.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-calendar-tasks-test-mjs",
+   "owner": [
+    "test/calendar-tasks.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-checklist-heading-records-test-mjs",
+   "owner": [
+    "test/checklist-heading-records.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-choice-tile-copy-failure-test-mjs",
+   "owner": [
+    "test/choice-tile-copy-failure.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-command-palette-find-anything-test-mjs",
+   "owner": [
+    "test/command-palette-find-anything.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-configuration-route-propagation-test-mjs",
+   "owner": [
+    "test/configuration-route-propagation.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-connection-capability-choices-test-mjs",
+   "owner": [
+    "test/connection-capability-choices.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-connection-screen-records-test-mjs",
+   "owner": [
+    "test/connection-screen-records.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-connector-colour-undo-test-mjs",
+   "owner": [
+    "test/connector-colour-undo.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-container-selection-one-look-test-mjs",
+   "owner": [
+    "test/container-selection-one-look.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-contract-checkout-trial-test-mjs",
+   "owner": [
+    "test/contract-checkout-trial.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-designed-views-body-from-notes-test-mjs",
+   "owner": [
+    "test/designed-views-body-from-notes.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-document-heading-anchors-test-mjs",
+   "owner": [
+    "test/document-heading-anchors.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-dynamic-list-indexes-test-mjs",
+   "owner": [
+    "test/dynamic-list-indexes.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-every-list-views-browser-test-mjs",
+   "owner": [
+    "test/every-list-views-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-every-screen-has-its-states-test-mjs",
+   "owner": [
+    "test/every-screen-has-its-states.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-execution-boundary-test-mjs",
+   "owner": [
+    "test/execution-boundary.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-execution-references-test-mjs",
+   "owner": [
+    "test/execution-references.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-file-card-one-info-disclosure-test-mjs",
+   "owner": [
+    "test/file-card-one-info-disclosure.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-file-presentation-browser-test-mjs",
+   "owner": [
+    "test/file-presentation-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-gmail-email-test-mjs",
+   "owner": [
+    "test/gmail-email.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-google-account-thread-contract-test-mjs",
+   "owner": [
+    "test/google-account-thread-contract.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-google-calendar-test-mjs",
+   "owner": [
+    "test/google-calendar.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-guide-learn-more-browser-test-mjs",
+   "owner": [
+    "test/guide-learn-more-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-keymap-settings-browser-test-mjs",
+   "owner": [
+    "test/keymap-settings-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-list-checklist-tasks-test-mjs",
+   "owner": [
+    "test/list-checklist-tasks.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-listening-intent-says-real-outcome-test-mjs",
+   "owner": [
+    "test/listening-intent-says-real-outcome.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-lists-ordering-test-mjs",
+   "owner": [
+    "test/lists-ordering.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-lists-test-mjs",
+   "owner": [
+    "test/lists.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-local-access-test-mjs",
+   "owner": [
+    "test/local-access.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-look-font-fallback-test-mjs",
+   "owner": [
+    "test/look-font-fallback.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-machine-gate-test-mjs",
+   "owner": [
+    "test/machine-gate.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-mail-actions-browser-test-mjs",
+   "owner": [
+    "test/mail-actions-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-make-panel-test-mjs",
+   "owner": [
+    "test/make-panel.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-meeting-recording-runtime-test-mjs",
+   "owner": [
+    "test/meeting-recording-runtime.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-meeting-recording-start-browser-test-mjs",
+   "owner": [
+    "test/meeting-recording-start-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-meeting-search-test-mjs",
+   "owner": [
+    "test/meeting-search.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-meeting-settings-test-mjs",
+   "owner": [
+    "test/meeting-settings.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-message-box-layer-test-mjs",
+   "owner": [
+    "test/message-box-layer.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-message-task-canvas-test-mjs",
+   "owner": [
+    "test/message-task-canvas.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-message-tasks-screen-browser-test-mjs",
+   "owner": [
+    "test/message-tasks-screen-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-message-tasks-test-mjs",
+   "owner": [
+    "test/message-tasks.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-namespace-resource-owner-test-mjs",
+   "owner": [
+    "test/namespace-resource-owner.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-namespace-results-test-mjs",
+   "owner": [
+    "test/namespace-results.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-native-record-sharing-test-mjs",
+   "owner": [
+    "test/native-record-sharing.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-native-workspace-record-reader-test-mjs",
+   "owner": [
+    "test/native-workspace-record-reader.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-no-raw-error-text-test-mjs",
+   "owner": [
+    "test/no-raw-error-text.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-pictures-view-offered-to-every-list-test-mjs",
+   "owner": [
+    "test/pictures-view-offered-to-every-list.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-public-app-installation-load-browser-test-mjs",
+   "owner": [
+    "test/public-app-installation-load-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-record-audio-screen-browser-test-mjs",
+   "owner": [
+    "test/record-audio-screen-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-record-configurations-browser-test-mjs",
+   "owner": [
+    "test/record-configurations-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-record-inspection-flow-test-mjs",
+   "owner": [
+    "test/record-inspection-flow.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-record-model-inspection-test-mjs",
+   "owner": [
+    "test/record-model-inspection.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-record-reference-budget-test-mjs",
+   "owner": [
+    "test/record-reference-budget.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-record-screen-browser-test-mjs",
+   "owner": [
+    "test/record-screen-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-record-views-caller-view-and-pause-test-mjs",
+   "owner": [
+    "test/record-views-caller-view-and-pause.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-record-views-toolbar-paint-test-mjs",
+   "owner": [
+    "test/record-views-toolbar-paint.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-record-views-whole-days-and-card-edges-test-mjs",
+   "owner": [
+    "test/record-views-whole-days-and-card-edges.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-record-views-test-mjs",
+   "owner": [
+    "test/record-views.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-recording-browser-atomic-test-mjs",
+   "owner": [
+    "test/recording-browser-atomic.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-recording-condition-formula-test-mjs",
+   "owner": [
+    "test/recording-condition-formula.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-recording-meeting-association-browser-test-mjs",
+   "owner": [
+    "test/recording-meeting-association-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-recording-note-at-start-test-mjs",
+   "owner": [
+    "test/recording-note-at-start.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-recording-widgets-browser-test-mjs",
+   "owner": [
+    "test/recording-widgets-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-recording-widgets-test-mjs",
+   "owner": [
+    "test/recording-widgets.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-region-drop-edge-browser-test-mjs",
+   "owner": [
+    "test/region-drop-edge-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-relative-date-test-mjs",
+   "owner": [
+    "test/relative-date.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-rough-connector-follows-route-test-mjs",
+   "owner": [
+    "test/rough-connector-follows-route.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-say-about-this-browser-test-mjs",
+   "owner": [
+    "test/say-about-this-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-schedule-calendar-controls-browser-test-mjs",
+   "owner": [
+    "test/schedule-calendar-controls-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-schedule-calendar-date-picker-browser-test-mjs",
+   "owner": [
+    "test/schedule-calendar-date-picker-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-schedule-calendar-keys-browser-test-mjs",
+   "owner": [
+    "test/schedule-calendar-keys-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-schedule-calendar-placement-test-mjs",
+   "owner": [
+    "test/schedule-calendar-placement.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-schedule-calendar-planner-test-mjs",
+   "owner": [
+    "test/schedule-calendar-planner.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-schedule-calendar-settings-browser-test-mjs",
+   "owner": [
+    "test/schedule-calendar-settings-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-schedule-calendar-tray-order-browser-test-mjs",
+   "owner": [
+    "test/schedule-calendar-tray-order-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-scope-focus-hydration-test-mjs",
+   "owner": [
+    "test/scope-focus-hydration.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-screen-look-save-and-wear-test-mjs",
+   "owner": [
+    "test/screen-look-save-and-wear.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-sectioned-panels-browser-test-mjs",
+   "owner": [
+    "test/sectioned-panels-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-settings-shell-browser-test-mjs",
+   "owner": [
+    "test/settings-shell-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-share-destinations-test-mjs",
+   "owner": [
+    "test/share-destinations.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-share-place-tool-rows-json",
+   "owner": [
+    "test/share-place-tool-rows.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-shared-calendar-batch-actions-browser-test-mjs",
+   "owner": [
+    "test/shared-calendar-batch-actions-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-shared-calendar-context-actions-browser-test-mjs",
+   "owner": [
+    "test/shared-calendar-context-actions-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-shared-calendar-event-properties-browser-test-mjs",
+   "owner": [
+    "test/shared-calendar-event-properties-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-shared-calendar-keys-browser-test-mjs",
+   "owner": [
+    "test/shared-calendar-keys-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-shared-calendar-mail-pane-test-mjs",
+   "owner": [
+    "test/shared-calendar-mail-pane.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-shared-calendar-screen-test-mjs",
+   "owner": [
+    "test/shared-calendar-screen.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-shared-calendar-source-menu-browser-test-mjs",
+   "owner": [
+    "test/shared-calendar-source-menu-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-shared-calendar-task-pane-browser-test-mjs",
+   "owner": [
+    "test/shared-calendar-task-pane-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-shared-calendar-task-properties-browser-test-mjs",
+   "owner": [
+    "test/shared-calendar-task-properties-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-sidebar-anywhere-test-mjs",
+   "owner": [
+    "test/sidebar-anywhere.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-sidebar-button-lifts-composer-test-mjs",
+   "owner": [
+    "test/sidebar-button-lifts-composer.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-sidebar-overlay-narrow-test-mjs",
+   "owner": [
+    "test/sidebar-overlay-narrow.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-space-calendars-test-mjs",
+   "owner": [
+    "test/space-calendars.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-strong-button-is-the-thread-test-mjs",
+   "owner": [
+    "test/strong-button-is-the-thread.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-time-cursor-pages-test-mjs",
+   "owner": [
+    "test/time-cursor-pages.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-timed-action-materialize-recurring-windows-test-ts",
+   "owner": [
+    "test/timed-action/materialize-recurring-windows.test.ts"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-visual-database-action-prompts-test-mjs",
+   "owner": [
+    "test/visual-database-action-prompts.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-visual-database-board-progress-key-test-mjs",
+   "owner": [
+    "test/visual-database-board-progress-key.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-visual-database-undo-test-mjs",
+   "owner": [
+    "test/visual-database-undo.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-work-workshop-test-mjs",
+   "owner": [
+    "test/work-workshop.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-workspace-durable-recording-update-test-mjs",
+   "owner": [
+    "test/workspace-durable-recording-update.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-workspace-recording-context-test-mjs",
+   "owner": [
+    "test/workspace-recording-context.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-workspace-recording-test-mjs",
+   "owner": [
+    "test/workspace-recording.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-workspace-settings-page-browser-test-mjs",
+   "owner": [
+    "test/workspace-settings-page-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "workers-stand-in-binding-names",
+   "owner": [
+    "wrangler.jsonc"
+   ],
+   "to": "web",
+   "capability": "the Durable Object binding names test/workers-stand-in-for-tests.mjs reads (the old Worker deploy settings, carried as test data; trillion main no longer holds them)"
+  }
+ ],
+ "read_as_rows": [
+  "records/workshop-screen-tool-records.json",
+  "package.json",
+  "scripts/compiled-modules.mjs",
+  "scripts/screen-modules.mjs",
+  "parts/ui/show/show-rules/show-of.ts",
+  "parts/ui/show/placeable-surface-intent/placeable-surface-record.ts",
+  "parts/timed-action/do-work/wall-time.ts",
+  "src/ask-your-ai.mjs",
+  "src/configurations.mjs",
+  "parts/ui/show/placeable-surface-intent/open-choices.json",
+  "parts/json-expansion.mjs",
+  "parts/ui/show/clipboard/copy-text.ts",
+  "parts/ui/show/loading-mark/index.ts",
+  "parts/ui/show/loading-mark/LoadingMark.tsx",
+  "test/engine-tools-for-tests.mjs"
+ ]
+}

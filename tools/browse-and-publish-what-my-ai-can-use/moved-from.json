@@ -10,6 +10,8 @@
       "to": "tools/browse-and-publish-what-my-ai-can-use/do-work/shelf-item.mjs",
       "source_identity": "1f:27c7bc380e08c5247bbd51440f72f9b57a7ee4fe5d325588299f7d70bc326531",
       "identity_at_move": "1f:27c7bc380e08c5247bbd51440f72f9b57a7ee4fe5d325588299f7d70bc326531",
+      "byte_copy_commit": "e119e29b65c63cf7df370970fd7cfb588f3e2b5d",
+      "port_contract": "tools/browse-and-publish-what-my-ai-can-use/ports/shelf-item.json",
       "lines": [
         45,
         147
@@ -21,6 +23,8 @@
       "to": "tools/browse-and-publish-what-my-ai-can-use/do-work/tool-title.mjs",
       "source_identity": "1f:06c52ff7e2fa4a29f9ff50bad3a7141f921caa605f3c6340c3b0825be5a9717c",
       "identity_at_move": "1f:06c52ff7e2fa4a29f9ff50bad3a7141f921caa605f3c6340c3b0825be5a9717c",
+      "byte_copy_commit": "e119e29b65c63cf7df370970fd7cfb588f3e2b5d",
+      "port_contract": "tools/browse-and-publish-what-my-ai-can-use/ports/tool-title.json",
       "lines": [
         74,
         88

@@ -1,0 +1,54 @@
+{
+ "id": "move:trillion-amie-to-workshop",
+ "about": "The two account features the Amie rebuild left only in Trillion-X/trillion, byte for byte from the tag old-trillion-before-worker-retire: finding the times every member of a space is free from each member's own calendar (src/space-calendars.mjs and its settings, which tools/hold-to-it already reads by that name) into a new library folder, and hearing one file in the person's Trillion files and keeping its transcript with word times beside it (src/account-transcription.mjs, src/transcript-words.mjs) into tools/audio-transcription. Their imports that already have a Workshop home are imported from it (import paths only). Their screens and the screens' tests go to trillion-apps (move-rows/trillion-amie-to-apps.json). test/meeting-settings.test.mjs stays out: it tests the meeting settings through the old person store and moves with the screens to trillion-apps, importing account-transcription.mjs from here.",
+ "source": {
+  "name": "Trillion-X/trillion",
+  "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+  "test_folders": [
+   "test"
+  ]
+ },
+ "destination": {
+  "name": "Trillion-X/trillion-workshop",
+  "package": "trillion-workshop",
+  "shared_folder": "tools/shared-code"
+ },
+ "keep": [
+  "parts/eeaf/**",
+  "parts/record-log/**",
+  "src/worker.mjs",
+  "test/meeting-settings.test.mjs"
+ ],
+ "provider_calls": [
+  {
+   "id": "durable-object",
+   "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+  },
+  {
+   "id": "kv",
+   "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+  }
+ ],
+ "calls": [],
+ "read_as_rows": [],
+ "groups": [
+  {
+   "id": "find-when-a-space-is-free",
+   "owner": [
+    "src/space-calendars.mjs",
+    "src/space-calendars.json"
+   ],
+   "to": "tools/find-when-a-space-is-free",
+   "capability": "find the times every member of a space is free, reading each member's busy stretches through their own account, and place a meeting a space agrees on each member's own calendar"
+  },
+  {
+   "id": "hear-a-file-in-my-account",
+   "owner": [
+    "src/account-transcription.mjs"
+   ],
+   "to": "tools/audio-transcription",
+   "joins_tool": "tools/audio-transcription hears a recording on this computer; this brings the account side: tool:transcribe-file hearing one audio or video file in the person's Trillion files (a video through its sound alone) and keeping the transcript, every word with its own seconds, beside the file, reused when it already has word timings",
+   "capability": "hear one audio or video file in my Trillion files and keep its transcript with every word's times beside it"
+  }
+ ]
+}

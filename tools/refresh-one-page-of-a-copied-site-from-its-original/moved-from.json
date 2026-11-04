@@ -19,11 +19,26 @@
       "identity": "1f:7ff83bd7eddcf0068001b1e74ff91e29b639bf5d0a8cd33d9d7b86fd0187ae48"
     },
     {
+      "from": "src/source-project-preview.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/refresh-one-page-of-a-copied-site-from-its-original/src/source-project-preview.mjs",
+      "source_identity": "1f:7ff83bd7eddcf0068001b1e74ff91e29b639bf5d0a8cd33d9d7b86fd0187ae48",
+      "identity": "1f:7ff83bd7eddcf0068001b1e74ff91e29b639bf5d0a8cd33d9d7b86fd0187ae48",
+      "reused": true
+    },
+    {
       "from": "test/public-app-route-refresh.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/refresh-one-page-of-a-copied-site-from-its-original/test/public-app-route-refresh.test.mjs",
       "source_identity": "1f:07c120d0f2f36075bc8b52b79892359a493bee5a91a71d4e446cc86e8a9142e1",
       "identity": "1f:07c120d0f2f36075bc8b52b79892359a493bee5a91a71d4e446cc86e8a9142e1"
+    },
+    {
+      "from": "test/source-project-preview.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/refresh-one-page-of-a-copied-site-from-its-original/test/source-project-preview.test.mjs",
+      "source_identity": "1f:d47ca0ea0d1f051741524383f360d2dc071b17ce0eb1ae81b3ac912e17fabf6d",
+      "identity": "1f:d47ca0ea0d1f051741524383f360d2dc071b17ce0eb1ae81b3ac912e17fabf6d"
     }
   ]
 }

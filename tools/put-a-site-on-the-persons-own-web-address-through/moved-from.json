@@ -13,10 +13,11 @@
     },
     {
       "from": "src/share-link-routing.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/put-a-site-on-the-persons-own-web-address-through/src/share-link-routing.mjs",
       "source_identity": "1f:dd56e89cc7d41f8d2b06ed5e556fa3da5ed6a9e4dcd9face7da2b3dfe6afd379",
-      "identity": "1f:28564fc2125460b35ee2328b6f28df35b7535317c35c516f0c529a0e9565a2a3"
+      "identity": "1f:28564fc2125460b35ee2328b6f28df35b7535317c35c516f0c529a0e9565a2a3",
+      "reused": true
     },
     {
       "from": "test/public-app-domain-probe-current-refusal.test.mjs",
@@ -34,7 +35,7 @@
     },
     {
       "from": "test/share-link-routing.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/put-a-site-on-the-persons-own-web-address-through/test/share-link-routing.test.mjs",
       "source_identity": "1f:948aebcdefa86e657d02b8c184feb33d7d4991e5dd065c76ced949a5bf13a968",
       "identity": "1f:948aebcdefa86e657d02b8c184feb33d7d4991e5dd065c76ced949a5bf13a968"

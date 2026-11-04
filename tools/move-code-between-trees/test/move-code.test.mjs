@@ -358,3 +358,49 @@ test('a test the row leaves (leave_tests, with why) moves with no group; a leave
     assert.throws(() => moveCode({ step: 'plan', row: { ...row, leave_tests: [{ path: 'test/beans.test.mjs' }] }, source_folder: source, destination_folder: destination }), /leave_tests row names path/);
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
+
+test('check with no source judges every receipt from the checkout alone: shape, full commits, bytes, and a change after the copy', async () => {
+  const { checkReceipts } = await import('../read-data/check-receipts.mjs');
+  const commit = 'a'.repeat(40);
+  const text = 'export const beans = 3;\n';
+  const idOf = value => makeHashCodeHexFromBytes(new TextEncoder().encode(value));
+  const row = (to, extra = {}) => ({ from: 'src/beans.mjs', commit, to, source_identity: idOf(text), identity: idOf(text), ...extra });
+  const folder = repository({
+    'tools/whole/do-work/beans.mjs': text,
+    'tools/whole/moved-from.json': json({ files: [row('tools/whole/do-work/beans.mjs')] }),
+    'tools/as-map/beans.mjs': text,
+    'tools/as-map/moved-from.json': json({ commit, files: { 'beans.mjs': 'src/beans.mjs' } }),
+    'tools/short/beans.mjs': text,
+    'tools/short/deep/moved-from.json': json({ files: [row('tools/short/beans.mjs', { commit: 'aaaaaaaaaa', deleted_by: 'bbbbbbbbbb' })], values: [{ from: 'x.json', commit: 'cccccccccc^' }] }),
+    'tools/changed/beans.mjs': text,
+    'tools/changed-unsaid/beans.mjs': text,
+  });
+  const copied = git(folder, 'rev-parse', 'HEAD').trim();
+  writeFileSync(join(folder, 'tools/changed/beans.mjs'), 'export const beans = 4;\n');
+  writeFileSync(join(folder, 'tools/changed/moved-from.json'), json({ files: [{ ...row('tools/changed/beans.mjs'), identity: undefined, identity_at_move: idOf(text), byte_copy_commit: copied }] }));
+  writeFileSync(join(folder, 'tools/changed-unsaid/beans.mjs'), 'export const beans = 5;\n');
+  writeFileSync(join(folder, 'tools/changed-unsaid/moved-from.json'), json({ files: [row('tools/changed-unsaid/beans.mjs')] }));
+  git(folder, 'add', '-A');
+  git(folder, 'commit', '-q', '-m', 'changed after the copy');
+  const answer = checkReceipts({ folder });
+  const by = Object.fromEntries(answer.results.map(item => [item.receipt, item]));
+  assert.equal(answer.receipts, 5, 'a receipt at any depth is found');
+  assert.equal(by['tools/whole/moved-from.json'].ok, true);
+  assert.equal(by['tools/changed/moved-from.json'].ok, true, by['tools/changed/moved-from.json'].problems.join('; '));
+  assert.match(by['tools/as-map/moved-from.json'].problems[0], /files is not a list/);
+  assert.deepEqual(by['tools/short/deep/moved-from.json'].problems, [
+    'tools/short/beans.mjs: commit "aaaaaaaaaa" is not a full 40-hex commit',
+    'values[0] (x.json): commit "cccccccccc^" is not a full 40-hex commit',
+  ]);
+  assert.deepEqual(by['tools/short/deep/moved-from.json'].notes, ['tools/short/beans.mjs: deleted_by bbbbbbbbbb is short']);
+  assert.deepEqual(by['tools/changed-unsaid/moved-from.json'].problems, ['tools/changed-unsaid/beans.mjs is not the bytes its receipt names']);
+  const cli = (cwd) => { try { return { code: 0, out: execFileSync(process.execPath, [join(import.meta.dirname, '..'), 'check'], { cwd, encoding: 'utf8' }) }; } catch (error) { return { code: error.status, out: error.stdout }; } };
+  const failing = cli(folder);
+  assert.equal(failing.code, 1);
+  assert.equal(JSON.parse(failing.out).not_whole.length, 3);
+  for (const name of ['as-map', 'short', 'changed-unsaid']) rmSync(join(folder, 'tools', name), { recursive: true });
+  git(folder, 'add', '-A');
+  git(folder, 'commit', '-q', '-m', 'only whole receipts');
+  assert.equal(cli(folder).code, 0);
+  rmSync(folder, { recursive: true, force: true });
+});

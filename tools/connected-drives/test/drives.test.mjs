@@ -103,3 +103,58 @@ test('a process is named the way the person knows it: a script by its script, a 
     ' 41 /usr/local/bin/node\n 52 /Applications/Long Program Name.app/Contents/MacOS/Long Program Name\n');
   assert.deepEqual(rows.map(row => [row.pid, row.name]), [[41, 'copy-cards.mjs'], [52, 'Long Program Name']]);
 });
+
+// A pretend place with no diskutil: a kernel mount table and one mount root holding one drive.
+function pretendMountTable() {
+  const base = realpathSync(mkdtempSync(join(tmpdir(), 'mount-table-')));
+  const media = join(base, 'media');
+  const drive = join(media, 'CARD ONE');
+  mkdirSync(join(drive, 'DCIM'), { recursive: true });
+  writeFileSync(join(drive, 'DCIM', 'clip-1.mov'), 'xyz');
+  const elsewhere = join(base, 'elsewhere');
+  mkdirSync(elsewhere);
+  const esc = value => value.replace(/ /g, '\\040');
+  const table = join(base, 'mountinfo');
+  writeFileSync(table, [
+    '22 1 259:2 / / rw,relatime shared:1 - ext4 /dev/nvme0n1p2 rw',
+    `90 22 8:17 / ${esc(drive)} rw,nosuid,nodev shared:50 - exfat /dev/sdb1 rw,uid=1000`,
+    `91 22 8:17 / ${esc(drive)} rw,nosuid,nodev shared:50 - exfat /dev/sdb1 rw,uid=1000`,
+    `92 22 0:40 / ${esc(join(media, 'scratch'))} rw - tmpfs tmpfs rw`,
+    `93 22 8:33 / ${esc(elsewhere)} rw - ext4 /dev/sdc1 rw`,
+    'not a mountinfo line',
+  ].join('\n') + '\n');
+  const calls = [];
+  const exec = async (command, args) => { calls.push([command, ...args]); return { ok: true, stdout: 'p4242\ncSampleEditor\nn/x\n' }; };
+  const reader = { id: 'mount-table', at: table, mount_roots: [media], lsof: '/usr/bin/lsof' };
+  return { drive, elsewhere, calls, deps: { reader, exec, ownPid: 99 } };
+}
+
+test('the second reader lists block-device mounts inside its mount roots from a kernel mount table, without diskutil', async () => {
+  const place = pretendMountTable();
+  const { devices } = await listConnectedDrives({}, {}, place.deps);
+  assert.deepEqual(devices, [{ name: 'CARD ONE', mount: place.drive, size_bytes: devices[0].size_bytes, free_bytes: devices[0].free_bytes,
+    kind: 'Storage device', internal: false, ejectable: false, state: 'connected' }]);
+  const folder = await listDriveFolder({ path: join(place.drive, 'DCIM') }, {}, place.deps);
+  assert.deepEqual(folder.entries.map(entry => entry.name), ['clip-1.mov']);
+  await assert.rejects(listDriveFolder({ path: place.elsewhere }, {}, place.deps), /not on a connected drive/);
+  const seen = await seeWhatIsOnADrive({ mount: place.drive }, {}, place.deps);
+  assert.equal(seen.files, 1);
+  const held = await nameWhatHoldsADrive({ mount: place.drive }, {}, place.deps);
+  assert.deepEqual(held.processes.map(process => process.name), ['SampleEditor']);
+  assert.equal(place.calls[0][0], '/usr/bin/lsof', 'the place\'s own lsof, from its reader row');
+  const icon = await getADriveIcon({ mount: place.drive }, {}, place.deps);
+  assert.equal(icon.icon, 'none', 'a reader with no icon way answers no icon');
+  assert.ok(!place.calls.some(([command]) => command.includes('osascript') || command.includes('diskutil')));
+});
+
+test('the reader is chosen by which reader path the place has, never by what kind of machine it is', async () => {
+  const { chooseReader } = await import('../read-data/drives.mjs');
+  const settings = JSON.parse(readFileSync(new URL('../read-data/drives.json', import.meta.url), 'utf8'));
+  assert.deepEqual(settings.readers.map(reader => reader.id), ['finder-volumes', 'mount-table']);
+  assert.equal(chooseReader({ exists: at => at === '/usr/sbin/diskutil' }).id, 'finder-volumes');
+  assert.equal(chooseReader({ exists: at => at === '/proc/self/mountinfo' }).id, 'mount-table');
+  assert.equal(chooseReader({ exists: () => false }), null);
+  assert.deepEqual(await enumerateDevices({ reader: { id: 'mount-table', at: '/no/such/table', mount_roots: ['/media'] } }), []);
+  const source = readFileSync(new URL('../read-data/drives.mjs', import.meta.url), 'utf8');
+  assert.ok(!/process\.platform/.test(source));
+});
