@@ -33,8 +33,10 @@ import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
+/** BLAKE3-256 of the bytes as 64 hex digits, from the one content-identity owner (its `1f:` prefix dropped). */
+const blake3Hex = bytes => makeHashCodeHexFromBytes(bytes).slice(3);
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const expand = (place, home = os.homedir()) => String(place).replace(/^~(?=\/|$)/, home);
@@ -46,8 +48,8 @@ const norm = word => word.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
 
 export const dictationSettings = () => JSON.parse(readFileSync(path.join(HERE, 'dictation.json'), 'utf8'));
 /** A new entry id: BLAKE3 of a random value and the time, so it names one dictation and nothing about its words. */
-export const newEntryId = (now = Date.now()) => bytesToHex(blake3(new TextEncoder().encode(`${crypto.randomUUID()}:${now}`))).slice(0, 16);
-export const rowId = (kind, phrase) => bytesToHex(blake3(new TextEncoder().encode(JSON.stringify([kind, String(phrase).toLowerCase().trim()])))).slice(0, 16);
+export const newEntryId = (now = Date.now()) => blake3Hex(new TextEncoder().encode(`${crypto.randomUUID()}:${now}`)).slice(0, 16);
+export const rowId = (kind, phrase) => blake3Hex(new TextEncoder().encode(JSON.stringify([kind, String(phrase).toLowerCase().trim()]))).slice(0, 16);
 
 // ---- The person's rows ---------------------------------------------------------------------------------------------
 
