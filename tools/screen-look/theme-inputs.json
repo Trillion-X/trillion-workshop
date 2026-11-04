@@ -1,0 +1,34 @@
+{
+  "_what": "A whole look generated from three inputs (parts/screen-look/read-data/theme-from-inputs.ts): `base` (the colour of the page: its lightness picks light or dark and its hue and chroma tint every ground and ink), `accent` (the colour of the actions: only its hue and chroma are kept) and `contrast` (0 to 100: how far ink moves from the ground). Every token below is derived in OKLCH, a space where equal lightness steps look equal, then pulled inside the sRGB gamut so no browser clips it, then checked against `floors`: if ink and ground are closer than a floor, the ink is moved away from the ground (the other way when that side has no room) until the floor holds. `roles` are rows: an `id` (floors name roles by it), the `tokens` of the look it sets (the compact keys and the css-named keys looks use, whichever the look has), which input tints it (`base` or `accent`), and per scheme the lightness at contrast 0 and at contrast 100 (it moves in a straight line between), the most chroma it may carry and the least (`chroma_min`, accent roles only: a dull pick still reads as a colour). A token the look lacks is skipped. A pick with chroma under `neutral_below` has no hue and is treated as grey on purpose. A new role or floor is a row here.",
+  "contrast": {
+    "min": 0,
+    "max": 100,
+    "default": 50
+  },
+  "dark_below_lightness": 0.55,
+  "neutral_below": 0.02,
+  "step": 0.005,
+  "schemes": [
+    "light",
+    "dark"
+  ],
+  "roles": [
+    { "id": "ground", "tokens": [ "backgroundColor", "black-pure", "surface-base" ], "from": "base", "light": { "lightness": [ 0.985, 1 ], "chroma_max": 0.012 }, "dark": { "lightness": [ 0.2, 0.1 ], "chroma_max": 0.02 } },
+    { "id": "raised", "tokens": [ "surfaceColor", "black-rich" ], "from": "base", "light": { "lightness": [ 0.955, 0.93 ], "chroma_max": 0.02 }, "dark": { "lightness": [ 0.25, 0.19 ], "chroma_max": 0.03 } },
+    { "id": "ink", "tokens": [ "foregroundColor", "text-primary" ], "from": "base", "light": { "lightness": [ 0.4, 0.15 ], "chroma_max": 0.03 }, "dark": { "lightness": [ 0.82, 0.97 ], "chroma_max": 0.02 } },
+    { "id": "action", "tokens": [ "primaryColor", "accent-primary", "button-primary-bg" ], "from": "accent", "light": { "lightness": [ 0.6, 0.48 ], "chroma_max": 0.2, "chroma_min": 0.05 }, "dark": { "lightness": [ 0.7, 0.8 ], "chroma_max": 0.18, "chroma_min": 0.05 } },
+    { "id": "on-action", "tokens": [ "button-primary-text" ], "from": "base", "light": { "lightness": [ 0.99, 0.99 ], "chroma_max": 0.01 }, "dark": { "lightness": [ 0.99, 0.99 ], "chroma_max": 0.01 } }
+  ],
+  "floors": [
+    { "text": "ink", "ground": "ground", "least_contrast": 4.5 },
+    { "text": "ink", "ground": "raised", "least_contrast": 4.5 },
+    { "text": "action", "ground": "ground", "least_contrast": 3 },
+    { "text": "on-action", "ground": "action", "least_contrast": 4.5 }
+  ],
+  "words": {
+    "bad_colour": "{input} takes a colour like #3b82f6 (#rgb or #rrggbb).",
+    "bad_contrast": "Contrast is a number from {min} to {max}.",
+    "missing": "Give {inputs}.",
+    "unknown": "{names} is not something a look is made from. It takes: {inputs}."
+  }
+}

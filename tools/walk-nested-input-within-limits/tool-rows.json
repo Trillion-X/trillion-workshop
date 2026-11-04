@@ -1,0 +1,67 @@
+{
+ "kind": "tool-rows",
+ "record_set": "walk-nested-input-within-limits-tool-rows",
+ "what_this_is": "The Workshop row for tools/walk-nested-input-within-limits: check untrusted nested input against depth and size limits before it is rendered or stored.",
+ "records": [
+  {
+   "id": "package::walk-nested-input-within-limits::tool::check-nested-input",
+   "address": "package::walk-nested-input-within-limits::tool::check-nested-input",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-nested-input",
+    "label": "Check nested input within limits",
+    "status": "active",
+    "job": "Check an untrusted nested value (an imported document, pasted rich text, list row values from an AI) before it is rendered or stored: refuse it in plain words when it is nested deeper than 100 levels, holds more than 100,000 values, or refers back to itself",
+    "description": "Give value (any JSON) and, optionally, limits ({ max_depth, max_nodes }) tighter than the defaults. Returns ok and nodes when the value is fine, or ok false with reason (too_deep, too_many_nodes, cycle), the limit crossed and said, the words the person reads. The walk keeps its own stack, so a very deep value never overflows the call stack.",
+    "input_schema": {
+     "type": "object",
+     "required": ["value"],
+     "additionalProperties": false,
+     "properties": {
+      "value": { "description": "The nested value to check" },
+      "limits": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": { "max_depth": { "type": "integer", "minimum": 0 }, "max_nodes": { "type": "integer", "minimum": 1 } }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["ok"],
+     "properties": {
+      "ok": { "type": "boolean" },
+      "nodes": { "type": "integer" },
+      "reason": { "type": "string" },
+      "limit": { "type": ["integer", "null"] },
+      "said": { "type": "string" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": [ { "package": "walk-nested-input-within-limits", "paths": ["read-data"], "at": "/opt/walk-nested-input-within-limits" } ] },
+     "workdir": "/opt/walk-nested-input-within-limits",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "read-data/bounded-walk.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 2, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:walk-nested-input-within-limits",
+    "provenance": { "source": "moved from Trillion-X/trillion parts/bounded-walk.mjs and parts/bounded-walk.json, with its tests" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "value": [1, 2, 3, 4], "limits": { "max_nodes": 3 } },
+      "output_selector": "$.said",
+      "contains": "more than 3 values"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,6 @@
+{
+  "_what": "Domain categories the Mac reader's observation rules can block or allow by name (tools/drive-the-screen/read-data/observation-categories.mjs). `table` is the shipped seed: { cursor, rows: [{ domain, category }] }; it ships empty, so nothing is limited out of the box. `modes` says what a category does: [{ category, mode: allow | block }]. `sync` keeps the table current by cursor-paged diffs from `source` (a web address that answers { rows: [{ domain, category }], tombstones: [domain], next_cursor, has_more }); with `source` null nothing is fetched. A row with a tombstone is removed; a newer row for a domain replaces the older.",
+  "table": { "cursor": null, "rows": [] },
+  "modes": [],
+  "sync": { "source": null, "most_pages": 50, "most_rows": 200000, "state_file": "observation-categories.json" }
+}

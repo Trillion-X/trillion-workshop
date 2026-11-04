@@ -1,0 +1,414 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:review-what-a-list-says",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:review-rows-of-a-list",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Review the rows of a list",
+        "job": "Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner",
+        "description": "Give list_id (one of the person's lists), row_kind (record:<its row_type>, the records its rows are) and action. set_up (expires_days optional, 90 as shipped) adds the review fields (owner, review_state, review_due, verified_by) and the views review-needed, review-expired and review-empty a list lacks; fields it already has stay as they are. verify (row_ids, by: who checked) sets Verified and a check-again date expires_days ahead; flag_outdated and request_verification set their state and clear the date; assign (row_ids, owner) names the owner. Answers what changed. An unknown action, or a row action on a list not set up, is refused with the words saying what to send. Every write is conditional on the rows as read, so a row changed meanwhile refuses the write.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "list_id",
+            "row_kind",
+            "action"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "list_id": {
+              "type": "string"
+            },
+            "row_kind": {
+              "type": "string",
+              "pattern": "^record:",
+              "description": "The record kind of the list's rows: record:<the list's row_type>"
+            },
+            "action": {
+              "type": "string"
+            },
+            "row_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 200
+            },
+            "owner": {
+              "type": "string"
+            },
+            "by": {
+              "type": "string"
+            },
+            "expires_days": {
+              "type": "number"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "list_id"
+          ],
+          "properties": {
+            "list_id": {
+              "type": "string"
+            },
+            "set_up": {
+              "type": "boolean"
+            },
+            "fields_added": {
+              "type": "array"
+            },
+            "views_added": {
+              "type": "array"
+            },
+            "action": {
+              "type": "string"
+            },
+            "kept": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/review-what-a-list-says",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/review-what-a-list-says/do-work/review-a-list.mjs",
+            "reviewListRows"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "review-what-a-list-says",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/review-what-a-list-says"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "list",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "row_kind"
+                  }
+                },
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:review-what-a-list-says",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:find-cold-rows",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Find the rows nobody uses",
+        "job": "List the rows of a list that nobody uses any more, so they can be cleaned up, leaving out rows a person verified and whose review is still current",
+        "description": "Give list ({ id, title_field, fields }), rows ([{ id, title, values }]) and heats ({ <row id>: { heat, at } }, the use-heat records kept for the rows). Heat halves every 30 days; a row is cold below 0.5. Rows whose review_state is Verified and whose review_due is still ahead are left out. owner narrows to one owner. Answers rows [{ id, title, heat, last_used }] and complete, with next_cursor when it stopped early.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "list",
+            "rows"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "list": {
+              "type": "object"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "heats": {
+              "type": "object"
+            },
+            "owner": {
+              "type": "string"
+            },
+            "cursor": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rows",
+            "complete"
+          ],
+          "properties": {
+            "list_id": {
+              "type": "string"
+            },
+            "rows": {
+              "type": "array"
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "next_cursor": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/review-what-a-list-says",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/review-what-a-list-says/do-work/review-a-list.mjs",
+            "findColdRows"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "review-what-a-list-says",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/review-what-a-list-says"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:review-what-a-list-says",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:heat-of-a-row",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Say how warm a row is",
+        "job": "Say how much a row is used as of a moment, its use heat halving with time, and the heat record one more use leaves",
+        "description": "Give kept (the row's heat record { heat, at }, or nothing for a row never used), now (an ISO time; the current time otherwise) and used: true to also get the record a use leaves now (null when the row was used within the last 360 minutes, so nothing is written).",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kept": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "now": {
+              "type": "string"
+            },
+            "used": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "heat"
+          ],
+          "properties": {
+            "heat": {
+              "type": "number"
+            },
+            "used": {
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/review-what-a-list-says",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/review-what-a-list-says/do-work/review-a-list.mjs",
+            "heatOfARow"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "review-what-a-list-says",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/review-what-a-list-says"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}

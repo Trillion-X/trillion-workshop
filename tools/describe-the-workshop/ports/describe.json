@@ -1,0 +1,66 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-DESCRIBE-A-TOOL-FROM-THE-WORKSHOP-SERVICE",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:28cf72855070bb9f618975a90fd90f707f4cda825c03eb0f6f04dad696d95381",
+    "quote": "product shouldn't exist anymore; i want a quick mv so it can be done super fast super quick now"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "d52540c7cb2b3c55c8c801407dc1f06479f8a495",
+      "path_multihash": "1f:5ccaf74f71ba8214b9cbc33714ec03e4b961f3fc2632e316d6b96014fbee99e5",
+      "lines": [1625, 1655],
+      "multihash": "1f:678b71bfbb418c69507754fadea8ad51cba43fd17a7042683e4d1ead28a3e3f9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T18:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/describe-the-workshop/do-work/describe.mjs",
+      "baseline_commit_message": "describe-the-workshop: the Workshop describe and its sample rules, moved byte for byte from trillion src/workshop.mjs:1625-1655 (describeTool) and src/workshop-sample-rules.mjs; their DATA from trillion-rust product/workshop-sample-rules.json and product/renamed-tools.json"
+    }
+  ],
+  "preserve": [
+    "a tool's whole row is answered with who made it and the next call: save_tool for this account's own, run_tool for one that runs, null for a screen",
+    "a shared row that is only a screen is described; there is nothing of it to run",
+    "where a tool runs decides its sample rule, from the rule DATA of its placement's executor",
+    "this account's own runnable tool answers its samples",
+    "a tool there is nothing of answers an error naming find_tool_for_job"
+  ],
+  "allowed_deltas": [
+    "the shared rows are the caller's (tools:list) and the saved row is read through the records door, instead of the service's everything()",
+    "the saved row, unless deleted, replaces the shared row of its id (the trillion-rust engine resolver's precedence, src/workshop_describe.rs, deleted)",
+    "no file bytes are read, and sample states are answered null: neither is reachable from a tool run"
+  ],
+  "banned_substitutions": [
+    "a second describe in the engine",
+    "a describe route of its own beside the door's tools:run"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:678b71bfbb418c69507754fadea8ad51cba43fd17a7042683e4d1ead28a3e3f9",
+    "target_multihash_at_baseline": "1f:678b71bfbb418c69507754fadea8ad51cba43fd17a7042683e4d1ead28a3e3f9",
+    "commit": "2219c4a",
+    "recorded_at": "2026-11-03T23:30:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "async function describeTool",
+      "madeByOf(everythingNow, tool)",
+      "sampleRuleOf(choosePlacement(tool, everythingNow).place)"
+    ],
+    "test_refs": [
+      "tools/describe-the-workshop/test/describe.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  },
+  "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}

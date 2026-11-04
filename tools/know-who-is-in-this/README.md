@@ -11,8 +11,10 @@ Tells who is in a recording or a picture, from voices and faces the person enrol
 | `do-work/enrol-a-print.py` | `tool:enrol-a-voice-or-face`. Refuses without consent words or a known kind before it measures anything. |
 | `do-work/who-is-in-this.py` | `tool:who-is-in-this`. A transcript's timed stretches in, who said each turn out, plus the listening's listening-voices record. |
 | `do-work/find-faces.py` | `tool:find-faces`. Faces of a picture or video with their place and who they are. Changes no file. |
-| `tool-rows.json` | The three rows. |
+| `read-data/people.mjs` | `tool:people-listening-can-name`: each person the voice-print and face-print records can name, once, with sample counts and consent words, never the numbers (run as a function by `tools/records-door`). Moved from the product repo's `computer/know-who.py` `people`. |
+| `tool-rows.json` | The four rows: three `container` rows, and `tool:people-listening-can-name`, a `computer` row with no capability that lists the two print kinds where they are kept. |
 | `test/test_who_is_in.py` | The pure readers on made-up voices and faces (each "person" is one axis of the vector space plus noise). |
+| `test/people.test.mjs` | The people list on a fake door: one row per person across kinds, no numbers. |
 | `test/know-who-is-in-this.test.mjs` | Runs them, checks the consent refusal and that every row naming a print kind says `stays_on_this_device: true`. |
 | `part.json` | Nothing here is imported by other code. |
 
@@ -37,6 +39,6 @@ The thresholds are inputs (`rules`), with starting values in `read-data/who_is_i
 
 ## Dependencies
 
-**Depends on:** `tools/media-composition` (`do-work/find-recurring-voices.py`, `do-work/blur-faces-not-agreed.py`, the models and Python modules its image holds); Python 3.10 or later for the pure readers and tests, and Node for the test runner.
+**Depends on:** `tools/records-door` (for `tool:people-listening-can-name`), `tools/media-composition` (`do-work/find-recurring-voices.py`, `do-work/blur-faces-not-agreed.py`, the models and Python modules its image holds); Python 3.10 or later for the pure readers and tests, and Node for the test runner.
 
 **Depended on by:** nothing is imported from here. `tool:who-is-in-this` is the tool the workflow recipes `find-moments-in-a-recording` and `hold-us-to-it` name for who was heard.

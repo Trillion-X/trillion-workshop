@@ -1,0 +1,18 @@
+{
+  "_what": "What each place a message is written to can show, as one capability record per surface (src/surface-compose.mjs). `html` whether markup inside the text is shown; `collapsibles` whether a folded section is supported; `checkboxes` whether a task-list item is drawn as a box; `dialect` the text format ('markdown' or 'plain'); `max_chars` the longest body, or null for no limit; `theme`: how a picture that has a light and a dark form is written ('picture' two sources in one element, 'suffix' two images told apart by an address suffix, 'single' only the light one). `unproven` names the capabilities of that row nobody has confirmed against the real surface: a composition that relies on one reports it, so it is checked before it is trusted. Composition reads these fields and never the surface's name. A new surface is a new row.",
+  "surfaces": {
+    "github_comment": { "html": true, "collapsibles": true, "checkboxes": true, "dialect": "markdown", "max_chars": 65536, "theme": { "strategy": "suffix", "light": "#gh-light-mode-only", "dark": "#gh-dark-mode-only" }, "unproven": [] },
+    "gitlab_note": { "html": true, "collapsibles": true, "checkboxes": true, "dialect": "markdown", "max_chars": 1000000, "theme": { "strategy": "single" }, "unproven": ["theme"] },
+    "bitbucket_comment": { "html": false, "collapsibles": false, "checkboxes": false, "dialect": "markdown", "max_chars": 32768, "theme": { "strategy": "single" }, "unproven": ["html", "collapsibles", "checkboxes", "max_chars", "theme"] },
+    "plain_message": { "html": false, "collapsibles": false, "checkboxes": false, "dialect": "plain", "max_chars": null, "theme": { "strategy": "single" }, "unproven": [] }
+  },
+  "place_surface": { "html": false, "collapsibles": false, "checkboxes": false, "dialect": "plain", "theme": { "strategy": "single" }, "unproven_when_unsourced": ["max_chars"] },
+  "words": {
+    "folded_heading": "{summary}",
+    "box_done": "[x]",
+    "box_open": "[ ]",
+    "plain_box_done": "done:",
+    "plain_box_open": "to do:",
+    "truncated": "(The rest was left out: this place takes at most {max} characters.)"
+  }
+}

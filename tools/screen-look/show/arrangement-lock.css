@@ -1,0 +1,47 @@
+/* parts/screen-look/show/arrangement-lock.css
+   The arrangement, locked (screen-arrangement/show/arrangement-lock.tsx): the one screen fills the window in the page's
+   own background with nothing else drawn: the page's arrangement, its sidebar, notices and automatic tours are hidden while the
+   page's root carries data-arrangement-locked (a tour that starts meanwhile waits, undrawn, and shows once the lock
+   ends). Its stacking is the shared layer order's `lockedArrangement` (set by the part): above the sidebar's floating panel
+   and its edge strips, below dialogs and menus a locked screen opens; floating panels and the sidebar's portaled
+   rail are hidden with the rest, and so is every layer a tour draws (a centred step's blurred backdrop included) and
+   the marks layers of the arrangement under it. Anatomy: a focus app's lock, where the window is only the one thing
+   (Spatial's welcome, a window holding a line of words and one way on; Cogito's single centred card on a quiet page,
+   both from the person's /Inspiration/Trillion Screens); a host's ways out are part of the locked screen itself. A screen asked for
+   while locked opens beside the locked one, with a quiet Back above. Only a tour the person asked for by name with a
+   press inside the lock (the part's tourMayShow) carries data-arrangement-lock-guided and draws over the lock while it
+   runs; no other tour ever does, and the arrangement, the sidebar and notices stay hidden. The page's colour is see-through glass in some
+   looks (look-bridges: --color-background is --glass-bg-primary), so it is laid over the look's opaque surface and the
+   window's own opaque colour (Canvas): the lock is always solid and nothing under it reads through. In the iPhone app the
+   page runs under the status bar and home indicator (viewport-fit=cover), so the lock sits inside the same safe area as
+   the workspace (src/workspace/workspace.css .trillion-workspace); the insets are 0 everywhere else. */
+
+.arrangement-lock {
+  position: fixed; display: flex;
+  left: env(safe-area-inset-left); right: env(safe-area-inset-right);
+  top: calc(var(--visible-viewport-top, 0px) + env(safe-area-inset-top));
+  height: calc(var(--visible-viewport-height, 100dvh) - env(safe-area-inset-top) - env(safe-area-inset-bottom) * (1 - var(--visible-viewport-keyboard, 0)));
+  flex-direction: column; isolation: isolate;
+  background: linear-gradient(var(--color-background), var(--color-background)), linear-gradient(var(--bg-surface, transparent), var(--bg-surface, transparent)), Canvas;
+  color: var(--color-foreground);
+}
+.arrangement-lock-screens { display: flex; flex: 1; min-height: 0; }
+.arrangement-lock-pane { flex: 1 1 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.arrangement-lock-pane > :last-child { flex: 1; min-height: 0; }
+.arrangement-lock-pane[hidden] { display: none; }
+.arrangement-lock-back { display: flex; padding: .5rem .75rem 0; }
+html[data-arrangement-locked] [data-screen-arrangement-root],
+html[data-arrangement-locked] [data-sidebar-root],
+html[data-arrangement-locked] [data-bitfield-scene-portal-owner],
+html[data-arrangement-locked] .floating-panel-host,
+html[data-arrangement-locked] [data-shared-notifications],
+html[data-arrangement-locked]:not([data-arrangement-lock-guided]) [data-overlay-blur],
+html[data-arrangement-locked]:not([data-arrangement-lock-guided]) [data-overlay-spotlight],
+html[data-arrangement-locked]:not([data-arrangement-lock-guided]) [data-overlay-scrim],
+html[data-arrangement-locked]:not([data-arrangement-lock-guided]) [data-anchored-coachmark],
+html[data-arrangement-locked]:not([data-arrangement-lock-guided]) [data-guided-overlay-target-highlight],
+html[data-arrangement-locked]:not([data-arrangement-lock-guided]) [data-guided-centered-backdrop],
+html[data-arrangement-locked]:not([data-arrangement-lock-guided]) [data-overlay-backdrop]:not(.arrangement-lock *),
+html[data-arrangement-locked] [data-whole-screen-marks]:not(.arrangement-lock *),
+html[data-arrangement-locked] [data-shown-on-screen-marks]:not(.arrangement-lock *) { display: none !important; }
+html[data-arrangement-locked] body { overflow: hidden; }

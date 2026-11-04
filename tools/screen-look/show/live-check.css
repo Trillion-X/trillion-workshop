@@ -1,0 +1,26 @@
+/* parts/screen-look/show/live-check.css
+   The look of the shared live check (ui/show/live-check/LiveCheck.tsx): one quiet row per check with its mark, what is
+   checked and the line under it, and the state as a small pill on the right (Tolaria's "AI agents ready" rows, from the
+   person's own /Inspiration/Trillion Screens); the watched mark turns (21st.dev Task Steps 23569) and a done mark is a
+   tick on a soft green tile. Colours are the page's own tokens. */
+
+.live-check { display: flex; flex-direction: column; gap: .5rem; }
+.live-check-row { display: flex; align-items: center; gap: .75rem; padding: .75rem .875rem; border: 1px solid var(--color-border); border-radius: .875rem; background: color-mix(in oklab, var(--color-foreground) 2%, var(--color-card)); }
+.live-check-mark { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: .5rem; color: var(--color-muted-foreground); background: var(--color-muted); }
+.live-check-mark svg { width: 1rem; height: 1rem; }
+.live-check-row[data-state="watching"] .live-check-mark svg { animation: live-check-turn .9s linear infinite; }
+.live-check-row[data-state="done"] .live-check-mark { color: var(--color-success, #16a34a); background: color-mix(in oklab, var(--color-success, #16a34a) 14%, transparent); }
+.live-check-row[data-state="failed"] .live-check-mark { color: var(--color-destructive); background: color-mix(in oklab, var(--color-destructive) 12%, transparent); }
+.live-check-words { display: flex; flex-direction: column; gap: .125rem; flex: 1; min-width: 0; }
+.live-check-label { font-size: .9375rem; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+.live-check-detail { color: var(--color-muted-foreground); font-size: .8125rem; line-height: 1.4; overflow-wrap: anywhere; }
+.live-check-status { flex: none; padding: .125rem .625rem; border-radius: 999px; font-size: .8125rem; font-weight: 500; color: var(--color-muted-foreground); background: var(--color-muted); }
+.live-check-row[data-state="done"] .live-check-status { color: var(--color-success, #16a34a); background: color-mix(in oklab, var(--color-success, #16a34a) 12%, transparent); }
+.live-check-said { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@keyframes live-check-turn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .live-check-row[data-state="watching"] .live-check-mark svg { animation: none; } }
+
+/* A check that has an answer is one quiet line, not a pill: a muted dot while it is not true yet, a tick on a soft green tile when it is, plain words when Trillion cannot look. */
+.live-check-dot { width: .5rem; height: .5rem; border-radius: 99px; background: var(--color-muted-foreground); opacity: .55; }
+.live-check-row[data-state="not_yet"] .live-check-label, .live-check-row[data-state="plain"] .live-check-label { font-weight: 400; }
+.live-check-row[data-state="plain"] { padding-inline-start: .875rem; }

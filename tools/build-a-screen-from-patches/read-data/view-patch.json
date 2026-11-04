@@ -1,0 +1,10 @@
+{
+  "_what": "How a screen in an AI app asks again for a read it already holds (src/view-patch.mjs, used by src/screen-view.mjs and src/workspace/screen-view.tsx). The screen names the identity of the answer it holds (`have`, the BLAKE3 of its text); when the Worker still holds that same answer for that person and path, it sends only the changes (a patch) if the patch is smaller than `patch_share` of the whole answer, otherwise the whole answer. The Worker keeps at most `entries` answers per isolate, none longer than `most_chars` and none for answers shorter than `least_chars` (a short answer is cheaper whole). A cache miss, a different identity or a body that is not JSON always answers the whole text, so a patch is an optimisation and never changes what the screen shows.",
+  "entries": 200,
+  "most_chars": 400000,
+  "least_chars": 2000,
+  "patch_share": 0.6,
+  "words": {
+    "mismatch": "The patched answer did not match its identity, so the whole answer was read again."
+  }
+}

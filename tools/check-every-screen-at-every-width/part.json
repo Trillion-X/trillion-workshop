@@ -1,0 +1,7 @@
+{
+  "public": [
+    "check-screens.mjs",
+    "views.json",
+    "allowlist.json"
+  ]
+}

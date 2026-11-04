@@ -1,0 +1,59 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SET-UP-MY-ACCOUNT-PERSONAL-HOLD",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "engine-shrink lane 2, 2026-11-03: the setup screens leave the engine",
+  "message_multihash": "1f:aede9244cab742b15cc0534e0582688b24a1ef76d97778e0bd87b6847d302c97",
+  "quote": "Lane 2, the setup screens leave the engine: move them to a Workshop tool (or tools) with their reader code. Move code, never rewrite it. Carry the original tests and their assertions."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path_multihash": "1f:5fafa474ec16b81b9313cb90ac482a62d9cdd9f095cff9eab5ace8a31f4ba8ad",
+   "multihash": "1f:f44276029947d4d5c421bb9acfebbd8f307e5a149339ebebc5c41796fec9e4f5",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/set-up-my-account/read-data/personal-hold.mjs",
+   "baseline_commit_message": "set-up-my-account: the Get started steps and screen, moved byte for byte from trillion"
+  }
+ ],
+ "preserve": [
+  "every decision, word and fail-closed rule of the source: an unread fact or rule source is unknown, never done"
+ ],
+ "allowed_deltas": [
+  "import paths: the module's imports are its neighbours in read-data/, tools/run-experiments (score-candidates.ts), tools/wall-time and tools/formulas"
+ ],
+ "banned_substitutions": [
+  "a second copy of the setup steps, checks or screen in the engine",
+  "a rewrite of the moved decisions"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:f44276029947d4d5c421bb9acfebbd8f307e5a149339ebebc5c41796fec9e4f5",
+  "target_multihash_at_baseline": "1f:f44276029947d4d5c421bb9acfebbd8f307e5a149339ebebc5c41796fec9e4f5",
+  "commit": "63e501b9afd6c1cebec6c6eb04428a1e14da04d7",
+  "recorded_at": "2026-11-03T23:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [],
+  "test_refs": [
+   "tools/set-up-my-account/test/setup-steps.test.mjs",
+   "tools/set-up-my-account/test/setup-checks.test.mjs",
+   "tools/set-up-my-account/test/setup-screen-plain.test.mjs",
+   "tools/set-up-my-account/test/see-what-is-left-to-set-up.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}

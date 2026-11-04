@@ -214,8 +214,25 @@ async function pagesToJudge() {
 // How old the newest date may be on each page: one number for every page, or { path: days } for some.
 const freshness = (() => { const given = args['fresh-within-days']; if (!given) return () => null; try { const read = JSON.parse(given); return url => (typeof read === 'number' ? read || null : read[new URL(url).pathname] ?? null); } catch { return () => null; } })();
 
+// F-1119: the second pass. The page is opened again with prefers-reduced-motion: reduce and read at its first screen, before
+// any scrolling: text there that is still invisible waits for an animation a person who asked for less motion never sees.
+async function withReducedMotion(page, url, rule) {
+  await page.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  try {
+    await page.send('Page.navigate', { url });
+    await wait(craft.settle_ms);
+    await evaluate(page, 'document.readyState === "complete" || new Promise(done => addEventListener("load", done, { once: true }))');
+    await wait(rule.settle_ms ?? craft.settle_ms);
+    return (await evaluate(page, `${IN_PAGE}(${JSON.stringify({ rules: [rule], selectors: craft.selectors, freshDays: null, now: Date.now(), widthId: null })})`)).found;
+  } finally {
+    await page.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: '' }] });
+  }
+}
+
 async function judge(page, url, width, checkedLinks) {
   await page.send('Emulation.setDeviceMetricsOverride', { width: width.width, height: width.height, deviceScaleFactor: 1, mobile: width.width < 600 });
+  const reducedRule = rulesAt(width).find(rule => rule.id === 'reduced_motion_hidden');
+  const reduced = reducedRule ? await withReducedMotion(page, url, reducedRule) : [];
   const answers = trackFrames(page);
   answers.requests.clear();
   answers.documents.clear();
@@ -225,6 +242,7 @@ async function judge(page, url, width, checkedLinks) {
   await wait(craft.settle_ms);
   await scrollThrough(page);
   const rules = rulesAt(width);
+  const pageRules = rules.filter(rule => rule.id !== 'reduced_motion_hidden');
   const controlRule = rules.find(rule => rule.id === 'control_name');
   const controlNames = controlRule ? await collectControlNames({
     send: (method, params) => page.send(method, params),
@@ -233,7 +251,7 @@ async function judge(page, url, width, checkedLinks) {
   }) : [];
   const demo = rules.find(rule => rule.id === 'stale_demo');
   const demos = demo ? await watchDemos(page, demo, width) : [];
-  let measured = await evaluate(page, `${IN_PAGE}(${JSON.stringify({ rules, selectors: craft.selectors, freshDays: freshness(url), now: Date.now(), widthId: width.id, controlNames })})`);
+  let measured = await evaluate(page, `${IN_PAGE}(${JSON.stringify({ rules: pageRules, selectors: craft.selectors, freshDays: freshness(url), now: Date.now(), widthId: width.id, controlNames })})`);
   if (controlRule) {
     const after = await collectControlNames({
       send: (method, params) => page.send(method, params),
@@ -242,7 +260,7 @@ async function judge(page, url, width, checkedLinks) {
     });
     measured = bindControlNameEvidence(measured, controlNames, after);
   }
-  const found = [...measured.found, ...demos, ...await judgeFrames(page, rules, width, url)];
+  const found = [...measured.found, ...reduced, ...demos, ...await judgeFrames(page, pageRules, width, url)];
   const hover = rules.find(rule => rule.id === 'no_hover');
   if (hover) found.push(...await withoutHover(page, hover));
   const broken = rules.find(rule => rule.id === 'broken_link');

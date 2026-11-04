@@ -219,7 +219,66 @@
     "provenance": {
      "source": "the app's getting-there module, with its maps and places services as DATA"
     },
-    "verify": []
+    "verify": [{
+      "kind": "sample-run",
+      "input": {
+        "name": "Sample Coffee",
+        "near": {
+          "lat": 40,
+          "lon": -105
+        },
+        "radius_km": 5,
+        "most": 2,
+        "mode": "walk"
+      },
+      "replies": [
+        {
+          "request": {
+            "method": "POST",
+            "url": "https://overpass-api.de/api/interpreter"
+          },
+          "status": 200,
+          "body": {
+            "version": 0.6,
+            "generator": "Overpass API (sample)",
+            "osm3s": {
+              "timestamp_osm_base": "2026-11-03T00:00:00Z"
+            },
+            "elements": [
+              {
+                "type": "node",
+                "id": 1000001,
+                "lat": 40.004,
+                "lon": -105.002,
+                "tags": {
+                  "brand": "Sample Coffee",
+                  "name": "Sample Coffee",
+                  "amenity": "cafe",
+                  "addr:housenumber": "1",
+                  "addr:street": "Example Street",
+                  "addr:city": "Sampletown",
+                  "opening_hours": "Mo-Fr 07:00-18:00"
+                }
+              },
+              {
+                "type": "way",
+                "id": 2000002,
+                "center": {
+                  "lat": 40.01,
+                  "lon": -104.99
+                },
+                "tags": {
+                  "brand": "Sample Coffee",
+                  "name": "Sample Coffee",
+                  "amenity": "cafe"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "shape_read_at": "2026-11-03"
+    }]
    }
   }
  ]

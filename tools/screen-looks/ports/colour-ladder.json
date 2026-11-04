@@ -1,0 +1,78 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-COLOUR-LADDER-FROM-OLD-TRILLION",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "rea pm/ws move 2026-11-03: not-yet-moved product modules and workshop tool parts",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+      "path_multihash": "1f:732079768ce0ac09f93b903ae9e3b8c2e855c4344120c52cb854b496061a9275",
+      "multihash": "1f:34eb9d5a7e61817258d6cca4b6979dc748105e9457725935eeb0cfc043e679ad",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T12:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/screen-looks/read-data/colour-ladder.ts",
+      "baseline_commit_message": "screen-looks and page-critic: move the look colour modules and build the frame, reduced-motion and page-order checks"
+    }
+  ],
+  "preserve": [
+    "pure and blind: no page, storage, look, token or colour is named; ranges, rules and words are DATA",
+    "a token the look lacks is skipped, never invented",
+    "every value written goes through changeScreenLookTokens, which keeps each token kind and bounds"
+  ],
+  "allowed_deltas": [
+    "the file header and the import and comment paths name the file's new place (baseline.redactions)"
+  ],
+  "banned_substitutions": [
+    "a second look validator or colour parser",
+    "a colour, look or font named in code"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:34eb9d5a7e61817258d6cca4b6979dc748105e9457725935eeb0cfc043e679ad",
+    "target_multihash_at_baseline": "1f:dbaf48404d3ce338fca8af1ef7c55daf0cd59508bd8c381213e54d949358333e",
+    "redactions": [
+      {
+        "from": "'../colour-ladder.json'",
+        "to": "'./colour-ladder.json'"
+      },
+      {
+        "from": "parts/screen-look/read-data/",
+        "to": "tools/screen-looks/read-data/"
+      },
+      {
+        "from": "parts/screen-look/colour-ladder.json",
+        "to": "tools/screen-looks/read-data/colour-ladder.json"
+      }
+    ],
+    "commit": "47b9d2aa0a8362172aa465a3f5bee0a34b158917",
+    "recorded_at": "2026-11-03T12:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export type ColourLadder",
+      "export type Rung",
+      "export function isColour",
+      "export function degradeColour",
+      "export function clampToBounds",
+      "export const isSafeText"
+    ],
+    "test_refs": [
+      "tools/screen-looks/test/colour-ladder.test.ts"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "_what": "What the computer's programs write to their log and what they hold back (computer/log-policy.mjs, used by computer/mac-tools.mjs for every line it and the program host log). `events` names, per event (the `event` of a line, or the first key of one), how it is logged: one of `modes`. `default_mode` applies to an event not listed, and the first such event is reported once by name so adding its row is reviewable. A mode row says whether the line is dropped (`drop`) or compared with an earlier line of the same event (`compare`: `last` writes only when the line differs from the last written, `seen` writes only the first). `ignore_when_comparing` are keys that change on every line (a retry wait) and so never make a line different. `redact` replaces, at the point of writing, the value of any key whose name matches `key_patterns`, and any text matching `text_patterns` (a signed token, a bearer header), by `replacement`. `most_remembered_events` bounds what is kept.",
+  "default_mode": "always",
+  "modes": {
+    "always": {
+      "drop": false,
+      "compare": null
+    },
+    "never": {
+      "drop": true,
+      "compare": null
+    },
+    "on_change": {
+      "drop": false,
+      "compare": "last"
+    },
+    "first_only": {
+      "drop": false,
+      "compare": "seen"
+    }
+  },
+  "events": {
+    "mac_tool": "always",
+    "mac_tools_take_failed": "on_change",
+    "mac_tools_result_send_failed": "on_change",
+    "mac_tools_publish_failed": "on_change",
+    "mac_tools_renew_failed": "on_change",
+    "mac_tools_refresh_failed": "on_change",
+    "mac_tools_identity_unavailable": "on_change",
+    "mac_tools_on_start_failed": "on_change",
+    "mac_tools_start_failed": "always",
+    "program_started": "always",
+    "program_exited": "always",
+    "program_start_failed": "on_change",
+    "program_host_read_failed": "on_change",
+    "program_host_save_failed": "on_change"
+  },
+  "ignore_when_comparing": [
+    "again_in_ms",
+    "again_in_seconds",
+    "at"
+  ],
+  "most_remembered_events": 200,
+  "unlisted_event_words": "log_policy_unlisted",
+  "redact": {
+    "replacement": "[redacted]",
+    "key_patterns": [
+      "(^|_)(key|token|secret|password|passcode|authorization|cookie|credential)s?($|_)"
+    ],
+    "text_patterns": [
+      "eyJ[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}",
+      "bearer\\s+[A-Za-z0-9._~+/=-]{12,}"
+    ],
+    "key_flags": "i",
+    "text_flags": "gi"
+  }
+}

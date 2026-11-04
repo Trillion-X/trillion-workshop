@@ -1,0 +1,6 @@
+{
+  "public": [
+    "read-data/choose-moment.mjs",
+    "show/mount-delight-moments.tsx"
+  ]
+}

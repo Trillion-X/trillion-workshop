@@ -1,0 +1,91 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-LIST-TOOLS-FOR-AN-AI-RELEASES-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "move the product modules of old trillion src/ (part 5 of 5) into Trillion-X/trillion-workshop tools. Move code, never rewrite it. Port the correct parts one to one with their original tests and assertions."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/tool-releases.mjs",
+   "multihash": "1f:8736e35cab74eedfdceaa706d08dc0507bf3b082a53926a1a3c44f73f7554de8",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/workshop.mjs (the caller of compatibleRelease, oldestNeeded, withEarlierReleases and HOST_VERSION) and then deletes src/tool-releases.mjs and src/tool-releases.json with their moved tests"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/tool-releases.json",
+   "multihash": "1f:d7fdf37b614b43555f56e3be05a22cb76e116301f0b955e826477eba578eab2b",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/workshop.mjs (the caller of compatibleRelease, oldestNeeded, withEarlierReleases and HOST_VERSION) and then deletes src/tool-releases.mjs and src/tool-releases.json with their moved tests"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/list-tools-for-an-ai/read-data/tool-releases.mjs"
+  },
+  {
+   "path": "tools/list-tools-for-an-ai/read-data/tool-releases.json"
+  }
+ ],
+ "preserve": [
+  "the newest compatible release wins: the published row itself, else the first earlier release whose minimum is met; a release with no minimum runs everywhere",
+  "versions compare part by part, missing parts are zero",
+  "earlier releases are kept only when they can still be chosen: each minimum strictly lower, one per minimum, at most keep_earlier",
+  "nothing here reads or writes the Marketplace"
+ ],
+ "allowed_deltas": [
+  "the import of ../server.json and export const HOST_VERSION = listing.version are dropped (the old Worker's own version); compatibleRelease(row, hostVersion) takes the host version as its argument with no default, and the row takes host_version as input and refuses without it. The header comments, including invariant 1 naming server.json, are kept byte for byte",
+  "read-data/listing-tools.mjs releaseForHost answers { release, oldest_needed when none runs }"
+ ],
+ "banned_substitutions": [
+  "a rewritten copy of this job",
+  "a second live copy kept in Trillion-X/trillion after its deleted_by"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:8736e35cab74eedfdceaa706d08dc0507bf3b082a53926a1a3c44f73f7554de8",
+  "target_multihash_at_baseline": "1f:8736e35cab74eedfdceaa706d08dc0507bf3b082a53926a1a3c44f73f7554de8",
+  "recorded_at": "2026-11-03T21:00:00Z",
+  "rows": [
+   {
+    "path": "tools/list-tools-for-an-ai/read-data/tool-releases.mjs",
+    "source_multihash": "1f:8736e35cab74eedfdceaa706d08dc0507bf3b082a53926a1a3c44f73f7554de8",
+    "target_multihash_at_baseline": "1f:8736e35cab74eedfdceaa706d08dc0507bf3b082a53926a1a3c44f73f7554de8"
+   },
+   {
+    "path": "tools/list-tools-for-an-ai/read-data/tool-releases.json",
+    "source_multihash": "1f:d7fdf37b614b43555f56e3be05a22cb76e116301f0b955e826477eba578eab2b",
+    "target_multihash_at_baseline": "1f:d7fdf37b614b43555f56e3be05a22cb76e116301f0b955e826477eba578eab2b"
+   }
+  ],
+  "commit": "c5ed66b0e3d5fffe4ed6f8416617783be59892bc"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.8,
+  "required_mechanisms": [
+   "export function compareVersions",
+   "export function compatibleRelease(row, hostVersion)",
+   "export const oldestNeeded",
+   "export function withEarlierReleases"
+  ],
+  "test_refs": [
+   "tools/list-tools-for-an-ai/test/tool-release-compat.test.mjs",
+   "tools/list-tools-for-an-ai/test/listing-tools.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

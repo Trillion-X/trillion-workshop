@@ -1,0 +1,133 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:name-voices-from-the-call",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:name-voices-from-the-call",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "label": "Name the voices from the call app",
+        "job": "Name the unnamed voices of a recorded call from who the call app showed as speaking on screen, only where the screen evidence is enough, one name to one voice",
+        "description": "Give turns ([{ start, end, who }] in seconds, such as tool:who-is-in-this answered) and samples ([{ at, names }] or [{ at, elements }] in milliseconds from the start of the recording, elements being the call window's accessibility elements), and app (the call app's name) when known. Only voices whose label is still unnamed (Someone (...), Unsure (...)) are laid over. Returns assignments ([{ voice, name, share, overlap_ms }]) and unnamed ([{ voice, candidates }]). Writing the names into the person's Trillion is the caller's (name_speaker).",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "turns": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "start",
+                  "end",
+                  "who"
+                ]
+              }
+            },
+            "samples": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "at"
+                ]
+              }
+            },
+            "app": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "turns",
+            "samples"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "assignments",
+            "unnamed"
+          ],
+          "properties": {
+            "assignments": {
+              "type": "array"
+            },
+            "unnamed": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/name-voices-from-the-call",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/name-voices-from-the-call/read-data/name-from-the-call.mjs",
+            "name"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "name-voices-from-the-call",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/name-voices-from-the-call"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
