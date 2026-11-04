@@ -1,14 +1,15 @@
 // tools/connected-drives/read-data/drives.mjs
 //
 // PURPOSE
-//   The drives connected to the person's Mac, what is in one folder on one of them, what is on one by kind of file,
+//   The drives connected to the person's computer, what is in one folder on one of them, what is on one by kind of file,
 //   the icon Finder shows for one, and which programs are using one. Functions run by tools/records-door's
-//   run-an-export as `computer` rows that hold the `see-connected-drives` capability: the Mac's drive and icon
-//   services, the `mount`, `diskutil`, `lsof` and `osascript` commands, and reads under /Volumes only.
+//   run-an-export as `computer` rows that hold the `see-connected-drives` capability. How a place knows its drives is
+//   a reader row in drives.json, chosen by which reader's `at` path the place has: Finder's volumes (`mount`,
+//   `diskutil`, `osascript` for icons, reads under /Volumes) or a kernel mount table (reads under its mount roots).
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Only a volume mounted under /Volumes that Finder shows (not mounted `nobrowse`) is listed, and only one diskutil
-//      says is not internal is a drive a folder or holder call may name; the system disk never is.
+//   1. Only a volume the reader lists is a drive: under /Volumes, Finder-shown (not `nobrowse`) and not internal by
+//      diskutil; or a block-device mount inside a mount root of the mount table. The system disk never is.
 //   2. Every path a call is given must really be on such a drive: its real path (every link resolved) lies inside a
 //      drive's real mount (drive-folder.mjs `driveOf`).
 //   3. Nothing is changed: no file is written, no program is stopped, nothing is ejected.
@@ -24,8 +25,8 @@ import { fileKinds, kindOf, kindLabel } from './file-kinds.mjs';
 import { parseDiskIdentity, resolveDriveIdentity } from './drive-identity.mjs';
 import { driveFileHolders } from './drive-processes.mjs';
 import { listFolder } from './drive-folder.mjs';
+import { readMountTableDrives } from './drive-mount-table.mjs';
 
-const VOLUMES_ROOT = '/Volumes';
 const settings = JSON.parse(fs.readFileSync(new URL('./drives.json', import.meta.url), 'utf8'));
 const DRAW_ICON = new URL('./draw-icon.js', import.meta.url).pathname;
 const fail = message => new Error(message);
@@ -52,9 +53,32 @@ async function statVolume(mount) {
   }
 }
 
-/** Every volume under /Volumes that Finder shows, each with its identity from diskutil, one per disk, by name. */
-export async function enumerateDevices({ exec = run, root = VOLUMES_ROOT } = {}) {
-  const mounted = await exec('/sbin/mount', []);
+const finderReader = settings.readers.find(reader => reader.id === 'finder-volumes');
+
+/**
+ * The reader this place has: a reader `deps` names, or a pretend /Volumes `root` (Finder's way), or the first row of
+ * drives.json whose `at` path exists here. A place with none has no connected drives this tool can see.
+ */
+export function chooseReader({ reader, root, exists = fs.existsSync } = {}) {
+  if (reader) return reader;
+  if (root) return { ...finderReader, volumes_root: root };
+  return settings.readers.find(candidate => exists(candidate.at)) ?? null;
+}
+
+/** Every connected drive the place's reader knows, each with its identity, one per disk, by name. */
+export async function enumerateDevices(deps = {}) {
+  const reader = chooseReader(deps);
+  if (!reader) return [];
+  const devices = reader.id === 'mount-table'
+    ? await readMountTableDrives(reader, { statVolume, ...(deps.readFile ? { readFile: deps.readFile } : {}) })
+    : await finderVolumes(reader, deps);
+  return devices.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+}
+
+/** Every volume under the reader's `volumes_root` that Finder shows, each with its identity from diskutil. */
+async function finderVolumes(reader, { exec = run } = {}) {
+  const root = reader.volumes_root;
+  const mounted = await exec(reader.mount, []);
   const hidden = mounted.ok ? hiddenIn(mounted.stdout) : new Set();
   let entries = [];
   try { entries = await fs.promises.readdir(root, { withFileTypes: true }); } catch {}
@@ -65,7 +89,7 @@ export async function enumerateDevices({ exec = run, root = VOLUMES_ROOT } = {})
     if (hidden.has(mount)) continue;
     const device = { id: mount, name: entry.name, mount, ...(await statVolume(mount)) };
     devices.push(await resolveDriveIdentity(device, { volumesRoot: root, readDiskInfo: async place => {
-      const info = await exec('/usr/sbin/diskutil', ['info', '-plist', place]);
+      const info = await exec(reader.diskutil, ['info', '-plist', place]);
       return info.ok ? parseDiskIdentity(info.stdout) : null;
     } }));
   }
@@ -75,12 +99,12 @@ export async function enumerateDevices({ exec = run, root = VOLUMES_ROOT } = {})
     const current = canonical.get(key);
     if (!current || device.mount === device.canonical_mount) canonical.set(key, device);
   }
-  return [...canonical.values()].sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  return [...canonical.values()];
 }
 
 const shown = ({ name, mount, size_bytes, free_bytes, kind, internal, ejectable }) => ({ name, mount, size_bytes, free_bytes, kind, internal, ejectable, state: 'connected' });
 
-/** `tool:list-connected-drives`: every drive the Mac shows, the system disk marked internal. */
+/** `tool:list-connected-drives`: every drive the place's reader shows, the system disk marked internal. */
 export async function listConnectedDrives(_input, _context, deps = {}) {
   return { devices: (await enumerateDevices(deps)).map(shown) };
 }
@@ -102,7 +126,9 @@ export async function listDriveFolder({ path: target, offset, limit, hidden } = 
 export async function nameWhatHoldsADrive({ mount } = {}, _context, deps = {}) {
   const exec = deps.exec ?? run;
   const device = await connectedDrive(mount, deps);
-  const open = await exec('/usr/sbin/lsof', ['-Fpcn', '+f', '--', device.canonical_mount || device.mount]);
+  const reader = chooseReader(deps);
+  if (!reader?.lsof) throw fail('This computer cannot say which programs have files open on a drive.');
+  const open = await exec(reader.lsof, ['-Fpcn', '+f', '--', device.canonical_mount || device.mount]);
   const processes = driveFileHolders(open.stdout, [], deps.ownPid ?? process.pid).map(({ pid, name }) => ({ pid, name }));
   return { mount: device.mount, processes };
 }
@@ -159,8 +185,10 @@ export async function getADriveIcon({ mount, size } = {}, _context, deps = {}) {
   const pixels = size === undefined || size === null || size === '' ? usual : Number(size);
   if (!Number.isInteger(pixels) || pixels < smallest || pixels > largest) throw fail(`Choose an icon size from ${smallest} to ${largest}.`);
   const device = await connectedDrive(mount, deps);
+  const reader = chooseReader(deps);
+  if (!reader?.icon) return { mount: device.mount, icon: 'none', reason: 'This computer draws no drive icons.' };
   const out = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'icon-')), 'icon.png');
-  const drawn = await (deps.exec ?? run)('/usr/bin/osascript', ['-l', 'JavaScript', DRAW_ICON, device.mount, String(pixels), out]);
+  const drawn = await (deps.exec ?? run)(reader.icon, ['-l', 'JavaScript', DRAW_ICON, device.mount, String(pixels), out]);
   if (!drawn.ok || !fs.existsSync(out)) throw fail('The drive icon could not be drawn.');
   return { mount: device.mount, media_type: 'image/png', base64: fs.readFileSync(out).toString('base64') };
 }
