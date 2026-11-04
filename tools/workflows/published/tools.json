@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:a63c4f807d9ef9fd855c33a9f2f65b450668233c3d33a5aaf4e58a28eecf69da"
+  "blake3": "1f:9a5866e91c09399499fe77f8c76a289522250a80b65c91c5ba060b10a975babd"
  },
  "fields": [
   {
@@ -4740,6 +4740,21 @@
    }
   },
   {
+   "id": "tool:list-every-connection",
+   "values": {
+    "title": "List everything I can connect, services and my computer's places together",
+    "job": "Show every service I can connect to Trillion and every place on my own computer it can read (notes, voice memos, messages, photos, downloads), in one list grouped by kind",
+    "description": "One list of every connection a person can make: each service (how it connects: a key, a sign-in, or carried by their computer, with the steps for one carried) and each place on their own computer (what it arrives as, and the switch it needs). Optionally give category (one group, such as Messages or Pictures) and looked, the answer of tool:look-for-the-places-on-this-computer, so each place says whether it is on the computer (found, needs_switch, could_not_check, not_here); without it a place is not_looked. Reads rows only: it connects, looks at and sends nothing, and shows no secret. Returns said and connections ({ id, kind: service | computer-place, label, category, how, ... }), sorted by category then label.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
    "id": "tool:list-ideas-for-what-to-ask-on-a-screen",
    "values": {
     "title": "Ideas for what to ask an AI on a screen",
@@ -5083,6 +5098,21 @@
     ],
     "listed_on": "2026-10-19T00:00:00Z",
     "folder": "drive-the-screen"
+   }
+  },
+  {
+   "id": "tool:look-for-the-places-on-this-computer",
+   "values": {
+    "title": "Look for the places on my computer Trillion can read",
+    "job": "Find which places on my computer (notes, voice memos, messages, mail, calendar, photos, downloads, AI apps, browsers) are there for Trillion to read, and which need a switch turned on first",
+    "description": "One look under the folder the person granted for reading (their home folder), checking each place the computer's place rows list by whether it is there and whether it may be opened, never what it holds. Optionally give places (row ids, such as messages or downloads) to look at only those, and services ({ vendor, domains }: the services the account offers) so a browser's store of sites answers only which of those services it is used for, never a cookie's value. A place that is not there is left out; one this program may not open is needs_switch with the switch it needs (gate); a place outside the granted folder (an app in /Applications, a plugged-in drive) is could_not_check with the reason. Returns said, sources ({ id, label, category, state, detail?, gate? }) and browser_sites.",
+    "status": "active",
+    "maker": "maker:bring-in-new-items-from-this-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "bring-in-new-items-from-this-computer"
    }
   },
   {
