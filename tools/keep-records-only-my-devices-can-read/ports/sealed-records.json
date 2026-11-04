@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SEALED-RECORDS-FROM-PARTS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "parts/sealed-records/do-work/sealed-records.mjs",
+   "lines": [
+    1,
+    208
+   ],
+   "multihash": "1f:a2f408561e49a8beb8323dc5b7eecbc851ad93ec20719383b4d86724e24b27b7",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T04:48:20Z",
+    "deleted_with": "already gone from Trillion-X/trillion main (27b458af26 holds no parts/sealed-records/)"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/keep-records-only-my-devices-can-read/do-work/sealed-records.mjs"
+  }
+ ],
+ "preserve": [
+  "AES-256-GCM with a fresh nonce and the record id as additional data",
+  "a sealed link's key rides only in the URL fragment",
+  "deterministic AES-SIV names under a derived key, never the sealing key"
+ ],
+ "allowed_deltas": [],
+ "banned_substitutions": [
+  "a second copy of this file anywhere in trillion or the Workshop"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-04T04:48:20+00:00",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:a2f408561e49a8beb8323dc5b7eecbc851ad93ec20719383b4d86724e24b27b7",
+  "target_multihash_at_baseline": "1f:a2f408561e49a8beb8323dc5b7eecbc851ad93ec20719383b4d86724e24b27b7",
+  "commit": "3d07dff399930dded70a3b800c63c12fa41ff5b7"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/keep-records-only-my-devices-can-read/tool-rows.json sample run (tool:share-a-record-by-a-sealed-link)"
+  ]
+ }
+}
