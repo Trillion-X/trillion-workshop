@@ -1,0 +1,28 @@
+{
+  "_what": "How big a Durable Object's SQLite store may grow, read once by src/store-size.mjs for every store: the person's (src/store-health.mjs), the AccountControl gate and every RecordBook (src/full-store-recovery.mjs), and the release's per-object size watch. A level is reached at its share of limit_bytes, or within its headroom_bytes of it; the highest level reached is the store's level. Adding a level is a row here.",
+  "limit_bytes": 10737418240,
+  "_limit_bytes_why": "Cloudflare's SQLite-backed Durable Object storage limit per object (10 GB); past it every write fails.",
+  "growth_operations": ["inbound:take", "tools:run", "lists:importFiles", "lists:duplicateRows"],
+  "_growth_operations_why": "The commands of an account's own records that only add (new runs, files taken in, imported or duplicated rows). A RecordBook (src/record-book.mjs executeOwnRecordCommand) refuses one of these, before it keeps anything, once its store is at a level that refuses growth; every other command, the person's own writes among them, goes through. Adding one is a row here.",
+  "levels": [
+    {
+      "id": "warn",
+      "at_share": 0.7,
+      "refuses": [],
+      "_why": "Writes still succeed: the store is handed to the AI side once a day and archival is pressed, so it is freed long before anything is refused. Agreed with the release pipeline (ai-command-center-6a) on 2026-10-16; it was 0.8."
+    },
+    {
+      "id": "refuse-growth",
+      "at_share": 0.85,
+      "refuses": ["growth"],
+      "_why": "Work that only adds (new runs, copies, caches) is refused here so the space left serves the person's own writes and the store's recovery."
+    },
+    {
+      "id": "full",
+      "headroom_bytes": 268435456,
+      "refuses": ["growth"],
+      "waits_for_recovery": true,
+      "_why": "A write fails once the pages it needs are not free, which is before the count reaches the limit: on 2026-10-14 the founder's store refused every write, and reset on each refusal, while its count stayed under the limit, so the gate that waits for exactly the limit never put a call behind the archive. Within this many bytes of the limit, calls wait for verified archival first."
+    }
+  ]
+}
