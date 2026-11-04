@@ -268,7 +268,28 @@
         "result_selector": "$.result",
         "provenance": {
           "source": "moved from Trillion-X/trillion src/sender-pairing.mjs"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "code": "ab23 cd45",
+              "source_id": "events:sample"
+            },
+            "records": [
+              {
+                "id": "pairing-waiting:events:sample:AB23CD45",
+                "type": "sender-pairing",
+                "value": {
+                  "source_id": "events:sample",
+                  "sender": "Ada Example",
+                  "code": "AB23CD45",
+                  "expires_at": "2099-01-01T00:00:00.000Z"
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {

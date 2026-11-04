@@ -86,7 +86,34 @@
         "placements": ["placement:small-container"],
         "maker": "maker:trillion",
         "result_selector": "$.result",
-        "provenance": { "source": "Trillion-X/trillion src/search.mjs:1750 `finish` (its words-in-records lane), through trillion-rust records:search" }
+        "provenance": { "source": "Trillion-X/trillion src/search.mjs:1750 `finish` (its words-in-records lane), through trillion-rust records:search" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "question": "launch plan",
+              "type": "record:note"
+            },
+            "records": [
+              {
+                "id": "note:plan-7",
+                "type": "record:note",
+                "value": {
+                  "title": "Launch plan",
+                  "body": "Ship the launch plan on Friday"
+                }
+              },
+              {
+                "id": "note:idea-2",
+                "type": "record:note",
+                "value": {
+                  "title": "Garden ideas",
+                  "body": "Plant beans"
+                }
+              }
+            ]
+          }
+        ]
       }
     }
   ]

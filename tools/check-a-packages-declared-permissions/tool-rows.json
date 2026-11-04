@@ -116,7 +116,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind":"sample-run","input":{"manifest":{"permissions":["network_egress","read_files"]}}}]
       }
     }
   ]

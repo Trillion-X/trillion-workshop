@@ -514,14 +514,37 @@
           {
             "kind": "sample-run",
             "input": {
-              "id": "kept-apart:sample-note",
+              "id": "kept-apart:plan-7",
               "keep": "one",
-              "side": "now",
+              "side": "kept-1",
               "thing_type": "note",
               "request_key": "sample-settle"
             },
             "output_selector": "$",
-            "contains": "kept-apart:sample-note"
+            "contains": "kept-apart:plan-7",
+            "records": [
+              {
+                "id": "plan-7",
+                "type": "note",
+                "value": {
+                  "title": "Launch plan",
+                  "due": "Friday",
+                  "status": "Draft"
+                }
+              },
+              {
+                "id": "kept-apart:plan-7",
+                "type": "kept-apart",
+                "value": {
+                  "due|sample": {
+                    "record": "plan-7",
+                    "record_type": "note",
+                    "field": "due",
+                    "value": "Monday"
+                  }
+                }
+              }
+            ]
           }
         ]
       }

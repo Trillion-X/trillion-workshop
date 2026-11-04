@@ -200,7 +200,15 @@
         "maker": "maker:record-the-screen",
         "provenance": {
           "source": "Trillion's Mac host computer/capture-session.mjs, capture-display.swift, list-capture-sources.swift and track-pointer.swift (Trillion-X/trillion before dc79bb0a8), learned from a desktop screen recorder's one-source capture and pointer sidecar"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "status"
+            }
+          }
+        ]
       }
     },
     {
@@ -352,7 +360,15 @@
         "maker": "maker:record-the-screen",
         "provenance": {
           "source": "Trillion's Mac host computer/capture-exclusion.mjs (Trillion-X/trillion before dc79bb0a8)"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "list"
+            }
+          }
+        ]
       }
     }
   ]
