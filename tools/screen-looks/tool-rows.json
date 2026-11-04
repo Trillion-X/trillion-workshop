@@ -88,7 +88,8 @@
           ] }
         },
         "provenance": { "source": "src/looks.mjs device(), src/workspace/inputs.json and parts/screen-look/read-data; generic reader consumes app-owned look, schedule and rule DATA supplied by its caller" },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"time_zone": "UTC", "host": "mac", "device": "computer", "app_data": {"looks": {"start_with": "harbor", "themes": [{"address": "look:harbor", "payload": {"kind": "screen-look-editable-theme", "id": "harbor", "name": "Harbor", "tokens": [{"key": "accent-primary", "kind": "color", "value": "#247b70", "css_variable": "--accent-primary"}]}}, {"address": "look:dusk", "payload": {"kind": "screen-look-editable-theme", "id": "dusk", "name": "Dusk", "tokens": [{"key": "accent-primary", "kind": "color", "value": "#7b4f92", "css_variable": "--accent-primary"}]}}]}, "look_over_time": {"record_key": "screen-look-over-time", "most_points": 24, "keep_readable": {"ground": "--bg-primary", "least_contrast": 2.5}, "anchors": [], "presets": []}, "where_looks_apply": {"record_key": "where-looks-apply", "facts": [{"id": "host", "kind": "choice"}, {"id": "device", "kind": "choice"}, {"id": "device_id", "kind": "choice"}, {"id": "place", "kind": "choice"}, {"id": "hour", "kind": "number", "turns": "hour"}, {"id": "weekday", "kind": "choice", "turns": "hour"}, {"id": "now", "kind": "date", "clock": true}]}}}}]
       }
     },
     {

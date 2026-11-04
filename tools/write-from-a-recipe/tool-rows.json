@@ -64,7 +64,8 @@
     "licence_class": "licence:maker-own",
     "placements": ["placement:your-computer"],
     "maker": "maker:write-from-a-recipe",
-    "provenance": { "source": "The existing check-writing-against-its-recipe gate, with file access constrained to the person's explicit folder grant." }
+    "provenance": { "source": "The existing check-writing-against-its-recipe gate, with file access constrained to the person's explicit folder grant." },
+    "verify": [{"kind": "sample-run", "input": {"file": "input.json"}, "files": [{"grant": "read-a-folder", "path": "input.json", "text": "{\"recipe\": {}, \"writing\": {\"draft_text\": \"A made-up sample draft.\"}}"}]}]
    }
   },
   {

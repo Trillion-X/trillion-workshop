@@ -171,7 +171,8 @@
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
-    ]
+    ],
+    "verify": [{"kind": "sample-run", "input": {"which": "bookmarks", "account": "service_connection:x"}, "replies": [{"request": {"method": "GET", "url": "https://api.x.com/2/users/me"}, "status": 200, "body": {"data": {"id": "1000000001", "name": "Sample Maker", "username": "sample_maker"}}}, {"request": {"method": "GET", "url": "https://api.x.com/2/users/1000000001/bookmarks"}, "status": 200, "body": {"data": [{"id": "2000000001", "text": "A sample post https://t.co/aaa", "author_id": "1000000001", "created_at": "2026-09-02T16:50:26.000Z", "edit_history_tweet_ids": ["2000000001"], "entities": {"urls": [{"url": "https://t.co/aaa", "expanded_url": "https://example.org/sample-repo"}]}}], "includes": {"users": [{"id": "1000000001", "name": "Sample Maker", "username": "sample_maker"}]}, "meta": {"result_count": 1}}}], "shape_read_at": "2026-11-03"}]
    }
   },
   {
@@ -331,7 +332,8 @@
       ]
      }
     },
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "verify": [{"kind": "sample-run", "input": {"file": "pull-bookmarks.json", "source": "x-bookmarks"}, "files": [{"grant": "read-a-folder", "path": "pull-bookmarks.json", "text": "{\"user_id\":\"1000000001\",\"bookmarks\":[{\"id\":\"2000000001\",\"text\":\"A sample saved post\",\"author_id\":\"1000000002\",\"created_at\":\"2026-09-02T16:50:26.000Z\"},{\"id\":\"2000000002\",\"text\":\"Another saved post\",\"author_id\":\"1000000003\",\"created_at\":\"2026-09-03T01:00:00.000Z\"}]}"}]}]
    }
   },
   {
@@ -615,7 +617,8 @@
       ]
      }
     },
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "verify": [{"kind": "sample-run", "input": {"source_ref": "source:sample-files"}}]
    }
   }
  ]

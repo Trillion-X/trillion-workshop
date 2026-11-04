@@ -480,7 +480,8 @@
         "result_selector": "$.result",
         "provenance": {
           "source": "trillion src/needs-you-hold.mjs setAside, handBack, chooseStake, askOff and turnOn, moved here; the write path the Rust engine dropped (trillion-rust d77e5f6)"
-        }
+        },
+        "verify": [{"kind": "sample-run", "input": {"change": "turn-on", "request_key": "sample-turn-on", "rules": {"after_minutes": 0}, "now": "2026-01-01T00:00:00.000Z"}, "output_selector": "$.changed", "contains": "true"}]
       }
     }
   ]

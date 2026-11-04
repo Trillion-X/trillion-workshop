@@ -166,7 +166,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"metafile_file": "meta.json", "packages_root": "packages", "declaration": {"file": "public-files.json", "entries_at": "things", "kind_at": "payload.kind", "kind": "public-source", "path_at": "payload.source_path"}}, "files": [{"grant": "read-a-folder", "path": "packages/ledger/public-files.json", "text": "{\"things\":[{\"payload\":{\"kind\":\"public-source\",\"source_path\":\"show\"}}]}"}, {"grant": "read-a-folder", "path": "meta.json", "text": "{\"inputs\":{\"host/app.mjs\":{\"imports\":[{\"path\":\"packages/ledger/show/a.mjs\"}]}}}"}]}]
       }
     }
   ]

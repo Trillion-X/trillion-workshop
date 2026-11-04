@@ -60,7 +60,8 @@
         "needs": { "expected_seconds": 60, "network_egress": false, "memory_mb": 2048 },
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
-        "maker": "maker:meaning-search"
+        "maker": "maker:meaning-search",
+        "verify": [{"kind": "sample-run", "input": {"index_id": "synthetic-pictures", "query_vector_base64": "eyJ2ZWN0b3IiOlsxLDAsMCwwXX0="}, "door_files": {"/Sets/frames.jsonl": ""}, "records": [{"id": "semantic-index-descriptor:synthetic-pictures", "type": "semantic-index-descriptor", "value": {"kind": "semantic-index-descriptor", "index_id": "synthetic-pictures", "model_id": "synthetic-picture-model", "model_version": "1", "model_endpoint": "http://127.0.0.1:9", "descriptor_revision": "1f:0000000000000000000000000000000000000000000000000000000000000000", "model_provenance_ref": "model:synthetic-picture-model@1", "min_score": 0, "result_limit": 3, "ann_params": {"hyperplane_count": 2, "table_count": 4, "seed": 7, "candidate_limit": 100}, "vector_set": {"items": {"file": "/Sets/frames.jsonl"}, "points_to": {"file": "clip", "start": "t"}}}}]}]
       }
     },
     {

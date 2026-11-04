@@ -161,7 +161,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"step": "plan", "row": {"id": "move:sample-app-to-sample-box", "destination": {"shared_folder": "tools/shared-code"}, "groups": []}, "source_folder": ".", "destination_folder": "."}, "stand_in_programs": {"git": "case \"$*\" in *rev-parse*) echo 0123456789abcdef0123456789abcdef01234567 ;; esac"}}]
       }
     }
   ]

@@ -92,7 +92,8 @@
         "licence_class": "licence:maker-own",
         "placements": [
           "placement:your-computer"
-        ]
+        ],
+        "verify": [{"kind": "sample-run", "input": {}, "laid_files": [{"path": "/opt/running-programs/read-data/running-programs.json", "text": "{\"most\": {\"default\": 50, \"largest\": 2000}, \"readers\": [{\"reads\": \"process-table-folder\", \"at\": \".\"}], \"kib\": 1024}"}]}]
       }
     }
   ]

@@ -162,7 +162,8 @@
             }
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"declaration": {"rules": {"deeper": {"may_write_here": [{"path_contains": "kept"}]}}}, "places_key": "may_write_here", "id_key": "path_contains", "bases": ["projects"], "retention_kinds": [{"kind": "history", "marker": ".history"}]}, "files": [{"grant": "read-a-folder", "path": "projects/kept/.history/log.txt", "text": "a made-up history entry"}, {"grant": "read-a-folder", "path": "projects/kept/src/note.txt", "text": "x"}]}]
       }
     }
   ]

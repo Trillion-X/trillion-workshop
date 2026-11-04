@@ -87,7 +87,8 @@
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
-        "provenance": { "source": "bitfield-packages broadcast-delivery (Amazon SES adapter) and resend-email-sender (templates, headers), ported" }
+        "provenance": { "source": "bitfield-packages broadcast-delivery (Amazon SES adapter) and resend-email-sender (templates, headers), ported" },
+        "verify": [{"kind": "sample-run", "input": {"to": "reader@example.com", "subject": "Hello", "html": "<p>Hello there</p>", "text": "Hello there", "region": "us-east-1"}}]
       }
     },
     {
@@ -170,7 +171,8 @@
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
-        "provenance": { "source": "bitfield-packages resend-email-sender (templates, headers, idempotency) and broadcast-delivery (Resend adapter, list sending), merged and ported" }
+        "provenance": { "source": "bitfield-packages resend-email-sender (templates, headers, idempotency) and broadcast-delivery (Resend adapter, list sending), merged and ported" },
+        "verify": [{"kind": "sample-run", "input": {"to": "reader@example.com", "subject": "Hello", "html": "<p>Hello there</p>", "text": "Hello there"}}]
       }
     },
     {
@@ -220,7 +222,8 @@
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
-        "provenance": { "source": "bitfield-packages broadcast-delivery (Twilio text adapter), ported" }
+        "provenance": { "source": "bitfield-packages broadcast-delivery (Twilio text adapter), ported" },
+        "verify": [{"kind": "sample-run", "input": {"to": "+15550100101", "from": "+15550100100", "account_sid": "ACsample00000000000000000000000000", "text": "Hello there"}, "replies": [{"request": {"method": "POST", "url": "https://api.twilio.com/2010-04-01/Accounts/ACsample00000000000000000000000000/Messages.json"}, "status": 201, "body": {"sid": "SMsample00000000000000000000000000", "account_sid": "ACsample00000000000000000000000000", "status": "queued", "to": "+15550100101", "from": "+15550100100", "body": "Hello there"}}], "shape_read_at": "2026-11-03"}]
       }
     },
     {
@@ -271,7 +274,8 @@
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
-        "provenance": { "source": "bitfield-packages imessage-messages-sender (the Messages script as DATA, permission classification), ported" }
+        "provenance": { "source": "bitfield-packages imessage-messages-sender (the Messages script as DATA, permission classification), ported" },
+        "verify": [{"kind": "sample-run", "input": {"to": "sample-contact@example.com", "text": "Hello there"}, "stand_in_programs": {"osascript": "printf 'SENT\\n'"}}]
       }
     },
     {
@@ -363,7 +367,8 @@
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
-        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course enroll), ported" }
+        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course enroll), ported" },
+        "verify": [{"kind": "sample-run", "input": {"email": "reader@example.com", "consent": true, "course": {"id": "sample-course", "public_origin": "https://example.com/", "checkout_url": "https://example.com/#pricing", "from": "Coach <coach@example.com>", "mailing_address": "123 Test Street, Example City, CA 90000", "consent_text": "Send me three lessons by email.", "consent_version": "1", "lessons": [{"delay_hours": 0, "subject": "First lesson", "article_url": "https://example.com/lesson-1", "text_lines": ["First: {{articleUrl}}", "Unsubscribe: {{unsubscribeUrl}}", "{{mailingAddress}}"], "html_lines": ["<p>First: {{articleUrl}}</p>", "<p>{{unsubscribeUrl}} {{mailingAddress}}</p>"]}, {"delay_hours": 24, "subject": "Second lesson", "article_url": "https://example.com/lesson-2", "text_lines": ["Second: {{articleUrl}}", "Unsubscribe: {{unsubscribeUrl}}", "{{mailingAddress}}"], "html_lines": ["<p>Second: {{articleUrl}}</p>", "<p>{{unsubscribeUrl}} {{mailingAddress}}</p>"]}]}, "source": "sample page", "provider": "resend"}, "replies": [{"request": {"method": "POST", "url": "https://api.resend.com/emails"}, "status": 200, "body": {"id": "sample-message-0001"}}], "shape_read_at": "2026-11-03"}]
       }
     },
     {
@@ -426,7 +431,8 @@
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
-        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course enroll), ported" }
+        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course enroll), ported" },
+        "verify": [{"kind": "sample-run", "input": {"email": "reader@example.com", "consent": true, "course": {"id": "sample-course", "public_origin": "https://example.com/", "checkout_url": "https://example.com/#pricing", "from": "Coach <coach@example.com>", "mailing_address": "123 Test Street, Example City, CA 90000", "consent_text": "Send me three lessons by email.", "consent_version": "1", "lessons": [{"delay_hours": 0, "subject": "First lesson", "article_url": "https://example.com/lesson-1", "text_lines": ["First: {{articleUrl}}", "Unsubscribe: {{unsubscribeUrl}}", "{{mailingAddress}}"], "html_lines": ["<p>First: {{articleUrl}}</p>", "<p>{{unsubscribeUrl}} {{mailingAddress}}</p>"]}, {"delay_hours": 24, "subject": "Second lesson", "article_url": "https://example.com/lesson-2", "text_lines": ["Second: {{articleUrl}}", "Unsubscribe: {{unsubscribeUrl}}", "{{mailingAddress}}"], "html_lines": ["<p>Second: {{articleUrl}}</p>", "<p>{{unsubscribeUrl}} {{mailingAddress}}</p>"]}]}, "source": "sample page", "provider": "amazon-ses", "region": "us-east-1"}, "replies": [{"request": {"method": "POST", "url": "https://email.us-east-1.amazonaws.com/"}, "status": 200, "headers": {"content-type": "text/xml"}, "body": "<SendEmailResponse xmlns=\"http://ses.amazonaws.com/doc/2010-12-01/\"><SendEmailResult><MessageId>0100sample-0001</MessageId></SendEmailResult><ResponseMetadata><RequestId>sample-request-0001</RequestId></ResponseMetadata></SendEmailResponse>"}], "shape_read_at": "2026-11-03"}]
       }
     },
     {
@@ -482,7 +488,8 @@
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
-        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course deliver, run when a lesson comes due), ported" }
+        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course deliver, run when a lesson comes due), ported" },
+        "verify": [{"kind": "sample-run", "input": {"provider": "resend"}}]
       }
     },
     {
@@ -542,7 +549,8 @@
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
-        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course deliver, run when a lesson comes due), ported" }
+        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course deliver, run when a lesson comes due), ported" },
+        "verify": [{"kind": "sample-run", "input": {"provider": "amazon-ses", "region": "us-east-1"}}]
       }
     },
     {
@@ -594,7 +602,8 @@
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
-        "provenance": { "source": "bitfield-packages myletter-newsletter (capture-interest), ported" }
+        "provenance": { "source": "bitfield-packages myletter-newsletter (capture-interest), ported" },
+        "verify": [{"kind": "sample-run", "input": {"email": "reader@example.com", "consent": true, "course": {"id": "sample-course", "public_origin": "https://example.com/", "consent_text": "Email me one update if the free lesson series becomes available.", "consent_version": "1", "capture_only": true}, "source": "sample page"}}]
       }
     },
     {
@@ -644,7 +653,8 @@
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
-        "provenance": { "source": "bitfield-packages myletter-newsletter (unsubscribe), ported" }
+        "provenance": { "source": "bitfield-packages myletter-newsletter (unsubscribe), ported" },
+        "verify": [{"kind": "sample-run", "input": {"token": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}}]
       }
     },
     {
@@ -697,7 +707,8 @@
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
-        "provenance": { "source": "bitfield-packages myletter-newsletter (the subscription and interest records its consent logic keeps), read back" }
+        "provenance": { "source": "bitfield-packages myletter-newsletter (the subscription and interest records its consent logic keeps), read back" },
+        "verify": [{"kind": "sample-run", "input": {}}]
       }
     },
     {

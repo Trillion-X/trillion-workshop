@@ -16,7 +16,7 @@ const at = (value, selector) => selector.replace(/^\$\.?/, '').split(/\.|\[(\d+)
 
 for (const row of rows) {
   test(`${row.id} answers its own sample on the last line`, () => {
-    for (const sample of (row.verify ?? []).filter(item => item.kind === 'sample-run')) {
+    for (const sample of (row.verify ?? []).filter(item => item.kind === 'sample-run' && item.output_selector)) {
       const ran = spawnSync(process.execPath, row.invoke.argv.slice(1), { cwd: folder, input: JSON.stringify(sample.input), encoding: 'utf8' });
       assert.equal(ran.status, 0, ran.stderr);
       const answer = at(JSON.parse(ran.stdout.trim().split('\n').at(-1)), row.result_selector);

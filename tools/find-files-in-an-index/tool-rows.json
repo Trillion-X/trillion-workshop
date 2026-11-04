@@ -170,7 +170,8 @@
     "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/find-files-in-an-index"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"index_dir": "/dev", "index_file": "null", "query": "beach day"}}]
    }
   }
  ]
