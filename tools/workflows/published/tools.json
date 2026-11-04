@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:91dbde9d0e7d17a014e9a3e2b2966c3d0715f6ab37047aa7a346a700c4b37097"
+  "blake3": "1f:6b9376cd634277a53e823095ca937e4336c03a5b2aaf27607b7546cc17bab063"
  },
  "fields": [
   {
@@ -9636,6 +9636,25 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:share-a-record-by-a-sealed-link",
+   "values": {
+    "title": "Share a record by a sealed link",
+    "job": "Share one record by a sealed link whose key rides only in the part after the #, so the store keeps only ciphertext it cannot read, and open it again from that link",
+    "description": "op seal (the default): give id (the record id the copy is sealed under), record ({ type, value }) and address (the web address the link opens). The record is sealed with AES-GCM under a fresh 32-byte key of the link's own, the id bound as associated data; answers link (address with the key and the record id in its fragment, which a browser never sends to a server), sealed_copy ({ content_id, value }: the only thing to give the store, which cannot read it), content_id and opens (the copy opened again from the link in this run). op open: give id, link and copy (a sealed_copy); the copy is checked whole (one bounded sealed value matching its content_id) and opened with the key the link carries; answers record. Refuses, in plain words, another key, a changed or moved copy, a link with no key. It keeps and sends nothing; sealing with a device's own key, syncing ciphertext and sealed files are the device copy's and are not run here.",
+    "status": "active",
+    "maker": "maker:keep-records-only-my-devices-can-read",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "keep-records-only-my-devices-can-read",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
