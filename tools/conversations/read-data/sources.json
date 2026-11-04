@@ -441,6 +441,42 @@
       "recording": {"app": "Web AI chat", "person_speakers": ["user"], "ai_speakers": ["assistant"]},
       "input_shape": { "media_types": ["application/json"], "required_paths": [["capture_binding"], ["conversations"]] },
       "web_capture": { "binding_fields": ["captured_by", "surface", "authorization"] }
+    },
+    {
+      "id": "claude-ai-export",
+      "label": "Claude.ai account export (conversations.json)",
+      "reader": "fields",
+      "format_version": "Claude.ai data export conversations.json: a list of conversations, each with chat_messages",
+      "recording": {"app": "Claude", "person_speakers": ["human"], "ai_speakers": ["assistant"]},
+      "unreadable_expected": "readable json array",
+      "file": {"format": "json"},
+      "input_shape": {"media_types": ["application/json"], "extensions": [".json"], "required_json_keys": ["uuid", "chat_messages"]},
+      "summary": {"order": "newest-first", "most": 64},
+      "shape": {"root_list_key": "conversations", "threads": {"list": {"path": ["conversations"]}, "messages": {"path": ["chat_messages"], "in": "thread"}}, "thread": {"id": {"path": ["uuid"], "in": "thread"}, "title": {"path": ["name"], "in": "thread", "ops": [{"op": "text"}]}}, "message": {"speaker": {"path": ["sender"]}, "text": {"first": [{"path": ["content"], "ops": [{"op": "block-text", "list": "join"}, {"op": "text"}]}, {"path": ["text"], "ops": [{"op": "text"}]}]}, "at": {"path": ["created_at"], "ops": [{"op": "time", "from": "iso-normalized"}]}, "native_ref": {"path": ["uuid"]}}}
+    },
+    {
+      "id": "grok-export",
+      "label": "Grok account export (prod-grok-backend.json)",
+      "reader": "fields",
+      "format_version": "Grok data export: { conversations: [{ conversation: { id, title }, responses: [{ response: { _id, message, sender, create_time } }] }] }",
+      "recording": {"app": "Grok", "person_speakers": ["human", "user"], "ai_speakers": ["ASSISTANT", "assistant"]},
+      "unreadable_expected": "readable json object with conversations",
+      "file": {"format": "json"},
+      "input_shape": {"media_types": ["application/json"], "extensions": [".json"], "required_paths": [["conversations"]], "message_paths": [["response", "sender"], ["response", "message"]]},
+      "summary": {"order": "newest-first", "most": 64},
+      "shape": {"threads": {"list": {"path": ["conversations"]}, "messages": {"path": ["responses"], "in": "thread"}}, "thread": {"id": {"path": ["conversation", "id"], "in": "thread"}, "title": {"path": ["conversation", "title"], "in": "thread", "ops": [{"op": "text"}]}}, "message": {"speaker": {"path": ["response", "sender"]}, "text": {"path": ["response", "message"], "ops": [{"op": "text"}]}, "at": {"first": [{"path": ["response", "create_time", "$date", "$numberLong"], "ops": [{"op": "time", "from": "epoch-ms"}]}, {"path": ["response", "create_time", "$date"], "ops": [{"op": "time", "from": "iso-normalized"}]}, {"path": ["response", "create_time"], "ops": [{"op": "time", "from": "iso-normalized"}]}]}, "native_ref": {"path": ["response", "_id"]}, "model": {"path": ["response", "model"]}}}
+    },
+    {
+      "id": "google-activity",
+      "label": "Google Takeout activity (My Activity: Gemini Apps, Assistant, AI Mode)",
+      "reader": "fields",
+      "format_version": "Google Takeout My Activity JSON: a list of { header, title, time, subtitles, safeHtmlItem }, one record per question and answer",
+      "recording": {"app": "Google", "person_speakers": ["person"], "ai_speakers": ["ai"]},
+      "unreadable_expected": "readable json array",
+      "file": {"format": "json"},
+      "input_shape": {"media_types": ["application/json"], "extensions": [".json"], "required_json_keys": ["header", "title", "time"]},
+      "summary": {"order": "newest-first", "most": 64},
+      "shape": {"root_list_key": "records", "threads": {"per_item_turns": {"list": {"path": ["records"]}, "when": {"present": {"path": ["title"], "in": "thread"}}, "turns": [{"name": "person"}, {"name": "ai"}]}}, "thread": {"id": {"pair": [{"path": ["time"], "in": "thread"}, {"path": ["header"], "in": "thread"}], "join": ":"}, "title_from_messages": {"speaker_in": ["person"], "max": 240}}, "message": {"speaker": {"path": ["turn"]}, "text": {"if": {"equals": [{"path": ["turn"]}, {"const": "person"}]}, "then": {"path": ["item", "title"], "ops": [{"op": "strip-prefixes", "prefixes": [{"prefix": "Prompted "}, {"prefix": "Said "}, {"prefix": "Asked "}, {"prefix": "Searched for "}, {"prefix": "Searched "}]}, {"op": "text"}]}, "else": {"first": [{"path": ["item", "safeHtmlItem", 0, "html"], "ops": [{"op": "html-text"}]}, {"parts": [{"each": {"path": ["item", "subtitles"]}, "get": {"path": ["name"], "in": "item"}}], "join": "\n"}]}}, "at": {"path": ["item", "time"], "ops": [{"op": "time", "from": "iso-normalized"}]}, "native_ref": {"pair": [{"path": ["item", "time"]}, {"path": ["turn"]}], "join": ":"}}}
     }
   ]
 }

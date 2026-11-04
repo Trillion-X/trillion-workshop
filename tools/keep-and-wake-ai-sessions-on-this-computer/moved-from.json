@@ -2,7 +2,17 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "canonical-from-decision-records",
+      "files": [
+        "tools/keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs"
+      ],
+      "find": "import { canonical } from './decision-store.mjs';",
+      "replace": "import { canonical } from '../../decide-with-a-method/read-data/decision-records.mjs';",
+      "means": "The same canonical JSON (decision-store.mjs held a copy of decision-records.mjs canonical, which it imports itself), from the module that has no record engine behind it, so a tool row that keeps messages over the records door (tools/conversations tool:import-my-conversations-from-a-source) can pack messages.mjs without the engine."
+    }
+  ],
   "files": [
     {
       "from": "harness/account-key.json",
@@ -702,7 +712,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs",
       "source_identity": "1f:50bbb3d661d980015e3bf9c0d792f15303e442ec38e2ee229d80556a9718beb9",
-      "identity": "1f:50bbb3d661d980015e3bf9c0d792f15303e442ec38e2ee229d80556a9718beb9"
+      "identity": "1f:e5352a0b2fcc1f23734f150005d6fe307886e8b877b20e0a9340f47b8057e165"
     },
     {
       "from": "src/model-admission.mjs",

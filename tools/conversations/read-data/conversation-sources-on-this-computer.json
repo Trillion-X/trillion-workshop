@@ -1,0 +1,85 @@
+{
+  "_what": "Where each app's conversations are on a person's computer, and how the import over the records door is paced: DATA read by read-data/chat-import.mjs, which names no app, no folder and no file. The folder the person grants (read-a-folder) is read as their home: every place here is a path under it, and nothing outside it is read. An account export is found by its file names under `export_places` (and the folders a run adds), `in_folder` (the folder it sits in, as Google Takeout names them) and `head_has` (words its first bytes hold, which tells two exports with one file name apart). A local AI app's sessions are found where its row of tools/keep-and-wake-ai-sessions-on-this-computer/harness/record-every-message.json says (`transcript_roots`, `~` being the granted folder) and read by that file's rules, the ones old Trillion recorded every message by. `reader` names how a file is read: chat-archive (read-data/chat-archives.mjs, an export of conversation trees), decode (read-data/decode_source.py with the sources.json row `decode_source`), harness (the harness rules). A new app is a new row here.",
+  "settings": {
+    "_what": "most_text: the most characters one kept message part holds, so a part fits one door write (64 KiB); write_rows and write_bytes: one door write; retries, first_wait_ms, most_wait_ms: a busy or slow door (503, a timeout, an unknown outcome) is asked again with the same request key after a growing wait, this many times; call_timeout_ms: one door call; time_box_seconds: one run, after which it saves where it is and answers more: true; cursor_every: a file's cursor row is written after this many conversations; decode_page_atoms: one page of the decoder; head_bytes: how much of a file is read to tell what it is; cursor_bytes: the most a cursor row holds (rows a transcript is still waiting on are let go past it); transcript_read_bytes and transcript_row_bytes: one read of a session transcript and its largest row (the bounded older-transcript reader's own bounds).",
+    "most_text": 16000,
+    "write_rows": 100,
+    "write_bytes": 57344,
+    "retries": 8,
+    "first_wait_ms": 1000,
+    "most_wait_ms": 60000,
+    "call_timeout_ms": 60000,
+    "time_box_seconds": 3000,
+    "cursor_every": 10,
+    "decode_page_atoms": 2000,
+    "head_bytes": 65536,
+    "cursor_bytes": 49152,
+    "transcript_read_bytes": 4194304,
+    "transcript_row_bytes": 8388608,
+    "most_files_looked_at": 200000
+  },
+  "export_places": [
+    { "folder": "Downloads", "depth": 6 },
+    { "folder": "Desktop", "depth": 5 },
+    { "folder": "Documents", "depth": 5 }
+  ],
+  "sources": [
+    {
+      "id": "chatgpt-export",
+      "label": "ChatGPT account export",
+      "app": "ChatGPT",
+      "kind": "account-export",
+      "reader": "chat-archive",
+      "files": { "names": ["conversations.json", "conversations-*.json"], "head_has": "\"mapping\"" }
+    },
+    {
+      "id": "claude-ai-export",
+      "label": "Claude.ai account export",
+      "app": "Claude",
+      "kind": "account-export",
+      "reader": "decode",
+      "decode_source": "claude-ai-export",
+      "files": { "names": ["conversations.json"], "head_has": "\"chat_messages\"" }
+    },
+    {
+      "id": "grok-export",
+      "label": "Grok account export",
+      "app": "Grok",
+      "kind": "account-export",
+      "reader": "decode",
+      "decode_source": "grok-export",
+      "files": { "names": ["prod-grok-backend.json"], "head_has": "\"responses\"" }
+    },
+    {
+      "id": "gemini-apps-activity",
+      "label": "Gemini Apps activity (Google Takeout)",
+      "app": "Gemini",
+      "kind": "account-export",
+      "reader": "decode",
+      "decode_source": "google-activity",
+      "files": { "names": ["MyActivity.json"], "in_folder": ["Gemini Apps", "Gemini", "Bard"] }
+    },
+    {
+      "id": "google-assistant-activity",
+      "label": "Google Assistant activity (Google Takeout)",
+      "app": "Google Assistant",
+      "kind": "account-export",
+      "reader": "decode",
+      "decode_source": "google-activity",
+      "files": { "names": ["MyActivity.json"], "in_folder": ["Assistant"] }
+    },
+    {
+      "id": "google-ai-mode-activity",
+      "label": "Google Search AI Mode activity (Google Takeout)",
+      "app": "Google AI Mode",
+      "kind": "account-export",
+      "reader": "decode",
+      "decode_source": "google-activity",
+      "files": { "names": ["MyActivity.json"], "in_folder": ["AI Mode"] }
+    },
+    { "id": "claude-code-sessions", "label": "Claude Code sessions on this computer", "app": "Claude Code", "kind": "local-transcript", "reader": "harness", "harness": "claude-code" },
+    { "id": "codex-sessions", "label": "Codex sessions on this computer, archived ones too", "app": "Codex", "kind": "local-transcript", "reader": "harness", "harness": "codex" },
+    { "id": "gemini-cli-sessions", "label": "Gemini CLI sessions on this computer", "app": "Gemini CLI", "kind": "local-transcript", "reader": "harness", "harness": "gemini-cli" },
+    { "id": "hermes-sessions", "label": "Hermes sessions on this computer", "app": "Hermes", "kind": "local-transcript", "reader": "harness", "harness": "hermes" }
+  ]
+}

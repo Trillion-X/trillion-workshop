@@ -1,0 +1,56 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CONVERSATIONS-CHAT-ARCHIVES",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:7de166d829d2caaae8f3f2a60003dcb1f41d528042bca1cb64da7d792f2e41c3",
+    "quote": "Port the importers and decoders one to one into trillion-workshop tools/conversations/ (keep names, tests, moved-from.json, a tool row per action). Move code, never rewrite."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/chat-archives.mjs",
+      "multihash": "1f:71bafae3fbe46fd3f58e1c38623ed9e90180a6c5ea9a0e8ac3034029dfdd0ad7",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T00:00:00Z",
+        "deleted_with": "already gone from Trillion-X/trillion main (absent at 9bed45cbd8) when the Worker retired; the tag old-trillion-before-worker-retire keeps the history"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/conversations/read-data/chat-archives.mjs"
+    }
+  ],
+  "preserve": [
+    "the ChatGPT tree is read from current_node back to the root, oldest first, so abandoned branches stay out",
+    "a conversation read off its page keeps each message's id as its node, so a repeat adds nothing twice",
+    "words are kept exactly; a long message is kept in ordered parts whose words join to it exactly, nodes :part-<n>, times a millisecond apart, files on the first part",
+    "attachment references from metadata.attachments and image_asset_pointer parts, once each"
+  ],
+  "allowed_deltas": [
+    "MAX_TEXT comes from the moved message owner (tools/keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs)",
+    "conversationFrom and conversationsFrom take most_text, a smaller part bound an importer names so one kept part fits one records-door write; parts are made the same way under it"
+  ],
+  "banned_substitutions": [
+    "summarising or describing non-text parts",
+    "a part bound written into the code"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T09:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:71bafae3fbe46fd3f58e1c38623ed9e90180a6c5ea9a0e8ac3034029dfdd0ad7",
+    "target_multihash_at_baseline": "1f:71bafae3fbe46fd3f58e1c38623ed9e90180a6c5ea9a0e8ac3034029dfdd0ad7",
+    "commit": "7ad1cba0be49bc3e5e358883fe9008095439d84c"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/conversations/test/chat-archive-parts.test.mjs a long message is kept as ordered parts whose words join to it exactly",
+      "tools/conversations/test/chat-source-time.test.mjs an imported source time retains its precision through split messages and replay"
+    ]
+  }
+}
