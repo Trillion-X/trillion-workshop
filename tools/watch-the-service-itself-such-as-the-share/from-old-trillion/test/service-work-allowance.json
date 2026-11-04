@@ -1,0 +1,22 @@
+{
+  "_what": "Today's calls that send Trillion-wide work into one person's store (the operator account's PersonStore), per file, each with the duty it still does there. Recorded 2026-10-15 when the guard started, from the measurement of what the operator store answers for everyone. It only shrinks: moving a duty to its own addressed owner (the edge store, a record book addressed by what it owns, a native resource, the native credential issuer) lowers or deletes its file's row in the same commit (test/no-service-work-in-person-store.test.mjs). A row with `allowed_because` is work genuinely addressed to the operator as a person; it may stay, never grow. `patterns` names the shapes this allowance was measured with: shapes are only ever added, and a broader measurement starts its own baseline from the first allowance recorded with it. A row's `runtime_calls` lists the only methods a real run may ask the operator's store (test/service-watch-operator-calls.test.mjs).",
+  "files": {
+    "records/workshop-tray-tool-records.json": {
+      "count": 1,
+      "duties": [
+        "the tray report tool hands each report someone sends to Trillion HQ to the operator account (153)"
+      ],
+      "allowed_because": "A report sent to Trillion HQ is addressed to the operator as its recipient; it is their inbox, one message per report."
+    }
+  },
+  "patterns": [
+    "operator-store",
+    "operator-person-get",
+    "operator-person-for",
+    "operator-in-id-list",
+    "operator-setting-constant",
+    "data-names-operator",
+    "operator-id-held",
+    "operator-owner-id"
+  ]
+}

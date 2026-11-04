@@ -1,0 +1,182 @@
+{
+ "read_on": "2026-09-29",
+ "official_mcp_registry": {
+  "servers": [
+   {
+    "server": {
+     "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+     "name": "ai.smithery/smithery-notion",
+     "description": "A Notion workspace is a collaborative environment where teams can organize work, manage projects,…",
+     "repository": {
+      "url": "https://github.com/smithery-ai/mcp-servers",
+      "source": "github",
+      "subfolder": "notion"
+     },
+     "version": "1.0.0",
+     "remotes": [
+      {
+       "type": "streamable-http",
+       "url": "https://server.smithery.ai/@smithery/notion/mcp",
+       "headers": [
+        {
+         "description": "Bearer token for Smithery authentication",
+         "isRequired": true,
+         "value": "Bearer {smithery_api_key}",
+         "isSecret": true,
+         "name": "Authorization"
+        }
+       ]
+      }
+     ]
+    },
+    "_meta": {
+     "io.modelcontextprotocol.registry/official": {
+      "status": "active",
+      "statusChangedAt": "2025-09-10T18:26:59.341637Z",
+      "publishedAt": "2025-09-10T18:26:59.341637Z",
+      "updatedAt": "2025-09-10T18:26:59.341637Z",
+      "isLatest": true
+     }
+    }
+   },
+   {
+    "server": {
+     "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+     "name": "com.mcparmory/notion",
+     "description": "Create, update, and manage pages, databases, and workspace users",
+     "repository": {
+      "url": "https://github.com/mcparmory/registry",
+      "source": "github"
+     },
+     "version": "1.0.2",
+     "packages": [
+      {
+       "registryType": "pypi",
+       "identifier": "mcparmory-notion",
+       "version": "1.0.2",
+       "runtimeHint": "uvx",
+       "transport": {
+        "type": "stdio"
+       }
+      },
+      {
+       "registryType": "oci",
+       "identifier": "ghcr.io/mcparmory/notion:1.0.2",
+       "runtimeHint": "docker",
+       "transport": {
+        "type": "stdio"
+       }
+      }
+     ]
+    },
+    "_meta": {
+     "io.modelcontextprotocol.registry/official": {
+      "status": "active",
+      "statusChangedAt": "2026-05-11T20:01:04.251555Z",
+      "publishedAt": "2026-05-11T20:01:04.251555Z",
+      "updatedAt": "2026-05-11T20:01:04.251555Z",
+      "isLatest": true
+     }
+    }
+   },
+   {
+    "server": {
+     "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+     "name": "com.notion/mcp",
+     "description": "Official Notion MCP server",
+     "repository": {},
+     "version": "1.0.1",
+     "remotes": [
+      {
+       "type": "streamable-http",
+       "url": "https://mcp.notion.com/mcp"
+      },
+      {
+       "type": "sse",
+       "url": "https://mcp.notion.com/sse"
+      }
+     ]
+    },
+    "_meta": {
+     "io.modelcontextprotocol.registry/official": {
+      "status": "active",
+      "statusChangedAt": "2025-09-11T22:25:50.737872Z",
+      "publishedAt": "2025-09-11T22:25:50.737872Z",
+      "updatedAt": "2025-09-11T22:25:50.737872Z",
+      "isLatest": true
+     }
+    }
+   }
+  ],
+  "metadata": {
+   "nextCursor": "com.notion/mcp:1.0.1",
+   "count": 3
+  }
+ },
+ "smithery": {
+  "servers": [
+   {
+    "qualifiedName": "notion",
+    "displayName": "Notion",
+    "description": "Search across your Notion workspace and connected sources to quickly find pages, databases, and users. View full page and database details for deeper context. Create and update pages, manage databases, move or duplicate content, and add comments to keep work organized.",
+    "iconUrl": "https://api.smithery.ai/servers/notion/icon",
+    "useCount": 3841,
+    "remote": true,
+    "homepage": "https://notion.com"
+   },
+   {
+    "qualifiedName": "node2flow/notion",
+    "displayName": "Notion",
+    "description": "MCP server for Notion API — manage pages, blocks, databases, data sources, comments, and users.\n\n  ## Features\n  - Search pages and databases\n  - Full CRUD for pages, blocks, and comments\n  - Database queries with filters and sorts\n  - Data source management (new Notion API)\n  - User and bot information\n\n  ## 25 Tools\n\n  **Search**: search workspace\n  **Pages**: create, get, update, move, get property\n  **Blocks**: get, get children, append, update, delete\n  **Data Sources**: create, get, update, query, list templates\n  **Databases**: get, query, create databases\n  **Comments**: create, get, list comments\n  **Users**: list, get user, get bot info\n\n  ## Configuration\n  - NOTION_API_KEY — Internal Integration Token from https://www.notion.so/my-integrations",
+    "iconUrl": "https://api.smithery.ai/servers/node2flow/notion/icon",
+    "useCount": 7,
+    "remote": true,
+    "homepage": "https://github.com/node2flow-th/notion-mcp-community"
+   },
+   {
+    "qualifiedName": "kfuras/notipo",
+    "displayName": "notipo",
+    "description": "Open-source WordPress publishing for writers, developers, and AI agents.\n\nWrite in a clean markdown editor, sync from Notion, or hit a REST API / CLI / MCP server — Notipo handles the full pipeline: markdown → Gutenberg conversion, image hosting in your WordPress media library, AI- or Unsplash-generated featured images, and Rank Math / Yoast / SEOPress / AIOSEO metadata applied automatically on publish.",
+    "iconUrl": "https://api.smithery.ai/servers/kfuras/notipo/icon",
+    "useCount": 0,
+    "remote": true,
+    "homepage": "https://notipo.com"
+   }
+  ],
+  "pagination": {
+   "currentPage": 1,
+   "pageSize": 3,
+   "totalPages": 44,
+   "totalCount": 132
+  }
+ },
+ "apify_store": {
+  "data": {
+   "total": 8378,
+   "count": 3,
+   "offset": 0,
+   "limit": 3,
+   "desc": false,
+   "items": [
+    {
+     "title": "Notion Uploader",
+     "name": "notion-uploader",
+     "username": "filip_cicvarek",
+     "description": "Upload data into a specified Notion database. It dynamically maps data from any Actor / Dataset to your Notion properties, ensuring your database stays up-to-date with the latest information.",
+     "pictureUrl": "https://images.apifyusercontent.com/ElWLcx0ksUC15d7dfy9ED0Gk970LHUncagVmUqcw0Yc/rs:fill:76:76/cb:1/aHR0cHM6Ly9hcGlmeS1pbWFnZS11cGxvYWRzLXByb2QuczMudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vWEo0anA4TDV4V29OZFE3Y1QvQWVCOEJ5QlNuSDNzMUFuVHUtZG93bmxvYWQtMS5wbmc.webp",
+     "id": "XJ4jp8L5xWoNdQ7cT",
+     "url": "https://apify.com/filip_cicvarek/notion-uploader"
+    },
+    {
+     "title": "Notion Page Scraper | Extract Wiki, Tables & Markdown",
+     "name": "notion-page-scraper",
+     "username": "forlex",
+     "description": "Scrape public Notion pages, databases, and wikis into clean JSON, Markdown, or HTML. Fully reliable Playwright engine that succeeds where others fail. Perfect for AI/RAG, backups, and data extraction.",
+     "pictureUrl": "https://images.apifyusercontent.com/iSDFg_6yfsve1Sx5ARD33VOmWyDcrbC_yeAewszCUZo/rs:fill:76:76/cb:1/aHR0cHM6Ly9hcGlmeS1pbWFnZS11cGxvYWRzLXByb2QuczMudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vaHl6V2REcUhQWHoyM0NpMG8tYWN0b3Itd3dWTnZJcklENTNKcjVjUHctR2dLWU11a0tlcS0xOTExOTk5LndlYnA.webp",
+     "id": "wwVNvIrID53Jr5cPw",
+     "url": "https://apify.com/forlex/notion-page-scraper"
+    }
+   ]
+  }
+ }
+}
