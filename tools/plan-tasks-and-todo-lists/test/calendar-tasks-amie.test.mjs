@@ -14,9 +14,9 @@ function freshLists() {
   return lists;
 }
 // The order index of a list is built in the background; a test waits for it the way the tasks' own order test does.
-function orderReady(lists) {
+async function orderReady(lists) {
   const store = stores.get(lists);
-  lists.fillOrdering(data.collections.id);
+  await lists.fillOrdering(data.collections.id);
   for (let page = 0; page < 100 && !store.eeaf.indexReady(`record:${data.collections.row_type}`, data.collections.ordering.index); page++) store.eeaf.backfillTables({ limit: 10 });
 }
 const act = (lists, input) => changeCalendarTask(lists, input);
@@ -71,10 +71,10 @@ test('every list change answers the update that takes it back', () => {
   assert.deepEqual(readCalendarTaskCollections(lists).collections, [work], 'the undo of a create removes the list');
 });
 
-test('reorder_collection persists the order and answers the move back', () => {
+test('reorder_collection persists the order and answers the move back', async () => {
   const lists = freshLists();
   const [a, b, c] = ['a', 'b', 'c'].map(key => makeList(lists, key));
-  orderReady(lists);
+  await orderReady(lists);
   const order = () => readCalendarTaskCollections(lists).collections.map(row => row.id);
   assert.deepEqual(order(), [a.id, b.id, c.id]);
   const moved = act(lists, { action: 'reorder_collection', collection_id: c.id, anchor_id: a.id, placement: 'before' });
@@ -99,13 +99,13 @@ test('deleting a list detaches its tasks and an archived list still holds them',
   assert.equal(readCalendarTasks(lists).tasks.find(row => row.id === task.id).collection_id, null);
 });
 
-test('a store made with the old plain lists is brought to the declared shape when read', () => {
+test('a store made with the old plain lists is brought to the declared shape when read', async () => {
   const lists = freshLists();
-  lists.save({ id: data.collections.id, label: 'Task lists', row_type: 'calendar-task-list', title_field: 'title', fields: [{ id: 'title', label: 'List name', kind: 'text' }] }, { actor: { by: 'calendar' } });
-  lists.putRows(data.collections.id, { rows: [{ id: 'old-one', values: { title: 'Old one' } }] }, { actor: { by: 'calendar' } });
+  await lists.save({ id: data.collections.id, label: 'Task lists', row_type: 'calendar-task-list', title_field: 'title', fields: [{ id: 'title', label: 'List name', kind: 'text' }] }, { actor: { by: 'calendar' } });
+  await lists.putRows(data.collections.id, { rows: [{ id: 'old-one', values: { title: 'Old one' } }] }, { actor: { by: 'calendar' } });
   const read = readCalendarTasks(lists);
   assert.deepEqual(read.collections, [{ id: 'old-one', title: 'Old one', color: null, default_calendar: null, archived: false, ai_scheduling: null, preferred_times: null }]);
-  const upgraded = lists.find(data.collections.id);
+  const upgraded = await lists.find(data.collections.id);
   assert.deepEqual(upgraded.fields.map(field => field.id), data.collections.fields.map(field => field.id));
   assert.equal(upgraded.ordering.index, 'manual_order');
   assert.equal(act(lists, { action: 'update_collection', collection_id: 'old-one', color: 'pink' }).collection.color, 'pink');

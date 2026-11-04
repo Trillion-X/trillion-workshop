@@ -48,7 +48,7 @@ test('a write keeps each value a history field held, and the history fields read
   await ask('/lists/deals/rows', { rows: [{ id: 'acme', values: { name: 'Acme', stage: 'Lead' } }] }, 'Claude Code');
   await ask('/lists/deals/rows', { rows: [{ id: 'acme', values: { stage: 'Negotiation' } }] }, 'Claude Code');
   await ask('/lists/deals/rows', { rows: [{ id: 'acme', values: { name: 'Acme Inc' } }] }, 'Claude Code');
-  const row = lists.row('deals', 'acme').values;
+  const row = (await lists.row('deals', 'acme')).values;
   assert.deepEqual(row._history.stage.steps.map(step => step.v), ['Lead', 'Negotiation'], 'a write that did not change the stage leaves its history alone');
   assert.equal(row._history.stage.cut, false);
   assert.deepEqual(row._history.stage.steps[1].via, { app: 'Claude Code', basis: 'client_declared' });
