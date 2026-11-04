@@ -21,8 +21,8 @@
 //      its part only when it is the record's name, its nesting, its lane (what ticks it done), or a part the view needs.
 
 import type { DecodeVisualDatabaseInput } from './visual-database';
-import { nestedByIdentity, type GroupGraph } from '../../ui/show/group/group-graph';
-import type { AddressRef } from '../../ui/show/visual-layer-stack/visual-layer-types';
+import { nestedByIdentity, type GroupGraph } from '../../turn-frames-into-slides/read-data/group-graph.ts';
+import type { AddressRef } from '../../turn-frames-into-slides/read-data/visual-layer-types.ts';
 
 /** The shape of a list's field this reads (parts/ui/show/record-views FieldDescriptor). */
 export interface ListField {
