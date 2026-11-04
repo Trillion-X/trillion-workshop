@@ -8,13 +8,19 @@
 # the release /opt/place/current points at. The engine's file and data folder are arguments; this script names no
 # engine. Debian and Ubuntu (apt) are supported; another system stops here with exit 3.
 #
+# SETTINGS_ENV and SETTINGS_FILE are the launch setting the engine reads its product settings file's path from, and
+# that path (trillion-rust src/account_files/identity.json, since 3b2a4d10): the service sets it with an Environment=
+# line. start-a-place.mjs writes the file itself (read-data/product-settings.json).
+#
 # ADOPT_DIR, when given, is the folder the engine adopts releases from its signed feed into (release_feed.releases,
 # engine job J1). The service runs with ProtectSystem=strict, so that folder is made the place user's and added to
 # the service's ReadWritePaths; without it the service can write /var/lib/place only.
 #
-# usage: set-up-the-machine.sh HOST_NAME PORT ENGINE_FILE DATA_ENV DATA_DIR [ADOPT_DIR]
+# usage: set-up-the-machine.sh HOST_NAME PORT ENGINE_FILE DATA_ENV DATA_DIR SETTINGS_ENV SETTINGS_FILE [ADOPT_DIR]
 set -eu
-HOST_NAME=$1 PORT=$2 ENGINE_FILE=$3 DATA_ENV=$4 DATA_DIR=$5 ADOPT_DIR=${6:-}
+HOST_NAME=$1 PORT=$2 ENGINE_FILE=$3 DATA_ENV=$4 DATA_DIR=$5 SETTINGS_ENV=$6 SETTINGS_FILE=$7 ADOPT_DIR=${8:-}
+case "$SETTINGS_ENV" in *[!A-Z0-9_]*|'') echo "The launch setting must be capitals, digits and underscores." >&2; exit 2 ;; esac
+case "$SETTINGS_FILE" in /*) ;; *) echo "The product settings file must be an absolute path, not $SETTINGS_FILE." >&2; exit 2 ;; esac
 command -v apt-get >/dev/null 2>&1 || { echo "This machine has no apt-get; start-a-place sets up Debian and Ubuntu machines." >&2; exit 3; }
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
@@ -48,6 +54,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
+Environment=$SETTINGS_ENV=$SETTINGS_FILE
 Type=simple
 User=place
 Group=place
