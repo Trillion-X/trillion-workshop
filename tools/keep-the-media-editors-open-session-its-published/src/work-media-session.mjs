@@ -19,9 +19,9 @@
 //   3. A command changes the edit's state only through a path operation named in DATA (./work-media-session.json); no command type is named in code.
 //   4. Versions and the log are bounded: ids, paths, values, tracks and kept entries are checked against DATA limits.
 import rules from '../../shared-code/src/work-media-session.json' with { type: 'json' };
-import { openEditLog } from '../parts/media-composition/read-data/edit-command-log.mjs';
-import { canPublish, newVersionsState, publishVersion, removeVersion, setDefaultVersion, versionServed } from '../parts/media-composition/read-data/media-versions.mjs';
-import { measureAlignment } from '../parts/media-composition/read-data/track-alignment.mjs';
+import { openEditLog } from '../../media-composition/read-data/edit-command-log.mjs';
+import { canPublish, newVersionsState, publishVersion, removeVersion, setDefaultVersion, versionServed } from '../../media-composition/read-data/media-versions.mjs';
+import { measureAlignment } from '../../media-composition/read-data/track-alignment.mjs';
 
 const SESSION = '/work/api/media/session';
 const VERSIONS = '/work/api/media/versions';

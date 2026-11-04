@@ -1,4 +1,4 @@
-import { hostWithin } from '../parts/http-client/do-work/same-origin.mjs';
+import { hostWithin } from '../../http-client/do-work/same-origin.mjs';
 
 // Customer-owned host and path aliases for any Trillion share target.
 //

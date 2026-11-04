@@ -17,7 +17,7 @@
 //   4. Editor and speed choices are DATA (editor-handoff.json); the app-job adapter owns composition translation.
 //   5. Only the named edit is read or changed, and only through the injected store reads and writes.
 import settings from './editor-handoff.json' with { type: 'json' };
-import { filmcraftEditJob } from '../parts/media-composition/do-work/filmcraft-edit-job.mjs';
+import { filmcraftEditJob } from '../../media-composition/do-work/filmcraft-edit-job.mjs';
 import { sharedReference } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/shared-file-reference.mjs';
 
 const IDENTITY = /^(1f|12):[0-9a-f]{64}$/;

@@ -4,8 +4,8 @@
 // faces that theme names, served beside the workspace stylesheet (scripts/build-workspace.mjs copies fonts.css and
 // fonts/ to /workspace/). The shared page shell (parts/ui/show/server-rendered-page) writes it; nothing here names a
 // colour or a font, so changing the workspace's starting look changes every page with it.
-import { resolveScreenLookPalette } from '../parts/screen-look/read-data/resolve-screen-look-palette.js';
-import { readEditableScreenLookThemes } from '../parts/screen-look/read-data/read-editable-screen-look-themes.ts';
+import { resolveScreenLookPalette } from '../../screen-look/read-data/resolve-screen-look-palette.js';
+import { readEditableScreenLookThemes } from '../../screen-look/read-data/read-editable-screen-look-themes.ts';
 import looks from '../../choose-and-publish-screen-looks/src/workspace/looks.json' with { type: 'json' };
 
 // The relative lightness of a #rrggbb ground (WCAG), 1 for anything else.

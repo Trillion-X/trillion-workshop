@@ -36,8 +36,8 @@
 //
 
 import data from './done-when-facts.json' with { type: 'json' };
-import operatorData from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { resolveRule, ruleVocabulary } from '../parts/formula-engine/rules/compile-rules.mjs';
+import operatorData from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { resolveRule, ruleVocabulary } from '../../formula-engine/rules/compile-rules.mjs';
 
 const VOCABULARY = ruleVocabulary(operatorData);
 const words = (key, values = {}) => data.words[key].replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
