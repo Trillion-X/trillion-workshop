@@ -3,8 +3,8 @@
   "records": {
     "method_row": "method",
     "method_list": "list:methods",
-    "check_row": "method-check",
-    "check_list": "list:method-checks",
+    "check_row": "check",
+    "check_list": "list:checks",
     "check_step_field": "step",
     "check_id_field": "id",
     "step": "decision-step:",

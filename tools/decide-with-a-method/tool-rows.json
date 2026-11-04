@@ -433,7 +433,7 @@
         ]
        },
        {
-        "kind": "record:method-check",
+        "kind": "record:check",
         "operations": [
          "records:list"
         ]
@@ -900,7 +900,7 @@
         ]
        },
        {
-        "kind": "record:method-check",
+        "kind": "record:check",
         "operations": [
          "records:list"
         ]
@@ -1227,7 +1227,7 @@
         ]
        },
        {
-        "kind": "record:method-check",
+        "kind": "record:check",
         "operations": [
          "records:list"
         ]
@@ -1793,7 +1793,7 @@
         ]
        },
        {
-        "kind": "record:method-check",
+        "kind": "record:check",
         "operations": [
          "records:list"
         ]
@@ -2078,7 +2078,7 @@
         ]
        },
        {
-        "kind": "record:method-check",
+        "kind": "record:check",
         "operations": [
          "records:list"
         ]
@@ -2333,7 +2333,7 @@
         ]
        },
        {
-        "kind": "record:method-check",
+        "kind": "record:check",
         "operations": [
          "records:list"
         ]
@@ -3124,7 +3124,7 @@
         ]
        },
        {
-        "kind": "record:method-check",
+        "kind": "record:check",
         "operations": [
          "records:list"
         ]
