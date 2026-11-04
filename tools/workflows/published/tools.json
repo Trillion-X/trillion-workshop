@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:71657d4aae979acc31cd8e8bbda681279f9c581c8c585b9716646009658007f0"
+  "blake3": "1f:8bb49bdb8752aad1650ad32117ad21665f9d816b1d2a8e8ffe27633e8ccd690c"
  },
  "fields": [
   {
@@ -1257,6 +1257,22 @@
      "placement:small-container"
     ],
     "folder": "decide-agent-actions"
+   }
+  },
+  {
+   "id": "tool:check-an-app",
+   "values": {
+    "title": "Check how an installed app is hardened",
+    "job": "Read how an installed macOS app is hardened, from its files and the system's codesign without launching it, and say in words what falls short: Electron fuses left weak, a missing hardened runtime, forbidden entitlements, an integrity hash nothing enforces",
+    "description": "Give app: the full path of an installed app bundle (such as /Applications/Sample.app) inside the folder the person granted for reading. The app is never launched; only its Electron framework binary, its Info.plist and the system's codesign output are read. Returns app, findings (each { kind, name?, state?, said }) and ok (true when there are none). What cannot be read (no app bundle, unsigned, no fuse block, an unknown fuse version) is a finding, never assumed fine.",
+    "status": "active",
+    "maker": "maker:check-how-an-installed-app-is-hardened",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "check-how-an-installed-app-is-hardened"
    }
   },
   {
@@ -6483,6 +6499,22 @@
      "placement:your-computer"
     ],
     "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
+   "id": "tool:read-ai-setups",
+   "values": {
+    "title": "Read other AIs' setups",
+    "job": "List, read only, the instruction files, slash commands and skills other AI apps keep on the person's computer, each with its text, so the person can bring them in as saved instructions",
+    "description": "Give sources (ids from read-data/ai-setups.json: claude-instructions, claude-commands, claude-skills, codex-instructions, codex-prompts, cursor-rules) to read only those; all are read when left out. The places are under the person's home folder, which the person grants for reading. Nothing in those places is created, changed or removed. Returns items (each { id, source, kind, name, path, text, cut }, or unreadable with the reason when a file is refused: a link out of the home folder, a protected name, too big, not text) and sources (a count per source). Each text is cut at 2000 characters and says it was cut. To save them, hand the items to the account's saved_instructions with add_instructions and imported_from: ai-setups; that adds and never replaces.",
+    "status": "active",
+    "maker": "maker:read-other-ais-setups",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "read-other-ais-setups"
    }
   },
   {
