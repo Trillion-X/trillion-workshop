@@ -15,7 +15,7 @@ const carried = value => JSON.stringify(JSON.stringify(value).replace(/[\u007f-\
 export const today = () => new Date().toISOString().slice(0, 10);
 
 export const plainMethod = () => ({
-  id: 'plain', name: 'Plain method', about: 'A made-up method for the tests', default_for: ['decision'],
+  id: 'plain', kind: 'branch', name: 'Plain method', about: 'A made-up method for the tests', default_for: ['decision'],
   answer_rules: {
     field_min_words: 2, list_item_min_words: 2, evidence_min: 1,
     check: { handled: [{ name: 'how', label: 'How it was handled', kind: 'text', min_words: 1 }], skip: [{ name: 'because', label: 'Why it does not apply', kind: 'text', min_words: 1 }], distinct: true },
@@ -35,10 +35,10 @@ export const plainMethod = () => ({
   voice: [{ id: 'plain-words', rule: 'Say it in plain words', good_answer: 'Short sentences a person reads once' }],
 });
 
-// Its checks, as rows of the Method checks list: each names the step it sharpens and its method.
+// Its checks, as rows of the one Checks list: each names the step it sharpens and is part_of its method.
 export const plainChecks = () => [
-  { id: 'outcome-before-after', method: 'plain', step: 'outcome', check: 'Have you named what is in which state now and which state it should end up in?', good_answer: 'One before-and-after pair with the facts that show the current state.' },
-  { id: 'existing-where', method: 'plain', step: 'existing', when: 'compare_existing', check: 'Where did you look for something that already does this?', good_answer: 'Names the places searched.' },
+  { id: 'outcome-before-after', part_of: 'plain', step: 'outcome', check: 'Have you named what is in which state now and which state it should end up in?', good_answer: 'One before-and-after pair with the facts that show the current state.' },
+  { id: 'existing-where', part_of: 'plain', step: 'existing', when: 'compare_existing', check: 'Where did you look for something that already does this?', good_answer: 'Names the places searched.' },
 ];
 
 export function memoryDoor() {

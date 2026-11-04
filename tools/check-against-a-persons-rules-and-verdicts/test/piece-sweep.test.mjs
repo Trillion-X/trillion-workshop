@@ -70,7 +70,7 @@ test('a check or a covered_by naming a row that does not exist covers nothing, a
 test('the coverage of the records pages the ids of the Checks list, then the piece rows narrowed to what it reads, and writes nothing', async () => {
   const { pieces } = madeUpPieces();
   const records = [...pieces.map(value => ({ id: `record:check:${value.id}`, type: 'record:check', value })),
-    { id: 'record:check:made-up-check', type: 'record:check', value: { id: 'made-up-check', method: 'made-up-base', words: ['made-up'] } }];
+    { id: 'record:check:made-up-check', type: 'record:check', value: { id: 'made-up-check', part_of: 'made-up-base', words: ['made-up'] } }];
   const calls = [];
   const door = {
     async read() { throw new Error('the coverage reads no record one by one'); },

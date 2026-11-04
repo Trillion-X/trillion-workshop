@@ -1136,7 +1136,7 @@
       "capability": "decide with a method: start a decision, ask and answer its method's questions, make it, report how it turned out, bring back the person's similar past decisions, and make a decided one safe to share",
       "owner": ["tools/decide-with-a-method/"],
       "entry": "tools/decide-with-a-method/tool-rows.json",
-      "evidence": "README.md: the method is the person's list rows (list:methods, list:method-checks); every step is kept in their records; sharing needs the plain privacy pass and a re-identification verdict bound to the exact words",
+      "evidence": "README.md: the method is the person's list rows (the branch and check nodes of list:checks, joined by part_of); every step is kept in their records; sharing needs the plain privacy pass and a re-identification verdict bound to the exact words",
       "distinct_from": [
         {"job": "practise with due reviews and guided drills: spaced repetition, decision practice, tactics", "why": "that job drills a person on practice cases; this one makes and keeps the person's real decisions with their own method"},
         {"job": "ask people questions and act on their answers: make quiz questions from text, check answers against a form, score answers into a segment with its follow-up", "why": "that job asks other people a form's questions and sorts them by their answers; this one walks one person's own decision through their method's steps and checks, keeps the decision, its outcome and its result"}
