@@ -681,3 +681,27 @@ test('a whole document is written or removed only while it is still the one read
   await assert.rejects(changeDocumentRows({ root: folder, remove: [{ id: '/new-room/shed.md', if_identity: null }] }), /names the identity it read/);
   await assert.rejects(changeDocumentRows({ root: folder, rows: [{ id: '/../outside.md', text: 'x', if_identity: null }] }), /not .* in this folder|not in the folder/);
 });
+
+test('atoms: the row shape is DATA, so one cutter writes a note list and a checks list alike', async () => {
+  const root = await scratch();
+  await writeFile(join(root, 'a.md'), '## Kitchen\n\n**Dishes.** Wash them.\n\nSweep the floor.\n');
+  await writeFile(join(root, 'b.md'), '## Hall\n\nSweep the floor.\n');
+  const record = { type: 'record:check', id: 'record:check:piece-{id}',
+    value: { id: 'piece-{id}', kind: 'piece', says: '{lead}', text: '{text}', identity: '{identity}', key: '{key}', sources: '{sources}', tags: [], checked_by: [], note: 'from {key}' },
+    source: { file: '{file}', section: '{section}', file_identity: '{file_identity}', at: '{line}' } };
+  const { records } = await cutIntoRecords({ root, mapping: { cut: 'atoms', folders: ['/'], id_hex: 24, record } });
+  assert.equal(records.length, 2);
+  const sweep = records.find(row => row.value.text === 'Sweep the floor.');
+  assert.match(sweep.id, /^record:check:piece-[0-9a-f]{24}$/);
+  assert.equal(sweep.type, 'record:check');
+  assert.equal(sweep.value.id, sweep.id.replace('record:check:', ''));
+  assert.equal(sweep.value.says, 'Sweep the floor.');
+  assert.match(sweep.value.identity, /^1f:[0-9a-f]{64}$/);
+  assert.deepEqual(sweep.value.tags, []);
+  assert.equal(sweep.value.note, 'from Kitchen / Sweep the floor.');
+  assert.deepEqual(sweep.value.sources.map(one => [one.file, one.section, one.at]), [['/a.md', 'Kitchen / Sweep the floor.', 5], ['/b.md', 'Hall / Sweep the floor.', 3]]);
+  assert.match(sweep.value.sources[0].file_identity, /^1f:[0-9a-f]{64}$/);
+  const bare = (await cutIntoRecords({ root, mapping: { cut: 'atoms', folders: ['/'] } })).records.find(row => row.value.text === 'Sweep the floor.');
+  assert.deepEqual(Object.keys(bare.value.sources[0]), ['path', 'line']);
+  await assert.rejects(cutIntoRecords({ root, mapping: { cut: 'atoms', folders: ['/'], record: { type: 'x' } } }), /record. needs/);
+});
