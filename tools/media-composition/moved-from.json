@@ -46,5 +46,15 @@
       "source_identity": "1f:b5395e1cd929d7670d04ef7d582347387d5f23ad17276438da5ca2d36efef92a",
       "identity": "1f:b5395e1cd929d7670d04ef7d582347387d5f23ad17276438da5ca2d36efef92a"
     }
+  ],
+  "values": [
+    {
+      "from": "harness/take-open-work.json",
+      "key": "program_paths",
+      "commit": "7fd8838475^",
+      "to": "tools/media-composition/do-work/narration/runtime.json",
+      "key_here": "programs[local-narration-python].search_path",
+      "note": "The computer helper's seven program folders, appended after ~/.showtime/venv/bin in their source order; author-voice-script.mjs no longer reads the old helper settings."
+    }
   ]
 }
