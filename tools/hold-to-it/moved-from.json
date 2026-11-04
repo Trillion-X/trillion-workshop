@@ -1,0 +1,17 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/hold-to-it.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/hold-to-it/hold-to-it.mjs",
+      "source_identity": "1f:873defc157877bec7222db193c9e057654d8ba801f908a4e19abea687b246331",
+      "identity": "1f:873defc157877bec7222db193c9e057654d8ba801f908a4e19abea687b246331",
+      "found_by": "same bytes"
+    }
+  ]
+}

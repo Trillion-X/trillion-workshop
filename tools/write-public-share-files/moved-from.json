@@ -19,6 +19,28 @@
       "to": "tools/write-public-share-files/test/list-field-comparison.test.mjs",
       "source_identity": "1f:57f9377a29c0ef2f1c1a53713341d4e01e13ba817bde5ab21c5242cc9e991c3f",
       "identity": "1f:8fe71fb124484f607adc20b9178cafef5fbfcff7b19ca385b2d2edbdbee6b613"
+    },
+    {
+      "from": "test/list-copy.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/write-public-share-files/test/list-copy.test.mjs",
+      "source_identity": "1f:cb6b6723245a0ceeebd6a7f691cbda2b27679511b37ccc8f0af731d03232ee89",
+      "identity_at_move": "1f:cb6b6723245a0ceeebd6a7f691cbda2b27679511b37ccc8f0af731d03232ee89",
+      "byte_copy_commit": "208acc151a34d7c7a6740afc75f2f29d52a6661c",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "test/shareable-copy-privacy.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/write-public-share-files/test/shareable-copy-privacy.test.mjs",
+      "source_identity": "1f:b1119d6c1e6533dc5141f0aae3862865088699af44ea99cc1750b69acdd9fb19",
+      "identity_at_move": "1f:b1119d6c1e6533dc5141f0aae3862865088699af44ea99cc1750b69acdd9fb19",
+      "byte_copy_commit": "208acc151a34d7c7a6740afc75f2f29d52a6661c",
+      "changed": true,
+      "found_by": "same bytes"
     }
   ]
 }

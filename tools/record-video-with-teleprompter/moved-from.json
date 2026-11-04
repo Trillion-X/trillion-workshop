@@ -1,0 +1,152 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/record-video/do-work/build-recording-session-from-presentation-plan.mjs",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/do-work/build-recording-session-from-presentation-plan.mjs",
+      "source_identity": "1f:9078c066104ddd52a2df95de5d3fadfdf65c6aa3856dc39f7c4d06a824b018af",
+      "identity": "1f:9078c066104ddd52a2df95de5d3fadfdf65c6aa3856dc39f7c4d06a824b018af",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/do-work/record-video-requests.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/do-work/record-video-requests.ts",
+      "source_identity": "1f:bea5f95362cd9c8f9ac3314b4171763ddc5514a51a42e4c036af4f7bbcf7e532",
+      "identity": "1f:bea5f95362cd9c8f9ac3314b4171763ddc5514a51a42e4c036af4f7bbcf7e532",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/do-work/recorded-file-artifact.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/do-work/recorded-file-artifact.ts",
+      "source_identity": "1f:278bcce15f46e0bd66afb4c2bff20b7f5d5abc196a5dacb2e60c0abab3f2ae64",
+      "identity": "1f:278bcce15f46e0bd66afb4c2bff20b7f5d5abc196a5dacb2e60c0abab3f2ae64",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/do-work/recorded-file-store.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/do-work/recorded-file-store.ts",
+      "source_identity": "1f:8fb9b33213cda900fe1b6a44904aecf13f33be097cad1c797f3a4a1246f58ef0",
+      "identity": "1f:8fb9b33213cda900fe1b6a44904aecf13f33be097cad1c797f3a4a1246f58ef0",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/do-work/recording-session-from-presentation-plan.mjs",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/do-work/recording-session-from-presentation-plan.mjs",
+      "source_identity": "1f:b1aa25cc939d0886cd9c605c3cc066e3e5fcfd2341782244f37bd0418592f492",
+      "identity": "1f:b1aa25cc939d0886cd9c605c3cc066e3e5fcfd2341782244f37bd0418592f492",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/read-data/recording-enrichment.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/read-data/recording-enrichment.ts",
+      "source_identity": "1f:17a36fe0dc6cf4e44392ff4293b0abfaafe6e6e809caab17b5fa7cc0a4cdd778",
+      "identity": "1f:17a36fe0dc6cf4e44392ff4293b0abfaafe6e6e809caab17b5fa7cc0a4cdd778",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/read-data/recording-page-arrangement.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/read-data/recording-page-arrangement.ts",
+      "source_identity": "1f:0a62277f615165027d93d5003f6cf5c6216eebc8f40663cee92b62146cbee79a",
+      "identity": "1f:0a62277f615165027d93d5003f6cf5c6216eebc8f40663cee92b62146cbee79a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/read-data/recording-session.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/read-data/recording-session.ts",
+      "source_identity": "1f:5134a3c4977a461c39b82c90b67b414bbba29d048a6c759ed18ddfcd1e5a6b74",
+      "identity": "1f:5134a3c4977a461c39b82c90b67b414bbba29d048a6c759ed18ddfcd1e5a6b74",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/show/browser-media-capture.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/show/browser-media-capture.ts",
+      "source_identity": "1f:0c5edfdfc4a788f1e977abdb20d2bcc181cc1f3c9e365353cd10090052ea4e6b",
+      "identity": "1f:0c5edfdfc4a788f1e977abdb20d2bcc181cc1f3c9e365353cd10090052ea4e6b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/show/live-recording.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/show/live-recording.ts",
+      "source_identity": "1f:bf9c39dcb3749bb8f3abc92c93918a8c3d939854197f2cd6be5116b4d22401bf",
+      "identity": "1f:bf9c39dcb3749bb8f3abc92c93918a8c3d939854197f2cd6be5116b4d22401bf",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/show/mount-record-video.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/show/mount-record-video.tsx",
+      "source_identity": "1f:07c235f368d36d8437372aa07c16def713223569f944cbd2bd45248dc795d854",
+      "identity": "1f:07c235f368d36d8437372aa07c16def713223569f944cbd2bd45248dc795d854",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/show/recording-lifecycle.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/show/recording-lifecycle.ts",
+      "source_identity": "1f:7718716c77737f8bfb93ffcc651669c8fe632589076e86f2e55ee32e30bc89eb",
+      "identity": "1f:7718716c77737f8bfb93ffcc651669c8fe632589076e86f2e55ee32e30bc89eb",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/show/RecordingEnrichmentPanel.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/show/RecordingEnrichmentPanel.tsx",
+      "source_identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
+      "identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/show/RecordVideoPanel.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/show/RecordVideoPanel.tsx",
+      "source_identity": "1f:a83e294a63d239aee7ba75b5b1c48e7cd009144d438f4b84981a2348ed39fb6e",
+      "identity": "1f:a83e294a63d239aee7ba75b5b1c48e7cd009144d438f4b84981a2348ed39fb6e",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/show/setup-observer.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/show/setup-observer.ts",
+      "source_identity": "1f:c25c4f58094cd49ee8407d47c164522d765afcec5035ad455c2919df06830e7a",
+      "identity": "1f:c25c4f58094cd49ee8407d47c164522d765afcec5035ad455c2919df06830e7a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/show/silence-stop.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/show/silence-stop.ts",
+      "source_identity": "1f:51b6e9e07221ff50938ed22210d3c2c98f7a9027cf91e2b5e8e4ce923bbd0938",
+      "identity": "1f:51b6e9e07221ff50938ed22210d3c2c98f7a9027cf91e2b5e8e4ce923bbd0938",
+      "found_by": "same bytes"
+    }
+  ]
+}

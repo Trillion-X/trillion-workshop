@@ -1,0 +1,26 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/headless-browser/bare-linux.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/headless-browser/bare-linux.mjs",
+      "source_identity": "1f:2e3249a8920b6d77c712da3439fbd80e83259f6e69b202096535cc59a789add1",
+      "identity": "1f:2e3249a8920b6d77c712da3439fbd80e83259f6e69b202096535cc59a789add1",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/headless-browser/launch.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/headless-browser/launch.mjs",
+      "source_identity": "1f:53bf2afcd25a2ba48a9366566e690187c1d0592c3fab79b793c28a01e6fc540e",
+      "identity": "1f:53bf2afcd25a2ba48a9366566e690187c1d0592c3fab79b793c28a01e6fc540e",
+      "found_by": "same bytes"
+    }
+  ]
+}

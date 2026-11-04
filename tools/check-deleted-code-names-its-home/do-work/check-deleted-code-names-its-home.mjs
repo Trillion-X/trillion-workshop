@@ -53,6 +53,11 @@ function hasCommit(root, ref) {
   return spawnSync('git', ['-C', root, 'rev-parse', '--verify', '-q', `${ref}^{commit}`]).status === 0;
 }
 
+/** A receipt names its source as `trillion` or as its GitHub name, `Trillion-X/trillion`: both are the repository `trillion`. */
+function sameRepository(named, name) {
+  return String(named).split('/').pop().toLowerCase() === String(name).toLowerCase();
+}
+
 function say(template, values) {
   return template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 }
@@ -174,7 +179,7 @@ export function judgeDeletions({ root, span, repository, repositories = {}, rule
   const errors = [];
   for (const path of wanted) {
     const identity = pathIdentity(path);
-    const receipt = entries.find((entry) => (!entry.repository || entry.repository === name)
+    const receipt = entries.find((entry) => (!entry.repository || sameRepository(entry.repository, name))
       && (entry.from === path || entry.from_path_identity === identity));
     if (receipt) {
       judged.push({ path, home: { repository: receipt.in, path: receipt.to ?? null, receipt: receipt.receipt }, how: 'moved-from receipt' });

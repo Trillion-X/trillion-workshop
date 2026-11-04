@@ -1,0 +1,188 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/addressed-marks/do-work/record-mark-operation.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/do-work/record-mark-operation.ts",
+      "source_identity": "1f:bffc54554cf416a43191bd8e596518cf706356dde98504eb59b437b141b0bb27",
+      "identity": "1f:bffc54554cf416a43191bd8e596518cf706356dde98504eb59b437b141b0bb27",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/do-work/record-mark-style.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/do-work/record-mark-style.ts",
+      "source_identity": "1f:0f240a4bcebd52613359483f5daf5ea6b1a693a34a70c4f2ae66c7242154dea4",
+      "identity": "1f:0f240a4bcebd52613359483f5daf5ea6b1a693a34a70c4f2ae66c7242154dea4",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/do-work/record-mark-tool.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/do-work/record-mark-tool.ts",
+      "source_identity": "1f:9a518c40274626f2a990293a030bae7cd1064ed0f9b5d0057549c5eadc4b7698",
+      "identity": "1f:9a518c40274626f2a990293a030bae7cd1064ed0f9b5d0057549c5eadc4b7698",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/read-data/addressed-marks.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/read-data/addressed-marks.ts",
+      "source_identity": "1f:6d2d690b8ffbec4c09286748df46a5c894bbd1840d5c4b0f1aeeae9eccdf51e5",
+      "identity": "1f:6d2d690b8ffbec4c09286748df46a5c894bbd1840d5c4b0f1aeeae9eccdf51e5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/read-data/board-ink-svg.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/read-data/board-ink-svg.ts",
+      "source_identity": "1f:c7a1a0c57d75fe14ad3939d1b4ba10dd68fb70d8e03f195592adb4dd978b6bc8",
+      "identity": "1f:c7a1a0c57d75fe14ad3939d1b4ba10dd68fb70d8e03f195592adb4dd978b6bc8",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/read-data/marks-to-svg.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/draw-lists-on-a-canvas/read-data/marks-to-svg.ts",
+      "source_identity": "1f:f8745e70a22d659dc734d8cc4879e86097971ac8e3572a6e7d333fac31caf8d0",
+      "identity": "1f:f8745e70a22d659dc734d8cc4879e86097971ac8e3572a6e7d333fac31caf8d0",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/show/AddressedMarkLayer.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/AddressedMarkLayer.tsx",
+      "source_identity": "1f:20e30aa2fb57d071da34a5395e601c22dcf804b4c831fe0a75497a9e3d263603",
+      "identity": "1f:20e30aa2fb57d071da34a5395e601c22dcf804b4c831fe0a75497a9e3d263603",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/show/AddressedMarkOverlay.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/AddressedMarkOverlay.tsx",
+      "source_identity": "1f:fb09603655804a1ff7561cab96890241e26b95b80a4f80d8f7ee0f343db68941",
+      "identity": "1f:fb09603655804a1ff7561cab96890241e26b95b80a4f80d8f7ee0f343db68941",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/show/keep-marks.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/keep-marks.ts",
+      "source_identity": "1f:82b7a912b677e7dc880a4786b28b4fc6b373df3d48d53f374841cebbe09cc0eb",
+      "identity": "1f:82b7a912b677e7dc880a4786b28b4fc6b373df3d48d53f374841cebbe09cc0eb",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/show/MarkInputLayer.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/MarkInputLayer.tsx",
+      "source_identity": "1f:cf895090d5e2a0837ca47c81933b394afedf26d526810bb4a5303f0f11c21088",
+      "identity": "1f:cf895090d5e2a0837ca47c81933b394afedf26d526810bb4a5303f0f11c21088",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/show/MarkSessionContext.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/MarkSessionContext.tsx",
+      "source_identity": "1f:2e8e39590e0f28323584f8795ca6da476640356725ed6cc8351ad323e7055b9d",
+      "identity": "1f:2e8e39590e0f28323584f8795ca6da476640356725ed6cc8351ad323e7055b9d",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/show/MarkToolbar.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/MarkToolbar.tsx",
+      "source_identity": "1f:c69b967c59c9490dd209335e49fb150d8e2eb72dfe2744f9a32d47910ba91c85",
+      "identity": "1f:c69b967c59c9490dd209335e49fb150d8e2eb72dfe2744f9a32d47910ba91c85",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/show/shown-marks.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/shown-marks.ts",
+      "source_identity": "1f:7036d11d1f38e26b8288706cb2f18f280cc41cf1230f2b75de9ad0a327f55d3a",
+      "identity": "1f:7036d11d1f38e26b8288706cb2f18f280cc41cf1230f2b75de9ad0a327f55d3a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/show/use-board-ink-svg.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/use-board-ink-svg.ts",
+      "source_identity": "1f:f96a9bf6c5bbfb79c602c0046e9123b0671ff42e9bba4238ca2a005107344af6",
+      "identity": "1f:f96a9bf6c5bbfb79c602c0046e9123b0671ff42e9bba4238ca2a005107344af6",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/addressed-marks/show/use-mark-data.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/use-mark-data.ts",
+      "source_identity": "1f:85d142963448f600113af6ade77a1ebd2a028b175ac3d1d979579f67db8ef06a",
+      "identity": "1f:85d142963448f600113af6ade77a1ebd2a028b175ac3d1d979579f67db8ef06a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/graph-canvas/show/CanvasView.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/CanvasView.tsx",
+      "source_identity": "1f:f3c7705b72b038e3c35d8c394a66d78313e4a59344c1f61d36e90c004c27ea8c",
+      "identity": "1f:f3c7705b72b038e3c35d8c394a66d78313e4a59344c1f61d36e90c004c27ea8c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/graph-canvas/show/DefaultEdge.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/DefaultEdge.tsx",
+      "source_identity": "1f:2633d3e280bf1986008a8f36b33d8e11a95ee052f45a49ed00cf7c4f6337ffa4",
+      "identity": "1f:2633d3e280bf1986008a8f36b33d8e11a95ee052f45a49ed00cf7c4f6337ffa4",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/graph-canvas/show/GraphCanvas.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/GraphCanvas.tsx",
+      "source_identity": "1f:052f40d59d2cad6600b6e9bd1c90c2ca1aea3375f4e9162f84544696fc0137f0",
+      "identity": "1f:052f40d59d2cad6600b6e9bd1c90c2ca1aea3375f4e9162f84544696fc0137f0",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/graph-canvas/show/types.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/draw-lists-on-a-canvas/show/types.ts",
+      "source_identity": "1f:d2d0c592261bebeedf8f667a05741221298564af9a717b94cfe828ab68f2c51a",
+      "identity": "1f:d2d0c592261bebeedf8f667a05741221298564af9a717b94cfe828ab68f2c51a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/graph-canvas/show/use-graph-canvas.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/draw-lists-on-a-canvas/show/use-graph-canvas.ts",
+      "source_identity": "1f:ec97f7cedf635a489fbcbe0dd3a6f5aa8b20c900b9d5d5f324f4bf85d10d4923",
+      "identity": "1f:ec97f7cedf635a489fbcbe0dd3a6f5aa8b20c900b9d5d5f324f4bf85d10d4923",
+      "found_by": "same bytes"
+    }
+  ]
+}
