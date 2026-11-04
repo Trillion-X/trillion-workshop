@@ -1,0 +1,465 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:record-video-with-teleprompter",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:turn-a-presentation-plan-into-a-teleprompter-session",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Turn a presentation plan into a teleprompter session",
+        "job": "Turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself",
+        "description": "Give plan (one compiled video presentation plan: id, title, medium video, execution.adapter capture.video, beats each with delivery speak and text, no open acquisitions, and the execution settings: countdown_seconds, auto_stop_seconds, silence_stop_seconds, silence_threshold_rms, minimum_speech_ms, stop_on_final_word, completion_grace_ms, completion_slack_words, script_end_quiet_seconds, stop_phrases, mirror_script, speech_language, follow_speech, allow_manual_nudge, completion_label), and optionally readiness (the setup pass's result for this plan), authorization (a grant: plan_id, authorized, authorized_at_ms, grant_until_ms) and nowMs (epoch milliseconds; the run's clock when left out). Answers the record-video.recording-session: session_id, title, subtitle, the stop and speech-follow settings with their defaults filled in, sentences (the teleprompter script), source_plan, requirements, plan_capabilities, readiness_state, authorization_state and auto_start, which is true only with a complete matching readiness and an unexpired grant for this plan. Refuses a plan that is not a video plan for capture.video, has open acquisitions (a gathering format), has no beats or a beat that is not spoken text, has a negative or non-numeric setting, and a grant that claims capture without fresh readiness or that does not match the plan and time. It reads only its input: it never opens a camera or microphone, never treats a plan as consent, records nothing and asks no AI to write a script. The screen's other work (the camera picture, countdown, live waveform, silence stop and speech-following teleprompter while recording, voice-only choice, and having the person's AI write the script for a format) needs a browser and is not done by this run.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "plan"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "plan": {
+              "type": "object",
+              "required": [
+                "id",
+                "title",
+                "medium",
+                "execution",
+                "beats"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "subtitle": {
+                  "type": "string"
+                },
+                "medium": {
+                  "type": "string",
+                  "enum": [
+                    "video"
+                  ]
+                },
+                "material_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "material_revision": {},
+                "format_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "format_revision": {},
+                "revision": {},
+                "acquisitions": {
+                  "type": "array",
+                  "maxItems": 0
+                },
+                "beats": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "delivery",
+                      "text"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "delivery": {
+                        "type": "string",
+                        "enum": [
+                          "speak"
+                        ]
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "requirements": {
+                  "type": "array"
+                },
+                "capabilities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "execution": {
+                  "type": "object",
+                  "required": [
+                    "adapter",
+                    "countdown_seconds"
+                  ],
+                  "properties": {
+                    "adapter": {
+                      "type": "string",
+                      "enum": [
+                        "capture.video"
+                      ]
+                    },
+                    "countdown_seconds": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "auto_stop_seconds": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "silence_stop_seconds": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "silence_threshold_rms": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "minimum_speech_ms": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "completion_grace_ms": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "completion_slack_words": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "script_end_quiet_seconds": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "stop_on_final_word": {
+                      "type": "boolean"
+                    },
+                    "stop_phrases": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "mirror_script": {
+                      "type": "boolean"
+                    },
+                    "speech_language": {
+                      "type": "string"
+                    },
+                    "follow_speech": {
+                      "type": "boolean"
+                    },
+                    "allow_manual_nudge": {
+                      "type": "boolean"
+                    },
+                    "completion_label": {
+                      "type": "string"
+                    },
+                    "completion_reason_refs": {}
+                  }
+                }
+              }
+            },
+            "readiness": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "plan_id": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "string"
+                },
+                "problems": {
+                  "type": "array"
+                },
+                "requirements": {
+                  "type": "array"
+                }
+              }
+            },
+            "authorization": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "plan_id": {
+                  "type": "string"
+                },
+                "authorized": {
+                  "type": "boolean"
+                },
+                "authorized_at_ms": {
+                  "type": "number"
+                },
+                "grant_until_ms": {
+                  "type": "number"
+                }
+              }
+            },
+            "nowMs": {
+              "type": "number"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "kind",
+            "session_id",
+            "title",
+            "subtitle",
+            "capture_mode",
+            "auto_start",
+            "countdown_seconds",
+            "sentences",
+            "readiness_state",
+            "authorization_state"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "record-video.recording-session"
+              ]
+            },
+            "session_id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "capture_mode": {
+              "type": "string"
+            },
+            "auto_start": {
+              "type": "boolean"
+            },
+            "countdown_seconds": {
+              "type": "number"
+            },
+            "auto_stop_seconds": {
+              "type": "number"
+            },
+            "silence_stop_seconds": {
+              "type": "number"
+            },
+            "silence_threshold_rms": {
+              "type": "number"
+            },
+            "minimum_speech_ms": {
+              "type": "number"
+            },
+            "stop_on_final_word": {
+              "type": "boolean"
+            },
+            "completion_grace_ms": {
+              "type": "number"
+            },
+            "completion_slack_words": {
+              "type": "number"
+            },
+            "script_end_quiet_seconds": {
+              "type": "number"
+            },
+            "stop_phrases": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "mirror_script": {
+              "type": "boolean"
+            },
+            "speech_language": {
+              "type": "string"
+            },
+            "follow_speech": {
+              "type": "boolean"
+            },
+            "allow_manual_nudge": {
+              "type": "boolean"
+            },
+            "status_label": {
+              "type": "string"
+            },
+            "completion_label": {
+              "type": "string"
+            },
+            "sentences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "source_plan": {
+              "type": "object"
+            },
+            "requirements": {
+              "type": "array"
+            },
+            "plan_capabilities": {
+              "type": "array"
+            },
+            "readiness_state": {
+              "type": "string",
+              "enum": [
+                "ready_to_authorize",
+                "awaiting_setup"
+              ]
+            },
+            "authorization_state": {
+              "type": "string",
+              "enum": [
+                "authorized",
+                "not_authorized"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/record-video-with-teleprompter",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/record-video-with-teleprompter/do-work/recording-session-from-presentation-plan.mjs",
+            "recordingSessionFromPlan"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "record-video-with-teleprompter",
+                "paths": [
+                  "do-work/recording-session-from-presentation-plan.mjs"
+                ],
+                "at": "/opt/record-video-with-teleprompter"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/record-video/do-work/recording-session-from-presentation-plan.mjs (the conversion build-recording-session-from-presentation-plan.mjs runs), moved in a9ee258 (#76); old capability row capabilities.json:87 at 4ffa1dc4a2^ (record a video of myself with the camera ... a teleprompter that follows my speech)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "plan": {
+                "id": "PLAN-sample-week-plan",
+                "title": "How I plan a week",
+                "material_id": "material-sample",
+                "material_revision": 1,
+                "format_id": "SAMPLE-DIRECT",
+                "format_revision": 1,
+                "revision": 1,
+                "medium": "video",
+                "acquisitions": [],
+                "beats": [
+                  {
+                    "id": "opening",
+                    "delivery": "speak",
+                    "text": "Here is how I plan a week."
+                  },
+                  {
+                    "id": "close",
+                    "delivery": "speak",
+                    "text": "That is the whole plan."
+                  }
+                ],
+                "execution": {
+                  "adapter": "capture.video",
+                  "countdown_seconds": 3,
+                  "silence_stop_seconds": 3,
+                  "stop_on_final_word": true
+                }
+              },
+              "readiness": {
+                "plan_id": "PLAN-sample-week-plan",
+                "state": "ready_to_authorize",
+                "problems": [],
+                "requirements": [
+                  {
+                    "id": "camera_live",
+                    "satisfied": true
+                  }
+                ]
+              },
+              "authorization": {
+                "plan_id": "PLAN-sample-week-plan",
+                "authorized": true,
+                "authorized_at_ms": 1000,
+                "grant_until_ms": 2000000
+              },
+              "nowMs": 1000000
+            },
+            "output_selector": "$.status_label",
+            "contains": "Authorized speech follower"
+          }
+        ]
+      }
+    }
+  ]
+}
