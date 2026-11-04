@@ -18,12 +18,16 @@ The audio-transcription package's local Whisper transcription with word times, a
 | `read-data/hear-here.mjs` | `hearARecording` (`tool:hear-a-recording`) and `hearALink` (`tool:hear-a-link`), run as functions by `tools/records-door`: a recording read through the run's door, or a link's captions or sound, heard with `transcribe` on the person's computer; a heard link's sound is kept in their files with its words beside it. Moved from the product repo's `computer/listen.mjs` (`listeningTools.transcribe`) and `computer/hear-a-link.mjs`. |
 | `read-data/hear-a-link.json` | The link readers (the yt-dlp row: `info`, `captions`, `sound`, `search_path`, `update_hint`), the caption languages, where a heard sound is kept, the longest fetch and every word the AI reads. |
 | `tool-rows.json` | `tool:hear-a-recording` and `tool:hear-a-link`: `computer` rows with `start-a-program` (the person grants the `record-and-hear` programs: ffmpeg, whisper-cli and the models folder); and `tool:transcribe-audio-and-repair-whisper-loops`: `on-your-computer`. |
-| `part.json` | Nothing here is imported by other code. |
+| `src/account-transcription.mjs` | `tool:transcribe-file` on the account side, moved byte for byte from Trillion-X/trillion (`moved-from.json`): hears one audio or video file in the person's Trillion files (a video through its sound alone), long files in pieces, and keeps the transcript with every word's own seconds beside the file; a kept transcript with word timings is reused. Its meeting hearing options come from `tools/record-voice-and-meetings/read-data/meeting-settings.mjs`. |
+| `src/transcript-words.mjs` | The one shape a transcript is kept in (`text`, `segments` with `words`, `language`); a word or segment without finite times is dropped, never given guessed ones. |
+| `moved-from.json` | Each moved file's source path, commit and identities. |
+| `part.json` | Public: `src/account-transcription.mjs` and `src/transcript-words.mjs`, which trillion-apps imports (the meeting settings and transcript tests of its screens). |
 | `test/audio-transcription-seam.test.mjs` | Runs the seam on a tone made with ffmpeg and a stand-in `whisper-cli` that loops the way Whisper does. |
 | `test/test_whisper_loops.py`, `test/test_transcript_reports.py`, `test/fake_whisper_cli.py` | The pure readers, and the stand-in recognizer. |
 | `test/test_probe_duration.py` | A recording's length read from the granted ffmpeg when ffprobe cannot start. |
 | `test/hear-a-recording.test.mjs` | A recording read through a fake door, heard in the run's folder and removed; the seam's answer; a heard sound kept in pieces with its words. |
 | `test/hear-a-link.test.mjs` | Captions win, no captions is heard, and every road with no words says why (the product repo's `test/hear-a-link.test.mjs`, its assertions kept). |
+| `test/hear-in-pieces.test.mjs` | A long recording heard in pieces: each piece's words keep their seconds from the start of the whole file (moved with `src/account-transcription.mjs`). |
 
 ## How to run it
 
