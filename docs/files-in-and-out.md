@@ -42,23 +42,43 @@ files declares a `files` rights item and calls `door.files(...)`. No engine chan
 
 ## What is still open
 
-Updated 2026-11-04 by trillion-rust #83 and trillion-apps #15.
+Updated 2026-11-04 by trillion-rust #108 and trillion-apps #21 (after trillion-rust #83 and trillion-apps #15).
 
 1. **The person's own page reaches files.** Done in trillion-rust #83: one `owner-routes.json` row (`@namespace`,
    prefix `/files/`) and the files door's own `page_call`. `GET /work/api/files/<operation>?input=<JSON>` serves the
    door's `page.reads`, and `POST /work/api/files/<operation>` with the input as its body serves the rest. The page's
    session admits the call, and it runs through `AccountFilesDoor::call_while`, the same call an AI's key makes.
-   The door's byte admission is now DATA (`call_bytes`). Before this, every byte read and write at the door was
-   refused for AIs too.
-   trillion-apps #15 moves the page's `uploadFiles`, `keepText`, `removeNames` and `readListing` to it
-   (`web/src/workspace/files-door.mjs`). These page calls still name retired hosted routes:
-   - growing files, saved text versions and leases
-   - byte reads (`/work/api/namespace/bytes/...`)
-   - results, set-aside and storage
-   This tool's `do-work/namespace-client.mjs` is still the hosted service's client.
+   trillion-apps #15 moved uploads, `keepText`, removing names and folder listings to it. trillion-apps #21 moves
+   the rest that the door answers (`web/src/workspace/files-door.mjs`):
+   - transcripts, summaries, facts, previews and meeting results: `read_file_results` (a page read since
+     trillion-rust #108), `read_file_results_many`, `record_file_results`, `merge_file_result`
+   - a file by its name or identity: `find_file`
+   - text and small JSON files: `read_file`, one 256 KiB window at a time
+   - saving an edit list: `write_file`
+   - Delete and Archive from Files and Media, and Put back: `set_aside` / `put_back` by name, every page of a folder.
+     The door keeps one set-aside tree, so Delete and Archive differ only in their words for now.
 2. **Recent files and kept file facts are account rows.** trillion-rust #83 ports old `src/recent-files.mjs` one to
-   one, plus the `facts` merge of `src/namespace-results.mjs:424`. The rows are `@account-files/recent/files`,
-   `@account-files/recent/order` and `@account-files/facts`, in the account's files store. The door answers four
-   operations: `recent_files`, `record_file_use`, `set_file_facts` and `read_file_facts`. `write_file`,
-   `write_file_finish`, `show_file` and `read_file` (from offset 0) keep a use when they answer (DATA
-   `recent.uses`). `read_file_results` for other kinds (transcripts, summaries) still has no owner.
+   one (`@account-files/recent/files`, `@account-files/recent/order`; `recent_files`, `record_file_use`).
+   trillion-rust #108 removes the separate `@account-files/facts` rows: `set_file_facts` and `read_file_facts` are
+   now the file's result of kind `facts` in the one results owner (`src/account_files/results.rs`), as old
+   `src/file-tools.mjs:135` merged them into `src/namespace-results.mjs:424`. An AI's facts and the page's facts
+   are one value.
+3. **Still open: these page calls name routes the engine does not answer.** Each needs an owner first. None is a
+   rename.
+   - Media shown by address (`<img>`, `<video>`, `<audio>` with HTTP Range, and `bytesAddress` in
+     `file-picture.ts`, `file-screen.tsx`, `chat-records.ts`, `shared-before.tsx`, `screen-view.tsx` and the media
+     editor's panels). The door answers JSON windows only, and `share_file` needs a delivery owner that this
+     computer does not have yet.
+   - A recording still being made (`growingFiles`, length not known) and saved text versions
+     (`saveTextVersion`). The door's `write_file_start` needs `byte_length` up front.
+   - Leases (`/work/api/namespace/leases` in `upload.ts`, `tool-screen.tsx`, `community-screen.tsx`,
+     `screen-view.tsx`).
+   - Recently Deleted's listing with days left, keep-for, storage and release rules
+     (`recently-deleted-screen.tsx`, `storage-release-panel.tsx`), file tidy (`file-tidy-screen.tsx`, a Workshop
+     feature), and preview making (`made-previews.ts`).
+   - This tool's `do-work/namespace-client.mjs` is still the hosted service's client, for programs on a computer.
+4. **The live read-back** of a file put in and taken out through the person's page, against a synthetic account on
+   a computer (for example `https://place-fsn1.gettrillion.ai`), was not run from the cloud session. Its network
+   proxy refuses that host (`CONNECT tunnel failed, response 403`). The same steps run in trillion-rust
+   `tests/local_workspace/files_page.rs`
+   (`the_page_puts_a_file_in_in_pieces_lists_it_reads_a_range_back_and_removes_it`).
