@@ -16,7 +16,8 @@
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/credit-kept-lines-to-their-writer/src/kept-work.mjs",
       "source_identity": "1f:22e6c1e0191bff11100d70246f9fbd735e3613d7aa747db386c3cae007f42438",
-      "identity": "1f:22e6c1e0191bff11100d70246f9fbd735e3613d7aa747db386c3cae007f42438"
+      "identity_at_move": "1f:22e6c1e0191bff11100d70246f9fbd735e3613d7aa747db386c3cae007f42438",
+      "byte_copy_commit": "e15f5fec0eb9263de72d37f38149c78c3731b700"
     }
   ]
 }

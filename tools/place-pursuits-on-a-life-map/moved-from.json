@@ -9,7 +9,8 @@
       "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
       "to": "tools/place-pursuits-on-a-life-map/src/life-map.mjs",
       "source_identity": "1f:97d92c7e08cee1d8ef0c1b16d22f07a0fbc439420ebb33f2bf9836510d88a8fd",
-      "identity": "1f:97d92c7e08cee1d8ef0c1b16d22f07a0fbc439420ebb33f2bf9836510d88a8fd",
+      "identity_at_move": "1f:97d92c7e08cee1d8ef0c1b16d22f07a0fbc439420ebb33f2bf9836510d88a8fd",
+      "byte_copy_commit": "258b6cca22a4c300a5456fa40a0d6fd0aa735470",
       "reads_rows": [
         "src/life-map.json"
       ]

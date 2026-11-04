@@ -54,6 +54,17 @@ One JSON request on standard input, `{ result }` or `{ error: { code, message } 
   reaches the same file at its new place; the source no longer holds it (`source_after_folder`); every module loads in
   a fresh Node process (a `.tsx`/`.jsx` file is compiled when a compiler is installed); its own tests pass.
 
+`node tools/move-code-between-trees check` from the root of a checkout needs no source tree: it judges every receipt the
+checkout tracks, at any depth, from the checkout alone (`read-data/check-receipts.mjs`). A receipt is one object whose
+`files` is a list; each file names `from` (or `from_path_identity` when the source path is private), the full 40-hex
+`commit`, `to` (which exists) and `source_identity`; its bytes here are `identity`, or, for a file changed here after
+its byte copy, `identity_at_move` are its bytes at `byte_copy_commit` (a full commit of this checkout, read from git),
+with `port_contract` naming the contract in its tool's `ports/` when there is one. Every other commit a receipt records
+(a `values` row's) is full too; a short `deleted_by` is a note, since no proof reads it. It prints one JSON answer and
+exits 0 when every receipt is whole, 1 when not. `--source <checkout>` (and `--source-after <folder>`, `--no-run`) also
+runs the proof above against that tree, where a file changed after its copy is proved by its bytes at
+`byte_copy_commit`.
+
 ## Files
 
 | File | Purpose |
@@ -64,9 +75,11 @@ One JSON request on standard input, `{ result }` or `{ error: { code, message } 
 | `read-data/plan-move.mjs` | The plan. |
 | `read-data/swap-calls.mjs` | Call rows and provider detectors. |
 | `read-data/apply-move.mjs` | Carrying out a plan; receipts; owner rows. |
-| `read-data/check-move.mjs` | The proof from receipts. |
+| `read-data/check-move.mjs` | The proof from receipts, against the source tree. |
+| `read-data/check-receipts.mjs` | Every receipt whole, judged from the destination checkout alone. |
+| `index.js` | `node tools/move-code-between-trees check`: the receipts judged, and proved against `--source` when given. |
 | `move-rows/` | One row per pair of trees. |
-| `test/move-code.test.mjs` | Two made-up trees in throwaway git repositories: placement, holds, swaps, apply, a lane that moves some groups, check, and a changed byte caught. |
+| `test/move-code.test.mjs` | Two made-up trees in throwaway git repositories: placement, holds, swaps, apply, a lane that moves some groups, check, a changed byte caught, and receipts judged with no source: a map of names, short commits, a change after the copy said and unsaid. |
 
 ## Dependencies
 
