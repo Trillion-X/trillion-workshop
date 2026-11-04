@@ -68,6 +68,15 @@ export function planMove(row, source, destination) {
   const leaveTests = row.leave_tests ?? [];
   for (const item of leaveTests) if (!item?.path || !item?.why) throw new MoveRefusal('row_incomplete', 'Each leave_tests row names path (the test file in the source) and why it does not move with its group.');
   const leftTest = path => leaveTests.some(item => item.path === path);
+  // Files the destination holds in another shape (an earlier lane adapted them, so they are not the same bytes once import
+  // paths are set aside): { from, home, why }. The row names the adapted copy as the source file's home; it is not
+  // followed or moved, what moves imports it there, and its receipt entry says adapted with why. A test carried against
+  // it proves, by its own run, that the adaptation kept what the test checks.
+  const adaptedHomes = new Map();
+  for (const item of row.adapted_homes ?? []) {
+    if (!item?.from || !item?.home || !item?.why) throw new MoveRefusal('row_incomplete', 'Each adapted_homes row names from (the source path), home (the destination path that holds it in another shape) and why.');
+    adaptedHomes.set(item.from, item);
+  }
 
   source.readMany([...source.files].filter(isCode));
   const text = path => source.read(path).toString('utf8');
@@ -127,6 +136,12 @@ export function planMove(row, source, destination) {
   const homes = new Map();
   const homeElsewhere = path => {
     if (homes.has(path)) return homes.get(path);
+    if (adaptedHomes.has(path)) {
+      const there = destination.exists(adaptedHomes.get(path).home) ? adaptedHomes.get(path).home : null;
+      if (!there) throw new MoveRefusal('home_unknown', `adapted_homes names ${adaptedHomes.get(path).home} for ${path}, which the destination does not hold.`);
+      homes.set(path, there);
+      return there;
+    }
     const named = byName.get(posix.basename(path)) ?? [];
     destination.readMany(named);
     const before = source.exists(path) ? bare(path, source.read(path)) : null;
@@ -198,7 +213,7 @@ export function planMove(row, source, destination) {
   // A file an earlier move already carried to another place in the destination (under another group's folder, say), with
   // the same bytes once import paths are set aside, is home already there: what moves now imports it there, no second
   // copy is made. Of several such copies, the one whose path ends most like the source path is the one.
-  const elsewhere = [...landing.keys()].filter(path => !reused.has(path) && !destination.exists(landing.get(path)) && byName.has(posix.basename(path)));
+  const elsewhere = [...landing.keys()].filter(path => !reused.has(path) && !destination.exists(landing.get(path)) && (byName.has(posix.basename(path)) || adaptedHomes.has(path)));
   for (const path of elsewhere) {
     const there = homeElsewhere(path);
     if (!there) continue;
@@ -230,7 +245,7 @@ export function planMove(row, source, destination) {
   const packagesToAdd = new Map();
   for (const [path, to] of landing) {
     const owners = needed.get(path);
-    const plan = { from: path, to, groups: owners, reused: reused.has(path), source_identity: makeHashCodeHexFromBytes(new Uint8Array(source.read(path))), ...(homeAlready.has(path) ? { identity_here: homeAlready.get(path) } : {}) };
+    const plan = { from: path, to, groups: owners, reused: reused.has(path), source_identity: makeHashCodeHexFromBytes(new Uint8Array(source.read(path))), ...(homeAlready.has(path) ? { identity_here: homeAlready.get(path) } : {}), ...(adaptedHomes.has(path) && reused.get(path) === adaptedHomes.get(path).home ? { adapted: adaptedHomes.get(path).why } : {}) };
     if (!reused.has(path) && destination.exists(to)) {
       for (const id of owners) byId.get(id).held.push(`${to} is already in the destination with other bytes`);
     }
