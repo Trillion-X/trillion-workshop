@@ -262,7 +262,8 @@
               "_read_by": "src/messages.mjs"
             }
           ]
-        }
+        },
+        "verify": [{"kind": "sample-run", "input": {"file": "saved/orders.json"}, "files": [{"grant": "read-a-folder", "path": "saved/orders.json", "text": "{\"self_id\":\"U1\",\"channels\":[{\"id\":\"C1\",\"name\":\"bakery-orders\",\"messages\":[{\"ts\":\"1700000000.000100\",\"user\":\"U1\",\"text\":\"Fresh rye is up\"},{\"ts\":\"1700000060.000200\",\"user\":\"U2\",\"user_profile\":{\"real_name\":\"Rosa\"},\"text\":\"Two loaves please\"}]}]}"}]}]
       }
     },
     {

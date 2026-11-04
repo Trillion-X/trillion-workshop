@@ -148,7 +148,8 @@
             "most_writes": 1
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "shape_read_at": "2026-11-03", "input": {"address": "https://feeds.example.test/daily-prices.json", "key": "daily-prices"}, "replies": [{"request": {"method": "GET", "url": "https://feeds.example.test/daily-prices.json"}, "status": 200, "headers": {"content-type": "application/json"}, "body": "{\"items\": [{\"name\": \"Sample loaf\", \"price\": 4.5}]}"}]}]
       }
     }
   ]

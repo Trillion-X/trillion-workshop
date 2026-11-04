@@ -57,7 +57,8 @@
           }
         },
         "result_selector": "$",
-        "provenance": {"source": "Written for the Workshop: a folder of documents queried as rows by their frontmatter, in the way a notes vault's database view reads its notes"}
+        "provenance": {"source": "Written for the Workshop: a folder of documents queried as rows by their frontmatter, in the way a notes vault's database view reads its notes"},
+        "verify": [{"kind": "sample-run", "input": {}, "files": [{"grant": "read-a-folder", "path": "notes/plan.md", "text": "---\nstatus: draft\n---\n# Sample plan\n\nA made-up note.\n"}]}]
       }
     },
     {
@@ -109,7 +110,8 @@
           }
         },
         "result_selector": "$.result",
-        "provenance": {"source": "Written for the Workshop: the documents row source over the files door, as the earlier lists read a Namespace folder"}
+        "provenance": {"source": "Written for the Workshop: the documents row source over the files door, as the earlier lists read a Namespace folder"},
+        "verify": [{"kind": "sample-run", "input": {"folder": "/Notes"}, "door_files": {"/Notes/plan.md": "---\nstatus: draft\n---\n# Sample plan\n\nA made-up note.\n"}}]
       }
     },
     {
@@ -174,7 +176,8 @@
           }
         },
         "result_selector": "$",
-        "provenance": {"source": "Written for the Workshop: a conditional write keyed by the content identity that was read, so a change made meanwhile is never lost"}
+        "provenance": {"source": "Written for the Workshop: a conditional write keyed by the content identity that was read, so a change made meanwhile is never lost"},
+        "verify": [{"kind": "sample-run", "input": {"rows": [{"id": "/notes/plan.md", "values": {"note.status": "done"}, "if_identity": "1f:ddd90c328f560d726224da1ede548f7bfd2ab198335379d213f867a742e21da2"}]}, "files": [{"grant": "change-a-folder", "path": "notes/plan.md", "text": "---\nstatus: draft\n---\n# Sample plan\n"}]}]
       }
     },
     {

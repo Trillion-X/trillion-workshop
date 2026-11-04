@@ -120,7 +120,8 @@
               "_read_by": "tools/listen-for-a-while writes a heard row for each turn of a listening; the hold-to-it presence check reads them"
             }
           ]
-        }
+        },
+        "verify": [{"kind": "sample-run", "input": {"until": "2026-11-03T15:30:00-07:00", "model_path": "/models/sample-whisper.bin", "listening": "sample-meeting", "finish_seconds": 0}, "stand_in_programs": {"ffmpeg": "exit 0"}}]
       }
     },
     {

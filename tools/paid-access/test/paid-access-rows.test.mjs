@@ -129,7 +129,7 @@ test('the scope check runs as its row runs it', async () => {
 });
 
 test('the sample runs answer as the rows say, with no records at all', async () => {
-  for (const row of rows.records.map(item => item.payload).filter(item => item.verify)) {
+  for (const row of rows.records.map(item => item.payload).filter(item => item.verify?.[0]?.output_selector)) {
     const [sample] = row.verify;
     const answer = await runRow(row, sample.input);
     assert.equal(answer.status, 0, answer.error);

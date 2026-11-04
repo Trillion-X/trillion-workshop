@@ -240,7 +240,8 @@
         "placements": ["placement:deployed-container"],
         "maker": "maker:paid-access",
         "result_selector": "$.result",
-        "provenance": { "source": "bitfield-packages packages/material-delivery (tools/encrypt-private-object.mjs), with the key kept out of the row" }
+        "provenance": { "source": "bitfield-packages packages/material-delivery (tools/encrypt-private-object.mjs), with the key kept out of the row" },
+        "verify": [{"kind": "sample-run", "shape_read_at": "2026-11-03", "input": {"file": "https://files.example.test/paid/chapter-one-source.pdf", "object_key": "chapter-one.pdf", "required_access_refs": ["access:course-a"], "mime": "application/pdf"}, "replies": [{"request": {"method": "GET", "url": "https://files.example.test/paid/chapter-one-source.pdf"}, "status": 200, "headers": {"content-type": "application/pdf"}, "body": "Made-up chapter one text for a sample file."}], "held": {"paid-files-key": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff"}}]
       }
     },
     {
