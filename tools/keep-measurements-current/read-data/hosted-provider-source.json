@@ -1,13 +1,12 @@
 {
   "schema": "hosted-provider-source/1",
-  "source_revision": "hosted-read-only-sources-2026-11-01",
+  "source_revision": "hosted-read-only-sources-2026-11-04",
+  "credentials_note": "Which vault holders feed each provider is not in this file. It comes from the person's credential rows (hosted-provider-credentials/1): each row names a provider id below and the holders for its token and account endpoint.",
   "vault_helper": "../../../../bitfield-packages/packages/credentials-vault/read-data/ask-the-vault-for-one-secret.mjs",
   "providers": [
     {
       "id": "cloudflare",
       "origin": "https://api.cloudflare.com",
-      "token_holder": "cloudflare-api-token",
-      "account_endpoint_holder": "cloudflare-r2-endpoint",
       "account_endpoint_field": "endpoint",
       "requests": [
         {
