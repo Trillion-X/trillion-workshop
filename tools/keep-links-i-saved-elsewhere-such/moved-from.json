@@ -16,7 +16,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-links-i-saved-elsewhere-such/src/saved-links.mjs",
       "source_identity": "1f:d0e89f97067d3289b4af9dc275aaa9ae68e789b0e1751ccb164c37f8d5317e79",
-      "identity": "1f:d7538562e54393ddbd323b6416586ca74e0289f7b423de7067efc35b0a9388c8"
+      "identity": "1f:d7538562e54393ddbd323b6416586ca74e0289f7b423de7067efc35b0a9388c8",
+      "finding": "F-0833"
     },
     {
       "from": "src/saved-pages.json",
@@ -30,7 +31,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-links-i-saved-elsewhere-such/src/saved-pages.mjs",
       "source_identity": "1f:14bdcee7714dbe6d2baabeeffffd10fdc261a6e53487efbf8f0db65f457d2a4e",
-      "identity": "1f:14bdcee7714dbe6d2baabeeffffd10fdc261a6e53487efbf8f0db65f457d2a4e"
+      "identity": "1f:14bdcee7714dbe6d2baabeeffffd10fdc261a6e53487efbf8f0db65f457d2a4e",
+      "finding": "F-0416"
     },
     {
       "from": "test/saved-pages-adoption.test.mjs",

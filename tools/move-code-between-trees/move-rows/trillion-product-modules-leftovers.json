@@ -1,6 +1,6 @@
 {
  "id": "move:trillion-workshop-product-modules-leftovers",
- "about": "The old Trillion src product modules that the part 1-5 lanes held back and that now hold nothing: the confidence filter (REA finding F-0566) joins tools/media-composition, the detector chain that uses it; saved pages (F-0416) is a tool of its own. Layout parts (F-0363) is not a group: 9e78ed82 already moved src/layout-parts.mjs and src/layouts.mjs to tools/make-screen-layouts-and-controls/src, where this row's plan found its bytes. Each was checked at the source commit: its imports are its own settings file and, for saved pages, @noble/hashes, which this package already has. Keep, provider_calls and calls are those of move-rows/trillion-tools-src-m-r-round-2.json. The find-the-right-tool helpers that find_tool_for_job used and no lane had moved (src/dead-end-search.mjs, src/tool-choice-keep.mjs, src/tool-choices.mjs) are two tools of their own; tool:repo-explorer, the make-a-tool-from-a-repo half, was already moved by a8585de1.",
+ "about": "The old Trillion src product modules that the part 1-5 lanes held back and that now hold nothing: the confidence filter (REA finding F-0566) joins tools/media-composition, the detector chain that uses it. Saved pages (F-0416) is not a group: afd6d606 moved it with saved links (F-0833) into tools/keep-links-i-saved-elsewhere-such while this lane ran. Layout parts (F-0363) is not a group: 9e78ed82 already moved src/layout-parts.mjs and src/layouts.mjs to tools/make-screen-layouts-and-controls/src, where this row's plan found its bytes. Each was checked at the source commit: its imports are its own settings file and, for saved pages, @noble/hashes, which this package already has. Keep, provider_calls and calls are those of move-rows/trillion-tools-src-m-r-round-2.json. The find-the-right-tool helpers that find_tool_for_job used and no lane had moved (src/dead-end-search.mjs, src/tool-choice-keep.mjs, src/tool-choices.mjs) are two tools of their own; tool:repo-explorer, the make-a-tool-from-a-repo half, was already moved by a8585de1.",
  "source": {
   "name": "Trillion-X/trillion",
   "commit": "3d4b99409f8fff2ca0558111018f409dce6c1df9",
@@ -96,14 +96,6 @@
    "to": "tools/media-composition",
    "joins_tool": "A second stage behind media-composition's noisy detectors: keep only the plausible events by a per-context model row, and act, ask or abstain by a confidence threshold. media-composition has no confidence rule of its own.",
    "capability": "keep only the plausible detections and ask me or hold back instead of acting when confidence is low"
-  },
-  {
-   "id": "save-a-web-page-as-a-clip",
-   "owner": [
-    "src/saved-pages.mjs"
-   ],
-   "to": "tools/save-a-web-page-as-a-clip",
-   "capability": "save a web page as a clip with its address, title, text and a snapshot picture, and refresh it on a schedule I choose"
   },
   {
    "id": "keep-a-search-that-found-no-tool",
