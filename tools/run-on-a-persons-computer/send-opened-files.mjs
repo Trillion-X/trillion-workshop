@@ -91,7 +91,7 @@ async function main() {
   if (!folder || (fromStdin ? files.length || arguments_.filter(value => value === '--files-from-stdin').length !== 1 : !files.length)) {
     process.stderr.write('send-opened-files: name --folder and files, or --files-from-stdin\n'); process.exit(2);
   }
-  const rows = JSON.parse(readFileSync(new URL('./computer-sources.json', import.meta.url), 'utf8'));
+  const rows = JSON.parse(readFileSync(new URL('../bring-in-new-items-from-this-computer/computer/computer-sources.json', import.meta.url), 'utf8'));
   const origin = process.env.TRILLION_ORIGIN ?? rows.origin;
   let key = '';
   for await (const chunk of process.stdin) key += chunk;

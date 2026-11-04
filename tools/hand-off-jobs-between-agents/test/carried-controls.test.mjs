@@ -4,8 +4,8 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeCarrier } from '../../run-on-a-persons-computer/carry-connections.mjs';
-import { whatsapp } from '../../run-on-a-persons-computer/connections/whatsapp.mjs';
-import { incomingItems, readIncomingItems } from '../../run-on-a-persons-computer/connections/incoming-items.mjs';
+import { whatsapp } from '../../bring-in-new-items-from-this-computer/computer/connections/whatsapp.mjs';
+import { incomingItems, readIncomingItems } from '../../bring-in-new-items-from-this-computer/computer/connections/incoming-items.mjs';
 import { carriedTools, carriedAnnotations, handleCarriedRequest, isCarriedPath, makeCarriedConnections } from '../../shared-code/src/carried-connections.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('../../run-on-a-persons-computer/carry-connections.json', import.meta.url)));

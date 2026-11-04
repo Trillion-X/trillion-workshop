@@ -9,13 +9,13 @@ import { appsHere, appRow, openAppQuietly, runningPrograms, withAppSession } fro
 import { bearerControl, namespaceClient } from '../browse-and-upload-my-files/do-work/namespace-client.mjs';
 import { loadChunking } from '../browse-and-upload-my-files/do-work/content-chunks.mjs';
 import { fileSource, sendFile } from '../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
-import { LOOKS } from './computer-sources.mjs';
+import { LOOKS } from '../bring-in-new-items-from-this-computer/computer/computer-sources.mjs';
 import { sharedReference } from '../browse-and-upload-my-files/do-work/shared-file-reference.mjs';
 import { hearingHere as programHere } from '../computer-programs/read-data/program-here.mjs';
 
 const IDENTITY = /^1f:[a-f0-9]{64}$/;
 const MAX_FILES = 32;
-const computerSourceRows = () => JSON.parse(readFileSync(new URL('./computer-sources.json', import.meta.url), 'utf8'));
+const computerSourceRows = () => JSON.parse(readFileSync(new URL('../bring-in-new-items-from-this-computer/computer/computer-sources.json', import.meta.url), 'utf8'));
 const safeName = (value, fallback) => basename(String(value ?? fallback)).replace(/[^A-Za-z0-9._ -]/g, '_').replace(/^\.+/, '').slice(0, 180) || fallback;
 const safeKey = value => String(value).replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 80);
 const atPath = (value, path) => String(path ?? '').split('.').filter(Boolean).reduce((part, key) => part?.[key], value);
