@@ -11,13 +11,12 @@
 //      text) is the one the screen says it holds; anything else answers the whole text.
 //   2. The screen checks the identity of what it rebuilt; a mismatch reads the whole answer again.
 //   3. The limits are DATA (./view-patch.json). The cache key names the person, so one person's answer is never a base for another's.
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import settings from './view-patch.json' with { type: 'json' };
 
 const encoder = new TextEncoder();
 /** The identity of an answer's text. */
-export const identityOf = text => bytesToHex(blake3(encoder.encode(text)));
+export const identityOf = text => makeHashCodeHexFromBytes(encoder.encode(text)).slice(3);
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const pointer = parts => parts.map(part => `/${String(part).replace(/~/g, '~0').replace(/\//g, '~1')}`).join('');

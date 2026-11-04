@@ -30,17 +30,16 @@ import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { bytesToHex } from '@noble/hashes/utils.js';
-import { blake3 } from '@noble/hashes/blake3.js';
+import { makeHashCodeHasher } from '../../content-identity/read-data/identity.mjs';
 
 const typed = (status, code, message, extra = {}) => Object.assign(new Error(message), { status, code, ...extra });
 const contains = (outer, inner) => inner === outer || inner.startsWith(outer.endsWith(path.sep) || outer.endsWith('/') ? outer : `${outer}${outer === '/' ? '' : path.sep}`);
 const trimTarget = target => String(target).replace(/\/+$/, '') || '/';
 
 async function identityOfFile(file) {
-  const hasher = blake3.create();
+  const hasher = makeHashCodeHasher();
   for await (const piece of createReadStream(file)) hasher.update(piece);
-  return `1f:${bytesToHex(hasher.digest())}`;
+  return hasher.identity();
 }
 
 /**
