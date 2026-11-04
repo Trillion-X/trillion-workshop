@@ -1,0 +1,12 @@
+{
+  "what_this_is": "The Write screen's look and shared sidebar capabilities. Its pages rail uses sidebar-owned placement within this pane, kept by the arrangement's surface instance identity. The app sidebar and the pane's tabs retain their own placement. `floating_frame` makes the document surface fill its pane.",
+  "look_class": "trillion-write",
+  "sidebar_capabilities": {"position": true, "collapse": true, "undock": true, "hide": true, "resize": true},
+  "floating_frame": {
+    "mode": "fill"
+  },
+  "sidebar_settings": {
+  },
+  "shared_place": "space-room:",
+  "shared_scene": "package::documents::documents"
+}

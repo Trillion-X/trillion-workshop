@@ -1,0 +1,9 @@
+{
+  "_what": "What quiet-hours.ts reads as DATA: the three things a person can choose to happen when someone writes to them outside their working hours. A mode is a row: `nudge` shows the sender a notice, `silent` sends without a push. Add a mode by adding a row.",
+  "default_mode": "nudge",
+  "modes": {
+    "none": { "nudge": false, "silent": false },
+    "nudge": { "nudge": true, "silent": false },
+    "auto_silent": { "nudge": false, "silent": true }
+  }
+}

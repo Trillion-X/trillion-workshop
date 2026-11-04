@@ -3503,7 +3503,23 @@
       "output_selector": "$.files_checked",
       "at_least": 1
      }
-    ]
+    ],
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "record:media-voice-cluster",
+          "guard_properties": {
+            "embedding": "numbers",
+            "files": "texts",
+            "id": "text",
+            "kind": "text",
+            "sample_count": "number",
+            "voice_id": "text"
+          }
+        }
+      ]
+    }
    }
   },
   {

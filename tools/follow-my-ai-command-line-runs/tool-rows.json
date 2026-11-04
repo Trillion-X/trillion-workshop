@@ -1,0 +1,68 @@
+{
+  "kind": "package-set-records",
+  "record_set": "follow-my-ai-command-line-runs-tool-rows",
+  "what_this_is": "The Workshop rows for the follow-my-ai-command-line-runs folder: a run of the person's own AI command line (Claude Code, Codex) read as normalised live events, and the tools the person allows that command line in one folder, on the person's own computer.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-an-ai-command-line-run-as-events",
+        "label": "Read a run of my AI command line as live events (runs on your computer)",
+        "job": "Turn the JSON event stream of my own AI command line's run into the same text, thinking, tool started, tool done and reply events, whichever command line it is",
+        "description": "Reads one run's JSON event stream (Claude Code's stream-json, Codex's --json) on standard input and prints one normalised event per line: { kind: text | thinking | tool_start | tool_done | reply, text?, name?, id? }. Which line is which event is a row of read-data/ai-command-lines.json per command line; a line that is not JSON or matches no row is ignored. Nothing is started or changed: it only reads what the run wrote.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["harness", "stream"],
+          "properties": {
+            "harness": { "type": "string", "description": "The command line's row id in read-data/ai-command-lines.json (claude-code, codex), put where {harness} is." },
+            "stream": { "type": "string", "description": "The file holding the run's event stream, put where {stream} is." }
+          }
+        },
+        "output_schema": { "type": "object", "description": "One JSON event per line on standard output; exit 2 and {\"error\"} on standard error for an unknown command line." },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "node tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs --events {harness} < {stream}",
+          "needs": ["node 22 or later"],
+          "say": "This runs on the person's own computer from the root of the Workshop checkout. Save the run's JSON stream to a file (or pipe it in), name which command line wrote it and report the events."
+        },
+        "maker": "maker:follow-my-ai-command-line-runs",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Moved from Trillion-X/trillion harness/session-runs.mjs (record:library:rea:F-0573)" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:allow-my-ai-command-line-tools-in-a-folder",
+        "label": "Allow my AI command line some tools in one folder (runs on your computer)",
+        "job": "Keep, read or clear the tools I allow my own AI command line in one workspace folder, passed as that command line's own allow-list flag",
+        "description": "Keeps the person's list of allowed tools for one existing folder in this computer's settings file (`workspace_tools`), reads one folder's list or all of them, and clears one. Nothing widens permissions by default: a folder with no list runs with the command line's own permission rules, and a command line with no allow-list flag (its row has no `allowed_tools`) is answered as not applying.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["verb"],
+          "properties": {
+            "verb": { "type": "string", "enum": ["--allow-tools", "--tools", "--clear-tools"], "description": "Keep a list, read it, or clear it; put where {verb} is." },
+            "folder": { "type": "string", "description": "The workspace folder (it must exist), put where {folder} is; leave out with --tools to read every folder's list." },
+            "tools": { "type": "string", "description": "With --allow-tools: the tool names separated by commas, for example Read,Edit,Bash(git status), put where {tools} is." }
+          }
+        },
+        "output_schema": { "type": "object", "description": "{ folder, tools } or { folder, cleared } or { workspace_tools }; exit 2 and {\"error\"} on standard error when the folder does not exist or no tool is named." },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "node tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs {verb} {folder} {tools}",
+          "needs": ["node 22 or later"],
+          "say": "This runs on the person's own computer from the root of the Workshop checkout. Only keep a list the person named themselves; read it back to them after keeping it."
+        },
+        "maker": "maker:follow-my-ai-command-line-runs",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Moved from Trillion-X/trillion harness/session-runs.mjs and the allow-list branch of harness/wake-sessions.mjs (record:library:rea:F-0573)" }
+      }
+    }
+  ]
+}

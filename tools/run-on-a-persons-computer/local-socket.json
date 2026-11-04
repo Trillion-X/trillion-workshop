@@ -1,0 +1,14 @@
+{
+  "_what": "An opt-in local road for AI programs on this Mac (a coding CLI, a script) to run the tools this Mac host keeps without going through the account (computer/local-socket.mjs). Off until `enabled` is true. The socket sits in a folder only the person can enter (folder_mode 0700, socket_mode 0600), so only programs the person runs reach it. `allowed_tools` is null to allow every tool the host keeps, or a list of tool ids. Every answer is signed with a key kept in `secret_file` (0600), so a caller that holds that file can tell the answer came from this host.",
+  "enabled": false,
+  "path": "~/.trillion/local/tools.sock",
+  "secret_file": "~/.trillion/local/secret",
+  "folder_mode": 448,
+  "socket_mode": 384,
+  "allowed_tools": null,
+  "most_line_bytes": 1048576,
+  "words": {
+    "bad_request": "Send one JSON line: { id, tool_id, input }.",
+    "not_allowed": "{tool} is not one this Mac answers on the local road."
+  }
+}

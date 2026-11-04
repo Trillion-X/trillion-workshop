@@ -1,0 +1,31 @@
+{
+  "_what": "A macOS Seatbelt profile (/usr/bin/sandbox-exec) per native helper this Mac runs on content it did not make (computer/helper-sandbox.mjs). One row per helper: `allow` is the whole of what its profile permits on top of `deny default` (the entries were found by running the real helper under a deny-default profile and adding only what made it finish, then removing every entry that was not needed again), `{here}` is the folder the helper's program lives in. `confined` and `not_confined` say plainly what the profile does and does not hold, so the security claim is exact. `enabled` false runs the helper as before. The profile is built for each run; a helper with no row, or a Mac without sandbox-exec, is refused, never run unconfined.",
+  "program": "/usr/bin/sandbox-exec",
+  "helpers": {
+    "image-text": {
+      "enabled": true,
+      "what": "Reads image bytes on standard input and answers the text found in them (computer/observe-visual.swift, run by /usr/bin/swift). It decodes pictures from anywhere, so a hostile picture reaches ImageIO and Vision.",
+      "allow": [
+        "(allow process-exec)",
+        "(allow process-fork)",
+        "(allow signal (target self))",
+        "(allow sysctl-read)",
+        "(allow mach-lookup)",
+        "(allow ipc-posix-shm)",
+        "(allow iokit-open)",
+        "(allow file-read* (literal \"/\") (literal \"/private\") (literal \"/private/var\") (literal \"/Applications\") (literal \"/Users\") (subpath \"/System\") (subpath \"/usr\") (subpath \"/Library\") (subpath \"/Applications/Xcode.app\") (subpath \"/private/var/db\") (subpath \"/private/var/select\") (subpath \"/private/etc\") (subpath \"/private/var/folders\") (subpath \"/var\") (subpath \"/etc\") (subpath \"/dev\") (subpath \"{here}\"))",
+        "(allow file-write* (subpath \"/private/var/folders\") (literal \"/dev/null\") (literal \"/dev/dtracehelper\"))"
+      ],
+      "confined": [
+        "the network: no outbound or inbound connection",
+        "the person's files: nothing under their home folder can be read or written",
+        "files anywhere else on the disk: writes only to the per-user temporary folder"
+      ],
+      "not_confined": [
+        "mach services: any can be looked up (Vision and ImageIO need several; none was singled out)",
+        "reads of system, library and developer-tool folders",
+        "the temporary folder the interpreter compiles into"
+      ]
+    }
+  }
+}

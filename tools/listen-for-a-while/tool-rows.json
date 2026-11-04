@@ -92,6 +92,32 @@
         "maker": "maker:listen-for-a-while",
         "provenance": {
           "source": "listen-for-a-while/read-data/listen-for-a-while.mjs"
+        },
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "listening-voices",
+              "properties": {},
+              "stays_on_this_device": true
+            },
+            {
+              "type": "heard",
+              "properties": {
+                "listening": "text",
+                "device": "text",
+                "start": "text",
+                "end": "text",
+                "text": "text",
+                "speaker": "text",
+                "me": "boolean",
+                "voice": "text",
+                "score": "number",
+                "unsure": "texts"
+              },
+              "_read_by": "tools/listen-for-a-while writes a heard row for each turn of a listening; the hold-to-it presence check reads them"
+            }
+          ]
         }
       }
     }

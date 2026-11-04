@@ -1,0 +1,5610 @@
+{
+  "package": "documents",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "entry-read-scope-packages-source",
+      "source_path": "entry-read-scope-packages.json"
+    },
+    {
+      "type": "record",
+      "address": "package::documents::checks",
+      "path": ["current-item", "published-record"],
+      "payload": { "kind": "package-checks-descriptor", "checks": ["read-data/check-page-references.test.ts", "read-data/structural-blocks.test.ts", "read-data/page-references.test.ts", "show/mount-documents.test.ts", "show/DocumentsSurface.mount.test.tsx", "show/documents-heading-outline.test.ts", "show/DocumentImportDialog.test.tsx", "do-work/process-scripts/import-content-document-verification.test.mjs", "do-work/read-scene-verification.test.ts", "do-work/scene-address-mode.test.ts", "do-work/append-scene-roots-target.test.ts", "read-data/action-result-readback.test.ts", "__tests__/what-enter-does-in-this-block.test.ts", "do-work/send-composition-transaction.test.ts", "show/keyboard-contract.mount.test.tsx", "show/composer-working-phase.mount.test.tsx", "do-work/scene-serializers.test.ts", "do-work/read-serialize-scene.test.ts", "do-work/apply-scene-patch.test.ts", "read-data/content-view-projection.test.ts", "show/documents-page-sidebar.test.ts", "read-data/affordance-materials.test.ts", "show/ca-content-pool-feed.test.ts", "tests/documents-boundary.test.ts", "show/persist-ordering.test.ts", "show/persisting-transaction-queue.test.ts"] },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::reaches-past-the-engine::network",
+      "path": [
+        "current-item",
+        "reaches-past-the-engine"
+      ],
+      "payload": {
+        "kind": "reaches-past-the-engine",
+        "reach_class": "network",
+        "why": "the only URLs this package opens are the running engine's own same-origin routes, /target/slot::composition-engine and /boot, and it opens them because the generic target sender cannot carry this exchange: the sender's reply lane does not route a complete-frame back for a slot:: target, so an awaited composition transaction never returns, and the /target route additionally admits a write only with the running-command-list basis header plus a 428 basis-rotation retry, which the sender has no way to express. Every reach is same-origin to the engine that is already serving the surface; no outside host, credential or third party is involved, and the moment the sender routes slot:: replies and carries the basis header this record is deleted with the fetches."
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-composition-scene",
+      "source_path": "built-stored-bytes/entry-bytes-composition-scene",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-composition-scene.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "mount-selected-composition",
+      "source_path": "show/mount-selected-composition.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-selected-composition",
+      "source_path": "built-stored-bytes/entry-bytes-selected-composition",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-selected-composition.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-materialize-selection",
+      "source_path": "built-stored-bytes/entry-bytes-materialize-selection",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-materialize-selection.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "apply-scene-patch",
+      "source_path": "built-stored-bytes/apply-scene-patch",
+      "source_closure_receipt_path": "built-stored-bytes/apply-scene-patch.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "serialize-scene",
+      "source_path": "built-stored-bytes/serialize-scene",
+      "source_closure_receipt_path": "built-stored-bytes/serialize-scene.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-scene",
+      "source_path": "built-stored-bytes/read-scene",
+      "source_closure_receipt_path": "built-stored-bytes/read-scene.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "append-scene-roots",
+      "source_path": "built-stored-bytes/append-scene-roots",
+      "source_closure_receipt_path": "built-stored-bytes/append-scene-roots.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::documents::target::materialize-selection",
+      "path": [
+        "packages",
+        "documents",
+        "targets",
+        "materialize-selection"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "materialize-selection",
+        "export_name": "materializeCompositionSelectionTarget",
+        "source_path": "do-work/materialize-selection-target.ts",
+        "target": "documents.materialize-selection",
+        "input_contract": {
+          "materialization_id": "uuid",
+          "selection": {
+            "scene_address": "owner-local-address",
+            "node_ids": "bounded-nonempty-unique-array"
+          }
+        },
+        "output_contract": {
+          "schema": "selection-materialization-result/v1",
+          "root_refs": "exact-pruned-snapshot-refs",
+          "records": "caller-ready-renderable-projection-records",
+          "entry_byte_path": "selected-projection-entry-path",
+          "authority_ref": "exact-generic-materialization-authority-ref"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::target::apply-scene-patch",
+      "path": [
+        "packages",
+        "documents",
+        "targets",
+        "apply-scene-patch"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "apply-scene-patch",
+        "export_name": "applyScenePatch",
+        "source_path": "do-work/apply-scene-patch.ts",
+        "target": "documents.apply-scene-patch",
+        "request_schema_ref": "documents.scene-patch-apply.request",
+        "response_schema_ref": "documents.scene-patch-apply.receipt",
+        "trusted_input_keys": [
+          "document_ref",
+          "selection_revision"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "owner-operation-admission",
+      "address": "package::documents::owner-operation::apply-scene-patch",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "owner_operation_ref": "documents.apply-scene-patch",
+        "owner_operation_revision": "current",
+        "owner_package": "documents",
+        "target": "documents.apply-scene-patch",
+        "method": "invoke",
+        "request_schema_ref": "documents.scene-patch-apply.request",
+        "response_schema_ref": "documents.scene-patch-apply.receipt",
+        "admission_proof_ref": "package::documents::target::apply-scene-patch",
+        "terminal_proof_address_template": "package::documents::scene-patch-receipt::<request_ref>"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::target::serialize-scene",
+      "path": [
+        "packages",
+        "documents",
+        "targets",
+        "serialize-scene"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "serialize-scene",
+        "export_name": "serializeDocumentsScene",
+        "source_path": "do-work/serialize-scene-target.ts",
+        "target": "documents.serialize-scene",
+        "request_schema_ref": "documents.scene-serialization.request",
+        "response_schema_ref": "documents.scene-serialization.receipt",
+        "trusted_input_keys": [
+          "document_ref",
+          "inline_marks"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::target::read-scene",
+      "path": [
+        "packages",
+        "documents",
+        "targets",
+        "read-scene"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "read-scene",
+        "export_name": "readDocumentsScene",
+        "source_path": "do-work/read-scene-target.ts",
+        "target": "documents.read-scene",
+        "request_schema_ref": "documents.scene-read.request",
+        "response_schema_ref": "documents.scene-read.receipt",
+        "trusted_input_keys": [
+          "document_ref",
+          "expected_import"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::target::append-scene-roots",
+      "path": [
+        "packages",
+        "documents",
+        "targets",
+        "append-scene-roots"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "append-scene-roots",
+        "export_name": "appendSceneRoots",
+        "source_path": "do-work/append-scene-roots-target.ts",
+        "target": "documents.append-scene-roots",
+        "request_schema_ref": "documents.append-scene-roots.request",
+        "response_schema_ref": "documents.scene-patch-apply.receipt",
+        "trusted_input_keys": [
+          "document_ref"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "owner-operation-admission",
+      "address": "package::documents::owner-operation::serialize-scene",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "owner_operation_ref": "documents.serialize-scene",
+        "owner_package": "documents",
+        "target": "documents.serialize-scene",
+        "method": "invoke",
+        "request_schema_ref": "documents.scene-serialization.request",
+        "response_schema_ref": "documents.scene-serialization.receipt",
+        "admission_proof_ref": "package::documents::target::serialize-scene"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "owner-operation-admission",
+      "address": "package::documents::owner-operation::read-scene",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "owner_operation_ref": "documents.read-scene",
+        "owner_package": "documents",
+        "target": "documents.read-scene",
+        "method": "invoke",
+        "request_schema_ref": "documents.scene-read.request",
+        "response_schema_ref": "documents.scene-read.receipt",
+        "admission_proof_ref": "package::documents::target::read-scene"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "owner-operation-admission",
+      "address": "package::documents::owner-operation::append-scene-roots",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "owner_operation_ref": "documents.append-scene-roots",
+        "owner_package": "documents",
+        "target": "documents.append-scene-roots",
+        "method": "invoke",
+        "request_schema_ref": "documents.append-scene-roots.request",
+        "response_schema_ref": "documents.scene-patch-apply.receipt",
+        "admission_proof_ref": "package::documents::target::append-scene-roots"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::entry::selected-composition",
+      "path": [
+        "packages",
+        "documents",
+        "entries",
+        "selected-composition"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "selected-composition",
+        "export_name": "default",
+        "source_path": "show/mount-selected-composition.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-selected-composition"
+        },
+        "live_read_mode": "none"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::entry::materialize-selection",
+      "path": [
+        "packages",
+        "documents",
+        "entries",
+        "materialize-selection"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "materialize-selection",
+        "export_name": "materializeCompositionSelectionTarget",
+        "source_path": "do-work/materialize-selection-target.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-materialize-selection"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::entry::apply-scene-patch",
+      "path": [
+        "packages",
+        "documents",
+        "entries",
+        "apply-scene-patch"
+      ],
+      "payload": {
+        "entry_name": "apply-scene-patch",
+        "kind": "bitfield-package-entry",
+        "export_name": "applyScenePatch",
+        "source_path": "do-work/apply-scene-patch.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "apply-scene-patch"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::entry::serialize-scene",
+      "path": [
+        "packages",
+        "documents",
+        "entries",
+        "serialize-scene"
+      ],
+      "payload": {
+        "entry_name": "serialize-scene",
+        "kind": "bitfield-package-entry",
+        "export_name": "serializeDocumentsScene",
+        "source_path": "do-work/serialize-scene-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "serialize-scene"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::entry::read-scene",
+      "path": [
+        "packages",
+        "documents",
+        "entries",
+        "read-scene"
+      ],
+      "payload": {
+        "entry_name": "read-scene",
+        "kind": "bitfield-package-entry",
+        "export_name": "readDocumentsScene",
+        "source_path": "do-work/read-scene-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "read-scene"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::entry::append-scene-roots",
+      "path": [
+        "packages",
+        "documents",
+        "entries",
+        "append-scene-roots"
+      ],
+      "payload": {
+        "entry_name": "append-scene-roots",
+        "kind": "bitfield-package-entry",
+        "export_name": "appendSceneRoots",
+        "source_path": "do-work/append-scene-roots-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "append-scene-roots"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::placeable-surface::authoring",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "PenLine",
+        "id": "documents.authoring",
+        "kind": "placeable-surface",
+        "label": "Documents",
+        "material_target": "component:documents",
+        "order": 145,
+        "surface_id": "documents.authoring",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000145:documents.authoring",
+        "package_entry": {
+          "package_name": "documents",
+          "entry_name": "documents"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::documents::ca-document-index-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "composition-document-index"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::ca-document-index-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "ca-document-index-feed",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::documents::ca-document-index-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::documents::ca-content-pool-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::viewer-access-refs",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "viewer-access-refs",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "viewer-access-refs",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::documents::ca-content-pool-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "action-affordance",
+                "action-affordance-configuration",
+                "affordance-definition-option",
+                "affordance-channel",
+                "generic.target-record",
+                "composition-projection-action",
+                "composition-action-reference",
+                "ai-instruction-block",
+                "action"
+              ]
+            }
+          ]
+        }
+      },
+      "derive_in": [
+        {
+          "predicate_path": [
+            "payload",
+            "kind"
+          ],
+          "under_path": [
+            "payload",
+            "rules",
+            "presentation",
+            "config"
+          ],
+          "collect_paths": [
+            [
+              "preamble_source",
+              "kind"
+            ],
+            [
+              "model",
+              "options",
+              "kind"
+            ],
+            [
+              "model",
+              "default_from",
+              "kind"
+            ],
+            [
+              "model",
+              "default_from",
+              "map",
+              "kind"
+            ],
+            [
+              "options",
+              "kind"
+            ],
+            [
+              "options",
+              "ref_annotations",
+              "kind"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::documents::ca-titled-pool-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "title"
+              ],
+              "present": true
+            },
+            {
+              "path": [
+                "record",
+                "address"
+              ],
+              "address_not_prefixed": [
+                "package::documents::"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::ca-titled-pool-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "ca-titled-pool-feed",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::documents::ca-titled-pool-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::documents::ca-owned-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "record",
+                "address"
+              ],
+              "contains": "documents"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::ca-owned-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "ca-owned-feed",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::documents::ca-owned-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::documents::ca-registry-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "input-shortcut",
+                "input-shortcut-set",
+                "inline-mark",
+                "inline-mark-set",
+                "selection-op",
+                "selection-op-set",
+                "cursor-command",
+                "cursor-command-set",
+                "placeable-surface",
+                "composition-empty-state",
+                "composition-material-defaults",
+                "composer-writing-instructions",
+                "ai-agent-profile",
+                "ai-model-invocation-option",
+                "ai-model-descriptor",
+                "task",
+                "ai-instruction-block"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::ca-registry-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "ca-registry-feed",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::documents::ca-registry-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::item-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "item-records",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "item-records",
+          "value": {
+            "projection": {
+              "op": "rows",
+              "fields": [
+                {
+                  "column": 0,
+                  "key": "item_ref",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "text"
+                    }
+                  }
+                },
+                {
+                  "column": 1,
+                  "key": "target_ref",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "text"
+                    }
+                  }
+                },
+                {
+                  "column": 2,
+                  "key": "fields",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "json"
+                    }
+                  }
+                },
+                {
+                  "column": 3,
+                  "key": "actor_ref",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "text"
+                    }
+                  }
+                },
+                {
+                  "column": 4,
+                  "key": "created_at",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "text"
+                    }
+                  }
+                }
+              ]
+            },
+            "source_bytes": {
+              "bytes_to_value": "cell_table"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::package-entry-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "package-entry-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "bytes"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::make-style-catalog",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "make-style-catalog",
+        "kind": "bitfield-input-descriptor",
+        "value_address_label": "content-production.style-descriptor",
+        "value": {
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ]
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::make-run-status",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "make-run-status",
+        "kind": "bitfield-input-descriptor",
+        "value_address_label": "content-production",
+        "value": {
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ]
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::make-option-results",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "make-option-results",
+        "kind": "bitfield-input-descriptor",
+        "value_address_label": "prompt-to-variations",
+        "value": {
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ]
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "documents.material-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": [
+        {
+          "id": "documents.material.template-note",
+          "label": "Note",
+          "icon": "FileText",
+          "group": "Templates",
+          "match_terms": [
+            "note",
+            "template",
+            "doc",
+            "page",
+            "outline"
+          ],
+          "node": {
+            "id": "node:tpl-note-root",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-note-title",
+                "kind": "Text",
+                "props": {
+                  "text": "Untitled",
+                  "style": {
+                    "font_size": 30,
+                    "font_weight": 700
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-note-overview-h",
+                "kind": "Text",
+                "props": {
+                  "text": "Overview",
+                  "style": {
+                    "font_size": 22,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-note-overview-b",
+                "kind": "Text",
+                "props": {
+                  "text": "",
+                  "style": {
+                    "font_size": 16
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-note-next-h",
+                "kind": "Text",
+                "props": {
+                  "text": "Next steps",
+                  "style": {
+                    "font_size": 22,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-note-next-b",
+                "kind": "Text",
+                "props": {
+                  "text": "",
+                  "style": {
+                    "font_size": 16
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          }
+        },
+        {
+          "id": "documents.material.template-plan",
+          "label": "Plan",
+          "icon": "ClipboardList",
+          "group": "Templates",
+          "match_terms": [
+            "plan",
+            "template",
+            "spec",
+            "proposal"
+          ],
+          "node": {
+            "id": "node:tpl-plan-root",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-plan-title",
+                "kind": "Text",
+                "props": {
+                  "text": "Untitled plan",
+                  "style": {
+                    "font_size": 30,
+                    "font_weight": 700
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-plan-problem-h",
+                "kind": "Text",
+                "props": {
+                  "text": "Problem",
+                  "style": {
+                    "font_size": 22,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-plan-problem-b",
+                "kind": "Text",
+                "props": {
+                  "text": "",
+                  "style": {
+                    "font_size": 16
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-plan-approach-h",
+                "kind": "Text",
+                "props": {
+                  "text": "Approach",
+                  "style": {
+                    "font_size": 22,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-plan-approach-b",
+                "kind": "Text",
+                "props": {
+                  "text": "",
+                  "style": {
+                    "font_size": 16
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-plan-steps-h",
+                "kind": "Text",
+                "props": {
+                  "text": "Steps",
+                  "style": {
+                    "font_size": 22,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-plan-steps-b",
+                "kind": "Text",
+                "props": {
+                  "text": "",
+                  "style": {
+                    "font_size": 16
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-plan-done-h",
+                "kind": "Text",
+                "props": {
+                  "text": "Done when",
+                  "style": {
+                    "font_size": 22,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-plan-done-b",
+                "kind": "Text",
+                "props": {
+                  "text": "",
+                  "style": {
+                    "font_size": 16
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          }
+        },
+        {
+          "id": "documents.material.template-idea",
+          "label": "Idea",
+          "icon": "Lightbulb",
+          "group": "Templates",
+          "match_terms": [
+            "idea",
+            "template",
+            "concept",
+            "brainstorm"
+          ],
+          "node": {
+            "id": "node:tpl-idea-root",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-idea-title",
+                "kind": "Text",
+                "props": {
+                  "text": "Untitled idea",
+                  "style": {
+                    "font_size": 30,
+                    "font_weight": 700
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-idea-what-h",
+                "kind": "Text",
+                "props": {
+                  "text": "The idea",
+                  "style": {
+                    "font_size": 22,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-idea-what-b",
+                "kind": "Text",
+                "props": {
+                  "text": "",
+                  "style": {
+                    "font_size": 16
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-idea-why-h",
+                "kind": "Text",
+                "props": {
+                  "text": "Why it matters",
+                  "style": {
+                    "font_size": 22,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-idea-why-b",
+                "kind": "Text",
+                "props": {
+                  "text": "",
+                  "style": {
+                    "font_size": 16
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-idea-next-h",
+                "kind": "Text",
+                "props": {
+                  "text": "Next experiment",
+                  "style": {
+                    "font_size": 22,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              },
+              {
+                "id": "node:tpl-idea-next-b",
+                "kind": "Text",
+                "props": {
+                  "text": "",
+                  "style": {
+                    "font_size": 16
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          }
+        },
+        {
+          "id": "documents.material.table",
+          "label": "Table",
+          "match_terms": [
+            "tab",
+            "table"
+          ],
+          "node": {
+            "id": "node:table",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 420,
+                "height": 180
+              }
+            },
+            "visible": true,
+            "children": []
+          }
+        },
+        {
+          "id": "documents.material.heading",
+          "label": "Heading",
+          "match_terms": [
+            "heading",
+            "title"
+          ],
+          "node": {
+            "id": "node:heading",
+            "kind": "Text",
+            "props": {
+              "text": "Heading",
+              "style": {
+                "width": 320,
+                "height": 80
+              }
+            },
+            "visible": true,
+            "children": []
+          }
+        }
+      ],
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "documents.action-references",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": [
+        {
+          "id": "documents.action.workflow.dispatch",
+          "kind": "composition-action-reference",
+          "action_ref": {
+            "action_id": "workflow.action.dispatch",
+            "owner": "workflow",
+            "target": "slot::workflow"
+          }
+        },
+        {
+          "id": "documents.action.owner.invoke",
+          "kind": "composition-action-reference",
+          "action_ref": {
+            "action_id": "owner.action.invoke",
+            "owner": "record-owner",
+            "target": "owner-action.invoke"
+          }
+        },
+        {
+          "id": "documents.action.process.start",
+          "kind": "composition-action-reference",
+          "action_ref": {
+            "action_id": "process-session.start",
+            "owner": "process-session",
+            "target": "compute.process_session"
+          }
+        }
+      ],
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::liveProcessSessionEvents",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "liveProcessSessionEvents",
+        "kind": "bitfield-input-descriptor",
+        "observation_contract": "exact_push",
+        "selected_payload": {
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "bytes"
+            }
+          },
+          "value_address": {
+            "from": "params",
+            "op": "path",
+            "path": [
+              "eventsAddress"
+            ]
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::published-record::target::process-session",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "target": "compute.process_session",
+        "target_key": "process-session",
+        "timeout_ms": 300000
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "documents.material-frame-defaults",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "composition-material-defaults",
+        "frame_defaults": {
+          "width": 720,
+          "height": 480
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::entry::documents",
+      "path": [
+        "packages",
+        "documents",
+        "entries",
+        "documents"
+      ],
+      "payload": {
+        "entry_name": "documents",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-documents.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-documents"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::entry::authored-note",
+      "path": [
+        "packages",
+        "documents",
+        "entries",
+        "authored-note"
+      ],
+      "payload": {
+        "entry_name": "authored-note",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/AuthoredNoteEntry.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-authored-note"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::entry::composition-scene",
+      "path": [
+        "packages",
+        "documents",
+        "entries",
+        "composition-scene"
+      ],
+      "payload": {
+        "entry_name": "composition-scene",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-composition-scene.tsx",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-composition-scene"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::entry::feed-scene",
+      "path": [
+        "packages",
+        "documents",
+        "entries",
+        "feed-scene"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::documents::entry-bytes::feed-scene",
+      "path": [
+        "packages",
+        "documents",
+        "entry-bytes",
+        "feed-scene"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::documents::public-source::read-data",
+      "path": [
+        "packages",
+        "documents",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::composition-documents",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::placeable-surfaces",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::material-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::runtime-config",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "documents.selection-ops",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "selection-op-set",
+        "rules": [
+          {
+            "id": "op:delete",
+            "label": "Delete",
+            "icon": "\ud83d\uddd1",
+            "key": [
+              "Backspace",
+              "Delete"
+            ],
+            "effect": {
+              "patch": "REMOVE_SUBTREE",
+              "scope": "roots"
+            }
+          },
+          {
+            "id": "op:clear-selection",
+            "label": "Clear selection",
+            "icon": "\u2715",
+            "key": "Escape",
+            "effect": {
+              "clear": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "documents.cursor-commands",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "cursor-command-set",
+        "rows": [
+          {
+            "key": "ArrowDown",
+            "requires": "bottom",
+            "direction": {
+              "dx": 0,
+              "dy": 1
+            },
+            "landEdge": "top"
+          },
+          {
+            "key": "ArrowUp",
+            "requires": "top",
+            "direction": {
+              "dx": 0,
+              "dy": -1
+            },
+            "landEdge": "bottom"
+          },
+          {
+            "key": "ArrowLeft",
+            "requires": "start",
+            "direction": {
+              "dx": 0,
+              "dy": -1
+            },
+            "landEdge": "end"
+          },
+          {
+            "key": "ArrowRight",
+            "requires": "end",
+            "direction": {
+              "dx": 0,
+              "dy": 1
+            },
+            "landEdge": "start"
+          },
+          {
+            "key": "PageDown",
+            "requires": "bottom",
+            "direction": {
+              "dx": 0,
+              "dy": 1
+            },
+            "landEdge": "top"
+          },
+          {
+            "key": "PageUp",
+            "requires": "top",
+            "direction": {
+              "dx": 0,
+              "dy": -1
+            },
+            "landEdge": "bottom"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "documents.input-shortcuts",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "input-shortcut-set",
+        "rules": [
+          {"id":"shortcut:paragraph","conversion_label":"Text","match":{"gesture":"conversion"},"effect_template":[{"type":"UPDATE_PROPS","node_id":{"$kind":"binding","select":{"from":"block","path":"id"}},"changes":{"props":{"text":{"$kind":"binding","select":{"from":"captured","path":"text"}},"made_by_shortcut":null,"look":null,"custom":{"heading_level":null},"style":{"font_size":16,"font_weight":400,"font_style":"normal"}}}}],"markdown":{"$kind":"binding","select":{"from":"block","path":"text"}}},
+{
+            "id": "shortcut:h1","conversion_label":"Heading 1",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "#",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "custom": {
+                      "heading_level": 1
+                    },
+                    "style": {
+                      "font_size": 30,
+                      "font_weight": 700
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:h2","conversion_label":"Heading 2",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "##",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "custom": {
+                      "heading_level": 2
+                    },
+                    "style": {
+                      "font_size": 24,
+                      "font_weight": 700
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:h3","conversion_label":"Heading 3",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "###",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "custom": {
+                      "heading_level": 3
+                    },
+                    "style": {
+                      "font_size": 20,
+                      "font_weight": 600
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:h4","conversion_label":"Heading 4",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "####",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "custom": {
+                      "heading_level": 4
+                    },
+                    "style": {
+                      "font_size": 17,
+                      "font_weight": 600
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:small",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "-#",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "style": {
+                      "font_size": 13,
+                      "color": "rgba(200,200,212,0.62)"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:quote","conversion_label":"Quote",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": ">",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "style": {
+                      "font_style": "italic",
+                      "color": "rgba(233,233,240,0.74)",
+                      "background": "rgba(255,255,255,0.045)",
+                      "padding": {
+                        "top": 8,
+                        "bottom": 8,
+                        "left": 14,
+                        "right": 14
+                      },
+                      "border_radius": 6
+                    },
+                    "made_by_shortcut": "shortcut:quote"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {
+              "in_a_filled_one": "make_another_one_like_this",
+              "in_an_empty_one": "leave_this_kind"
+            }
+          },
+          {
+            "id": "shortcut:quote-alt",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "\"",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "style": {
+                      "font_style": "italic",
+                      "color": "rgba(233,233,240,0.74)",
+                      "background": "rgba(255,255,255,0.045)",
+                      "padding": {
+                        "top": 8,
+                        "bottom": 8,
+                        "left": 14,
+                        "right": 14
+                      },
+                      "border_radius": 6
+                    },
+                    "made_by_shortcut": "shortcut:quote-alt"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {
+              "in_a_filled_one": "make_another_one_like_this",
+              "in_an_empty_one": "leave_this_kind"
+            }
+          },
+          {
+            "id": "shortcut:number-list","conversion_label":"Numbered list",
+            "indentable": true,
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "numeric": true,
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "match"
+                          }
+                        },
+                        "  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    },
+                    "made_by_shortcut": "shortcut:number-list"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {
+              "in_a_filled_one": "make_another_one_like_this",
+              "in_an_empty_one": "leave_this_kind"
+            }
+          },
+          {
+            "id": "shortcut:callout",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "!",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "style": {
+                      "background": "rgba(96,120,255,0.13)",
+                      "padding": {
+                        "top": 12,
+                        "bottom": 12,
+                        "left": 14,
+                        "right": 14
+                      },
+                      "border_radius": 8
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:callout-bang",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "[!]",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "style": {
+                      "background": "rgba(96,120,255,0.13)",
+                      "padding": {
+                        "top": 12,
+                        "bottom": 12,
+                        "left": 14,
+                        "right": 14
+                      },
+                      "border_radius": 8
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:callout-info",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "::",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "style": {
+                      "background": "rgba(96,120,255,0.13)",
+                      "padding": {
+                        "top": 12,
+                        "bottom": 12,
+                        "left": 14,
+                        "right": 14
+                      },
+                      "border_radius": 8
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:code-fence",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "```",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "look": "code",
+                    "made_by_shortcut": "shortcut:code-fence",
+                    "custom": {
+                      "interchange_kind": "fenced-code"
+                    }
+                  }
+                }
+              }
+            ],
+            "text_input": {
+              "mode": "literal",
+              "enter": "line_break",
+              "indentation": "copy",
+              "indent_unit": "  "
+            },
+            "markdown": {
+              "fence": "`",
+              "minimum": 3
+            }
+          },
+          {
+            "id": "shortcut:code-tilde",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "~~~",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "captured",
+                        "path": "text"
+                      }
+                    },
+                    "look": "code",
+                    "made_by_shortcut": "shortcut:code-tilde",
+                    "custom": {
+                      "interchange_kind": "fenced-code"
+                    }
+                  }
+                }
+              }
+            ],
+            "text_input": {
+              "mode": "literal",
+              "enter": "line_break",
+              "indentation": "copy",
+              "indent_unit": "  "
+            },
+            "markdown": {
+              "fence": "`",
+              "minimum": 3
+            }
+          },
+          {
+            "id": "shortcut:bullet-dash","conversion_label":"Bulleted list",
+            "indentable": true,
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "-",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        "\u2022  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    },
+                    "made_by_shortcut": "shortcut:bullet-dash"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {
+              "in_a_filled_one": "make_another_one_like_this",
+              "in_an_empty_one": "leave_this_kind"
+            }
+          },
+          {
+            "id": "shortcut:bullet-star",
+            "indentable": true,
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "*",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        "\u2022  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    },
+                    "made_by_shortcut": "shortcut:bullet-star"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {
+              "in_a_filled_one": "make_another_one_like_this",
+              "in_an_empty_one": "leave_this_kind"
+            }
+          },
+          {
+            "id": "shortcut:bullet-plus",
+            "indentable": true,
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "+",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        "\u2022  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    },
+                    "made_by_shortcut": "shortcut:bullet-plus"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {
+              "in_a_filled_one": "make_another_one_like_this",
+              "in_an_empty_one": "leave_this_kind"
+            }
+          },
+          {
+            "id": "shortcut:bullet-dot",
+            "indentable": true,
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "\u2022",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        "\u2022  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    },
+                    "made_by_shortcut": "shortcut:bullet-dot"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {
+              "in_a_filled_one": "make_another_one_like_this",
+              "in_an_empty_one": "leave_this_kind"
+            }
+          },
+          {"id":"shortcut:todo-markdown","indentable":true,"match":{"gesture":"prefix","at":"block-start","terminator":"space","query_from":"after_prefix","prefix":"- [ ]"},"effect_template":[{"type":"UPDATE_PROPS","node_id":{"$kind":"binding","select":{"from":"block","path":"id"}},"changes":{"props":{"text":{"$kind":"template","parts":["☐  ",{"$kind":"binding","select":{"from":"captured","path":"text"}}]},"made_by_shortcut":"shortcut:todo-markdown"}}}],"material_template":{"id":"block:todo","content_role":"primary"},"what_enter_does":{"in_a_filled_one":"make_another_one_like_this","in_an_empty_one":"leave_this_kind"},"markdown":{"$kind":"template","parts":["- [ ] ",{"$kind":"binding","select":{"from":"block","path":"words"}}]}},
+          {"id":"shortcut:todo-done-markdown","indentable":true,"match":{"gesture":"prefix","at":"block-start","terminator":"space","query_from":"after_prefix","prefix":"- [x]"},"effect_template":[{"type":"UPDATE_PROPS","node_id":{"$kind":"binding","select":{"from":"block","path":"id"}},"changes":{"props":{"text":{"$kind":"template","parts":["☑  ",{"$kind":"binding","select":{"from":"captured","path":"text"}}]},"made_by_shortcut":"shortcut:todo-done-markdown"}}}],"material_template":{"id":"block:todo","content_role":"primary","state":"checked"},"what_enter_does":{"in_a_filled_one": "make_another_one_like_this", "in_an_empty_one": "leave_this_kind", "continue_as": "shortcut:todo"},"markdown":{"$kind":"template","parts":["- [x] ",{"$kind":"binding","select":{"from":"block","path":"words"}}]}},
+          {
+            "id": "shortcut:todo", "material_template": {"id":"block:todo","content_role":"primary"},"conversion_label":"To-do",
+            "indentable": true,
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "[]",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        "\u2610  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    },
+                    "made_by_shortcut": "shortcut:todo"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {
+              "in_a_filled_one": "make_another_one_like_this",
+              "in_an_empty_one": "leave_this_kind"
+            }
+          },
+          {
+            "id": "shortcut:todo-space", "material_template": {"content_role":"primary","id":"block:todo"},
+            "indentable": true,
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "[ ]",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        "\u2610  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    },
+                    "made_by_shortcut": "shortcut:todo-space"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {
+              "in_a_filled_one": "make_another_one_like_this",
+              "in_an_empty_one": "leave_this_kind"
+            }
+          },
+          {
+            "id": "shortcut:todo-done", "material_template": {"state":"checked","id":"block:todo","content_role":"primary"},
+            "indentable": true,
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "[x]",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        "\u2611  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    },
+                    "made_by_shortcut": "shortcut:todo-done"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {"in_a_filled_one": "make_another_one_like_this", "in_an_empty_one": "leave_this_kind", "continue_as": "shortcut:todo"}
+          },
+          {
+            "id": "shortcut:todo-done-cap", "material_template": {"content_role":"primary","id":"block:todo","state":"checked"},
+            "indentable": true,
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "[X]",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        "\u2611  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    },
+                    "made_by_shortcut": "shortcut:todo-done-cap"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {"in_a_filled_one": "make_another_one_like_this", "in_an_empty_one": "leave_this_kind", "continue_as": "shortcut:todo"}
+          },
+          {
+            "id": "shortcut:arrow",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "->",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        "\u2192  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    },
+                    "made_by_shortcut": "shortcut:arrow"
+                  }
+                }
+              }
+            ],
+            "what_enter_does": {
+              "in_a_filled_one": "make_another_one_like_this",
+              "in_an_empty_one": "leave_this_kind"
+            }
+          },
+          {
+            "id": "shortcut:toggle", "material_template": {"id":"block:toggle","content_role":"primary","state":"open"},"conversion_label":"Toggle", "what_enter_does":{"in_a_filled_one":"make_another_one_like_this","in_an_empty_one":"make_another_one_like_this"},
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": ">>",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        "\u25b8  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:divider-dash",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "---",
+              "at": "block-start",
+              "terminator": "enter",
+              "query_from": "block_text"
+            },
+            "effect_template": [
+              {
+                "type": "REMOVE_SUBTREE",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                }
+              },
+              {
+                "type": "INSERT_NODE",
+                "parent_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "id"
+                  }
+                },
+                "index": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "index"
+                  }
+                },
+                "node": {
+                  "id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "fresh",
+                      "path": "id"
+                    }
+                  },
+                  "kind": "Container",
+                  "props": {
+                    "style": {
+                      "height": 2,
+                      "background": "rgba(130,130,145,0.30)",
+                      "border_radius": 2,
+                      "margin": {
+                        "top": 14,
+                        "bottom": 14
+                      }
+                    }
+                  },
+                  "visible": true,
+                  "children": []
+                }
+              },
+              {
+                "type": "INSERT_NODE",
+                "parent_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "id"
+                  }
+                },
+                "index": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "next"
+                  }
+                },
+                "node": {
+                  "id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "fresh",
+                      "path": "id2"
+                    }
+                  },
+                  "kind": "Text",
+                  "props": {
+                    "text": ""
+                  },
+                  "visible": true,
+                  "children": []
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:divider-star",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "***",
+              "at": "block-start",
+              "terminator": "enter",
+              "query_from": "block_text"
+            },
+            "effect_template": [
+              {
+                "type": "REMOVE_SUBTREE",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                }
+              },
+              {
+                "type": "INSERT_NODE",
+                "parent_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "id"
+                  }
+                },
+                "index": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "index"
+                  }
+                },
+                "node": {
+                  "id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "fresh",
+                      "path": "id"
+                    }
+                  },
+                  "kind": "Container",
+                  "props": {
+                    "style": {
+                      "height": 2,
+                      "background": "rgba(130,130,145,0.30)",
+                      "border_radius": 2,
+                      "margin": {
+                        "top": 14,
+                        "bottom": 14
+                      }
+                    }
+                  },
+                  "visible": true,
+                  "children": []
+                }
+              },
+              {
+                "type": "INSERT_NODE",
+                "parent_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "id"
+                  }
+                },
+                "index": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "next"
+                  }
+                },
+                "node": {
+                  "id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "fresh",
+                      "path": "id2"
+                    }
+                  },
+                  "kind": "Text",
+                  "props": {
+                    "text": ""
+                  },
+                  "visible": true,
+                  "children": []
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:divider-underscore",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "___",
+              "at": "block-start",
+              "terminator": "enter",
+              "query_from": "block_text"
+            },
+            "effect_template": [
+              {
+                "type": "REMOVE_SUBTREE",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                }
+              },
+              {
+                "type": "INSERT_NODE",
+                "parent_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "id"
+                  }
+                },
+                "index": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "index"
+                  }
+                },
+                "node": {
+                  "id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "fresh",
+                      "path": "id"
+                    }
+                  },
+                  "kind": "Container",
+                  "props": {
+                    "style": {
+                      "height": 2,
+                      "background": "rgba(130,130,145,0.30)",
+                      "border_radius": 2,
+                      "margin": {
+                        "top": 14,
+                        "bottom": 14
+                      }
+                    }
+                  },
+                  "visible": true,
+                  "children": []
+                }
+              },
+              {
+                "type": "INSERT_NODE",
+                "parent_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "id"
+                  }
+                },
+                "index": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "next"
+                  }
+                },
+                "node": {
+                  "id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "fresh",
+                      "path": "id2"
+                    }
+                  },
+                  "kind": "Text",
+                  "props": {
+                    "text": ""
+                  },
+                  "visible": true,
+                  "children": []
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:spark",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "~>",
+              "at": "block-start",
+              "terminator": "space",
+              "query_from": "after_prefix"
+            },
+            "effect_template": [
+              {
+                "type": "UPDATE_PROPS",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                },
+                "changes": {
+                  "props": {
+                    "text": {
+                      "$kind": "template",
+                      "parts": [
+                        "\u2726  ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "captured",
+                            "path": "text"
+                          }
+                        }
+                      ]
+                    },
+                    "style": {
+                      "background": "rgba(255,196,0,0.14)",
+                      "color": "rgba(255,231,158,0.98)",
+                      "border_color": "rgba(255,196,0,0.55)",
+                      "border_width": 1,
+                      "border_radius": 10,
+                      "padding": {
+                        "top": 12,
+                        "bottom": 12,
+                        "left": 16,
+                        "right": 16
+                      },
+                      "font_weight": 600,
+                      "font_style": "italic"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:divider-wave",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "-~-",
+              "at": "block-start",
+              "terminator": "enter",
+              "query_from": "block_text"
+            },
+            "effect_template": [
+              {
+                "type": "REMOVE_SUBTREE",
+                "node_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "block",
+                    "path": "id"
+                  }
+                }
+              },
+              {
+                "type": "INSERT_NODE",
+                "parent_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "id"
+                  }
+                },
+                "index": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "index"
+                  }
+                },
+                "node": {
+                  "id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "fresh",
+                      "path": "id"
+                    }
+                  },
+                  "kind": "Container",
+                  "props": {
+                    "style": {
+                      "height": 4,
+                      "background": "repeating-linear-gradient(90deg, rgba(150,110,255,0.85) 0 9px, rgba(150,110,255,0.12) 9px 18px)",
+                      "border_radius": 999,
+                      "margin": {
+                        "top": 18,
+                        "bottom": 18
+                      }
+                    }
+                  },
+                  "visible": true,
+                  "children": []
+                }
+              },
+              {
+                "type": "INSERT_NODE",
+                "parent_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "id"
+                  }
+                },
+                "index": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "parent",
+                    "path": "next"
+                  }
+                },
+                "node": {
+                  "id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "fresh",
+                      "path": "id2"
+                    }
+                  },
+                  "kind": "Text",
+                  "props": {
+                    "text": ""
+                  },
+                  "visible": true,
+                  "children": []
+                }
+              }
+            ]
+          },
+          {
+            "id": "shortcut:slash",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "/",
+              "at": "caret-token",
+              "query_from": "after_prefix"
+            },
+            "presentation": {
+              "renderer": "menu",
+              "hint": "'/' for commands",
+              "option_sources": [
+                {
+                  "kind": "materials"
+                },
+                {
+                  "kind": "affordances"
+                }
+              ]
+            }
+          },
+          {
+            "id": "shortcut:mention",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "@",
+              "at": "caret-token",
+              "query_from": "after_prefix"
+            },
+            "presentation": {
+              "renderer": "picker",
+              "hint": "'@' to mention",
+              "option_sources": [
+                {
+                  "kind": "task",
+                  "group": "Tasks",
+                  "icon": "\u25d1",
+                  "label_path": "title",
+                  "value_path": "id",
+                  "reference_resolver": {
+                    "target": "slot::eeaf",
+                    "operation": "check-current-entity",
+                    "entity_type": "type:task"
+                  },
+                  "limit": 40
+                },
+                {
+                  "kind": "ai-instruction-block",
+                  "group": "Skills",
+                  "icon": "\u2726",
+                  "label_path": "label",
+                  "value_path": "id",
+                  "limit": 40
+                },
+                {
+                  "source_type": "scene_nodes",
+                  "node_scope": "root_children",
+                  "kind": "document-page",
+                  "group": "Pages",
+                  "icon": "FileText",
+                  "label_path": "label",
+                  "value_path": "id",
+                  "limit": 1000,
+                  "backlinks_title": "Linked from",
+                  "missing_reference_label": "Page missing"
+                }
+              ]
+            },
+            "token_template": {
+              "text_template": {
+                "$kind": "template",
+                "parts": [
+                  "@",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "option",
+                      "path": "label"
+                    }
+                  }
+                ]
+              },
+              "ref_kind": {
+                "$kind": "binding",
+                "select": {
+                  "from": "option",
+                  "path": "kind"
+                }
+              },
+              "ref_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "option",
+                  "path": "value"
+                }
+              }
+            }
+          },
+          {
+            "id": "shortcut:ask-ai",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "key",
+              "key": " ",
+              "at": "empty-block"
+            },
+            "presentation": {
+              "renderer": "composer",
+              "hint": "press 'space' for AI",
+              "ask": {
+                "fields": [
+                  {
+                    "id": "prompt",
+                    "control": "text",
+                    "label": "Ask AI",
+                    "placeholder": "Ask AI to write\u2026"
+                  }
+                ]
+              },
+              "config": {
+                "title": "How your AI writes",
+                "preamble": "You are writing directly into the user's document. Write only the finished content itself - no questions back, no meta commentary, no offers to create files, no chat framing. Match the ask's language and keep formatting to plain paragraphs unless the ask names a structure.",
+                "preamble_source": {
+                  "kind": "composer-writing-instructions",
+                  "value_path": "text"
+                },
+                "edit": {
+                  "record_address": "documents.writing-instructions"
+                }
+              },
+              "working": "Your AI is writing"
+            },
+            "dispatch": {
+              "document_context": {
+                "max_preceding_blocks": 12
+              },
+              "target": "slot::workflow",
+              "payload_template": {
+                "operation": "execute_definition",
+                "definition_id": "ask-my-ai:write-in-page",
+                "include_output": false,
+                "input": {
+                  "context": {
+                    "ask": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "typed",
+                        "path": "text"
+                      }
+                    },
+                    "instructions": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "config",
+                        "path": "preamble"
+                      }
+                    },
+                    "title": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "document",
+                        "path": "title"
+                      }
+                    },
+                    "body": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "document",
+                        "path": "body"
+                      }
+                    }
+                  },
+                  "request_id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "run",
+                      "path": "id"
+                    }
+                  }
+                }
+              },
+              "output_contract": {
+                "artifacts_path": "items"
+              }
+            }
+          },
+          {
+            "id": "shortcut:checkpoint",
+            "channel": "composition.inline-input",
+            "match": {
+              "gesture": "prefix",
+              "prefix": "!!",
+              "terminator": "space"
+            },
+            "presentation": {
+              "renderer": "none"
+            },
+            "dispatch": {
+              "target": "slot::workflow",
+              "payload_template": {
+                "operation": "execute_definition",
+                "definition_id": "action:composition.checkpoint-note",
+                "input": {
+                  "typed_text": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "captured",
+                      "path": "text"
+                    }
+                  },
+                  "node_ref": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "surface",
+                      "path": "target_ref"
+                    }
+                  },
+                  "run_id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "run",
+                      "path": "id"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::documents::affordance-channel::slash-menu",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "affordance-channel",
+        "channel": "composition.slash-menu",
+        "label": "This document",
+        "order": 20
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::documents::action-affordance::publish-document",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "action-affordance",
+        "id": "action-affordance:documents:publish-document",
+        "version": 1,
+        "is_active": true,
+        "label": "Publish document",
+        "icon": "Send",
+        "section": "Delivery",
+        "triggers": [
+          {
+            "id": "composition.slash-menu",
+            "channel": "composition.slash-menu",
+            "event": "invoke",
+            "ask": {
+              "title": "Publish document",
+              "submit_label": "Publish",
+              "fields": [
+                {
+                  "id": "destination_refs",
+                  "control": "multi-select",
+                  "value_type": "array",
+                  "label": "Publish to",
+                  "required": true,
+                  "help": "Only configured destinations appear here. Choose one or more.",
+                  "options_source": {
+                    "kind": "generic.target-record",
+                    "filter": {
+                      "path": "role",
+                      "equals": "destinations"
+                    },
+                    "label_path": "label",
+                    "value_path": "destination_id"
+                  }
+                },
+                {
+                  "id": "schedule_ref",
+                  "control": "reference",
+                  "label": "Schedule",
+                  "hide_when_options_empty": true,
+                  "options_source": {
+                    "kind": "timed-action.schedule",
+                    "label_path": "label",
+                    "value_path": "id"
+                  }
+                },
+                {
+                  "id": "policy_ref",
+                  "control": "reference",
+                  "label": "Delivery policy",
+                  "hide_when_options_empty": true,
+                  "options_source": {
+                    "kind": "content-distribution.delivery-policy",
+                    "label_path": "label",
+                    "value_path": "id"
+                  }
+                }
+              ]
+            },
+            "input_template": {
+              "intent_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "actor_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "actor",
+                  "path": "actor_ref"
+                }
+              },
+              "document_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "scene_address"
+                }
+              },
+              "destination_refs": {
+                "$kind": "binding",
+                "select": {
+                  "from": "answers",
+                  "path": "destination_refs"
+                }
+              },
+              "schedule_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "answers",
+                  "path": "schedule_ref"
+                }
+              },
+              "policy_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "answers",
+                  "path": "policy_ref"
+                }
+              }
+            }
+          }
+        ],
+        "dispatch": {
+          "target": "slot::workflow",
+          "payload_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:content-distribution.publish-document",
+            "include_output": true,
+            "input": {
+              "$kind": "binding",
+              "select": {
+                "from": "trigger",
+                "path": "input"
+              }
+            }
+          },
+          "status": {
+            "result_address_template": "package::content-distribution::document-publish-result::{id}",
+            "error_address_template": "package::content-distribution::document-publish-error::{id}",
+            "address_mode": "label-hash",
+            "result_partition_label": "runtime-partition"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "documents.writing-instructions",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "composer-writing-instructions",
+        "text": "You are writing directly into the user's document. Write only the finished content itself - no questions back, no meta commentary, no offers to create files, no chat framing. Match the ask's language and keep formatting to plain paragraphs unless the ask names a structure."
+      }
+    },
+    {
+      "type": "record",
+      "address": "documents.inline-marks",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "inline-mark-set",
+        "marks": [
+          {
+            "id": "strong",
+            "open_marker": "**",
+            "close_marker": "**",
+            "render_tag": "strong",
+            "legacy_tags": [
+              "strong",
+              "b"
+            ],
+            "style": { "font_weight": 700 }
+          },
+          {
+            "id": "em",
+            "open_marker": "*",
+            "close_marker": "*",
+            "render_tag": "em",
+            "legacy_tags": [
+              "em",
+              "i"
+            ],
+            "style": { "font_style": "italic" }
+          },
+          {
+            "id": "strike",
+            "open_marker": "~~",
+            "close_marker": "~~",
+            "render_tag": "s",
+            "legacy_tags": [
+              "s",
+              "strike",
+              "del"
+            ],
+            "style": { "text_strike": true }
+          },
+          {
+            "id": "code",
+            "open_marker": "`",
+            "close_marker": "`",
+            "render_tag": "code",
+            "legacy_tags": [
+              "code"
+            ],
+            "style": { "font_family": "var(--font-mono)", "background": "rgba(135,131,120,0.22)" }
+          },
+          {
+            "id": "underline",
+            "open_marker": "__",
+            "close_marker": "__",
+            "render_tag": "u",
+            "legacy_tags": ["u"],
+            "style": { "text_underline": true }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "documents.empty-state",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "composition-empty-state",
+        "nodes": [
+          {
+            "kind": "Text",
+            "props": {
+              "text": "",
+              "style": {
+                "font_size": 36,
+                "font_weight": 700
+              },
+              "custom": {
+                "placeholder": "Untitled"
+              }
+            }
+          },
+          {
+            "kind": "Text",
+            "props": {
+              "text": ""
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::documents::runtime-config",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "partition_label": "person",
+        "block_placeholder": "Type / for commands"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::documents::workflow-action::checkpoint-note",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:composition.checkpoint-note",
+        "kind": "action",
+        "is_active": true,
+        "name": "checkpoint-note",
+        "description": "Deterministic (no-AI) workflow dispatched by the !! input-shortcut: append one composition-checkpoint published-record capturing the block's text + source node at dispatch time. Proves the inline command-composer can dispatch a deterministic workflow to slot::workflow as pure DATA (contrast: space -> ai-records-producer is AI). The caller (the input-shortcut dispatch payload) supplies typed_text + node_ref + run_id; this def owns only the write.",
+        "input_schema": {},
+        "steps": [
+          {
+            "id": "write_checkpoint",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "run_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "composition-checkpoint|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "partition_key"
+                              }
+                            },
+                            "|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "run_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "composition-checkpoint",
+                    "id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "run_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "composition-checkpoint:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "run_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "typed_text"
+                      }
+                    },
+                    "node_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "node_ref"
+                      }
+                    },
+                    "run_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "run_id"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::documents::workflow-action::write-document",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:composition.write-document",
+        "kind": "action",
+        "is_active": true,
+        "name": "write-document",
+        "description": "Generic pass-through document write: caller supplies a fully-formed record (address + payload), and this action owns only the write. Downstream pipelines can persist authored composition documents without Documents learning the caller's domain vocabulary.",
+        "input_schema": {
+          "required": [
+            "record"
+          ],
+          "properties": {
+            "record": {
+              "type": "object"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.payload"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::documents::workflow-action::import-document",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:composition.import-document",
+        "kind": "action",
+        "is_active": true,
+        "name": "import-document",
+        "description": "Blind adapter: turn produced content into an editable composition document plus a lightweight index pointer. Caller supplies {doc_id, title, summary?, source?, status?} plus either structured `sections` or a `body_html` string. This action owns the document format and address convention by running the generic import-content-document.mjs mapper, then writing the document at its scene address and its composition-document-index pointer.",
+        "input_schema": {
+          "required": [
+            "doc_id",
+            "title"
+          ],
+          "properties": {
+            "doc_id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "body_html": {
+              "type": "string"
+            },
+          "sections": {
+            "type": "array"
+          },
+          "correlation_ref": {
+            "type": "string"
+          },
+          "reusable_job_ref": {
+            "type": "string"
+          },
+          "provenance": {
+            "type": "object"
+          },
+          "rights": {
+            "type": "object"
+          },
+          "authorization": {
+            "type": "object"
+          }
+        }
+      },
+        "steps": [
+          {
+            "id": "import_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::documents::stored-bytes::import-content-document-script"
+            }
+          },
+          {
+            "id": "map",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/documents/do-work/process-scripts/import-content-document.mjs",
+                  "--input-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--output-json",
+                  "import-result.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/documents/do-work/process-scripts/import-content-document.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "import_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "import-result.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "write",
+            "join": "any",
+            "join_config": null,
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "map",
+                      "path": "output.outputs.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "document_record"
+                        }
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "address"
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "map",
+                      "path": "output.outputs.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "document_record"
+                        }
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "path"
+                        }
+                      }
+                    ]
+                  },
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "map",
+                      "path": "output.outputs.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "document_record"
+                        }
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "payload"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "map",
+                      "path": "output.outputs.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "index_record"
+                        }
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "address"
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "map",
+                      "path": "output.outputs.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "index_record"
+                        }
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "path"
+                        }
+                      }
+                    ]
+                  },
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "map",
+                      "path": "output.outputs.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "index_record"
+                        }
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "payload"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "import-content-document-script",
+      "source_path": "built-stored-bytes/import-content-document-script",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "do-work/process-scripts/import-content-document.mjs"
+        }
+      },
+      "source_closure_receipt_path": "built-stored-bytes/import-content-document-script.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-document-publication-snapshot-script",
+      "source_path": "built-stored-bytes/read-document-publication-snapshot-script",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [1, 2],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "do-work/process-scripts/read-document-publication-snapshot.mjs"
+        }
+      },
+      "source_closure_receipt_path": "built-stored-bytes/read-document-publication-snapshot-script.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "validate-documents-document-ref-script",
+      "source_path": "do-work/process-scripts/validate-documents-document-ref.mjs"
+    },
+    {
+      "type": "record",
+      "address": "package::documents::workflow-action::read-document-publication-snapshot",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:composition.read-document-publication-snapshot",
+        "kind": "action",
+        "is_active": true,
+        "name": "read-document-publication-snapshot",
+        "description": "Read a canonical Documents body at its owner address and derive its exact publication hash. Caller-authored hashes are never accepted as truth; the reply is an ephemeral formatter input and must not be persisted by a delivery owner.",
+        "input_schema": {
+          "required": [
+            "document_ref"
+          ],
+          "properties": {
+            "document_ref": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "document_ref": "opaque-documents-address",
+          "document_revision_hash": "blake3-multihash-1f-lowercase",
+          "body_ref": "opaque-documents-address",
+          "body": "ephemeral-canonical-editable-body"
+        },
+        "steps": [
+          {
+            "id": "read_ref_validator",
+            "kind": "read",
+            "config": {
+              "from": "package::documents::stored-bytes::validate-documents-document-ref-script"
+            }
+          },
+          {
+            "id": "validate_document_ref",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/documents/do-work/process-scripts/validate-documents-document-ref.mjs",
+                  "--document-ref",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "document_ref"
+                    }
+                  },
+                  "--output-json",
+                  "validated-document-ref.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/documents/do-work/process-scripts/validate-documents-document-ref.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_ref_validator",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "validated-document-ref.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "read_document_index",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "composition-document-index",
+                "include": [
+                  "address",
+                  "payload"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "doc_address",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "validate_document_ref",
+                          "path": "output.outputs.0.bytes.base64"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.decode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          },
+                          {
+                            "op": "op:core.json_parse"
+                          },
+                          {
+                            "op": "op:core.lookup",
+                            "args": {
+                              "key": "document_ref"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "limit": 2
+              }
+            }
+          },
+          {
+            "id": "read_document",
+            "kind": "read",
+            "config": {
+              "address_mode": "identity_text",
+              "from": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "validate_document_ref",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "document_ref"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "read_snapshot_script",
+            "kind": "read",
+            "config": {
+              "from": "package::documents::stored-bytes::read-document-publication-snapshot-script"
+            }
+          },
+          {
+            "id": "snapshot",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/documents/do-work/process-scripts/read-document-publication-snapshot.mjs",
+                  "--document-ref",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "document_ref"
+                    }
+                  },
+                  "--body-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_document",
+                      "path": "output"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--index-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_document_index",
+                      "path": "output.items.0.payload"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": null
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      },
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "null"
+                        }
+                      }
+                    ]
+                  },
+                  "--output-json",
+                  "document-publication-snapshot.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/documents/do-work/process-scripts/read-document-publication-snapshot.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_snapshot_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "document-publication-snapshot.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "snapshot",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::projection-action::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "composition-projection-action",
+        "id": "name",
+        "menu_label": "Name this",
+        "projection_kind": "identity",
+        "ask": {
+          "title": "Name this",
+          "submit_label": "Save",
+          "fields": [
+            {
+              "id": "title",
+              "control": "line",
+              "label": "Name",
+              "placeholder": "Name",
+              "required": true
+            }
+          ]
+        },
+        "title_from": "title",
+        "descriptor_bindings": {},
+        "success_template": "Saved as \"{title}\"",
+        "order": 10
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::projection-action::export",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "composition-projection-action",
+        "id": "export",
+        "menu_label": "Save as a file\u2026",
+        "projection_kind": "file",
+        "ask": {
+          "title": "Save as a file",
+          "submit_label": "Save file",
+          "fields": [
+            {
+              "id": "format_id",
+              "control": "reference",
+              "label": "Format",
+              "options_source": {
+                "kind": "structured-file-projection-rules",
+                "prefer_id": "default",
+                "entries_path": "formats"
+              },
+              "options": [
+                {
+                  "value": "composition-fragment-json",
+                  "label": "Trillion composition bundle (.json)"
+                },
+                {
+                  "value": "composition-markdown",
+                  "label": "Markdown (.md)"
+                }
+              ],
+              "required": true
+            },
+            {
+              "id": "destination_dir",
+              "control": "line",
+              "label": "Folder",
+              "placeholder": "/full/folder/path",
+              "required": true
+            }
+          ]
+        },
+        "descriptor_bindings": {
+          "format_id": "format_id",
+          "destination_dir": "destination_dir"
+        },
+        "success_template": "Saved the file at {path}",
+        "order": 20
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::projection-action::board",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "composition-projection-action",
+        "id": "board",
+        "menu_label": "Put on a board",
+        "projection_kind": "surface",
+        "ask": {
+          "title": "Put on a board",
+          "submit_label": "Save",
+          "fields": [
+            {
+              "id": "title",
+              "control": "line",
+              "label": "Name",
+              "placeholder": "Name",
+              "required": true
+            }
+          ]
+        },
+        "title_from": "title",
+        "descriptor_bindings": {},
+        "success_template": "\"{value}\" can now be placed on any board",
+        "order": 30
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::projection-action::attach",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "composition-projection-action",
+        "id": "attach",
+        "menu_label": "Attach to a task\u2026",
+        "projection_kind": "task-attachment",
+        "ask": {
+          "title": "Attach to a task",
+          "submit_label": "Attach",
+          "fields": [
+            {
+              "id": "task",
+              "control": "entity-picker",
+              "label": "Task",
+              "options_source": {
+                "titled": true,
+                "carry_record": true,
+                "exclude_address_prefixes": [
+                  "package::documents::"
+                ]
+              },
+              "placeholder": "Search tasks\u2026",
+              "required": true
+            }
+          ]
+        },
+        "descriptor_bindings": {
+          "taskRecord": {
+            "from": "task",
+            "pick": "record"
+          }
+        },
+        "success_template": "Attached \"{title}\" to the task",
+        "order": 40
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::surface-reachability::authoring",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "surface.reachability",
+        "surface_id": "documents.authoring",
+        "entry": {
+          "from": "surface-picker",
+          "query": "composition"
+        },
+        "vocabulary": [
+          "composition",
+          "design",
+          "canvas",
+          "edit",
+          "create",
+          "layout"
+        ],
+        "must_see": [
+          "canvas",
+          "toolbox"
+        ],
+        "must_act": [
+          "add-element",
+          "edit-element"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::documents::input::selector-source-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "selector-source-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "documents.material-descriptors.form-fields",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": [
+        {
+          "id": "form-field:short-answer",
+          "label": "Short answer",
+          "icon": "TextCursorInput",
+          "group": "Form fields",
+          "match_terms": [
+            "short answer",
+            "text field",
+            "input",
+            "answer",
+            "field",
+            "question"
+          ],
+          "node": {
+            "id": "node:tpl-ff-short-answer",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "text",
+                "required": false,
+                "rules": []
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-short-answer-label",
+                "kind": "Text",
+                "props": {
+                  "text": "Untitled question",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        },
+        {
+          "id": "form-field:long-answer",
+          "label": "Long answer",
+          "icon": "AlignLeft",
+          "group": "Form fields",
+          "match_terms": [
+            "long answer",
+            "paragraph",
+            "textarea",
+            "long text",
+            "essay"
+          ],
+          "node": {
+            "id": "node:tpl-ff-long-answer",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "long-text",
+                "required": false,
+                "rules": [],
+                "multiline": true,
+                "rows": 5
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-long-answer-label",
+                "kind": "Text",
+                "props": {
+                  "text": "Untitled question",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        },
+        {
+          "id": "form-field:multiple-choice",
+          "label": "Multiple choice",
+          "icon": "CircleDot",
+          "group": "Form fields",
+          "match_terms": [
+            "multiple choice",
+            "radio",
+            "choice",
+            "choose one",
+            "select one"
+          ],
+          "node": {
+            "id": "node:tpl-ff-multiple-choice",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "single-choice",
+                "required": false,
+                "rules": [],
+                "options": [
+                  {
+                    "value": "option-1",
+                    "label": "Option 1"
+                  },
+                  {
+                    "value": "option-2",
+                    "label": "Option 2"
+                  }
+                ]
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-multiple-choice-label",
+                "kind": "Text",
+                "props": {
+                  "text": "Untitled question",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        },
+        {
+          "id": "form-field:checkboxes",
+          "label": "Checkboxes",
+          "icon": "ListChecks",
+          "group": "Form fields",
+          "match_terms": [
+            "checkboxes",
+            "checkbox",
+            "multi select",
+            "choose many",
+            "check all"
+          ],
+          "node": {
+            "id": "node:tpl-ff-checkboxes",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "multi-choice",
+                "required": false,
+                "rules": [],
+                "options": [
+                  {
+                    "value": "option-1",
+                    "label": "Option 1"
+                  },
+                  {
+                    "value": "option-2",
+                    "label": "Option 2"
+                  }
+                ]
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-checkboxes-label",
+                "kind": "Text",
+                "props": {
+                  "text": "Untitled question",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        },
+        {
+          "id": "form-field:dropdown",
+          "label": "Dropdown",
+          "icon": "ChevronDownSquare",
+          "group": "Form fields",
+          "match_terms": [
+            "dropdown",
+            "select",
+            "picker",
+            "menu"
+          ],
+          "node": {
+            "id": "node:tpl-ff-dropdown",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "dropdown",
+                "required": false,
+                "rules": [],
+                "options": [
+                  {
+                    "value": "option-1",
+                    "label": "Option 1"
+                  },
+                  {
+                    "value": "option-2",
+                    "label": "Option 2"
+                  }
+                ]
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-dropdown-label",
+                "kind": "Text",
+                "props": {
+                  "text": "Untitled question",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        },
+        {
+          "id": "form-field:email",
+          "label": "Email",
+          "icon": "Mail",
+          "group": "Form fields",
+          "match_terms": [
+            "email",
+            "e-mail",
+            "mail address"
+          ],
+          "node": {
+            "id": "node:tpl-ff-email",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "email",
+                "required": false,
+                "rules": [],
+                "input_type": "email",
+                "placeholder": "name@example.com"
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-email-label",
+                "kind": "Text",
+                "props": {
+                  "text": "Email address",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        },
+        {
+          "id": "form-field:phone",
+          "label": "Phone",
+          "icon": "Phone",
+          "group": "Form fields",
+          "match_terms": [
+            "phone",
+            "phone number",
+            "tel",
+            "mobile"
+          ],
+          "node": {
+            "id": "node:tpl-ff-phone",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "phone",
+                "required": false,
+                "rules": [],
+                "input_type": "tel",
+                "placeholder": "+1"
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-phone-label",
+                "kind": "Text",
+                "props": {
+                  "text": "Phone number",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        },
+        {
+          "id": "form-field:number",
+          "label": "Number",
+          "icon": "Hash",
+          "group": "Form fields",
+          "match_terms": [
+            "number",
+            "numeric",
+            "amount",
+            "quantity"
+          ],
+          "node": {
+            "id": "node:tpl-ff-number",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "number",
+                "required": false,
+                "rules": [],
+                "input_type": "number"
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-number-label",
+                "kind": "Text",
+                "props": {
+                  "text": "Untitled question",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        },
+        {
+          "id": "form-field:date",
+          "label": "Date",
+          "icon": "Calendar",
+          "group": "Form fields",
+          "match_terms": [
+            "date",
+            "day",
+            "when",
+            "deadline"
+          ],
+          "node": {
+            "id": "node:tpl-ff-date",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "date",
+                "required": false,
+                "rules": [],
+                "input_type": "date"
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-date-label",
+                "kind": "Text",
+                "props": {
+                  "text": "Pick a date",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        },
+        {
+          "id": "form-field:file-request",
+          "label": "File request",
+          "icon": "Paperclip",
+          "group": "Form fields",
+          "match_terms": [
+            "file",
+            "upload",
+            "attachment",
+            "file request",
+            "resume"
+          ],
+          "node": {
+            "id": "node:tpl-ff-file-request",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "file",
+                "required": false,
+                "rules": [],
+                "input_type": "file"
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-file-request-label",
+                "kind": "Text",
+                "props": {
+                  "text": "Upload a file",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        },
+        {
+          "id": "form-field:rating",
+          "label": "Rating",
+          "icon": "Star",
+          "group": "Form fields",
+          "match_terms": [
+            "rating",
+            "stars",
+            "score",
+            "nps",
+            "scale"
+          ],
+          "node": {
+            "id": "node:tpl-ff-rating",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "rating",
+                "required": false,
+                "rules": [],
+                "options": [
+                  {
+                    "value": "1",
+                    "label": "1"
+                  },
+                  {
+                    "value": "2",
+                    "label": "2"
+                  },
+                  {
+                    "value": "3",
+                    "label": "3"
+                  },
+                  {
+                    "value": "4",
+                    "label": "4"
+                  },
+                  {
+                    "value": "5",
+                    "label": "5"
+                  }
+                ]
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-rating-label",
+                "kind": "Text",
+                "props": {
+                  "text": "How would you rate this?",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        },
+        {
+          "id": "form-field:linked-record",
+          "label": "Linked record",
+          "icon": "Link2",
+          "group": "Form fields",
+          "match_terms": [
+            "linked record",
+            "record picker",
+            "reference",
+            "lookup",
+            "relation"
+          ],
+          "node": {
+            "id": "node:tpl-ff-linked-record",
+            "kind": "Container",
+            "props": {
+              "style": {
+                "width": 640
+              },
+              "form_field": {
+                "value_kind": "linked-record",
+                "required": false,
+                "rules": [],
+                "options": [],
+                "option_source": "display-label-records"
+              }
+            },
+            "visible": true,
+            "children": [
+              {
+                "id": "node:tpl-ff-linked-record-label",
+                "kind": "Text",
+                "props": {
+                  "text": "Choose a record",
+                  "style": {
+                    "font_size": 18,
+                    "font_weight": 600
+                  }
+                },
+                "visible": true,
+                "children": []
+              }
+            ]
+          },
+          "kind": "composition-material-descriptor"
+        }
+      ],
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-authored-note",
+      "source_path": "built-stored-bytes/entry-bytes-authored-note",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-authored-note.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-documents",
+      "source_path": "built-stored-bytes/entry-bytes-documents",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-documents.source-closure.json"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "_what": "What the reader on this computer offers to put in the person's browsers, and where each browser takes an offer (offer-in-browsers.mjs). `offers`: each browser extension Trillion makes, by its store id and the address the browser fetches it from. `browsers`: each browser by the app that shows it is installed (`app`), the folder its profiles live in (`profiles`, under which `<profile>/Extensions/<id>` means it is already there) and the folder it reads offers from (`offers_from`, under `profiles`), where one small file per extension makes the browser ask the person whether to add it the next time it opens. A browser the person never installed is passed over; a browser already holding the extension is left alone; each offer is made once per browser (kept in the reader's state folder), so an extension the person turned down is never offered again. A new extension or browser is one row. `native_hosts`: each program this computer carries that Trillion's extensions may call directly (chrome.runtime.sendNativeMessage), by its host `name`, the carried `entry` (under computer/) the browser starts through a launcher kept in `native_host_launchers`, the `offers` whose extension ids are the only `allowed_origins` (pinned exactly), and the `actions` it answers (computer/browser-native-host.mjs). Each installed browser with `native_hosts_from` gets one manifest there; `most_message_bytes` bounds a message from the browser. `state_file` (under the home folder) is where offers made and a removal of the native hosts are kept.",
+  "state_file": ".trillion/computer-sources/offered-in-browsers.json",
+  "native_host_launchers": ".trillion/computer-sources/native-hosts",
+  "most_message_bytes": 65536,
+  "native_hosts": [
+    {
+      "name": "ai.gettrillion.computer",
+      "description": "Lets Trillion's Send to Trillion extension ask this computer which computer it is.",
+      "entry": "browser-native-host.mjs",
+      "offers": ["send-to-trillion"],
+      "actions": ["here"]
+    }
+  ],
+  "offers": [
+    {
+      "id": "send-to-trillion",
+      "extension_id": "hlcppfhpcfmlinjmjkiadmbnnboadlnh",
+      "update_url": "https://clients2.google.com/service/update2/crx"
+    }
+  ],
+  "browsers": [
+    {
+      "id": "chrome",
+      "app": "/Applications/Google Chrome.app",
+      "profiles": "~/Library/Application Support/Google/Chrome",
+      "offers_from": "External Extensions",
+      "native_hosts_from": "NativeMessagingHosts"
+    },
+    {
+      "id": "brave",
+      "app": "/Applications/Brave Browser.app",
+      "profiles": "~/Library/Application Support/BraveSoftware/Brave-Browser",
+      "offers_from": "External Extensions",
+      "native_hosts_from": "NativeMessagingHosts"
+    },
+    {
+      "id": "edge",
+      "app": "/Applications/Microsoft Edge.app",
+      "profiles": "~/Library/Application Support/Microsoft Edge",
+      "offers_from": "External Extensions",
+      "native_hosts_from": "NativeMessagingHosts"
+    }
+  ]
+}

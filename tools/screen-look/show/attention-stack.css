@@ -1,0 +1,49 @@
+/* parts/screen-look/show/attention-stack.css
+   The look of the shared attention stack (ui/show/attention-stack/AttentionStack.tsx): what only the person can do,
+   drawn louder than anything else on the screen. After Deel's "For you today" and 21st.dev's "Alert with Action
+   Buttons": a big count, groups each headed by an icon, a title and a solid count badge, and the shared button per
+   thing. Colours and faces are the page's own tokens; the whole card is tinted in the page's attention colour (never an edge bar). It reflows from a
+   phone-width pane up by its own width (a container query), never the window's. */
+
+.attention-stack { container: attention / inline-size; display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem 1.125rem; border: 1px solid color-mix(in oklab, var(--color-destructive, #dc2626) 28%, var(--color-border, #e5e5e5)); border-radius: 0.875rem; background: color-mix(in oklab, var(--color-destructive, #dc2626) 4%, var(--color-card, #fff)); }
+.attention-head { display: flex; align-items: baseline; gap: 0.6rem; }
+.attention-total { font-family: var(--font-display, ui-serif, Georgia, serif); font-size: 2.25rem; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--color-destructive, #dc2626); }
+.attention-title { font-size: 1.125rem; font-weight: 600; line-height: 1.25; color: var(--color-foreground, #111); }
+/* The press that goes through everything waiting, one thing at a time: at the end of the count's row. */
+.attention-go { margin-left: auto; align-self: center; flex: none; }
+
+.attention-group { display: flex; flex-direction: column; gap: 0.35rem; padding-top: 0.6rem; border-top: 1px solid var(--color-border, #e5e5e5); }
+.attention-group-notice { margin: 0; color: var(--color-muted-foreground); font-size: .875rem; line-height: 1.45; }
+.attention-group-head { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.attention-group-icon { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: 0.5rem; background: var(--color-muted, #f4f4f5); color: var(--color-foreground, #111); }
+.attention-group-icon svg { width: 1rem; height: 1rem; }
+.attention-group-title { min-width: 0; font-size: 0.9375rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attention-count { flex: none; font-variant-numeric: tabular-nums; }
+.attention-group-all { margin-left: auto; flex: none; }
+
+.attention-things { display: flex; flex-direction: column; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+.attention-thing { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.35rem 0.75rem; padding: 0.5rem 0.25rem 0.5rem 2.25rem; border-radius: 0.5rem; }
+.attention-thing:hover { background: var(--color-accent, #f4f4f5); }
+.attention-thing[data-has-clip="true"] { grid-template-columns: minmax(0, 1fr) minmax(10rem, 16rem) auto; }
+.attention-thing-text { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.attention-thing-title { display: flex; align-items: baseline; gap: 0.4rem; min-width: 0; font-size: 0.875rem; font-weight: 500; overflow-wrap: anywhere; }
+.attention-thing-meta { flex: none; color: var(--color-muted-foreground, #666); font-size: 0.75rem; font-weight: 400; }
+.attention-thing-detail { color: var(--color-muted-foreground, #666); font-size: 0.8125rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.attention-thing-clip { min-width: 0; }
+.attention-do { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; }
+.attention-do-button { min-width: 5.5rem; }
+/* The form trigger wears the shared button's own face (coss buttonVariants), so it matches the button beside it. */
+.attention-do-form { cursor: pointer; white-space: nowrap; }
+.attention-refusal { max-width: 16rem; color: var(--color-destructive, #dc2626); font-size: 0.75rem; text-align: right; }
+.attention-more { align-self: flex-start; margin-left: 2rem; }
+
+/* A narrow pane: the button goes under the words at full width, the sound player under them too. */
+@container attention (max-width: 34rem) {
+  .attention-stack { padding: 0.875rem; }
+  .attention-total { font-size: 1.875rem; }
+  .attention-thing, .attention-thing[data-has-clip="true"] { grid-template-columns: minmax(0, 1fr); padding-left: 0.25rem; }
+  .attention-do { align-items: stretch; }
+  .attention-do-button, .attention-do-form { width: 100%; }
+  .attention-refusal { max-width: none; text-align: left; }
+  .attention-more { margin-left: 0; }
+}

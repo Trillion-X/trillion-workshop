@@ -1,0 +1,15 @@
+{
+  "_what": "How this Mac trusts an update or a download list (computer/signed-manifest.mjs): a manifest is JSON text that came with a detached Ed25519 signature, and counts only when one of the publisher keys below verifies it. `keys` are the publishers this Mac trusts: { id, public_key } (the 32 raw bytes, base64), with an optional `retired_at` after which that key no longer counts. A manifest holds `entries`: { version, channel?, url, size, blake3 } (blake3 is the 64 hex characters of the artifact). With none of the trusted keys listed, nothing is trusted. The check stops at the first fact that fails.",
+  "keys": [],
+  "default_channel": "stable",
+  "words": {
+    "no_keys": "This Mac trusts no update publisher, so the list was not used.",
+    "unsigned": "The list has no signature, so it was not used.",
+    "bad_signature": "The list's signature does not match any publisher this Mac trusts, so it was not used.",
+    "not_json": "The signed list is not readable.",
+    "no_newer": "Nothing newer than {current} is listed for {channel}.",
+    "downgrade": "{version} is older than {current}; this Mac does not go back.",
+    "wrong_artifact": "The downloaded file does not match the size and hash the signed list names, so it was not used.",
+    "chosen": "{version} is available on {channel}."
+  }
+}

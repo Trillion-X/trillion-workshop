@@ -1,0 +1,4193 @@
+{
+  "package": "record-audio",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::record-audio::checks",
+      "path": [
+        "packages",
+        "record-audio",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/evidence-completion.test.ts",
+          "do-work/meeting-join-recording.test.ts",
+          "do-work/recording-meeting-context-update.test.ts",
+          "read-data/capture-policy.test.ts",
+          "do-work/recorded-file-store.test.ts",
+          "show/RecordAudioPanel.test.tsx",
+          "show/plain-language-capture.test.ts",
+          "show/live-recording.test.ts",
+          "show/recording-lifecycle.test.ts",
+          "tests/record-audio-backend-proof.mjs",
+          "tests/record-audio-visual-database-proof.test.ts",
+          "tests/record-audio-visual-database.test.ts",
+          "tests/recording-condition-formula.test.mjs"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::capture-policy",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-audio.capture-policy",
+        "journal_lease_ms": 5000,
+        "journal_heartbeat_ms": 1000,
+        "meeting_start": {
+          "mode": "manual",
+          "allowed_apps": [],
+          "blocked_apps": []
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::capture-policy",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "recordAudioCapturePolicy",
+        "value_address_label": "package::record-audio::capture-policy",
+        "is_default": true,
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::completion-reason-refs",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-audio.completion-reason-refs",
+        "manual": "capture-completion:operator-stop",
+        "provider_end": "capture-completion:provider-ended",
+        "provider_error": "capture-completion:provider-error",
+        "cancel": "capture-completion:operator-cancel"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::completion-reason-refs",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "recordAudioCompletionReasonRefs",
+        "value_address_label": "package::record-audio::completion-reason-refs",
+        "is_default": true,
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::capability-permission::recording",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-permission-requirement",
+        "operation_ref": "operation:record-audio.capture",
+        "capability_ref": "device-capability:microphone",
+        "adapter_ref": "capability-permission-adapter:browser-media",
+        "adapter_input": {
+          "query_names": [
+            "microphone"
+          ],
+          "constraints": {
+            "audio": true,
+            "video": false
+          }
+        },
+        "consent": {
+          "title": "Turn on the microphone for this recording",
+          "explanation": "This app needs the microphone only while you record. Press the button below and choose Allow when asked.",
+          "action_label": "Allow microphone and start"
+        },
+        "denied": {
+          "title": "The microphone is blocked",
+          "explanation": "Your Mac is keeping this app from using the microphone.",
+          "recovery_path": "System Settings → Privacy & Security → Microphone → turn on this app, then press the button again",
+          "recovery_subject": "microphone",
+          "in_browser": {
+            "explanation": "Your browser is blocking the microphone for this site.",
+            "recovery_path": "Click the icon left of the address, set Microphone to Allow, then press the button again"
+          }
+        },
+        "unavailable": {
+          "title": "Microphone recording is unavailable here",
+          "explanation": "This app window does not provide microphone capture. You can still use Pick an audio file."
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "record-audio-recordings-v2",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "record-audio",
+          "media-record-segment"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "group_by": {
+          "path": [
+            "payload",
+            "record_id"
+          ]
+        },
+        "columns": [
+          {
+            "column": 0,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-core"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "record_id"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-field"
+              },
+              {
+                "path": [
+                  "payload",
+                  "field"
+                ],
+                "equals": "label"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "value"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 2,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-core"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "capture_kind"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 3,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-core"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "media_type"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 4,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-core"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "byte_length"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "number"
+            }
+          },
+          {
+            "column": 5,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-core"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "duration_ms"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "number"
+            }
+          },
+          {
+            "column": 6,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-core"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "recorded_at"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 7,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-core"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "local_playback_ref"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json"
+            }
+          },
+          {
+            "column": 8,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-field"
+              },
+              {
+                "path": [
+                  "payload",
+                  "field"
+                ],
+                "equals": "notes"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "value"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 9,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-field"
+              },
+              {
+                "path": [
+                  "payload",
+                  "field"
+                ],
+                "equals": "subtitle"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "value"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 10,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-core"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "source_ref"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json"
+            }
+          },
+          {
+            "column": 11,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-action-projection.event"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "values",
+                "state"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 12,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-action-projection.error"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "values",
+                "message"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 13,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-core"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "completion_reason_ref"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 14,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-core"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "completion_observed_at"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 15,
+            "match": [
+              {
+                "path": [
+                  "payload",
+                  "kind"
+                ],
+                "equals": "record-audio.media-record-core"
+              }
+            ],
+            "source": {
+              "path": [
+                "payload",
+                "artifact_disposition"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::placeable-surface::record-audio",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Mic",
+        "id": "record-audio.panel",
+        "kind": "placeable-surface",
+        "label": "Record audio",
+        "material_target": "record-audio",
+        "factflow_ref": "package::record-audio::factflow::record-audio-surface",
+        "order": 639,
+        "surface_input": {
+          "frame_fit": "fill"
+        },
+        "surface_id": "record-audio.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000639:record-audio.panel",
+        "package_entry": {
+          "package_name": "record-audio",
+          "entry_name": "record-audio"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::factflow::record-audio-surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "journal": {
+          "address_label": "record-audio.surface.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::record-audio::evidence-pipeline::config"
+          },
+          {
+            "address": "package::record-audio::workflow-action::save-recording-state"
+          },
+          {
+            "address": "package::record-audio::workflow-action::save-recorded-file"
+          },
+          {
+            "address": "package::record-audio::workflow-action::save-recording-error"
+          },
+          {
+            "address": "package::record-audio::input::recordings"
+          },
+          {
+            "address": "package::record-audio::workflow-action::begin-recording-note"
+          },
+          {
+            "address": "package::record-audio::workflow-action::set-recording-name"
+          },
+          {
+            "address": "package::record-audio::workflow-action::remove-recording"
+          },
+          {
+            "address": "package::record-audio::descriptor::media-capture-record-action-projection"
+          },
+          {
+            "address": "package::record-audio::projection-descriptor::recordings"
+          },
+          {
+            "address": "package::record-audio::process-descriptor::native-capture"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::record-audio::placeable-surface::record-audio"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::record-audio::entry::record-audio"
+          },
+          {
+            "address": "package::record-audio::capability::record-audio"
+          },
+          {
+            "address": "package::record-audio::descriptor::media-capture-record-action-projection"
+          },
+          {
+            "address": "package::record-audio::projection-descriptor::recordings"
+          }
+        ],
+        "interpreter_facts": {
+          "intents": [
+            {
+              "address_label": "record-audio.intent.start-stop-save"
+            }
+          ],
+          "effects": [
+            {
+              "address_label": "record-audio.effect.browser-capture"
+            },
+            {
+              "address_label": "record-audio.effect.workflow-record-write"
+            }
+          ],
+          "permissions": [
+            {
+              "address_label": "record-audio.permission.invoke-workflow-intent"
+            },
+            {
+              "address_label": "record-audio.permission.browser-media-devices"
+            }
+          ],
+          "materializations": [
+            {
+              "address_label": "record-audio.materialization.placeable-surface"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::entry::record-audio",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "record-audio",
+        "entries",
+        "record-audio"
+      ],
+      "payload": {
+        "entry_name": "record-audio",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-record-audio.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-record-audio"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::capability::record-audio",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:record-audio",
+        "package": "record-audio",
+        "label": "Record audio",
+        "description": "Captures browser or adapter-provided media, stages bytes through reusable material evidence, stores local playback refs separately, and publishes descriptor-driven media records through workflow.",
+        "owned_record_kinds": [
+          "record-action-projection.record",
+          "record-action-projection.event",
+          "record-action-projection.error"
+        ],
+        "does_not_own": [
+          "audio-transcription.result",
+          "media-analysis.claim",
+          "media-identity.profile",
+          "motion-analysis.pose",
+          "media-composition.render",
+          "content-distribution.publish-status"
+        ],
+        "reuses": [
+          "workflow",
+          "screen-look",
+          "ui",
+          "content-media-evidence",
+          "compute.process",
+          "compute.process_session",
+          "visual-database"
+        ],
+        "new_slot": false,
+        "backend_descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection",
+        "projection_descriptor_ref": "package::record-audio::projection-descriptor::recordings"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::descriptor::media-capture-record-action-projection",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "record-action-projection-descriptor"
+      ],
+      "payload": {
+        "kind": "record-action-projection-descriptor",
+        "id": "record-action-projection:record-audio:media-capture",
+        "descriptor_version": 1,
+        "owner_package": "record-audio",
+        "record_family": {
+          "id": "media-capture-record",
+          "id_field": "record_id",
+          "address_prefix": "package::record-audio::media-record::",
+          "row_kind": "record-action-projection.record"
+        },
+        "fields": [
+          {
+            "id": "label",
+            "value_type": "text",
+            "optional": true,
+            "display": {
+              "label": "Name"
+            }
+          },
+          {
+            "id": "capture_kind",
+            "value_type": "text",
+            "display": {
+              "label": "Kind"
+            }
+          },
+          {
+            "id": "media_type",
+            "value_type": "text",
+            "display": {
+              "label": "Media type"
+            }
+          },
+          {
+            "id": "byte_length",
+            "value_type": "number",
+            "display": {
+              "label": "Size"
+            }
+          },
+          {
+            "id": "duration_ms",
+            "value_type": "number",
+            "display": {
+              "label": "Length"
+            }
+          },
+          {
+            "id": "recorded_at",
+            "value_type": "timestamp",
+            "display": {
+              "label": "Created"
+            }
+          },
+          {
+            "id": "local_playback_ref",
+            "value_type": "object",
+            "local_only": true
+          },
+          {
+            "id": "source_ref",
+            "value_type": "object",
+            "material_ref": true
+          },
+          {
+            "id": "notes",
+            "value_type": "text",
+            "optional": true
+          },
+          {
+            "id": "subtitle",
+            "value_type": "text",
+            "optional": true
+          },
+          {
+            "id": "completion_reason_ref",
+            "value_type": "text",
+            "optional": true
+          },
+          {
+            "id": "completion_observed_at",
+            "value_type": "timestamp",
+            "optional": true
+          },
+          {
+            "id": "artifact_disposition",
+            "value_type": "text"
+          },
+          {
+            "id": "meeting_event_context",
+            "value_type": "object",
+            "optional": true
+          }
+        ],
+        "actions": [
+          {
+            "id": "save-recording-state",
+            "definition_id": "action:record-audio:save-recording-state",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "save-captured-media",
+            "definition_id": "action:record-audio:save-recorded-file",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "save-recording-error",
+            "definition_id": "action:record-audio:save-recording-error",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "begin-recording-note",
+            "definition_id": "action:record-audio:begin-recording-note",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "set-recording-name",
+            "definition_id": "action:record-audio:set-recording-name",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "set-recording-notes",
+            "definition_id": "action:record-audio:set-recording-notes",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "set-recording-meeting-context",
+            "definition_id": "action:record-audio:set-recording-meeting-context",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "clear-recording-meeting-context",
+            "definition_id": "action:record-audio:clear-recording-meeting-context",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "set-recording-subtitle",
+            "definition_id": "action:record-audio:set-recording-subtitle",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "remove-recording",
+            "definition_id": "action:record-audio:remove-recording",
+            "target": "slot::workflow"
+          }
+        ],
+        "projection": {
+          "id": "projection:record-audio:recordings",
+          "output_address_label": "record-audio-recordings-v2",
+          "source_kind": "record-action-projection.record",
+          "columns": [
+            {
+              "key": "id",
+              "from": "record_id"
+            },
+            {
+              "key": "label",
+              "from": "values.label"
+            },
+            {
+              "key": "subtitle",
+              "from": "values.subtitle"
+            },
+            {
+              "key": "notes",
+              "from": "values.notes"
+            },
+            {
+              "key": "mode",
+              "from": "values.capture_kind"
+            },
+            {
+              "key": "mediaType",
+              "from": "values.media_type"
+            },
+            {
+              "key": "byteLength",
+              "from": "values.byte_length"
+            },
+            {
+              "key": "durationMs",
+              "from": "values.duration_ms"
+            },
+            {
+              "key": "recordedAt",
+              "from": "values.recorded_at"
+            },
+            {
+              "key": "storedFileRef",
+              "from": "local_refs.playback"
+            },
+            {
+              "key": "sourceRef",
+              "from": "material_refs.source"
+            },
+            {
+              "key": "state",
+              "from": "state"
+            },
+            {
+              "key": "error",
+              "from": "error"
+            },
+            {
+              "key": "completionReasonRef",
+              "from": "values.completion_reason_ref"
+            },
+            {
+              "key": "completionObservedAt",
+              "from": "values.completion_observed_at"
+            },
+            {
+              "key": "artifactDisposition",
+              "from": "values.artifact_disposition"
+            },
+            {
+              "key": "meetingEventContext",
+              "from": "values.meeting_event_context"
+            }
+          ]
+        },
+        "material": {
+          "source_ref_contract": "content-media-evidence.ContentMediaSourceRef",
+          "local_playback_ref_contract": "record-audio.local-playback.indexeddb-chunks"
+        },
+        "adapters": [
+          {
+            "id": "browser-media-recorder",
+            "locus": "browser",
+            "output_action_id": "save-captured-media"
+          },
+          {
+            "id": "local-file-import",
+            "locus": "browser-or-desktop",
+            "output_action_id": "save-captured-media"
+          },
+          {
+            "id": "desktop-native-capture",
+            "locus": "compute.process_session",
+            "process_descriptor_ref": "package::record-audio::process-descriptor::native-capture"
+          },
+          {
+            "id": "ios-jscore-capture",
+            "locus": "ios-jscore",
+            "output_action_id": "save-captured-media"
+          }
+        ],
+        "relationships": [
+          {
+            "id": "material-subject",
+            "from": "material_refs.source"
+          },
+          {
+            "id": "enrichment-subject",
+            "from": "record_id"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::projection-descriptor::recordings",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-projection-descriptor",
+        "id": "projection:record-audio:recordings",
+        "descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection",
+        "source": {
+          "kind": "record-action-projection.record",
+          "owner_package": "record-audio"
+        },
+        "output_address_label": "record-audio-recordings-v2",
+        "record_id_path": [
+          "record_id"
+        ],
+        "fields": [
+          {
+            "key": "id",
+            "from": "record_id"
+          },
+          {
+            "key": "label",
+            "from": "values.label"
+          },
+          {
+            "key": "subtitle",
+            "from": "values.subtitle"
+          },
+          {
+            "key": "notes",
+            "from": "values.notes"
+          },
+          {
+            "key": "mode",
+            "from": "values.capture_kind"
+          },
+          {
+            "key": "mediaType",
+            "from": "values.media_type"
+          },
+          {
+            "key": "byteLength",
+            "from": "values.byte_length"
+          },
+          {
+            "key": "durationMs",
+            "from": "values.duration_ms"
+          },
+          {
+            "key": "recordedAt",
+            "from": "values.recorded_at"
+          },
+          {
+            "key": "storedFileRef",
+            "from": "local_refs.playback"
+          },
+          {
+            "key": "sourceRef",
+            "from": "material_refs.source"
+          },
+          {
+            "key": "state",
+            "from": "state"
+          },
+          {
+            "key": "error",
+            "from": "error"
+          },
+          {
+            "key": "completionReasonRef",
+            "from": "values.completion_reason_ref"
+          },
+          {
+            "key": "completionObservedAt",
+            "from": "values.completion_observed_at"
+          },
+          {
+            "key": "artifactDisposition",
+            "from": "values.artifact_disposition"
+          }
+        ],
+        "material_refs": [
+          {
+            "key": "source",
+            "path": [
+              "material_refs",
+              "source"
+            ]
+          }
+        ],
+        "local_refs": [
+          {
+            "key": "playback",
+            "path": [
+              "local_refs",
+              "playback"
+            ]
+          }
+        ],
+        "relationship_refs": [
+          {
+            "key": "enrichment_subject",
+            "path": [
+              "record_id"
+            ]
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::process-descriptor::native-capture",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "process-descriptor"
+      ],
+      "payload": {
+        "kind": "process",
+        "id": "process:record-audio:native-capture",
+        "descriptor_version": 1,
+        "target": "compute.process_session",
+        "input_schema": {
+          "required": [
+            "adapter_descriptor_id",
+            "record_id"
+          ],
+          "properties": {
+            "adapter_descriptor_id": {
+              "type": "string"
+            },
+            "record_id": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "properties": {
+            "source_ref": {
+              "description": "content-media-evidence ContentMediaSourceRef"
+            },
+            "local_playback_ref": {
+              "description": "host-local playback reference"
+            }
+          }
+        },
+        "session_result_contract": {
+          "start_response": "session_started",
+          "event_stream_path": "snapshot.event_stream_address",
+          "terminal_process_result": {
+            "termination": "exact",
+            "captured_fds": [
+              1,
+              2
+            ]
+          }
+        },
+        "is_active": true
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::evidence-pipeline::config",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-media.evidence-pipeline.config",
+        "package": "record-audio",
+        "roles": {
+          "events": [
+            "record-action-projection.event"
+          ],
+          "media_records": [
+            "record-action-projection.record"
+          ],
+          "errors": [
+            "record-action-projection.error"
+          ]
+        },
+        "artifact_roles": {
+          "source": [
+            "content-media-evidence.ContentMediaSourceRef"
+          ],
+          "local": [
+            "local-playback.indexeddb-chunks"
+          ]
+        },
+        "execution_capabilities": [
+          "browser.media-devices",
+          "browser.media-recorder",
+          "browser.indexeddb",
+          "engine.operation.write-batch",
+          "workflow",
+          "compute.process",
+          "compute.process_session"
+        ],
+        "projection_lanes": [
+          "events",
+          "media_records",
+          "errors"
+        ],
+        "maintained_projection_label": "record-audio-content-media-evidence",
+        "workflow_actions": [
+          {
+            "role": "save-recording-state",
+            "action_id": "action:record-audio:save-recording-state",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "accepted-record-write"
+          },
+          {
+            "role": "save-recorded-file",
+            "action_id": "action:record-audio:save-recorded-file",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "accepted-record-write"
+          },
+          {
+            "role": "save-recording-error",
+            "action_id": "action:record-audio:save-recording-error",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "accepted-record-write"
+          }
+        ],
+        "backend_descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection",
+        "projection_descriptor_ref": "package::record-audio::projection-descriptor::recordings"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::workflow-action::save-recording-state",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-audio:save-recording-state",
+        "kind": "action",
+        "name": "record-audio-save-recording-state",
+        "description": "Save one descriptor-scoped capture lifecycle event.",
+        "input_schema": {
+          "required": [
+            "record_id",
+            "capture_kind",
+            "state",
+            "observed_at"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "capture_kind": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "observed_at": {
+              "type": "string"
+            },
+            "completion_reason": {
+              "type": "string"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::media-event::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "record-audio",
+                    "media-record-segment"
+                  ],
+                  "payload": {
+                    "kind": "record-action-projection.event",
+                    "descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection",
+                    "action_descriptor_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "action_descriptor_id"
+                      }
+                    },
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "values": {
+                      "capture_kind": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "capture_kind"
+                        }
+                      },
+                      "state": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "state"
+                        }
+                      },
+                      "observed_at": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "observed_at"
+                        }
+                      },
+                      "completion_reason": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "completion_reason"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {
+          "backend_descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::workflow-action::save-recorded-file",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-audio:save-recorded-file",
+        "kind": "action",
+        "name": "record-audio-save-captured-media",
+        "description": "Save one descriptor-scoped media record with reusable material evidence and local playback refs.",
+        "input_schema": {
+          "required": [
+            "record_id",
+            "capture_kind",
+            "media_type",
+            "byte_length",
+            "duration_ms",
+            "recorded_at",
+            "stored_file_ref",
+            "source_ref"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "recorded_file_id": {
+              "type": "string"
+            },
+            "recording_id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "capture_kind": {
+              "type": "string"
+            },
+            "media_type": {
+              "type": "string"
+            },
+            "byte_length": {
+              "type": "number"
+            },
+            "duration_ms": {
+              "type": "number"
+            },
+            "recorded_at": {
+              "type": "string"
+            },
+            "stored_file_ref": {
+              "type": "object"
+            },
+            "source_ref": {
+              "type": "object"
+            },
+            "completion_reason_ref": {
+              "type": "string"
+            },
+            "completion_observed_at": {
+              "type": "string"
+            },
+            "artifact_disposition": {
+              "type": "string"
+            },
+            "meeting_event_context": {
+              "type": "object"
+            },
+            "meeting_application_input_context": {
+              "type": "object"
+            },
+            "artifact_ref": {
+              "type": "object"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::media-record::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "record-audio",
+                    "media-record-segment"
+                  ],
+                  "payload": {
+                    "kind": "record-audio.media-record-core",
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "capture_kind": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "capture_kind"
+                      }
+                    },
+                    "media_type": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "media_type"
+                      }
+                    },
+                    "byte_length": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "byte_length"
+                      }
+                    },
+                    "duration_ms": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "duration_ms"
+                      }
+                    },
+                    "recorded_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "recorded_at"
+                      }
+                    },
+                    "local_playback_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "stored_file_ref"
+                      }
+                    },
+                    "source_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_ref"
+                      }
+                    },
+                    "completion_reason_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "completion_reason_ref"
+                      }
+                    },
+                    "completion_observed_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "completion_observed_at"
+                      }
+                    },
+                    "artifact_disposition": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "artifact_disposition"
+                      }
+                    },
+                    "meeting_event_context": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "meeting_event_context"
+                      }
+                    },
+                    "meeting_application_input_context": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "meeting_application_input_context"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::media-record-field::label::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "record-audio",
+                    "media-record-segment"
+                  ],
+                  "payload": {
+                    "kind": "record-audio.media-record-field",
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "field": "label",
+                    "value": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "label"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::evidence::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "record-audio",
+                    "media-record-segment"
+                  ],
+                  "payload": {
+                    "role": "media_records",
+                    "kind": "record-action-projection.record",
+                    "descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection",
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "label"
+                      }
+                    },
+                    "media_type": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "media_type"
+                      }
+                    },
+                    "recorded_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "recorded_at"
+                      }
+                    },
+                    "duration_ms": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "duration_ms"
+                      }
+                    },
+                    "local_playback_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "stored_file_ref"
+                      }
+                    },
+                    "source_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_ref"
+                      }
+                    },
+                    "capture_mode": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "capture_kind"
+                      }
+                    },
+                    "recorded_file_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "recorded_file_id"
+                      }
+                    },
+                    "recording_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "recording_id"
+                      }
+                    },
+                    "artifact_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "artifact_ref"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {
+          "backend_descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::workflow-action::save-recording-error",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-audio:save-recording-error",
+        "kind": "action",
+        "name": "record-audio-save-recording-error",
+        "description": "Save one descriptor-scoped capture error event.",
+        "input_schema": {
+          "required": [
+            "record_id",
+            "capture_kind",
+            "message",
+            "observed_at"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "capture_kind": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "observed_at": {
+              "type": "string"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::media-error::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "record-action-projection.error",
+                    "descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection",
+                    "action_descriptor_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "action_descriptor_id"
+                      }
+                    },
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "values": {
+                      "capture_kind": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "capture_kind"
+                        }
+                      },
+                      "message": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "message"
+                        }
+                      },
+                      "observed_at": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "observed_at"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {
+          "backend_descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::recordings",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "recordAudioRecordings",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "label",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "mode",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "mediaType",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 4,
+                "key": "byteLength",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 5,
+                "key": "durationMs",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 6,
+                "key": "recordedAt",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 7,
+                "key": "storedFileRef",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 8,
+                "key": "notes",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 9,
+                "key": "subtitle",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 10,
+                "key": "sourceRef",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 11,
+                "key": "state",
+                "required": false,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 12,
+                "key": "error",
+                "required": false,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 13,
+                "key": "completionReasonRef",
+                "required": false,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 14,
+                "key": "completionObservedAt",
+                "required": false,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 15,
+                "key": "artifactDisposition",
+                "required": false,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 16,
+                "key": "meetingEventContext",
+                "required": false,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "record-audio-recordings-v2"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::placeable-surface-list-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surface-list-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::placeable-surface-list",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surface-list",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "address": "placeable-surface-list::main-workspace",
+            "missing": "empty",
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "placeable-surface-list::main-workspace"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::placeable-surfaces",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surfaces",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "address": "placeable-surfaces",
+            "missing": "empty",
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "placeable-surfaces"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::workflow-action::begin-recording-note",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-audio:begin-recording-note",
+        "kind": "action",
+        "name": "record-audio-begin-recording-note",
+        "description": "Make the meeting note of a recording the moment it starts, so it exists and can be written in while recording; the finished recording fills it in.",
+        "input_schema": {
+          "required": [
+            "record_id",
+            "recorded_file_id",
+            "label"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "recorded_file_id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "mode": {
+              "type": "string"
+            },
+            "recorded_at": {
+              "type": "string"
+            },
+            "meeting_event_context": {
+              "type": "object"
+            },
+            "meeting_application_input_context": {
+              "type": "object"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {
+          "backend_descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::workflow-action::set-recording-name",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-audio:set-recording-name",
+        "kind": "action",
+        "name": "record-audio-set-recording-name",
+        "description": "Replace the display-name field record without touching media metadata or other fields.",
+        "input_schema": {
+          "required": [
+            "record_id",
+            "label"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "recorded_file_id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::media-record-field::label::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "record-audio",
+                    "media-record-segment"
+                  ],
+                  "payload": {
+                    "kind": "record-audio.media-record-field",
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "field": "label",
+                    "value": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "label"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {
+          "backend_descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::workflow-action::remove-recording",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-audio:remove-recording",
+        "kind": "action",
+        "name": "record-audio-remove-recording",
+        "description": "Atomically retract every segment of one media record from the maintained projection.",
+        "input_schema": {
+          "required": [
+            "record_id"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "recorded_file_id": {
+              "type": "string"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::media-record::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "record-audio",
+                    "media-record-segment"
+                  ]
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::media-record-field::label::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "record-audio",
+                    "media-record-segment"
+                  ]
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::media-record-field::notes::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "record-audio",
+                    "media-record-segment"
+                  ]
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::media-record-field::subtitle::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "record-audio",
+                    "media-record-segment"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {
+          "backend_descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::record-audio::published-scoped-feed"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::record-audio::published-scoped-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "placeable-surface",
+                "audio-transcription.enrichment"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::workflow-action::set-recording-notes",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-audio:set-recording-notes",
+        "kind": "action",
+        "name": "record-audio-set-recording-notes",
+        "description": "Replace the notes field record without touching media metadata or other fields.",
+        "input_schema": {
+          "required": [
+            "record_id",
+            "notes"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "recorded_file_id": {
+              "type": "string"
+            },
+            "notes": {
+              "type": "string"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::media-record-field::notes::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "record-audio",
+                    "media-record-segment"
+                  ],
+                  "payload": {
+                    "kind": "record-audio.media-record-field",
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "field": "notes",
+                    "value": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "notes"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {
+          "backend_descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::workflow-action::set-recording-subtitle",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-audio:set-recording-subtitle",
+        "kind": "action",
+        "name": "record-audio-set-recording-subtitle",
+        "description": "Replace the subtitle field record without touching media metadata or other fields.",
+        "input_schema": {
+          "required": [
+            "record_id",
+            "subtitle"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "recorded_file_id": {
+              "type": "string"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::record-audio::media-record-field::subtitle::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "record-audio",
+                    "media-record-segment"
+                  ],
+                  "payload": {
+                    "kind": "record-audio.media-record-field",
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "field": "subtitle",
+                    "value": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "subtitle"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {
+          "backend_descriptor_ref": "package::record-audio::descriptor::media-capture-record-action-projection"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::layout-presets",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "layout-presets",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "name",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "layout",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "created_at",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "layout-presets"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::recordAudioPageLayoutState",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "recordAudioPageLayoutState",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "record-audio-page-layout-state"
+      }
+    },
+    {
+      "type": "record",
+      "address": "record-audio-page-layout-state",
+      "address_mode": "label_hash",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "containers": {
+          "recording-page-main": {
+            "id": "recording-page-main",
+            "groupId": "recording-page-main-group"
+          }
+        },
+        "tabGroups": {
+          "recording-page-main-group": {
+            "tabIds": [
+              "recording-page-documents-tab",
+              "recording-page-transcribe-tab"
+            ],
+            "activeTabId": "recording-page-documents-tab"
+          }
+        },
+        "tabs": {
+          "recording-page-documents-tab": {
+            "id": "recording-page-documents-tab",
+            "title": "Documents",
+            "target": null,
+            "packageEntry": {
+              "packageName": "documents",
+              "entryName": "documents"
+            },
+            "materialTarget": "component:documents",
+            "icon": "PenLine",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "documents.authoring",
+              "placeable_surface_material_target": "component:documents"
+            }
+          },
+          "recording-page-transcribe-tab": {
+            "id": "recording-page-transcribe-tab",
+            "title": "Transcript",
+            "target": null,
+            "packageEntry": {
+              "packageName": "audio-transcription",
+              "entryName": "audio-transcription"
+            },
+            "materialTarget": "audio-transcription",
+            "icon": "Captions",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "audio-transcription.panel",
+              "placeable_surface_material_target": "audio-transcription"
+            }
+          }
+        },
+        "layouts": [
+          {
+            "type": "tiled",
+            "root": {
+              "kind": "leaf",
+              "containerId": "recording-page-main"
+            }
+          }
+        ],
+        "surface": "grid"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::package-entry-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "package-entry-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "bytes"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::selector-source-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "selector-source-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::descriptorRecords",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "descriptorRecords",
+        "value_address_label": "package::record-audio::descriptor-records-feed",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::record-audio::descriptor-records-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "visual-database-descriptor",
+          "owner",
+          "record-audio"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "visual-database.descriptor"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::descriptorAuthority",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "descriptorAuthority",
+        "value_address_label": "visual-database.descriptors::record-audio::authority",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::cellExpressionRecords",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "cellExpressionRecords",
+        "value_address_label": "package::record-audio::cell-expression-feed",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::record-audio::cell-expression-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "cell_ref"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::evaluatorDescriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "evaluatorDescriptors",
+        "value_address_label": "package::record-audio::evaluator-descriptors",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::evaluator-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "visual-database.evaluator-descriptors",
+        "version": 2,
+        "descriptors": [
+          {
+            "ref": "evaluator::record-audio-recording-condition",
+            "revision": "1",
+            "label": "Recording condition rules",
+            "target": "slot::formula-engine",
+            "context_path": [
+              "context"
+            ]
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::record-audio::input::mutationSettlementPolicy",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "mutationSettlementPolicy",
+        "value_address_label": "visual-database.mutation-settlement-policy",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-id",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-id"
+        },
+        "value": {
+          "id": "recording-id",
+          "label": "Recording",
+          "role": "id",
+          "paths": [
+            [
+              "id"
+            ]
+          ],
+          "editable": false,
+          "order": "1"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-title",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-title"
+        },
+        "value": {
+          "id": "recording-title",
+          "label": "Name",
+          "role": "title",
+          "paths": [
+            [
+              "label"
+            ]
+          ],
+          "writePath": [
+            "payload",
+            "label"
+          ],
+          "order": "4"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-subtitle",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-subtitle"
+        },
+        "value": {
+          "id": "recording-subtitle",
+          "label": "Subtitle",
+          "role": "body",
+          "paths": [
+            [
+              "subtitle"
+            ]
+          ],
+          "writePath": [
+            "payload",
+            "subtitle"
+          ],
+          "order": "A"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-notes",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-notes"
+        },
+        "value": {
+          "id": "recording-notes",
+          "label": "Notes",
+          "role": "body",
+          "paths": [
+            [
+              "notes"
+            ]
+          ],
+          "writePath": [
+            "payload",
+            "notes"
+          ],
+          "order": "B"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-capture-kind",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-capture-kind"
+        },
+        "value": {
+          "id": "recording-capture-kind",
+          "label": "Capture",
+          "role": "kind",
+          "paths": [
+            [
+              "mode"
+            ]
+          ],
+          "order": "C"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-condition",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-condition"
+        },
+        "value": {
+          "id": "recording-condition",
+          "label": "Condition",
+          "role": "lane",
+          "paths": [
+            [
+              "payload",
+              "recording_condition"
+            ]
+          ],
+          "writePath": [
+            "payload",
+            "recording_condition"
+          ],
+          "editable": false,
+          "order": "D",
+          "defaultExpression": {
+            "derive": {
+              "target": "slot::formula-engine",
+              "evaluator_ref": "evaluator::record-audio-recording-condition",
+              "request": {
+                "binding": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "self"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.coalesce",
+                      "args": {
+                        "values": [
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "self",
+                              "path": [
+                                "recording-error"
+                              ]
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.is_empty"
+                              },
+                              {
+                                "op": "op:core.not"
+                              },
+                              {
+                                "op": "op:core.if",
+                                "args": {
+                                  "then": "failed",
+                                  "else": null
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "self",
+                              "path": [
+                                "recording-state"
+                              ]
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.eq",
+                                "args": {
+                                  "value": "cancelled"
+                                }
+                              },
+                              {
+                                "op": "op:core.if",
+                                "args": {
+                                  "then": "cancelled",
+                                  "else": null
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "self",
+                              "path": [
+                                "recording-state"
+                              ]
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.eq",
+                                "args": {
+                                  "value": "paused"
+                                }
+                              },
+                              {
+                                "op": "op:core.if",
+                                "args": {
+                                  "then": "paused",
+                                  "else": null
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "self",
+                              "path": [
+                                "recording-state"
+                              ]
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.eq",
+                                "args": {
+                                  "value": "recording"
+                                }
+                              },
+                              {
+                                "op": "op:core.if",
+                                "args": {
+                                  "then": "active",
+                                  "else": null
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "self"
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.and",
+                                "args": {
+                                  "values": [
+                                    {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "self",
+                                        "path": [
+                                          "recording-state"
+                                        ]
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.eq",
+                                          "args": {
+                                            "value": "stopped"
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "self",
+                                        "path": [
+                                          "recording-duration-ms"
+                                        ]
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.eq",
+                                          "args": {
+                                            "value": null
+                                          }
+                                        },
+                                        {
+                                          "op": "op:core.not"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "self",
+                                        "path": [
+                                          "recording-duration-ms"
+                                        ]
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.ge",
+                                          "args": {
+                                            "value": 0
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "op": "op:core.if",
+                                "args": {
+                                  "then": "saved",
+                                  "else": null
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "result_path": [
+                "value"
+              ],
+              "dependency_selector": {
+                "context_from_fields": [
+                  "recording-state",
+                  "recording-error",
+                  "recording-duration-ms"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-state",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-state"
+        },
+        "value": {
+          "id": "recording-state",
+          "label": "Raw state",
+          "role": "badge",
+          "paths": [
+            [
+              "state"
+            ]
+          ],
+          "order": "E"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-error",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-error"
+        },
+        "value": {
+          "id": "recording-error",
+          "label": "Failure",
+          "role": "badge",
+          "paths": [
+            [
+              "error"
+            ]
+          ],
+          "order": "F"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-media-type",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-media-type"
+        },
+        "value": {
+          "id": "recording-media-type",
+          "label": "Media",
+          "role": "badge",
+          "paths": [
+            [
+              "mediaType"
+            ]
+          ],
+          "order": "G"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-byte-length",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-byte-length"
+        },
+        "value": {
+          "id": "recording-byte-length",
+          "label": "Bytes",
+          "role": "badge",
+          "paths": [
+            [
+              "byteLength"
+            ]
+          ],
+          "order": "H"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-duration-ms",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-duration-ms"
+        },
+        "value": {
+          "id": "recording-duration-ms",
+          "label": "Duration",
+          "role": "badge",
+          "paths": [
+            [
+              "durationMs"
+            ]
+          ],
+          "order": "I"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-recorded-at",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-recorded-at"
+        },
+        "value": {
+          "id": "recording-recorded-at",
+          "label": "Recorded",
+          "role": "date",
+          "shape": "temporal",
+          "paths": [
+            [
+              "recordedAt"
+            ]
+          ],
+          "order": "J"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-source",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-source"
+        },
+        "value": {
+          "id": "recording-source",
+          "label": "Evidence",
+          "role": "attachment",
+          "shape": "attachments",
+          "paths": [
+            [
+              "sourceRef"
+            ]
+          ],
+          "order": "K"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::field::recording-playback",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field",
+          "id": "recording-playback"
+        },
+        "value": {
+          "id": "recording-playback",
+          "label": "Local playback",
+          "role": "link",
+          "shape": "reference",
+          "paths": [
+            [
+              "storedFileRef"
+            ]
+          ],
+          "order": "L"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::parent::field::recording-condition::member::field-domain-value::failed",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field-domain-value",
+          "id": "failed",
+          "parent": [
+            {
+              "family": "field",
+              "id": "recording-condition"
+            }
+          ]
+        },
+        "value": {
+          "id": "failed",
+          "label": "Failed",
+          "tone": "danger",
+          "order": "a"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::parent::field::recording-condition::member::field-domain-value::cancelled",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field-domain-value",
+          "id": "cancelled",
+          "parent": [
+            {
+              "family": "field",
+              "id": "recording-condition"
+            }
+          ]
+        },
+        "value": {
+          "id": "cancelled",
+          "label": "Cancelled",
+          "tone": "muted",
+          "order": "b"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::parent::field::recording-condition::member::field-domain-value::paused",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field-domain-value",
+          "id": "paused",
+          "parent": [
+            {
+              "family": "field",
+              "id": "recording-condition"
+            }
+          ]
+        },
+        "value": {
+          "id": "paused",
+          "label": "Paused",
+          "tone": "info",
+          "order": "c"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::parent::field::recording-condition::member::field-domain-value::active",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field-domain-value",
+          "id": "active",
+          "parent": [
+            {
+              "family": "field",
+              "id": "recording-condition"
+            }
+          ]
+        },
+        "value": {
+          "id": "active",
+          "label": "Recording",
+          "tone": "danger",
+          "order": "d"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::parent::field::recording-condition::member::field-domain-value::saved",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "field-domain-value",
+          "id": "saved",
+          "parent": [
+            {
+              "family": "field",
+              "id": "recording-condition"
+            }
+          ]
+        },
+        "value": {
+          "id": "saved",
+          "label": "Saved",
+          "tone": "neutral",
+          "order": "e"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::view::library-list",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "view",
+          "id": "library-list"
+        },
+        "value": {
+          "id": "library-list",
+          "label": "List",
+          "kind": "list",
+          "lanes": [],
+          "order": "1",
+          "columns": {
+            "order": [
+              "recording-title",
+              "recording-condition",
+              "recording-recorded-at",
+              "recording-duration-ms",
+              "recording-media-type"
+            ]
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::view::library-board",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "view",
+          "id": "library-board"
+        },
+        "value": {
+          "id": "library-board",
+          "label": "Board",
+          "kind": "board",
+          "lanes": [],
+          "groupBy": "recording-condition",
+          "order": "B"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::view::library-timeline",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "view",
+          "id": "library-timeline"
+        },
+        "value": {
+          "id": "library-timeline",
+          "label": "Timeline",
+          "kind": "timeline",
+          "lanes": [],
+          "dateField": "recording-recorded-at",
+          "order": "T"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::member::palette-color::library-neutral",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor",
+        "schema_version": 3,
+        "key": {
+          "family": "palette-color",
+          "id": "library-neutral"
+        },
+        "value": {
+          "color": "#3B82F6",
+          "order": "1"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "visual-database.descriptors::record-audio::authority",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "visual-database-descriptor",
+        "owner",
+        "record-audio"
+      ],
+      "payload": {
+        "kind": "visual-database.descriptor-authority-activation",
+        "schema_version": 2,
+        "authority_id": "record-audio-addressed-recording-descriptors",
+        "active_address_prefix": "visual-database.descriptors::record-audio",
+        "active_path_labels": [
+          "current-item",
+          "visual-database-descriptor",
+          "owner",
+          "record-audio"
+        ],
+        "migration_receipt": {
+          "kind": "visual-database.descriptor-migration-receipt",
+          "schema_version": 1,
+          "migration_id": "record-audio-addressed-recording-descriptors",
+          "semantic_digest": "fnv1a64:272157e959852ef8",
+          "descriptor_count": 23,
+          "source_bases": []
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-record-audio",
+      "source_path": "built-stored-bytes/entry-bytes-record-audio",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-record-audio.source-closure.json"
+    }
+  ]
+}

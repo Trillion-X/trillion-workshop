@@ -1,0 +1,15 @@
+{
+  "public": [
+    "do-work/record-log-store.mjs",
+    "do-work/kept-runs.mjs",
+    "do-work/record-digest.mjs",
+    "do-work/record-time.mjs",
+    "do-work/record-layers.mjs",
+    "do-work/record-sync.mjs",
+    "do-work/record-requests.mjs",
+    "do-work/record-intents.mjs",
+    "do-work/record-stamps.mjs",
+    "do-work/record-model.mjs",
+    "do-work/erasable.mjs"
+  ]
+}
