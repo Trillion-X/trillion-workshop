@@ -3,7 +3,7 @@
 // address here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { checkWhenIAmBusy, putABookingOnMyCalendar, moveABookingOnMyCalendar } from '../do-work/book-time.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
@@ -16,7 +16,7 @@ const invite = rowOf(rows, 'tool:make-a-calendar-invite');
 const WEEK = { timezone: 'America/Chicago', windows: [{ weekday: 1, start: '09:00', end: '11:00' }], duration_minutes: 45, step_minutes: 30 };
 const ask = (key, start, extra = {}) => ({ ...WEEK, idempotency_key: key, start, host_ref: 'host:bakery', ...extra });
 const run = async (row, input, previous) => {
-  const answer = await runRow(row, input, { records: previous?.kept ?? [] });
+  const answer = await answerOf(row, input, { records: previous?.kept ?? [] });
   return answer;
 };
 const ok = async (row, input, previous) => {

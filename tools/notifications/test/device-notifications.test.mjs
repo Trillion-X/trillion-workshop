@@ -7,7 +7,7 @@ import { openSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { registerMyNotificationDevice, registerMyLiveActivity, sendNotificationToMyDevices, sendLiveActivityUpdate, myBrowserPushApplicationServerKey, heldNotificationSigningKeys } from '../read-data/device-notifications.mjs';
 import { base64url, makeSigningKey, publicPoint } from '../read-data/web-push.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
@@ -65,7 +65,7 @@ const device = { id: 'notification-device:1234', type: 'notification-device', va
 test('device registration validates addresses, keeps a stable opaque identity, and never returns the push token', async () => {
   const register = row('tool:register-my-notification-device');
   const token = 'b'.repeat(64);
-  const first = await runRow(register, { route: 'apns', address: token, app: 'com.example.app', environment: 'sandbox', can_show: 'allowed' });
+  const first = await answerOf(register, { route: 'apns', address: token, app: 'com.example.app', environment: 'sandbox', can_show: 'allowed' });
   assert.equal(first.status, 0, first.error);
   assert.equal(first.result.changed, true);
   assert.equal(first.result.devices[0].address, undefined);
@@ -73,41 +73,41 @@ test('device registration validates addresses, keeps a stable opaque identity, a
   const saved = first.kept.find(item => item.type === 'notification-device');
   assert.equal(saved.value.address, token);
   assert.match(saved.value.device_id, /^1f[a-f0-9]{64}$/);
-  const again = await runRow(register, { route: 'apns', address: token, app: 'com.example.app', environment: 'sandbox', can_show: 'allowed' }, { records: first.kept });
+  const again = await answerOf(register, { route: 'apns', address: token, app: 'com.example.app', environment: 'sandbox', can_show: 'allowed' }, { records: first.kept });
   assert.equal(again.result.changed, false);
   assert.equal(again.result.device_id, first.result.device_id);
-  const bad = await runRow(register, { route: 'apns', address: 'not-a-token', app: 'com.example.app' });
+  const bad = await answerOf(register, { route: 'apns', address: 'not-a-token', app: 'com.example.app' });
   assert.equal(bad.status, 1);
   assert.match(bad.error, /hex token/);
-  const noTopic = await runRow(register, { route: 'apns', address: 'a'.repeat(64) });
+  const noTopic = await answerOf(register, { route: 'apns', address: 'a'.repeat(64) });
   assert.match(noTopic.error, /bundle id/);
 });
 
 test('device removal deletes the address only for the named registration', async () => {
-  const registered = await runRow(row('tool:register-my-notification-device'), { route: 'live', address: 'mac-stable-12345678' });
+  const registered = await answerOf(row('tool:register-my-notification-device'), { route: 'live', address: 'mac-stable-12345678' });
   const deviceId = registered.result.device_id;
-  const removed = await runRow(row('tool:remove-my-notification-device'), { device_id: deviceId }, { records: registered.kept });
+  const removed = await answerOf(row('tool:remove-my-notification-device'), { device_id: deviceId }, { records: registered.kept });
   assert.equal(removed.result.removed, true);
   assert.equal(removed.kept.some(item => item.type === 'notification-device'), false);
-  assert.equal((await runRow(row('tool:remove-my-notification-device'), { device_id: deviceId })).result.removed, false);
+  assert.equal((await answerOf(row('tool:remove-my-notification-device'), { device_id: deviceId })).result.removed, false);
 });
 
 test('Live Activity registration keeps an opaque idempotent token and removes it on end', async () => {
   const token = 'c'.repeat(64);
   const rowTool = row('tool:register-my-live-activity');
-  const first = await runRow(rowTool, { board_key: 'running', token, app: 'com.example.app', environment: 'sandbox' });
+  const first = await answerOf(rowTool, { board_key: 'running', token, app: 'com.example.app', environment: 'sandbox' });
   assert.equal(first.status, 0, first.error);
   assert.equal(first.result.kept, true);
   assert.equal(first.result.ended, false);
   assert.equal(JSON.stringify(first.result).includes(token), false);
   const record = first.kept.find(item => item.type === 'notification-live-activity');
   assert.equal(record.value.token, token);
-  const again = await runRow(rowTool, { board_key: 'running', token, app: 'com.example.app', environment: 'sandbox' }, { records: first.kept });
+  const again = await answerOf(rowTool, { board_key: 'running', token, app: 'com.example.app', environment: 'sandbox' }, { records: first.kept });
   assert.equal(again.result.changed, false);
-  const ended = await runRow(rowTool, { board_key: 'running', token, app: 'com.example.app', ended: true }, { records: first.kept });
+  const ended = await answerOf(rowTool, { board_key: 'running', token, app: 'com.example.app', ended: true }, { records: first.kept });
   assert.equal(ended.result.ended, true);
   assert.equal(ended.kept.some(item => item.type === 'notification-live-activity'), false);
-  const invalidEnvironment = await runRow(rowTool, { board_key: 'running', token, app: 'com.example.app', environment: 'staging' });
+  const invalidEnvironment = await answerOf(rowTool, { board_key: 'running', token, app: 'com.example.app', environment: 'staging' });
   assert.equal(invalidEnvironment.status, 1);
   assert.match(invalidEnvironment.error, /environment must be sandbox or production/);
 });

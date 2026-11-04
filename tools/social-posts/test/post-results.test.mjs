@@ -2,7 +2,7 @@
 // All posts, ids, addresses and numbers are synthetic.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const row = rowOf(rows, 'tool:see-how-each-post-did');
@@ -15,7 +15,7 @@ const records = [
 ];
 
 test('a place\'s counts, the visits its link brought and their sales come back per published place', async () => {
-  const ran = await runRow(row, {
+  const ran = await answerOf(row, {
     observations: [{ post_id: 'p1', account_id: 'a', metrics: { views: 712, shares: 9 }, observed_at: '2026-10-07T12:00:00Z' }, { platform_post_id: 'remote-2b', account_id: 'b', metrics: { views: 40 } }],
     visits: [
       { visitor: 'v1', project: 'site', signals: { utm_content: 'p1' } },
@@ -39,14 +39,14 @@ test('a place\'s counts, the visits its link brought and their sales come back p
 });
 
 test('post_ids narrows the posts, and nothing counted gives no row rather than zeros', async () => {
-  const ran = await runRow(row, { post_ids: ['p2'], visits: [{ visitor: 'v1', signals: { utm_content: 'p1' } }] }, { records });
+  const ran = await answerOf(row, { post_ids: ['p2'], visits: [{ visitor: 'v1', signals: { utm_content: 'p1' } }] }, { records });
   assert.equal(ran.status, 0, ran.error);
   assert.deepEqual(ran.result.posts, []);
   assert.equal(ran.result.places_published, 2);
 });
 
 test('an observation that names no post is refused with what to give', async () => {
-  const ran = await runRow(row, { observations: [{ metrics: { views: 1 } }] }, { records });
+  const ran = await answerOf(row, { observations: [{ metrics: { views: 1 } }] }, { records });
   assert.equal(ran.status, 1);
   assert.match(ran.error, /post_id with account_id, or platform_post_id/);
 });

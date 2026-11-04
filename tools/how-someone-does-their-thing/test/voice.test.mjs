@@ -5,11 +5,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 
 const rows = JSON.parse(await readFile(new URL('../tool-rows.json', import.meta.url), 'utf8'));
 const run = async (id, input, records = [], row = rowOf(rows, `tool:${id}`)) => {
-  const ran = await runRow(row, input, { records });
+  const ran = await answerOf(row, input, { records });
   return { ...ran, records: ran.kept };
 };
 const edit = (records, input) => run('keep-a-voice-edit', { kind: 'post', ...input }, records);
@@ -94,7 +94,7 @@ test('a run reaches only the record kinds its row names', async () => {
 test('each voice row\'s sample gives the text it promises against its sample account', async () => {
   for (const { payload } of rows.records.filter(({ payload }) => payload.invoke.records)) {
     const [sample] = payload.verify;
-    const ran = await runRow(payload, sample.input, { records: sample.records ?? [] });
+    const ran = await answerOf(payload, sample.input, { records: sample.records ?? [] });
     const value = sample.output_selector === '$' ? ran : sample.output_selector.replace('$.', '').split('.').reduce((at, key) => at?.[key], ran.result);
     assert.ok(JSON.stringify(value).includes(sample.contains), `${payload.id}: ${JSON.stringify(value)}`);
   }

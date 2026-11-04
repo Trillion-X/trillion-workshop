@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { after, describe, it } from 'node:test';
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { SETTINGS, SETTINGS_ID, SHIPPED, mailSender } from '../do-work/mail-sender.mjs';
 import { wornLookReader } from '../do-work/read-the-worn-email-look.mjs';

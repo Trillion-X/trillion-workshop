@@ -1,7 +1,7 @@
 // The rows run as the container runs them. Every name is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const step = rowOf(rows, 'tool:run-a-session-step');
@@ -22,12 +22,12 @@ const session = id => ({
   preference_provenance: [],
 });
 const ok = async (row, input) => {
-  const answer = await runRow(row, input);
+  const answer = await answerOf(row, input);
   assert.equal(answer.status, 0, answer.error);
   return answer.result;
 };
 const refused = async (row, input) => {
-  const answer = await runRow(row, input);
+  const answer = await answerOf(row, input);
   assert.equal(answer.status, 1);
   return answer.error;
 };

@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { recordsDoorFromCall, RecordsDoorError } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { searchEverything } from '../do-work/search-everything.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
@@ -141,11 +141,11 @@ test('the one-list row runs with a right on the kind its type names, and finds t
   const row = rowOf(rows, 'tool:search-one-of-my-lists');
   const records = Array.from({ length: 600 }, (_, at) => ({ id: `n${String(at).padStart(4, '0')}`, type: 'note', value: { text: at === 577 ? 'zephyrine harbour' : `ordinary ${at}` } }));
   records.push({ id: 'x1', type: 'secret', value: { text: 'zephyrine elsewhere' } });
-  const ran = await runRow(row, { question: 'zephyrine', type: 'note' }, { records });
+  const ran = await answerOf(row, { question: 'zephyrine', type: 'note' }, { records });
   assert.equal(ran.status, 0, JSON.stringify(ran));
   assert.deepEqual(ran.result.results.map(hit => hit.record), ['n0577']);
   assert.deepEqual(ran.calls.map(item => item.method), ['records:search']);
   // A kind the run was not granted is refused, not widened.
-  const other = await runRow({ ...row, invoke: { ...row.invoke, records: { fd: 3, rights: [{ kind: 'note', operations: ['records:search'] }] } } }, { question: 'zephyrine', type: 'secret' }, { records });
+  const other = await answerOf({ ...row, invoke: { ...row.invoke, records: { fd: 3, rights: [{ kind: 'note', operations: ['records:search'] }] } } }, { question: 'zephyrine', type: 'secret' }, { records });
   assert.ok(other.error, JSON.stringify(other));
 });

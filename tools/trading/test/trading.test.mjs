@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { checkPaperOrders, lookUpLiveInstruments, lookUpPaperInstruments, placeLiveOrders, placePaperOrders } from '../read-data/trading.mjs';
@@ -201,7 +201,7 @@ test('a lookup reads the listed items through the route, and refuses a route of 
 });
 
 test('the place row runs through its export and refuses an empty request with the words for what to give', async () => {
-  const answer = await runRow(placeRow, {});
+  const answer = await answerOf(placeRow, {});
   assert.equal(answer.status, 1);
   assert.match(answer.error, /No trading policy was given/);
 });

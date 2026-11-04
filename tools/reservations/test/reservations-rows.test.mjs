@@ -2,7 +2,7 @@
 // Every record here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const open = rowOf(rows, 'tool:open-a-capacity-ledger');
@@ -17,7 +17,7 @@ const sort = rowOf(rows, 'tool:sort-reservations-by-status');
 const LEDGER = 'ledger:saturday-class';
 const ledgerOf = answer => answer.kept.find(item => item.id === LEDGER).value;
 const step = async (row, input, previous) => {
-  const answer = await runRow(row, input, { records: previous?.kept ?? [] });
+  const answer = await answerOf(row, input, { records: previous?.kept ?? [] });
   assert.equal(answer.status, 0, answer.error);
   return answer;
 };
@@ -87,12 +87,12 @@ test('a caller cannot choose the time, and a missing ledger or key is refused in
   const opened = await step(open, { ledger_id: LEDGER, scope_ref: 'scope:saturday-class', total: 1 });
   const sneaky = await step(hold, { ledger_id: LEDGER, subject_ref: 'person:ana', idempotency_key: 'k:ana', occurred_at: '2001-01-01T00:00:00.000Z' }, opened);
   assert.notEqual(ledgerOf(sneaky).holds[0].held_at.slice(0, 4), '2001');
-  const missing = await runRow(hold, { ledger_id: 'ledger:none', subject_ref: 'person:ana', idempotency_key: 'k' });
+  const missing = await answerOf(hold, { ledger_id: 'ledger:none', subject_ref: 'person:ana', idempotency_key: 'k' });
   assert.equal(missing.status, 1);
   assert.match(missing.error, /no capacity ledger "ledger:none"\. Open it first/);
-  const noKey = await runRow(hold, { ledger_id: LEDGER, subject_ref: 'person:ana' }, { records: opened.kept });
+  const noKey = await answerOf(hold, { ledger_id: LEDGER, subject_ref: 'person:ana' }, { records: opened.kept });
   assert.match(noKey.error, /idempotency_key is required/);
-  const badExpiry = await runRow(hold, { ledger_id: LEDGER, subject_ref: 'person:ana', idempotency_key: 'k', expires_in_seconds: 0 }, { records: opened.kept });
+  const badExpiry = await answerOf(hold, { ledger_id: LEDGER, subject_ref: 'person:ana', idempotency_key: 'k', expires_in_seconds: 0 }, { records: opened.kept });
   assert.match(badExpiry.error, /whole number of seconds/);
 });
 
