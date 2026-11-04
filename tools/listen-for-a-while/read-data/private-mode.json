@@ -1,0 +1,15 @@
+{
+  "features": [
+    { "id": "captions", "label": "live captions", "private": true },
+    { "id": "local_notes", "label": "notes made on this computer", "private": true },
+    { "id": "notes", "label": "meeting notes", "private": true },
+    { "id": "sound", "label": "keeping the sound in your files", "private": false },
+    { "id": "server_transcription", "label": "transcription by a service", "private": false },
+    { "id": "summaries", "label": "summaries by a service", "private": false },
+    { "id": "apps", "label": "meeting apps", "private": false }
+  ],
+  "words": {
+    "available": "{feature} work in private mode.",
+    "unavailable": "{feature} are not available in private mode."
+  }
+}

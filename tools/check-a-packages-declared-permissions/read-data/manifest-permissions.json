@@ -1,0 +1,17 @@
+{
+  "_what": "What a tool or package may be declared to need, and which privileged calls each need unlocks (src/manifest-permissions.mjs). `permissions` are rows (a new one is a row): its id, what it lets a package do, and the `calls` of the host API it gates. A manifest naming a permission with no row is refused; a call that a row gates is refused unless the manifest named that permission. `entry` rules keep a manifest's entry file inside its own package folder.",
+  "permissions": [
+    { "id": "network_egress", "says": "Send data off this computer", "calls": ["fetch", "openSocket"] },
+    { "id": "read_files", "says": "Read files on this computer", "calls": ["readFile", "listFolder"] },
+    { "id": "write_files", "says": "Write or delete files on this computer", "calls": ["writeFile", "deleteFile"] },
+    { "id": "run_programs", "says": "Start programs on this computer", "calls": ["runProgram"] },
+    { "id": "use_microphone", "says": "Record from the microphone", "calls": ["recordAudio"] },
+    { "id": "read_screen", "says": "Read what is on the screen", "calls": ["readScreen"] }
+  ],
+  "words": {
+    "unknown_permission": "The manifest asks for {names}, which this host has no permission row for.",
+    "not_granted": "{call} needs the permission {permission}, which the manifest did not declare.",
+    "escapes": "The entry {entry} is outside its package folder.",
+    "not_declared": "{call} is not a call this host gates, so it is not available to packages."
+  }
+}

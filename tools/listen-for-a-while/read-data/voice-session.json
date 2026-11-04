@@ -1,0 +1,33 @@
+{
+  "_what": "The limits of an always-listening voice session (read-data/voice-session.mjs): it starts on a wake phrase or an explicit start, hears utterances while it is active, and ends by itself on silence, on its longest length, or on a spoken dismissal. Every phrase, number and word here is data. A phrase is compared as lower-case words with the punctuation removed; a dismissal counts when the whole utterance is that phrase, or the utterance ends with it after a pause word of `dismissal.lead_in`.",
+  "wake_phrases": [
+    "hey trillion"
+  ],
+  "idle_seconds": 30,
+  "max_seconds": 900,
+  "dismissal": {
+    "phrases": [
+      "goodbye",
+      "never mind",
+      "stop listening",
+      "that's all",
+      "thank you that's all"
+    ],
+    "lead_in": [
+      "ok",
+      "okay",
+      "alright",
+      "right",
+      "so",
+      "well"
+    ]
+  },
+  "words": {
+    "started": "Listening.",
+    "stopped_idle": "Stopped listening after {seconds} seconds of quiet.",
+    "stopped_long": "Stopped listening: the session reached its {seconds} second limit.",
+    "stopped_dismissed": "Stopped listening.",
+    "not_listening": "Not listening. Say a wake phrase or start a session.",
+    "empty": "Nothing was heard."
+  }
+}

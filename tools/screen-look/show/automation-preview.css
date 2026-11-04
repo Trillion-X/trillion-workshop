@@ -1,0 +1,103 @@
+/* The hover card of a control something automatic stands behind (ui/show/automation-preview): its name, one line of
+ * what it does, a small still graph of its steps, and "Open to edit". The card itself is the record-preview look
+ * (navigation-preview.css); this sets its width and the graph's box. */
+.automation-preview {
+  width: min(420px, calc(100vw - 24px));
+}
+
+.automation-preview-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--color-foreground);
+}
+
+.automation-preview-title {
+  margin: 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.automation-preview-said {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.automation-preview-said[data-tone='error'] {
+  color: var(--color-destructive, #dc2626);
+}
+
+.automation-preview-graph {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  border: 1px solid var(--color-border, rgba(0, 0, 0, .08));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-foreground, #111) 3%, transparent);
+}
+
+.automation-preview-open {
+  align-self: flex-start;
+}
+
+
+/* The words or control the card belongs to: a quiet dotted underline says there is more to see. */
+.automation-preview-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  cursor: pointer;
+  text-decoration: underline dotted color-mix(in srgb, var(--color-foreground, #111) 35%, transparent);
+  text-underline-offset: 3px;
+}
+
+.automation-preview-trigger:focus-visible {
+  outline: 2px solid var(--color-ring, #3b82f6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Under a setting: each automation that stands behind it, one quiet line each. */
+.automation-preview-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin-top: 4px;
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+}
+
+/* Beside a heading or column name: one small mark per automation behind it, each opening its own card. */
+.automation-marks {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+  vertical-align: middle;
+  color: var(--color-muted-foreground);
+}
+
+.automation-marks .automation-preview-trigger {
+  display: inline-flex;
+  text-decoration: none;
+  border-radius: 4px;
+  padding: 1px;
+}
+
+.automation-marks .automation-preview-trigger:hover {
+  color: var(--color-foreground);
+}
+
+/* A column name with marks keeps them on its own line. */
+th:has(> .automation-marks) {
+  white-space: nowrap;
+}

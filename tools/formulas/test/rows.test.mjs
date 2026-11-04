@@ -16,8 +16,8 @@ const run = (argv, input) => new Promise(resolve => {
 const select = (value, selector) => selector.replace(/^\$\.?/, '').split(/\.|\[(\d+)\]/).filter(Boolean).reduce((at, key) => at?.[key], value);
 const argvOf = fn => ['node', 'do-work/run-request.mjs', fn];
 
-test('the four rows run their own sample and the output holds the words the row says it will', async () => {
-  assert.equal(rows.length, 4);
+test('the six rows run their own sample and the output holds the words the row says it will', async () => {
+  assert.equal(rows.length, 6);
   for (const row of rows) {
     for (const check of row.verify) {
       const { code, last } = await run(row.invoke.argv, check.input);

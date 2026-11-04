@@ -1,6 +1,6 @@
 // tools/work-on-connected-drives/read-data/file-places.mjs
 //
-// Finds every connected-drive path and Trillion-space name that holds the same bytes as one file. This is a
+// Finds every connected-drive path and name in the person's own files (through the records door) that holds the same bytes as one file. This is a
 // deliberately read-only projection: copy/move is owned by file-transfer.mjs, and archive/delete/restore is owned by
 // namespace-set-aside.mjs. It never changes either surface. A partial filesystem read is reported, never presented as
 // a complete answer.
@@ -13,7 +13,7 @@ const fail = (status, message) => Object.assign(new Error(message), { status });
 const within = (child, parent) => child === parent || child.startsWith(parent.endsWith(path.sep) ? parent : parent + path.sep);
 
 async function connectedDevices() {
-  const { enumerateDevices } = await import('./drives.mjs');
+  const { enumerateDevices } = await import('../../connected-drives/read-data/drives.mjs');
   return (await enumerateDevices()).filter(device => device.mount && !device.internal);
 }
 
@@ -45,16 +45,11 @@ async function contentIdentity(file) {
   return `1f:${Buffer.from(hash.digest()).toString('hex')}`;
 }
 
-async function namespaceFile(identity, { origin, key } = {}) {
-  if (!origin || !key) throw fail(401, 'This Mac is not connected to its Trillion space.');
-  const response = await fetch(`${origin.replace(/\/$/, '')}/mcp/api/namespace/files/${encodeURIComponent(identity)}`, {
-    headers: { authorization: `Bearer ${key}` },
-  });
-  if (response.status === 404) return null;
-  let answer = null;
-  try { answer = await response.json(); } catch {}
-  if (!response.ok) throw fail(response.status, answer?.error ?? `The Trillion space answered ${response.status}.`);
-  return answer;
+// The person's own files, through the run's records door (`find_file` by identity); none there is null.
+async function namespaceFile(identity, { door } = {}) {
+  if (!door) throw fail(401, 'This run was not handed the person\'s files.');
+  try { return await door.files('find_file', { name_or_identity: identity }); }
+  catch (error) { if (error?.code === 'namespace_not_found') return null; throw fail(error?.status ?? 502, error?.message ?? 'The person\'s files could not be read.'); }
 }
 
 async function scanSameSize(devices, size) {
@@ -114,5 +109,5 @@ export function createFilePlaces({ devices = connectedDevices, identityOf = cont
 }
 
 export const filePlaceTools = { places: createFilePlaces() };
-// The host calls it by this name, as fn(input, context); context { origin, key } is the account the space is read from.
+// run-an-export calls it by this name, as fn(input, { door }); the door is the person's own files (tool-rows.json `records`).
 export const findEveryPlaceAFileIs = (input = {}, context = {}) => filePlaceTools.places(input, context);

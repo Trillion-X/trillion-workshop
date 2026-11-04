@@ -1,0 +1,55 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-APP-RELEASE-TESTFLIGHT-READINESS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "Avery, 2026-11-03: move code, never rewrite it: port the correct parts one to one, carry the original tests."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "0e59f5478ccf0d20165b3f3cc914e08bfa526f0b",
+      "path": "scripts/testflight-readiness.mjs",
+      "multihash": "1f:79e2400b996a1dc6f1fa4c97f6ce1ada04593f403f2b7a2de2dff86b3e2f52db",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:00:00Z",
+        "deleted_with": "already left old trillion's main line in 7cbcbce9 (moved to Trillion-X/trillion-apps with the ship script)"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/app-release-access/read-data/testflight-readiness.mjs"
+    }
+  ],
+  "preserve": [
+    "read only: no app, group, build or tester is changed",
+    "a processed upload or a beta review submission is never evidence that external testing is active",
+    "route ids include their build, so different OS requirements never overwrite one another",
+    "a provider error keeps only its operation and status, never its body",
+    "pagination never leaves api.appstoreconnect.apple.com"
+  ],
+  "allowed_deltas": [
+    "a two-line header naming the new path"
+  ],
+  "banned_substitutions": [
+    "a route marked ready from approval alone",
+    "a provider error body in the report"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:38:26Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:79e2400b996a1dc6f1fa4c97f6ce1ada04593f403f2b7a2de2dff86b3e2f52db",
+    "target_multihash_at_baseline": "1f:79e2400b996a1dc6f1fa4c97f6ce1ada04593f403f2b7a2de2dff86b3e2f52db",
+    "commit": "eca35b0f85bb047ce954cc1518953537294ba313"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/app-release-access/test/testflight-readiness.test.mjs (moved from old trillion test/testflight-readiness.test.mjs, 24 tests)"
+    ]
+  }
+}

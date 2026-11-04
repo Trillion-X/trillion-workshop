@@ -1,0 +1,46 @@
+{
+  "sign_in": {
+    "access_token_seconds": 3600,
+    "refresh_token_seconds": 2592000,
+    "code_seconds": 300,
+    "request_seconds": 900,
+    "challenge_seconds": 300,
+    "session_seconds": 2592000,
+    "idle_days": {"most_days": 90, "idle_days_by_approval": {"passkey": 90, "key": 90, "unknown": 30}}
+  },
+  "sign_in_ways": {
+    "fresh_seconds": 600,
+    "window_seconds": 900,
+    "setup_seconds": 900,
+    "code": {"digits": 6, "seconds": 600, "tries": 5, "resend_after_seconds": 120},
+    "listed": {"count": 10, "groups": 3, "group_length": 4, "alphabet": "abcdefghjkmnpqrstuvwxyz23456789"},
+    "timed": {"digits": 6, "seconds": 30, "secret_bytes": 20},
+    "chosen": {
+      "min_length": 8, "max_length": 256, "max_memory_bytes": 134217728,
+      "kdf": {"name": "scrypt", "n": 32768, "r": 8, "p": 3, "key_bytes": 32, "salt_bytes": 16},
+      "kdf_bounds": {"name": ["scrypt"], "n": [32768, 1048576], "r": [8, 16], "p": [1, 8], "key_bytes": [32, 64], "salt_bytes": [16, 64]}
+    },
+    "names": {
+      "email": {"input": "email", "autocomplete": "username", "strip": "", "lower": true,
+        "pattern": "^[^\\s@<>()\\[\\]\\\\,;:\"]{1,64}@[a-z0-9-]+(\\.[a-z0-9-]+)+$", "max_length": 254},
+      "phone": {"input": "tel", "autocomplete": "tel", "strip": "[\\s().-]", "lower": false, "pattern": "^\\+[1-9][0-9]{7,14}$",
+        "max_length": 40}
+    },
+    "code_way": "email-code",
+    "rows": [
+      {"way": "password", "proof": "chosen", "channel": null, "named": "email", "also": [], "alone": true, "changes_ways": true,
+        "change_needs_current": true, "recover_with": ["email-code", "backup-codes"], "opens": "session", "tries": 10, "sends": 0},
+      {"way": "email-code", "proof": "sent", "channel": "email", "named": "email", "also": [], "alone": true, "changes_ways": true,
+        "change_needs_current": false, "recover_with": ["backup-codes", "authenticator"], "opens": "session", "tries": 10, "sends": 3},
+      {"way": "text-code", "proof": "sent", "channel": "text", "named": "phone", "also": ["password"], "alone": false,
+        "changes_ways": false, "change_needs_current": false, "recover_with": ["email-code", "backup-codes"], "opens": "session",
+        "tries": 10, "sends": 6},
+      {"way": "authenticator", "proof": "timed", "channel": null, "named": null, "also": [], "alone": true, "changes_ways": true,
+        "change_needs_current": false, "recover_with": ["backup-codes", "email-code"], "opens": "session", "tries": 10, "sends": 0},
+      {"way": "backup-codes", "proof": "listed", "channel": null, "named": null, "also": [], "alone": true, "changes_ways": true,
+        "change_needs_current": false, "recover_with": ["email-code", "authenticator"], "opens": "session", "tries": 10, "sends": 0},
+      {"way": "personal-key", "proof": "key", "channel": null, "named": null, "also": [], "alone": false, "changes_ways": false,
+        "change_needs_current": false, "recover_with": ["email-code"], "opens": "app", "tries": 10, "sends": 0}
+    ]
+  }
+}

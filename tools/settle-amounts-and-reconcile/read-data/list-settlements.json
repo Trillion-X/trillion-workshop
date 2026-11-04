@@ -1,0 +1,178 @@
+{
+  "_what": "Settlement and reconciliation over a person's lists (src/list-settlements.mjs) as data: how an amount held by one row is applied across other rows, and how a set of cleared lines is closed against a statement. Every order, field name, limit and word is a row here; nothing in the engine names an invoice, a payment, a bank or any other business.",
+  "scale": 100,
+  "_scale": "Amounts are added in whole units of 1/scale (cents for scale 100), so a total never drifts by a fraction.",
+  "default_order": "oldest_first",
+  "orders": [
+    {
+      "id": "oldest_first",
+      "by": "order_field",
+      "direction": "asc",
+      "says": "Rows with the earliest order value are settled first."
+    },
+    {
+      "id": "newest_first",
+      "by": "order_field",
+      "direction": "desc",
+      "says": "Rows with the latest order value are settled first."
+    },
+    {
+      "id": "smallest_first",
+      "by": "open",
+      "direction": "asc",
+      "says": "Rows with the smallest open amount are settled first."
+    },
+    {
+      "id": "largest_first",
+      "by": "open",
+      "direction": "desc",
+      "says": "Rows with the largest open amount are settled first."
+    }
+  ],
+  "allocation_fields": {
+    "source": "source",
+    "target": "target",
+    "amount": "amount",
+    "date": "date",
+    "request": "request"
+  },
+  "reconciliation_fields": {
+    "lines_closed_in": "reconciled_in",
+    "receipt": {
+      "period": "period",
+      "opening": "opening",
+      "statement": "statement",
+      "cleared": "cleared",
+      "residual": "residual",
+      "reason": "reason",
+      "lines": "lines",
+      "fingerprint": "fingerprint",
+      "closed_at": "closed_at",
+      "undone_at": "undone_at",
+      "request": "request",
+      "kind": "kind",
+      "was": "was",
+      "now": "now",
+      "line": "line",
+      "receipt_ref": "receipt_ref"
+    }
+  },
+  "lists": {
+    "allocations": {
+      "id": "{source}-to-{target}-allocations",
+      "label": "Allocations from {source} to {target}",
+      "row_type": "list-settlement-allocation",
+      "title_field": "amount"
+    },
+    "receipts": {
+      "id": "{lines}-reconciliations",
+      "label": "Reconciliations of {lines}",
+      "row_type": "list-settlement-receipt",
+      "title_field": "period"
+    }
+  },
+  "limits": {
+    "page_rows": 100,
+    "max_scan_rows": 20000,
+    "items_per_call": 100,
+    "reason_chars": 500,
+    "period_chars": 80,
+    "report_rows": 200
+  },
+  "outcomes": {
+    "all": "All {count} were done.",
+    "some": "{done} of {count} were done; the others are listed with why, and each can be tried again on its own.",
+    "none": "None of the {count} were done; each is listed with why."
+  },
+  "item_states": {
+    "done": "done",
+    "already": "already_done",
+    "refused": "refused"
+  },
+  "words": {
+    "bad_input": "{what} is required: {detail}",
+    "no_row": "The row {row_id} is not in the list {list_id}.",
+    "no_amount": "The row {row_id} in {list_id} has no {field_id} number, so it has nothing to settle. An empty amount is not zero.",
+    "no_order": "The order {order} is not one of: {orders}.",
+    "order_needs_field": "The order {order} sorts by a field, so targets.order_field names it.",
+    "too_large": "The list {list_id} has more than {limit} rows to read for this answer. Narrow it with targets.row_ids so the answer is complete, not a guess.",
+    "too_many_items": "At most {limit} items can be settled in one call.",
+    "bad_amount": "An amount to settle is a number above zero; {amount} is not.",
+    "over_open": "The row {row_id} has only {open} open, so {amount} cannot be applied to it.",
+    "over_available": "Only {available} is left on the source, so {amount} cannot be applied.",
+    "unknown_allocation": "There is no allocation {allocation_id} in {list_id}.",
+    "not_this_source": "The allocation {allocation_id} belongs to a different source row.",
+    "over_applied_after_write": "Another change used up the open amount first, so this allocation was removed again.",
+    "lines_closed": "The line {row_id} is already closed in {receipt}.",
+    "no_lines": "Close needs at least one cleared line in row_ids.",
+    "residual_unexplained": "The statement and the cleared lines differ by {difference}. Give residual_reason in words, or clear the right lines, before closing.",
+    "residual_mismatch": "The explained residual {given} is not the difference {difference}.",
+    "nothing_to_undo": "There is no closed reconciliation of {lines} to undo.",
+    "line_changed": "The line changed after it was closed.",
+    "line_removed": "The line was removed after it was closed.",
+    "close_conflict": "A line was closed by someone else while this close ran, so nothing was closed.",
+    "entry_too_short": "An entry has at least two lines.",
+    "entry_unbalanced": "The lines add to {sum}, not zero, so nothing was posted.",
+    "entry_partial": "Some lines of the entry {entry_id} exist and others do not. Nothing was added.",
+    "no_entry": "There is no entry {entry_id} in {list_id}.",
+    "line_kind": "The line {row_id} has the kind {kind}, which is not one of: {kinds}.",
+    "line_base": "The percent line {row_id} must say its base in {field_id}: one of {bases}.",
+    "bad_basis": "The basis {basis} is not one of: {bases}."
+  },
+  "basis": {
+    "options": [
+      {
+        "id": "accrual",
+        "says": "Accrual: each row counts on the date it is due, whether or not it was paid."
+      },
+      {
+        "id": "cash",
+        "says": "Cash: each amount counts on the date it was applied, and every one lists the allocation behind it."
+      },
+      {
+        "id": "both",
+        "says": "Both bases are shown side by side, each named."
+      }
+    ]
+  },
+  "line_totals": {
+    "fields": {
+      "kind": "kind",
+      "value": "value",
+      "base": "base"
+    },
+    "kinds": [
+      {
+        "id": "amount",
+        "adds": "value"
+      },
+      {
+        "id": "percent",
+        "adds": "percent_of_base"
+      },
+      {
+        "id": "subtotal",
+        "adds": null,
+        "reports": "since_subtotal"
+      }
+    ],
+    "bases": [
+      {
+        "id": "previous_line",
+        "reads": "previous_line",
+        "says": "The line directly above only."
+      },
+      {
+        "id": "since_subtotal",
+        "reads": "since_subtotal",
+        "says": "Every line since the last subtotal."
+      },
+      {
+        "id": "all_above",
+        "reads": "all_above",
+        "says": "Every line above, subtotals not counted twice."
+      }
+    ]
+  },
+  "default_basis": "both"
+}

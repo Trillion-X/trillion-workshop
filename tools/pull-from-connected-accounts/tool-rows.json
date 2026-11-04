@@ -187,7 +187,95 @@
         ],
         "provenance": {
           "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account": "sample"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://discord.com/api/v10/users/@me"
+                },
+                "status": 200,
+                "body": {
+                  "id": "100000000000000001",
+                  "username": "sample-bot",
+                  "bot": true
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://discord.com/api/v10/users/@me/guilds"
+                },
+                "status": 200,
+                "body": [
+                  {
+                    "id": "200000000000000001",
+                    "name": "Sample Server"
+                  }
+                ]
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://discord.com/api/v10/guilds/200000000000000001/channels"
+                },
+                "status": 200,
+                "body": [
+                  {
+                    "id": "300000000000000001",
+                    "type": 0,
+                    "name": "general",
+                    "guild_id": "200000000000000001"
+                  },
+                  {
+                    "id": "300000000000000002",
+                    "type": 2,
+                    "name": "Voice",
+                    "guild_id": "200000000000000001"
+                  }
+                ]
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://discord.com/api/v10/channels/300000000000000001/messages"
+                },
+                "status": 200,
+                "body": [
+                  {
+                    "id": "400000000000000002",
+                    "channel_id": "300000000000000001",
+                    "author": {
+                      "id": "500000000000000001",
+                      "username": "made-up-member"
+                    },
+                    "content": "Welcome to the sample server.",
+                    "timestamp": "2026-11-01T12:05:00.000000+00:00",
+                    "edited_timestamp": null
+                  },
+                  {
+                    "id": "400000000000000001",
+                    "channel_id": "300000000000000001",
+                    "author": {
+                      "id": "500000000000000002",
+                      "username": "another-made-up-member"
+                    },
+                    "content": "Hello!",
+                    "timestamp": "2026-11-01T12:00:00.000000+00:00",
+                    "edited_timestamp": null
+                  }
+                ]
+              }
+            ],
+            "shape_read_at": "2026-11-03"
+          }
+        ]
       }
     },
     {
@@ -374,7 +462,84 @@
         ],
         "provenance": {
           "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account": "sample"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://slack.com/api/auth.test"
+                },
+                "status": 200,
+                "body": {
+                  "ok": true,
+                  "url": "https://sample-team.example.com/",
+                  "team": "Sample Team",
+                  "user": "sample-bot",
+                  "team_id": "T0000SAMPLE",
+                  "user_id": "U0000SAMPLE",
+                  "bot_id": "B0000SAMPLE"
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://slack.com/api/conversations.list"
+                },
+                "status": 200,
+                "body": {
+                  "ok": true,
+                  "channels": [
+                    {
+                      "id": "C0000SAMPLE",
+                      "name": "general",
+                      "is_channel": true,
+                      "is_archived": false,
+                      "is_member": true
+                    }
+                  ],
+                  "response_metadata": {
+                    "next_cursor": ""
+                  }
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://slack.com/api/conversations.history"
+                },
+                "status": 200,
+                "body": {
+                  "ok": true,
+                  "messages": [
+                    {
+                      "type": "message",
+                      "user": "U0000FRIEND",
+                      "text": "The sample report is ready.",
+                      "ts": "1793534700.000200"
+                    },
+                    {
+                      "type": "message",
+                      "user": "U0000SAMPLE",
+                      "text": "Thanks!",
+                      "ts": "1793534400.000100"
+                    }
+                  ],
+                  "has_more": false,
+                  "response_metadata": {
+                    "next_cursor": ""
+                  }
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03"
+          }
+        ]
       }
     },
     {
@@ -561,7 +726,81 @@
         ],
         "provenance": {
           "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account": "sample"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.telegram.org/bot000000:made-up-sample-token/getMe"
+                },
+                "status": 200,
+                "body": {
+                  "ok": true,
+                  "result": {
+                    "id": 1000000001,
+                    "is_bot": true,
+                    "first_name": "Sample Bot",
+                    "username": "sample_example_bot"
+                  }
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.telegram.org/bot000000:made-up-sample-token/getUpdates"
+                },
+                "status": 200,
+                "body": {
+                  "ok": true,
+                  "result": [
+                    {
+                      "update_id": 700000001,
+                      "message": {
+                        "message_id": 11,
+                        "from": {
+                          "id": 2000000002,
+                          "is_bot": false,
+                          "first_name": "Sam"
+                        },
+                        "chat": {
+                          "id": 2000000002,
+                          "first_name": "Sam",
+                          "last_name": "Sample",
+                          "type": "private"
+                        },
+                        "date": 1793534400,
+                        "text": "Hello from a made-up chat"
+                      }
+                    },
+                    {
+                      "update_id": 700000002,
+                      "channel_post": {
+                        "message_id": 3,
+                        "chat": {
+                          "id": -1000000000003,
+                          "title": "Sample Channel",
+                          "type": "channel"
+                        },
+                        "date": 1793534460,
+                        "text": "A made-up channel post"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03",
+            "held": {
+              "telegram-bot-token": "000000:made-up-sample-token"
+            }
+          }
+        ]
       }
     },
     {
@@ -748,7 +987,86 @@
         ],
         "provenance": {
           "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account": "sample"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://graph.instagram.com/v21.0/me"
+                },
+                "status": 200,
+                "body": {
+                  "user_id": "9000000000000001",
+                  "username": "sample.studio",
+                  "id": "8000000000000001"
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://graph.instagram.com/v21.0/me/conversations"
+                },
+                "status": 200,
+                "body": {
+                  "data": [
+                    {
+                      "id": "sample-conversation-1",
+                      "participants": {
+                        "data": [
+                          {
+                            "id": "9000000000000001",
+                            "username": "sample.studio"
+                          },
+                          {
+                            "id": "9000000000000002",
+                            "username": "made.up.friend"
+                          }
+                        ]
+                      },
+                      "updated_time": "2026-11-01T12:05:00+0000"
+                    }
+                  ]
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://graph.instagram.com/v21.0/sample-conversation-1/messages"
+                },
+                "status": 200,
+                "body": {
+                  "data": [
+                    {
+                      "id": "sample-message-2",
+                      "from": {
+                        "id": "9000000000000002",
+                        "username": "made.up.friend"
+                      },
+                      "created_time": "2026-11-01T12:05:00+0000",
+                      "message": "Sounds good, see you then."
+                    },
+                    {
+                      "id": "sample-message-1",
+                      "from": {
+                        "id": "9000000000000001",
+                        "username": "sample.studio"
+                      },
+                      "created_time": "2026-11-01T12:00:00+0000",
+                      "message": "Does Thursday work?"
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03"
+          }
+        ]
       }
     },
     {
@@ -935,7 +1253,85 @@
         ],
         "provenance": {
           "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account": "sample"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://graph.facebook.com/v21.0/me"
+                },
+                "status": 200,
+                "body": {
+                  "id": "9000000000000001",
+                  "name": "Sample Page"
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://graph.facebook.com/v21.0/me/conversations"
+                },
+                "status": 200,
+                "body": {
+                  "data": [
+                    {
+                      "id": "sample-conversation-1",
+                      "participants": {
+                        "data": [
+                          {
+                            "id": "9000000000000001",
+                            "username": "sample.studio"
+                          },
+                          {
+                            "id": "9000000000000002",
+                            "username": "made.up.friend"
+                          }
+                        ]
+                      },
+                      "updated_time": "2026-11-01T12:05:00+0000"
+                    }
+                  ]
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://graph.facebook.com/v21.0/sample-conversation-1/messages"
+                },
+                "status": 200,
+                "body": {
+                  "data": [
+                    {
+                      "id": "sample-message-2",
+                      "from": {
+                        "id": "9000000000000002",
+                        "username": "made.up.friend"
+                      },
+                      "created_time": "2026-11-01T12:05:00+0000",
+                      "message": "Sounds good, see you then."
+                    },
+                    {
+                      "id": "sample-message-1",
+                      "from": {
+                        "id": "9000000000000001",
+                        "username": "sample.studio"
+                      },
+                      "created_time": "2026-11-01T12:00:00+0000",
+                      "message": "Does Thursday work?"
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03"
+          }
+        ]
       }
     },
     {
@@ -1116,7 +1512,70 @@
         ],
         "provenance": {
           "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account": "sample"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.twitter.com/2/users/me"
+                },
+                "status": 200,
+                "body": {
+                  "data": {
+                    "id": "1000000000000000001",
+                    "name": "Sample Person",
+                    "username": "sample_person"
+                  }
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.twitter.com/2/users/1000000000000000001/bookmarks"
+                },
+                "status": 200,
+                "body": {
+                  "data": [
+                    {
+                      "id": "1900000000000000001",
+                      "text": "A made-up post worth keeping.",
+                      "created_at": "2026-11-01T12:00:00.000Z",
+                      "author_id": "1000000000000000002",
+                      "edit_history_tweet_ids": [
+                        "1900000000000000001"
+                      ],
+                      "public_metrics": {
+                        "retweet_count": 1,
+                        "reply_count": 0,
+                        "like_count": 3,
+                        "quote_count": 0
+                      }
+                    }
+                  ],
+                  "includes": {
+                    "users": [
+                      {
+                        "id": "1000000000000000002",
+                        "name": "Made Up Author",
+                        "username": "made_up_author"
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "result_count": 1
+                  }
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03"
+          }
+        ]
       }
     },
     {
@@ -1297,7 +1756,66 @@
         ],
         "provenance": {
           "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account": "sample"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.pinterest.com/v5/user_account"
+                },
+                "status": 200,
+                "body": {
+                  "account_type": "PERSONAL",
+                  "username": "sample_pinner"
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.pinterest.com/v5/pins"
+                },
+                "status": 200,
+                "body": {
+                  "items": [
+                    {
+                      "id": "1000000000000000001",
+                      "created_at": "2026-11-01T12:00:00",
+                      "link": "https://example.com/sample-recipe",
+                      "title": "Sample recipe",
+                      "board_id": "2000000000000000001"
+                    }
+                  ],
+                  "bookmark": null
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.pinterest.com/v5/boards"
+                },
+                "status": 200,
+                "body": {
+                  "items": [
+                    {
+                      "id": "2000000000000000001",
+                      "name": "Sample board",
+                      "privacy": "PUBLIC",
+                      "created_at": "2026-10-01T12:00:00"
+                    }
+                  ],
+                  "bookmark": null
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03"
+          }
+        ]
       }
     },
     {
@@ -1482,7 +2000,37 @@
         ],
         "provenance": {
           "source": "bitfield-packages signal-bot-connector (snapshot fold, normalization of the client output), merged into one source description and ported; the live client is not here"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account": "sample",
+              "self_id": "sample-self",
+              "conversations": [
+                {
+                  "id": "sample-conversation-1",
+                  "name": "Made Up Friend",
+                  "type": "private",
+                  "messages": [
+                    {
+                      "id": "sample-message-1",
+                      "timestamp": 1793534400000,
+                      "from": "sample-self",
+                      "body": "Does Thursday work?"
+                    },
+                    {
+                      "id": "sample-message-2",
+                      "timestamp": 1793534700000,
+                      "from": "made-up-friend",
+                      "body": "Sounds good."
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
       }
     },
     {
@@ -1654,7 +2202,50 @@
         ],
         "provenance": {
           "source": "new: reads back the parts the pull tools keep"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "source": "slack",
+              "account": "sample"
+            },
+            "records": [
+              {
+                "id": "account-snapshot:slack:sample:state",
+                "type": "account-snapshot-part",
+                "value": {
+                  "kind": "state",
+                  "source": "slack",
+                  "account": "sample",
+                  "self_id": "U0000SAMPLE",
+                  "cursor": "1793534700.000200",
+                  "pulled_at": "2026-11-03T12:00:00.000Z"
+                }
+              },
+              {
+                "id": "account-snapshot:slack:sample:thread:C0000SAMPLE",
+                "type": "account-snapshot-part",
+                "value": {
+                  "kind": "thread",
+                  "seq": 1,
+                  "thread": {
+                    "id": "C0000SAMPLE",
+                    "title": "general",
+                    "messages": [
+                      {
+                        "type": "message",
+                        "user": "U0000FRIEND",
+                        "text": "The sample report is ready.",
+                        "ts": "1793534700.000200"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
       }
     }
   ]

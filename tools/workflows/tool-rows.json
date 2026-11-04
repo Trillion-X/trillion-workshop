@@ -65,7 +65,23 @@
         "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
-        "maker": "maker:workflows"
+        "maker": "maker:workflows",
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "shared",
+              "_read_by": "Every share surface writes one record shared:<request key> when the person leaves File in on You figure it out (trillion ios/Shared/ShareRecord.swift, extension/src/share-record.mjs); the Workshop recipe turn-something-shared-into-what-you-can-use wakes on this kind and files it. items are {kind: link, url} | {kind: selection, text} | {kind, name, file: <file identity>}.",
+              "properties": {
+                "title": "text",
+                "items": "objects",
+                "own_words": "text",
+                "from": "text",
+                "at": "text"
+              }
+            }
+          ]
+        }
       }
     },
     {

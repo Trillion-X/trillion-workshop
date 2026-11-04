@@ -1,0 +1,75 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-APP-RELEASE-APP-STORE-CONNECT",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "Avery, 2026-11-03: move code, never rewrite it: port the correct parts one to one, carry the original tests."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "0e59f5478ccf0d20165b3f3cc914e08bfa526f0b",
+      "path": "scripts/app-store-connect.mjs",
+      "lines": [
+        38,
+        80
+      ],
+      "multihash": "1f:7b1f6dd682c60f10e02c4f69ce05102c02e0935d6e7ec6c625318f40ffdf26b8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:00:00Z",
+        "deleted_with": "already left old trillion's main line in 7cbcbce9 (moved to Trillion-X/trillion-apps with the ship script)"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "0e59f5478ccf0d20165b3f3cc914e08bfa526f0b",
+      "path": "scripts/app-store-connect.mjs",
+      "lines": [
+        93,
+        102
+      ],
+      "multihash": "1f:bf1d9c100e9f69e4acf6e2328d5402040e9bc968bb3ffb60d18c285b419ba11f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:00:00Z",
+        "deleted_with": "the same move"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/app-release-access/read-data/app-store-connect.mjs"
+    }
+  ],
+  "preserve": [
+    "an ES256 JWT with the key id, the issuer and audience appstoreconnect-v1, kept until a minute before its 19-minute expiry",
+    "every request stays on https://api.appstoreconnect.apple.com/v1/ with redirects refused and a bounded deadline",
+    "every request names the statuses it accepts and anything else throws with its status"
+  ],
+  "allowed_deltas": [
+    "the key is the held value app-store-connect-key handed on descriptor 4 (heldKey, readHeldKey), never a Keychain read",
+    "Apple's error body is left out of the thrown message, since it can name a tester",
+    "uploadParts, patch and delete, used only by the ship script, are not carried"
+  ],
+  "banned_substitutions": [
+    "a Keychain read",
+    "the key in a file, argv, the environment or an error",
+    "a request to any other origin"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:38:26Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:7b1f6dd682c60f10e02c4f69ce05102c02e0935d6e7ec6c625318f40ffdf26b8",
+    "target_multihash_at_baseline": "1f:7b1f6dd682c60f10e02c4f69ce05102c02e0935d6e7ec6c625318f40ffdf26b8",
+    "commit": "eca35b0f85bb047ce954cc1518953537294ba313"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/app-release-access/test/app-distribution.test.mjs the client signs an ES256 token from the held key, stays on App Store Connect and keeps Apple's body out of errors"
+    ]
+  }
+}

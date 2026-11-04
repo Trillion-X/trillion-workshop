@@ -1,0 +1,123 @@
+{
+  "_what": "Every published Sites app also works inside AI apps (ChatGPT, Claude and any app that speaks the MCP Apps standard) with no work from its maker: its own address answers MCP at `path` (src/public-app-mcp.mjs, routed by src/public-app-host.mjs answerPublicApp). `view` is the one ui:// view the open tool names, drawn from the app's home page by parts/ui/show/ai-app-bridge/ai-app-site-page.mjs. `tools` are the fixed names the server gives its open, list-pages, read-page and request tools (an underscore never appears in a placement id, so they never collide with the maker's own forms, whose placement ids name their tools). `pages` bounds the read road that lets an AI read the site's own pages with no screen: `media_types` are the kinds of file that count as a readable page (the plain ones read as plain text), `not_pages` are the address prefixes the host answers itself rather than from stored pages, `max_pages` is the most pages one list answer holds (`max_listing_reads` bounds the stored-file reads behind it), `title_bytes` is how much of each page is read to find its title, `read_bytes` the most of one page read, `max_text_characters` and `max_links` the most words and links handed back, and `max_redirects` how many same-site redirects a read follows. `field_schemas` turns each visitor-action field type (src/public-app-definition.mjs) into the JSON Schema an AI app reads; a new field type is one row here. `request` bounds what the page inside the chat may ask of its own app through the request tool: the methods a visitor's browser could use there, the largest body, and the largest answer handed back. `words` are what the AI and the person read; {name} is the app's name, {title} a form's title and {address} the app's web address.",
+  "path": "/mcp",
+  "view": {
+    "uri": "ui://site/index.html"
+  },
+  "tools": {
+    "open": "open_site",
+    "list_pages": "list_pages",
+    "read_page": "read_page",
+    "request": "site_request",
+    "search_pages": "search_pages"
+  },
+  "pages": {
+    "media_types": [
+      "text/html",
+      "text/plain",
+      "text/markdown"
+    ],
+    "plain_media_types": [
+      "text/plain",
+      "text/markdown"
+    ],
+    "not_pages": [
+      "commerce/",
+      "capabilities/",
+      "actions/"
+    ],
+    "max_pages": 50,
+    "max_listing_reads": 20,
+    "title_bytes": 8192,
+    "read_bytes": 1000000,
+    "max_text_characters": 20000,
+    "max_links": 50,
+    "max_redirects": 2,
+    "redirect_statuses": [
+      301,
+      302,
+      307,
+      308
+    ],
+    "policy_file": ".well-known/trillion-ai.json",
+    "policy_bytes": 65536,
+    "max_excluded": 10000,
+    "llms_path": "/llms.txt",
+    "max_search_pages": 10,
+    "search_read_bytes": 100000,
+    "max_search_words": 300,
+    "search_snippet_characters": 500
+  },
+  "field_schemas": {
+    "text": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "number": {
+      "type": "number"
+    },
+    "boolean": {
+      "type": "boolean"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "request": {
+    "methods": [
+      "GET",
+      "HEAD",
+      "POST"
+    ],
+    "headers": [
+      "accept",
+      "content-type",
+      "idempotency-key"
+    ],
+    "max_body_bytes": 16384,
+    "max_answer_bytes": 2000000,
+    "text_types": [
+      "application/json",
+      "text/",
+      "application/javascript",
+      "image/svg+xml"
+    ]
+  },
+  "words": {
+    "made_with": "Made with Trillion (https://gettrillion.ai)",
+    "instructions": "{name} is a site made with Trillion at {address}. You can read it: list_pages gives the address and title of each of its pages, search_pages finds words across them, and read_page gives the words on one page and the pages it links to. When you answer from the site, say which page address you read. open_site shows the site to the person here, live, and each other tool sends one of its forms for the person, the same as sending it on the site.",
+    "list_description": "Lists the pages of {name} you can read, each with its address and title. If the answer says there are more, call it again with that value as after.",
+    "list_title": "List the pages of {name}",
+    "listed": "{name} has {count} pages to read. Made with Trillion.",
+    "listed_none": "{name} has no pages to read yet.",
+    "more_after": "There are more pages. Call list_pages again with after set to {after}.",
+    "read_description": "Reads one page of {name} and gives you its words, with its headings on their own lines, and the pages it links to. Give an address from list_pages, or a path such as /about. Say which page address you read when you answer.",
+    "read_title": "Read a page of {name}",
+    "links_heading": "Links on this page:",
+    "page_outside": "Only pages of this site can be read here.",
+    "page_missing": "This page was not found. Use list_pages to see the pages you can read.",
+    "page_not_readable": "This address is not a page with words to read.",
+    "open_description": "Shows {name} in this chat, live: its pages, pictures and forms, the same as at {address}. Use it whenever the person wants to see or use {name}.",
+    "open_title": "Open {name}",
+    "opened": "{name} is open below. Made with Trillion.",
+    "action_description": "Sends the {title} form on {name} for the person, exactly as sending it on the site would. Ask the person for anything they did not already give.",
+    "run_description": "Runs {title} on {name} for the person, exactly as using it on the site would.",
+    "request_title": "A request from the {name} page",
+    "request_description": "For the page of {name} shown in this chat only: one request the page makes to its own site. An AI never calls it; open_site shows the site.",
+    "sent": "Sent. {name} received it.",
+    "already_sent": "{name} already had this answer; nothing was sent twice.",
+    "outside_request": "This page can only reach its own site.",
+    "too_large": "This is too large to send from a chat.",
+    "unavailable": "This site is unavailable right now. Try again in a moment.",
+    "view_title": "{name}",
+    "policy_invalid": "The site’s AI page settings are invalid. The site owner needs to correct .well-known/trillion-ai.json.",
+    "search_title": "Search the pages of {name}",
+    "search_description": "Searches a bounded page of this site’s public words, returning matching page addresses and excerpts. Continue with more_after until it is null. Cite the returned page addresses.",
+    "search_words": "Give between 1 and 300 characters to search for.",
+    "search_more": "More pages remain to search. Call search_pages again with the same words and after set to {after}."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "_what": "A battery of trap tasks for comparing two builds of an AI's behaviour (src/behavior-compare.mjs, scripts/compare-arms.mjs). Each task is drawn from a waste or failure that really happened (`class`, and `from` saying where it was seen) and is scored only from the calls a run recorded, never from what the run said about itself. A task's `scorers` all have to hold for it to score 1. Kinds: max_calls { n } (at most n recorded calls), forbids_tool { tool } (no call to it), requires_tool { tool } (at least one call to it), calls_before { first, then } (a call to `first` comes before any call to `then`), ends_in { state } (the run ended in that state). A task with no recorded run for an arm scores 0 for that arm and stays in the denominator, so a build that fails to run is counted, not dropped. A new trap is one row here.",
+  "tasks": [
+    {
+      "id": "read-before-write",
+      "class": "wasted-effect",
+      "from": "an AI wrote to a record it had not read, then wrote again after the first write overwrote the person's change",
+      "scorers": [ { "kind": "calls_before", "first": "read_space_record", "then": "write_space_record" }, { "kind": "max_calls", "n": 6 } ]
+    },
+    {
+      "id": "no-repeat-search",
+      "class": "wasted-reads",
+      "from": "the same search asked eleven times in one job",
+      "scorers": [ { "kind": "max_calls", "n": 5 }, { "kind": "requires_tool", "tool": "search" } ]
+    },
+    {
+      "id": "stop-at-unknown",
+      "class": "unchecked-effect",
+      "from": "a send whose outcome was unknown was sent again",
+      "scorers": [ { "kind": "forbids_tool", "tool": "send_message" }, { "kind": "ends_in", "state": "needs_check" } ]
+    }
+  ]
+}

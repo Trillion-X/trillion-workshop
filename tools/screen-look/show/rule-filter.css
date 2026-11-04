@@ -1,0 +1,564 @@
+/* packages/screen-look/show/rule-filter.css
+ *
+ * Purpose: how the shared rule filter (packages/ui/show/rule-filter) looks: a
+ * row of segmented chips under the view bar (field | comparison | value | ×),
+ * and a builder where every line reads Where / and / or, then a field, a
+ * comparison and a value, with a quiet "…" at its end; groups sit in their own
+ * inset box with a Not switch. The surfaces themselves (corners, shadow, entry
+ * motion) come from floating-menus.css, shared with every menu. Colours and
+ * radii come from the Coss theme variables.
+ *
+ * Reference anatomy: Linear filter chips and menu (Mobbin
+ * ed670cda-0527-4716-a1a6-0159f12c4f42, d1d26f7d-e1e5-490f-ab4f-c96dd12854c1),
+ * Notion's builder ("Where / And", Mobbin d41e1c3f-7554-4129-af21-b8d1c8eace43),
+ * Airtable's one-line condition (f2241482-541b-4d10-9295-0cd14783fc45),
+ * 21st.dev 1633 "Filters" (segmented chip), 21st.dev 27325 (checklist with
+ * counts), ReUI Filters (keenthemes/reui, MIT: chip bar plus advanced builder).
+ */
+
+.rule-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* A chip is one pill cut into segments, each a different weight of the same
+ * sentence: the field, how it compares, the value, and the way out. */
+.rule-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: min(360px, 100%);
+  height: 28px;
+  border: 1px solid var(--color-input);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-foreground) 4%, var(--color-background));
+  overflow: hidden;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.rule-filter-chip:hover,
+.rule-filter-chip:focus-within {
+  border-color: var(--color-ring);
+}
+
+.rule-filter-chip[data-incomplete='true'] {
+  border-style: dashed;
+}
+
+.rule-filter-chip[data-negated='true'] {
+  border-color: var(--color-destructive-muted, var(--color-ring));
+}
+
+.coss-ui .rule-filter-chip .rule-filter-chip-body {
+  display: inline-flex;
+  /* The shared Button never shrinks; this one gives way so the × stays on the chip. */
+  flex: 0 1 auto;
+  align-items: stretch;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  gap: 0;
+  font-size: 12px;
+}
+
+.rule-filter-chip-body > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rule-filter-chip-body > span + span {
+  border-left: 1px solid var(--color-input);
+}
+
+.rule-filter-chip-field {
+  color: var(--color-foreground);
+  font-weight: 500;
+  min-width: 0;
+  max-width: 220px;
+}
+
+/* A segment's words end in an ellipsis when the chip runs out of room; the whole
+ * sentence stays on the chip's title and label. */
+.rule-filter-chip-words {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rule-filter-chip-operator {
+  /* One short word ("between"); the field and value give up room first, with an ellipsis. */
+  flex: none;
+  color: var(--color-muted-foreground);
+}
+
+.rule-filter-chip-value {
+  color: var(--color-foreground);
+  font-weight: 500;
+  min-width: 0;
+}
+
+.coss-ui .rule-filter-chip .rule-filter-chip-remove {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--color-input);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-muted-foreground);
+}
+
+.coss-ui .rule-filter-chip .rule-filter-chip-remove::before {
+  display: none;
+}
+
+.coss-ui .rule-filter-chip .rule-filter-chip-remove:hover {
+  color: var(--color-foreground);
+  background: color-mix(in srgb, var(--color-foreground) 10%, transparent);
+}
+
+.coss-ui .rule-filter-join,
+.rule-filter-not {
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+  text-transform: lowercase;
+}
+
+.coss-ui .rule-filter-join:hover {
+  color: var(--color-foreground);
+  background: var(--color-accent);
+}
+
+/* "Clear" is plain text: no border, no fill, only a colour change on hover. */
+.coss-ui .rule-filter-clear {
+  height: 24px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+}
+
+.coss-ui .rule-filter-clear:hover {
+  color: var(--color-foreground);
+  background: transparent;
+}
+
+/* Builder and value popups are portaled out of the toolbar, so nothing here
+ * depends on an ancestor inside the page. */
+.coss-ui [data-slot='popover-positioner'] {
+  z-index: 10000;
+}
+
+/* The popup is as wide as its rules. The primitive keeps the width it first
+ * measured (for its own resize animation), which would clip a builder that
+ * grows as rules are added, so the width follows the content here. */
+.coss-ui .rule-filter-popup[data-slot='popover-popup'] {
+  width: max-content;
+  /* Never wider than the room beside its anchor (--available-width, set by the positioner), so on a narrow window
+   * its lines wrap instead of running off the edge. */
+  min-width: min(440px, var(--available-width, calc(100vw - 24px)));
+  max-width: min(820px, var(--available-width, calc(100vw - 24px)));
+}
+
+.coss-ui .rule-filter-popup [data-slot='popover-viewport'] {
+  display: grid;
+  gap: 8px;
+  width: auto;
+  padding: 10px;
+  overflow: visible;
+}
+
+.rule-filter-empty {
+  margin: 0;
+  padding: 2px 4px;
+  color: var(--color-muted-foreground);
+  font-size: 13px;
+}
+
+.rule-filter-group {
+  display: grid;
+  gap: 4px;
+}
+
+.rule-filter-group[data-nested='true'] {
+  padding: 6px 6px 4px;
+  border: 1px solid var(--color-input);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-foreground) 3%, transparent);
+}
+
+.rule-filter-group[data-negated='true'] {
+  border-color: var(--color-destructive-muted, var(--color-ring));
+}
+
+.rule-filter-group-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+}
+
+.rule-filter-group-words {
+  flex: 1;
+}
+
+.coss-ui .rule-filter-not-toggle {
+  gap: 4px;
+  color: var(--color-muted-foreground);
+}
+
+.coss-ui .rule-filter-not-toggle[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--color-destructive) 14%, transparent);
+  color: var(--color-destructive-muted, var(--color-foreground));
+}
+
+/* One line: the drag grip, the joining word, the rule (or a nested group),
+ * the row menu. Lines reorder through the shared sortable
+ * (ui/show/drag-reorder-list); its landing slot and displacement are
+ * drag-reorder.css. */
+.rule-filter-lines {
+  gap: 4px;
+}
+
+.rule-filter-line {
+  display: grid;
+  grid-template-columns: 14px 56px minmax(0, 1fr) 28px;
+  align-items: start;
+  gap: 6px;
+  border-radius: 8px;
+}
+
+.rule-filter-grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  color: var(--color-muted-foreground);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.rule-filter-grip:active {
+  cursor: grabbing;
+}
+
+.rule-filter-line:hover > .rule-filter-grip,
+.rule-filter-line:focus-within > .rule-filter-grip {
+  opacity: .7;
+}
+
+.rule-filter-joiner {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  padding-left: 4px;
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.coss-ui .rule-filter-combinator {
+  gap: 2px;
+  padding: 0 6px;
+  color: var(--color-foreground);
+  text-transform: lowercase;
+}
+
+.rule-filter-rule {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+}
+
+/* Field and comparison pickers: a menu trigger that reads like the value. */
+.coss-ui .rule-filter-field,
+.coss-ui .rule-filter-operator {
+  gap: 6px;
+  max-width: 220px;
+  justify-content: flex-start;
+}
+
+.coss-ui .rule-filter-operator {
+  color: var(--color-muted-foreground);
+}
+
+.rule-filter-picker-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rule-filter-picker-chevron {
+  opacity: .6;
+}
+
+/* The row menu waits for the row under the pointer, like a sidebar row. */
+.rule-filter-row-menu {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.rule-filter-line:hover > .rule-filter-row-menu,
+.rule-filter-line:focus-within > .rule-filter-row-menu,
+.rule-filter-group-head .rule-filter-row-menu,
+.rule-filter-row-menu:has([data-popup-open]) {
+  opacity: 1;
+}
+
+.coss-ui .rule-filter-value {
+  justify-content: flex-start;
+  /* Gives way on a narrow line, ending in an ellipsis, so the row's "…" stays in the builder. */
+  flex: 0 1 auto;
+  min-width: min(120px, 100%);
+  max-width: min(260px, 100%);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coss-ui .rule-filter-text,
+.coss-ui .rule-filter-number {
+  width: 180px;
+}
+
+.rule-filter-single {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rule-filter-unit {
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+}
+
+.rule-filter-group-foot {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0 0 76px;
+}
+
+/* Several words or phrases: each a small removable token before the box. */
+.rule-filter-words {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.rule-filter-word {
+  display: inline-flex;
+  align-items: center;
+  max-width: 220px;
+  height: 24px;
+  padding-left: 8px;
+  border: 1px solid var(--color-input);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-foreground) 5%, transparent);
+  font-size: 12px;
+}
+
+.rule-filter-word-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coss-ui .rule-filter-word-remove {
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  color: var(--color-muted-foreground);
+}
+
+.rule-filter-foot-end {
+  margin-left: auto;
+}
+
+/* Several values: a searchable checklist with counts. */
+.coss-ui .rule-filter-values-popup[data-slot='popover-popup'] {
+  width: 300px;
+}
+
+.coss-ui .rule-filter-values-popup [data-slot='popover-viewport'] {
+  display: grid;
+  gap: 6px;
+  padding: 6px;
+}
+
+.rule-filter-options {
+  display: grid;
+  max-height: var(--floating-list-max-height, 300px);
+  overflow-y: auto;
+}
+
+.rule-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  padding: 0 8px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+}
+
+.rule-filter-option:hover {
+  background: var(--color-accent);
+}
+
+.rule-filter-option-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rule-filter-option-count {
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rule-filter-options-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px 0;
+  border-top: 1px solid var(--color-input);
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+}
+
+.rule-filter-picker {
+  min-height: 200px;
+}
+
+/* A range: three rows that never share space. The track row is tall enough
+ * for its thumbs to sit inside it, so a thumb never touches the words above
+ * or the typed ends below. */
+.coss-ui .rule-filter-range-popup[data-slot='popover-popup'] {
+  width: min(320px, var(--available-width, calc(100vw - 16px)));
+}
+
+.coss-ui .rule-filter-range-popup [data-slot='popover-viewport'] {
+  padding: 0;
+}
+
+.rule-filter-range {
+  display: grid;
+  grid-template-rows: auto 28px auto;
+  gap: 10px;
+  padding: 14px 16px 16px;
+}
+
+.rule-filter-range-values {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.rule-filter-range-track {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+}
+
+.rule-filter-range-track .rule-filter-slider {
+  width: 100%;
+}
+
+.rule-filter-range-track [data-slot='slider-control'] {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  min-width: 0;
+}
+
+.rule-filter-range-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+}
+
+.rule-filter-range-inputs .rule-filter-number {
+  width: 100%;
+}
+
+/* The focus for a whole level (rule-filter/FocusEditor.tsx), in a sidebar
+ * section's panel: the filter menu's trigger and its chips, stacked. */
+.focus-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 4px 4px;
+  min-width: 0;
+}
+
+.focus-editor-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* At the top of the sidebar it reads like a workspace's name: full width, the name taking the room, the chevron at the
+ * end (Notion's workspace switcher). */
+.focus-editor-trigger {
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  font-weight: 600;
+}
+
+.focus-editor-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: start;
+}

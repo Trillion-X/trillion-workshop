@@ -1,0 +1,92 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-QUOTE-UNTRUSTED-WORDS-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "move the product modules of old trillion src/ (part 5 of 5) into Trillion-X/trillion-workshop tools. Move code, never rewrite it. Port the correct parts one to one with their original tests and assertions."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/untrusted-text.mjs",
+   "multihash": "1f:bce56b995981b340f3f8ff298dfe4bb766549e79ea1d948d0b96d846ccc745e2",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/inbound.mjs and src/quoted-words.mjs (the callers) and then deletes src/untrusted-text.mjs, src/untrusted-text.json and test/untrusted-text.test.mjs"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/untrusted-text.json",
+   "multihash": "1f:b4bad998e9bab508b551a597dd8305a2757af459dde2fbfcc915539bec74839f",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/inbound.mjs and src/quoted-words.mjs (the callers) and then deletes src/untrusted-text.mjs, src/untrusted-text.json and test/untrusted-text.test.mjs"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/quote-untrusted-words/read-data/untrusted-text.mjs"
+  },
+  {
+   "path": "tools/quote-untrusted-words/read-data/untrusted-text.json"
+  }
+ ],
+ "preserve": [
+  "order is fixed: normalise (NFC), strip control and format characters, escape '<' and its lookalikes, then truncate",
+  "bidi overrides, zero-width characters and the byte order mark are removed; newline and tab are kept",
+  "'<' and its full-width and angle-bracket lookalikes become '&lt;'",
+  "truncation counts code points, never splits a surrogate pair or an escape, and ends with the ellipsis inside the limit",
+  "every step is a row of untrusted-text.json; nothing in code names a carrier, a tag or a character"
+ ],
+ "allowed_deltas": [
+  "the quote is offered as a pure container row, tool:quote-untrusted-words, by read-data/quote-tools.mjs"
+ ],
+ "banned_substitutions": [
+  "a rewritten copy of this job",
+  "a second live copy kept in Trillion-X/trillion after its deleted_by"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:bce56b995981b340f3f8ff298dfe4bb766549e79ea1d948d0b96d846ccc745e2",
+  "target_multihash_at_baseline": "1f:bce56b995981b340f3f8ff298dfe4bb766549e79ea1d948d0b96d846ccc745e2",
+  "recorded_at": "2026-11-03T21:00:00Z",
+  "rows": [
+   {
+    "path": "tools/quote-untrusted-words/read-data/untrusted-text.mjs",
+    "source_multihash": "1f:bce56b995981b340f3f8ff298dfe4bb766549e79ea1d948d0b96d846ccc745e2",
+    "target_multihash_at_baseline": "1f:bce56b995981b340f3f8ff298dfe4bb766549e79ea1d948d0b96d846ccc745e2"
+   },
+   {
+    "path": "tools/quote-untrusted-words/read-data/untrusted-text.json",
+    "source_multihash": "1f:b4bad998e9bab508b551a597dd8305a2757af459dde2fbfcc915539bec74839f",
+    "target_multihash_at_baseline": "1f:b4bad998e9bab508b551a597dd8305a2757af459dde2fbfcc915539bec74839f"
+   }
+  ],
+  "commit": "c5ed66b0e3d5fffe4ed6f8416617783be59892bc"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.8,
+  "required_mechanisms": [
+   "export function quoteUntrusted",
+   "text.normalize(data.normalize)",
+   "data.strip.categories",
+   "data.escape.rows",
+   "data.default_max_code_points",
+   "data.ellipsis"
+  ],
+  "test_refs": [
+   "tools/quote-untrusted-words/test/untrusted-text.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

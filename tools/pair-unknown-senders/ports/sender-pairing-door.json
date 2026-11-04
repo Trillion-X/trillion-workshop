@@ -1,0 +1,57 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-PAIR-UNKNOWN-SENDERS-FROM-TRILLION-DOOR",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "Every job of old trillion ends as a Workshop tool; a Workshop tool reaches the person's records through the records door."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "pair an unknown sender, approve a pairing code, unpair a sender and list paired senders, reading and writing the person's own sender-pairing records through their records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/pair-unknown-senders/read-data/pairing-tools.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pair-unknown-senders/",
+   "why": "This tool itself: the pairing is read-data/sender-pairing.mjs, moved byte for byte from trillion src/sender-pairing.mjs (ports/sender-pairing.json); this file only hands it facts kept as the person's records."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "pair an unknown sender, approve a pairing code, unpair a sender and list paired senders, reading and writing the person's own sender-pairing records through their records door",
+    "pair an unknown sender through the records door",
+    "approve a pairing code",
+    "pairing facts over the records door"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "factsOverDoor",
+    "pairingFor"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "02aa88a30db2f3bb1881b62b04dca782f2250f5c"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/pair-unknown-senders/test/sender-pairing.test.mjs"
+  ]
+ }
+}
