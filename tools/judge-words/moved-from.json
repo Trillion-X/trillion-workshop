@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/judge-words/do-work/judge-words.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/judge-words/parts/judge-words/do-work/judge-words.mjs",
+      "source_identity": "1f:f2b641945255760ef64d0700dbf5d9989c1dd1815d91b1b12f89880e8ccaeb06",
+      "identity": "1f:f2b641945255760ef64d0700dbf5d9989c1dd1815d91b1b12f89880e8ccaeb06"
+    },
+    {
+      "from": "test/copy-word-coverage.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/judge-words/test/copy-word-coverage.test.mjs",
+      "source_identity": "1f:6c14d16dc05d9f3e71d61bf01a7da9f8da974194f75978b94aa88aebd03d124d",
+      "identity": "1f:6c14d16dc05d9f3e71d61bf01a7da9f8da974194f75978b94aa88aebd03d124d"
+    }
+  ]
+}
