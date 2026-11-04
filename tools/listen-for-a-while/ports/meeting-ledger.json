@@ -1,0 +1,62 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MEETING-LEDGER-FROM-THE-MAC-LISTENER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-computer-computer",
+  "message_multihash": "1f:827e11f497beb5bc3eae6bc96581694c3c297dc90ac9bd52a6850ff0fd40122a",
+  "quote": "Move the meeting ledger and other-AI-app modules of old trillion computer/ into trillion-workshop tools: move code, never rewrite it; port the correct parts one to one with their original tests and assertions, and drop only Cloudflare Worker coupling, fixed addresses and the old Mac host's wiring."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "computer/meeting-ledger.mjs",
+   "multihash": "1f:d81bd3c6fadd3634baa5385421cd13474928dad131151af47e5176abd033245f",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T12:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/listen-for-a-while/read-data/meeting-ledger.mjs",
+   "baseline_commit_message": "Move meeting-ledger, open-in-ai and other-ai-files byte for byte from old trillion computer/"
+  }
+ ],
+ "preserve": [
+  "liveness is decided when read, from the heartbeat age; nothing sweeps and nothing is rewritten",
+  "a line that is only text a hearing model makes up out of silence is left out, never sent",
+  "every number, phrase and word is the JSON next to the module"
+ ],
+ "allowed_deltas": [
+  "the header names the Workshop listener (read-data/listen-for-a-while.mjs) instead of the Mac listener"
+ ],
+ "banned_substitutions": [
+  "a second list of made-up phrases in the listener",
+  "a sweep that rewrites a finished listening"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:d81bd3c6fadd3634baa5385421cd13474928dad131151af47e5176abd033245f",
+  "target_multihash_at_baseline": "1f:d81bd3c6fadd3634baa5385421cd13474928dad131151af47e5176abd033245f",
+  "commit": "352f4111bbf3338a6132e52225ab3706bb4ba624",
+  "recorded_at": "2026-11-03T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export function isFalseText",
+   "export function livenessOf",
+   "export function jobState"
+  ],
+  "test_refs": [
+   "tools/listen-for-a-while/test/meeting-ledger.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_old_copy": "Still imported by computer/listen.mjs on Trillion-X/trillion main: duplicate until that caller moves."
+}

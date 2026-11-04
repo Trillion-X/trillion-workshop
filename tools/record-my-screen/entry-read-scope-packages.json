@@ -1,0 +1,11 @@
+{
+  "kind": "bitfield-entry-read-scope-packages",
+  "entries": [
+    {
+      "entry_name": "screen-recording",
+      "read_scope_package_data_packages": [
+        "sidebar"
+      ]
+    }
+  ]
+}

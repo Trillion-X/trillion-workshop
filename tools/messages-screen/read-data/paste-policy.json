@@ -1,0 +1,13 @@
+{
+  "_what": "What a paste into a composer becomes (parts/chat/read-data/paste-policy.mjs). Text longer than `long_text_chars` becomes a named text file attachment instead of filling the field; a pasted image attaches only when the clipboard's markup carries no text of its own (a copied web page carries both, and its text is what was meant; `markup_skip` names the tags whose bodies are never words); everything else is a normal paste, so the editor's own undo keeps working. `file_name` and `words` are what the person sees; the attachment can be taken back with the undo the composer offers.",
+  "long_text_chars": 5000,
+  "file_name": "Pasted text {stamp}.txt",
+  "media_type": "text/plain",
+  "image_prefix": "image/",
+  "markup_skip": ["style", "script"],
+  "words": {
+    "attached_text": "A long paste ({count} characters) became the attachment {name}.",
+    "attached_images": "{count} pasted image(s) were attached.",
+    "undo": "Undo"
+  }
+}

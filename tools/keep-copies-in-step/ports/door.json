@@ -1,0 +1,58 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-KEEP-COPIES-IN-STEP-DOOR",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: empty trillion-rust product/ in parallel lanes, lane 4",
+  "message_multihash": "1f:13036fc8f75273156b9e6e722b129b4d38d2709fe03d90c77c8d9b1c67e29fb6",
+  "quote": "For catch-up: delete the old catch-up files, the GET /catch-up route [...]. The tool is keep-copies-in-step, from old trillion src/catch-up.mjs and its tests. Move code, never rewrite it."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "see if my copies are in step, say how this device stands and settle two versions, reading and writing the person's own rows through their records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/keep-copies-in-step/do-work/copies.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-copies-in-step/",
+   "why": "This tool itself: the decisions are read-data/catch-up.mjs, moved byte for byte from trillion src/catch-up.mjs (ports/catch-up.json); this file only reads the person's rows through the records door for it and writes back what it chose."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "see if my copies are in step, say how this device stands and settle two versions, reading and writing the person's own rows through their records door",
+    "see if my copies are in step through the records door",
+    "say how this device stands",
+    "settle two versions through the records door"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "seeIfMyCopiesAreInStep",
+    "sayHowThisDeviceStands",
+    "settleTwoVersions"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "2fbb1037e1c69f2f91b563478b4434109840c43d"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b4e3c05abe5660652a58c054fba304efe4cee49e"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/keep-copies-in-step/test/copies.test.mjs"
+  ]
+ }
+}

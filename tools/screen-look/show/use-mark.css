@@ -1,0 +1,19 @@
+/* packages/screen-look/show/use-mark.css
+   The look of the shared UseMark (packages/ui/show/use-mark): one small disc on
+   a picture's corner, the way Photos marks the few photos that carry a state.
+   The stage's tone is a thin ring, never a fill, so the mark stays quiet on
+   any picture; destinations draw as their own logos on a light chip. */
+.use-mark{display:inline-flex;align-items:center;gap:2px;height:20px;min-width:20px;padding:0 4px;border-radius:999px;color:#fff;
+  background:rgb(0 0 0 / .46);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  box-shadow:0 0 0 1.5px var(--use-mark-ring,rgb(255 255 255 / .5)),0 1px 2px rgb(0 0 0 / .28);pointer-events:auto;cursor:default;outline:none}
+.use-mark:focus-visible{box-shadow:0 0 0 2px var(--t-color-blue,#3b82f6),0 1px 2px rgb(0 0 0 / .28)}
+
+.use-mark[data-tone="blue"]{--use-mark-ring:var(--t-tag-text-blue,#4f6bd8)}
+.use-mark[data-tone="green"]{--use-mark-ring:var(--t-tag-text-green,#2f8a55)}
+.use-mark[data-tone="yellow"]{--use-mark-ring:var(--t-tag-text-yellow,#b07d00)}
+.use-mark[data-tone="purple"]{--use-mark-ring:var(--t-tag-text-purple,#7a48b0)}
+
+/* In a table or board cell there is no picture behind it: keep it the same
+   size, drop the glass. */
+
+@media (prefers-reduced-motion:no-preference){.use-mark{transition:transform .12s ease}.use-mark:hover{transform:scale(1.08)}}

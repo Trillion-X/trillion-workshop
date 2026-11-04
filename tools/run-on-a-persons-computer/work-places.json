@@ -1,0 +1,45 @@
+{
+  "_what": "The places on this computer the person shares with their AIs, and the person's hold on them (computer/work-places.mjs is blind; every place and every word is here). A kind with `singleton` exists without being made. `person_input` on a kind means the person's own keyboard and pointer reach that place: their last input, read by the top-level `person_input` row, holds the place for `limits.idle_ttl_ms` (input the AI's own action made, within `limits.acted_slack_ms` of it, is not theirs). The person takes a place over for at most `limits.longest_take_over_minutes` and hands it back with the key given at take over; `file` keeps the holds and `folder` the person's hand-back keys.",
+  "file": "~/.trillion/work-places/places.json",
+  "folder": "~/.trillion/work-places",
+  "kinds": {
+    "this-mac": {
+      "singleton": true,
+      "person_input": true
+    }
+  },
+  "limits": {
+    "acted_slack_ms": 750,
+    "default_take_over_minutes": 15,
+    "idle_ttl_ms": 5000,
+    "longest_take_over_minutes": 120,
+    "note_chars": 300,
+    "output_bytes": 65536,
+    "step_timeout_ms": 120000
+  },
+  "person_input": {
+    "argv": [
+      "ioreg",
+      "-c",
+      "IOHIDSystem",
+      "-d",
+      "4",
+      "-r"
+    ],
+    "pattern": "\"HIDIdleTime\" = (\\d+)",
+    "units_per_ms": 1000000,
+    "_what": "The Mac's own count of how long since the last keyboard or pointer input (nanoseconds), read without any permission."
+  },
+  "words": {
+    "already_taken": "The person already has {place} until {until}.",
+    "handed_back": "{place} is the AIs' again.",
+    "kept_file": "The places file could not be read, so nothing was changed: {error}",
+    "not_taken": "Nobody has taken over {place}; it is already the AIs'.",
+    "person_has_it": "The person took over {place} at {since} and has it until {until}. Do not act there until they hand it back; look at it if you need to.",
+    "person_using_it": "The person is using {place} right now (their last input was {seconds} seconds ago). Wait until they have left it alone for {ttl} seconds.",
+    "taken_over": "You have {place} until {until}. Your AIs are refused there until you hand it back.",
+    "told_handed_back": "The person had {place} from {since} to {until} and handed it back{note}. Look at it again before you act.",
+    "unknown_place": "There is no place called {place} on this computer. The places are: {places}.",
+    "wrong_key": "That is not the key the person was given when they took over {place}."
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "_what": "Every kind of surface Trillion draws, opened once per look (scripts/check-one-look-rendered.mjs, run by scripts/deploy-worker.mjs beside the visual check, and by hand). The stand-in person wears each look in `looks`; each surface is opened in each window; the tokens a person sees are read (body background and text, the body face, the first heading's face, the primary button's fill, text and corner) and must be the SAME on every surface that wears the same look. A surface that wears a look the person did not choose (a signed-out page wears the starting look) is compared with the others wearing that look. Also refused: a picture that did not load, and a hard band (a bar pinned to the top or bottom of a scroll area, opaque, unlike the area it sits on, with no mask or gradient edge). The one-look rules (parts/screen-look/one-look-rules.json) judge the files; this judges the pixels.",
+  "origin": "https://app.gettrillion.ai",
+  "kept_look_key": "trillion.screen-look.last-account",
+  "person": "one-look-person",
+  "looks": ["start", "trillion-black", "paper"],
+  "windows": [
+    { "id": "1280", "width": 1280, "height": 800 },
+    { "id": "390", "width": 390, "height": 844 }
+  ],
+  "open_within_ms": 45000,
+  "settle_ms": 1200,
+  "tolerance": { "channel": 2, "radius_px": 0.5 },
+  "tokens": {
+    "background": "the page's painted background",
+    "text": "the body text colour",
+    "face": "the body face (first family)",
+    "headingFace": "the first heading's face (first family)",
+    "primaryBackground": "the primary button's fill",
+    "primaryColor": "the primary button's text",
+    "primaryRadius": "the primary button's corner, in pixels"
+  },
+  "anchors": {
+    "_what": "Tokens that must also be what the worn look itself names, so every surface being wrong the same way is refused too. Each is a look variable (parts/screen-look/read-data/resolve-screen-look-palette.js).",
+    "face": "--font-primary",
+    "headingFace": "--font-display",
+    "primaryBackground": "--button-primary-bg",
+    "primaryColor": "--button-primary-text",
+    "primaryRadius": "--radius-control"
+  },
+  "fixtures": {
+    "list": { "label": "One look", "icon": "ListChecks", "about": "Rows for the one-look check.", "title_field": "name",
+      "fields": [{ "id": "name", "label": "Name", "kind": "text" }, { "id": "stage", "label": "Stage", "kind": "choice", "choices": ["Lead", "Talking", "Paying"] }],
+      "rows": [{ "values": { "name": "Ada Lovelace", "stage": "Paying" } }, { "values": { "name": "Grace Hopper", "stage": "Talking" } }] },
+    "ai_client": "Trillion drive keeper"
+  },
+  "surfaces": [
+    { "id": "workspace-failure", "says": "the workspace failure screen (start() rejects: the chunks it awaits answer 500)", "phase": "before-ai",
+      "route": "/lists/{list}", "signed_in": true, "wears": "worn",
+      "kept_look": "a returning person: the look this device kept for the account is all the page has when the account cannot be read (workspace/main.tsx)", "fail_requests": ["needs-you-hold", "/looks-[A-Z0-9]+\\.js"],
+      "wait_for_text": "Your workspace could not open",
+      "read": { "heading": ".screen-state-title, h1, h2", "primary": { "text": "Try again" } }, "expects": ["background", "text", "face", "headingFace", "primaryBackground", "primaryRadius"] },
+    { "id": "workspace-list", "says": "a workspace list screen (its Add row button is the list's own action: outlined, so only its corner is compared)", "phase": "with-ai",
+      "route": "/lists/{list}", "signed_in": true, "wears": "worn", "wait_for_text": "Ada Lovelace", "gone": "trillion-cover", "named_icons": true,
+      "read": { "heading": "main h1, main h2, [role=tabpanel] h1, [role=tabpanel] h2, h1, h2", "primary": { "selector": "[data-slot=button]", "text": "Add row", "keep": ["radius"] } },
+      "expects": ["background", "text", "face", "primaryRadius"] },
+    { "id": "share-page", "says": "/share/<code> for a share the stand-in made, signed out", "phase": "with-ai",
+      "route": "{share}", "signed_in": false, "wears": "worn",
+      "read": { "primary": { "selector": ".page-action, a[class*=button], button", "keep": ["radius"] } }, "expects": ["background", "text", "face", "headingFace", "primaryRadius"] },
+    { "id": "public-sign-in", "says": "a public page (/sign-in), which wears the starting look", "phase": "with-ai",
+      "route": "/sign-in", "signed_in": false, "wears": "start",
+      "read": { "primary": { "selector": "button[type=submit], .page-action" } }, "expects": ["background", "text", "face", "headingFace", "primaryBackground", "primaryRadius"] },
+    { "id": "screen-widget", "says": "the screen widget document (src/screen-view.mjs screenResources: scripts and linked sheets blocked, so the carried css alone must wear the look; its failed state is drawn into it)", "phase": "with-ai",
+      "document": "screen-widget", "wears": "worn", "csp": "script-src 'none'; style-src 'unsafe-inline'; font-src data:; img-src data:",
+      "fixture": { "into": "body > div", "tree": { "tag": "div", "attrs": { "data-slot": "empty", "class": "screen-state", "data-screen-state": "failed" }, "children": [
+        { "tag": "h2", "attrs": { "class": "screen-state-title" }, "text": "This screen could not open" },
+        { "tag": "p", "attrs": { "class": "screen-state-description" }, "text": "Try again in a moment." },
+        { "tag": "div", "attrs": { "class": "screen-state-actions" }, "children": [{ "tag": "button", "attrs": { "type": "button", "data-slot": "button", "data-variant": "default" }, "text": "Try again" }] }] } },
+      "read": { "heading": ".screen-state-title", "primary": { "selector": "[data-slot=button]" } }, "expects": ["background", "text", "face", "primaryBackground", "primaryRadius"] },
+    { "id": "email", "says": "an email (emailMessageHtml with the worn look's palette)", "phase": "with-ai",
+      "document": "email", "wears": "worn",
+      "read": { "text": "p", "faceFrom": "table table", "heading": "h2", "primary": { "selector": "a[href]", "text": "Open" } },
+      "expects": ["background", "text", "face", "headingFace", "primaryBackground", "primaryColor", "primaryRadius"] },
+    { "id": "welcome-tour", "says": "the welcome tour shell (/?tour=first-run, its Connect step)", "phase": "with-ai",
+      "route": "/?tour=first-run", "signed_in": true, "wears": "worn", "wait_for": "[role=dialog]", "gone": "trillion-cover",
+      "steps": [{ "do": "press", "names": ["Show me around"], "optional": true, "settle_ms": 800 }],
+      "read": { "heading": "[role=dialog] h1, [role=dialog] h2, [role=dialog] h3", "primary": { "within": "[role=dialog]", "selector": "button", "text": "Next" } },
+      "expects": ["text", "face", "primaryBackground", "primaryRadius"] },
+    { "id": "site-article-cards", "says": "the public site's article cards (a separate project, gettrillion.ai; opened only when --site names it)", "phase": "with-ai",
+      "site": true, "route": "/", "signed_in": false, "wears": "start", "read": { "heading": "#latest-articles h2, h1", "primary": { "selector": "a[class*=button], .page-action, a[class*=cta]" } },
+      "expects": ["background", "text", "face"] }
+  ],
+  "hard_band": {
+    "_what": "A pinned bar that is meant to read as a bar, never as a cut-off. Each row: `surface` (an id, or '*'), `match` (a regular expression over the finding), `why`.",
+    "allow": []
+  }
+}

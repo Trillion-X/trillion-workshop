@@ -1,0 +1,5 @@
+{
+  "public": [
+    "read-data/score-candidates.ts"
+  ]
+}

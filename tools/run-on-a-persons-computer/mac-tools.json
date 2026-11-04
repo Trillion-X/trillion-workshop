@@ -1,0 +1,384 @@
+{
+ "_what": "The tools this Mac keeps for its person's Trillion, run by computer/mac-tools.mjs (started beside the connection by harness/wake-sessions.mjs). `agent` is the card it publishes and the agent id placement:your-computer names (records/workshop-placement-records.json settings.agent_id), so a run of any tool on that placement is handed here. `tools` maps each Workshop tool id to the module (relative to computer/) and the export in its tool table that answers it (each called with the run's input and { origin, key } of the account, for a tool that reads one of the person's files); a tool id not listed is answered in `words.not_kept`. `capacity` is how many runs it takes at once and how long that claim lasts; `renew_minutes` how often the card and claim are sent again; `live_retry_ms` the waits before reconnecting the account's live socket. `on_start` rows are called once when the host begins, so a tool picks up where it left off after a restart. A new tool on this Mac is a row here plus its function, never a change to mac-tools.mjs. computer_scope reads the existing reader-owned computer identity without creating it. scoped_tools lists only tools needing an exact-computer receiver. The same host advertises those on agent_prefix plus the actual ID whenever this Mac carries their module (they ship inside the signed app, so an installed set that does not name them never hides them), excludes them from its legacy card, and drains both queues fairly under one aggregate execution limit; it does not add a service or polling loop. `result_outbox.file` keeps completed native answers until the exact account accepts them. `account_identity_retry_ms` gives capped startup recovery waits; tools remain closed until account verification and stop cancels recovery. `host_log` is what the host does with each line it logs (computer/host-log.mjs): `sealed` keeps it in a sealed file for the reader whose base64 public key is set (off while null), `report_when` sends a sampled, scrubbed report of kind `kind` for a line matching `pattern` (it needs a sink in computer/sampled-report.json). A tools row may carry `isolate` ({ timeout_ms, max_old_generation_mb, stop_grace_ms }): that tool's calls then run in a worker of their own (computer/isolated-run.mjs), so one that hangs or leaks ends only itself. A tools or on_start row may name `workshop` and `function` instead of `module`, `export` and `name`: the module's path in the trillion-workshop package (computer/package.json; tools/<folder>/...mjs) and its exported function, called as fn(input, context) the way that repository runs it, so a tool whose code moved to the Workshop runs that one copy here. Such a row may list `door`, the operations on the person's files it may use (context.door.files, over the account with this host's key), and `with`, values handed in from a file beside this one ({ file, field }). A tools row may carry `place` (a place of computer/work-places.json, such as this-mac): the tool acts there, so its runs are refused while the person has taken that place over, and the first run after they hand it back says so (`told`).",
+ "origin": "https://app.gettrillion.ai",
+ "agent": {
+  "agent_id": "computer-tools",
+  "name": "Tools on this computer",
+  "description": "Runs the tools this computer keeps for the person's Trillion: its drives (list, eject, copy or move between them, and the work running on them), and listening (turn it on or off, the people it can name, enroll someone, who is in a recording or picture), holding the computer quiet for a session, and printing a file from the person's files on a printer the computer has (Focus on, distracting apps kept closed until a time). It also answers model calls with the models this computer serves, before any paid service is asked, and says words out loud in the person's chosen natural voice with a speech model on the computer, keeping the sound in their files.",
+  "harness": "trillion-computer",
+  "where": "this computer"
+ },
+ "capacity": {
+  "max_concurrent": 4,
+  "ttl_minutes": 120
+ },
+ "renew_minutes": 5,
+ "take_gap_ms": 2000,
+ "result_outbox": {
+  "file": ".trillion/mac-tool-results.json"
+ },
+ "account_identity_retry_ms": [
+  2000,
+  5000,
+  15000,
+  30000,
+  60000
+ ],
+ "live_retry_ms": [
+  2000,
+  5000,
+  15000,
+  30000,
+  60000
+ ],
+ "tools": {
+  "tool:trillion-media-drives": {
+   "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
+   "function": "listDrives"
+  },
+  "tool:trillion-media-drive-icon": {
+   "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
+   "function": "getADriveIcon"
+  },
+  "tool:trillion-media-drive-kinds": {
+   "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
+   "function": "seeWhatKindsOfFileADriveHolds"
+  },
+  "tool:trillion-media-drive-folder": {
+   "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
+   "function": "listADriveFolder"
+  },
+  "tool:trillion-media-drive-holders": {
+   "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
+   "function": "nameWhatHoldsThisDrive"
+  },
+  "tool:trillion-media-work": {
+   "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
+   "function": "listDriveWork"
+  },
+  "tool:trillion-media-work-control": {
+   "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
+   "function": "controlDriveWork"
+  },
+  "tool:trillion-media-transfer": {
+   "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
+   "function": "copyOrMoveBetweenDrives",
+   "hand": { "note_written": { "file": "own-writes.mjs", "export": "noteOwnWrite" } }
+  },
+  "tool:trillion-media-eject": {
+   "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
+   "function": "ejectADrive"
+  },
+  "tool:ask-a-model": {
+   "module": "./local-models.mjs",
+   "export": "localModelTools",
+   "name": "ask"
+  },
+  "tool:get-free-models": {
+   "module": "./local-models.mjs",
+   "export": "localModelTools",
+   "name": "fit"
+  },
+  "tool:hear-a-recording": {
+   "module": "./listen.mjs",
+   "export": "listeningTools",
+   "name": "transcribe"
+  },
+  "tool:hear-a-link": {
+   "module": "./hear-a-link.mjs",
+   "export": "linkTools",
+   "name": "hear"
+  },
+  "tool:say-with-a-voice-model": {
+   "module": "./speak.mjs",
+   "export": "speakTools",
+   "name": "say"
+  },
+  "tool:voices": {
+   "module": "./speak.mjs",
+   "export": "speakTools",
+   "name": "voices"
+  },
+  "tool:run-an-app-job": {
+   "module": "./app-job.mjs",
+   "export": "appJob",
+   "name": "run"
+  },
+  "tool:build-native-app": {
+   "module": "./native-app-build.mjs",
+   "export": "nativeAppBuild",
+   "name": "build"
+  },
+  "tool:listen": {
+   "module": "./listen.mjs",
+   "export": "listeningTools",
+   "name": "listen"
+  },
+  "tool:people-listening-can-name": {
+   "module": "./listen.mjs",
+   "export": "listeningTools",
+   "name": "people"
+  },
+  "tool:enroll-someone": {
+   "module": "./listen.mjs",
+   "export": "listeningTools",
+   "name": "enroll"
+  },
+  "tool:who-is-in-this": {
+   "module": "./listen.mjs",
+   "export": "listeningTools",
+   "name": "who"
+  },
+  "tool:hear-for-a-device": {
+   "module": "./listen.mjs",
+   "export": "listeningTools",
+   "name": "hear"
+  },
+  "tool:keep-trillion-in-your-instructions": {
+   "module": "./harness-instructions.mjs",
+   "export": "instructionTools",
+   "name": "keep"
+  },
+  "tool:hold-a-device-quiet": {
+   "workshop": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+   "function": "holdADeviceQuiet",
+   "with": { "keep_open_rows": { "file": "computer-sources.json", "field": "sources" } }
+  },
+  "tool:release-a-device": {
+   "workshop": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+   "function": "releaseADevice",
+   "with": { "keep_open_rows": { "file": "computer-sources.json", "field": "sources" } }
+  },
+  "tool:device-holds": {
+   "workshop": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+   "function": "deviceHolds",
+   "with": { "keep_open_rows": { "file": "computer-sources.json", "field": "sources" } }
+  },
+  "tool:focus": {
+   "workshop": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+   "function": "focus",
+   "with": { "keep_open_rows": { "file": "computer-sources.json", "field": "sources" } }
+  },
+  "tool:printers": {
+   "workshop": "tools/print-here/read-data/print-here.mjs",
+   "function": "printers"
+  },
+  "tool:print": {
+   "workshop": "tools/print-here/read-data/print-here.mjs",
+   "function": "print",
+   "door": ["find_file", "read_file"]
+  },
+  "tool:trillion-media-file-places": {
+   "workshop": "tools/work-on-connected-drives/read-data/file-places.mjs",
+   "function": "findEveryPlaceAFileIs"
+  },
+  "tool:read-app-distribution": {
+   "module": "./app-distribution.mjs",
+   "export": "appDistributionTools",
+   "name": "read"
+  },
+  "tool:fulfill-setup-access": {
+   "module": "./setup-access.mjs",
+   "export": "setupAccessTools",
+   "name": "fulfill"
+  },
+  "tool:manage-harness": {
+   "module": "./harness-setup.mjs",
+   "export": "harnessSetupTools",
+   "name": "manage"
+  },
+  "tool:look-at-the-screen": {
+   "module": "./drive-the-screen.mjs",
+   "export": "screenTools",
+   "name": "look",
+   "isolate": {
+    "timeout_ms": 120000,
+    "max_old_generation_mb": 512,
+    "stop_grace_ms": 500,
+    "sleep_check_ms": 5000,
+    "sleep_gap_ms": 15000
+   }
+  },
+  "tool:find-on-the-screen": {
+   "module": "./drive-the-screen.mjs",
+   "export": "screenTools",
+   "name": "find",
+   "isolate": {
+    "timeout_ms": 120000,
+    "max_old_generation_mb": 512,
+    "stop_grace_ms": 500,
+    "sleep_check_ms": 5000,
+    "sleep_gap_ms": 15000
+   }
+  },
+  "tool:drive-the-screen": {
+   "module": "./drive-the-screen.mjs",
+   "export": "screenTools",
+   "name": "drive",
+   "place": "this-mac",
+   "isolate": {
+    "timeout_ms": 120000,
+    "max_old_generation_mb": 512,
+    "stop_grace_ms": 500,
+    "sleep_check_ms": 5000,
+    "sleep_gap_ms": 15000
+   }
+  },
+  "tool:screen-actions": {
+   "module": "./drive-the-screen.mjs",
+   "export": "screenTools",
+   "name": "actions",
+   "isolate": {
+    "timeout_ms": 120000,
+    "max_old_generation_mb": 512,
+    "stop_grace_ms": 500,
+    "sleep_check_ms": 5000,
+    "sleep_gap_ms": 15000
+   }
+  },
+  "tool:read-a-computer": {
+   "module": "./program-host.mjs",
+   "export": "programTools",
+   "name": "reader",
+   "program": "reader"
+  },
+  "tool:carry-connections": {
+   "module": "./program-host.mjs",
+   "export": "programTools",
+   "name": "connections",
+   "program": "connections"
+  }
+ },
+ "program_host": {
+  "_what": "How computer/program-host.mjs runs this Mac's programs by what the account has installed. It reads `installations_route` (GET, the helper's key reaches it with the account's private reach) when the host begins and at every renewal, takes the tool components of the installation rows whose `follows` starts with `follows_prefix` (less each row's `without`), and runs the `programs` whose tool_id is among them; the Mac's card lists exactly the installed `tools`. With no such row, a read that failed or no network, it runs `legacy` and publishes every tool but those of a program (a tool row with `program`), as before this existed, and a failed read stops nothing. `file` (under the home folder) is the last set it read, which the computer reader consults before it starts a piece it hosts. Programs start only in a helper the app started (`app_flag`: the key arrives on standard input). A program that fails to stay up `quick_failures_before_degrade` times in a row (a run shorter than its `restart_seconds.steady_seconds`) is left stopped and reported degraded until the next look at the account; a program recipe may set its own `quick_failures_before_degrade`, and leaving it out of both means the program is restarted without end.",
+  "installations_route": "/marketplace/configurations/installations",
+  "follows_prefix": "trillion-",
+  "file": ".trillion/installed-programs.json",
+  "legacy": [
+   "reader",
+   "connections"
+  ],
+  "app_flag": "--key-stdin",
+  "stop_grace_seconds": 5,
+  "quick_failures_before_degrade": 12
+ },
+ "programs": {
+  "_what": "The programs the Mac can run, by id. A program with an `entry` (relative to computer/) is started as a child of the helper on the runtime the app carries, with `args`, the account key as the first line of its standard input, and the restart waits in `restart_seconds` (the first wait, the longest, and how long a run must last before the wait starts again from the first; `budget` { restarts, within_seconds, rest_seconds } gives up on a program that exits more than `restarts` times inside `within_seconds`, leaves it alone for `rest_seconds`, and the next look at the account then starts it again); each ends with the helper (computer/end-with-the-app.mjs). `tool_id` is the Workshop tool whose installation turns it on. A program with `inside` is a piece another program hosts: `follow` \"always\" keeps it on whatever is installed (until its own tool row exists), \"installed\" turns it on only with its tool_id. The recipes are copied from the app's former children rows (macos/computer-reader.json); a recipe is never taken from the server.",
+  "reader": {
+   "tool_id": "tool:read-a-computer",
+   "entry": "read-this-computer.mjs",
+   "args": [
+    "--keep-reading"
+   ],
+   "restart_seconds": {
+    "first": 1,
+    "most": 60,
+    "steady_seconds": 60,
+    "budget": {
+     "restarts": 20,
+     "within_seconds": 600,
+     "rest_seconds": 900
+    }
+   },
+   "gates": {
+    "keepers": "keep-drive-files",
+    "listener": "listen",
+    "offer": "offer-in-browsers"
+   }
+  },
+  "connections": {
+   "tool_id": "tool:carry-connections",
+   "entry": "carry-connections.mjs",
+   "args": [
+    "--key-stdin"
+   ],
+   "restart_seconds": {
+    "first": 2,
+    "most": 60,
+    "steady_seconds": 60,
+    "budget": {
+     "restarts": 20,
+     "within_seconds": 600,
+     "rest_seconds": 900
+    }
+   }
+  },
+  "keep-drive-files": {
+   "inside": "reader",
+   "follow": "always",
+   "tool_id": null
+  },
+  "listen": {
+   "inside": "reader",
+   "follow": "always",
+   "tool_id": null
+  },
+  "offer-in-browsers": {
+   "inside": "reader",
+   "follow": "always",
+   "tool_id": null
+  }
+ },
+ "startup_leases": {
+  "exit_code": 75,
+  "phases": {
+   "on_start": {
+    "seconds": 300,
+    "extensions": 0
+   },
+   "refresh": {
+    "seconds": 300,
+    "extensions": 0
+   }
+  }
+ },
+ "on_start": [
+  {
+   "workshop": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+   "function": "resumeHolds",
+   "with": { "keep_open_rows": { "file": "computer-sources.json", "field": "sources" } }
+  },
+  {
+   "module": "./open-from-web.mjs",
+   "export": "openFromWebTools",
+   "name": "start"
+  }
+ ],
+ "host_log": {
+  "sealed": {
+   "file": ".trillion/host.sealed.log",
+   "reader_public_key": null,
+   "key_id": "686f737400000000",
+   "content_type": "application/octet-stream"
+  },
+  "report_when": {
+   "pattern": "_failed",
+   "kind": "crash"
+  }
+ },
+ "words": {
+  "not_kept": "This Mac does not keep {tool}.",
+  "no_diagnostics": "This Mac has no sealed host log to send; it is kept only after a reader key is set.",
+  "not_an_object": "Send the tool input as an object.",
+  "failed": "Something went wrong on this computer: {error}",
+  "isolated_duplicate": "The run {id} is already going on this Mac.",
+  "isolated_timeout": "The run {id} did not finish in {seconds} seconds and was stopped; the other runs on this Mac were not touched.",
+  "isolated_memory": "The run {id} used more than {mb} MB and was stopped; the other runs on this Mac were not touched.",
+  "isolated_failed": "The run {id} stopped on an error: {error}",
+  "isolated_asleep": "The run {id} was stopped because this Mac went to sleep; ask again.",
+  "isolated_stopped": "The run {id} was stopped.",
+  "isolated_gone": "The run {id} ended without an answer.",
+  "isolated_malformed": "The run {id} answered in a shape this Mac does not read."
+ },
+ "computer_scope": {
+  "file": ".trillion/computer-sources/computer.json",
+  "field": "computer_id",
+  "skill_prefix": "computer-sources:"
+ },
+ "scoped_tools": {
+  "tool_ids": [
+   "tool:manage-harness"
+  ],
+  "agent_prefix": "computer-tools:"
+ }
+}

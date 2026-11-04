@@ -1,0 +1,19 @@
+{
+  "public": [
+    "do-work/upload-a-folder.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-folder-to-a-namespace.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-without-copies.mjs",
+    "do-work/content-chunks.mjs",
+    "built-stored-bytes/content-chunks",
+    "do-work/content-chunks-browser.mjs",
+    "do-work/send-a-file-to-namespace-browser.mjs",
+    "do-work/blake3.mjs",
+    "do-work/byte-identity.mjs",
+    "do-work/send-window.mjs",
+    "do-work/send-retry.mjs",
+    "send-settings.json",
+    "do-work/shared-file-reference.mjs"
+  ]
+}

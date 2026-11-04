@@ -1,0 +1,37 @@
+/* parts/screen-look/show/usage-meter.css
+ * How a whole split into parts looks (ui/show/usage-meter/UsageMeter.tsx): a rounded track with
+ * segments separated by a hairline gap, and a legend of dots. Each segment's colour is a named
+ * tone: `used` and `free` for taken and free space, and palette tones 1 to 10 for kinds of things,
+ * chosen by the caller's DATA. The palette reads as one family in light and dark looks.
+ * Reference: 21st.dev #26545 "Partition Bar" (8starlabs); Mintlify usage legend (Mobbin). */
+:root{
+  --usage-meter-track:var(--glass-bg-subtle,color-mix(in srgb,var(--text-primary) 8%,transparent));
+  --usage-meter-used:var(--text-primary);
+  --usage-meter-free:color-mix(in srgb,var(--text-primary) 12%,transparent);
+  --usage-meter-1:#3b82f6;
+  --usage-meter-2:#8b5cf6;
+  --usage-meter-3:#ec4899;
+  --usage-meter-4:#f59e0b;
+  --usage-meter-5:#10b981;
+  --usage-meter-6:#06b6d4;
+  --usage-meter-7:#ef4444;
+  --usage-meter-8:#84cc16;
+  --usage-meter-9:#a16207;
+  --usage-meter-10:#64748b;
+}
+.usage-meter-track{background:var(--usage-meter-track);height:10px}
+.usage-meter[data-size="sm"] .usage-meter-track{height:6px}
+.usage-meter-segment:first-child{border-top-left-radius:999px;border-bottom-left-radius:999px}
+.usage-meter-segment:last-child{border-top-right-radius:999px;border-bottom-right-radius:999px}
+[data-tone="used"].usage-meter-segment,[data-tone="used"].usage-meter-dot{background:var(--usage-meter-used)}
+[data-tone="free"].usage-meter-segment,[data-tone="free"].usage-meter-dot{background:var(--usage-meter-free)}
+[data-tone="1"].usage-meter-segment,[data-tone="1"].usage-meter-dot{background:var(--usage-meter-1)}
+[data-tone="2"].usage-meter-segment,[data-tone="2"].usage-meter-dot{background:var(--usage-meter-2)}
+[data-tone="3"].usage-meter-segment,[data-tone="3"].usage-meter-dot{background:var(--usage-meter-3)}
+[data-tone="4"].usage-meter-segment,[data-tone="4"].usage-meter-dot{background:var(--usage-meter-4)}
+[data-tone="5"].usage-meter-segment,[data-tone="5"].usage-meter-dot{background:var(--usage-meter-5)}
+[data-tone="6"].usage-meter-segment,[data-tone="6"].usage-meter-dot{background:var(--usage-meter-6)}
+[data-tone="7"].usage-meter-segment,[data-tone="7"].usage-meter-dot{background:var(--usage-meter-7)}
+[data-tone="8"].usage-meter-segment,[data-tone="8"].usage-meter-dot{background:var(--usage-meter-8)}
+[data-tone="9"].usage-meter-segment,[data-tone="9"].usage-meter-dot{background:var(--usage-meter-9)}
+[data-tone="10"].usage-meter-segment,[data-tone="10"].usage-meter-dot{background:var(--usage-meter-10)}

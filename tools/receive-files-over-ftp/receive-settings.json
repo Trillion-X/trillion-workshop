@@ -1,0 +1,114 @@
+{
+  "what_this_is": "How the receiver on this computer takes files a device pushes over FTP and where it sends them. Every value a person or a device sees is here; the programs in do-work/ read this and name no device, person or place.",
+  "service_origin": "https://app.gettrillion.ai",
+  "account_key": {
+    "keychain_service": "trillion-namespace-key"
+  },
+  "sign_in": {
+    "user": "trillion",
+    "password": {
+      "keychain_service": "trillion-ftp-receiver-password",
+      "length": 12,
+      "alphabet": "abcdefghjkmnpqrstuvwxyz23456789"
+    },
+    "adopt_after_remade": {
+      "_what": "When the receiver's password had to be made again (the keychain lost it, as when macOS resets a login keychain), devices set up earlier still sign in with the old one. For `hours` after it is made again, the first secured sign-in with the receiver's user name keeps the password that device gives as the receiver's own (in the keychain and in Saved logins), so nobody retypes anything on a device. The window is kept in `state_under_app_data` (beside, never inside, the folder files wait in) and closes once any device signs in.",
+      "hours": 72,
+      "state_under_app_data": "Trillion/Camera receiver takes a device's password.json"
+    }
+  },
+  "secure": {
+    "keychain_service": "trillion-ftp-receiver-certificate",
+    "required": true,
+    "days": 3650
+  },
+  "listen": {
+    "port": 2121,
+    "passive_ports": [
+      50100,
+      50119
+    ]
+  },
+  "names": {
+    "under": "/Recordings/Cameras",
+    "folder_per_day": true
+  },
+  "keep_while_sending": {
+    "under_app_data": "Trillion/Received over FTP"
+  },
+  "retry_after_seconds": [
+    30,
+    120,
+    600,
+    1800
+  ],
+  "stay_awake_command": [
+    "/usr/bin/caffeinate",
+    "-i",
+    "-w"
+  ],
+  "launch": {
+    "label": "ai.gettrillion.receive-files-over-ftp",
+    "log_file_under_app_data": "Trillion/Received over FTP/receiver.log"
+  },
+  "media_types": {
+    ".mp4": "video/mp4",
+    ".mov": "video/quicktime",
+    ".mxf": "application/mxf",
+    ".mts": "video/mp2t",
+    ".wav": "audio/wav",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".hif": "image/heif",
+    ".heif": "image/heif",
+    ".arw": "image/x-sony-arw",
+    ".xml": "application/xml"
+  },
+  "know_devices": {
+    "_what": "When the receiver opens (do-work/know-which-devices.mjs). It listens, and tells the account, only once this person has a device in devices.json: one of those models is or was connected to this Mac (`this_mac`: the command whose output names what is attached; a model id or name in it, as a whole word, counts), or a file in their account has a kept `camera` fact naming it (`account`: the read-only account tool `tool` with `limit` rows, asked at most every `every_seconds`), or they turned it on by creating the file `turned_on_file_under_app_data` (or by setting up the launch agent). Until then it asks again every `check_seconds` and opens nothing.",
+    "check_seconds": 180,
+    "this_mac": [
+      "/usr/sbin/system_profiler",
+      "-json",
+      "SPUSBDataType",
+      "SPCameraDataType"
+    ],
+    "account": {
+      "tool": "list_media",
+      "limit": 60,
+      "fact": "camera",
+      "every_seconds": 3600
+    },
+    "turned_on_file_under_app_data": "Trillion/Turn on the camera receiver"
+  },
+  "tell_the_account": {
+    "_what": "What the receiver tells the person's account (do-work/tell-the-account.mjs): its password kept in Saved logins under `login`, and one row per device on the list `row.list_id` (id `row.id` followed by the device's model id, lowercased, or `row.any_id` for a device with no model id) with `row.values` filled in ({device}, {host}, {how}, {steps}, {setup}, {login}: the saved login's title, which the waiting screen shows in place); `password_is` stands in the steps where the password goes. `setup_words` are the words for a device that has none of its own (devices.json `setup_words`); the row keeps them as its `setup_words`, which the waiting card shows. `state_under_app_data` (beside, never inside, the folder files wait in) keeps the address last told and the devices seen sending.",
+    "login": {
+      "title": "Trillion camera receiver on this Mac",
+      "site": "ftp://{host}:{port}",
+      "field": "Password"
+    },
+    "password_is": "the password kept in your Saved logins under \"{title}\" (Connections)",
+    "setup_words": "Turn on FTP sending in the camera's network menu and point it at the address shown",
+    "state_under_app_data": "Trillion/Camera receiver told the account.json",
+    "row": {
+      "list_id": "waiting-on-you",
+      "id": "camera-ftp-to-this-mac",
+      "any_id": "any",
+      "values": {
+        "what": "Have your {device} send each clip to this Mac by itself",
+        "why": "{how} With this, the clips go from the camera to this Mac and on to your Trillion by themselves, with no cable, card or Import tap. It works whenever the camera and this Mac are on the same Wi-Fi: at home, at the office, or both joined to your iPhone's hotspot. On cafe Wi-Fi that keeps devices apart, the cable, the card and your iPhone still carry them.\n\nOn the camera, press MENU and set:\n{steps}\n\nThis Mac's address on this network is {host}. If you join a different network, this step comes back with the new address.",
+        "do_it_in": "https://app.gettrillion.ai/connections?show_section=saved-logins-list&show_row={login_query}",
+        "needs": "The camera's network menu settings, once per network",
+        "only_you_because": "The settings are buttons on the camera itself; nothing can press them remotely.",
+        "unlocks": "Every clip leaves the camera by itself as soon as it is recorded, so the Import tap and the card are no longer needed on this network",
+        "tried": "Trillion for Mac runs the receiver and made its password, which is in your Saved logins. The camera's menus cannot be set from the Mac.",
+        "done_when": "The camera sends its first clip to this Mac; this leaves by itself",
+        "checking": "Waiting for your {device} to send its first clip to {host}",
+        "uses_login": "{login}",
+        "finish": "Checked for you",
+        "asked_by": "Trillion for Mac"
+      }
+    }
+  }
+}

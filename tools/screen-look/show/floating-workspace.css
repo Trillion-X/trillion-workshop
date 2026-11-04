@@ -1,0 +1,8 @@
+.source-conversation[data-layout=floating]{position:fixed;inset:0;z-index:49;pointer-events:none;background:transparent}
+
+.source-conversation{--chrome-header-height:0px;--color-card:var(--card);font:16px/1.5 var(--font-primary,system-ui);color:var(--foreground)}
+.source-conversation[hidden]{display:none}
+.source-conversation[data-layout=floating][hidden]{display:block;visibility:hidden}
+
+.source-conversation[data-layout=inline] .text-foreground,.source-conversation[data-layout=inline] .aui-md{color:var(--foreground)}
+

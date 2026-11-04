@@ -1,0 +1,663 @@
+/* One look for a public link carrying any mix of things. The page supplies section
+   data; the shared page renderer supplies the elements and the media player. */
+.page-layout.page-layout--share {
+  box-sizing: border-box;
+  max-width: 72rem;
+  padding-inline: clamp(1rem, 4vw, 3.5rem);
+}
+
+.page-layout--share .page-main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.page-layout--share .page-main > .page-section {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border: 0;
+}
+
+/* Prose keeps its reading measure; the rest of a mixed share stays page-wide. */
+.page-layout--share .page-main:has(> .page-section > .page-prose) > .page-section {
+  max-width: none;
+  margin-inline: 0;
+}
+
+/* Page headings wear the look's display face, as every other surface's do; the names on a card are text, in its reading face. */
+.page-layout.page-layout--share .page-heading {
+  font-family: var(--page-display);
+}
+.page-layout.page-layout--share .page-card-heading {
+  font-family: var(--page-font);
+}
+
+.page-layout--share .page-section--share-brand {
+  display: flex;
+  min-height: 5rem;
+  align-items: center;
+  gap: .8rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--page-line);
+}
+
+.page-layout--share .page-section--share-brand .page-mark {
+  width: 2.3rem;
+  height: 2.3rem;
+  margin: 0;
+  border-radius: var(--radius-control);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--text-primary) 12%, transparent);
+}
+
+.page-layout--share .page-section--share-brand .page-mark[src^="/brand/current/wordmark.svg"] {
+  width: clamp(7rem, 20vw, 9rem);
+  height: auto;
+  aspect-ratio: 1000 / 352.2;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  object-fit: contain;
+}
+
+.page-layout--share .page-section--share-brand .page-body {
+  margin: 0;
+  color: var(--page-ink);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.page-layout--share .page-section--share-heading {
+  padding: clamp(2.5rem, 6vw, 5rem) 0 2rem;
+}
+
+.page-layout--share .page-section--share-featured {
+  padding: clamp(2rem, 4vw, 3.5rem) 0 clamp(2.5rem, 5vw, 4rem);
+}
+
+.page-layout--share .page-section--share-heading .page-heading,
+.page-layout--share .page-section--share-featured .page-heading {
+  max-width: 21ch;
+  margin: 0;
+  font-size: clamp(2rem, 4.5vw, 3.6rem);
+  line-height: 1.16;
+  overflow-wrap: anywhere;
+}
+
+.page-layout--share .page-section--share-featured .page-body,
+.page-layout--share .page-section--share-entry .page-body {
+  max-width: 70ch;
+  margin-top: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.page-layout--share .page-section--share-entry {
+  padding: 2.25rem 0 2.75rem;
+  border-top: 1px solid var(--page-line);
+}
+
+.page-layout--share .page-section--share-entry .page-heading {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.7vw, 2rem);
+  line-height: 1.22;
+  overflow-wrap: anywhere;
+}
+
+/* A mixed share is a browsable set. Keep the overview close to its navigation;
+   the complete player and detailed record live on the item opened from a card. */
+.page-layout--share .page-section--share-heading:has(+ .page-section--share-collection) {
+  padding: clamp(1.5rem, 3vw, 2.5rem) 0 .5rem;
+}
+
+.page-layout--share .page-section--share-heading:has(+ .page-section--share-collection) .page-heading {
+  max-width: none;
+  font-size: clamp(1.9rem, 3.4vw, 3rem);
+}
+
+.page-layout--share .page-section--share-heading:has(+ .page-section--share-collection) .page-body {
+  margin-top: .35rem;
+  color: var(--page-soft);
+  font-size: .875rem;
+}
+
+.page-layout--share .page-section--share-collection {
+  padding: 0 0 2.25rem;
+}
+
+.page-layout--share .page-section--share-featured + .page-section--share-collection {
+  border-top: 1px solid var(--page-line);
+  padding-top: 1.5rem;
+}
+
+.page-layout--share .page-section--share-featured + .page-section--share-collection .page-heading {
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
+}
+
+.page-layout--share .page-section--share-collection .page-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15.5rem), 1fr));
+  gap: 1rem;
+  margin: 1rem 0 0;
+  columns: auto;
+}
+
+.page-layout--share .page-section--share-collection .page-card {
+  min-width: 0;
+  max-width: 32rem;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  break-inside: auto;
+}
+
+.page-layout--share .page-section--share-collection .page-card-link {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  padding: 0;
+}
+
+.page-layout--share .page-section--share-collection .page-card-cover {
+  position: relative;
+  display: grid;
+  height: auto;
+  max-height: 18rem;
+  aspect-ratio: 16 / 9;
+  place-items: center;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--page-accent) 9%, var(--page-card));
+}
+
+.page-layout--share .page-section--share-collection .page-card-cover::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: var(--page-line);
+  content: '';
+}
+
+.page-layout--share .page-section--share-collection .page-card-cover-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Picture readiness is the shared card's state, regardless of the record behind it.
+   A failed image stays hidden; a type mark never stands in as a successful preview. */
+.page-card-cover-image[hidden],
+.page-card-cover-loading[hidden],
+.page-card-cover-unavailable[hidden] { display: none; }
+.page-card-cover[data-picture-state="loading"] .page-card-cover-image { opacity: 0; }
+.page-card-cover[data-picture-state="loading"] .page-card-cover-glyph,
+.page-card-cover[data-picture-state="ready"] .page-card-cover-glyph { visibility: hidden; }
+.page-card-cover-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.page-card-cover-loading .loading-mark { width: 4rem; height: 1.5rem; }
+.page-card-cover-unavailable {
+  position: absolute;
+  right: .75rem;
+  bottom: .75rem;
+  left: .75rem;
+  color: var(--page-soft);
+  font-family: var(--page-font);
+  font-size: .8125rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.page-layout--share .page-section--share-collection .page-card-cover-glyph {
+  color: var(--page-accent);
+  font-family: var(--page-display);
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.page-layout--share .page-section--share-collection .page-card-cover-text {
+  position: absolute;
+  inset: 2.75rem 1rem .7rem;
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--page-ink);
+  font-family: var(--page-font);
+  font-size: clamp(.95rem, 1.4vw, 1.12rem);
+  line-height: 1.46;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.page-layout--share .page-section--share-collection .page-card-cover-label {
+  position: absolute;
+  z-index: 1;
+  top: .65rem;
+  left: .7rem;
+  padding: .28rem .55rem;
+  border: 1px solid var(--page-line);
+  border-radius: .5rem;
+  background: var(--page-card);
+  color: var(--page-ink);
+  font-size: .75rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.page-layout--share .page-section--share-collection .page-card-heading {
+  margin: .9rem .95rem 1rem;
+  font-size: 1.05rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.page-layout--share .page-section--share-collection .page-card-body {
+  display: -webkit-box;
+  margin: -.55rem .95rem 1rem;
+  overflow: hidden;
+  color: var(--page-soft);
+  font-size: .82rem;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+.page-layout--share .page-section--share-collection .page-card-foot {
+  margin: auto .95rem .85rem;
+}
+
+.page-layout--share .page-section--share-collection .page-item-meta {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font-size: .75rem;
+}
+
+.page-layout--share .page-section--share-collection .page-item-meta::before {
+  display: none;
+}
+
+.page-layout--share .page-pagination {
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  margin: 1.1rem 0 0;
+}
+
+.page-layout--share .page-pagination-pages {
+  display: flex;
+  min-width: 0;
+  gap: .25rem;
+  margin: 0;
+  padding: .2rem;
+  overflow-x: auto;
+  list-style: none;
+}
+
+.page-layout--share .page-pagination-edge,
+.page-layout--share .page-pagination-number {
+  display: grid;
+  min-width: 2.3rem;
+  min-height: 2.3rem;
+  align-items: center;
+  justify-items: center;
+  padding: .3rem .55rem;
+  border: 1px solid var(--page-line);
+  border-radius: var(--radius-control);
+  background: var(--page-card);
+  color: var(--page-ink);
+  font-size: .8rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.page-layout--share .page-pagination-edge--disabled {
+  opacity: .4;
+}
+
+.page-layout--share .page-pagination-number--current {
+  border-color: var(--page-accent);
+  background: var(--page-accent);
+  color: var(--page-accent-text);
+}
+
+.page-layout--share .page-pagination-gap {
+  align-self: center;
+  padding: 0 .25rem;
+  color: var(--page-soft);
+}
+
+.page-layout--share .page-pagination a:is(:hover, :focus-visible),
+.page-layout--share .page-section--share-collection .page-card-link:focus-visible {
+  outline: 2px solid var(--page-accent);
+  outline-offset: 2px;
+}
+
+.page-layout--share .page-section--share-back {
+  padding: 1.25rem 0 0;
+}
+
+.page-layout--share .page-section--share-back .page-actions {
+  margin: 0;
+}
+
+.page-layout--share .page-section--share-entry .page-items {
+  margin-top: 1.4rem;
+}
+
+.page-layout--share .page-section--share-featured .page-media,
+.page-layout--share .page-section--share-entry .page-media {
+  width: 100%;
+  max-height: none;
+  margin: clamp(1.5rem, 3vw, 2.25rem) 0 0;
+  border-radius: var(--radius-card);
+}
+
+.page-layout--share .page-media-player {
+  position: relative;
+  min-height: min(32vw, 24rem);
+  background: var(--bg-surface);
+  box-shadow: 0 24px 70px -38px color-mix(in srgb, var(--text-primary) 60%, transparent);
+}
+
+.page-layout--share .page-media-poster {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.page-layout--share .page-media-mount {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+/* Keep the real still visible while the near-view player mounts. */
+.page-layout--share .page-media-player:not(:has([data-media-playback-surface])) .page-media-mount {
+  display: flex;
+  justify-content: center;
+}
+
+.page-layout--share .page-media-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: .7rem 1.25rem;
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-pill);
+  background: var(--glass-bg-popover);
+  box-shadow: 0 5px 24px color-mix(in srgb, var(--text-primary) 24%, transparent);
+  color: var(--text-primary);
+  font-size: .875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.page-layout--share .page-media-fallback:is(:hover, :focus-visible) {
+  border-color: var(--border-focus);
+  background: var(--glass-bg-popover);
+}
+
+.page-layout--share .page-media-player:has(.page-media-poster) [data-media-playback-browser-source],
+.page-layout--share .page-media-player:has(.page-media-poster) video {
+  background: transparent !important;
+}
+
+.page-layout--share .page-media-player:has([data-media-playback-browser-source]) {
+  min-height: 0;
+  overflow: visible;
+  background: transparent;
+}
+
+.page-layout--share .page-media-player > [data-media-playback-surface],
+.page-layout--share .page-media-player [data-media-playback-browser-source] {
+  width: 100%;
+}
+
+.page-layout.page-layout--share .page-media-player [data-media-fullscreen-transcript] p button {
+  color: rgba(255, 255, 255, .88);
+}
+
+.page-layout.page-layout--share .page-media-player [data-media-fullscreen-transcript] p button[data-fullscreen-transcript-word-active="true"] {
+  color: #fff;
+  background: rgba(255, 255, 255, .22);
+}
+
+.page-layout.page-layout--share .page-media-player [data-media-caption-reader] [data-caption-control] [role="toolbar"] {
+  border-color: rgba(255, 255, 255, .18);
+  background: rgba(15, 15, 15, .85);
+}
+
+.page-layout.page-layout--share .page-media-player [data-media-caption-reader] [data-caption-control] button {
+  color: rgba(255, 255, 255, .82);
+}
+
+.page-layout.page-layout--share .page-media-player [data-media-caption-reader] [data-caption-control] button:is(:hover, :focus-visible, [data-expanded], [data-pinned]) {
+  color: #fff;
+  background: rgba(255, 255, 255, .15);
+}
+
+.page-layout--share .page-section--share-featured .page-actions,
+.page-layout--share .page-section--share-entry .page-actions {
+  gap: .7rem;
+  margin-top: 1.4rem;
+}
+
+.page-layout--share .page-section--share-featured .page-action,
+.page-layout--share .page-section--share-entry .page-action {
+  min-height: 3rem;
+  padding: .7rem 1.15rem;
+  border-radius: var(--radius-control);
+  font-size: .9rem;
+}
+
+.page-layout--share .page-main > .page-section--share-footer {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0 2rem;
+  border-top: 1px solid var(--page-line);
+}
+
+.page-layout--share .page-section--share-footer .page-actions {
+  margin: 0;
+}
+
+.page-layout--share .page-section--share-footer .page-action {
+  align-items: flex-end;
+  gap: .65rem;
+  min-height: 2.75rem;
+  padding: .35rem .75rem;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--page-soft);
+  font-size: .875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.page-layout--share .page-section--share-footer .page-action:hover {
+  background: transparent;
+  color: var(--page-soft);
+  text-decoration: none;
+}
+
+.page-layout--share .page-section--share-footer .page-action:active {
+  transform: none;
+  box-shadow: none;
+}
+
+.page-layout--share .page-section--share-footer .page-action:focus-visible {
+  outline: none;
+}
+
+.page-layout--share .page-section--share-footer .page-action:focus-visible .loading-mark-guide {
+  stroke-opacity: 1;
+  stroke-width: 2.4;
+}
+
+.page-layout--share .page-section--share-footer .page-action-mark-wrap {
+  position: relative;
+  display: inline-block;
+  width: 6.75rem;
+  flex: none;
+  line-height: 0;
+}
+
+.page-layout--share .page-section--share-footer .page-action-mark {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1000 / 352.2;
+  border-radius: 0;
+  object-fit: contain;
+  background: transparent;
+}
+
+.page-layout--share .page-section--share-footer .page-action-mark-wrap .loading-mark {
+  position: absolute;
+  right: 0;
+  bottom: -.35rem;
+  left: 0;
+  width: 100%;
+  height: .65rem;
+  color: var(--page-ink);
+  animation: none;
+}
+
+.page-layout--share .page-section--share-footer .page-action-mark-wrap .loading-mark-guide {
+  stroke: var(--thread-line, var(--accent-primary));
+  stroke-opacity: .8;
+  stroke-width: 1.4;
+  stroke-dasharray: 3 6;
+}
+
+.page-layout--share .page-section--share-footer .page-action-mark-wrap .loading-mark-thread {
+  stroke: var(--thread-line, var(--accent-primary));
+  animation: none;
+}
+
+.page-layout--share .page-section--share-footer .page-action-mark-wrap .loading-mark-needle {
+  opacity: 0;
+  animation: none;
+}
+
+.page-layout--share .page-section--share-footer .page-action:is(:hover, :focus-visible) .loading-mark-thread {
+  animation: loading-mark-thread 1.9s cubic-bezier(.55,0,.35,1) infinite;
+}
+
+.page-layout--share .page-section--share-footer .page-action:is(:hover, :focus-visible) .loading-mark-needle {
+  animation: loading-mark-needle 1.9s cubic-bezier(.55,0,.35,1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-layout--share .page-section--share-footer .page-action:is(:hover, :focus-visible) .loading-mark-thread {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .page-layout--share .page-section--share-footer .page-action:is(:hover, :focus-visible) .loading-mark-needle {
+    animation: none;
+    offset-distance: 100%;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 40rem) {
+  .page-layout--share .page-pagination-pages { gap: .1rem; }
+  .page-layout--share .page-pagination-edge,
+  .page-layout--share .page-pagination-number {
+    box-sizing: border-box;
+    width: 2.25rem;
+    min-width: 2.25rem;
+    min-height: 2.3rem;
+    padding: .2rem;
+  }
+  .page-layout--share .page-section--share-collection .page-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .65rem;
+  }
+  .page-layout--share .page-section--share-collection .page-card-cover { height: clamp(6.2rem, 26vw, 7.8rem); }
+  .page-layout--share .page-section--share-collection .page-card-heading {
+    margin: .65rem .65rem .55rem;
+    font-size: .9rem;
+  }
+  .page-layout--share .page-section--share-collection .page-card-body {
+    margin: -.15rem .65rem .65rem;
+    font-size: .74rem;
+  }
+  .page-layout--share .page-pagination-edge { min-width: 2.3rem; font-size: 0; }
+  .page-layout--share .page-pagination-edge:first-child::after { content: '‹'; font-size: 1.4rem; }
+  .page-layout--share .page-pagination-edge:last-child::after { content: '›'; font-size: 1.4rem; }
+  .page-layout--share .page-section--share-brand { min-height: 4.25rem; }
+  .page-layout--share .page-section--share-featured { padding-top: 2.25rem; }
+  .page-layout--share .page-section--share-entry { padding: 1.8rem 0 2.1rem; }
+  .page-layout--share .page-media-player { min-height: 12rem; }
+  .page-layout--share .page-media-player:has([data-media-fullscreen-transcript]) {
+    padding-bottom: 17rem;
+  }
+  .page-layout--share .page-media-player [data-media-playback-browser-source]:has([data-media-fullscreen-transcript]):not(:fullscreen) {
+    overflow: visible;
+  }
+  .page-layout--share .page-media-player [data-media-playback-browser-source]:has([data-media-fullscreen-transcript]):not(:fullscreen) > video {
+    border-radius: 1rem;
+  }
+  .page-layout--share .page-media-player [data-media-playback-browser-source]:not(:fullscreen) [data-media-fullscreen-transcript] {
+    top: calc(100% + .75rem);
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100% !important;
+    height: 16rem;
+  }
+  .page-layout--share .page-media-player [data-media-playback-browser-source]:not(:fullscreen) [data-media-fullscreen-transcript] > [data-fullscreen-transcript-resize] {
+    display: none;
+  }
+  .page-layout--share .page-media-player [data-media-playback-browser-source]:not(:fullscreen) [data-media-fullscreen-transcript] > div:last-child {
+    margin: 0;
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-card);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+  }
+  .page-layout--share .page-media-player [data-media-playback-browser-source]:not(:fullscreen) [data-media-fullscreen-transcript] > div:last-child p button {
+    color: var(--text-secondary);
+  }
+  .page-layout--share .page-media-player [data-media-playback-browser-source]:not(:fullscreen) [data-media-fullscreen-transcript] > div:last-child p button[data-fullscreen-transcript-word-active="true"] {
+    color: var(--text-primary);
+    background: var(--glass-bg-active);
+  }
+  .page-layout--share .page-section--share-featured .page-actions,
+  .page-layout--share .page-section--share-entry .page-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page-layout--share .page-section--share-featured .page-action,
+  .page-layout--share .page-section--share-entry .page-action { min-width: 0; padding-inline: .5rem; text-align: center; }
+}
+
+@media (max-width: 24rem) {
+  .page-layout--share .page-section--share-featured .page-actions,
+  .page-layout--share .page-section--share-entry .page-actions { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-layout--share .page-action { transition: none; }
+}

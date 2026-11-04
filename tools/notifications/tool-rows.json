@@ -189,7 +189,46 @@
             "input_field": "setting"
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "notice-list",
+              "erasable": [
+                [
+                  "item",
+                  "said"
+                ]
+              ],
+              "guard_properties": {
+                "item": "object",
+                "seqs": "numbers"
+              }
+            },
+            {
+              "type": "notice-readers",
+              "guard_properties": {
+                "readers": "object"
+              }
+            }
+          ],
+          "indexes": [
+            {
+              "type": "notice-list",
+              "name": "handoff",
+              "backfill": "notice-handoff",
+              "paths": [
+                [
+                  "item",
+                  "refs",
+                  "handoff_id"
+                ]
+              ],
+              "_read_by": "parts/record-log record-log-store erase (a job erased takes the notices that quote its words with it: src/record-model.json erase_with)"
+            }
+          ]
+        }
       }
     },
     {
