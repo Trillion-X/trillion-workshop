@@ -3001,8 +3001,9 @@
   {
    "path": "src/ai-conversations-list.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/conversations/read-data/ai-conversations-list.json",
+   "why": "a feature a person or AI uses",
+   "batch": "conversations import (trillion-workshop branch claude/port-conversations-import-6l9p3e)"
   },
   {
    "path": "src/ai-reach-words.json",
@@ -3506,14 +3507,16 @@
   {
    "path": "src/chat-archives.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/conversations/read-data/chat-archives.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "conversations import (trillion-workshop branch claude/port-conversations-import-6l9p3e)"
   },
   {
    "path": "src/chat-import.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/conversations/read-data/chat-import.mjs",
+   "why": "a feature a person or AI uses",
+   "batch": "conversations import (trillion-workshop branch claude/port-conversations-import-6l9p3e)"
   },
   {
    "path": "src/check-judge.mjs",
