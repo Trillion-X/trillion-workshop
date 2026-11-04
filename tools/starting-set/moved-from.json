@@ -1,11 +1,32 @@
 {
-  "_what": "Where each file here came from: Trillion-X/trillion at tag old-trillion-before-worker-retire (b6ae0ebf815f2f5271eed34e6e023c7e1767ec04), deleted there by 4ffa1dc4a2 with no new home.",
-  "repository": "Trillion-X/trillion",
-  "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-  "files": {
-    "records.json": "records/starting-set-records.json",
-    "groups.json": "records/starting-set-groups.json",
-    "starting-rules.json": "records/starting-rules.json",
-    "shipped-defaults.json": null
-  }
+  "about": "Files restored here one to one (cd63a54) from Trillion-X/trillion at tag old-trillion-before-worker-retire, deleted there by 4ffa1dc4a2 with no new home: each names its source path and commit, the identity of its source bytes and of its bytes here (the same bytes). shipped-defaults.json was written here and moved from nowhere, so it has no row.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "records/starting-set-records.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/starting-set/records.json",
+      "source_identity": "1f:efbe43271b6b47938bf7d753ca9609953af72b82af9be07fb55e57d3ea170e01",
+      "identity": "1f:efbe43271b6b47938bf7d753ca9609953af72b82af9be07fb55e57d3ea170e01"
+    },
+    {
+      "from": "records/starting-set-groups.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/starting-set/groups.json",
+      "source_identity": "1f:0c974db6c28c9c1ad1fc50cf289353dd26249f1502bb35bfa853ad3275b07927",
+      "identity": "1f:0c974db6c28c9c1ad1fc50cf289353dd26249f1502bb35bfa853ad3275b07927"
+    },
+    {
+      "from": "records/starting-rules.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/starting-set/starting-rules.json",
+      "source_identity": "1f:06e60a8ec9695acd3ff789d3902c3595a5dc5c0158b96b5a78f6b2ae9cec23d5",
+      "identity": "1f:06e60a8ec9695acd3ff789d3902c3595a5dc5c0158b96b5a78f6b2ae9cec23d5"
+    }
+  ]
 }

@@ -9,14 +9,16 @@
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.json",
       "source_identity": "1f:a7cc4565f0950178f6367137d6f2fd228aa2896fdd36194be66d254b40c482cf",
-      "identity": "1f:a7cc4565f0950178f6367137d6f2fd228aa2896fdd36194be66d254b40c482cf"
+      "identity_at_move": "1f:a7cc4565f0950178f6367137d6f2fd228aa2896fdd36194be66d254b40c482cf",
+      "byte_copy_commit": "1b77d82b1826b22cbe7eb15efad474a42af52fda"
     },
     {
       "from": "computer/computer-sources.mjs",
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.mjs",
       "source_identity": "1f:0a1011b84c2d76422cbec2cf7f0fe864447ea75541623eb9c6f26393f49312b5",
-      "identity": "1f:0a1011b84c2d76422cbec2cf7f0fe864447ea75541623eb9c6f26393f49312b5"
+      "identity_at_move": "1f:0a1011b84c2d76422cbec2cf7f0fe864447ea75541623eb9c6f26393f49312b5",
+      "byte_copy_commit": "1b77d82b1826b22cbe7eb15efad474a42af52fda"
     },
     {
       "from": "computer/connections/imessage.mjs",
@@ -72,7 +74,8 @@
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/bring-in-new-items-from-this-computer/computer/read-new-items.mjs",
       "source_identity": "1f:eda4bd586774bf8de92826f6114de1ba3b84183cedc52e7dc4b3fd62676498ce",
-      "identity": "1f:eda4bd586774bf8de92826f6114de1ba3b84183cedc52e7dc4b3fd62676498ce"
+      "identity_at_move": "1f:eda4bd586774bf8de92826f6114de1ba3b84183cedc52e7dc4b3fd62676498ce",
+      "byte_copy_commit": "1b77d82b1826b22cbe7eb15efad474a42af52fda"
     },
     {
       "from": "computer/sync-contacts.js",
@@ -93,7 +96,8 @@
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/bring-in-new-items-from-this-computer/computer/sync-contacts.zsh",
       "source_identity": "1f:33c3c25c6cc51d94bc7c94fa36acf957d8c4e6f4868463af8c436d78946a8518",
-      "identity": "1f:33c3c25c6cc51d94bc7c94fa36acf957d8c4e6f4868463af8c436d78946a8518"
+      "identity_at_move": "1f:33c3c25c6cc51d94bc7c94fa36acf957d8c4e6f4868463af8c436d78946a8518",
+      "byte_copy_commit": "1b77d82b1826b22cbe7eb15efad474a42af52fda"
     },
     {
       "from": "test/computer-sources-on-a-computer.test.mjs",
@@ -135,14 +139,16 @@
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/bring-in-new-items-from-this-computer/test/read-new-items-quota-retry.test.mjs",
       "source_identity": "1f:89c53e58c92767e2d4bced492d664ff38036a018adafc052e8ceaa88443eeb9c",
-      "identity": "1f:89c53e58c92767e2d4bced492d664ff38036a018adafc052e8ceaa88443eeb9c"
+      "identity_at_move": "1f:89c53e58c92767e2d4bced492d664ff38036a018adafc052e8ceaa88443eeb9c",
+      "byte_copy_commit": "1b77d82b1826b22cbe7eb15efad474a42af52fda"
     },
     {
       "from": "test/read-new-items-retryable-409.test.mjs",
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/bring-in-new-items-from-this-computer/test/read-new-items-retryable-409.test.mjs",
       "source_identity": "1f:3e6f1f838758b05428db8b0bc5af451ec58f3cb7c06c9eacfddb30cc8558e053",
-      "identity": "1f:3e6f1f838758b05428db8b0bc5af451ec58f3cb7c06c9eacfddb30cc8558e053"
+      "identity_at_move": "1f:3e6f1f838758b05428db8b0bc5af451ec58f3cb7c06c9eacfddb30cc8558e053",
+      "byte_copy_commit": "1b77d82b1826b22cbe7eb15efad474a42af52fda"
     },
     {
       "from": "test/read-new-items-timeout.test.mjs",
@@ -156,7 +162,8 @@
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/bring-in-new-items-from-this-computer/test/read-new-items.test.mjs",
       "source_identity": "1f:17e36e174b67258f85cd02dbc73a0fc98ae1301ffcd8e45fed6a668c43e76652",
-      "identity": "1f:17e36e174b67258f85cd02dbc73a0fc98ae1301ffcd8e45fed6a668c43e76652"
+      "identity_at_move": "1f:17e36e174b67258f85cd02dbc73a0fc98ae1301ffcd8e45fed6a668c43e76652",
+      "byte_copy_commit": "1b77d82b1826b22cbe7eb15efad474a42af52fda"
     },
     {
       "from": "test/read-new-photos-video.test.mjs",

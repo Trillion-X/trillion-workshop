@@ -86,6 +86,17 @@ A reader takes the first `counts` items of each list, so a record written in a w
 - The pool account's door admits other people through a share's act grant (trillion-rust `src/account_rights/share_grant.rs`). Sending a shared decision there is the calling AI's own call with the pool's share bearer: `tool:add-a-shared-situation` with `send.entry` and the meaning of its situation (the embedding the pool names), then `tool:add-a-pooled-result` with the bit `tool:randomize-a-result` drew. No tool here reaches another account's door.
 - The re-identification verdict comes from `tool:ask-a-small-model-for-a-verdict`, whose rows run on the person's computer, not at the engine yet; this tool only checks that the verdict was accepted for exactly the rubric and words it names (`contentReviewIdentity`). A result's own words are not shared: the pool takes only its randomized bit.
 
+## Port contract
+
+`read-data/decisions.mjs` and `read-data/decision-records.mjs` have no contract in `ports/`, and the root test
+`test/every-feature-file-has-a-port-contract.test.mjs` names them. The reason: they were written here, not first
+committed as a byte copy of their older owner. `decisions.mjs` names that owner itself, the old app's `src/engine.mjs`
+(DecisionEngine) and `src/decision-store.mjs`. Since the first commit here is not a byte copy, a SOURCE_FIRST_PORT
+written now would be false, and so would NO_PRIOR_OWNER. Writing a contract after the fact is not the fix. The owner
+decides what happens next: port `src/engine.mjs` and `src/decision-store.mjs` again, byte copy first, and adapt them
+until they do what these files do now; or let this repository accept a rewrite of a named owner as a mode of its own
+(`ports/feature-files.json`).
+
 ## Dependencies
 
 **Depends on:** `tools/check-against-a-persons-rules-and-verdicts` (`do-work/branch.mjs`, packed by every row), `tools/records-door` (the door client, `run-an-export.mjs` and `writeBatches`), `tools/content-identity` (the identity of each kept check), and, loaded only for a share, `tools/learn-from-everyones-results` (the plain privacy pass, public) and `tools/ask-a-small-model-for-a-verdict` (`contentReviewIdentity`, public); Node 24 in the tool container. Every row packs records-door, content-identity and `@noble/hashes`.

@@ -61,6 +61,17 @@ Listens to the microphone until an end time the person gives, and writes each tu
 - A turn that crosses two pieces becomes two rows.
 - `livenessOf` and `jobState` are carried with the ledger but nothing here calls them yet: a run has no heartbeat row or notes job.
 
+## Port contract
+
+`read-data/listen-for-a-while.mjs` has no contract in `ports/`, and the root test
+`test/every-feature-file-has-a-port-contract.test.mjs` names it. The reason: it came into this repository in its
+first import (37b2d55), with no receipt and no byte copy of an older owner. Its own words name one part of what it
+does as moved from the product repository's `computer/listen.mjs` (`listeningTools.hear`), so NO_PRIOR_OWNER would be
+false. A SOURCE_FIRST_PORT needs a first commit here that is the byte copy, and there was none, so writing one now
+would be false too. The owner decides what happens next: port `computer/listen.mjs` again, byte copy first, and adapt
+it until it does what this file does now; or let this repository accept a rewrite of a named owner as a mode of its
+own (`ports/feature-files.json`).
+
 ## Dependencies
 
 **Depends on:** `tools/records-door` (the door and the command that runs a function), `tools/audio-transcription`, `tools/know-who-is-in-this`, `tools/media-composition` (the models, through know-who-is-in-this); Node 22, python3, ffmpeg and whisper-cli on the computer.
