@@ -1,7 +1,8 @@
 {
-  "_what": "Publishing a site at its own address (read-data/site-addresses.mjs). A site's files are kept in the person's own files under `files_folder`/<installation>/ (the engine's computer answers them, trillion-rust src/native_entry/computer/installations.rs); which host shows which installation is the list in `origins_file`, {origins: [{host, installation, moved_to?}]}, which the person's computer signs with the account's key and hands to the forwarder (trillion-rust src/forwarder/origins.rs). A name is one label under `suffix` (old trillion src/public-app-names.json: `pattern`, `reserved`, `first_words`, `longest`); a renamed site keeps its earlier name, which sends visitors on to the new one (`moved_to`). A person's own domain is believed once its TXT record `proof_label`.<domain> holds `proof_value_prefix` + the account's address, and reaches the forwarder through the address record pointing at `points_at`. `installation_hex` is the length of an installation id. `most_origins` bounds the list (the forwarder's own bound). `piece_bytes` is how much one written piece carries. `words` are every refusal and answer.",
+  "_what": "Publishing a site at its own address (read-data/site-addresses.mjs). A site's files are kept in the person's own files under `files_folder`/<installation>/ (the engine's computer answers them, trillion-rust src/native_entry/computer/installations.rs); which host shows which installation is the list in `origins_file`, {origins: [{host, installation, moved_to?}]}, which the person's computer signs with the account's key and hands to the forwarder (trillion-rust src/forwarder/origins.rs). A name is one label under `suffix` (old trillion src/public-app-names.json: `pattern`, `reserved`, `first_words`, `longest`); a renamed site keeps its earlier name, which sends visitors on to the new one (`moved_to`). A person's own domain is believed once its TXT record `proof_label`.<domain> holds `proof_value_prefix` + the account's address, and reaches the forwarder through the address record pointing at `points_at`. `installation_hex` is the length of an installation id. `most_origins` bounds the list (the forwarder's own bound). `piece_bytes` is how much one written piece carries. `words` are every refusal and answer. `told_file` is where the person's computer keeps what the forwarder answered the list with; `words.refusals` says each of the forwarder's refusal words (trillion-rust src/forwarder/words.json) in plain words.",
   "files_folder": "/installations",
   "origins_file": "/installations/origins.json",
+  "told_file": "/installations/origins-told.json",
   "suffix": "trillion.run",
   "points_at": "app.gettrillion.ai",
   "proof_label": "_trillion-verify",
@@ -60,6 +61,14 @@
     "unknown_host": "None of your sites uses that address.",
     "site": "Give the site as files by path (index.html first), or the name of a site.json in your files, such as one copy_a_site left.",
     "live_when": "Your computer hands the new address to the forwarder within a few seconds; it answers while your computer is on. Publish the site again to list its pages for AI apps at its new address (llms.txt).",
-    "domain_when": "Add both DNS records at your domain's DNS host; the address answers once the TXT record is visible and a certificate is made for it."
+    "domain_when": "Add both DNS records at your domain's DNS host; the address answers once the TXT record is visible and a certificate is made for it.",
+    "refusals": {
+      "host_taken": "Another account's site holds one of these addresses. Choose another name, or let that address go.",
+      "domain_unproven": "A domain's TXT record is not visible yet. Add it as attach_domain said; it is checked again when your computer next connects.",
+      "name_reserved": "One of these names is kept for Trillion. Choose another.",
+      "origins_stale": "A newer list was handed in already.",
+      "origins_full": "The forwarder holds as many accounts' sites as it can just now. Try again later.",
+      "origins_not_believed": "Your computer was not connected when it handed the list in; it tries again."
+    }
   }
 }

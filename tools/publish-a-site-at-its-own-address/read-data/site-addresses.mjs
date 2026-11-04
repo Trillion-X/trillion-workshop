@@ -231,7 +231,20 @@ export async function letGo(input = {}, { door } = {}) {
   return { let_go: addressOf(host), origins: shown(kept) };
 }
 
-/** site_addresses: every address the person's sites answer at, and where each was moved to. */
+/**
+ * What the forwarder last answered the list with, as the person's computer kept it (`told_file`): { state: answering,
+ * hosts } or { state: refused, why }, with when; null before the computer handed the list in.
+ */
+export async function readTold(door) {
+  const listed = await door.files('list_files', { folder: `${settings.files_folder}/` });
+  if (!(listed?.names ?? []).some(entry => (entry?.name ?? entry) === settings.told_file)) return null;
+  const { bytes } = await readWholeFile(door, settings.told_file);
+  const told = JSON.parse(Buffer.from(bytes ?? []).toString('utf8'));
+  const why = told?.state === 'refused' ? words.refusals[told.why] ?? told.why : null;
+  return { state: told?.state ?? null, told_at: Number.isFinite(told?.told_at_ms) ? new Date(told.told_at_ms).toISOString() : null, ...(why ? { why } : {}) };
+}
+
+/** site_addresses: every address the person's sites answer at, where each was moved to, and what the forwarder said. */
 export async function siteAddresses(_input = {}, { door } = {}) {
-  return { origins: shown(await readOrigins(door)) };
+  return { origins: shown(await readOrigins(door)), told: await readTold(door) };
 }
