@@ -1,0 +1,10 @@
+{
+  "version": "cloudflare-paid-standard-2026-10-23",
+  "currency": "USD",
+  "verified_on": "2026-10-23",
+  "sources": ["https://developers.cloudflare.com/durable-objects/platform/pricing/", "https://developers.cloudflare.com/workers/platform/pricing/"],
+  "fixed_monthly_workers_minimum": 5,
+  "spend_meter_data": "../src/spend-meter.json",
+  "meter_line_ids": {"rows_read":"cloudflare-do-rows-read","rows_written":"cloudflare-do-rows-written","kv_reads":"cloudflare-kv-reads","kv_changes":"cloudflare-kv-changes"},
+  "notes": ["Included usage is shared across the billing account, not granted per test or per Durable Object.", "Each setAlarm() is a SQL row write in addition to cursor-measured SQL rows.", "DO key-value storage methods use hidden SQLite tables; their rows are not inferred from their call counts.", "This table intentionally prices only verified SQL/KV units; compute, storage, Builds, AI and other services remain unknown."]
+}

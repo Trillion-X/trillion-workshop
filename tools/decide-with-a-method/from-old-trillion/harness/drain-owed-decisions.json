@@ -1,0 +1,51 @@
+{
+  "_what": "Settings for drain-owed-decisions.mjs, which empties the owed file decide-before-building.mjs writes while the decisions' server cannot keep a decision. The owed file and the server it asks are named once, in decide-before-building.json (when_trillion_is_down.owed_file, confirm_with); everything here is how much one run may do, where finished rows go, and the words of the decision each owed turn becomes. Changing a word, a limit or an option is a change here, never in code.",
+  "every_minutes": 20,
+  "pace": {
+    "_what": "How much one run reads, sized from how fast the store answers. The batch starts at first_rows, grows by grow_by after a full run whose every answer came within fast_ms, shrinks by shrink_by after a busy, failed or slower-than-slow_ms answer (which also ends the run), and stays within least_rows..most_rows. While the opening light read is slower than healthy_ms a run reads least_rows. A run makes at most calls_per_row calls per row it reads. The current batch is kept beside the owed file (<owed>.pace).",
+    "first_rows": 40,
+    "least_rows": 10,
+    "most_rows": 400,
+    "grow_by": 2,
+    "shrink_by": 2,
+    "healthy_ms": 1000,
+    "fast_ms": 1000,
+    "slow_ms": 5000,
+    "calls_per_row": 0.75
+  },
+  "timeout_ms": 60000,
+  "lock_stale_minutes": 30,
+  "draining_suffix": ".draining",
+  "archive_folder": "~/.trillion/decisions-owed-archive",
+  "read_block_bytes": 524288,
+  "collect_every_bytes": 4194304,
+  "most_line_bytes": 262144,
+  "asked_chars": 600,
+  "changes_listed": 12,
+  "claim_chars": 900,
+  "kept_file_fields": ["decision_file", "decision", "answers"],
+  "kept_file_text_fields": ["goal", "outcome", "reason", "next_action", "success_measure"],
+  "kept_file_most_bytes": 65536,
+  "source_prefix": "owed:",
+  "existing_case_answer": "already has case (\\S+) with different content",
+  "goal": "{asked}",
+  "evidence": {
+    "asked": "The person asked: {asked}",
+    "changes": "{tool} changed {count} file(s) between {first_at} and {last_at} while Trillion could not keep decisions: {changes}",
+    "method": "The turn ran the method on the computer for these steps: {steps}",
+    "no_method": "The method steps the turn ran on the computer are not known (the owed row predates their being kept)",
+    "agent": "Recorded by {agent}",
+    "kept": "Answers kept on the computer at {path}: {text}"
+  },
+  "options": [
+    { "id": "keep-the-change", "label": "Generic: keep a change made while decisions could not be kept, as made" },
+    { "id": "revisit-the-change", "label": "Revisit the change and decide it again" }
+  ],
+  "states": {
+    "settled": "a case this turn named is decided",
+    "in_trillion": "the row names a case already open in Trillion",
+    "posted": "posted to Trillion as an owed decision",
+    "unreadable": "the line is not a readable row",
+    "not_person": "no message from the person began this turn (an instruction file, a teammate's prompt, context a harness added, or a transcript that can no longer be read)"
+  }
+}

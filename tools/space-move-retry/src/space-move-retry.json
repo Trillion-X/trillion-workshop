@@ -1,0 +1,6 @@
+{
+  "first_after_ms": 3000,
+  "longest_after_ms": 300000,
+  "attempts_before_recovery_required": 40,
+  "_why": "How the directory's alarm asks again after a Space's move step the account quota could not settle yet or that hit the platform's subrequest depth limit: the wait doubles from first_after_ms up to longest_after_ms per Space, restarts when a step succeeds or the person asks again, and after attempts_before_recovery_required in a row (about three hours) the Space is marked recovery-required in space_move_attempts and the alarm stops asking until someone does."
+}

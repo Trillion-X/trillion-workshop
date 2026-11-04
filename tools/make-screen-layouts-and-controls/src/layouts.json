@@ -1,0 +1,16 @@
+{
+  "what_this_is": "Settings for the layouts a person's AIs make (src/layouts.mjs): where they are kept, the record the page opens one from, the record the page publishes the arrangement on screen to (parts/screen-arrangement/show/publish-shown-arrangement.tsx), and their limits.",
+  "layouts_label": "screen-arrangement-own-layouts",
+  "open_label": "screen-arrangement-open-asked",
+  "shown_label": "screen-arrangement-shown",
+  "id_prefix": "own-",
+  "default_icon": "LayoutPanelLeft",
+  "layouts_max": 50,
+  "parts": {
+    "_what": "A layout used inside another as a shared part (src/layout-parts.mjs): a node { kind: 'part', layout: <layout_id>, version?: <its version number, read_layouts version>, overrides?: { <a key inside the part>: { <field>: value, hidden?: true } } }. `overridable` are the node fields an override may set (any other is refused); `depth` is how many parts deep one may sit inside another; `screens_label` keeps, per screen arranged in place, the arrangement as written (with its parts) and the parts it uses.",
+    "overridable": ["surfaces", "show", "dir", "sizes", "unit", "keep", "across", "stack"],
+    "depth": 4,
+    "screens_label": "screen-arrangement-part-uses"
+  },
+  "arrangement_shape": "A pane is { kind: 'pane', surfaces: [screen ids from screens, or one thing as { id: a screen from opens_one_thing, input: { <its input>: the thing's id }, title?: its name }, or a screen with the inputs its address's query opens it with], show?: the screen id showing first }; a split is { kind: 'split', dir: 'row' (side by side) | 'column' (stacked), sizes?: [relative sizes, one per child, or pixels with unit: 'px' where 0 is the length of what it shows], stack?: a row narrower than this many pixels shows stacked, children: [panes or splits] }."
+}

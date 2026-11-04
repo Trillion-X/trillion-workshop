@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "scripts/local-runtime-package.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/local-runtime-package/scripts/local-runtime-package.mjs",
+      "source_identity": "1f:b5ede25bd56f81a8d4ce213021a7a7523d821c899103b14c7b26346e55ae3923",
+      "identity": "1f:b41de4883e2bad2213e7dc5a09d7ee046b9e6d22596731d7ad9f79e3f51e374c"
+    },
+    {
+      "from": "scripts/local-runtime-tree.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/local-runtime-package/scripts/local-runtime-tree.mjs",
+      "source_identity": "1f:1eeb0a5cabd665691b9a62acb16cf6b53598b364d56d37dab34800cb60837449",
+      "identity": "1f:1eeb0a5cabd665691b9a62acb16cf6b53598b364d56d37dab34800cb60837449"
+    }
+  ]
+}

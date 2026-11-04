@@ -1,0 +1,26 @@
+{
+  "what_this_is": "Limits and patterns of the note-text index (src/note-text-index.mjs). A change here changes what counts as a task or a tag without editing code; the index is rebuilt from the notes themselves.",
+  "max_text_chars": 1000000,
+  "list_limit": 200,
+  "max_list_limit": 1000,
+  "task_line": "^\\s*(?:[-*+]\\s+|\\d+[.)]\\s+)?\\[([ xX])\\]\\s+(\\S.*)$",
+  "fence": "^\\s*(```|~~~)",
+  "tag_start_boundary": "(?:^|(?<=[\\s(\\[{]))",
+  "tag_chars": "[\\p{L}\\p{N}_-]+",
+  "tag_separator": "/",
+  "tag_multiword_close": "#",
+  "tag_max_depth": 8,
+  "tag_max_chars": 120,
+  "result_kinds": [
+    "note",
+    "notes",
+    "markdown"
+  ],
+  "result_text_fields": [
+    "text",
+    "markdown",
+    "body"
+  ],
+  "sync_batch": 200,
+  "result_item_prefix": "result:"
+}

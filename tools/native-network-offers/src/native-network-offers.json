@@ -1,0 +1,1 @@
+{"page_size":16,"most_records":100,"retry_ms":60000,"retry_factor":2,"max_retry_ms":900000,"max_attempts":4,"record_kinds":["network-request","space-invite"]}

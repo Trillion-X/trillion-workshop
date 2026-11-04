@@ -1,0 +1,8 @@
+{
+  "_what": "Words the one markdown renderer (document-page-html.mjs markdownHtml, with `marks: true`) draws as marks inside plain words: each row is a mark, `pattern` the words it takes (a Unicode regular expression, matched only at the start of the words or after a space or punctuation that is not part of a word or address), and `link` true when the words are an address that opens. A mark is drawn as `<span class=\"doc-mark\" data-mark=\"<id>\">` (or a link with that class), so its look lives in the stylesheet beside the reading surface (screen-look file-preview.css). Adding a kind of mark is a row here.",
+  "marks": [
+    { "id": "link", "pattern": "https?://[^\\s<>()\\[\\]]*[^\\s<>()\\[\\].,;:!?'\"]", "link": true },
+    { "id": "tag", "pattern": "#[\\p{L}_][\\p{L}\\p{N}_]*" },
+    { "id": "handle", "pattern": "@[\\p{L}\\p{N}_](?:[\\p{L}\\p{N}_.]*[\\p{L}\\p{N}_])?" }
+  ]
+}

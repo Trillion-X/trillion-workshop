@@ -3,9 +3,10 @@
 // test/method-sources.test.mjs:46, moved one to one; the rest are on made-up text only.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { atomsOf, pieceRow, pieceRows } from '../do-work/pieces.mjs';
+import { atomsOf, keepPieces, pieceRow, pieceRows } from '../do-work/pieces.mjs';
+import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
 
@@ -34,7 +35,7 @@ test('a piece row carries its id, lead, text, identity, key and where it stands,
   assert.deepEqual(row, {
     id: `piece-${atom.identity.slice(3, 27)}`, kind: 'piece', says: 'Made-up lead', text: '**Made-up lead.** Then the rest.', identity: atom.identity,
     key: 'Made-up part / Made-up lead', sources: [{ file: 'made-up.md', section: 'Made-up part / Made-up lead', file_identity: '1f:' + 'a'.repeat(64), at: 3 }],
-    groups: [], kinds: [], checked_by: [],
+    tags: [], kinds: [], checked_by: [],
   });
   assert.equal(row.id.length, 'piece-'.length + 24);
   assert.equal('no_check' in row, false);
@@ -52,14 +53,58 @@ test('two files holding the same text are one row with two sources, each with it
   assert.equal(shared.sources[1].file_identity, '1f:' + 'b'.repeat(64));
 });
 
-test('tool:split-a-document-into-pieces answers { pieces } on its last line and refuses a request with no text', () => {
-  const run = input => spawnSync(process.execPath, ['do-work/check-against-their-rules-and-verdicts.mjs', 'split-a-document-into-pieces'], { cwd: folder, input: JSON.stringify(input), encoding: 'utf8' });
-  const ran = run({ text: '## Made-up\n\n- one\n- two\n', file: 'made-up.md' });
-  assert.equal(ran.status, 0, ran.stdout);
-  const { pieces } = JSON.parse(ran.stdout.trim().split('\n').at(-1)).result;
-  assert.deepEqual(pieces.map(piece => piece.key), ['Made-up / one', 'Made-up / two']);
-  assert.equal(pieces[0].sources[0].file, 'made-up.md');
-  const refused = run({ file: 'made-up.md' });
-  assert.equal(refused.status, 1);
-  assert.match(JSON.parse(refused.stdout.trim().split('\n').at(-1)).error, /Send text/);
+test('~~~ fences a block as ``` does, as CommonMark defines a fence: the same character, at least as many, nothing after', () => {
+  const keys = text => atomsOf(text).map(atom => atom.text);
+  assert.deepEqual(keys('## Made-up\n\n~~~\nline one\n\nline two\n~~~\n\nAfter.\n'), ['~~~\nline one\n\nline two\n~~~', 'After.']);
+  // A fence of one character is not closed by the other, nor by fewer of its own, nor by a line with words after it.
+  assert.deepEqual(keys('~~~\n```\n\nstill fenced\n~~~\n'), ['~~~\n```\n\nstill fenced\n~~~']);
+  assert.deepEqual(keys('````md\n```\n\ninside\n```\n````\n\nOut.\n'), ['````md\n```\n\ninside\n```\n````', 'Out.']);
+  assert.deepEqual(keys('~~~~\n~~~\n\nstill\n~~~~ \n'), ['~~~~\n~~~\n\nstill\n~~~~']);
+  assert.deepEqual(keys('```\ncode\n```js\n\nmore\n```\n'), ['```\ncode\n```js\n\nmore\n```']);
+  // A tilde fence's info string may hold backticks; a backtick fence's may not, so that line is words.
+  assert.deepEqual(keys('~~~ made`up\nx\n\ny\n~~~\n'), ['~~~ made`up\nx\n\ny\n~~~']);
+  assert.deepEqual(keys('``` made`up ```\n\nNext.\n'), ['``` made`up ```', 'Next.']);
+  // Two tildes fence nothing, and a fence left open runs to the end of the document.
+  assert.deepEqual(keys('~~\n\nwords\n'), ['~~', 'words']);
+  assert.deepEqual(keys('Before.\n\n~~~\nopen\n\nto the end\n'), ['Before.', '~~~\nopen\n\nto the end']);
+  // Inside a list item a fence is indented by its item, and still fences.
+  assert.deepEqual(keys('1. Run:\n   ~~~sh\n   made-up\n\n   more\n   ~~~\n2. Next\n'), ['1. Run:', '~~~sh\n   made-up\n\n   more\n   ~~~', '2. Next']);
+});
+
+test('tool:split-a-document-into-pieces keeps the pieces of its text as piece rows and answers counts; a request with neither text nor name is refused', async () => {
+  const row = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload).find(item => item.id === 'tool:split-a-document-into-pieces');
+  const ran = await runRow(row, { text: '## Made-up\n\n- one\n- two\n', file: 'made-up.md' }, { records: [] });
+  assert.equal(ran.code, 0, ran.stdout + ran.stderr);
+  const answer = ran.last.result;
+  assert.deepEqual([answer.file, answer.pieces, answer.new, answer.sources_added, answer.unchanged, answer.writes], ['made-up.md', 2, 2, 0, 0, 1]);
+  const kept = ran.kept.map(record => record.value);
+  assert.deepEqual(kept.map(piece => piece.key).sort(), ['Made-up / one', 'Made-up / two']);
+  assert.deepEqual(answer.ids, kept.map(piece => piece.id).sort((a, b) => answer.ids.indexOf(a) - answer.ids.indexOf(b)));
+  assert.equal(kept[0].sources[0].file, 'made-up.md');
+  for (const input of [{ file: 'made-up.md' }, { text: 'x', name: '/Notes/x.md' }]) {
+    const refused = await runRow(row, input, { records: [] });
+    assert.equal(refused.code, 1);
+    assert.match(refused.last.error, /Send text/);
+  }
+});
+
+test('a piece kept before pieces carried tags has its groups moved to tags when it is kept again, its words left alone', async () => {
+  const text = '## Made-up\n\nMade-up kept words.\n';
+  const [row] = pieceRows([{ text, file: 'made-up.md', file_identity: '1f:' + 'f'.repeat(64) }]);
+  const { tags, ...old } = row;
+  const held = new Map([[`record:check:${row.id}`, { ...old, groups: ['made-up-tag'], checked_by: ['made-up-check'] }]]);
+  const written = [];
+  const door = { async read(_type, id) { return held.get(id) ?? null; }, async write(batch) { written.push(...batch); } };
+  const answer = await keepPieces({ text, file: 'made-up.md', file_identity: '1f:' + 'f'.repeat(64) }, door);
+  assert.equal(answer.unchanged, 0);
+  assert.equal(written.length, 1);
+  const value = written[0].value;
+  assert.equal('groups' in value, false);
+  assert.deepEqual(value.tags, ['made-up-tag']);
+  assert.deepEqual(value.checked_by, ['made-up-check']);
+  assert.deepEqual(written[0].expected.value.groups, ['made-up-tag'], 'the write is conditional on the row as it was read');
+  held.set(`record:check:${row.id}`, value);
+  written.length = 0;
+  const again = await keepPieces({ text, file: 'made-up.md', file_identity: '1f:' + 'f'.repeat(64) }, door);
+  assert.deepEqual([again.unchanged, written.length], [1, 0]);
 });

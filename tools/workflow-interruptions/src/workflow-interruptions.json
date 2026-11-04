@@ -1,0 +1,9 @@
+{
+  "_what": "What a workflow run does when Trillion could not reach one of its steps at all (src/workflows.mjs pass): the step's answerer was never reached, so nothing about the step was decided. Which failures count is the failure contract's `tries_again_later` (src/failure-codes.json, src/platform-failures.json); the engine marks a failure that happened while reaching a step as `dispatch_failed` (crates/workflow-core WorkflowError::evidence). The run is not failed: it keeps every admitted step and waits at the step it could not reach. Within one read it tries again after each of `waits_ms`; each read, submit or resume that still cannot reach it counts one try, and after `stuck_after_tries` tries in a row the run shows as stuck with `words.stuck` until it is resumed (read_workflow_run with resume: true) or reached on a later read. `{tries}` in the words is filled in.",
+  "waits_ms": [500, 2000, 5000],
+  "stuck_after_tries": 5,
+  "words": {
+    "interrupted": "Trillion could not reach this step just now, for example while it was being updated. It tries again by itself, and every step done so far is kept.",
+    "stuck": "Trillion could not reach this step {tries} times in a row, so the run waits here. Every step done so far is kept; try again to carry on from here."
+  }
+}

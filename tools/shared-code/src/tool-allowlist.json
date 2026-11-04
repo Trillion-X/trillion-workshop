@@ -1,0 +1,6 @@
+{
+  "_what": "A caller may narrow its own tool list (never widen it): the request header below names the tools it wants, comma separated. The listing and the calls it can make are then only those tools, so a launcher can confine an AI it starts to the tools a job needs. Read by src/tool-allowlist.mjs.",
+  "header": "x-trillion-tools",
+  "most_names": 200,
+  "most_header_chars": 8000
+}

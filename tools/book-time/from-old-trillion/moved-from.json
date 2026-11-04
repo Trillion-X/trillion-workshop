@@ -1,0 +1,162 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on with no home and no backlog row, moved here byte for byte from the parent of the commit that deleted each (commit; deleted_by names the deleting commit). Nothing here is rewritten: a file waits here for its wiring, under its old path, so the files keep importing each other as they did. A redaction replaces a real person's name or address with a made-up one, and is listed on the file; source_identity is the BLAKE3 identity of the bytes at commit, identity of the bytes here. A redaction names the replaced words by their identity (from_identity), so they are not published.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "records/bookable-access-records.json",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/records/bookable-access-records.json",
+      "source_identity": "1f:fb10221a40bf8706045d6c4e5c473974c7d9dd807c0cc62391dbe69c29983e35",
+      "identity": "1f:4e969ac053350665dd2130d85acf621fa563ea58c1bc32f4a7afb82972f2e787",
+      "redactions": [
+        {
+          "from_identity": "1f:b320af3caa9d73df9dd4254cb2d1ab4b2a4e17e12cd7663c06d8977c2a079a4d",
+          "to": "host@example.test"
+        },
+        {
+          "from_identity": "1f:7e62e42df25986091d96736394c1c5132759a1b908de327bbb61b063ccc769d8",
+          "to": "Ana"
+        },
+        {
+          "from_identity": "1f:530ab8a4bb2da1007b932175347b925c07617118f7a23e47273d1870eae0f417",
+          "to": "ana"
+        }
+      ]
+    },
+    {
+      "from": "scripts/prove-book-a-session.mjs",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/scripts/prove-book-a-session.mjs",
+      "source_identity": "1f:0a782d8379835376355d9bbaf2e67b430878d3e25c4cdf757b49cd926489a657",
+      "identity": "1f:0a782d8379835376355d9bbaf2e67b430878d3e25c4cdf757b49cd926489a657"
+    },
+    {
+      "from": "src/booking-calendar.mjs",
+      "commit": "3a859ebab6a8c3654df04a92074d3155118b0869",
+      "deleted_by": "1d43b242ae",
+      "to": "tools/book-time/from-old-trillion/src/booking-calendar.mjs",
+      "source_identity": "1f:907dff646f9dd9557082f5a1cb8fdf7f7dc9333f777107efb3fabd25812e70a8",
+      "identity": "1f:907dff646f9dd9557082f5a1cb8fdf7f7dc9333f777107efb3fabd25812e70a8"
+    },
+    {
+      "from": "src/booking-reminders.json",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/src/booking-reminders.json",
+      "source_identity": "1f:a58b16bd4235b22c207dabe74e6dfc2b2a2739d58174560518dde8cec46322a7",
+      "identity": "1f:a58b16bd4235b22c207dabe74e6dfc2b2a2739d58174560518dde8cec46322a7"
+    },
+    {
+      "from": "src/booking-routes.mjs",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/src/booking-routes.mjs",
+      "source_identity": "1f:50763b791645185bd5fea98fe9de65b9ddd60c7ab7c769c71d3bd682cad7a22b",
+      "identity": "1f:50763b791645185bd5fea98fe9de65b9ddd60c7ab7c769c71d3bd682cad7a22b"
+    },
+    {
+      "from": "src/booking-screen.mjs",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/src/booking-screen.mjs",
+      "source_identity": "1f:c847bba4318e12e3a13cfa42d3c0527590272df1e7e0fd7b2cc9a95b157f82fd",
+      "identity": "1f:c847bba4318e12e3a13cfa42d3c0527590272df1e7e0fd7b2cc9a95b157f82fd"
+    },
+    {
+      "from": "src/booking-service.mjs",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/src/booking-service.mjs",
+      "source_identity": "1f:82227170684f566299b317a5bebc77ab68c29ec554a65f03b42061a99dc7cf25",
+      "identity": "1f:82227170684f566299b317a5bebc77ab68c29ec554a65f03b42061a99dc7cf25"
+    },
+    {
+      "from": "src/booking.mjs",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/src/booking.mjs",
+      "source_identity": "1f:83b6beae948fa1601382d8f587f9fc045b0304ae7b624891def2f804223784ac",
+      "identity": "1f:380a940b7e0ba026b8b7e4519af6fec11b4fc3afd0c4b87e8f30a6d4a8d37166",
+      "redactions": [
+        {
+          "from_identity": "1f:ed00d5563ed8cb131c646c6abdcff9da2c6e5dced8cce1500bd4af31380d70e9",
+          "to": "a person's own site's"
+        }
+      ]
+    },
+    {
+      "from": "src/host-bookings.mjs",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/src/host-bookings.mjs",
+      "source_identity": "1f:0e2510490973ebcc875864ab953bf51a4193234cdd4d68c67f1c3c7406ac324f",
+      "identity": "1f:0e2510490973ebcc875864ab953bf51a4193234cdd4d68c67f1c3c7406ac324f"
+    },
+    {
+      "from": "src/workspace/walkthroughs/book.json",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/src/workspace/walkthroughs/book.json",
+      "source_identity": "1f:adf1e8d90c2e0b5746fc2e624817d3f6b52f32568675605be8df16df2a3e0671",
+      "identity": "1f:adf1e8d90c2e0b5746fc2e624817d3f6b52f32568675605be8df16df2a3e0671"
+    },
+    {
+      "from": "src/workspace/walkthroughs/whats-new-2026-10-04-one-place-to-book.json",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/src/workspace/walkthroughs/whats-new-2026-10-04-one-place-to-book.json",
+      "source_identity": "1f:6017542ae2de887744a467491b758ecd8e01475ccc96fa7d568f79be76f6ff38",
+      "identity": "1f:6017542ae2de887744a467491b758ecd8e01475ccc96fa7d568f79be76f6ff38"
+    },
+    {
+      "from": "test/book-a-session.test.mjs",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/test/book-a-session.test.mjs.held",
+      "source_identity": "1f:46d6d51c12388a2b8e38cf5243e00d33b3e3becc1ae1e6a461f9870f5a93f7a8",
+      "identity": "1f:ad19ba7249b788809eb23c61ff229f93034e315e30827ff1f87417a5552265b0",
+      "redactions": [
+        {
+          "from_identity": "1f:7e62e42df25986091d96736394c1c5132759a1b908de327bbb61b063ccc769d8",
+          "to": "Ana"
+        },
+        {
+          "from_identity": "1f:530ab8a4bb2da1007b932175347b925c07617118f7a23e47273d1870eae0f417",
+          "to": "ana"
+        }
+      ],
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/booking-mentions.test.mjs",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/test/booking-mentions.test.mjs.held",
+      "source_identity": "1f:754a1080c14f75b95c34dcecc1ac0ac06e25aae57daba7c6c0391d2886bb4a7d",
+      "identity": "1f:754a1080c14f75b95c34dcecc1ac0ac06e25aae57daba7c6c0391d2886bb4a7d",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/booking.test.mjs",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/test/booking.test.mjs.held",
+      "source_identity": "1f:63dfd1b308b6a14ae9a1d85b5171dcf93fa7769461179ea6cf858b8397cbdf36",
+      "identity": "1f:63dfd1b308b6a14ae9a1d85b5171dcf93fa7769461179ea6cf858b8397cbdf36",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/bookings-on-records.test.mjs",
+      "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
+      "deleted_by": "0bfc1a2b79",
+      "to": "tools/book-time/from-old-trillion/test/bookings-on-records.test.mjs.held",
+      "source_identity": "1f:e6c86697a4dde376c7d3a3a0bb29c2a916270716ef7b8643c6ceacefbb90a6e8",
+      "identity": "1f:e6c86697a4dde376c7d3a3a0bb29c2a916270716ef7b8643c6ceacefbb90a6e8",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    }
+  ]
+}

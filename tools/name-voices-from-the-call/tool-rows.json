@@ -126,7 +126,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"turns": [{"start": 0, "end": 10, "who": "Someone (voice-1)"}], "samples": [{"at": 600, "names": ["Ada Example"]}, {"at": 1600, "names": ["Ada Example"]}, {"at": 2600, "names": ["Ada Example"]}, {"at": 3600, "names": ["Ada Example"]}, {"at": 4600, "names": ["Ada Example"]}, {"at": 5600, "names": ["Ada Example"]}, {"at": 6600, "names": ["Ada Example"]}, {"at": 7600, "names": ["Ada Example"]}, {"at": 8600, "names": ["Ada Example"]}, {"at": 9600, "names": ["Ada Example"]}]}}]
       }
     }
   ]

@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/public-app-installation-owner.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-installed-site-in-its-own-book-that-answers-install/src/public-app-installation-owner.mjs",
+      "source_identity": "1f:87f50f3602505cf54a915b06a1f98d5a905b4674f7d9e970af32c84f609a20ba",
+      "identity": "1f:ef2d539b10632cdf6126534e2241e7f2f5cf45429855c3aeda6d0cead2562f3f"
+    },
+    {
+      "from": "test/public-app-installation-owner.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-installed-site-in-its-own-book-that-answers-install/test/public-app-installation-owner.test.mjs",
+      "source_identity": "1f:9b85efc8a5473af6a09a95cec1e984ae47ab0c547b50fa7fb9dd360c020b3bb5",
+      "identity": "1f:2298bb38ba2e670dd81d50fe4af50ff81df2fb2f4e94385ee3735ef91fd33f2e"
+    }
+  ]
+}

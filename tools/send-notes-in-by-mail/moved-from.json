@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/inbound-address-words.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-notes-in-by-mail/src/inbound-address-words.json",
+      "source_identity": "1f:b8661d7bc1f2601656b9794a75c1eb65d26152f54305ff55648165c9926937b5",
+      "identity": "1f:b8661d7bc1f2601656b9794a75c1eb65d26152f54305ff55648165c9926937b5"
+    },
+    {
+      "from": "src/inbound-mail-addresses.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-notes-in-by-mail/src/inbound-mail-addresses.mjs",
+      "source_identity": "1f:2bbf3aea26ba0fb84765f9c47fca53295c613dea3a3f3d8ba90163f5ae6a3464",
+      "identity": "1f:2bbf3aea26ba0fb84765f9c47fca53295c613dea3a3f3d8ba90163f5ae6a3464"
+    },
+    {
+      "from": "src/inbound-mail-settings.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-notes-in-by-mail/src/inbound-mail-settings.json",
+      "source_identity": "1f:9a9d11e01e99838354aa024b05289f172f12f82ca3f8cd2f8ad14b8f53dcc20d",
+      "identity": "1f:9a9d11e01e99838354aa024b05289f172f12f82ca3f8cd2f8ad14b8f53dcc20d"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/operational-state.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-running-owners-own-counters-a-readers-place/src/operational-state.mjs",
+      "source_identity": "1f:7d7f40d44645ff80e8c9793b99eee20cb5bcf0669d34838e24a21fcf18c0d2c9",
+      "identity": "1f:6e335760eb60ad58d2941f1dec02c849416b2ab534f1d59ef123336171ea0e09"
+    }
+  ]
+}

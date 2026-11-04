@@ -1,0 +1,15 @@
+{
+  "_what": "How the Business screen (src/business-screen.mjs) reads the money a person's own payment service took in. One row per read: the Workshop tool that lists money since a moment (`tool_id`, run with the person's own connection), the input that takes that moment in seconds since 1970 (`since_input`), where the answer keeps its entries (`list`) and whether more were left (`more`), how many entries one read holds at most (`at_most`), which field of an entry holds each figure (`fields`: amount, fee and net in the currency's smallest unit, currency, and kind), and which kinds count as a payment or as money returned (`kinds`). Every other kind (a payout, a transfer) moves money the business already has and is not counted. The service's name and whether it is connected come from the tool's own connection. A new payment service is one more row.",
+  "reads": [
+    {
+      "tool_id": "tool:stripe-events-read_money_since",
+      "since_input": "since",
+      "list": "data",
+      "more": "has_more",
+      "at_most": 100,
+      "fields": { "amount": "amount", "fee": "fee", "net": "net", "currency": "currency", "kind": "reporting_category" },
+      "kinds": { "charge": "payment", "refund": "refund" },
+      "source": { "url": "https://docs.stripe.com/api/balance_transactions/list", "read_on": "2026-09-30" }
+    }
+  ]
+}

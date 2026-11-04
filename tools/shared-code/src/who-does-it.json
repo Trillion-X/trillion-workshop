@@ -1,0 +1,251 @@
+{
+  "_what": "Who should do each step: the one gate every plan, protocol, workflow step and Waiting on you item passes before a person is ever asked to do anything (src/who-does-it.mjs, tool:who-does-each-step). Jibran 2026-10-06: \"there is a lot of tasks you guys are telling us to do. What is literally all the things Trillion can do?\" and \"make it so dummy simple, -10000 IQ, it takes care of literally everything\". A step says what it needs as open words (`needs`, any words; nothing here is a closed list). Each `doers` row says which of those needs it covers (`does`), what runs it (a Workshop tool or workflow, or your AIs by a handed-off job), what it costs (`cost`: usd, per), and whether it reaches people outside the account or spends money (`reaches_others`, `spends`). A step whose every need is covered by doers that neither spend nor reach anyone goes to Trillion (`who: trillion`). A step covered only by a doer that spends or reaches someone becomes one tap, with its price shown (`who: one-tap`), until the person has said yes to that doer once (`approved`), after which Trillion does it. A step stays the person's (`who: you`) only when it gives one of the `only_a_person` reasons, and even then every doer that helps (a route, a print, a reminder) is attached so the person does nothing but the part only they can. A step with a need no doer covers and no reason is never a to-do: it is `who: nobody-yet`, and the uncovered needs go to the person's AIs as a doer to build. Past outcomes (`past`: { doer, result: met | failed }) move a doer up or down when several cover the same need, so every decision informs the next weighing. A reason marked `first_try` (a doer id) never reaches the person until that doer has been tried and failed on this step (a `past` row { doer, result: failed }): until then the step goes to that doer, so a sign-in or an approval an AI could do with a saved login and a browser is never put on the person's list. Jibran 2026-10-07: \"AIs keep asking me to sign in to things although they have browser access; before anything is sent to me there should be a pause: could we have done it ourselves?\" A doer with `how` carries the words the AI that does it follows. A reason marked `given_once` (consent) is asked once in the person's life of that permission: a step that names `given_in` (the id of the person's own message that already gave it) goes to Trillion, never back on their list. Jibran 2026-10-07: \"if I say go and do it then you ask we need your approval to do it\". Adding a doer, a reason or a word is a row here.",
+  "doers": [
+    {
+      "id": "your-ais",
+      "label": "Your AIs",
+      "does": [
+        "write",
+        "draft",
+        "research",
+        "compare",
+        "summarize",
+        "plan",
+        "decide between options",
+        "design",
+        "make a page",
+        "make a qr code",
+        "make a waitlist",
+        "make a sign",
+        "make packaging art",
+        "make a checklist",
+        "record results",
+        "analyze results",
+        "follow up",
+        "inspect setup",
+        "configure available tools",
+        "install supported hooks",
+        "connect existing accounts",
+        "discover authorized data sources",
+        "verify setup",
+        "read back a result",
+        "resume setup",
+        "prepare a device action"
+      ],
+      "hand_off": true,
+      "cost": {
+        "usd": 0
+      }
+    },
+    {
+      "id": "sign-in-with-a-saved-login",
+      "label": "Your AIs sign in for you with your saved login",
+      "does": [
+        "log in",
+        "login",
+        "authenticate",
+        "reauthenticate",
+        "reconnect an account",
+        "connect an account",
+        "authorize access",
+        "grant access",
+        "allow access",
+        "approve access",
+        "accept an invite",
+        "verify an email",
+        "confirm an email"
+      ],
+      "hand_off": true,
+      "how": "Find the site's saved login (list_saved_logins), read it (read_saved_login), open the site in a browser you control, sign in, press the approve or allow button, and check the page says it worked. A code sent to their email or a number they gave Trillion is read from there. Only when the site asks for something no saved login, mailbox or browser you hold can give (a code shown only on their own phone, a passkey tap) say exactly which, where it appears and what you already tried.",
+      "cost": {
+        "usd": 0
+      }
+    },
+    {
+      "id": "route-buttons",
+      "label": "Route buttons",
+      "does": [
+        "route",
+        "directions",
+        "get there",
+        "drive there",
+        "walk there",
+        "navigate"
+      ],
+      "tool_id": "tool:route-buttons",
+      "cost": {
+        "usd": 0
+      }
+    },
+    {
+      "id": "find-nearest-places",
+      "label": "Nearest places",
+      "does": [
+        "choose a store",
+        "find a store",
+        "find the nearest",
+        "find a place",
+        "pick a location",
+        "pick stores"
+      ],
+      "tool_id": "tool:find-nearest-places",
+      "cost": {
+        "usd": 0
+      }
+    },
+    {
+      "id": "print-a-file",
+      "label": "Print on a printer I can use",
+      "does": [
+        "print",
+        "print a document",
+        "print a page",
+        "print labels"
+      ],
+      "tool_id": "tool:print",
+      "cost": {
+        "usd": 0
+      }
+    },
+    {
+      "id": "print-shop",
+      "label": "Print shop, ready for pickup or delivered",
+      "does": [
+        "print",
+        "print large",
+        "print at shelf scale",
+        "print packaging",
+        "print a poster",
+        "print signs",
+        "print and deliver",
+        "pick up prints"
+      ],
+      "purpose": "print-and-deliver",
+      "cost": {
+        "usd": 25,
+        "per": "an order, before the shop's quote"
+      },
+      "spends": true,
+      "reaches_others": true
+    },
+    {
+      "id": "calendar",
+      "label": "Put it on the calendar",
+      "does": [
+        "schedule",
+        "book a time",
+        "calendar",
+        "remind",
+        "set a time",
+        "meet"
+      ],
+      "tool_id": "tool:hold-to-it",
+      "cost": {
+        "usd": 0
+      }
+    },
+    {
+      "id": "email",
+      "label": "Email someone",
+      "does": [
+        "email",
+        "ask someone",
+        "write to",
+        "contact a store",
+        "contact an employee",
+        "confirm with someone"
+      ],
+      "tool_id": "tool:send-an-email",
+      "cost": {
+        "usd": 0
+      },
+      "reaches_others": true
+    },
+    {
+      "id": "hire-a-tasker",
+      "label": "Hire someone nearby for the errand",
+      "does": [
+        "errand",
+        "go to the store",
+        "in-store task",
+        "set up a display",
+        "take photos in a store",
+        "observe shoppers",
+        "pick up",
+        "drop off",
+        "deliver",
+        "assemble",
+        "carry"
+      ],
+      "purpose": "hire-help-for-a-step",
+      "cost": {
+        "usd": 60,
+        "per": "for about two hours, before the tasker's quote"
+      },
+      "spends": true,
+      "reaches_others": true
+    },
+    {
+      "id": "buy-it",
+      "label": "Buy it and have it delivered",
+      "does": [
+        "buy",
+        "bring gear",
+        "bring a clipboard",
+        "get supplies",
+        "order supplies"
+      ],
+      "purpose": "buy-and-deliver",
+      "cost": {
+        "usd": 20,
+        "per": "an order, before the store's price"
+      },
+      "spends": true,
+      "reaches_others": true
+    }
+  ],
+  "only_a_person": [
+    {
+      "id": "their-own-body",
+      "words": "it has to be their own body there (their face, their voice, their hands) and no one else can stand in"
+    },
+    {
+      "id": "their-own-consent",
+      "words": "it is their consent, signature or identity, which no one may give for them",
+      "given_once": true
+    },
+    {
+      "id": "their-own-relationship",
+      "words": "it is a personal reply in a relationship that is theirs alone (family, a partner, a friend)"
+    },
+    {
+      "id": "their-own-taste",
+      "words": "it is their own taste or judgement the result exists to capture"
+    },
+    {
+      "id": "a-sign-in-only-they-can",
+      "words": "it is a code or a tap that only appears on their own device, after your AIs tried to sign in with their saved login and a browser and were stopped",
+      "first_try": "sign-in-with-a-saved-login"
+    },
+    { "id": "who-someone-is", "words": "it is who someone in their own life is, which only they know" },
+    { "id": "a-switch-on-their-own-device", "words": "it is a switch on their own device that only they can turn on there" }
+  ],
+  "words": {
+    "trillion": "Trillion does this: {doers}.",
+    "one_tap": "One tap and Trillion does this: {doers}, about {cost}.",
+    "you": "Only you can do this, because {reason}. Trillion does the rest: {doers}.",
+    "you_alone": "Only you can do this, because {reason}.",
+    "try_first": "Your AIs try this first: {doers}. It reaches you only if they are stopped, and then they say exactly what stopped them.",
+    "nobody_yet": "Nothing can do this yet ({needs}), so your AIs are building it. It is not on your list.",
+    "already_given": "You already said yes ({given_in}), so Trillion does this without asking again{with}.",
+    "already_given_with": ": {doers}",
+    "joiner": ", ",
+    "free": "free",
+    "cost": "${usd} {per}",
+    "summary": "{trillion} done by Trillion, {one_tap} one tap, {you} only you, {nobody_yet} being built."
+  },
+  "ranking": {
+    "met": 1,
+    "failed": -2
+  }
+}

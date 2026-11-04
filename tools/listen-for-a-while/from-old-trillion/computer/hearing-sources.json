@@ -1,0 +1,14 @@
+{
+  "_what": "Hearing a call one audio source at a time (computer/hearing-sources.mjs). Each source (the microphone, the sound the Mac plays) is heard on its own and never mixed with another before it is heard, so who said what does not need a mixer to guess. A source row says what its words are called when nobody can be told apart inside it (`speaker`), and whether it is the person's own voice (`me`). `session_file` is where each session's record is kept: which hearing program heard it, the flags that applied (for example whether a relay or a training opt-out was asked for), when and which sources. Providers are rows too: the first `hearing` row in computer-sources.json whose program is here is used unless `provider` names one.",
+  "sources": [
+    { "id": "microphone", "speaker": "Me", "me": true },
+    { "id": "system-audio", "speaker": "Others", "me": false }
+  ],
+  "session_file": "~/.trillion/hearing/sessions.json",
+  "most_sessions": 200,
+  "words": {
+    "needs_sources": "Give sources: [{ source, path }], each a recording of one source.",
+    "unknown_source": "There is no source {source}. Sources: {known}.",
+    "no_hearing": "This Mac has no program that hears recordings."
+  }
+}

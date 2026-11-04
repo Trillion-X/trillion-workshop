@@ -1,0 +1,11 @@
+{
+  "about": "Which version of a tool each workflow step was written for, and when a run may use a newer one (src/workflow-step-versions.mjs). A step that runs a tool keeps a pin, { version, fields }: the tool's whole definition identity when the step was saved (workshopToolVersion) and the identity of each of `contract_fields` of that definition. A run reaching the step uses the tool as it is now when every pinned field is unchanged (a new release that keeps the step's contract), and notes the version it ran; when one of them changed, the step waits for its owner to upgrade it (upgrade_workflow_steps), so a published workflow never runs a step against a contract it was not written for. Upgrading re-pins the step to the tool as it is now, after checking that the step still gives every input the tool now requires. `most_steps_per_upgrade` caps how many steps one upgrade reads. Every word an AI or a person reads is under `words`.",
+  "contract_fields": ["input_schema", "output_schema", "fixed_input", "result_selector"],
+  "most_steps_per_upgrade": 64,
+  "words": {
+    "upgrade_needed": "Step {step_id} was written for an earlier version of {tool_id}, and its {fields} changed since. It waits until the workflow's owner upgrades the step (upgrade_workflow_steps), then a new run uses the new version.",
+    "upgrade_refused": "Step {step_id} cannot move to the current {tool_id}: the tool now requires {missing}, which the step does not give. Give the step those inputs with save_workflow, then upgrade it.",
+    "nothing_to_upgrade": "Every tool step of {workflow_id} is already written for the tool as it is now.",
+    "runs_keep": "Runs already started keep the recipe they started with; new runs use the upgraded steps."
+  }
+}

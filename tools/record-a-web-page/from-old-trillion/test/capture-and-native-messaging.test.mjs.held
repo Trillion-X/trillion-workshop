@@ -1,0 +1,142 @@
+// test/capture-and-native-messaging.test.mjs
+//
+// Capture (F-0519): a certificate authority made per install with an expiry (computer/capture-ca.mjs), a loopback capture proxy
+// that reads real HTTPS with it (computer/capture-proxy.mjs), and the browser's own native-messaging manifest
+// (computer/native-messaging.mjs). Real openssl, real TLS sockets, real files; nothing is trusted in the system keychain.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import https from 'node:https';
+import net from 'node:net';
+import tls from 'node:tls';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { captureCaSettings, makeCaptureCa } from '../computer/capture-ca.mjs';
+import { captureProxySettings, makeCaptureProxy } from '../computer/capture-proxy.mjs';
+import { makeNativeMessaging, nativeMessagingSettings } from '../computer/native-messaging.mjs';
+
+const homeOf = () => mkdtempSync(join(tmpdir(), 'capture-'));
+
+test('the authority is made once per install, private, with an expiry, made again before it expires, and signs a leaf for a host only', () => {
+  const home = homeOf();
+  let clock = Date.now();
+  const ca = makeCaptureCa({ home, now: () => clock });
+  const made = ca.ensure();
+  assert.equal(made.state, 'made');
+  assert.equal(statSync(join(home, captureCaSettings().folder, 'ca.key')).mode & 0o777, 0o600);
+  assert.equal(statSync(join(home, captureCaSettings().folder)).mode & 0o777, 0o700);
+  assert.equal(ca.ensure().state, 'kept');
+  const leaf = ca.leafFor('example.test');
+  assert.match(leaf.cert, /BEGIN CERTIFICATE/);
+  assert.equal(ca.leafFor('example.test'), leaf, 'a leaf is kept for its life');
+  assert.throws(() => ca.leafFor('*.example.test'), /not a host name/);
+  assert.throws(() => ca.leafFor('a b'), /not a host name/);
+  clock += (captureCaSettings().ca_days - 10) * 86_400_000;
+  const before = new Date(made.expires_at).getTime();
+  clock += 2000;
+  const renewed = ca.ensure();
+  assert.equal(renewed.state, 'renewed');
+  assert.match(renewed.said, /trust it again/);
+  assert.ok(new Date(renewed.expires_at).getTime() >= before, 'a new authority with a new expiry');
+});
+
+async function upstream(home, hostname) {
+  const ca = makeCaptureCa({ home });
+  ca.ensure();
+  const pair = ca.leafFor(hostname);
+  const server = https.createServer({ key: pair.key, cert: pair.cert }, (request, reply) => {
+    const chunks = [];
+    request.on('data', piece => chunks.push(piece));
+    request.on('end', () => reply.writeHead(200, { 'content-type': 'application/json', 'set-cookie': 'session=zzz' }).end(JSON.stringify({ path: request.url, got: Buffer.concat(chunks).toString(), auth: request.headers.authorization ?? null })));
+  });
+  await new Promise(done => server.listen(0, '127.0.0.1', done));
+  return { server, port: server.address().port, caPem: ca.pem() };
+}
+
+// A client that goes through the proxy the way a browser does: CONNECT, then TLS to the named host, trusting only the proxy's authority.
+function throughProxy(proxyPort, targetPort, caPem, { method = 'GET', path = '/', headers = {}, body = null } = {}) {
+  return new Promise((done, fail) => {
+    const socket = net.connect(proxyPort, '127.0.0.1', () => socket.write(`CONNECT localhost:${targetPort} HTTP/1.1\r\nHost: localhost:${targetPort}\r\n\r\n`));
+    socket.once('data', first => {
+      if (!/200/.test(first.toString())) return fail(new Error(first.toString()));
+      const secure = tls.connect({ socket, servername: 'localhost', ca: caPem }, () => {
+        secure.write(`${method} ${path} HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n${Object.entries(headers).map(([k, v]) => `${k}: ${v}\r\n`).join('')}${body ? `Content-Length: ${Buffer.byteLength(body)}\r\n` : ''}\r\n${body ?? ''}`);
+      });
+      const pieces = [];
+      secure.on('data', piece => pieces.push(piece));
+      secure.on('end', () => done(Buffer.concat(pieces).toString()));
+      secure.on('error', fail);
+    });
+  });
+}
+
+test('the proxy reads real HTTPS with the install\'s own authority, keeps the exchange without secrets, and the person\'s program sees the real answer', async () => {
+  const proxyHome = homeOf();
+  const upstreamHome = homeOf();
+  const site = await upstream(upstreamHome, 'localhost');
+  const captures = [];
+  const proxy = makeCaptureProxy({ ca: makeCaptureCa({ home: proxyHome }), onCapture: entry => captures.push(entry), upstreamTls: { ca: site.caPem } });
+  const port = await proxy.listen();
+  try {
+    assert.equal(proxy.server.address().address, '127.0.0.1');
+    const raw = await throughProxy(port, site.port, makeCaptureCa({ home: proxyHome }).pem(), { method: 'POST', path: '/items?x=1', headers: { authorization: 'Bearer TOPSECRET', 'content-type': 'text/plain' }, body: 'hello' });
+    assert.match(raw, /^HTTP\/1\.1 200/);
+    assert.match(raw, /"got":"hello"/);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    assert.equal(captures.length, 1);
+    const entry = captures[0];
+    assert.equal(entry.method, 'POST');
+    assert.equal(entry.url, `https://localhost:${site.port}/items?x=1`);
+    assert.equal(Buffer.from(entry.request.body.base64, 'base64').toString(), 'hello');
+    assert.equal(entry.request.headers.authorization, '[not kept]');
+    assert.equal(entry.response.headers['set-cookie'], '[not kept]');
+    assert.equal(entry.response.status, 200);
+    assert.ok(!JSON.stringify(entry).includes('TOPSECRET'));
+    // A program that does not trust the authority is refused by its own TLS check: nothing is trusted for it.
+    await assert.rejects(throughProxy(port, site.port, site.caPem));
+  } finally { await proxy.close(); await new Promise(done => site.server.close(done)); }
+});
+
+test('a tunnel host is passed through untouched: the program sees the site\'s own certificate, and nothing is kept', async () => {
+  const upstreamHome = homeOf();
+  const site = await upstream(upstreamHome, 'localhost');
+  const captures = [];
+  const settings = { ...captureProxySettings(), tunnel_hosts: ['localhost'] };
+  const proxy = makeCaptureProxy({ settings, ca: makeCaptureCa({ home: homeOf() }), onCapture: entry => captures.push(entry) });
+  const port = await proxy.listen();
+  try {
+    const raw = await throughProxy(port, site.port, site.caPem, { path: '/direct' });
+    assert.match(raw, /"path":"\/direct"/);
+    assert.equal(captures.length, 0);
+  } finally { await proxy.close(); await new Promise(done => site.server.close(done)); }
+});
+
+test('a browser extension is joined through each browser\'s own manifest: named extensions only, our manifests only, atomic and reversible', () => {
+  const home = homeOf();
+  const settings = nativeMessagingSettings();
+  const manager = makeNativeMessaging({ home });
+  const host = join(home, 'host-program');
+  writeFileSync(host, '#!/bin/sh\n', { mode: 0o755 });
+  assert.throws(() => manager.install({ name: 'Bad Name', path: host, extensions: ['abc'] }), /not a valid native host name/);
+  assert.throws(() => manager.install({ name: 'com.example.host', path: 'relative', extensions: ['abc'] }), /absolute path/);
+  assert.throws(() => manager.install({ name: 'com.example.host', path: host, extensions: [] }), /at least one extension/);
+  assert.throws(() => manager.install({ name: 'com.example.host', path: host, extensions: ['abc'], browsers: ['nope'] }), /no browser named nope/);
+  const foreign = join(home, settings.browsers[1].folder, 'com.example.host.json');
+  mkdirSync(join(home, settings.browsers[1].folder), { recursive: true });
+  writeFileSync(foreign, JSON.stringify({ name: 'com.example.host', path: '/other' }));
+  const installed = manager.install({ name: 'com.example.host', description: 'Example', path: host, extensions: ['abcdefghijklmnopabcdefghijklmnop'] });
+  assert.deepEqual(installed.installed.sort(), settings.browsers.map(row => row.id).filter(id => id !== settings.browsers[1].id).sort());
+  assert.equal(installed.skipped[0].browser, settings.browsers[1].id);
+  assert.equal(JSON.parse(readFileSync(foreign, 'utf8')).path, '/other', 'a manifest that is not ours is left alone');
+  const chrome = JSON.parse(readFileSync(join(home, settings.browsers[0].folder, 'com.example.host.json'), 'utf8'));
+  assert.deepEqual(chrome.allowed_origins, ['chrome-extension://abcdefghijklmnopabcdefghijklmnop/']);
+  assert.equal(chrome.type, 'stdio');
+  assert.equal(chrome.path, host);
+  const firefox = JSON.parse(readFileSync(join(home, settings.browsers.find(row => row.id === 'firefox').folder, 'com.example.host.json'), 'utf8'));
+  assert.deepEqual(firefox.allowed_extensions, ['abcdefghijklmnopabcdefghijklmnop']);
+  assert.deepEqual(manager.read({ name: 'com.example.host' }).browsers.map(row => `${row.browser}:${row.state}`).sort(), settings.browsers.map(row => `${row.id}:${row.id === settings.browsers[1].id ? 'foreign' : 'ours'}`).sort());
+  const removed = manager.remove({ name: 'com.example.host' });
+  assert.equal(removed.removed.length, settings.browsers.length - 1);
+  assert.ok(existsSync(foreign));
+  assert.ok(manager.read({ name: 'com.example.host', browsers: ['chrome'] }).browsers.every(row => row.state === 'absent'));
+});

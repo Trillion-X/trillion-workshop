@@ -1,0 +1,42 @@
+{
+  "_what": "The request executor a page on an allowed origin reaches on this computer (computer/loopback-executor.mjs), for requests the page's own network rules would refuse. `host` is always 127.0.0.1. `origins` are the only pages it answers. A session starts with a hello that carries a single-use token minted by this computer's own host with the per-install secret; `token_ttl_ms` is how long a token lives and `session_ttl_ms` a session. `request_limits` bound one request. `tls` is the default for every request: a request may ask for a weaker floor or no certificate check itself, never the whole process. `restriction.deny` is an opt-in list of ranges refused after the name is resolved, on top of nothing: the default is open.",
+  "host": "127.0.0.1",
+  "port": 0,
+  "origins": [],
+  "token_ttl_ms": 60000,
+  "session_ttl_ms": 3600000,
+  "secret_file": ".trillion/loopback-executor/secret",
+  "request_limits": {
+    "body_bytes": 10000000,
+    "response_bytes": 50000000,
+    "timeout_ms": 60000,
+    "redirects": 10
+  },
+  "tls": {
+    "min_version": "TLSv1.2",
+    "reject_unauthorized": true,
+    "allowed_min_versions": [
+      "TLSv1",
+      "TLSv1.1",
+      "TLSv1.2",
+      "TLSv1.3"
+    ]
+  },
+  "restriction": {
+    "enabled": false,
+    "public_only": true,
+    "deny": []
+  },
+  "words": {
+    "bad_hello": "The hello was not accepted.",
+    "bad_origin": "This page is not allowed to use the executor.",
+    "no_session": "Start a session with a hello first.",
+    "bad_request": "The request must be a JSON object with a url and a method.",
+    "too_big": "The request or its answer is larger than the executor allows.",
+    "tls_floor": "{version} is not a TLS version this executor knows.",
+    "off": "The request executor is off.",
+    "on": "The request executor is listening on 127.0.0.1 port {port}; the token is good once.",
+    "script_result": "A pre-request script must return { request: { url, method, ... } }.",
+    "no_origin": "No page origin is allowed to use the executor yet."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/private-responses.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/react-privately-to-anything-in-a-persons-own-trillion-so-no/src/private-responses.mjs",
+      "source_identity": "1f:fbce12aeae4bd4f7890a76f05f6820b9d49374e39c3d57fcad56de5d65fe101b",
+      "identity": "1f:be57c1cff86692366e1e18ff313afd02f1bf08c0d9a6d3c1e17343cfca15cd1b"
+    },
+    {
+      "from": "test/private-responses.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/react-privately-to-anything-in-a-persons-own-trillion-so-no/test/private-responses.test.mjs",
+      "source_identity": "1f:ef3e2292de6d840af575689bda01c03387a4da4199e38b05bf6409b7e4d565d7",
+      "identity": "1f:00fed69ce2ee7bb89d8cbfa046247e965c20c18c5fcc0c4580b3a4581bddb3df"
+    }
+  ]
+}

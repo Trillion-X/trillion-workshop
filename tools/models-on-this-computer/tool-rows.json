@@ -125,6 +125,7 @@
           "max_run_ms": 1800000
         },
         "result_selector": "$.result",
+        "verify": [{"kind":"sample-run","input":{"messages":[{"role":"user","content":"Say hello to Ada Example."}]}}],
         "needs": {
           "expected_seconds": 8,
           "network_egress": false
@@ -239,6 +240,7 @@
           "max_run_ms": 7200000
         },
         "result_selector": "$.result",
+        "verify": [{"kind":"sample-run","input":{}}],
         "needs": {
           "expected_seconds": 10,
           "network_egress": false

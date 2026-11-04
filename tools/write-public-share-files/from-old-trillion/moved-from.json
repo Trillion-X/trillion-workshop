@@ -1,0 +1,153 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on with no home and no backlog row, moved here byte for byte from the parent of the commit that deleted each (commit; deleted_by names the deleting commit). Nothing here is rewritten: a file waits here for its wiring, under its old path, so the files keep importing each other as they did. A redaction replaces a real person's name or address with a made-up one, and is listed on the file; source_identity is the BLAKE3 identity of the bytes at commit, identity of the bytes here.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/calendar-booker/read-data/availability-page-sections.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/parts/calendar-booker/read-data/availability-page-sections.mjs",
+      "source_identity": "1f:fb8e151e81db6594e21262fc935060e326fc3b289aaaea09f228f978687b020c",
+      "identity": "1f:fb8e151e81db6594e21262fc935060e326fc3b289aaaea09f228f978687b020c"
+    },
+    {
+      "from": "parts/screen-look/show/list-public-comparison.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/parts/screen-look/show/list-public-comparison.mjs",
+      "source_identity": "1f:18456399f851f8555636aab9713d9f1d4ca6e7833243180e175a5750b7bc14d7",
+      "identity": "1f:18456399f851f8555636aab9713d9f1d4ca6e7833243180e175a5750b7bc14d7"
+    },
+    {
+      "from": "src/crawler-document-key.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/src/crawler-document-key.mjs",
+      "source_identity": "1f:f7a81a4e1142d28b06e0f1123979747d15d27c03b63740b6b0a425cf2560d057",
+      "identity": "1f:f7a81a4e1142d28b06e0f1123979747d15d27c03b63740b6b0a425cf2560d057"
+    },
+    {
+      "from": "src/list-public-comparison.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/src/list-public-comparison.mjs",
+      "source_identity": "1f:d9196ae535b1718a9e1d31e31bb25098ce35d28be86c0e7ff56c6a26871dedc0",
+      "identity": "1f:d9196ae535b1718a9e1d31e31bb25098ce35d28be86c0e7ff56c6a26871dedc0"
+    },
+    {
+      "from": "src/record-share-pages.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/src/record-share-pages.mjs",
+      "source_identity": "1f:652ac0b0d686b072f3cab21cb6ab4973496fb1647f9f1a43e58f13339d220bab",
+      "identity": "1f:652ac0b0d686b072f3cab21cb6ab4973496fb1647f9f1a43e58f13339d220bab"
+    },
+    {
+      "from": "src/share-visitor.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/src/share-visitor.mjs",
+      "source_identity": "1f:d5685f0772a21eb61bf29af5939fc63fd190c45085a59a9e4c65453bc0957680",
+      "identity": "1f:d5685f0772a21eb61bf29af5939fc63fd190c45085a59a9e4c65453bc0957680"
+    },
+    {
+      "from": "src/shared-site-view.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/src/shared-site-view.mjs",
+      "source_identity": "1f:6a028887fd7436f9c3b07396e7f94df99a35039363bcabebe18be9f56b9ab843",
+      "identity": "1f:6a028887fd7436f9c3b07396e7f94df99a35039363bcabebe18be9f56b9ab843"
+    },
+    {
+      "from": "test/availability-share-page.test.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/test/availability-share-page.test.mjs.held",
+      "source_identity": "1f:34260e273675939f35efabf01a0b4ae784b29ccbedf69f18738725c28d325234",
+      "identity": "1f:34260e273675939f35efabf01a0b4ae784b29ccbedf69f18738725c28d325234",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/list-public-comparison.test.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/test/list-public-comparison.test.mjs.held",
+      "source_identity": "1f:9257c005abadbc10f04c3f55a24ccd7ee26c252ff58c7c8e9fb477aa43d4a8e9",
+      "identity": "1f:9257c005abadbc10f04c3f55a24ccd7ee26c252ff58c7c8e9fb477aa43d4a8e9",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/namespace-shared-byte-access.test.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/test/namespace-shared-byte-access.test.mjs.held",
+      "source_identity": "1f:18905f8ce4e54012d12b285fdc7392e71e80448989f1397982a7451fb7b197f3",
+      "identity": "1f:18905f8ce4e54012d12b285fdc7392e71e80448989f1397982a7451fb7b197f3",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/record-share-crawler-cost.test.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/test/record-share-crawler-cost.test.mjs.held",
+      "source_identity": "1f:9fed470e51d04d67a27aebb1654e2cb357e134c9c9bdbea335f1d6a9d9738dae",
+      "identity": "1f:9fed470e51d04d67a27aebb1654e2cb357e134c9c9bdbea335f1d6a9d9738dae",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/record-share-crawler-owners.test.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/test/record-share-crawler-owners.test.mjs.held",
+      "source_identity": "1f:be12367400d7d9ac3e137b38829b84186acd1ed24f4366bcb087503607e4c2b5",
+      "identity": "1f:be12367400d7d9ac3e137b38829b84186acd1ed24f4366bcb087503607e4c2b5",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/record-share-crawler-resilience.test.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/test/record-share-crawler-resilience.test.mjs.held",
+      "source_identity": "1f:ff3531ff9a0c866631b8e124a0dd945a1a7784c66a5ce21b05e34a5e2121af46",
+      "identity": "1f:ff3531ff9a0c866631b8e124a0dd945a1a7784c66a5ce21b05e34a5e2121af46",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/record-share-pages.test.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/test/record-share-pages.test.mjs.held",
+      "source_identity": "1f:57d2a32e203dbad7c309d8a1e488e074224c7063318ad9a745a70fd52a50ea80",
+      "identity": "1f:57d2a32e203dbad7c309d8a1e488e074224c7063318ad9a745a70fd52a50ea80",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/share-consumer-owner-fixture.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/test/share-consumer-owner-fixture.mjs",
+      "source_identity": "1f:9e66e03fcbfe13fb48b0b97e1f05f49880b1df53379a95d357639e70c347914e",
+      "identity": "1f:9e66e03fcbfe13fb48b0b97e1f05f49880b1df53379a95d357639e70c347914e"
+    },
+    {
+      "from": "test/shared-site-view.test.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/test/shared-site-view.test.mjs.held",
+      "source_identity": "1f:8c148aa6441139c1b9c6a7707d2b8f8a7caf6c77035733306bb7f0d6c4ee0ce8",
+      "identity": "1f:8c148aa6441139c1b9c6a7707d2b8f8a7caf6c77035733306bb7f0d6c4ee0ce8",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    },
+    {
+      "from": "test/shared-transcript-rpc.test.mjs",
+      "commit": "8d9cf8e379f7d71edbf512c85386d3f8a2e5d656",
+      "deleted_by": "7e6f47d334",
+      "to": "tools/write-public-share-files/from-old-trillion/test/shared-transcript-rpc.test.mjs.held",
+      "source_identity": "1f:a3d2d15ddfd2a18615fbfc510b2ca0e048a668ae471e66efb9d8df4273f74371",
+      "identity": "1f:a3d2d15ddfd2a18615fbfc510b2ca0e048a668ae471e66efb9d8df4273f74371",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    }
+  ]
+}

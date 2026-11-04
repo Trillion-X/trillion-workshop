@@ -1,0 +1,32 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on with no home and no backlog row, moved here byte for byte from the parent of the commit that deleted each (commit; deleted_by names the deleting commit). Nothing here is rewritten: a file waits here for its wiring, under its old path, so the files keep importing each other as they did. A redaction replaces a real person's name or address with a made-up one, and is listed on the file; source_identity is the BLAKE3 identity of the bytes at commit, identity of the bytes here.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "computer/speech-enhance.json",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/grade-and-repair-speech-audio/from-old-trillion/computer/speech-enhance.json",
+      "source_identity": "1f:7a9001a5c4a2c1ceebb50321d2b1b734b25cd6e93e6b60b7a3868659aa2636ba",
+      "identity": "1f:7a9001a5c4a2c1ceebb50321d2b1b734b25cd6e93e6b60b7a3868659aa2636ba"
+    },
+    {
+      "from": "computer/speech-enhance.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/grade-and-repair-speech-audio/from-old-trillion/computer/speech-enhance.mjs",
+      "source_identity": "1f:dba2dfbff2f240e6407b9f8a0ddab0939dfb6338106675618e8f2d3035f3d405",
+      "identity": "1f:dba2dfbff2f240e6407b9f8a0ddab0939dfb6338106675618e8f2d3035f3d405"
+    },
+    {
+      "from": "test/speech-enhance.test.mjs",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "deleted_by": "dc79bb0a87",
+      "to": "tools/grade-and-repair-speech-audio/from-old-trillion/test/speech-enhance.test.mjs",
+      "source_identity": "1f:447e7cfc7c2f203449cf09f969a967d98959d7d28e06c6a8f2c4b11c00221c1c",
+      "identity": "1f:447e7cfc7c2f203449cf09f969a967d98959d7d28e06c6a8f2c4b11c00221c1c"
+    }
+  ]
+}

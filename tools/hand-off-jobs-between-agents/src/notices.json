@@ -1,0 +1,65 @@
+{
+  "what_this_is": "Settings for src/notices.mjs, the notices every AI of one person sees once: how many are kept, what a reader seen for the first time is shown, how many one reply carries, when a reader nobody has shown anything to is forgotten, and the words a decision's notice and a handoff's notices are made of (each handoff row with its next_call, the call that acts on it, {field} filled from the handoff). `shown_without_a_plan` lists the kinds an AI is shown even on a plan that keeps nothing: what Trillion told the person (the held thing reaches their AIs on every plan, as it reaches their page and phone). Changing a limit or a word is a change here, never in code.",
+  "keep": 50,
+  "first_look_hours": 24,
+  "most_at_once": 10,
+  "forget_reader_days": 30,
+  "said_max": 1200,
+  "reply_field": "new_since_you_last_looked",
+  "shown_without_a_plan": ["told-the-person"],
+  "decision_words": {
+    "opening": "Decided in {app}: \"{question}\".",
+    "opening_no_app": "Decided: \"{question}\".",
+    "chosen": "Chosen: {chosen}.",
+    "next": "Next: {next_action}.",
+    "case": "Case {case_id}."
+  },
+  "decision_event": {
+    "type": "decision.made",
+    "next_tool": "export_decision"
+  },
+  "handoff_notices": {
+    "job_max": 300,
+    "waiting": {
+      "kind": "handoff",
+      "said": "Work is waiting for you ({to_agent}): \"{job}\". Take it with take_work (agent_id \"{to_agent}\", handoff_id \"{handoff_id}\"), do it, then finish_work.",
+      "next_call": {
+        "tool": "take_work",
+        "arguments": {
+          "agent_id": "{to_agent}",
+          "handoff_id": "{handoff_id}"
+        }
+      }
+    },
+    "waiting_for_anyone": {
+      "kind": "handoff",
+      "said": "Work is waiting for whichever of this person's AIs takes it first: \"{job}\". If it fits what you do, take it with take_work (your agent_id, handoff_id \"{handoff_id}\"), do it, then finish_work.",
+      "next_call": {
+        "tool": "take_work",
+        "arguments": {
+          "handoff_id": "{handoff_id}"
+        }
+      }
+    },
+    "finished": {
+      "kind": "handoff-finished",
+      "said": "{taken_by} finished work you handed off: \"{job}\". Read the result with read_handoff (handoff_id \"{handoff_id}\").",
+      "next_call": {
+        "tool": "read_handoff",
+        "arguments": {
+          "handoff_id": "{handoff_id}"
+        }
+      }
+    },
+    "stuck": {
+      "kind": "handoff-stuck",
+      "said": "{in_the_way_by} is stuck on work you handed off: \"{job}\". In the way: \"{in_the_way}\". Read it with read_handoff (handoff_id \"{handoff_id}\").",
+      "next_call": {
+        "tool": "read_handoff",
+        "arguments": {
+          "handoff_id": "{handoff_id}"
+        }
+      }
+    }
+  }
+}

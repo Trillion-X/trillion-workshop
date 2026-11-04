@@ -111,7 +111,8 @@
       ]
      }
     },
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); exits 1 when the file is not on a connected drive", "proved_on": null}]
    }
   },
   {
@@ -206,7 +207,8 @@
       ]
      }
     },
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "verify": [{"kind": "sample-run", "input": {}}]
    }
   },
   {
@@ -324,7 +326,8 @@
       ]
      }
     },
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "verify": [{"kind": "sample-run", "input": {"id": "copy-sample-1", "action": "pause", "check": true}}]
    }
   },
   {
@@ -447,7 +450,8 @@
       ]
      }
     },
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); a copy or move exits 1 unless its sources and destinations are on connected drives", "proved_on": null}]
    }
   },
   {
@@ -554,7 +558,8 @@
       ]
      }
     },
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "verify": [{"kind": "sample-run", "input": {"mount": "/Volumes/Example Drive"}}]
    }
   }
  ]

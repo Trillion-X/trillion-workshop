@@ -1,0 +1,17 @@
+{
+  "_what": "The capture proxy a person points a program at to see what it sends (computer/capture-proxy.mjs). It listens on 127.0.0.1 only. `tunnel_hosts` are sites passed through untouched (never opened with the capture certificate); `only_hosts`, when not empty, limits capture to those domains and tunnels the rest. `redact_headers` are header names whose values are never kept. `body_bytes` bounds what is kept of each body. `captures_file` (under the home folder) is where the separate proxy process writes one JSON line per exchange.",
+  "host": "127.0.0.1",
+  "port": 0,
+  "tunnel_hosts": [],
+  "only_hosts": [],
+  "redact_headers": ["authorization", "proxy-authorization", "cookie", "set-cookie", "x-api-key"],
+  "mask": "[not kept]",
+  "body_bytes": 262144,
+  "timeout_ms": 60000,
+  "hop_headers": ["connection", "proxy-connection", "keep-alive", "proxy-authenticate", "proxy-authorization", "te", "trailer", "transfer-encoding", "upgrade"],
+  "captures_file": ".trillion/capture/captures.jsonl",
+  "words": {
+    "bad_target": "The proxy was asked for {target}, which is not a host and port.",
+    "upstream_failed": "The proxy could not reach {host}: {error}"
+  }
+}

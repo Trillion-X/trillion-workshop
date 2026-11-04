@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "scripts/local-cost-pricing.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/local-cost-pricing/scripts/local-cost-pricing.json",
+      "source_identity": "1f:f7405f3e5751c250b5f68f05f5876c21f951162fd7c2957012c92a63e1dca717",
+      "identity": "1f:f7405f3e5751c250b5f68f05f5876c21f951162fd7c2957012c92a63e1dca717"
+    },
+    {
+      "from": "scripts/local-cost-pricing.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/local-cost-pricing/scripts/local-cost-pricing.mjs",
+      "source_identity": "1f:070025949541e9c5e075d5e1e7d2e590a748cf3cda2843e7c62ec00ab6d1c65a",
+      "identity": "1f:3661e0c4ef21030c4e6fa1acd9cd12a5de071bfac6150f968589fda53fc4ba76"
+    }
+  ]
+}
