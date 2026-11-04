@@ -1,0 +1,763 @@
+{
+  "kind": "tool-rows",
+  "record_set": "tours-screen-tool-rows",
+  "what_this_is": "The Workshop rows for tools/tours-screen: the workspace tours, the tours waiting to start by themselves as the person's show rules leave them, and dismissing waiting tours, over the person's own tour and progress records.",
+  "records": [
+    {
+      "id": "package::tours-screen::tool::list-workspace-tours",
+      "address": "package::tours-screen::tool::list-workspace-tours",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-workspace-tours",
+        "label": "List the workspace tours",
+        "status": "active",
+        "read_only": true,
+        "job": "Show me every tour in my workspace and which ones I have finished",
+        "description": "Reads the tours your AIs wrote (guided-overlay::own-walkthroughs) and your tour progress, with the app's own tours when the caller passes them as tours, and answers each tour in its order: tour_id, title, summary, steps, finished, the event that starts it by name (start_event), when the change it shows landed (changed_at) and whether it is one of your own. It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "tours": {
+              "type": "array",
+              "description": "The app's own tours (walkthrough definitions), when the caller has them; the person's own are always read"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "tours",
+            "said"
+          ],
+          "properties": {
+            "tours": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "tours-screen",
+                "paths": [
+                  "package.json",
+                  "do-work",
+                  "read-data",
+                  "engine",
+                  "guided-overlay-defaults.json"
+                ],
+                "at": "/opt/tours-screen"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "find-anything-from-one-box",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/find-anything-from-one-box"
+              },
+              {
+                "package": "organize-the-sidebar",
+                "paths": [
+                  "sidebar/part.json"
+                ],
+                "at": "/opt/organize-the-sidebar"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/ui"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/tours-screen",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/tours-screen/do-work/tours.mjs",
+            "listTours"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": "guided-overlay::own-walkthroughs",
+                "operations": [
+                  "workspace:read"
+                ]
+              },
+              {
+                "kind": "@own-records",
+                "id": "guided-overlay::walkthrough-progress",
+                "operations": [
+                  "workspace:read"
+                ]
+              },
+              {
+                "kind": "@own-records",
+                "id": "show-rules",
+                "operations": [
+                  "workspace:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:tours-screen",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion parts/guided-overlay (tag old-trillion-before-worker-retire b6ae0ebf81; here tools/tours-screen) show/walkthroughs.ts listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs over the moved folds read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts and do-work/walkthrough-progress.ts applyProgressTransition; the labels are src/tours.json, moved byte for byte as read-data/tours.json; holds are the person's show-rules record by tools/set-up-my-account showDecision"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$",
+            "contains": "sample-tour",
+            "doorOptions": {
+              "workspaceRecords": {
+                "guided-overlay::own-walkthroughs": [
+                  {
+                    "kind": "walkthrough-definition",
+                    "id": "sample-tour",
+                    "revision": 1,
+                    "title": "Sample tour",
+                    "entry_step": "one",
+                    "steps": [
+                      {
+                        "id": "one",
+                        "content": {
+                          "content_kind": "text",
+                          "payload": {
+                            "title": "Sample",
+                            "body": "A sample step."
+                          }
+                        }
+                      }
+                    ],
+                    "triggers": [
+                      {
+                        "reason": "first-use",
+                        "on_event": {
+                          "event_kind": "app-opened"
+                        },
+                        "once_key": "sample-tour-seen"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::tours-screen::tool::list-waiting-tours",
+      "address": "package::tours-screen::tool::list-waiting-tours",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-waiting-tours",
+        "label": "List the tours waiting to show",
+        "status": "active",
+        "read_only": true,
+        "job": "Show me the tours waiting to start by themselves, and which my show rules are holding",
+        "description": "Every tour that would start by itself on an event (opening Trillion, by default), with the facts your show rules decide it over (reason, urgency, hours since one like it) and how your show-rules record leaves it now: held, the rules holding it (held_by) and until when. The same trigger choice, facts and rules the tour host asks before it starts one, so this list and what shows agree. It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "tours": {
+              "type": "array",
+              "description": "The app's own tours (walkthrough definitions), when the caller has them; the person's own are always read"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            },
+            "event": {
+              "type": "object",
+              "description": "The event to decide for, { event_kind, ... }; app-opened when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "waiting",
+            "said"
+          ],
+          "properties": {
+            "waiting": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "tours-screen",
+                "paths": [
+                  "package.json",
+                  "do-work",
+                  "read-data",
+                  "engine",
+                  "guided-overlay-defaults.json"
+                ],
+                "at": "/opt/tours-screen"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "find-anything-from-one-box",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/find-anything-from-one-box"
+              },
+              {
+                "package": "organize-the-sidebar",
+                "paths": [
+                  "sidebar/part.json"
+                ],
+                "at": "/opt/organize-the-sidebar"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/ui"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/tours-screen",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/tours-screen/do-work/tours.mjs",
+            "waitingTours"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": "guided-overlay::own-walkthroughs",
+                "operations": [
+                  "workspace:read"
+                ]
+              },
+              {
+                "kind": "@own-records",
+                "id": "guided-overlay::walkthrough-progress",
+                "operations": [
+                  "workspace:read"
+                ]
+              },
+              {
+                "kind": "@own-records",
+                "id": "show-rules",
+                "operations": [
+                  "workspace:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:tours-screen",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion parts/guided-overlay (tag old-trillion-before-worker-retire b6ae0ebf81; here tools/tours-screen) show/walkthroughs.ts listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs over the moved folds read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts and do-work/walkthrough-progress.ts applyProgressTransition; the labels are src/tours.json, moved byte for byte as read-data/tours.json; holds are the person's show-rules record by tools/set-up-my-account showDecision"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "now": "2026-01-01T00:00:00.000Z"
+            },
+            "output_selector": "$",
+            "contains": "sample-tour",
+            "doorOptions": {
+              "workspaceRecords": {
+                "guided-overlay::own-walkthroughs": [
+                  {
+                    "kind": "walkthrough-definition",
+                    "id": "sample-tour",
+                    "revision": 1,
+                    "title": "Sample tour",
+                    "entry_step": "one",
+                    "steps": [
+                      {
+                        "id": "one",
+                        "content": {
+                          "content_kind": "text",
+                          "payload": {
+                            "title": "Sample",
+                            "body": "A sample step."
+                          }
+                        }
+                      }
+                    ],
+                    "triggers": [
+                      {
+                        "reason": "first-use",
+                        "on_event": {
+                          "event_kind": "app-opened"
+                        },
+                        "once_key": "sample-tour-seen"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::tours-screen::tool::dismiss-waiting-tours",
+      "address": "package::tours-screen::tool::dismiss-waiting-tours",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:dismiss-waiting-tours",
+        "label": "Dismiss waiting tours",
+        "status": "active",
+        "job": "Dismiss the tours waiting for me without showing them",
+        "description": "Marks waiting tours seen without showing them: every waiting tour, or those named in tour_ids, in one move of your tour progress record (the move closing a tour makes), so none starts by itself again; each can still be shown by name. A run's key cannot write your records, so it answers keep, the progress record to write with the value read as expected, which your page or a write you grant keeps.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "tours": {
+              "type": "array",
+              "description": "The app's own tours (walkthrough definitions), when the caller has them; the person's own are always read"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            },
+            "tour_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "tour_id values from list-waiting-tours; every waiting tour when left out"
+            },
+            "event": {
+              "type": "object",
+              "description": "The event the tours wait for; app-opened when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "dismissed",
+            "keep",
+            "said"
+          ],
+          "properties": {
+            "dismissed": {
+              "type": "array"
+            },
+            "keep": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "tours-screen",
+                "paths": [
+                  "package.json",
+                  "do-work",
+                  "read-data",
+                  "engine",
+                  "guided-overlay-defaults.json"
+                ],
+                "at": "/opt/tours-screen"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "find-anything-from-one-box",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/find-anything-from-one-box"
+              },
+              {
+                "package": "organize-the-sidebar",
+                "paths": [
+                  "sidebar/part.json"
+                ],
+                "at": "/opt/organize-the-sidebar"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "part.json"
+                ],
+                "at": "/opt/ui"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/tours-screen",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/tours-screen/do-work/tours.mjs",
+            "dismissWaitingTours"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": "guided-overlay::own-walkthroughs",
+                "operations": [
+                  "workspace:read"
+                ]
+              },
+              {
+                "kind": "@own-records",
+                "id": "guided-overlay::walkthrough-progress",
+                "operations": [
+                  "workspace:read"
+                ]
+              },
+              {
+                "kind": "@own-records",
+                "id": "show-rules",
+                "operations": [
+                  "workspace:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:tours-screen",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion parts/guided-overlay (tag old-trillion-before-worker-retire b6ae0ebf81; here tools/tours-screen) show/walkthroughs.ts listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs over the moved folds read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts and do-work/walkthrough-progress.ts applyProgressTransition; the labels are src/tours.json, moved byte for byte as read-data/tours.json; holds are the person's show-rules record by tools/set-up-my-account showDecision"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "now": "2026-01-01T00:00:00.000Z"
+            },
+            "output_selector": "$",
+            "contains": "keep",
+            "doorOptions": {
+              "workspaceRecords": {
+                "guided-overlay::own-walkthroughs": [
+                  {
+                    "kind": "walkthrough-definition",
+                    "id": "sample-tour",
+                    "revision": 1,
+                    "title": "Sample tour",
+                    "entry_step": "one",
+                    "steps": [
+                      {
+                        "id": "one",
+                        "content": {
+                          "content_kind": "text",
+                          "payload": {
+                            "title": "Sample",
+                            "body": "A sample step."
+                          }
+                        }
+                      }
+                    ],
+                    "triggers": [
+                      {
+                        "reason": "first-use",
+                        "on_event": {
+                          "event_kind": "app-opened"
+                        },
+                        "once_key": "sample-tour-seen"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

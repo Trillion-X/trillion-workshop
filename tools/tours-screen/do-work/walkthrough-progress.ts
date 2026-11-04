@@ -25,7 +25,7 @@ import {
   sendRequestToBitfieldTarget,
   trackSavedRecordAcceptance,
 } from '#workspace-records';
-import { WALKTHROUGH_PROGRESS_KIND } from '../read-data/walkthrough-eeaf';
+import { WALKTHROUGH_PROGRESS_KIND } from '../read-data/walkthrough-eeaf.ts';
 
 export const WALKTHROUGH_PROGRESS_LABEL = 'guided-overlay::walkthrough-progress';
 /** How many recent transitions the record keeps to answer a repeated send. */
