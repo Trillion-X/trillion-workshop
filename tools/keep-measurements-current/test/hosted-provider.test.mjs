@@ -1,12 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { observeHostedProviders, vaultInventory } from '../do-work/observe-hosted-provider.mjs';
+import { observeHostedProviders, validateCredentialRows, vaultInventory } from '../do-work/observe-hosted-provider.mjs';
 
 const source = JSON.parse(await readFile(new URL('../read-data/hosted-provider-source.json', import.meta.url), 'utf8'));
 const accountId = 'a'.repeat(32);
 const secret = 'this-is-a-private-token-that-must-not-appear';
 const endpoint = `https://${accountId}.r2.cloudflarestorage.com`;
+// Holder names are the person's own; the code learns them only from these rows.
+const credentials = { schema: 'hosted-provider-credentials/1', rows: [
+  { provider: 'cloudflare', holders: { token: 'held-token-one', account_endpoint: 'held-endpoint-one' } },
+] };
 
 function jsonResponse(status, body) {
   const text = JSON.stringify(body);
@@ -17,8 +21,8 @@ test('hosted provider observer uses explicit official requests and emits only sa
   const calls = [];
   const vault = {
     async heldByTheVault(holder) {
-      if (holder === 'cloudflare-api-token') return secret;
-      if (holder === 'cloudflare-r2-endpoint') return { endpoint };
+      if (holder === 'held-token-one') return secret;
+      if (holder === 'held-endpoint-one') return { endpoint };
       throw new Error('unexpected credential holder');
     },
   };
@@ -42,7 +46,7 @@ test('hosted provider observer uses explicit official requests and emits only sa
     throw new Error('unexpected URL');
   };
   const now = new Date('2026-11-01T02:00:00.000Z');
-  const observed = await observeHostedProviders({ source, vault, fetchImpl, now });
+  const observed = await observeHostedProviders({ source, credentials, vault, fetchImpl, now });
   assert.equal(observed.observation_count, 7);
   assert.equal(calls.length, 7);
   assert.ok(calls.every(call => call.url.origin === 'https://api.cloudflare.com'));
@@ -68,22 +72,44 @@ test('hosted provider observer uses explicit official requests and emits only sa
   assert.equal(byId['workers-invocations-24h'].retries, 0);
 });
 
-test('vault inventory reports provider and field shapes without exposing encoded holders or values', async () => {
+test('vault inventory reports only holders the credential rows name, without exposing encoded holders or values', async () => {
   const supabase = Buffer.from('service_connection:supabase', 'utf8').toString('hex');
   const account = Buffer.from('service_connection:supabase:account', 'utf8').toString('hex');
-  const names = ['cloudflare-api-token', 'backblaze-b2-key-id', supabase, account, 'unrelated-secret'];
+  const names = ['held-token-one', 'storage-key-pair', supabase, account, 'unrelated-secret', 'vendor-looking-but-unnamed-token'];
+  const rows = { schema: 'hosted-provider-credentials/1', rows: [
+    { provider: 'cloudflare', holders: { token: 'held-token-one', account_endpoint: 'not-in-the-vault' } },
+    { provider: 'object-storage', holders: { key: 'storage-key-pair' } },
+    { provider: 'supabase', service_connection: 'supabase' },
+  ] };
   const inventory = await vaultInventory({
     async namesHeldByTheVault() { return names; },
     shapeHeldByTheVault(name) {
-      if (name === 'cloudflare-api-token') return 'bare';
-      if (name === 'backblaze-b2-key-id') return { fields: ['applicationKeyId', 'applicationKey'] };
+      if (name === 'held-token-one') return 'bare';
+      if (name === 'storage-key-pair') return { fields: ['applicationKeyId', 'applicationKey'] };
       return { fields: ['project_url', 'service_role_key'] };
     },
-  });
-  assert.equal(inventory.length, 4);
+  }, rows);
+  assert.equal(inventory.filter(item => item.holder_kind !== 'not_held').length, 4);
+  assert.deepEqual(inventory.find(item => item.holder_kind === 'not_held'), { provider: 'cloudflare', holder_kind: 'not_held', missing_roles: ['account_endpoint'] });
   assert.deepEqual(inventory.filter(item => item.provider === 'supabase').map(item => item.fields), [['project_url', 'service_role_key'], ['project_url', 'service_role_key']]);
+  assert.deepEqual(inventory.find(item => item.provider === 'object-storage').fields, ['applicationKey', 'applicationKeyId']);
   const output = JSON.stringify(inventory);
-  assert.ok(!output.includes(supabase));
-  assert.ok(!output.includes(account));
-  assert.ok(!output.includes('unrelated-secret'));
+  for (const hidden of [supabase, account, 'unrelated-secret', 'vendor-looking-but-unnamed-token', 'held-token-one', 'storage-key-pair']) assert.ok(!output.includes(hidden));
+});
+
+test('a provider with no credential row is reported unconfigured and the vault is never read', async () => {
+  const vault = { async heldByTheVault() { throw new Error('the vault must not be read'); } };
+  const fetchImpl = async () => { throw new Error('no request without a credential row'); };
+  const observed = await observeHostedProviders({ source, credentials: { schema: 'hosted-provider-credentials/1', rows: [] }, vault, fetchImpl });
+  assert.equal(observed.observation_count, 0);
+  assert.deepEqual(observed.unconfigured_providers, source.providers.map(provider => provider.id));
+});
+
+test('credential rows are refused when they are not hosted-provider-credentials/1 rows', () => {
+  assert.throws(() => validateCredentialRows(undefined), /hosted-provider-credentials\/1/);
+  assert.throws(() => validateCredentialRows({ schema: 'hosted-provider-credentials/1', rows: [{ provider: 'cloudflare' }] }), /names no holder/);
+  assert.throws(() => validateCredentialRows({ schema: 'hosted-provider-credentials/1', rows: [{ provider: 'cloudflare', holders: { password: 'x' } }] }), /unknown holder role/);
+  assert.throws(() => validateCredentialRows({ schema: 'hosted-provider-credentials/1', rows: [
+    { provider: 'cloudflare', holders: { token: 'a' } }, { provider: 'cloudflare', holders: { token: 'b' } },
+  ] }), /repeats provider/);
 });
