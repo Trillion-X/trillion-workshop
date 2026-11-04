@@ -7,7 +7,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { rowOf, runRow } from '../../records-door/test/run-row.mjs';
+import { answerOf as runRow, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { sendBuiltRecordWrite } from '../do-work/send_built_record_write.mjs';
 
 const tool = fileURLToPath(new URL('..', import.meta.url));
@@ -65,11 +65,6 @@ function runBuilder(root, descriptorFd) {
     child.on('error', error => resolve({ status: null, stdout: Buffer.concat(stdout).toString(), stderr: Buffer.concat(stderr).toString(), error }));
     child.on('close', status => resolve({ status, stdout: Buffer.concat(stdout).toString(), stderr: Buffer.concat(stderr).toString() }));
   });
-}
-
-function rowInRepository(row) {
-  return { ...row, invoke: { ...row.invoke,
-    argv: row.invoke.argv.map(argument => argument.replace('/opt/tools/export-records-as-list-rows', '/opt/export-records-as-list-rows')) } };
 }
 
 test('the builder maps only the records allowed on this run descriptor, pages the read, and never opens sender config', async () => {
@@ -134,9 +129,7 @@ test('the Workshop COMPUTER row returns its payload using only the fd 3 read cap
   try {
     mappingAt(root);
     const toolRows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
-    const sourceRow = rowOf(toolRows, 'tool:build-records-to-write');
-    const row = { ...sourceRow, invoke: { ...sourceRow.invoke,
-      argv: sourceRow.invoke.argv.map(argument => argument.replace('/opt/tools/export-records-as-list-rows', '/opt/export-records-as-list-rows')) } };
+    const row = rowOf(toolRows, 'tool:build-records-to-write');
     const records = [
       { id: 'shared:one', type: 'shared', value: { identity: 'one', title: 'One' } },
       { id: 'shared:two', type: 'shared', value: { identity: 'two', title: 'Two' } },
@@ -163,7 +156,7 @@ test('a synthetic wake starts the COMPUTER builder and its result flows to a sep
     twoScopeMappingAt(root);
     const toolRows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
     const builderRow = rowOf(toolRows, 'tool:build-records-to-write');
-    const reader = rowInRepository({ ...builderRow, invoke: { ...builderRow.invoke, records: { fd: 3, rights: [
+    const reader = ({ ...builderRow, invoke: { ...builderRow.invoke, records: { fd: 3, rights: [
       { kind: 'source-a', prefix: 'source-a:', operations: ['records:list'] },
       { kind: 'source-b', prefix: 'source-b:', operations: ['records:list'] },
     ] } } });
@@ -193,10 +186,8 @@ test('a synthetic wake starts the COMPUTER builder and its result flows to a sep
     const workflowRowsFile = JSON.parse(readFileSync(new URL('../../workflows/tool-rows.json', import.meta.url), 'utf8'));
     const starter = rowOf(workflowRowsFile, 'tool:start-a-recipe-run');
     const cause = { kind: 'time', tool: workflowId, wake: 'fixture', due_ms: 1800000000000 };
-    const started = await runRow(starter, {
-      input: { row: workflowId, start_at: 'make-rows' },
-      task: { request_key: 'synthetic-wake-1', cause },
-    }, { records: [...sources, ...workflowRows] });
+    const started = await runRow(starter, { row: workflowId, start_at: 'make-rows' },
+      { records: [...sources, ...workflowRows], task: { request_key: 'synthetic-wake-1', cause } });
     assert.equal(started.status, 0, JSON.stringify(started));
     const job = started.kept.find(record => record.type === 'ai-job');
     assert.deepEqual(job.value.cause, cause, 'the wake cause is retained in the waiting run');
@@ -209,7 +200,7 @@ test('a synthetic wake starts the COMPUTER builder and its result flows to a sep
       ['records:list', 'source-a', 'source-a:'], ['records:list', 'source-b', 'source-b:'],
     ]);
     const writerBase = rowOf(toolRows, 'tool:put-records-into-my-account');
-    const writer = rowInRepository(writerBase);
+    const writer = writerBase;
     const writeAInput = { ...job.value.job[1].run_tool.input, payload: built.result };
     const wroteA = await runRow(writer, writeAInput, { records: sources, doorOptions: { unknownFirst: 1 } });
     assert.equal(wroteA.status, 0, JSON.stringify(wroteA));
@@ -243,7 +234,7 @@ test('a configured builder scope refuses an unrelated source; a missing folder p
     twoScopeMappingAt(root, { includeDenied: true });
     const toolRows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
     const base = rowOf(toolRows, 'tool:build-records-to-write');
-    const row = rowInRepository({ ...base, invoke: { ...base.invoke, records: { fd: 3, rights: [
+    const row = ({ ...base, invoke: { ...base.invoke, records: { fd: 3, rights: [
       { kind: 'source-a', prefix: 'source-a:', operations: ['records:list'] },
       { kind: 'source-b', prefix: 'source-b:', operations: ['records:list'] },
     ] } } });
@@ -271,7 +262,7 @@ test('the same writer code stops when a separately configured target scope omits
     twoScopeMappingAt(root);
     const toolRows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
     const builderBase = rowOf(toolRows, 'tool:build-records-to-write');
-    const builderRow = rowInRepository({ ...builderBase, invoke: { ...builderBase.invoke, records: { fd: 3, rights: [
+    const builderRow = ({ ...builderBase, invoke: { ...builderBase.invoke, records: { fd: 3, rights: [
       { kind: 'source-a', prefix: 'source-a:', operations: ['records:list'] },
       { kind: 'source-b', prefix: 'source-b:', operations: ['records:list'] },
     ] } } });
@@ -282,7 +273,7 @@ test('the same writer code stops when a separately configured target scope omits
     const built = await runRow(builderRow, { mapping: join(root, 'mapping.json'), source_type: 'source-a', source_prefix: 'source-a:' }, { records: sources });
     assert.equal(built.status, 0, JSON.stringify(built));
     const writerBase = rowOf(toolRows, 'tool:put-records-into-my-account');
-    const writer = rowInRepository({ ...writerBase, invoke: { ...writerBase.invoke, records: { fd: 3, rights: [{
+    const writer = ({ ...writerBase, invoke: { ...writerBase.invoke, records: { fd: 3, rights: [{
       kind: { fill: { from: 'input', field: 'target_type' } },
       prefix: { fill: { from: 'input', field: 'target_prefix' } },
       operations: ['records:list'],
@@ -302,7 +293,7 @@ test('the same writer code stops when a separately configured target scope omits
 
 test('the managed writer refreshes through the same baseline owner, retains edits and refuses unsafe removals', async () => {
   const rows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
-  const writer = rowInRepository(rowOf(rows, 'tool:put-records-into-my-account'));
+  const writer = (rowOf(rows, 'tool:put-records-into-my-account'));
   const record = (id, value) => ({ id: `record:fixture:${id}`, type: 'record:fixture', value });
   const payload = records => ({ commands: [{ input: { records } }] });
   const original = { name: 'Imported', note: 'Original', _basis: { name: { by: 'source' } } };
