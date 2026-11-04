@@ -44,6 +44,7 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
   // A refusal is a code and an outcome, with no words.
   const refuse = (code, outcome = 'not_started') => ({ isError: true, structuredContent: { code, outcome } });
   const OUTSIDE = 'current_workspace_rights_refused';
+  const EVERY_KIND = '*';
   const operations = {
     'records:read': ({ id, type }) => {
       if (!type || !may(type, 'records:read', { id })) return refuse(OUTSIDE);
@@ -90,16 +91,22 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       const next = from + size < ids.length ? page.at(-1) : null;
       return { structuredContent: { records: pageBytes ? rows : page.map(id => kept.get(id)).filter(matches).map(shown), next } };
     },
-    // The records of the one kind a run may search that hold every asked word (an asked word starts a word of the text),
-    // ranked 1 / (60 + rank), each with the records:read that opens it, the way the engine's records:search answers.
+    // The records a run may search that hold every asked word (an asked word starts a word of the text), each kind its
+    // own lane ranked 1 / (60 + rank), each with the records:read that opens it, the way the engine's records:search
+    // answers. With `type` the run needs a search right on that kind; with none, the read-only right over every kind,
+    // { kind: '*', operations: ['records:search'] } (trillion-rust records-door.json run_operations `every_kind`), and
+    // '*' named as a type is not a kind.
     'records:search': ({ question, type, limit = 60, ...rest }) => {
       if (Object.keys(rest).length || typeof question !== 'string' || !question.trim()) return refuse('original_input_refused');
-      if (!type || !may(type, 'records:search')) return refuse(OUTSIDE);
+      if (type === EVERY_KIND || (type ? !may(type, 'records:search') : !may(EVERY_KIND, 'records:search'))) return refuse(OUTSIDE);
       const terms = [...new Set(question.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [])].filter(word => word.length >= 2);
       const held = record => { const words = JSON.stringify(record.value ?? {}).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []; return terms.every(term => words.some(word => word.startsWith(term))); };
-      const found = terms.length ? [...kept.values()].filter(record => record.type === type && held(record)).sort((a, b) => (a.id < b.id ? -1 : 1)).slice(0, limit) : [];
-      const results = found.map((record, at) => ({ id: `record:${record.id}`, source: 'trillion', type, record: record.id, found_in: ['written'],
-        address: { resource: '@own-records', operation: 'records:read', input: { id: record.id, type } }, score: 1 / (60 + at + 1) }));
+      const found = terms.length ? [...kept.values()].filter(record => (!type || record.type === type) && held(record)).sort((a, b) => (a.id < b.id ? -1 : 1)) : [];
+      const lanes = new Map();
+      for (const record of found) lanes.set(record.type, [...(lanes.get(record.type) ?? []), record]);
+      const results = [...lanes.values()].flatMap(lane => lane.map((record, at) => ({ id: `record:${record.id}`, source: 'trillion', type: record.type,
+        record: record.id, found_in: ['written'], address: { resource: '@own-records', operation: 'records:read', input: { id: record.id, type: record.type } },
+        score: 1 / (60 + at + 1) }))).sort((a, b) => b.score - a.score || (a.record < b.record ? -1 : 1)).slice(0, limit);
       return { structuredContent: { question, terms, results, unavailable: [], pending: [] } };
     },
     'records:write': ({ records: items }, key) => {
@@ -142,6 +149,17 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
   const bytesOf = name => stored.get(name) ?? Buffer.alloc(0);
   const uploads = new Map();
   const fileOperations = {
+    // The files whose names hold every asked word, scored 0.8 / (60 + rank), each with the find_file that opens it. Its
+    // rule names no folder, so only a right on every name ("/") covers it.
+    search: ({ question, limit = 60 }) => {
+      if (!fileRights.some(item => item.files === '/' && item.operations.includes('search'))) return refuse(OUTSIDE);
+      const terms = [...new Set(String(question ?? '').toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [])].filter(word => word.length >= 2);
+      const named = name => { const words = name.split('/').at(-1).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []; return terms.every(term => words.some(word => word.startsWith(term))); };
+      const results = (terms.length ? Object.keys(files).filter(named).sort() : []).slice(0, limit).map((path, at) => ({ id: `file:${path}`, source: 'files',
+        name: path.split('/').at(-1), path, found_in: ['name'], address: { resource: FILES_RESOURCE, operation: 'find_file', input: { name_or_identity: path } },
+        score: 0.8 / (60 + at + 1) }));
+      return { structuredContent: { question, terms, results, unavailable: [], pending: [] } };
+    },
     list_files: ({ folder = '/', after, limit = 50 }) => {
       const base = folder.endsWith('/') ? folder : `${folder}/`;
       if (!mayFile('list_files', base)) return refuse(OUTSIDE);

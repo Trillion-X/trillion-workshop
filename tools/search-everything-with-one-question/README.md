@@ -34,11 +34,14 @@ It is old `finish` (`src/search.mjs` lines 1750-1798 and 1893-1917 at b6ae0ebf),
 | Row | Runs | Reaches |
 |-----|------|---------|
 | `tool:search-everything-with-one-question` | on the person's computer, through their own Trillion MCP client (`records-door/do-work/run-with-stdio-mcp.mjs`) | every kind and every file name |
+| `tool:search-everything-in-a-small-container` | a small container, with two read-only rights: `{kind: "*", operations: ["records:search"]}` and `{files: "/", operations: ["search"]}` | every kind and every file name, writing nothing |
 | `tool:search-one-of-my-lists` | a small container, with a records right on the one kind its `type` names | that kind only |
 
-A Workshop run's records right names one kind (trillion-rust `account_rights/run_capability.rs`; a right's `kind`
-filled from an absent input field is refused, never widened), so a run cannot search every kind at once. The person's
-own client can.
+A Workshop run's records right names a kind, or `*` for the read-only search over every kind (trillion-rust
+`src/account_rights/run_capability.rs` and `src/record_value/records-door.json` `run_operations` `every_kind`). The
+`*` right covers only a `records:search` that names no kind: the engine refuses a row that names `*` with any other
+operation, an id or a prefix, a search that names `type: "*"`, and every write, read or list the run tries with it. A
+right filled from an absent input field is still refused, never widened.
 
 ## Files
 
@@ -47,4 +50,4 @@ own client can.
 | `do-work/search-everything.mjs` | `searchEverything(input, { door })`: the search, as above. |
 | `ports/search-everything.json` | The port contract: the old lines, the byte-copy commit, what was kept and what was adapted. |
 | `read-data/settings.json` | Old `src/search.json`'s numbers and place labels, and the two lanes with their operations, places, sources and ranks. |
-| `test/search-everything.test.mjs` | The fusion, the files lane's refusal, `type`, the records' refusal, the one-list row, and 10,000 rows across 3 lists. |
+| `test/search-everything.test.mjs` | The fusion, the files lane's refusal, `type`, the records' refusal, the one-list row, 10,000 rows across 3 lists, the container row over three kinds and the files (and refused without its right), and the `*` right never writing. |
