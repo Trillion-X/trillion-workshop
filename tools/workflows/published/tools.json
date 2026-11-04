@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:429402efc5ba193d23bdb2525d62f249e9d1f2993cc2765f1ae94057aa40d8d7"
+  "blake3": "1f:05c8793a4c2d5ad550f4c1253a52723ca38df79169ca7d20a70e303e7ea7e291"
  },
  "fields": [
   {
@@ -4932,6 +4932,21 @@
    }
   },
   {
+   "id": "tool:open-in-ai",
+   "values": {
+    "title": "Open a prompt in a local AI app",
+    "job": "Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex",
+    "description": "Opens the prompt in the app named by `app`, one of the rows of read-data/open-in-ai.json (the rows are the allowlist; an app not in them is refused). A url row opens its URL with the prompt percent-encoded, an argv row runs its list as it is with the prompt as one argument; nothing goes through a shell. `folder` must be a folder that exists; the app's own config is never read or written. The outcome is launched, app_missing or refused; the prompt is never echoed, only its length. `dry_run` shows the launch without running it.",
+    "status": "active",
+    "maker": "maker:open-a-prompt-in-a-local-ai-app",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "open-a-prompt-in-a-local-ai-app"
+   }
+  },
+  {
    "id": "tool:organize-saved-browser-tabs",
    "values": {
     "title": "Sort my saved browser tabs into folders by my rules",
@@ -4944,6 +4959,21 @@
      "placement:your-computer"
     ],
     "folder": "browser-saved-items"
+   }
+  },
+  {
+   "id": "tool:other-ai-files",
+   "values": {
+    "title": "Read the files I keep for my other AI apps",
+    "job": "Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them",
+    "description": "Lists every entry the rows of read-data/other-ai-files.json name that exists under the folder the person granted (their home folder), as source/kind/name with its app label and size and no contents; `source` and `kind` narrow the list. `read` names entries to return whole, up to most_chars, each labelled with its app and kind. Read only: nothing is written into those folders or imported, a link inside a folder is never followed, and an MCP server another app lists comes back as its command or address with the NAMES of its environment variables and headers, never their values; nothing switches a server on.",
+    "status": "active",
+    "maker": "maker:read-my-other-ais-files",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "read-my-other-ais-files"
    }
   },
   {
