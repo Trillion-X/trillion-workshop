@@ -52,6 +52,8 @@ export function leaseClient(row, token, { fetchImpl = fetch, timeoutMs = 15000 }
       ...(body ? { body: JSON.stringify(body) } : {}), signal: AbortSignal.timeout(timeoutMs),
     });
     if (response.status === 404 && op[2]) return { absent: true };
+    // A delete is answered 204 No Content, with no body at all (Hetzner's DELETE /servers/{id} and /ssh_keys/{id}).
+    if (response.status === 204) return {};
     let answer;
     try { answer = await response.json(); } catch { throw new Error(`The hosting service answered HTTP ${response.status} without JSON.`); }
     if (!response.ok) throw new Error(`The hosting service refused ${method} ${path.split('?')[0]} (HTTP ${response.status}, ${String(at(answer, row.error_code_at) ?? 'unknown').replace(/[^a-z0-9_-]/gi, '').slice(0, 80)}).`);
