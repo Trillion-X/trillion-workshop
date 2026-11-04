@@ -86,11 +86,13 @@ export function defaultPlaces(places) {
   return structuredClone(places);
 }
 
-/** The place config with the machine's own fields set, the request's release feed and default places, plus values read from files in the release. */
+/** The place config with the machine's own fields set, the request's release feed and default places, plus values read
+ * from files in the release. The machine is reached at its own name (`report.reach`); people reach its accounts at
+ * `public_origin` when the request names one (a forwarder in front of several machines), else at that same name. */
 export async function placeConfig(machine, request, price, run = onMachine) {
-  const origin = `https://${request.name.host_name}`, config = structuredClone(request.place_config ?? {});
-  Object.assign(config, { listen: `127.0.0.1:${request.port}`, accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: origin });
-  config.report = { ...config.report, reach: origin, ...(price && { cost_per_month_cents: price.cents }) };
+  const reach = `https://${request.name.host_name}`, config = structuredClone(request.place_config ?? {});
+  Object.assign(config, { listen: `127.0.0.1:${request.port}`, accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: request.public_origin ?? reach });
+  config.report = { ...config.report, reach, ...(price && { cost_per_month_cents: price.cents }) };
   if (request.release_feed !== undefined) config.release_feed = releaseFeed(request.release_feed);
   if (request.default_places !== undefined) config.default_places = defaultPlaces(request.default_places);
   for (const from of request.config_from_release ?? []) {

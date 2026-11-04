@@ -142,6 +142,8 @@ test('the place config takes the machine\'s own fields and values read from the 
     listen: '127.0.0.1:7199', accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: 'https://place.example.com',
     new_accounts: { sign_in_ways: [{ way: 'passkey' }] },
   });
+  const behind = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' }, public_origin: 'https://front.example.com' }, null, run);
+  assert.deepEqual([behind.public_origin, behind.report.reach], ['https://front.example.com', 'https://place.example.com']);
 });
 
 test('a request\'s paths are read relative to its own file', () => {
@@ -205,4 +207,42 @@ test('a start writes both fields into the place config it installs, and a bad fe
   const lease = join(here, 'second-lease.json');
   await assert.rejects(startAPlace({ ...request, lease_file: lease, release_feed: { urls: [] } }, { run }), /release_feed/);
   assert.throws(() => readFileSync(lease), /ENOENT/);
+});
+
+test('the sign-up check answers the way a browser does and its passkey signs what it says', async () => {
+  const { checkASignUp, softwarePasskey, assertion } = await import('../do-work/check-a-sign-up.mjs');
+  const { createVerify, createPublicKey } = await import('node:crypto');
+  const origin = 'https://front.example', address = 'c'.repeat(64), seen = [];
+  const fetchImpl = async (url, request) => {
+    const path = url.slice(origin.length), body = request.body && JSON.parse(request.body);
+    seen.push([request.method, path, request.headers.origin ?? null, request.headers.cookie ?? null]);
+    const answer = (status, json, cookie) => ({ status, headers: { get: name => (name === 'set-cookie' ? cookie ?? null : null) }, text: async () => JSON.stringify(json ?? {}) });
+    if (path === '/sign-up') return answer(200);
+    if (path === '/sign-up/options') return answer(200, { options: { challenge: 'up-1', rp: { id: 'example' } } });
+    if (path === '/sign-up/finish') {
+      const client = JSON.parse(Buffer.from(body.response.clientDataJSON, 'base64url'));
+      assert.deepEqual([client.type, client.challenge, client.origin], ['webauthn.create', 'up-1', origin]);
+      assert.equal(body.response.publicKeyAlgorithm, -7);
+      return answer(200, { address });
+    }
+    if (path === `/a/${address}/passkey/options`) return answer(200, { challenge: 'in-1', rpId: 'example' });
+    if (path === `/a/${address}/passkey/finish`) return answer(200, { ok: true }, 'session=s1; Path=/; Secure; HttpOnly');
+    if (path === `/a/${address}/sign-in/security`) return answer(request.headers.cookie === 'session=s1' ? 200 : 303);
+    return answer(404);
+  };
+  const answer = await checkASignUp(origin, { fetchImpl });
+  assert.equal(answer.address, address);
+  assert.equal(answer.signed_in_read, true);
+  assert.deepEqual(answer.steps.map(step => step.status), [200, 200, 200, 200, 200, 200, 303]);
+  assert.ok(seen.filter(([method]) => method === 'POST').every(([, , sent]) => sent === origin));
+  assert.ok(!JSON.stringify(answer).includes('s1'));
+
+  // The assertion is a valid ES256 signature over authenticatorData || SHA-256(clientDataJSON).
+  const passkey = softwarePasskey();
+  const signed = assertion(passkey, { challenge: 'c', rpId: 'example' }, origin);
+  const auth = Buffer.from(signed.response.authenticatorData, 'base64url'), client = Buffer.from(signed.response.clientDataJSON, 'base64url');
+  const { createHash } = await import('node:crypto');
+  const verify = createVerify('sha256').update(Buffer.concat([auth, createHash('sha256').update(client).digest()]));
+  assert.ok(verify.verify(createPublicKey({ key: passkey.spki, format: 'der', type: 'spki' }), Buffer.from(signed.response.signature, 'base64url')));
+  await assert.rejects(checkASignUp('https://front.example/path', { fetchImpl }), /ORIGIN is https:\/\/host/);
 });
