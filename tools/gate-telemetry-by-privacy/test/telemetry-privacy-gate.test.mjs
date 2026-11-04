@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { TELEMETRY_PRIVACY, classOf, pageSends, sends } from '../read-data/telemetry-gate.mjs';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 test('the class comes from the longest route, a declared class can only make it more private, and unknown is closed', () => {
@@ -24,15 +24,15 @@ test('the class comes from the longest route, a declared class can only make it 
 test('the row answers the class, the sinks it may feed and, for a named sink, may_send; unknown is closed', async () => {
   const row = rowOf(rows, 'tool:gate-telemetry-by-privacy');
   assert.equal(row.invoke.records, undefined, 'no records door');
-  const space = await runRow(row, { surface: 'app', path: '/spaces/team-plans', sink: 'page_events' });
+  const space = await answerOf(row, { surface: 'app', path: '/spaces/team-plans', sink: 'page_events' });
   assert.equal(space.status, 0);
   assert.deepEqual(space.result, { class: 'shared-with-others', sinks: ['page_script', 'client_health'], sink: 'page_events', may_send: false });
-  const own = await runRow(row, { surface: 'app', path: '/lists', sink: 'page_events' });
+  const own = await answerOf(row, { surface: 'app', path: '/lists', sink: 'page_events' });
   assert.equal(own.result.may_send, true);
-  const declared = await runRow(row, { surface: 'app', path: '/lists', declared: 'customer-scope' });
+  const declared = await answerOf(row, { surface: 'app', path: '/lists', declared: 'customer-scope' });
   assert.deepEqual(declared.result, { class: 'customer-scope', sinks: [] });
-  const unknown = await runRow(row, { surface: 'a-new-surface', path: '/', sink: 'client_health' });
+  const unknown = await answerOf(row, { surface: 'a-new-surface', path: '/', sink: 'client_health' });
   assert.deepEqual(unknown.result, { class: TELEMETRY_PRIVACY.unknown_class, sinks: [], sink: 'client_health', may_send: false });
-  const made = await runRow(row, { surface: 'app', path: '/', sink: 'made-up' });
+  const made = await answerOf(row, { surface: 'app', path: '/', sink: 'made-up' });
   assert.match(made.error, /made-up is not a telemetry sink/);
 });

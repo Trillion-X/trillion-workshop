@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { rowOf, runRow } from '../../records-door/test/run-row.mjs';
+import { rowOf, answerOf } from '../../../test-helpers/run-a-row.mjs';
 import { placePursuitsOnALifeMap } from '../do-work/place-pursuits-on-a-life-map.mjs';
 import { keptAreas, lifeMap, lifeMapSection, lifeMapSettings, missingLines, placeOnMap, starterAreas, useLifeMapSettings } from '../src/life-map.mjs';
 
@@ -96,11 +96,11 @@ test('refusals say what is missing and what to hand in', async () => {
 
 test('the row runs through the records door with exactly its rights', async () => {
   const row = rowOf(rows, 'tool:place-pursuits-on-a-life-map');
-  const made = await runRow(row, {}, { records: records() });
+  const made = await answerOf(row, {}, { records: records() });
   assert.equal(made.status, 0, JSON.stringify(made.error));
   assert.deepEqual(made.result.missing.map(area => area.id), ['herbs']);
   const verify = row.verify[0];
-  const sample = await runRow(row, verify.input, { records: [] });
+  const sample = await answerOf(row, verify.input, { records: [] });
   assert.equal(sample.status, 0, JSON.stringify(sample.error));
   assert.match(JSON.stringify(sample.result.list_id), new RegExp(verify.contains));
 });

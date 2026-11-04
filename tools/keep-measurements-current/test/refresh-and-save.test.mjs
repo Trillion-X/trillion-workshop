@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import rows from '../tool-rows.json' with { type: 'json' };
-import { runRow } from '../../records-door/test/run-row.mjs';
+import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 import { collectAndRefresh } from '../read-data/collect.mjs';
 
 test('direct wake consumer persists and resumes through the actual shared process row without creating an AI job', async t => {
@@ -23,7 +23,7 @@ test('direct wake consumer persists and resumes through the actual shared proces
   const row = structuredClone(rows.records.find(r => r.payload.id === 'tool:refresh-measurement-history').payload);
   // The real native computer runner supplies this task grant; the shared test process receives its fixture grant.
   row.invoke.argv[4] = root; row.invoke.argv[5] = 'fixture-native-request';
-  const first = await runRow(row, {}, { records: [config] });
+  const first = await answerOf(row, {}, { records: [config] });
   assert.equal(first.status, 0);
   assert.ok(first.result.appended.inserted > 0);
   assert.equal(first.result.forecast.saved, true);
@@ -32,7 +32,7 @@ test('direct wake consumer persists and resumes through the actual shared proces
   assert.equal(first.result.coverage.total_cost, null);
   assert.equal(first.result.coverage.component_total, 0.30000000000000004);
   assert.equal(first.result.physical_refresh.appended.inserted, 5);
-  const second = await runRow(row, {}, { records: first.kept });
+  const second = await answerOf(row, {}, { records: first.kept });
   assert.equal(second.status, 0);
   assert.equal(second.result.appended.inserted, 0);
   assert.ok(second.result.appended.replayed > 0);

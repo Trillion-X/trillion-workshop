@@ -49,6 +49,6 @@ The one generic record graph over any of the person's records: relations, entiti
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (the door client, the run driver and `write-batches.mjs`; tests use its fake door and `run-row.mjs`), and through it `tools/content-identity`.
+**Depends on:** `tools/records-door` (the door client, the run driver and `write-batches.mjs`; tests use its fake door, and run the rows with `test-helpers/run-a-row.mjs`), and through it `tools/content-identity`.
 
 **Depended on by:** nothing yet; Trillion offers the three rows to every person's AI.

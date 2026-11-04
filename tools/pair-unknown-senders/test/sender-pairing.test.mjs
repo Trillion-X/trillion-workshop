@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { makeSenderPairing } from '../read-data/sender-pairing.mjs';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const kept = facts => ({
@@ -37,25 +37,25 @@ test('a code is 8 unambiguous characters, repeats for the same sender, is capped
 // The rows: the same pairing through the person's records door, each fact one `sender-pairing` record.
 
 test('the rows keep the pairing as the person\'s own sender-pairing records: request, repeat, approve, list, revoke', async () => {
-  const first = await runRow(rowOf(rows, 'tool:pair-an-unknown-sender'), { source_id: 'events:a', sender: 'sender-one' });
+  const first = await answerOf(rowOf(rows, 'tool:pair-an-unknown-sender'), { source_id: 'events:a', sender: 'sender-one' });
   assert.equal(first.status, 0);
   assert.match(first.result.code, /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/);
   assert.match(first.result.said, /sender-one is not paired yet/);
   const waiting = first.kept;
   assert.deepEqual(waiting.map(row => [row.type, row.id]), [['sender-pairing', `pairing-waiting:events:a:${first.result.code}`]]);
-  const again = await runRow(rowOf(rows, 'tool:pair-an-unknown-sender'), { source_id: 'events:a', sender: 'sender-one' }, { records: waiting });
+  const again = await answerOf(rowOf(rows, 'tool:pair-an-unknown-sender'), { source_id: 'events:a', sender: 'sender-one' }, { records: waiting });
   assert.equal(again.result.code, first.result.code, 'asking again makes no second code');
   assert.equal(again.kept.length, 1);
-  const approved = await runRow(rowOf(rows, 'tool:approve-a-pairing-code'), { code: first.result.code.toLowerCase() }, { records: waiting });
+  const approved = await answerOf(rowOf(rows, 'tool:approve-a-pairing-code'), { code: first.result.code.toLowerCase() }, { records: waiting });
   assert.equal(approved.result.sender, 'sender-one');
-  const listed = await runRow(rowOf(rows, 'tool:list-paired-senders'), { source_id: 'events:a', sender: 'sender-one' }, { records: approved.kept });
+  const listed = await answerOf(rowOf(rows, 'tool:list-paired-senders'), { source_id: 'events:a', sender: 'sender-one' }, { records: approved.kept });
   assert.deepEqual(listed.result.waiting, []);
   assert.deepEqual(listed.result.paired.map(row => row.sender), ['sender-one']);
   assert.equal(listed.result.is_paired, true);
-  const twice = await runRow(rowOf(rows, 'tool:approve-a-pairing-code'), { code: first.result.code }, { records: approved.kept });
+  const twice = await answerOf(rowOf(rows, 'tool:approve-a-pairing-code'), { code: first.result.code }, { records: approved.kept });
   assert.match(twice.error, /No waiting pairing code/);
-  const revoked = await runRow(rowOf(rows, 'tool:unpair-a-sender'), { source_id: 'events:a', sender: 'sender-one' }, { records: approved.kept });
+  const revoked = await answerOf(rowOf(rows, 'tool:unpair-a-sender'), { source_id: 'events:a', sender: 'sender-one' }, { records: approved.kept });
   assert.match(revoked.result.said, /no longer paired/);
-  const after = await runRow(rowOf(rows, 'tool:list-paired-senders'), { source_id: 'events:a', sender: 'sender-one' }, { records: revoked.kept });
+  const after = await answerOf(rowOf(rows, 'tool:list-paired-senders'), { source_id: 'events:a', sender: 'sender-one' }, { records: revoked.kept });
   assert.equal(after.result.is_paired, false);
 });

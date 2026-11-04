@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventConflictError, aggregate, appendOnce, billingRecord, forecastRecord } from '../read-data/ledger.mjs';
-import { runRow } from '../../records-door/test/run-row.mjs';
+import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 import { importAttemptRows, importUsageEvents, prepareAuditImport } from '../read-data/import-audit.mjs';
 import { run as runLedgerTool } from '../do-work/ledger-tool.mjs';
 import schema from '../DATA.json' with { type: 'json' };
@@ -79,12 +79,12 @@ test('append-once distinguishes exact replay and conflicting content with record
 test('real shared Workshop row appends, reads exact records, and aggregates via records-door consumer', async () => {
   const row = rows.records.find(r => r.payload.id === 'tool:cost-measurement-ledger').payload;
   const observation = base({ event_id: 'consumer-row-event' });
-  const written = await runRow(row, { action: 'append', request_key: 'consumer-row-write', observations: [observation] });
+  const written = await answerOf(row, { action: 'append', request_key: 'consumer-row-write', observations: [observation] });
   assert.equal(written.status, 0, JSON.stringify(written)); assert.equal(written.result.inserted, 1);
   assert.equal(written.kept[0].type, 'record:cost-measurement-observation');
-  const read = await runRow(row, { action: 'aggregate' }, { records: written.kept });
+  const read = await answerOf(row, { action: 'aggregate' }, { records: written.kept });
   assert.equal(read.status, 0); assert.equal(read.result.records_read, 1); assert.equal(read.result.aggregate[0].value.count, 1);
-  const billing = await runRow(row, { action: 'save_billing', request_key: 'billing-row-write', billing: { provider: 'vendor', billing_id: 'invoice-1', version: 1, billing_period_start: '2026-10-01', billing_period_end: '2026-10-31', currency: 'USD', unit: 'invoice', source_revision: 'rev', observed_at: '2026-10-31', scope: 'unknown', amount: null } });
+  const billing = await answerOf(row, { action: 'save_billing', request_key: 'billing-row-write', billing: { provider: 'vendor', billing_id: 'invoice-1', version: 1, billing_period_start: '2026-10-01', billing_period_end: '2026-10-31', currency: 'USD', unit: 'invoice', source_revision: 'rev', observed_at: '2026-10-31', scope: 'unknown', amount: null } });
   assert.equal(billing.status, 0); assert.equal(billing.result.saved, true); assert.equal(billing.kept[0].type, 'record:cost-measurement-billing');
 });
 
@@ -92,23 +92,23 @@ test('shared consumer uses bounded writes, exact replay, and conflicting event r
   const row = rows.records.find(r => r.payload.id === 'tool:cost-measurement-ledger').payload;
   const observations = Array.from({ length: 130 }, (_, i) => base({ event_id: `bulk-${i}` }));
   const input = { action: 'append', request_key: 'bulk-request', observations };
-  const first = await runRow(row, input);
+  const first = await answerOf(row, input);
   assert.equal(first.status, 0, JSON.stringify(first)); assert.equal(first.result.inserted, 130);
   assert.equal(first.calls.filter(c => c.method === 'records:write').length, 2);
-  const replay = await runRow(row, input, { records: first.kept });
+  const replay = await answerOf(row, input, { records: first.kept });
   assert.equal(replay.status, 0); assert.equal(replay.result.replayed, 130); assert.equal(replay.calls.filter(c => c.method === 'records:write').length, 0);
-  const conflict = await runRow(row, { ...input, request_key: 'bulk-conflict', observations: [base({ event_id: 'bulk-0', value: 777 })] }, { records: first.kept });
+  const conflict = await answerOf(row, { ...input, request_key: 'bulk-conflict', observations: [base({ event_id: 'bulk-0', value: 777 })] }, { records: first.kept });
   assert.equal(conflict.status, 1); assert.match(conflict.error, /different content/);
 });
 
 test('shared consumer saves incomplete forecast versions once and refuses conflicting version content', async () => {
   const row = rows.records.find(r => r.payload.id === 'tool:cost-measurement-ledger').payload;
   const forecast = { forecast_id: 'capacity-host', version: 1, source_revision: 'revision-a', created_at: '2026-10-31', components: [{ operation: 'native_execution', metric: 'cpu_ms', unit: 'ms', currency: 'USD', scenario_id: 'hosted-capacity', scope: 'unknown', value: null }] };
-  const saved = await runRow(row, { action: 'save_forecast', request_key: 'forecast-save-1', forecast });
+  const saved = await answerOf(row, { action: 'save_forecast', request_key: 'forecast-save-1', forecast });
   assert.equal(saved.status, 0); assert.equal(saved.result.completeness, 'incomplete'); assert.equal(saved.kept[0].type, 'record:cost-measurement-forecast');
-  const replay = await runRow(row, { action: 'save_forecast', request_key: 'forecast-replay-1', forecast }, { records: saved.kept });
+  const replay = await answerOf(row, { action: 'save_forecast', request_key: 'forecast-replay-1', forecast }, { records: saved.kept });
   assert.equal(replay.status, 0); assert.equal(replay.result.replayed, true); assert.equal(replay.calls.filter(c => c.method === 'records:write').length, 0);
-  const conflict = await runRow(row, { action: 'save_forecast', request_key: 'forecast-conflict-1', forecast: { ...forecast, components: [{ operation: 'native_execution', metric: 'cpu_ms', unit: 'ms', currency: 'USD', scenario_id: 'hosted-capacity', scope: 'assumed', value: 5 }] } }, { records: saved.kept });
+  const conflict = await answerOf(row, { action: 'save_forecast', request_key: 'forecast-conflict-1', forecast: { ...forecast, components: [{ operation: 'native_execution', metric: 'cpu_ms', unit: 'ms', currency: 'USD', scenario_id: 'hosted-capacity', scope: 'assumed', value: 5 }] } }, { records: saved.kept });
   assert.equal(conflict.status, 1); assert.match(conflict.error, /different content/);
 });
 

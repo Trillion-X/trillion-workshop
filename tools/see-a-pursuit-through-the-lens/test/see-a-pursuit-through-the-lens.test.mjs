@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { rowOf, runRow } from '../../records-door/test/run-row.mjs';
+import { rowOf, answerOf } from '../../../test-helpers/run-a-row.mjs';
 import { seeAPursuitThroughTheLens } from '../do-work/see-a-pursuit-through-the-lens.mjs';
 import { JOINING_INTERVIEW_FILE, lens, lensForSetup, lensParagraph, useLens } from '../src/pursuit-lens.mjs';
 
@@ -59,10 +59,10 @@ test('refusals say what is missing and what to hand in', async () => {
 
 test('the row runs through the records door with exactly its rights', async () => {
   const row = rowOf(rows, 'tool:see-a-pursuit-through-the-lens');
-  const made = await runRow(row, { answer: 'setup' }, { records: records() });
+  const made = await answerOf(row, { answer: 'setup' }, { records: records() });
   assert.equal(made.status, 0, JSON.stringify(made.error));
   assert.deepEqual(made.result.setup.parts.map(part => part.name), ['Soil', 'Weather']);
   const verify = row.verify[0];
-  const sample = await runRow(row, verify.input, { records: [] });
+  const sample = await answerOf(row, verify.input, { records: [] });
   assert.match(JSON.stringify(sample.result.paragraph), new RegExp(verify.contains));
 });

@@ -2,8 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { rowOf, runRow } from '../../records-door/test/run-row.mjs';
-import { select } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, select } from '../../../test-helpers/run-a-row.mjs';
 import { pickAScreenForWords, fillInputsFromWords } from '../do-work/pick-a-screen-as-you-type.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
@@ -27,14 +26,14 @@ test('a screen\'s inputs are filled from the words with no model, at the device\
 
 test('tool:pick-a-screen-for-typed-words runs as the container runner runs it, on its own sample', async () => {
   const row = rowOf(rows, 'tool:pick-a-screen-for-typed-words');
-  const ran = await runRow(row, row.verify[0].input);
+  const ran = await answerOf(row, row.verify[0].input);
   assert.equal(ran.status, 0, JSON.stringify(ran.error));
   assert.match(JSON.stringify(select(ran, row.result_selector + row.verify[0].output_selector.slice(1))), new RegExp(row.verify[0].contains));
 });
 
 test('tool:fill-screen-inputs-from-words runs as the container runner runs it, on its own sample', async () => {
   const row = rowOf(rows, 'tool:fill-screen-inputs-from-words');
-  const ran = await runRow(row, row.verify[0].input);
+  const ran = await answerOf(row, row.verify[0].input);
   assert.equal(ran.status, 0, JSON.stringify(ran.error));
   assert.match(JSON.stringify(select(ran, row.result_selector + row.verify[0].output_selector.slice(1))), new RegExp(row.verify[0].contains));
 });

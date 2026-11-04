@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { readCurrentWornLook } from '../do-work/read-current-worn-look.mjs';
 import { timeZoneName } from '../read-data/look-time-zone.js';
 import rows from '../tool-rows.json' with { type: 'json' };
@@ -135,7 +135,7 @@ test('screen-look zones use wall-time canonical spelling and rejection rules', (
 
 test('the declared native action reads the same records and returns its full device contract', async () => {
   const row = rowOf(rows, 'tool:read-current-worn-look');
-  const answer = await runRow(row, { time_zone: 'UTC', app_data: appData }, { doorOptions: { workspaceRecords: { 'screen-look': [{ name: 'dusk' }] } } });
+  const answer = await answerOf(row, { time_zone: 'UTC', app_data: appData }, { doorOptions: { workspaceRecords: { 'screen-look': [{ name: 'dusk' }] } } });
   assert.equal(answer.status, 0, answer.error);
   assert.equal(answer.result.worn, 'dusk');
   assert.ok(Array.isArray(answer.result.ahead));

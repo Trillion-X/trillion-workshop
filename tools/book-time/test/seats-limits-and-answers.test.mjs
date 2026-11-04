@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { isDeepStrictEqual } from 'node:util';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { changeABookingStatus, findOpenTimes, requestABooking } from '../do-work/book-time.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
@@ -17,7 +17,7 @@ const change = rowOf(rows, 'tool:change-a-booking-status');
 const HOURS = { timezone: 'America/Chicago', windows: [{ weekday: 4, start: '09:00', end: '10:00' }, { weekday: 5, start: '09:00', end: '10:00' }], duration_minutes: 30, step_minutes: 30, host_ref: 'host:studio' };
 const NINE = '2036-08-14T14:00:00Z';
 const person = name => [{ name, email: `${name.toLowerCase()}@example.test` }];
-const run = (row, input, previous) => runRow(row, input, { records: previous?.kept ?? [] });
+const run = (row, input, previous) => answerOf(row, input, { records: previous?.kept ?? [] });
 const ok = async (row, input, previous) => {
   const answer = await run(row, input, previous);
   assert.equal(answer.status, 0, answer.error);
