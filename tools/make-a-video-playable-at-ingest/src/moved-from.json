@@ -1,0 +1,16 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/ingest-normalization.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/make-a-video-playable-at-ingest/src/ingest-normalization.json",
+      "source_identity": "1f:b11da141c4c05affc012248b9c52e296d3e62f7a948d0eb545733ec7cded8298",
+      "identity": "1f:b11da141c4c05affc012248b9c52e296d3e62f7a948d0eb545733ec7cded8298",
+      "reused": true
+    }
+  ]
+}

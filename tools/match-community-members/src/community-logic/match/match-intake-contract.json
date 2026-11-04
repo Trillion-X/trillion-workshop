@@ -1,0 +1,442 @@
+{
+  "about": "The match intake contract as DATA (src/community-logic/match/match-intake-evidence.mjs reads it): the five factors a match is scored on, the primitives a question serves, the intake questions a member's AI answers (each with the claim kinds its answer yields), and which claim kinds each factor must cite on each side. A community picks its questions from these by id (matching.evidence.questions).",
+  "factor_ids": [
+    "complementarity",
+    "relevance",
+    "timing",
+    "ability_to_act",
+    "impact"
+  ],
+  "primitive_ids": [
+    "mandate",
+    "reality_sensing",
+    "durable_state",
+    "judgment",
+    "capability",
+    "access",
+    "resources",
+    "authority",
+    "continuity",
+    "proof_durability",
+    "learning_propagation"
+  ],
+  "questions": [
+    {
+      "question_id": "scope.pursuit_ref",
+      "wording": "Which pursuit do you want this interaction to move forward?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "scope.pursuit"
+      ],
+      "primitive_ids": [
+        "mandate",
+        "durable_state"
+      ],
+      "scope_field": "pursuit_ref"
+    },
+    {
+      "question_id": "scope.system_ref",
+      "wording": "Which project, role, relationship, or other system is this pursuit part of?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "scope.system"
+      ],
+      "primitive_ids": [
+        "mandate",
+        "durable_state"
+      ],
+      "scope_field": "system_ref"
+    },
+    {
+      "question_id": "scope.timescale_ref",
+      "wording": "What time horizon matters for this pursuit?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "scope.timescale"
+      ],
+      "primitive_ids": [
+        "mandate",
+        "continuity"
+      ],
+      "scope_field": "timescale_ref"
+    },
+    {
+      "question_id": "scope.state_ref",
+      "wording": "Which current state or phase is this pursuit in?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "scope.state"
+      ],
+      "primitive_ids": [
+        "reality_sensing",
+        "durable_state"
+      ],
+      "scope_field": "state_ref"
+    },
+    {
+      "question_id": "session.selection",
+      "wording": "Which interaction session can you attend, and what time, place, or mode do you prefer?",
+      "requirement_class": "attendance_required",
+      "claim_kinds": [
+        "continuity.attendance"
+      ],
+      "primitive_ids": [
+        "access",
+        "continuity"
+      ]
+    },
+    {
+      "question_id": "mandate.desired_movement",
+      "wording": "What do you want this interaction to materially move forward?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "mandate.desired_movement"
+      ],
+      "primitive_ids": [
+        "mandate"
+      ]
+    },
+    {
+      "question_id": "reality.current_state",
+      "wording": "What is true right now?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "reality.current_state"
+      ],
+      "primitive_ids": [
+        "reality_sensing"
+      ]
+    },
+    {
+      "question_id": "judgment.bottleneck",
+      "wording": "What do you think is blocking progress right now? ‘I am not sure’ is valid.",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "judgment.bottleneck"
+      ],
+      "primitive_ids": [
+        "judgment"
+      ]
+    },
+    {
+      "question_id": "proof.observable_progress",
+      "wording": "What observable change would count as real progress by the end of the interaction?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "proof.observable_progress"
+      ],
+      "primitive_ids": [
+        "proof_durability"
+      ]
+    },
+    {
+      "question_id": "reality.prior_attempts",
+      "wording": "What have you already tried, and what happened?",
+      "requirement_class": "adaptive",
+      "claim_kinds": [
+        "reality.prior_attempt",
+        "judgment.prior_result"
+      ],
+      "primitive_ids": [
+        "reality_sensing",
+        "judgment"
+      ]
+    },
+    {
+      "question_id": "capability.offered_with_proof",
+      "wording": "What can you help someone else do well? Give one example that proves it.",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "capability.offered",
+        "capability.proof"
+      ],
+      "primitive_ids": [
+        "capability",
+        "proof_durability"
+      ]
+    },
+    {
+      "question_id": "resource.offered",
+      "wording": "What tools, data, money, space, people, or other resources can you contribute?",
+      "requirement_class": "adaptive",
+      "claim_kinds": [
+        "resource.offered"
+      ],
+      "primitive_ids": [
+        "resources"
+      ]
+    },
+    {
+      "question_id": "access.offered",
+      "wording": "What access or reach can you contribute, and what access is unavailable?",
+      "requirement_class": "adaptive",
+      "claim_kinds": [
+        "access.offered",
+        "access.constraint"
+      ],
+      "primitive_ids": [
+        "access",
+        "authority"
+      ]
+    },
+    {
+      "question_id": "capacity.available",
+      "wording": "How much time or working capacity can you actually contribute during this interaction?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "capacity.available"
+      ],
+      "primitive_ids": [
+        "resources",
+        "continuity"
+      ]
+    },
+    {
+      "question_id": "continuity.constraints",
+      "wording": "What attendance, accessibility, scheduling, or recovery constraints matter? ‘None’ is valid.",
+      "requirement_class": "attendance_required",
+      "claim_kinds": [
+        "continuity.constraint"
+      ],
+      "primitive_ids": [
+        "access",
+        "continuity"
+      ]
+    },
+    {
+      "question_id": "authority.desired_interventions",
+      "wording": "Which kinds of help or intervention do you want?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "authority.desired_intervention"
+      ],
+      "primitive_ids": [
+        "mandate",
+        "authority"
+      ]
+    },
+    {
+      "question_id": "authority.forbidden_interventions",
+      "wording": "Which kinds of help, intervention, or use of your information are forbidden? ‘None’ is valid.",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "authority.forbidden_intervention"
+      ],
+      "primitive_ids": [
+        "authority"
+      ]
+    },
+    {
+      "question_id": "authority.assignment_level",
+      "wording": "May the system recommend only, prepare and ask, or make an in-interaction assignment you have pre-authorized?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "authority.assignment"
+      ],
+      "primitive_ids": [
+        "authority"
+      ]
+    },
+    {
+      "question_id": "authority.disclosure",
+      "wording": "What may be shared with matched parties, and what must never be shared?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "authority.disclosure"
+      ],
+      "primitive_ids": [
+        "authority",
+        "durable_state"
+      ]
+    },
+    {
+      "question_id": "authority.veto",
+      "wording": "Is there anyone or any interaction you must not be matched with? ‘None’ is valid.",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "authority.veto"
+      ],
+      "primitive_ids": [
+        "authority"
+      ]
+    },
+    {
+      "question_id": "access.contact_consent",
+      "wording": "How may the interaction organizer contact you, and for which purposes?",
+      "requirement_class": "attendance_required",
+      "claim_kinds": [
+        "access.contact",
+        "authority.contact"
+      ],
+      "primitive_ids": [
+        "access",
+        "authority"
+      ]
+    },
+    {
+      "question_id": "continuity.follow_up",
+      "wording": "May the organizer request a short outcome check after the interaction?",
+      "requirement_class": "justified_match_required",
+      "claim_kinds": [
+        "continuity.follow_up",
+        "proof.follow_up"
+      ],
+      "primitive_ids": [
+        "continuity",
+        "proof_durability"
+      ]
+    },
+    {
+      "question_id": "durable.profile_reuse",
+      "wording": "May this scoped profile remain available for future interactions? Event-only is the default.",
+      "requirement_class": "optional",
+      "claim_kinds": [
+        "durable_state.profile_reuse"
+      ],
+      "primitive_ids": [
+        "durable_state"
+      ]
+    },
+    {
+      "question_id": "learning.generalization_consent",
+      "wording": "May anonymized or generalized lessons improve future starting points?",
+      "requirement_class": "optional",
+      "claim_kinds": [
+        "learning.generalization_consent"
+      ],
+      "primitive_ids": [
+        "learning_propagation"
+      ]
+    }
+  ],
+  "factor_citation_requirements": {
+    "complementarity": [
+      {
+        "side": "subject",
+        "any_of": [
+          "judgment.bottleneck",
+          "reality.current_state",
+          "mandate.desired_movement"
+        ]
+      },
+      {
+        "side": "candidate",
+        "any_of": [
+          "capability.offered",
+          "resource.offered",
+          "access.offered"
+        ]
+      }
+    ],
+    "relevance": [
+      {
+        "side": "subject",
+        "any_of": [
+          "scope.pursuit"
+        ]
+      },
+      {
+        "side": "subject",
+        "any_of": [
+          "scope.system"
+        ]
+      },
+      {
+        "side": "candidate",
+        "any_of": [
+          "capability.offered",
+          "resource.offered",
+          "access.offered"
+        ]
+      },
+      {
+        "side": "candidate",
+        "any_of": [
+          "capability.proof"
+        ]
+      }
+    ],
+    "timing": [
+      {
+        "side": "subject",
+        "any_of": [
+          "scope.timescale"
+        ]
+      },
+      {
+        "side": "subject",
+        "any_of": [
+          "continuity.attendance"
+        ]
+      },
+      {
+        "side": "candidate",
+        "any_of": [
+          "continuity.attendance"
+        ]
+      },
+      {
+        "side": "candidate",
+        "any_of": [
+          "capacity.available"
+        ]
+      }
+    ],
+    "ability_to_act": [
+      {
+        "side": "candidate",
+        "any_of": [
+          "capability.offered",
+          "resource.offered",
+          "access.offered"
+        ]
+      },
+      {
+        "side": "candidate",
+        "any_of": [
+          "capability.proof"
+        ]
+      },
+      {
+        "side": "candidate",
+        "any_of": [
+          "capacity.available"
+        ]
+      },
+      {
+        "side": "candidate",
+        "any_of": [
+          "authority.assignment"
+        ]
+      }
+    ],
+    "impact": [
+      {
+        "side": "subject",
+        "any_of": [
+          "mandate.desired_movement"
+        ]
+      },
+      {
+        "side": "subject",
+        "any_of": [
+          "proof.observable_progress"
+        ]
+      },
+      {
+        "side": "candidate",
+        "any_of": [
+          "capability.offered",
+          "resource.offered",
+          "access.offered"
+        ]
+      },
+      {
+        "side": "candidate",
+        "any_of": [
+          "capability.proof"
+        ]
+      }
+    ]
+  }
+}

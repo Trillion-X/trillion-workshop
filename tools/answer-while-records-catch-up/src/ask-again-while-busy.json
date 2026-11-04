@@ -1,0 +1,6 @@
+{
+  "_what": "How long one call asks an owner again while it answers busy (service-busy), before it answers the caller busy itself (src/ask-again-while-busy.mjs askedUntilAnswered). budget_ms bounds the whole wait from the first ask; wait_ms is the least wait between asks (an answer's retry_after_ms, when longer, is waited instead).",
+  "_why": "An own-records book opened cold answers its first call 'These records are catching up' and wakes its own upkeep, which rebuilds it in 3.4-5.6 s plus queueing (src/record-book.mjs rebuildRecordProjection). On 2026-10-20 every list call to a list kept in its own work book (founder account f281a627, inspiration-videos) answered 'catching up': each was asked once, and the next caller, a minute or an agent turn later, found the book cold again. 4 tries 1.5 s apart (4.5 s) was shorter than one rebuild; 12 s covers it with room for queueing.",
+  "budget_ms": 12000,
+  "wait_ms": 1500
+}

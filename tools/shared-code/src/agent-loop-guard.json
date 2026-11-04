@@ -1,0 +1,11 @@
+{
+  "what_this_is": "A hand-off chain that keeps passing the same work between the same two agents is a loop (src/agents.mjs handOff). Walking back from the new hand-off's parent through parent_handoff_id, at most `walk` links, the hand-off is refused once `max_repeats` earlier links in the chain were already from this agent to that one. A chain whose agents differ, or a hand-off naming no parent or no sender, is never counted. Set max_repeats to 0 to switch the guard off.",
+  "max_repeats": 4,
+  "walk": 50,
+  "words": "{from} has already handed this chain of work to {to} {count} times. Hand it to a different agent, or finish it, instead of passing it back and forth.",
+  "rate": {
+    "what_this_is": "At most `per_minute` new hand-offs from one agent (a returning request_key is not new) in any minute, counted by this store while it runs; more are refused with `words`. 0 turns it off, which is how it ships.",
+    "per_minute": 0,
+    "words": "{from} has handed off {count} jobs in the last minute, the most this account allows. Wait a minute, or finish what is open first."
+  }
+}

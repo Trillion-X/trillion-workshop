@@ -1,0 +1,129 @@
+{
+  "_what": "What an action does to the world and how it is checked, read by src/consequence-classes.mjs. Rows are tried in order; the first whose `tools` names the tool, or whose `annotations` all hold for it, is its class. `mode` is how the class is checked: none (nothing is asked; the default for every class), confirm_now (the person's yes for exactly this action is needed first), handoff (only the person does it). A person or space turns a class on by passing `modes` { class_id: mode } to the owner; nothing here is on by default. Approvals are kept by the owner (`approvals`), never taken from the call's own words. `scope` says which input fields are shown to the person as display-only words (who receives it, how much, how public); a scope never grants anything. Bounds are in characters.",
+  "bounds": {
+    "target": 128,
+    "amount": 40,
+    "currency": 12,
+    "recipient_preview": 64,
+    "recipients_shown": 5
+  },
+  "classes": [
+    {
+      "id": "message-send",
+      "label": "Sends a message to someone",
+      "mode": "none",
+      "tools": [
+        "send_message",
+        "send_share_link",
+        "send_agent_event",
+        "send_work_to_ais"
+      ],
+      "scope": {
+        "kind": "message-send",
+        "target": [
+          "to",
+          "recipient",
+          "service",
+          "email"
+        ],
+        "recipients": [
+          "to",
+          "recipients",
+          "emails"
+        ]
+      }
+    },
+    {
+      "id": "payment",
+      "label": "Moves money",
+      "mode": "none",
+      "tools": [
+        "set_spend_budget",
+        "set_up_payouts"
+      ],
+      "scope": {
+        "kind": "payment",
+        "amount": [
+          "amount",
+          "dollars",
+          "budget"
+        ],
+        "currency": [
+          "currency"
+        ],
+        "target": [
+          "payee",
+          "to"
+        ]
+      }
+    },
+    {
+      "id": "external-post",
+      "label": "Publishes where others see it",
+      "mode": "none",
+      "tools": [
+        "publish_post",
+        "post_to_community",
+        "publish_insight"
+      ],
+      "scope": {
+        "kind": "external-post",
+        "target": [
+          "destinations",
+          "community",
+          "post_id"
+        ],
+        "visibility": [
+          "visibility"
+        ]
+      }
+    },
+    {
+      "id": "deletes",
+      "label": "Deletes or removes",
+      "mode": "none",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "scope": {
+        "kind": "delete",
+        "target": [
+          "id",
+          "name",
+          "file",
+          "record_id"
+        ]
+      }
+    },
+    {
+      "id": "reaches-out",
+      "label": "Changes something outside Trillion",
+      "mode": "none",
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true
+      },
+      "scope": {
+        "kind": "outside",
+        "target": [
+          "service",
+          "to",
+          "name"
+        ]
+      }
+    }
+  ],
+  "approvals": {
+    "scopes": [
+      "once",
+      "tool",
+      "class"
+    ],
+    "max_seconds": {
+      "once": 3600,
+      "tool": 86400,
+      "class": 86400
+    },
+    "_what": "The person's yes, kept by the owner (never read from the call): `once` covers exactly one call with the identity shown and is used up when it lets that call run; `tool` and `class` are allow-always for that tool or class until they end. Every approval has an end time no further away than max_seconds for its scope."
+  }
+}

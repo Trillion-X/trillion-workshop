@@ -1,0 +1,16 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/loading-mark/stitch.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/ui/show/loading-mark/stitch.ts",
+      "source_identity": "1f:d4dc629d31e5e46176413c14e40b4822a56fbebc1d17480540f9764a1c438359",
+      "identity": "1f:d4dc629d31e5e46176413c14e40b4822a56fbebc1d17480540f9764a1c438359",
+      "reused": true
+    }
+  ]
+}

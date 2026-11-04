@@ -1,0 +1,120 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/app-project-assembly.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/src/app-project-assembly.mjs",
+      "source_identity": "1f:7d96a5e24485e96a0fe9e2b4b49aafab953f401dda21111c0a6c95f95f5fa485",
+      "identity": "1f:7d96a5e24485e96a0fe9e2b4b49aafab953f401dda21111c0a6c95f95f5fa485"
+    },
+    {
+      "from": "src/app-project-output-composition.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/src/app-project-output-composition.mjs",
+      "source_identity": "1f:16fed02cf5a1291b0dc1cf77d2e65d598073f81e8767d6e16cbb907129d716c3",
+      "identity": "1f:39e66de7ca4a6e0d334d629e023f88ca1f2d556fc83f046354865da38db22db0"
+    },
+    {
+      "from": "src/app-project-publish.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/src/app-project-publish.mjs",
+      "source_identity": "1f:07ad68aad970b202905b454013bc18d672f0dda8281f05b086df1563e0c00957",
+      "identity": "1f:58d71fe60b74a10120c5b2129764084b5250946084a43f9231ef8b09be7f9a91"
+    },
+    {
+      "from": "src/app-project-web-mounts.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/src/app-project-web-mounts.mjs",
+      "source_identity": "1f:e817d57bea16016569677352c8a302c7d90bf1433533ceac4053422e510afefc",
+      "identity": "1f:e817d57bea16016569677352c8a302c7d90bf1433533ceac4053422e510afefc"
+    },
+    {
+      "from": "src/app-project.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/src/app-project.mjs",
+      "source_identity": "1f:0532d2dd9b55516c0b78a6a4960a0b14fb577188e6c54451a3a8a66ca7d73ae0",
+      "identity": "1f:5f54e3c5fc173036683a116e0f18b356da186d5b73a3c3dde9d3ef0e27122987"
+    },
+    {
+      "from": "src/public-app-file-index.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/src/public-app-file-index.mjs",
+      "source_identity": "1f:f0ec3fbeee4921d6f32447861133e8b7421a7e997dbd14ae144a244dbbe4f81b",
+      "identity": "1f:54eb154579f084629568622f53e5f8a508873f12b76dff692196e8da05b362d9"
+    },
+    {
+      "from": "src/public-app-import.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/src/public-app-import.mjs",
+      "source_identity": "1f:35bc2830f5203f28369b17485124e1d75e8867f960cd12033ef9b8e0b7fbc617",
+      "identity": "1f:a338f18c67f3cef46d4cc51d05f77c3927a6ef13629b276187a8074ee5732f69"
+    },
+    {
+      "from": "src/source-build-inputs.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/src/source-build-inputs.mjs",
+      "source_identity": "1f:cd5d642dddc851aacb9a38f8a53e40e4104ff6345dc6f2128789968107a58795",
+      "identity": "1f:cd5d642dddc851aacb9a38f8a53e40e4104ff6345dc6f2128789968107a58795"
+    },
+    {
+      "from": "test/app-project-assembly.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/test/app-project-assembly.test.mjs",
+      "source_identity": "1f:6f8c4f04c2217e918f6024c0d6f80639282562bda8f6c4c413de256794fb97fc",
+      "identity": "1f:6f8c4f04c2217e918f6024c0d6f80639282562bda8f6c4c413de256794fb97fc"
+    },
+    {
+      "from": "test/app-project-native-output.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/test/app-project-native-output.test.mjs",
+      "source_identity": "1f:b4101d360e0cf7af25c8a3b52ba708c0241817d550cf34de144de2c83b2cf83c",
+      "identity": "1f:311b9779c8d9bebc30498571412af3a74b1c60cfca2bb7b5645f7f2454648eb5"
+    },
+    {
+      "from": "test/app-project-output-composition.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/test/app-project-output-composition.test.mjs",
+      "source_identity": "1f:1537fcd5dc08c571af27b4c20c53c3650bfb90c136e61a74813d0a0f41859d7f",
+      "identity": "1f:076023301a746689a431c9d8c08788857072826d67fd867ec13ba2b8874f4a34"
+    },
+    {
+      "from": "test/app-project-publish.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/test/app-project-publish.test.mjs",
+      "source_identity": "1f:42a0abc91fec12c85e382cffa9a44434e168d789c1ae97c82546aac27bbb83ab",
+      "identity": "1f:42a0abc91fec12c85e382cffa9a44434e168d789c1ae97c82546aac27bbb83ab"
+    },
+    {
+      "from": "test/app-project-source-model.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/test/app-project-source-model.test.mjs",
+      "source_identity": "1f:bfcb3dc2d781ea8683bcb2529bc8ae477167780be856f091c0dc7bc0df9890f2",
+      "identity": "1f:bfcb3dc2d781ea8683bcb2529bc8ae477167780be856f091c0dc7bc0df9890f2"
+    },
+    {
+      "from": "test/fixtures/public-app-import/site/about/index.html",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/test/fixtures/public-app-import/site/about/index.html",
+      "source_identity": "1f:a44ba1897d4d83724ba5f01f60bf8e0117abe815050d82bf5d65aad55d06faa4",
+      "identity": "1f:a44ba1897d4d83724ba5f01f60bf8e0117abe815050d82bf5d65aad55d06faa4"
+    },
+    {
+      "from": "test/fixtures/public-app-import/site/index.html",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/test/fixtures/public-app-import/site/index.html",
+      "source_identity": "1f:26de00311fd9d1e3bb7e209c9d1adea9507dc8bed4ac6e474bc6a971215499df",
+      "identity": "1f:26de00311fd9d1e3bb7e209c9d1adea9507dc8bed4ac6e474bc6a971215499df"
+    },
+    {
+      "from": "test/fixtures/public-app-import/site/styles.css",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/assemble-and-publish-an-app-project/test/fixtures/public-app-import/site/styles.css",
+      "source_identity": "1f:f3353156e11ff1fb2ef8d82814663eab20cad57f5f807ee9b939ef24a22bb0ca",
+      "identity": "1f:f3353156e11ff1fb2ef8d82814663eab20cad57f5f807ee9b939ef24a22bb0ca"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "_what": "The look of a graph document drawn as one standalone SVG file (graph-svg.mjs), for a place that can show a picture but not a page: an email, a chat, a pull request, a README. A file cannot read the page's theme, so each palette in `palettes` is a full set of literal colours baked in at export, one per place it may land (light, dark, and neutral, whose every word sits on its own filled ground so it reads on a light or a dark page). `node_looks` and `edge_looks` map a change state's tone (the tone names are graph-contract.json's `delta.states`) to roles in the palette; `pulse` is the moving dot along an edge whose look says `pulse`. Adding a palette is one row; adding a tone's look is one row. `surfaces` are the capability rows of the places a file can land: each names the palette it reads on, whether it may move and whether its lines draw themselves in (`reveal`, timed by `reveal`); an adapter asks for its surface and never branches on the surface's name. A palette, animation or reveal named beside the surface wins over the surface's row. The font is the screen look's own face, read from the look owner (screenLookFontFamily) and baked in like the colours; a caller that knows the person's look passes its face as `font`.",
+  "renderer_version": 1,
+  "hash_characters": 32,
+    "text": {
+    "across": {
+      "label": 15,
+      "detail": 12
+    },
+    "down": {
+      "label": 13,
+      "detail": 11
+    },
+    "head": 16,
+    "edge_label": 12,
+    "mark": 12
+  },
+  "palettes": {
+    "light": {
+      "page": "#fbfaf7",
+      "chip": "#fbfaf7",
+      "card": "#ffffff",
+      "line": "#bdb7aa",
+      "words": "#1d1b17",
+      "quiet": "#6b665c",
+      "accent": "#c2410c",
+      "on_accent": "#ffffff"
+    },
+    "dark": {
+      "page": "#14130f",
+      "chip": "#14130f",
+      "card": "#1f1d18",
+      "line": "#5a554a",
+      "words": "#f2efe8",
+      "quiet": "#a39d90",
+      "accent": "#fb923c",
+      "on_accent": "#14130f"
+    },
+    "neutral": {
+      "page": null,
+      "chip": "#e5e7eb",
+      "card": "#f3f4f6",
+      "line": "#6b7280",
+      "words": "#111827",
+      "quiet": "#4b5563",
+      "accent": "#b45309",
+      "on_accent": "#ffffff"
+    }
+  },
+  "node_looks": {
+    "default": {
+      "fill": "card",
+      "line": "line",
+      "width": 1.2,
+      "words": "words",
+      "detail": "quiet",
+      "mark": "accent",
+      "mark_words": "on_accent"
+    },
+    "highlighted": {
+      "fill": "accent",
+      "line": "accent",
+      "width": 1.2,
+      "words": "on_accent",
+      "detail": "on_accent",
+      "mark": "on_accent",
+      "mark_words": "accent"
+    },
+    "strong": {
+      "fill": "card",
+      "line": "accent",
+      "width": 2,
+      "words": "words",
+      "detail": "quiet",
+      "mark": "accent",
+      "mark_words": "on_accent"
+    },
+    "refused": {
+      "fill": "card",
+      "line": "quiet",
+      "width": 1.4,
+      "dash": "3 4",
+      "words": "quiet",
+      "detail": "quiet",
+      "mark": "quiet",
+      "mark_words": "card"
+    }
+  },
+  "edge_looks": {
+    "default": {
+      "line": "line",
+      "width": 1.6,
+      "opacity": 0.6,
+      "label": "quiet"
+    },
+    "strong": {
+      "line": "accent",
+      "width": 2.2,
+      "opacity": 1,
+      "dash": "6 7",
+      "pulse": true,
+      "label": "words"
+    },
+    "refused": {
+      "line": "quiet",
+      "width": 1.8,
+      "opacity": 0.9,
+      "dash": "2 6",
+      "label": "accent"
+    }
+  },
+  "pulse": {
+    "radius": 3.4,
+    "seconds": 2.8,
+    "spread_seconds": 0.9
+  },
+  "words": {
+    "errors": {
+      "UNKNOWN_PALETTE": "The palette \"{found}\" is not one of {palettes}.",
+      "UNKNOWN_SURFACE": "The surface \"{found}\" is not one of {surfaces}."
+    }
+  },
+  "surfaces": {
+    "page-light": {
+      "palette": "light",
+      "animated": true,
+      "reveal": true
+    },
+    "page-dark": {
+      "palette": "dark",
+      "animated": true,
+      "reveal": true
+    },
+    "email": {
+      "palette": "light",
+      "animated": false,
+      "reveal": false
+    },
+    "chat": {
+      "palette": "neutral",
+      "animated": false,
+      "reveal": false
+    },
+    "code-host-comment": {
+      "palette": "neutral",
+      "animated": false,
+      "reveal": false
+    }
+  },
+  "reveal": {
+    "seconds": 0.9,
+    "stagger_seconds": 0.15
+  }
+}

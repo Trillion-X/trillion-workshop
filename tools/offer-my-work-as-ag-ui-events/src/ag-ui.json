@@ -1,0 +1,31 @@
+{
+  "_what": "How Trillion's work is offered as AG-UI, the agent-to-UI event protocol (src/ag-ui.mjs; wire contract @ag-ui/core 1.0.3, https://docs.ag-ui.com). An AG-UI client posts a RunAgentInput to `path` with a personal key or an app sign-in and reads one run as server-sent events: the job its newest user message handed to the person's AIs (or the job the thread names), every call kept for it, what is in the way, and the result. Every bound is a row here. protocol_version is the AG-UI version this producer speaks (RUN_STARTED.protocolVersion). request_key_prefix starts the request_key of a job a message hands off, so the same message in the same thread never hands work twice. thread_names_job: a thread id that is a handoff id (or forwardedProps.handoff_id) watches that job instead of handing a new one. tools: the MCP tools a run writes with (handing a job, steering it), called with the caller's own sign-in on the same road every AI uses, so each leaves the activity row any AI's call leaves. run_path: the account road the run is read from, the same read the person's own job screen makes (src/workspace/job-run.tsx: the job, every part handed on from it, every call kept for it oldest first, and who did it). watch_seconds: the longest one run watches before it ends and asks to be run again (the job keeps going). read_ms: the first wait between reads; each read that finds nothing new waits `slower` times longer, up to read_most_ms; anything new brings it back to read_ms. keep_alive_ms: how long a stream may be quiet before a comment line keeps it open (a client's parser skips it). words: what the run says, in plain words.",
+  "path": "/mcp/ag-ui",
+  "protocol_version": "1.0",
+  "request_key_prefix": "ag-ui",
+  "max_messages": 200,
+  "max_message_chars": 8000,
+  "max_resume": 20,
+  "max_id_chars": 200,
+  "max_body_bytes": 2000000,
+  "watch_seconds": 900,
+  "read_ms": 1000,
+  "slower": 1.5,
+  "read_most_ms": 10000,
+  "tools": {
+    "hand": "hand_off"
+  },
+  "words": {
+    "no_message": "Send a user message with the job, or name a job: a thread id or forwardedProps.handoff_id that is a handoff id.",
+    "no_job": "This thread names no job on this account.",
+    "watch_ended": "Still being worked on. Run this thread again to keep watching.",
+    "read_failed": "The job could not be read: {why}",
+    "in_the_way": "{by} says this is in the way: {why}",
+    "someone": "The AI on it",
+    "finished_without_words": "Finished.",
+    "step_failed": "Did not work: {why}",
+    "withdrawn": "This job was withdrawn: {why}"
+  },
+  "run_path": "/job-run",
+  "keep_alive_ms": 15000
+}

@@ -1,0 +1,27 @@
+{
+  "comment": "Signing in with a one-time code sent to the account's email (src/sign-in-email.mjs). every code goes out through Trillion's one sender (src/mail-sender.mjs sendMail, from src/mail-settings.json); code_digits, code_minutes and tries_per_code shape one code; asking again within resend_after_minutes of a code that still works sends nothing, so the code already in the inbox keeps working; sends limits how many codes one email, and one network address, may ask for within window_minutes. words are everything a person reads.",
+  "code_digits": 6,
+  "code_minutes": 10,
+  "tries_per_code": 5,
+  "resend_after_minutes": 2,
+  "sends": {
+    "per_email": 3,
+    "per_address": 10,
+    "window_minutes": 15
+  },
+  "words": {
+    "subject": "Your Trillion sign-in code: {code}",
+    "text": "Your Trillion sign-in code is {code}\n\nType it on the sign-in page within {minutes} minutes. It works once.\n\nIf you did not ask for it, you can ignore this email; nobody can sign in without the code.",
+    "sent": "If this email has a Trillion account, a {digits}-digit code is on its way. It works for {minutes} minutes. Check your spam folder if it does not arrive.",
+    "not_an_email": "Type the email address your Trillion account uses.",
+    "too_many_sends": "Too many codes were asked for. Wait {minutes} minutes, then try again.",
+    "wrong_code": "That code is not right, or it has ended. Check the newest email from Trillion, or send a new code.",
+    "no_account": "That code is not right, or it has ended. Check the newest email from Trillion, or send a new code.",
+    "confirm_subject": "Your Trillion code to add this email: {code}",
+    "confirm_text": "Your code is {code}\n\nType it on the Trillion page within {minutes} minutes to sign in with this email when your passkey is not on the device you are using. It works once.\n\nIf you did not ask for it, you can ignore this email.",
+    "confirm_sent": "A {digits}-digit code is on its way. It works for {minutes} minutes. Check your spam folder if it does not arrive.",
+    "confirmed": "Added. You can now sign in with a code sent to {email}.",
+    "signed_out": "You are signed out. Sign in again, then add your email.",
+    "not_sent": "The email could not be sent just now, so no code is on its way. Try again in a minute."
+  }
+}

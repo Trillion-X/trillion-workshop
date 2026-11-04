@@ -1,0 +1,106 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/addressed-capabilities.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/src/addressed-capabilities.mjs",
+      "source_identity": "1f:e9f82b6561793e82517b8698afb14400393cf00b37f23fc7fc83404388209239",
+      "identity": "1f:1840cbf354461a4707339e242b883645d45db87ced477c39aff8298a3793edbd"
+    },
+    {
+      "from": "src/addressed-capability-contract.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/src/addressed-capability-contract.mjs",
+      "source_identity": "1f:c0cbe34f7ef1d09892538edb4cc97d74aa86f8fdc47495b88e07475546c23f5d",
+      "identity": "1f:c0cbe34f7ef1d09892538edb4cc97d74aa86f8fdc47495b88e07475546c23f5d"
+    },
+    {
+      "from": "src/addressed-capability-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/src/addressed-capability-tools.mjs",
+      "source_identity": "1f:24c422df8d0892a4f1c858cb604c98d307791ce9997e31993354c3312b4d1b8e",
+      "identity": "1f:5c1785a26cdefab513c0e9da74cbe005a5b87afeb7644d0d68fb8dd03e096bee"
+    },
+    {
+      "from": "src/addressed-operation.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/src/addressed-operation.mjs",
+      "source_identity": "1f:a0904930b91cea4758e856ea8858856ad5ae7a1586bd060804cef8411fc9d72d",
+      "identity": "1f:a0904930b91cea4758e856ea8858856ad5ae7a1586bd060804cef8411fc9d72d"
+    },
+    {
+      "from": "src/behavior-routing.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/src/behavior-routing.mjs",
+      "source_identity": "1f:8e64fe02d3d4d88be05242e810dc3d13c73e29f7a33460047a2c150e6000fb76",
+      "identity": "1f:8e64fe02d3d4d88be05242e810dc3d13c73e29f7a33460047a2c150e6000fb76"
+    },
+    {
+      "from": "src/built-in-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/src/built-in-tools.mjs",
+      "source_identity": "1f:2d19bd3b769023a73379ac506132f473cd1750c23c3ab86b94f2bf846643b92d",
+      "identity": "1f:52b0db977a65ec0856615e0e7721ed55249db493c3e1bd6dc51c034961f8f300"
+    },
+    {
+      "from": "src/context-workshop-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/src/context-workshop-tools.mjs",
+      "source_identity": "1f:e8a44ef09b28a184d6ce22f90be5af85f763f2901dcd1572450f963012bb2476",
+      "identity": "1f:e8a44ef09b28a184d6ce22f90be5af85f763f2901dcd1572450f963012bb2476"
+    },
+    {
+      "from": "src/creation-resource-mount.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/src/creation-resource-mount.mjs",
+      "source_identity": "1f:3059b29cf6bcab8d88e8db98869fc358d064232d590ad99e7713583d0aa43b0f",
+      "identity": "1f:3059b29cf6bcab8d88e8db98869fc358d064232d590ad99e7713583d0aa43b0f"
+    },
+    {
+      "from": "src/creation-resource-owner.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/src/creation-resource-owner.mjs",
+      "source_identity": "1f:65f10079a6a64cabdb179e13a8847771c63f160e96a47179232be2ce7b09cfdc",
+      "identity": "1f:65f10079a6a64cabdb179e13a8847771c63f160e96a47179232be2ce7b09cfdc"
+    },
+    {
+      "from": "src/native-owner-routes.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/src/native-owner-routes.json",
+      "source_identity": "1f:ff293890af2242283637791264ed9f1786fe9ea0b97ab0a9286ce0e59d4477c1",
+      "identity": "1f:ff293890af2242283637791264ed9f1786fe9ea0b97ab0a9286ce0e59d4477c1"
+    },
+    {
+      "from": "src/native-owner-routes.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/src/native-owner-routes.mjs",
+      "source_identity": "1f:5c3e1776998bd81760823a28c86745606138235c297a6de24a272b68924ed0a9",
+      "identity": "1f:5c3e1776998bd81760823a28c86745606138235c297a6de24a272b68924ed0a9"
+    },
+    {
+      "from": "test/addressed-capability-tools.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/test/addressed-capability-tools.test.mjs",
+      "source_identity": "1f:f8a45f5ab07f99f81350e28d3331afe4ecf0631521531bfae4f96200af40dfa8",
+      "identity": "1f:f8a45f5ab07f99f81350e28d3331afe4ecf0631521531bfae4f96200af40dfa8"
+    },
+    {
+      "from": "test/creation-resource-mount.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/test/creation-resource-mount.test.mjs",
+      "source_identity": "1f:47ce44c1ee6be2649d0e89d61657c06ccbef291682298d692dc4b61125994933",
+      "identity": "1f:47ce44c1ee6be2649d0e89d61657c06ccbef291682298d692dc4b61125994933"
+    },
+    {
+      "from": "test/creation-resource-owner.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/address-installed-capabilities/test/creation-resource-owner.test.mjs",
+      "source_identity": "1f:7affe73c08b4e4a26455d185894bb1b2122a0c788dda32b0f657664bd8073269",
+      "identity": "1f:7affe73c08b4e4a26455d185894bb1b2122a0c788dda32b0f657664bd8073269"
+    }
+  ]
+}
