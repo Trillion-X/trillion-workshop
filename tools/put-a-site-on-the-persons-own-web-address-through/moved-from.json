@@ -31,6 +31,13 @@
       "to": "tools/put-a-site-on-the-persons-own-web-address-through/test/public-app-domains.test.mjs",
       "source_identity": "1f:d1fd117655c6b43ebcb5cb7d82fd6c60221e4f890c469528dfe68ea4e8dd52e4",
       "identity": "1f:d1fd117655c6b43ebcb5cb7d82fd6c60221e4f890c469528dfe68ea4e8dd52e4"
+    },
+    {
+      "from": "test/share-link-routing.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/put-a-site-on-the-persons-own-web-address-through/test/share-link-routing.test.mjs",
+      "source_identity": "1f:948aebcdefa86e657d02b8c184feb33d7d4991e5dd065c76ced949a5bf13a968",
+      "identity": "1f:948aebcdefa86e657d02b8c184feb33d7d4991e5dd065c76ced949a5bf13a968"
     }
   ]
 }

@@ -2,7 +2,7 @@
 // use this person's existing GitHub Workshop connection and its locked box.
 // A compiled public-app installation is never treated as repository source.
 import { resolveSourceSelection, applySourceEdit, sourceCandidateFiles } from './source-project-edit.mjs';
-import { inspectRenderedSource, browseRenderedSource, sourcePreviewRoutes, sourceSitemapRoutes } from './source-project-preview.mjs';
+import { inspectRenderedSource, browseRenderedSource, sourcePreviewRoutes, sourceSitemapRoutes } from '../../../refresh-one-page-of-a-copied-site-from-its-original/src/source-project-preview.mjs';
 import { publicAppFilePath, publicAppMediaType } from 'trillion-workshop/tools/shared-code/src/public-app-files.mjs';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
