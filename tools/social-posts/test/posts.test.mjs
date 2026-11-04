@@ -1,8 +1,8 @@
 // The posting rows (draft, check, approve, set for its time, take back, where a post can go) run as the container
-// runs them, against the fake records door with exactly each row's rights. Every account here is made up.
+// runs them (test-helpers/run-a-row.mjs), against the stand-in records door with exactly each row's rights. Every account here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import { approveAPost, publishAPostNow } from '../read-data/posts.mjs';
@@ -22,7 +22,7 @@ const AHEAD = '2099-06-01T09:00:00Z';
 
 // Each run hands the next the records the door holds afterwards.
 async function step(id, input, records) {
-  const ran = await runRow(row(id), input, { records });
+  const ran = await answerOf(row(id), input, { records });
   return { ...ran, records: ran.kept };
 }
 
@@ -106,11 +106,11 @@ test('publish now queues the exact reviewed post through its existing wake and i
 
   const ungranted = structuredClone(publishNow);
   ungranted.invoke.records.rights = [{ kind: 'post', operations: ['records:read', 'records:write'] }];
-  const denied = await runRow(ungranted, { post_id: postId, expected_values: reviewed }, { records: approved.records });
+  const denied = await answerOf(ungranted, { post_id: postId, expected_values: reviewed }, { records: approved.records });
   assert.equal(denied.status, 1, 'the current records grant must allow checking destination connections');
   assert.equal(denied.kept.find(record => record.id === postId).value.status, 'approved');
 
-  const queued = await runRow(publishNow, { post_id: postId, expected_values: reviewed }, { records: approved.records });
+  const queued = await answerOf(publishNow, { post_id: postId, expected_values: reviewed }, { records: approved.records });
   assert.equal(queued.status, 0, queued.error);
   assert.equal(queued.result.status, 'scheduled');
   assert.equal(queued.result.ready.ready, true);
@@ -120,14 +120,14 @@ test('publish now queues the exact reviewed post through its existing wake and i
   assert.deepEqual(queued.result.post.destinations.map(item => item.status), ['not sent']);
   assert.match(queued.result.said, /Queued for the send wake.*did not send/);
 
-  const again = await runRow(publishNow, { post_id: postId, expected_values: reviewed }, { records: queued.kept });
+  const again = await answerOf(publishNow, { post_id: postId, expected_values: reviewed }, { records: queued.kept });
   assert.equal(again.status, 0, again.error);
   assert.equal(again.result.post.armed_at, queued.result.post.armed_at);
   assert.equal(again.result.post.updated_at, queued.result.post.updated_at);
   assert.equal(again.calls.filter(call => call.method === 'records:write').length, 0, 'a repeated request creates no second write or wake');
 
   const changed = await step('draft-a-post', { post_id: postId, caption: 'Different reviewed words' }, approved.records);
-  const stale = await runRow(publishNow, { post_id: postId, expected_values: reviewed }, { records: changed.records });
+  const stale = await answerOf(publishNow, { post_id: postId, expected_values: reviewed }, { records: changed.records });
   assert.equal(stale.status, 1);
   assert.match(stale.error, /changed after it was reviewed/);
   assert.equal(stale.kept.find(record => record.id === postId).value.status, 'draft');
@@ -137,7 +137,7 @@ test('publish now stays approved when a current destination connection is not re
   const draft = await step('draft-a-post', { caption: 'Wait for the account', destinations: ['service_connection:x'] }, accounts);
   const { post_id: postId, approval_values: reviewed } = draft.result.post;
   const approved = await step('approve-a-post', { post_id: postId, expected_values: reviewed }, draft.records);
-  const result = await runRow(row('publish-a-post-now'), { post_id: postId, expected_values: reviewed }, { records: approved.records });
+  const result = await answerOf(row('publish-a-post-now'), { post_id: postId, expected_values: reviewed }, { records: approved.records });
   assert.equal(result.status, 0, result.error);
   assert.equal(result.result.status, 'approved');
   assert.equal(result.result.ready.ready, false);
@@ -188,7 +188,7 @@ test('an AI can approve a named post exactly as reviewed under its row grant, wi
   assert.deepEqual(approve.input_schema.required, ['post_id', 'expected_values']);
   assert.deepEqual(approve.invoke.records.rights, [{ kind: 'post', operations: ['records:read', 'records:write'] }]);
 
-  const approved = await runRow(approve, { post_id: postId, expected_values: reviewed, approved_by: 'Sample AI' }, { records: draft.records });
+  const approved = await answerOf(approve, { post_id: postId, expected_values: reviewed, approved_by: 'Sample AI' }, { records: draft.records });
   assert.equal(approved.status, 0, approved.error);
   assert.equal(approved.result.post.status, 'approved');
   assert.equal(approved.result.post.approved_by, 'Sample AI');
@@ -196,7 +196,7 @@ test('an AI can approve a named post exactly as reviewed under its row grant, wi
 
   const ungranted = structuredClone(approve);
   ungranted.invoke.records.rights[0].operations = ['records:read'];
-  const denied = await runRow(ungranted, { post_id: postId, expected_values: reviewed }, { records: draft.records });
+  const denied = await answerOf(ungranted, { post_id: postId, expected_values: reviewed }, { records: draft.records });
   assert.equal(denied.status, 1);
   assert.equal(denied.kept.find(record => record.id === postId).value.status, 'draft');
 });

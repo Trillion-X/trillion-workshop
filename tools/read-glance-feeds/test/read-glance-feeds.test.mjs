@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readGlanceFeeds } from '../read-data/glance-feeds.mjs';
-import { rowOf, runRow } from '../../records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import toolRows from '../tool-rows.json' with { type: 'json' };
 import recipeTools from '../../workflows/tool-rows.json' with { type: 'json' };
 
@@ -113,7 +113,7 @@ test('the registered action reads through its narrow records-door right and refu
     { id: 'told-the-person:2', type: 'told-the-person', value: { item: { seq: 2, title: 'Second notice', read: true, open: '/jobs/2' } } },
     { id: 'other:1', type: 'other', value: { item: { seq: 2, title: 'Private row' } } },
   ];
-  const allowed = await runRow(row, { feed: 'told' }, { records, doorOptions: { pageCut: 1 } });
+  const allowed = await answerOf(row, { feed: 'told' }, { records, doorOptions: { pageCut: 1 } });
   assert.equal(allowed.status, 0);
   assert.deepEqual(allowed.result.feeds[0].rows.map(item => [item.id, item.title, item.open, item.source.read]), [
     ['told:2', 'Second notice', '/jobs/2', true], ['told:1', 'A notice', '/jobs/1', false],
@@ -135,11 +135,11 @@ test('notice feeds reuse legacy/current index rules and running progress without
     [{ id: 'told-the-person', type: 'told-the-person', value: { seqs: [1, 2, 3] } },
       ...[running, finished, needsPerson].map(item => ({ id: `told-the-person:${item.seq}`, type: 'told-the-person', value: { item } })), orphan],
   ]) {
-    const answer = await runRow(row, { feed: 'running' }, { records, doorOptions: { pageCut: 1 } });
+    const answer = await answerOf(row, { feed: 'running' }, { records, doorOptions: { pageCut: 1 } });
     assert.equal(answer.status, 0, answer.error);
     assert.equal(answer.result.feeds[0].status, 'ready');
     assert.deepEqual(answer.result.feeds[0].rows.map(item => [item.id, item.title, item.fraction, item.open]), [['told:1', 'Rendering', 0.5, '/jobs/render']]);
-    const told = await runRow(row, { feed: 'told' }, { records });
+    const told = await answerOf(row, { feed: 'told' }, { records });
     assert.deepEqual(told.result.feeds[0].rows.map(item => item.id), ['told:3', 'told:2', 'told:1']);
     assert.ok(answer.kept.every(record => records.some(original => original.id === record.id)));
   }
@@ -172,7 +172,7 @@ test('the actual product record models project their current fields and actions 
     { id: 'ai-job:recipe:2', type: 'ai-job', value: { label: 'Old job', status: 'done', cause: 'yesterday' } },
   ];
   for (const feed of ['habits', 'waiting', 'pursuits', 'ai-work']) {
-    const answer = await runRow(row, { feed }, { records, doorOptions: { pageCut: 1 } });
+    const answer = await answerOf(row, { feed }, { records, doorOptions: { pageCut: 1 } });
     assert.equal(answer.status, 0, feed);
     assert.equal(answer.result.feeds[0].status, 'ready', feed);
     const recordsRead = answer.calls.filter(call => call.method === 'records:list');
@@ -180,25 +180,24 @@ test('the actual product record models project their current fields and actions 
     assert.ok(recordsRead.every(call => call.input.type === recordsRead[0].input.type), `${feed} queried one declared type`);
     assert.equal(answer.result.feeds[0].rows.length, 1, `${feed} filtered the source records`);
   }
-  const pursuit = await runRow(row, { feed: 'pursuits' }, { records });
+  const pursuit = await answerOf(row, { feed: 'pursuits' }, { records });
   assert.deepEqual(pursuit.result.feeds[0].rows.map(item => [item.title, item.open]), [['Learn geometry', '/pursuits/learn']]);
 });
 
 // Cross the actual producer/consumer boundary: a recipe wake writes ai-job, never record:ai-job.
 test('the AI work feed reads the actual recipe starter output and hides it after completion', async () => {
   const starter = rowOf(recipeTools, 'tool:start-a-recipe-run');
-  const started = await runRow(starter, {
-    input: { row: 'workflow:read-the-week-and-make-more-of-what-won' },
+  const started = await answerOf(starter, { row: 'workflow:read-the-week-and-make-more-of-what-won' }, {
     task: { request_key: 'glance-producer-consumer-proof' },
   });
   assert.equal(started.status, 0, started.error);
   const feed = rowOf(toolRows, 'tool:read-glance-feeds');
-  const answer = await runRow(feed, { feed: 'ai-work' }, { records: started.kept });
+  const answer = await answerOf(feed, { feed: 'ai-work' }, { records: started.kept });
   assert.equal(answer.status, 0, answer.error);
   assert.equal(answer.result.feeds[0].status, 'ready');
   assert.deepEqual(answer.result.feeds[0].rows.map(row => row.id), [started.result.job]);
   assert.ok(answer.result.feeds[0].rows[0].title.length);
   const finished = started.kept.map(record => ({ ...record, value: { ...record.value, status: 'done' } }));
-  const done = await runRow(feed, { feed: 'ai-work' }, { records: finished });
+  const done = await answerOf(feed, { feed: 'ai-work' }, { records: finished });
   assert.deepEqual(done.result.feeds[0].rows, []);
 });

@@ -1,23 +1,19 @@
-// Every row runs as the container runs it: its own argv, the files it packs laid on their folders, its sample on
-// standard input and, for a row that reads records, the stand-in door with exactly the row's rights.
+// Every row runs as the container runs it (test-helpers/run-a-row.mjs): its own argv, the files it packs laid at their
+// places, its standard input filled from its own stdin template with its sample (and a task no page started) and, for
+// a row that reads records, the stand-in door with exactly the row's rights.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runRow } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const descriptors = rows.records.map(record => record.payload);
-// Standard input as the engine fills the row's stdin template from a sample run (its input, and a task no page
-// started): a whole-source fill, or an object of them.
-const filled = (template, input, task = {}) => template?.fill
-  ? { input, task }[template.fill.from]
-  : Object.fromEntries(Object.entries(template).map(([key, item]) => [key, filled(item, input, task)]));
 // "$.a.b[0]" read from an object.
 const select = (value, selector) => selector.replace(/^\$\.?/, '').split(/\.|\[(\d+)\]/).filter(Boolean).reduce((at, key) => at?.[key], value);
 
 for (const row of descriptors) {
   test(`${row.id}: its sample holds and its answer has the output's required fields`, async () => {
     for (const sample of row.verify) {
-      const run = await runRow(row, filled(row.invoke.stdin, sample.input));
+      const run = await answerOf(row, sample.input);
       assert.equal(run.status, 0, run.error);
       const result = select({ result: run.result }, row.result_selector);
       assert.ok(String(select(result, sample.output_selector)).includes(sample.contains), `${row.id}: ${sample.output_selector} holds ${sample.contains}`);
@@ -52,7 +48,7 @@ test('the matchmaker rows reach only the matchmaker\'s own kinds, jobs under its
 
 test('a refusal comes back as an error that says what to fix', async () => {
   const formMatches = descriptors.find(row => row.id === 'tool:form-matches');
-  const run = await runRow(formMatches, { program_id: 'p', cycle: '1', relationship_kind: 'k', candidates: [] });
+  const run = await answerOf(formMatches, { program_id: 'p', cycle: '1', relationship_kind: 'k', candidates: [] });
   assert.notEqual(run.status, 0);
   assert.match(run.error, /factors and scope_fields/);
 });

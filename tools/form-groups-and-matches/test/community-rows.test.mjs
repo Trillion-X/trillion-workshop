@@ -3,7 +3,7 @@
 // never handed again.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rowOf, runRow } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { ids } from '../read-data/matchmaker-records.mjs';
 import { answersFor, C, guild, PAGE, START } from './community-fixtures.mjs';
@@ -13,12 +13,19 @@ const answer = rowOf(rows, 'tool:answer-in-a-community');
 const read = rowOf(rows, 'tool:read-my-community-matches');
 const forget = rowOf(rows, 'tool:forget-a-person-in-a-community');
 const check = rowOf(rows, 'tool:check-community-matching-settings');
-// The answer row's standard input, as its stdin template fills it: the caller's input and the run's own task.
-const asked = (input, task = {}) => ({ input, task });
+// The answer row's own stdin template fills its standard input from the caller's input and the run's task: a call
+// names the input and the fields of the run's task (a page's stamp, or none), which the run's made-up task carries.
+const ASKED = Symbol('asked');
+const asked = (input, task = {}) => ({ [ASKED]: true, input, task });
+
+// One row run: `input` is the row's input, or asked(...) for the input and the task's own fields.
+const runOf = (row, input, sample = {}) => (input?.[ASKED]
+  ? answerOf(row, input.input, { ...sample, task: input.task })
+  : answerOf(row, input, sample));
 
 // One row run over what the door holds now; what it holds afterwards is the next run's world.
 async function step(world, row, input) {
-  const run = await runRow(row, input, { records: world.records });
+  const run = await runOf(row, input, { records: world.records });
   assert.equal(run.status, 0, run.error);
   world.records = run.kept;
   return run.result;
@@ -75,10 +82,10 @@ test('a guild\'s matchmaker runs through its rows: a round on the clock, scores,
 test('a member calling through the grant answers and reads only as themselves', async () => {
   const book = guild([['ana', 'Ana'], ['ben', 'Ben']]);
   const world = { records: book.list('') };
-  const posing = await runRow(answer, asked({ community_id: C, person: 'ben', grant_person: 'ana', kind: 'profile', on: false }), { records: world.records });
+  const posing = await runOf(answer, asked({ community_id: C, person: 'ben', grant_person: 'ana', kind: 'profile', on: false }), { records: world.records });
   assert.deepEqual([posing.status, posing.result.ok, posing.result.status], [0, false, 403]);
   assert.equal(posing.kept.find(record => record.id === ids.member(C, 'ben')).value.on, undefined, 'Ben\'s switch is untouched');
-  const peeking = await runRow(read, { community_id: C, person: 'ben', grant_person: 'ana' }, { records: world.records });
+  const peeking = await runOf(read, { community_id: C, person: 'ben', grant_person: 'ana' }, { records: world.records });
   assert.deepEqual([peeking.result.ok, peeking.result.status, peeking.result.matches], [false, 403, undefined]);
   const own = await step(world, answer, asked({ community_id: C, person: 'ana', grant_person: 'ana', kind: 'profile', on: false, now: START }));
   assert.deepEqual([own.outcome.ok, own.outcome.on], [true, false]);
@@ -86,8 +93,8 @@ test('a member calling through the grant answers and reads only as themselves', 
 });
 
 test('the settings check names what is missing, and a community with none answers its own refusal', async () => {
-  const ok = await runRow(check, { community: guild([]).get(ids.community(C)) });
+  const ok = await runOf(check, { community: guild([]).get(ids.community(C)) });
   assert.deepEqual(ok.result, { usable: true, problems: [] });
-  const none = await runRow(advance, { community_id: 'nobody-here' });
+  const none = await runOf(advance, { community_id: 'nobody-here' });
   assert.deepEqual([none.status, none.result.ok, none.result.status], [0, false, 404]);
 });
