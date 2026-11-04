@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import * as pulls from '../do-work/pull.mjs';
 import * as reads from '../do-work/read.mjs';
@@ -79,7 +79,9 @@ test('no row carries a path on a computer or a maker that is not the folder (pro
 
 test('run as the container runs it with no token handed over, a pull says it needs a login and touches no record', async () => {
   for (const row of askingRows) {
-    const ran = await runRow(row, {});
+    // The held token's descriptor is handed, empty: the run was given no token.
+    const held = Object.fromEntries(row.invoke.credential_mounts.map(mount => [mount.secret_name, '']));
+    const ran = await answerOf(row, {}, { held });
     assert.equal(ran.status, 0, ran.error);
     assert.equal(ran.result.status, 'needs_login', row.id);
     assert.equal(ran.calls.length, 0, row.id);
@@ -87,23 +89,23 @@ test('run as the container runs it with no token handed over, a pull says it nee
 });
 
 test('run as the container runs it, a pull refuses input that is out of range with what to give', async () => {
-  const ran = await runRow(pullRows[0], { limit: 9000 });
+  const ran = await answerOf(pullRows[0], { limit: 9000 });
   assert.equal(ran.status, 1);
   assert.match(ran.error, /limit is a whole number from 1 to 500/);
 });
 
 test('run as the container runs it, a handed-in pull keeps the conversations in the records, and refuses a document that is not a list or a missing self_id', async () => {
   const [row] = handedRows;
-  const ran = await runRow(row, { self_id: 'acct-a', conversations: [{ id: 'thread-1', name: 'Bakers', messages: [{ id: 'm1', timestamp: 1700000000000, from: 'acct-b', body: 'Rye is ready' }] }] });
+  const ran = await answerOf(row, { self_id: 'acct-a', conversations: [{ id: 'thread-1', name: 'Bakers', messages: [{ id: 'm1', timestamp: 1700000000000, from: 'acct-b', body: 'Rye is ready' }] }] });
   assert.equal(ran.status, 0, ran.error);
   assert.equal(ran.result.status, 'pulled');
   assert.equal(ran.result.new_messages, 1);
   assert.equal(ran.result.cursor, 1700000000000);
   assert.ok(ran.kept.some(record => record.id === threadId('signal', 'default', 'thread-1')));
-  const notAList = await runRow(row, { self_id: 'acct-a', conversations: 'not a list' });
+  const notAList = await answerOf(row, { self_id: 'acct-a', conversations: 'not a list' });
   assert.equal(notAList.status, 1);
   assert.match(notAList.error, /conversations is the whole list of conversations that Signal printed/);
-  const noSelf = await runRow(row, { conversations: [] });
+  const noSelf = await answerOf(row, { conversations: [] });
   assert.equal(noSelf.status, 1);
   assert.match(noSelf.error, /self_id is the identity of the account/);
 });
@@ -113,17 +115,17 @@ test('run as the container runs it, the read row answers from the records and a 
     { id: stateId('slack', 'default'), type: PART_KIND, value: { kind: 'state', source: 'slack', account: 'default', self_id: 'U0BOT', cursor: '1700000200.000300', pulled_at: '2026-10-30T12:00:00Z' } },
     { id: threadId('slack', 'default', 'C1'), type: PART_KIND, value: { kind: 'thread', seq: 1, thread: { id: 'C1', title: 'orders', messages: [{ ts: '1', text: 'a' }, { ts: '2', text: 'b' }, { ts: '3', text: 'c' }] } } },
   ];
-  const summary = await runRow(readRow, { source: 'slack' }, { records });
+  const summary = await answerOf(readRow, { source: 'slack' }, { records });
   assert.equal(summary.status, 0, summary.error);
   assert.deepEqual(summary.result.threads, [{ id: 'C1', title: 'orders', messages: 3 }]);
   assert.equal(summary.result.self_id, 'U0BOT');
   assert.equal(summary.result.pulled_at, '2026-10-30T12:00:00Z');
-  const one = await runRow(readRow, { source: 'slack', thread: 'C1', limit: 2 }, { records });
+  const one = await answerOf(readRow, { source: 'slack', thread: 'C1', limit: 2 }, { records });
   assert.deepEqual(one.result.thread.messages.map(message => message.text), ['b', 'c']);
   assert.equal(one.result.thread.total, 3);
-  const nothing = await runRow(readRow, { source: 'discord', account: 'other' }, { records });
+  const nothing = await answerOf(readRow, { source: 'discord', account: 'other' }, { records });
   assert.match(nothing.result.said, /Nothing has been pulled from discord for the account other yet/);
-  const missing = await runRow(readRow, { source: 'slack', thread: 'C9' }, { records });
+  const missing = await answerOf(readRow, { source: 'slack', thread: 'C9' }, { records });
   assert.equal(missing.status, 1);
   assert.match(missing.error, /There is no conversation C9/);
 });

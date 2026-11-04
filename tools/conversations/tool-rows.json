@@ -836,6 +836,7 @@
                   "harness/record-every-message.mjs",
                   "harness/record-every-message.json",
                   "harness/hook-run-receipt.mjs",
+                  "harness/setup.json",
                   "harness/source-return-pending.mjs",
                   "harness/account-key.mjs",
                   "harness/account-key.json"
@@ -1119,6 +1120,7 @@
                   "harness/record-every-message.mjs",
                   "harness/record-every-message.json",
                   "harness/hook-run-receipt.mjs",
+                  "harness/setup.json",
                   "harness/source-return-pending.mjs",
                   "harness/account-key.mjs",
                   "harness/account-key.json"
@@ -1471,6 +1473,7 @@
                   "harness/record-every-message.mjs",
                   "harness/record-every-message.json",
                   "harness/hook-run-receipt.mjs",
+                  "harness/setup.json",
                   "harness/source-return-pending.mjs",
                   "harness/account-key.mjs",
                   "harness/account-key.json"
@@ -1749,6 +1752,7 @@
                   "harness/record-every-message.mjs",
                   "harness/record-every-message.json",
                   "harness/hook-run-receipt.mjs",
+                  "harness/setup.json",
                   "harness/source-return-pending.mjs",
                   "harness/account-key.mjs",
                   "harness/account-key.json"
@@ -1945,6 +1949,7 @@
                   "harness/record-every-message.mjs",
                   "harness/record-every-message.json",
                   "harness/hook-run-receipt.mjs",
+                  "harness/setup.json",
                   "harness/source-return-pending.mjs",
                   "harness/account-key.mjs",
                   "harness/account-key.json"
