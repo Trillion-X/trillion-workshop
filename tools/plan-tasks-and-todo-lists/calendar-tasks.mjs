@@ -1,11 +1,11 @@
 // Personal Calendar tasks are records in the generic Lists owner, not a second task store.
 import data from './calendar-tasks.json' with { type: 'json' };
-import { timeZoneName, wallTimeOf } from '../parts/timed-action/do-work/wall-time.ts';
-import { identityOf } from './typed-operation-contract.mjs';
-import { zoneDrift } from '../parts/timed-action/do-work/zone-drift.ts';
-import { checkedWorkingHours, quietHoursAnswer } from '../parts/timed-action/do-work/quiet-hours.ts';
-import quietModes from '../parts/timed-action/do-work/quiet-hours.json' with { type: 'json' };
-import { dayOverrideOf } from '../parts/ui/show/schedule-calendar/schedule-planner.mjs';
+import { timeZoneName, wallTimeOf } from '../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
+import { identityOf } from '../shared-code/src/typed-operation-contract.mjs';
+import { zoneDrift } from '../run-work-later-or-on-a-repeat/do-work/zone-drift.ts';
+import { checkedWorkingHours, quietHoursAnswer } from '../run-work-later-or-on-a-repeat/do-work/quiet-hours.ts';
+import quietModes from '../run-work-later-or-on-a-repeat/do-work/quiet-hours.json' with { type: 'json' };
+import { dayOverrideOf } from './parts/ui/show/schedule-calendar/schedule-planner.mjs';
 import { classifyMessage } from './calendar-task-messages.mjs';
 
 export class CalendarTasksError extends Error {

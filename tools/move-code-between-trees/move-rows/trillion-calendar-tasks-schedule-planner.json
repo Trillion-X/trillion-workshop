@@ -1,0 +1,136 @@
+{
+ "id": "move:trillion-calendar-tasks-schedule-planner",
+ "about": "What the Workshop's tools/plan-tasks-and-todo-lists/calendar-tasks.mjs imports and no lane had moved: the schedule planner's day override (parts/ui/show/schedule-calendar), moved byte for byte from old-trillion-before-worker-retire so calendar tasks load and task proposals (REA finding F-0091), which changes calendar tasks, runs with its test. keep, read_as_rows and provider_calls are those of move-rows/trillion-tools-m-z-scripts-parts.json.",
+ "source": {
+  "name": "Trillion-X/trillion",
+  "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+  "test_folders": [
+   "test"
+  ]
+ },
+ "destination": {
+  "name": "Trillion-X/trillion-workshop",
+  "package": "trillion-workshop",
+  "shared_folder": "tools/shared-code"
+ },
+ "keep": [
+  "cases/",
+  "communities/",
+  "computer/",
+  "extension/",
+  "harness/",
+  "ios/",
+  "macos/",
+  "methods/",
+  "native-apps/",
+  "parts/eeaf/",
+  "parts/record-log/",
+  "records/action-completeness.json",
+  "records/commercial-offer-records.json",
+  "records/content-format-starters.json",
+  "records/copy-rules.json",
+  "records/delight-moments.json",
+  "records/execution-mode-records.json",
+  "records/feel-moments.json",
+  "records/starting-rules.json",
+  "records/workflow-recipe-records.json",
+  "src/action-completeness.mjs",
+  "src/ai-conversations-list.json",
+  "src/attention.json",
+  "src/awareness.json",
+  "src/catch-up.mjs",
+  "src/chat-archives.mjs",
+  "src/chat-import.mjs",
+  "src/decision-store.mjs",
+  "src/error-page-lines.json",
+  "src/life-map.json",
+  "src/local-store.mjs",
+  "src/namespace-store.mjs",
+  "src/native-resource-sign-in.mjs",
+  "src/operator-import-targets.json",
+  "src/operator-import.mjs",
+  "src/passkey-*",
+  "src/passwords.*",
+  "src/person-store-purpose.mjs",
+  "src/person-store.mjs",
+  "src/proof-account-names.json",
+  "src/public-app-file-store.mjs",
+  "src/public-app-orphan-retirement.mjs",
+  "src/public-app-rows-import.mjs",
+  "src/pursuit-plan.json",
+  "src/raw-export.mjs",
+  "src/record-model-tools.mjs",
+  "src/records-import.mjs",
+  "src/retirable-census-classes.json",
+  "src/session-cookie.mjs",
+  "src/session-pairing.mjs",
+  "src/share-collection-store.mjs",
+  "src/shared-content-retirement.mjs",
+  "src/show-rules-store.mjs",
+  "src/sign-in-*",
+  "src/space-partition-inventory.mjs",
+  "src/story-settings.json",
+  "src/web-sign-in.mjs",
+  "src/worker.mjs",
+  "src/workspace-records-import.mjs",
+  "src/workspace/walkthroughs/"
+ ],
+ "provider_calls": [
+  {
+   "id": "durable-object",
+   "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+  },
+  {
+   "id": "durable-object-storage",
+   "find": "\\b(?:ctx|state|this)\\.storage\\b|\\bstorage\\.sql\\b"
+  },
+  {
+   "id": "kv",
+   "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+  },
+  {
+   "id": "env-binding",
+   "find": "(?<![.\\w$])env\\.[A-Z][A-Z0-9_]+\\b"
+  }
+ ],
+ "calls": [],
+ "groups": [
+  {
+   "id": "plan-tasks-and-todo-lists::schedule-planner",
+   "owner": [
+    "parts/ui/show/schedule-calendar/schedule-planner.mjs"
+   ],
+   "to": "tools/plan-tasks-and-todo-lists",
+   "joins_tool": "the day override (dayOverrideOf) and placement that calendar-tasks.mjs imports to change one day's working hours; the tool had no copy of them",
+   "capability": "plan a person's tasks into their calendar"
+  }
+ ],
+ "read_as_rows": [
+  "methods/",
+  "records/workflow-recipe-records.json",
+  "records/execution-mode-records.json",
+  "records/starting-rules.json",
+  "records/copy-rules.json",
+  "records/commercial-offer-records.json",
+  "records/content-format-starters.json",
+  "records/feel-moments.json",
+  "records/delight-moments.json",
+  "communities/",
+  "cases/",
+  "src/awareness.json",
+  "src/life-map.json",
+  "src/pursuit-plan.json",
+  "src/story-settings.json",
+  "src/attention.json",
+  "src/workspace/walkthroughs/",
+  "src/error-page-lines.json"
+ ],
+ "not_provider_calls": [
+  {
+   "file": "parts/process-session/do-work/place-cache-folder.mjs",
+   "id": "env-binding",
+   "found": "env.XDG_CACHE_HOME",
+   "why": "placeCacheFolder(env = process.env) reads the cache folder a computer names in its process environment; it is no Worker binding."
+  }
+ ]
+}
