@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/ai-reach-words.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/src/ai-reach-words.json",
+      "source_identity": "1f:9016f1a2429d7d0287b1392ae6e3f5cd27d911f965efe52b6345dd294342005e",
+      "identity": "1f:9016f1a2429d7d0287b1392ae6e3f5cd27d911f965efe52b6345dd294342005e"
+    },
+    {
+      "from": "src/ai-reach.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/src/ai-reach.mjs",
+      "source_identity": "1f:b41c4f26109485fe00716f56f32c53b81c23c511f38333482e113b0fc7d34a26",
+      "identity": "1f:2c55ab4e6d627ac494ff632037e395e15c876a85f335c4d0abc941d9e1c9e9c7"
+    },
+    {
+      "from": "src/ais.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/src/ais.mjs",
+      "source_identity": "1f:acd92c3df01e9e5bf68aa19b458cc04611f23a2a99004d0ccb93599b90b0ccaa",
+      "identity": "1f:0106cfe04001f522af7f6c3d1b2485d4a561ede0ec5ff5476130807e6adce24c"
+    },
+    {
+      "from": "src/app-places.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/src/app-places.json",
+      "source_identity": "1f:1ae67c9f026b7bbbb18e631de2b1ae29963d0904594b9fe579c5d8f94a6db6fd",
+      "identity": "1f:1ae67c9f026b7bbbb18e631de2b1ae29963d0904594b9fe579c5d8f94a6db6fd"
+    },
+    {
+      "from": "src/asks-for-your-ais.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/src/asks-for-your-ais.mjs",
+      "source_identity": "1f:e7d3eccc2b5cfe91c8c20c75102d00982d8520934bf42dacaa197db683b788f6",
+      "identity": "1f:e7d3eccc2b5cfe91c8c20c75102d00982d8520934bf42dacaa197db683b788f6"
+    },
+    {
+      "from": "src/computer-sources.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/src/computer-sources.mjs",
+      "source_identity": "1f:52873a05dac16ea840f6914af5118c474a6018b1fb1fd625f5b9298d440d2aab",
+      "identity": "1f:52873a05dac16ea840f6914af5118c474a6018b1fb1fd625f5b9298d440d2aab"
+    },
+    {
+      "from": "test/proposer-names.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/test/proposer-names.test.mjs",
+      "source_identity": "1f:7603e3a95fa0b1d0dce9bdaa6bfce4f54daf004a571c1b4e0bfc7544cab4e0da",
+      "identity": "1f:7603e3a95fa0b1d0dce9bdaa6bfce4f54daf004a571c1b4e0bfc7544cab4e0da"
+    }
+  ]
+}
