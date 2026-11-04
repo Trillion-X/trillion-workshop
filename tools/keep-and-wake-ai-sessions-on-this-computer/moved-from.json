@@ -2229,6 +2229,13 @@
       "identity": "1f:5330cf3a9bb7260f0365fe26623560abd738a0e8f5e0701bb92149cd85c4c5ab"
     },
     {
+      "from": "test/model-fallback-work.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/model-fallback-work.test.mjs",
+      "source_identity": "1f:44502712ed087baf9c0f902aef0b274fa448b72fa0187145f2e382583b72893a",
+      "identity": "1f:af4b1f7336ca651598d07c04759d574fdc8b7ccf5fd9c0758df0ef4a8c8fafee"
+    },
+    {
       "from": "test/model-spend-all-groups.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/model-spend-all-groups.test.mjs",
