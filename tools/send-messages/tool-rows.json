@@ -88,7 +88,53 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
         "provenance": { "source": "bitfield-packages broadcast-delivery (Amazon SES adapter) and resend-email-sender (templates, headers), ported" },
-        "verify": [{"kind": "sample-run", "input": {"to": "reader@example.com", "subject": "Hello", "html": "<p>Hello there</p>", "text": "Hello there", "region": "us-east-1"}}]
+        "verify": [{"kind": "sample-run", "input": {"to": "reader@example.com", "subject": "Hello", "html": "<p>Hello there</p>", "text": "Hello there", "region": "us-east-1"}}],
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "record:sent",
+              "guard_properties": {
+                "body_html": "text",
+                "body_markdown": "text",
+                "body_text": "text",
+                "by": "object",
+                "copies": "list",
+                "execution_ref": "text",
+                "from": "text",
+                "id": "text",
+                "kind": "text",
+                "open_url": "any",
+                "preheader": "text",
+                "provider": "text",
+                "provider_id": "text",
+                "reply_to": "text",
+                "sent_at": "text",
+                "state": "text",
+                "subject": "text",
+                "to": "texts",
+                "effect_ref": "text",
+                "observation": "object",
+                "origin": "text",
+                "provider_account": "any",
+                "recorded_by": "object"
+              }
+            }
+          ],
+          "indexes": [
+            {
+              "type": "record:sent",
+              "name": "sent_at",
+              "backfill": "sent-order",
+              "paths": [
+                [
+                  "sent_at"
+                ]
+              ],
+              "_read_by": "src/sent.mjs: a bounded sent-time page with stable record-id ties; retained records join through existing index maintenance"
+            }
+          ]
+        }
       }
     },
     {

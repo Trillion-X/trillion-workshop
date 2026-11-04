@@ -269,8 +269,17 @@
             "correction": "object"
           },
           "_read_by": "src/record-stance.mjs: the person's stand, its history and durable correction recovery"
+        },
+        {
+          "type": "private-response",
+          "properties": {
+            "anchor": "object",
+            "rows": "objects"
+          },
+          "_read_by": "src/private-responses.mjs: the person's own reactions on one record or part of it"
         }
-      ]
+      ],
+      "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
     }
    }
   },
