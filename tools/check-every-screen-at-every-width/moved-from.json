@@ -1,0 +1,35 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/screen-matrix/check-screens.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/check-every-screen-at-every-width/check-screens.mjs",
+      "source_identity": "1f:c92cf891b3e48b49767f54c233ce561b54b5a4cb7361c772b35ed848500a826c",
+      "identity": "1f:c92cf891b3e48b49767f54c233ce561b54b5a4cb7361c772b35ed848500a826c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-matrix/in-page.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/check-every-screen-at-every-width/in-page.mjs",
+      "source_identity": "1f:5f2d3545d54ab33e747d33db5d970e98474e8e1f5ef3e761118e6c5b6cbd4dc1",
+      "identity": "1f:5f2d3545d54ab33e747d33db5d970e98474e8e1f5ef3e761118e6c5b6cbd4dc1",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-matrix/vendor/darkreader.js",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/check-every-screen-at-every-width/vendor/darkreader.js",
+      "source_identity": "1f:821fd46c70c757a35abd6a5591ffcfd61caf32d704cb090fe7a8e1633e9b755e",
+      "identity": "1f:821fd46c70c757a35abd6a5591ffcfd61caf32d704cb090fe7a8e1633e9b755e",
+      "found_by": "same bytes"
+    }
+  ]
+}

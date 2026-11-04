@@ -17,6 +17,15 @@
       "to": "tools/browse-inspiration-clips/card-sections.mjs",
       "source_identity": "1f:15d99f1fcdc2e9dbfb4b6c7e7c0f114c13492f7950a067564901c57a080231f4",
       "identity": "1f:15d99f1fcdc2e9dbfb4b6c7e7c0f114c13492f7950a067564901c57a080231f4"
+    },
+    {
+      "from": "src/inspiration.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/browse-inspiration-clips/inspiration.mjs",
+      "source_identity": "1f:25d3f630dc0202951c557d1ad0eefaccecbaa08881c8424ffb4c789a750ea05f",
+      "identity": "1f:25d3f630dc0202951c557d1ad0eefaccecbaa08881c8424ffb4c789a750ea05f",
+      "found_by": "same bytes"
     }
   ]
 }

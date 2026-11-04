@@ -1,0 +1,242 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/visual-database/do-work/cell-expression.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/cell-expression.ts",
+      "source_identity": "1f:197abbddea074a70f6dc69d8e0aeeccd23584339fee782f3fcd90cfe2d9bb652",
+      "identity": "1f:197abbddea074a70f6dc69d8e0aeeccd23584339fee782f3fcd90cfe2d9bb652",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/cell-source-mutation.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/cell-source-mutation.ts",
+      "source_identity": "1f:889de449ef045773988a84b51aecea554a365ddcfca8b8d8241d9ce6c1605524",
+      "identity": "1f:889de449ef045773988a84b51aecea554a365ddcfca8b8d8241d9ce6c1605524",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/descriptor-intent.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/descriptor-intent.ts",
+      "source_identity": "1f:42f6c513ad71fd508a5243233c10bee601e9dd980ef7a6d9d89507cb898423f2",
+      "identity": "1f:42f6c513ad71fd508a5243233c10bee601e9dd980ef7a6d9d89507cb898423f2",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/descriptor-mutation.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/descriptor-mutation.ts",
+      "source_identity": "1f:b782dc7d5a0c7f7de6ebfc84f0b8314594dc33d24325a0d66fdf2c917940ea4f",
+      "identity": "1f:b782dc7d5a0c7f7de6ebfc84f0b8314594dc33d24325a0d66fdf2c917940ea4f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/expression-owner-protocol.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/expression-owner-protocol.ts",
+      "source_identity": "1f:eaf5dd71b11a25f49de7b0e2f5d0ba36000c4ab28c06f68fc273716e462b525e",
+      "identity": "1f:eaf5dd71b11a25f49de7b0e2f5d0ba36000c4ab28c06f68fc273716e462b525e",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/expression-owner-session.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/expression-owner-session.ts",
+      "source_identity": "1f:518dc9458f046d07dafd242344a41fd9b9fb8cd7b25afcbf1d54815895586c2a",
+      "identity": "1f:518dc9458f046d07dafd242344a41fd9b9fb8cd7b25afcbf1d54815895586c2a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/fractional-order.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/keep-lists-of-rows/do-work/fractional-order.ts",
+      "source_identity": "1f:0196716822ac09fff9b501c89e0946e1809d9f8b5c418396657274fa08c2322c",
+      "identity": "1f:0196716822ac09fff9b501c89e0946e1809d9f8b5c418396657274fa08c2322c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/list-record-writer.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/list-record-writer.ts",
+      "source_identity": "1f:6dfe1524bafcd075e01545eb77e3c7748d2425bf931144520eda4020e9cc672b",
+      "identity": "1f:6dfe1524bafcd075e01545eb77e3c7748d2425bf931144520eda4020e9cc672b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/migrate-descriptor-aggregates.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/migrate-descriptor-aggregates.ts",
+      "source_identity": "1f:8119738557f27d0455f37b62e2367de0b5690f041f88bb4165c58997b1a94e7e",
+      "identity": "1f:8119738557f27d0455f37b62e2367de0b5690f041f88bb4165c58997b1a94e7e",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/mutation-settlement.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/mutation-settlement.ts",
+      "source_identity": "1f:a46a5549e193352300659c5ae902ce63aaf3c21dd999ed7caa120fb37d1e6518",
+      "identity": "1f:a46a5549e193352300659c5ae902ce63aaf3c21dd999ed7caa120fb37d1e6518",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/record-writes.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/record-writes.ts",
+      "source_identity": "1f:cf2fffc5c0d4992efa4e8c34f4a4e3f13b821a819b683e61e17eb3095bb10d17",
+      "identity": "1f:cf2fffc5c0d4992efa4e8c34f4a4e3f13b821a819b683e61e17eb3095bb10d17",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/resolve-derived-fields.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/resolve-derived-fields.ts",
+      "source_identity": "1f:37adb8724ddda1d92f071824be11e98038d31bd3636e042cdf47eea96a840813",
+      "identity": "1f:37adb8724ddda1d92f071824be11e98038d31bd3636e042cdf47eea96a840813",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/run-record-action.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/run-record-action.ts",
+      "source_identity": "1f:d82dc9f4ddf25e6ce5a881592f5ec35632447995cb560556317697ab0c6aa746",
+      "identity": "1f:d82dc9f4ddf25e6ce5a881592f5ec35632447995cb560556317697ab0c6aa746",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/split-legacy-descriptor-aggregates.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/split-legacy-descriptor-aggregates.ts",
+      "source_identity": "1f:fba4ca28b4aa9ea18d3b829bd5fc82e82b986158057dc7fbc540404572b74f1f",
+      "identity": "1f:fba4ca28b4aa9ea18d3b829bd5fc82e82b986158057dc7fbc540404572b74f1f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/do-work/visual-database-actions.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/do-work/visual-database-actions.ts",
+      "source_identity": "1f:7300022a91a2736dd09239ea7014784cabfb19f235b05d1b4f54915a2fb973c3",
+      "identity": "1f:7300022a91a2736dd09239ea7014784cabfb19f235b05d1b4f54915a2fb973c3",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/read-data/addressed-descriptors.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/read-data/addressed-descriptors.ts",
+      "source_identity": "1f:0f61c8da25e7cba033ee8e36cb3880e6b7798b955edbd64cf99b882aee9e734f",
+      "identity": "1f:0f61c8da25e7cba033ee8e36cb3880e6b7798b955edbd64cf99b882aee9e734f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/read-data/descriptor-projection.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/read-data/descriptor-projection.ts",
+      "source_identity": "1f:1a4e4e33a35e08572b6328e0f7ecea492a2c9f01321bc91f92f5682a4a3632b1",
+      "identity": "1f:1a4e4e33a35e08572b6328e0f7ecea492a2c9f01321bc91f92f5682a4a3632b1",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/read-data/grid-style.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/read-data/grid-style.ts",
+      "source_identity": "1f:78d0f759f2a031d968838a74f8e49e5c08d91bbc0f1e18299e517a04c7b7faa7",
+      "identity": "1f:78d0f759f2a031d968838a74f8e49e5c08d91bbc0f1e18299e517a04c7b7faa7",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/read-data/metric-aggregation.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/read-data/metric-aggregation.ts",
+      "source_identity": "1f:71509b62181b51e1bca8160e239ce071529f7027488097ebed552edcd407b5d0",
+      "identity": "1f:71509b62181b51e1bca8160e239ce071529f7027488097ebed552edcd407b5d0",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/read-data/serialize-fields.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/read-data/serialize-fields.ts",
+      "source_identity": "1f:68d0e094b88fea2adcce564f534339519fb6b6e56d73d7776677559e1ef3fd02",
+      "identity": "1f:68d0e094b88fea2adcce564f534339519fb6b6e56d73d7776677559e1ef3fd02",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/read-data/visual-database.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/read-data/visual-database.ts",
+      "source_identity": "1f:a31c363dece2daa800bd53f92aad0016867b697a56bba3238b3681420018120a",
+      "identity": "1f:a31c363dece2daa800bd53f92aad0016867b697a56bba3238b3681420018120a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/show/field-editor-kit.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/show/field-editor-kit.ts",
+      "source_identity": "1f:d5b98771fa93ec16c09a853699393d7c7d6367d27830bdf11a91e624089a3acd",
+      "identity": "1f:d5b98771fa93ec16c09a853699393d7c7d6367d27830bdf11a91e624089a3acd",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/show/grid-interaction.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/show/grid-interaction.ts",
+      "source_identity": "1f:ebe46e08c27e5f1ced9d2fb4b0781abefdd0b3ed6501b3383fdbcaa211cfb74f",
+      "identity": "1f:ebe46e08c27e5f1ced9d2fb4b0781abefdd0b3ed6501b3383fdbcaa211cfb74f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/show/reference-catalog.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/show/reference-catalog.ts",
+      "source_identity": "1f:2707f481aafb27e2ad92cc0a4c47330670dadf7706fd6d382ef201eb7a92d0ea",
+      "identity": "1f:2707f481aafb27e2ad92cc0a4c47330670dadf7706fd6d382ef201eb7a92d0ea",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/show/timeline-grouping.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/show/timeline-grouping.ts",
+      "source_identity": "1f:cba6ef06c3c04f08ab9e275a8d9e62e69050583d942b08090e155393f5ee7f1d",
+      "identity": "1f:cba6ef06c3c04f08ab9e275a8d9e62e69050583d942b08090e155393f5ee7f1d",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/visual-database/show/visual-database-observation.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-lists-of-rows/show/visual-database-observation.ts",
+      "source_identity": "1f:70c61d850d3d323f009ae1ba20ef4836c7f807c946e85878e685dcd23417c42c",
+      "identity": "1f:70c61d850d3d323f009ae1ba20ef4836c7f807c946e85878e685dcd23417c42c",
+      "found_by": "same bytes"
+    }
+  ]
+}

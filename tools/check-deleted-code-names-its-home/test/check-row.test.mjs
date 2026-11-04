@@ -138,6 +138,21 @@ test('a receipt from another repository does not name this one\'s file', async (
   assert.deepEqual(result.unread.sort(), ['trillion-apps: no checkout at ' + join(dirname(old.root), 'trillion-apps'), 'trillion-rust: no checkout at ' + join(dirname(old.root), 'trillion-rust')]);
 });
 
+test('a receipt that names its source by its GitHub name, Trillion-X/trillion, names this one\'s file', (t) => {
+  // 317 of the Workshop's receipts name their source this way; until 2026-11-04 the judge counted none of them.
+  const { old, workshop } = checkouts(t);
+  old.write('src/a.mjs', 'export const a = 1;\n');
+  old.git('add', '-A');
+  old.commit('add');
+  old.git('rm', '-q', 'src/a.mjs');
+  workshop.write('tools/x/moved-from.json', JSON.stringify({ source: 'Trillion-X/trillion', files: [{ from: 'src/a.mjs', to: 'tools/x/src/a.mjs' }] }));
+  const result = judgeDeletions({ root: old.root, span: { staged: true } });
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.judged, [{ path: 'src/a.mjs', home: { repository: 'trillion-workshop', path: 'tools/x/src/a.mjs', receipt: 'tools/x/moved-from.json' }, how: 'moved-from receipt' }]);
+  workshop.write('tools/x/moved-from.json', JSON.stringify({ source: 'Trillion-X/trillion-apps', files: [{ from: 'src/a.mjs', to: 'tools/x/src/a.mjs' }] }));
+  assert.equal(judgeDeletions({ root: old.root, span: { staged: true } }).valid, false);
+});
+
 test('a retirement row passes only when it quotes the decision; a rename and a deleted document pass', async (t) => {
   const where = settings(t, await door(t, [ROW]));
   const { old } = checkouts(t);

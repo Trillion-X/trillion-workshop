@@ -123,6 +123,168 @@
       "to": "tools/record-voice-and-meetings/show/README.md",
       "source_identity": "1f:8ab3b13bf5dd036f4bf20046dc8823fb1692cc84b288cb1e860317785e308daa",
       "identity": "1f:8ab3b13bf5dd036f4bf20046dc8823fb1692cc84b288cb1e860317785e308daa"
+    },
+    {
+      "from": "parts/content-media-evidence/do-work/content-media-work-loop.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/do-work/content-media-work-loop.ts",
+      "source_identity": "1f:3158e3e702c60215b0eba5451a0faef84cf2434068e0884e755d4a851537dea9",
+      "identity": "1f:3158e3e702c60215b0eba5451a0faef84cf2434068e0884e755d4a851537dea9",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/permission-lease/read-data/capability-permission.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/read-data/capability-permission.ts",
+      "source_identity": "1f:51025675a735c614cbbbfa54de2ee2e8c366ebdc827c4476aab07555f1bc51a8",
+      "identity": "1f:51025675a735c614cbbbfa54de2ee2e8c366ebdc827c4476aab07555f1bc51a8",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/permission-lease/show/CapabilityPermissionPrompt.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/show/CapabilityPermissionPrompt.tsx",
+      "source_identity": "1f:99835d7ebcf44fb70e1569ff2d259639c697db9465ac12b4c1a8f5c0d47a348a",
+      "identity": "1f:99835d7ebcf44fb70e1569ff2d259639c697db9465ac12b4c1a8f5c0d47a348a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/do-work/evidence-completion.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/do-work/evidence-completion.ts",
+      "source_identity": "1f:c815af737d45848ee03f28fe9814bd0ece4894b269f0ad57f9b5767940fbb228",
+      "identity": "1f:c815af737d45848ee03f28fe9814bd0ece4894b269f0ad57f9b5767940fbb228",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/do-work/record-audio-requests.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/do-work/record-audio-requests.ts",
+      "source_identity": "1f:805a95f94bfd16b6bd15c9d4cbb6a6e0ae9fcfb32b634214413d1ad5ea8f5495",
+      "identity": "1f:805a95f94bfd16b6bd15c9d4cbb6a6e0ae9fcfb32b634214413d1ad5ea8f5495",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/do-work/recorded-file-artifact.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/do-work/recorded-file-artifact.ts",
+      "source_identity": "1f:c244f474f55ab438f618eb35adeccaefb7711ee46330d840a57081fcbfc5c06c",
+      "identity": "1f:c244f474f55ab438f618eb35adeccaefb7711ee46330d840a57081fcbfc5c06c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/do-work/recorded-file-store.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/do-work/recorded-file-store.ts",
+      "source_identity": "1f:3e305ae64706002b1c21796a0ea11431c3c903c6eb46c0ab8e32b25325cf375a",
+      "identity": "1f:3e305ae64706002b1c21796a0ea11431c3c903c6eb46c0ab8e32b25325cf375a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/do-work/recording-on-device.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/do-work/recording-on-device.ts",
+      "source_identity": "1f:4a37fcf13fc5ffc2f11427e5fd00cdd6b5495f5b5c52438d992226bb37d04888",
+      "identity": "1f:4a37fcf13fc5ffc2f11427e5fd00cdd6b5495f5b5c52438d992226bb37d04888",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/do-work/send-while-recording.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/do-work/send-while-recording.ts",
+      "source_identity": "1f:22c26c2e06c6ca8a79fda3aac18bafdf7849de1b43675f0390fdbdf38dfc824c",
+      "identity": "1f:22c26c2e06c6ca8a79fda3aac18bafdf7849de1b43675f0390fdbdf38dfc824c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/read-data/capture-policy.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/read-data/capture-policy.ts",
+      "source_identity": "1f:33b375901f68577683458a04dd3aa5f3b296565c354a86eb173140d6bf197068",
+      "identity": "1f:33b375901f68577683458a04dd3aa5f3b296565c354a86eb173140d6bf197068",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/show/browser-media-capture.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/show/browser-media-capture.ts",
+      "source_identity": "1f:8a0b08474ec7ef263151b9212942fe8a36c01ae8498cf9f7f322e87eb80beee6",
+      "identity": "1f:8a0b08474ec7ef263151b9212942fe8a36c01ae8498cf9f7f322e87eb80beee6",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/show/edit-recording.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/show/edit-recording.ts",
+      "source_identity": "1f:603427372bdde9721fe15fd159904d96ebcea76d689545a463fb76bcbf84e0ae",
+      "identity": "1f:603427372bdde9721fe15fd159904d96ebcea76d689545a463fb76bcbf84e0ae",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/show/live-recording.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/show/live-recording.ts",
+      "source_identity": "1f:ba4ddb5002dec82a80ba9a5fabcdf1899e0273673b2070293d00738bb6314251",
+      "identity": "1f:ba4ddb5002dec82a80ba9a5fabcdf1899e0273673b2070293d00738bb6314251",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/show/mount-record-audio.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/show/mount-record-audio.tsx",
+      "source_identity": "1f:10c539646afe4ea663eb5302f1d95e2120398d53ca63e77cf66d64c696fb0f40",
+      "identity": "1f:10c539646afe4ea663eb5302f1d95e2120398d53ca63e77cf66d64c696fb0f40",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/show/record-in-the-browser.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/show/record-in-the-browser.ts",
+      "source_identity": "1f:ea693e034f33eb3f1c7ffe6dc7e848042a69d8d40be0b77bd4c391ff9de2f0a2",
+      "identity": "1f:ea693e034f33eb3f1c7ffe6dc7e848042a69d8d40be0b77bd4c391ff9de2f0a2",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/show/RecordAudioPanel.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/show/RecordAudioPanel.tsx",
+      "source_identity": "1f:b990a2df4def6bc18385f84ba496d7f30ca600874f5be39bcaec6d98d47d1ef6",
+      "identity": "1f:b990a2df4def6bc18385f84ba496d7f30ca600874f5be39bcaec6d98d47d1ef6",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/show/recording-lifecycle.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/show/recording-lifecycle.ts",
+      "source_identity": "1f:cfa56b6de567e65ae6575a913bda5d5e3f7237dd6a70d66259fa97072f2b8450",
+      "identity": "1f:cfa56b6de567e65ae6575a913bda5d5e3f7237dd6a70d66259fa97072f2b8450",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-audio/show/RecordingEnrichmentPanel.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-voice-and-meetings/show/RecordingEnrichmentPanel.tsx",
+      "source_identity": "1f:e1785f02ddad292ebdbe9f7eab7cb424479c7889961f0856f4a16ffd9e28965d",
+      "identity": "1f:e1785f02ddad292ebdbe9f7eab7cb424479c7889961f0856f4a16ffd9e28965d",
+      "found_by": "same bytes"
     }
   ],
   "not_matched": [

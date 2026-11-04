@@ -1,0 +1,26 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/document-sections/tests/build-entries-section.test.mjs",
+      "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
+      "deleted_by": "c22216125e75f791716744313faf0eec5a49d38f",
+      "to": "tools/document-sections/test/build-entries-section.test.mjs",
+      "source_identity": "1f:8c18700188e91130693971de0405c4aa2a4c181224265b41bf6ec1bfd1b3ec5d",
+      "identity": "1f:8c18700188e91130693971de0405c4aa2a4c181224265b41bf6ec1bfd1b3ec5d",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/document-sections/tests/place-named-section.test.mjs",
+      "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
+      "deleted_by": "c22216125e75f791716744313faf0eec5a49d38f",
+      "to": "tools/document-sections/test/place-named-section.test.mjs",
+      "source_identity": "1f:bd02856dc583ccb36c59711c594e15c63ef6a46aa1c80ea13c5c6582579bd785",
+      "identity": "1f:bd02856dc583ccb36c59711c594e15c63ef6a46aa1c80ea13c5c6582579bd785",
+      "found_by": "same bytes"
+    }
+  ]
+}
