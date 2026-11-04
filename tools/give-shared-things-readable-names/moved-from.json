@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/readable-names.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/give-shared-things-readable-names/src/readable-names.json",
+      "source_identity": "1f:361cece95756aa6d7577e865d7e27d05292901adc5f0571cb9b8ae471ba396be",
+      "identity": "1f:361cece95756aa6d7577e865d7e27d05292901adc5f0571cb9b8ae471ba396be"
+    },
+    {
+      "from": "src/readable-names.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/give-shared-things-readable-names/src/readable-names.mjs",
+      "source_identity": "1f:e6187008e837f9244aa53853714857d83b1cc7f2a4d5c491517889e50114f5b4",
+      "identity": "1f:e6187008e837f9244aa53853714857d83b1cc7f2a4d5c491517889e50114f5b4"
+    }
+  ]
+}

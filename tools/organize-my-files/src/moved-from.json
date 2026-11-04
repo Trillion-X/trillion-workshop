@@ -5,6 +5,14 @@
   "calls": [],
   "files": [
     {
+      "from": "src/namespace-byte-release.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/namespace-byte-release.json",
+      "source_identity": "1f:2d37450f551e6fe0d256042a148ea5ab7ddd09f28781982c90098a3509f88fb6",
+      "identity": "1f:2d37450f551e6fe0d256042a148ea5ab7ddd09f28781982c90098a3509f88fb6",
+      "reused": true
+    },
+    {
       "from": "src/tool-reply.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/organize-my-files/src/tool-reply.mjs",
