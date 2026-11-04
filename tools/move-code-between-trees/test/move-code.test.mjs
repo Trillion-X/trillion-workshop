@@ -404,3 +404,35 @@ test('check with no source judges every receipt from the checkout alone: shape, 
   assert.equal(cli(folder).code, 0);
   rmSync(folder, { recursive: true, force: true });
 });
+test('a kept file with a home in a package the destination depends on holds nothing: the moved file imports it there', () => {
+  const source = repository(sourceFiles());
+  const destination = repository(destinationFiles());
+  try {
+    const lockIdentity = makeHashCodeHexFromBytes(new Uint8Array(Buffer.from(sourceFiles()['src/lock.mjs'])));
+    const homed = { ...row, groups_from: undefined, groups: [{ id: 'guard-door', owner: ['src/door-guard.mjs'], to: 'tools/guard-door' }], homes_in_packages: [{ from: 'src/lock.mjs', home: 'lock-box/src/lock.mjs', source_identity: lockIdentity }] };
+    const plan = moveCode({ step: 'plan', row: homed, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups[0].held, [], 'the keep row no longer holds it');
+    assert.deepEqual(plan.files.map(file => file.from), ['src/door-guard.mjs'], 'the homed file is not moved');
+    assert.deepEqual(plan.files[0].homes, { 'src/lock.mjs': 'lock-box/src/lock.mjs' });
+    moveCode({ step: 'apply', row: homed, source_folder: source, destination_folder: destination });
+    assert.match(readFileSync(join(destination, 'tools/guard-door/src/door-guard.mjs'), 'utf8'), /from 'lock-box\/src\/lock\.mjs'/);
+    assert.ok(existsSync(join(source, 'src/lock.mjs')), 'the kept file stays in the source');
+    const receipt = JSON.parse(readFileSync(join(destination, 'tools/guard-door/moved-from.json'), 'utf8'));
+    assert.deepEqual(receipt.files[0].homes, { 'src/lock.mjs': 'lock-box/src/lock.mjs' });
+    git(destination, 'add', '-A'); git(destination, 'commit', '-q', '-m', 'moved');
+
+    const missing = moveCode({ step: 'check', row: homed, source_folder: source, destination_folder: destination, folders: ['tools/guard-door'], run: false });
+    assert.ok(missing.folders[0].problems.some(problem => /lock-box\/src\/lock\.mjs \(home of src\/lock\.mjs\) does not resolve from here/.test(problem)));
+    const installed = join(destination, 'node_modules/lock-box');
+    mkdirSync(join(installed, 'src'), { recursive: true });
+    writeFileSync(join(installed, 'package.json'), json({ name: 'lock-box', type: 'module', exports: { './src/*': './src/*' } }));
+    writeFileSync(join(installed, 'src/lock.mjs'), sourceFiles()['src/lock.mjs']);
+    const proof = moveCode({ step: 'check', row: homed, source_folder: source, destination_folder: destination, folders: ['tools/guard-door'], source_after_folder: source });
+    assert.equal(proof.ok, true, JSON.stringify(proof.folders, null, 2));
+    writeFileSync(join(installed, 'src/lock.mjs'), 'export const lock = false;\n');
+    const caught = moveCode({ step: 'check', row: homed, source_folder: source, destination_folder: destination, folders: ['tools/guard-door'], run: false });
+    assert.ok(caught.folders[0].problems.some(problem => /lock-box\/src\/lock\.mjs is not src\/lock\.mjs at .* beyond its import paths/.test(problem)));
+
+    assert.throws(() => moveCode({ step: 'plan', row: { ...homed, homes_in_packages: [{ ...homed.homes_in_packages[0], source_identity: '1f:00' }] }, source_folder: source, destination_folder: destination }), /homes_in_packages says lock-box\/src\/lock\.mjs holds src\/lock\.mjs as 1f:00/);
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});

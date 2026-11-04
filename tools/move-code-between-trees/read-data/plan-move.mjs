@@ -39,6 +39,14 @@ export function planMove(row, source, destination) {
   // moved, and holds nothing; the moved file reads those rows from its caller once adapted.
   const asRows = row.read_as_rows ?? [];
   const readAsRows = path => asRows.some(glob => globMatches(path, glob));
+  // A source file that already has a home in a package the destination depends on (an earlier move carried it to that
+  // package's tree; its receipt there names the path): { from, home, source_identity }. It is not followed or moved and
+  // holds nothing, even when a keep row names it; a moved file imports it from home, the package specifier.
+  const homesInPackages = new Map();
+  for (const item of row.homes_in_packages ?? []) {
+    if (!item?.from || !item?.home || !item?.source_identity) throw new MoveRefusal('row_incomplete', 'Each homes_in_packages row names from (the source path), home (the package specifier it is imported by) and source_identity (the identity of its source bytes, which the receipt in that package names).');
+    homesInPackages.set(item.from, item);
+  }
   const swaps = row.calls ?? [];
   const detectors = row.provider_calls ?? [];
   // A detector match the row names as no provider call (a parameter called env holding the process environment, say):
@@ -71,12 +79,17 @@ export function planMove(row, source, destination) {
     const stack = [...roots];
     while (stack.length) {
       const path = stack.pop();
-      if (found.has(path) || !source.exists(path) || readAsRows(path)) continue;
+      if (found.has(path) || !source.exists(path) || readAsRows(path) || homesInPackages.has(path)) continue;
       found.add(path);
       for (const item of requestsOf(path)) if (item.target) stack.push(item.target);
     }
     return found;
   };
+  for (const [path, item] of homesInPackages) {
+    if (!source.exists(path)) throw new MoveRefusal('home_unknown', `homes_in_packages names ${path}, which the source does not hold at ${source.commit.slice(0, 10)}.`);
+    const identity = makeHashCodeHexFromBytes(new Uint8Array(source.read(path)));
+    if (identity !== item.source_identity) throw new MoveRefusal('home_other_bytes', `homes_in_packages says ${item.home} holds ${path} as ${item.source_identity}, but at ${source.commit.slice(0, 10)} it is ${identity}.`);
+  }
 
   // 1. Each group's files and closure, and whether it reaches a file that must stay.
   const groups = groupsOf(row, source).map(group => {
@@ -129,7 +142,7 @@ export function planMove(row, source, destination) {
     const stack = [start];
     while (stack.length) {
       const path = stack.pop();
-      if (found.has(path) || !source.exists(path) || readAsRows(path)) continue;
+      if (found.has(path) || !source.exists(path) || readAsRows(path) || homesInPackages.has(path)) continue;
       found.add(path);
       if (path !== start && !movingFiles.has(path) && !inTestFolder(path) && homeElsewhere(path)) continue;
       for (const item of requestsOf(path)) if (item.target) stack.push(item.target);
@@ -221,7 +234,13 @@ export function planMove(row, source, destination) {
     if (isCode(path) && !reused.has(path)) {
       const changes = [];
       for (const item of requestsOf(path)) {
-        if (item.target && landing.has(item.target)) {
+        if (item.target && homesInPackages.has(item.target)) {
+          const home = homesInPackages.get(item.target).home;
+          // A file read by its address is not imported: its home in a package is no path beside this one.
+          if (item.how === 'url') for (const id of owners) byId.get(id).held.push(`${path} reads ${item.target} by its address, and its home ${home} is in a package`);
+          else changes.push({ start: item.start, end: item.end, specifier: home, was: item.specifier });
+          plan.homes = { ...plan.homes, [item.target]: home };
+        } else if (item.target && landing.has(item.target)) {
           // A tree's own import name means nothing in the other tree: it becomes the path, ending and all.
           const written = item.specifier.startsWith('#') ? item.target : item.specifier;
           const specifier = requestFor(to, landing.get(item.target), written, item.target);
