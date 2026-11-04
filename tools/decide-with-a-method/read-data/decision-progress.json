@@ -1,0 +1,19 @@
+{
+  "what_this_is": "How far one decision has got, as named steps each kept as a fact on the decision (src/work-progress.mjs progressFromSteps, sent with each decision on the Decisions screen and read by AIs). A step counts only when its fact is true: decided is a recorded choice, carried_out is the receipt that its next action was done (say_what_was_done, src/decision-store.mjs carriedOut), result_checked is a settled result (src/check-uses.mjs decisionResult). A new step is one row here and one fact on the summary.",
+  "unit": "steps",
+  "unit_one": "step",
+  "steps": [
+    {
+      "field": "decided",
+      "says": "Decided"
+    },
+    {
+      "field": "carried_out",
+      "says": "Next action carried out"
+    },
+    {
+      "field": "result_checked",
+      "says": "Result checked"
+    }
+  ]
+}

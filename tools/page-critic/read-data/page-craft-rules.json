@@ -54,7 +54,16 @@
     "supporting_text_controls": "button, a, input, textarea, select, label, legend, [role=\"button\"], [role=\"link\"], [role=\"alert\"], [role=\"status\"], [aria-live]",
     "eyebrow_ignored": "label, legend, button, a, [role=\"status\"], [role=\"alert\"], [aria-live], [data-record-type], [data-status], time, [datetime]",
     "inline_icon_actions": "h1 button, h2 button, p button",
-    "inline_icon_context": "h1, h2, p"
+    "inline_icon_context": "h1, h2, p",
+    "page_titles": "h1, [role='heading'][aria-level='1']",
+    "sections": "main > section, main > article, body > section, [role='region']",
+    "section_titles": "h1, h2, h3, h4, [role='heading']",
+    "section_rows": "main > *, section > *, article > *",
+    "content_marks": "h1, h2, h3, h4, h5, h6, p, li, a, button, span, td, th, label, figcaption, blockquote, img, video, svg, canvas, iframe, input, select, textarea",
+    "content_mark_media": "img, video, svg, canvas, iframe, input, select, textarea",
+    "page_frame": "main",
+    "all_headings": "h1, h2, h3, h4, h5, h6, [role='heading']",
+    "focusable": "a[href], button, input:not([type='hidden']), select, textarea, summary, [tabindex]"
   },
   "measurement_templates": {
     "rendered_label_size": {
@@ -355,7 +364,16 @@
       "in_frames": true,
       "source": "https://x.com/Voxyz_ai/status/2113254050170843418",
       "scope": "Rendered short adjacent secondary captions and configured production/evidence commentary, plus exact heading repetitions. The production phrase scan also reads visible SVG text leaves regardless of heading placement. Longer adjacent teaching prose and text needed by accessibility, controls, status, constraints or recovery are preserved."
-    }
+    },
+    {"id": "first_screen_title", "says": "The page's title \"{text}\" is not on the first screen; a person should see what the page is before scrolling.", "says_by_kind": {"none": "The page has no title (h1) a person can see."}, "within_screens": 1, "widths": ["390", "1280"], "finding": "F-1117"},
+    {"id": "untitled_section", "says": "A section of {words} words starting \"{text}\" has no title; give every long section a heading.", "min_words": 60, "widths": ["390", "1280"], "finding": "F-1117"},
+    {"id": "lopsided_sections", "says": "Side by side, one column carries {tallest}px and the one starting \"{text}\" only {shortest}px ({ratio}x, over {max_ratio}x); balance them or stack them.", "max_ratio": 2.5, "min_difference_px": 200, "widths": ["1280"], "finding": "F-1117"},
+    {"id": "blank_stretch", "says": "{px}px ({screens} screens) of the page above \"{text}\" show nothing; keep blank stretches under {max_screens} of a screen.", "max_screens": 0.6, "widths": ["390", "1280"], "finding": "F-1117"},
+    {"id": "side_margins", "says": "The page sits {left}px from the left and {right}px from the right; keep the side margins within {max_px}px of each other.", "max_difference_px": 24, "widths": ["1280"], "finding": "F-1117"},
+    {"id": "reduced_motion_hidden", "says": "\"{text}\" on the first screen stays hidden when motion is reduced; show it without the animation.", "min_opacity": 0.1, "widths": ["390", "1280"], "finding": "F-1119"},
+    {"id": "heading_order", "says": "The headings are out of order at \"{text}\".", "says_by_kind": {"skipped": "The heading \"{text}\" is level {level} right after a level {before}; do not skip a level.", "first_not_h1": "The first heading \"{text}\" is level {level}; the page should start with its h1.", "many_h1": "The page has {count} h1 headings (another is \"{text}\"); keep one."}, "most_h1": 1, "widths": ["1280"], "finding": "F-1149"},
+    {"id": "tab_order", "says": "\"{text}\" changes the Tab order.", "says_by_kind": {"positive": "\"{text}\" has tabindex {index}, which moves it ahead of the page's own order; use 0 or leave it out.", "hidden_focus": "\"{text}\" can take focus with Tab but is hidden from screen readers (aria-hidden); hide both or neither."}, "widths": ["1280"], "finding": "F-1149"},
+    {"id": "page_metadata", "says": "The page has no {text} ({selector}).", "required": [{"name": "title", "selector": "head > title"}, {"name": "language", "selector": "html[lang]", "attribute": "lang"}, {"name": "viewport", "selector": "meta[name='viewport']", "attribute": "content"}, {"name": "description", "selector": "meta[name='description']", "attribute": "content"}], "widths": ["1280"], "finding": "F-1149"}
   ],
   "most_pages": 80,
   "longest_picture_px": 16000,

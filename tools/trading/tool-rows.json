@@ -169,7 +169,178 @@
         ],
         "provenance": {
           "source": "bitfield-packages trade-order (decide-orders, assemble-order-request, parse-broker-order, merge-headers) and trade-audit (the order trail), ported"
-        }
+        },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "policy": {
+              "policy_version": "sample-v1",
+              "decided_at": "2026-11-03T14:00:00Z",
+              "orders": [
+                {
+                  "instrument": {
+                    "kind": "equity",
+                    "symbol": "SAMPLE"
+                  },
+                  "side": "buy",
+                  "qty": 1,
+                  "order_type": "limit",
+                  "limit_price": 10,
+                  "time_in_force": "day",
+                  "live": false,
+                  "route_ref": "paper-route"
+                }
+              ],
+              "risk": {
+                "max_order_notional": 100,
+                "max_daily_notional": 200,
+                "day_time_zone": "UTC"
+              }
+            },
+            "routes": {
+              "paper-route": {
+                "mode": "paper",
+                "timeout_ms": 5000,
+                "instrument_requests": {
+                  "equity": {
+                    "url": "https://paper-broker.example.test/v1/orders",
+                    "method": "POST",
+                    "headers": {
+                      "accept": "application/json",
+                      "content-type": "application/json"
+                    },
+                    "body_template": {
+                      "symbol": "{instrument.symbol}",
+                      "qty": "{qty}",
+                      "side": "{side}",
+                      "type": "{order_type}",
+                      "limit_price": {
+                        "from": "limit_price",
+                        "optional": true
+                      },
+                      "time_in_force": "{time_in_force}",
+                      "client_order_id": "{order_id}"
+                    }
+                  }
+                },
+                "credential_injections": [
+                  {
+                    "field": "key_id",
+                    "placement": {
+                      "kind": "header",
+                      "name": "X-Sample-Key"
+                    }
+                  },
+                  {
+                    "field": "secret",
+                    "placement": {
+                      "kind": "header",
+                      "name": "X-Sample-Secret"
+                    }
+                  }
+                ],
+                "response_map": {
+                  "broker_order_id": "id",
+                  "broker_status": "status",
+                  "filled_qty": "filled_qty",
+                  "filled_avg_price": "filled_avg_price",
+                  "filled_at": "filled_at",
+                  "client_order_id": "client_order_id"
+                },
+                "status_map": {
+                  "new": "submitted",
+                  "accepted": "submitted",
+                  "partially_filled": "partially_filled",
+                  "filled": "filled",
+                  "canceled": "canceled",
+                  "rejected": "rejected",
+                  "__default__": "submitted"
+                },
+                "status_request": {
+                  "url": "https://paper-broker.example.test/v1/orders/by-client-id/{order_id}",
+                  "method": "GET"
+                },
+                "open_statuses": [
+                  "submitted",
+                  "partially_filled"
+                ],
+                "lookups": {
+                  "contracts": {
+                    "url": "https://paper-broker.example.test/v1/contracts",
+                    "query": {
+                      "status": "active",
+                      "limit": "100"
+                    },
+                    "query_names": [
+                      "underlying",
+                      "type",
+                      "status",
+                      "limit",
+                      "page"
+                    ],
+                    "items_at": "contracts",
+                    "id_field": "symbol",
+                    "keep_when": {
+                      "tradable": true
+                    },
+                    "numbers": [
+                      "strike",
+                      "close_price"
+                    ],
+                    "whole_numbers": [
+                      "open_interest",
+                      "size"
+                    ],
+                    "keep_fields": [
+                      "symbol",
+                      "tradable",
+                      "strike",
+                      "expires",
+                      "type",
+                      "close_price",
+                      "open_interest",
+                      "size",
+                      "underlying"
+                    ],
+                    "sort_by": {
+                      "field": "open_interest",
+                      "order": "descending"
+                    },
+                    "next_at": "next_page"
+                  }
+                }
+              }
+            }
+          },
+          "held": {
+            "paper-broker-credentials": "{\"key_id\":\"sample-key-id\",\"secret\":\"sample-secret\"}"
+          },
+          "replies": [
+            {
+              "request": {
+                "method": "POST",
+                "url": "https://paper-broker.example.test/v1/orders"
+              },
+              "status": 200,
+              "body": {
+                "id": "sample-broker-order-paper-1",
+                "client_order_id": "paper-sample-v1-14ec1ba6f66bc516",
+                "status": "accepted",
+                "symbol": "SAMPLE",
+                "qty": "1",
+                "side": "buy",
+                "type": "limit",
+                "limit_price": "10",
+                "time_in_force": "day",
+                "filled_qty": "0",
+                "filled_avg_price": null,
+                "filled_at": null,
+                "submitted_at": "2026-11-03T14:00:01Z"
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     },
     {
@@ -331,7 +502,203 @@
         ],
         "provenance": {
           "source": "bitfield-packages trade-order (reconcile-order and reconcile-open-orders, parse-broker-order), ported"
-        }
+        },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "routes": {
+              "paper-route": {
+                "mode": "paper",
+                "timeout_ms": 5000,
+                "instrument_requests": {
+                  "equity": {
+                    "url": "https://paper-broker.example.test/v1/orders",
+                    "method": "POST",
+                    "headers": {
+                      "accept": "application/json",
+                      "content-type": "application/json"
+                    },
+                    "body_template": {
+                      "symbol": "{instrument.symbol}",
+                      "qty": "{qty}",
+                      "side": "{side}",
+                      "type": "{order_type}",
+                      "limit_price": {
+                        "from": "limit_price",
+                        "optional": true
+                      },
+                      "time_in_force": "{time_in_force}",
+                      "client_order_id": "{order_id}"
+                    }
+                  }
+                },
+                "credential_injections": [
+                  {
+                    "field": "key_id",
+                    "placement": {
+                      "kind": "header",
+                      "name": "X-Sample-Key"
+                    }
+                  },
+                  {
+                    "field": "secret",
+                    "placement": {
+                      "kind": "header",
+                      "name": "X-Sample-Secret"
+                    }
+                  }
+                ],
+                "response_map": {
+                  "broker_order_id": "id",
+                  "broker_status": "status",
+                  "filled_qty": "filled_qty",
+                  "filled_avg_price": "filled_avg_price",
+                  "filled_at": "filled_at",
+                  "client_order_id": "client_order_id"
+                },
+                "status_map": {
+                  "new": "submitted",
+                  "accepted": "submitted",
+                  "partially_filled": "partially_filled",
+                  "filled": "filled",
+                  "canceled": "canceled",
+                  "rejected": "rejected",
+                  "__default__": "submitted"
+                },
+                "status_request": {
+                  "url": "https://paper-broker.example.test/v1/orders/by-client-id/{order_id}",
+                  "method": "GET"
+                },
+                "open_statuses": [
+                  "submitted",
+                  "partially_filled"
+                ],
+                "lookups": {
+                  "contracts": {
+                    "url": "https://paper-broker.example.test/v1/contracts",
+                    "query": {
+                      "status": "active",
+                      "limit": "100"
+                    },
+                    "query_names": [
+                      "underlying",
+                      "type",
+                      "status",
+                      "limit",
+                      "page"
+                    ],
+                    "items_at": "contracts",
+                    "id_field": "symbol",
+                    "keep_when": {
+                      "tradable": true
+                    },
+                    "numbers": [
+                      "strike",
+                      "close_price"
+                    ],
+                    "whole_numbers": [
+                      "open_interest",
+                      "size"
+                    ],
+                    "keep_fields": [
+                      "symbol",
+                      "tradable",
+                      "strike",
+                      "expires",
+                      "type",
+                      "close_price",
+                      "open_interest",
+                      "size",
+                      "underlying"
+                    ],
+                    "sort_by": {
+                      "field": "open_interest",
+                      "order": "descending"
+                    },
+                    "next_at": "next_page"
+                  }
+                }
+              }
+            }
+          },
+          "held": {
+            "paper-broker-credentials": "{\"key_id\":\"sample-key-id\",\"secret\":\"sample-secret\"}"
+          },
+          "records": [
+            {
+              "id": "paper-sample-v1-14ec1ba6f66bc516",
+              "type": "trade-order",
+              "value": {
+                "order_id": "paper-sample-v1-14ec1ba6f66bc516",
+                "mode": "paper",
+                "policy_version": "sample-v1",
+                "instrument": {
+                  "kind": "equity",
+                  "symbol": "SAMPLE"
+                },
+                "side": "buy",
+                "qty": 1,
+                "order_type": "limit",
+                "limit_price": 10,
+                "time_in_force": "day",
+                "live": false,
+                "route_ref": "paper-route",
+                "notional": 10,
+                "reference_price": null,
+                "idempotency_key": "sample-v1::14ec1ba6f66bc516",
+                "decided_at": "2026-11-03T14:00:00Z",
+                "seq": 1,
+                "day": "2026-11-03",
+                "time_zone": "UTC",
+                "status": "submitted",
+                "sent_at": "2026-11-03T14:00:01Z",
+                "broker_order_id": "sample-broker-order-paper-1",
+                "broker_status": "accepted",
+                "filled_qty": 0,
+                "filled_avg_price": null,
+                "filled_at": null,
+                "http_status": 200,
+                "client_order_id": "paper-sample-v1-14ec1ba6f66bc516",
+                "checked_at": "2026-11-03T14:00:02Z"
+              }
+            },
+            {
+              "id": "paper-2026-11-03",
+              "type": "trade-day-spend",
+              "value": {
+                "mode": "paper",
+                "day": "2026-11-03",
+                "time_zone": "UTC",
+                "notional": 10
+              }
+            }
+          ],
+          "replies": [
+            {
+              "request": {
+                "method": "GET",
+                "url": "https://paper-broker.example.test/v1/orders/by-client-id/paper-sample-v1-14ec1ba6f66bc516"
+              },
+              "status": 200,
+              "body": {
+                "id": "sample-broker-order-paper-1",
+                "client_order_id": "paper-sample-v1-14ec1ba6f66bc516",
+                "status": "filled",
+                "symbol": "SAMPLE",
+                "qty": "1",
+                "side": "buy",
+                "type": "limit",
+                "limit_price": "10",
+                "time_in_force": "day",
+                "filled_qty": "1",
+                "filled_avg_price": "9.98",
+                "filled_at": "2026-11-03T14:30:00Z",
+                "submitted_at": "2026-11-03T14:00:01Z"
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     },
     {
@@ -462,7 +829,178 @@
         ],
         "provenance": {
           "source": "bitfield-packages trade-order (prepare-option-discovery, normalize-option-contracts), ported"
-        }
+        },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "route": {
+              "mode": "paper",
+              "timeout_ms": 5000,
+              "instrument_requests": {
+                "equity": {
+                  "url": "https://paper-broker.example.test/v1/orders",
+                  "method": "POST",
+                  "headers": {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                  },
+                  "body_template": {
+                    "symbol": "{instrument.symbol}",
+                    "qty": "{qty}",
+                    "side": "{side}",
+                    "type": "{order_type}",
+                    "limit_price": {
+                      "from": "limit_price",
+                      "optional": true
+                    },
+                    "time_in_force": "{time_in_force}",
+                    "client_order_id": "{order_id}"
+                  }
+                }
+              },
+              "credential_injections": [
+                {
+                  "field": "key_id",
+                  "placement": {
+                    "kind": "header",
+                    "name": "X-Sample-Key"
+                  }
+                },
+                {
+                  "field": "secret",
+                  "placement": {
+                    "kind": "header",
+                    "name": "X-Sample-Secret"
+                  }
+                }
+              ],
+              "response_map": {
+                "broker_order_id": "id",
+                "broker_status": "status",
+                "filled_qty": "filled_qty",
+                "filled_avg_price": "filled_avg_price",
+                "filled_at": "filled_at",
+                "client_order_id": "client_order_id"
+              },
+              "status_map": {
+                "new": "submitted",
+                "accepted": "submitted",
+                "partially_filled": "partially_filled",
+                "filled": "filled",
+                "canceled": "canceled",
+                "rejected": "rejected",
+                "__default__": "submitted"
+              },
+              "status_request": {
+                "url": "https://paper-broker.example.test/v1/orders/by-client-id/{order_id}",
+                "method": "GET"
+              },
+              "open_statuses": [
+                "submitted",
+                "partially_filled"
+              ],
+              "lookups": {
+                "contracts": {
+                  "url": "https://paper-broker.example.test/v1/contracts",
+                  "query": {
+                    "status": "active",
+                    "limit": "100"
+                  },
+                  "query_names": [
+                    "underlying",
+                    "type",
+                    "status",
+                    "limit",
+                    "page"
+                  ],
+                  "items_at": "contracts",
+                  "id_field": "symbol",
+                  "keep_when": {
+                    "tradable": true
+                  },
+                  "numbers": [
+                    "strike",
+                    "close_price"
+                  ],
+                  "whole_numbers": [
+                    "open_interest",
+                    "size"
+                  ],
+                  "keep_fields": [
+                    "symbol",
+                    "tradable",
+                    "strike",
+                    "expires",
+                    "type",
+                    "close_price",
+                    "open_interest",
+                    "size",
+                    "underlying"
+                  ],
+                  "sort_by": {
+                    "field": "open_interest",
+                    "order": "descending"
+                  },
+                  "next_at": "next_page"
+                }
+              }
+            },
+            "lookup": "contracts",
+            "query": {
+              "underlying": "SAMPLE",
+              "type": "call",
+              "limit": "2"
+            }
+          },
+          "held": {
+            "paper-broker-credentials": "{\"key_id\":\"sample-key-id\",\"secret\":\"sample-secret\"}"
+          },
+          "replies": [
+            {
+              "request": {
+                "method": "GET",
+                "url": "https://paper-broker.example.test/v1/contracts"
+              },
+              "status": 200,
+              "body": {
+                "contracts": [
+                  {
+                    "symbol": "SAMPLE301220C00010000",
+                    "name": "SAMPLE Dec 20 2030 10 Call",
+                    "status": "active",
+                    "tradable": true,
+                    "expires": "2030-12-20",
+                    "root_symbol": "SAMPLE",
+                    "underlying": "SAMPLE",
+                    "type": "call",
+                    "style": "american",
+                    "strike": "10",
+                    "size": "100",
+                    "open_interest": "250",
+                    "close_price": "1.25"
+                  },
+                  {
+                    "symbol": "SAMPLE301220C00012000",
+                    "name": "SAMPLE Dec 20 2030 12 Call",
+                    "status": "active",
+                    "tradable": true,
+                    "expires": "2030-12-20",
+                    "root_symbol": "SAMPLE",
+                    "underlying": "SAMPLE",
+                    "type": "call",
+                    "style": "american",
+                    "strike": "12",
+                    "size": "100",
+                    "open_interest": "90",
+                    "close_price": "0.40"
+                  }
+                ],
+                "next_page": null
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     },
     {
@@ -631,7 +1169,178 @@
         ],
         "provenance": {
           "source": "bitfield-packages trade-order (decide-orders, assemble-order-request, parse-broker-order, merge-headers) and trade-audit (the order trail), ported"
-        }
+        },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "policy": {
+              "policy_version": "sample-v1",
+              "decided_at": "2026-11-03T14:00:00Z",
+              "orders": [
+                {
+                  "instrument": {
+                    "kind": "equity",
+                    "symbol": "SAMPLE"
+                  },
+                  "side": "buy",
+                  "qty": 1,
+                  "order_type": "limit",
+                  "limit_price": 10,
+                  "time_in_force": "day",
+                  "live": true,
+                  "route_ref": "live-route"
+                }
+              ],
+              "risk": {
+                "max_order_notional": 100,
+                "max_daily_notional": 200,
+                "day_time_zone": "UTC"
+              }
+            },
+            "routes": {
+              "live-route": {
+                "mode": "live",
+                "timeout_ms": 5000,
+                "instrument_requests": {
+                  "equity": {
+                    "url": "https://live-broker.example.test/v1/orders",
+                    "method": "POST",
+                    "headers": {
+                      "accept": "application/json",
+                      "content-type": "application/json"
+                    },
+                    "body_template": {
+                      "symbol": "{instrument.symbol}",
+                      "qty": "{qty}",
+                      "side": "{side}",
+                      "type": "{order_type}",
+                      "limit_price": {
+                        "from": "limit_price",
+                        "optional": true
+                      },
+                      "time_in_force": "{time_in_force}",
+                      "client_order_id": "{order_id}"
+                    }
+                  }
+                },
+                "credential_injections": [
+                  {
+                    "field": "key_id",
+                    "placement": {
+                      "kind": "header",
+                      "name": "X-Sample-Key"
+                    }
+                  },
+                  {
+                    "field": "secret",
+                    "placement": {
+                      "kind": "header",
+                      "name": "X-Sample-Secret"
+                    }
+                  }
+                ],
+                "response_map": {
+                  "broker_order_id": "id",
+                  "broker_status": "status",
+                  "filled_qty": "filled_qty",
+                  "filled_avg_price": "filled_avg_price",
+                  "filled_at": "filled_at",
+                  "client_order_id": "client_order_id"
+                },
+                "status_map": {
+                  "new": "submitted",
+                  "accepted": "submitted",
+                  "partially_filled": "partially_filled",
+                  "filled": "filled",
+                  "canceled": "canceled",
+                  "rejected": "rejected",
+                  "__default__": "submitted"
+                },
+                "status_request": {
+                  "url": "https://live-broker.example.test/v1/orders/by-client-id/{order_id}",
+                  "method": "GET"
+                },
+                "open_statuses": [
+                  "submitted",
+                  "partially_filled"
+                ],
+                "lookups": {
+                  "contracts": {
+                    "url": "https://live-broker.example.test/v1/contracts",
+                    "query": {
+                      "status": "active",
+                      "limit": "100"
+                    },
+                    "query_names": [
+                      "underlying",
+                      "type",
+                      "status",
+                      "limit",
+                      "page"
+                    ],
+                    "items_at": "contracts",
+                    "id_field": "symbol",
+                    "keep_when": {
+                      "tradable": true
+                    },
+                    "numbers": [
+                      "strike",
+                      "close_price"
+                    ],
+                    "whole_numbers": [
+                      "open_interest",
+                      "size"
+                    ],
+                    "keep_fields": [
+                      "symbol",
+                      "tradable",
+                      "strike",
+                      "expires",
+                      "type",
+                      "close_price",
+                      "open_interest",
+                      "size",
+                      "underlying"
+                    ],
+                    "sort_by": {
+                      "field": "open_interest",
+                      "order": "descending"
+                    },
+                    "next_at": "next_page"
+                  }
+                }
+              }
+            }
+          },
+          "held": {
+            "live-broker-credentials": "{\"key_id\":\"sample-key-id\",\"secret\":\"sample-secret\"}"
+          },
+          "replies": [
+            {
+              "request": {
+                "method": "POST",
+                "url": "https://live-broker.example.test/v1/orders"
+              },
+              "status": 200,
+              "body": {
+                "id": "sample-broker-order-live-1",
+                "client_order_id": "live-sample-v1-e259eb8fc8f5b1d1",
+                "status": "accepted",
+                "symbol": "SAMPLE",
+                "qty": "1",
+                "side": "buy",
+                "type": "limit",
+                "limit_price": "10",
+                "time_in_force": "day",
+                "filled_qty": "0",
+                "filled_avg_price": null,
+                "filled_at": null,
+                "submitted_at": "2026-11-03T14:00:01Z"
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     },
     {
@@ -793,7 +1502,203 @@
         ],
         "provenance": {
           "source": "bitfield-packages trade-order (reconcile-order and reconcile-open-orders, parse-broker-order), ported"
-        }
+        },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "routes": {
+              "live-route": {
+                "mode": "live",
+                "timeout_ms": 5000,
+                "instrument_requests": {
+                  "equity": {
+                    "url": "https://live-broker.example.test/v1/orders",
+                    "method": "POST",
+                    "headers": {
+                      "accept": "application/json",
+                      "content-type": "application/json"
+                    },
+                    "body_template": {
+                      "symbol": "{instrument.symbol}",
+                      "qty": "{qty}",
+                      "side": "{side}",
+                      "type": "{order_type}",
+                      "limit_price": {
+                        "from": "limit_price",
+                        "optional": true
+                      },
+                      "time_in_force": "{time_in_force}",
+                      "client_order_id": "{order_id}"
+                    }
+                  }
+                },
+                "credential_injections": [
+                  {
+                    "field": "key_id",
+                    "placement": {
+                      "kind": "header",
+                      "name": "X-Sample-Key"
+                    }
+                  },
+                  {
+                    "field": "secret",
+                    "placement": {
+                      "kind": "header",
+                      "name": "X-Sample-Secret"
+                    }
+                  }
+                ],
+                "response_map": {
+                  "broker_order_id": "id",
+                  "broker_status": "status",
+                  "filled_qty": "filled_qty",
+                  "filled_avg_price": "filled_avg_price",
+                  "filled_at": "filled_at",
+                  "client_order_id": "client_order_id"
+                },
+                "status_map": {
+                  "new": "submitted",
+                  "accepted": "submitted",
+                  "partially_filled": "partially_filled",
+                  "filled": "filled",
+                  "canceled": "canceled",
+                  "rejected": "rejected",
+                  "__default__": "submitted"
+                },
+                "status_request": {
+                  "url": "https://live-broker.example.test/v1/orders/by-client-id/{order_id}",
+                  "method": "GET"
+                },
+                "open_statuses": [
+                  "submitted",
+                  "partially_filled"
+                ],
+                "lookups": {
+                  "contracts": {
+                    "url": "https://live-broker.example.test/v1/contracts",
+                    "query": {
+                      "status": "active",
+                      "limit": "100"
+                    },
+                    "query_names": [
+                      "underlying",
+                      "type",
+                      "status",
+                      "limit",
+                      "page"
+                    ],
+                    "items_at": "contracts",
+                    "id_field": "symbol",
+                    "keep_when": {
+                      "tradable": true
+                    },
+                    "numbers": [
+                      "strike",
+                      "close_price"
+                    ],
+                    "whole_numbers": [
+                      "open_interest",
+                      "size"
+                    ],
+                    "keep_fields": [
+                      "symbol",
+                      "tradable",
+                      "strike",
+                      "expires",
+                      "type",
+                      "close_price",
+                      "open_interest",
+                      "size",
+                      "underlying"
+                    ],
+                    "sort_by": {
+                      "field": "open_interest",
+                      "order": "descending"
+                    },
+                    "next_at": "next_page"
+                  }
+                }
+              }
+            }
+          },
+          "held": {
+            "live-broker-credentials": "{\"key_id\":\"sample-key-id\",\"secret\":\"sample-secret\"}"
+          },
+          "records": [
+            {
+              "id": "live-sample-v1-e259eb8fc8f5b1d1",
+              "type": "trade-order",
+              "value": {
+                "order_id": "live-sample-v1-e259eb8fc8f5b1d1",
+                "mode": "live",
+                "policy_version": "sample-v1",
+                "instrument": {
+                  "kind": "equity",
+                  "symbol": "SAMPLE"
+                },
+                "side": "buy",
+                "qty": 1,
+                "order_type": "limit",
+                "limit_price": 10,
+                "time_in_force": "day",
+                "live": true,
+                "route_ref": "live-route",
+                "notional": 10,
+                "reference_price": null,
+                "idempotency_key": "sample-v1::e259eb8fc8f5b1d1",
+                "decided_at": "2026-11-03T14:00:00Z",
+                "seq": 1,
+                "day": "2026-11-03",
+                "time_zone": "UTC",
+                "status": "submitted",
+                "sent_at": "2026-11-03T14:00:01Z",
+                "broker_order_id": "sample-broker-order-live-1",
+                "broker_status": "accepted",
+                "filled_qty": 0,
+                "filled_avg_price": null,
+                "filled_at": null,
+                "http_status": 200,
+                "client_order_id": "live-sample-v1-e259eb8fc8f5b1d1",
+                "checked_at": "2026-11-03T14:00:02Z"
+              }
+            },
+            {
+              "id": "live-2026-11-03",
+              "type": "trade-day-spend",
+              "value": {
+                "mode": "live",
+                "day": "2026-11-03",
+                "time_zone": "UTC",
+                "notional": 10
+              }
+            }
+          ],
+          "replies": [
+            {
+              "request": {
+                "method": "GET",
+                "url": "https://live-broker.example.test/v1/orders/by-client-id/live-sample-v1-e259eb8fc8f5b1d1"
+              },
+              "status": 200,
+              "body": {
+                "id": "sample-broker-order-live-1",
+                "client_order_id": "live-sample-v1-e259eb8fc8f5b1d1",
+                "status": "filled",
+                "symbol": "SAMPLE",
+                "qty": "1",
+                "side": "buy",
+                "type": "limit",
+                "limit_price": "10",
+                "time_in_force": "day",
+                "filled_qty": "1",
+                "filled_avg_price": "9.98",
+                "filled_at": "2026-11-03T14:30:00Z",
+                "submitted_at": "2026-11-03T14:00:01Z"
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     },
     {
@@ -924,7 +1829,178 @@
         ],
         "provenance": {
           "source": "bitfield-packages trade-order (prepare-option-discovery, normalize-option-contracts), ported"
-        }
+        },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "route": {
+              "mode": "live",
+              "timeout_ms": 5000,
+              "instrument_requests": {
+                "equity": {
+                  "url": "https://live-broker.example.test/v1/orders",
+                  "method": "POST",
+                  "headers": {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                  },
+                  "body_template": {
+                    "symbol": "{instrument.symbol}",
+                    "qty": "{qty}",
+                    "side": "{side}",
+                    "type": "{order_type}",
+                    "limit_price": {
+                      "from": "limit_price",
+                      "optional": true
+                    },
+                    "time_in_force": "{time_in_force}",
+                    "client_order_id": "{order_id}"
+                  }
+                }
+              },
+              "credential_injections": [
+                {
+                  "field": "key_id",
+                  "placement": {
+                    "kind": "header",
+                    "name": "X-Sample-Key"
+                  }
+                },
+                {
+                  "field": "secret",
+                  "placement": {
+                    "kind": "header",
+                    "name": "X-Sample-Secret"
+                  }
+                }
+              ],
+              "response_map": {
+                "broker_order_id": "id",
+                "broker_status": "status",
+                "filled_qty": "filled_qty",
+                "filled_avg_price": "filled_avg_price",
+                "filled_at": "filled_at",
+                "client_order_id": "client_order_id"
+              },
+              "status_map": {
+                "new": "submitted",
+                "accepted": "submitted",
+                "partially_filled": "partially_filled",
+                "filled": "filled",
+                "canceled": "canceled",
+                "rejected": "rejected",
+                "__default__": "submitted"
+              },
+              "status_request": {
+                "url": "https://live-broker.example.test/v1/orders/by-client-id/{order_id}",
+                "method": "GET"
+              },
+              "open_statuses": [
+                "submitted",
+                "partially_filled"
+              ],
+              "lookups": {
+                "contracts": {
+                  "url": "https://live-broker.example.test/v1/contracts",
+                  "query": {
+                    "status": "active",
+                    "limit": "100"
+                  },
+                  "query_names": [
+                    "underlying",
+                    "type",
+                    "status",
+                    "limit",
+                    "page"
+                  ],
+                  "items_at": "contracts",
+                  "id_field": "symbol",
+                  "keep_when": {
+                    "tradable": true
+                  },
+                  "numbers": [
+                    "strike",
+                    "close_price"
+                  ],
+                  "whole_numbers": [
+                    "open_interest",
+                    "size"
+                  ],
+                  "keep_fields": [
+                    "symbol",
+                    "tradable",
+                    "strike",
+                    "expires",
+                    "type",
+                    "close_price",
+                    "open_interest",
+                    "size",
+                    "underlying"
+                  ],
+                  "sort_by": {
+                    "field": "open_interest",
+                    "order": "descending"
+                  },
+                  "next_at": "next_page"
+                }
+              }
+            },
+            "lookup": "contracts",
+            "query": {
+              "underlying": "SAMPLE",
+              "type": "call",
+              "limit": "2"
+            }
+          },
+          "held": {
+            "live-broker-credentials": "{\"key_id\":\"sample-key-id\",\"secret\":\"sample-secret\"}"
+          },
+          "replies": [
+            {
+              "request": {
+                "method": "GET",
+                "url": "https://live-broker.example.test/v1/contracts"
+              },
+              "status": 200,
+              "body": {
+                "contracts": [
+                  {
+                    "symbol": "SAMPLE301220C00010000",
+                    "name": "SAMPLE Dec 20 2030 10 Call",
+                    "status": "active",
+                    "tradable": true,
+                    "expires": "2030-12-20",
+                    "root_symbol": "SAMPLE",
+                    "underlying": "SAMPLE",
+                    "type": "call",
+                    "style": "american",
+                    "strike": "10",
+                    "size": "100",
+                    "open_interest": "250",
+                    "close_price": "1.25"
+                  },
+                  {
+                    "symbol": "SAMPLE301220C00012000",
+                    "name": "SAMPLE Dec 20 2030 12 Call",
+                    "status": "active",
+                    "tradable": true,
+                    "expires": "2030-12-20",
+                    "root_symbol": "SAMPLE",
+                    "underlying": "SAMPLE",
+                    "type": "call",
+                    "style": "american",
+                    "strike": "12",
+                    "size": "100",
+                    "open_interest": "90",
+                    "close_price": "0.40"
+                  }
+                ],
+                "next_page": null
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-03"
+        }]
       }
     }
   ]

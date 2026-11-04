@@ -1,0 +1,41 @@
+/* packages/screen-look/show/status-overview.css
+ *
+ * Appearance of ui/show/status-overview: stat cards, one proportional strip,
+ * short section lists and a small secondary card. Anatomy from 21st.dev 28770
+ * (stat cards, recent activity), 21st.dev 29473 (share strip) and Linear
+ * "My issues" / Asana "My tasks" rows. Every tone arrives as --status-tone,
+ * resolved from the shared record-kind palette, so no rule names a tone. */
+.status-overview{display:grid;gap:16px;container-type:inline-size}
+.status-overview-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.status-overview-stat{display:grid;gap:2px;padding:12px 14px;border-radius:14px}
+.status-overview-stat-label{display:flex;align-items:center;gap:7px;color:var(--color-muted-foreground);font-size:12.5px;font-weight:500;line-height:1.3}
+.status-overview-stat-value{margin-top:4px;color:var(--color-foreground);font-size:26px;font-weight:600;line-height:1.1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.status-overview-stat-detail{color:var(--color-muted-foreground);font-size:12px;line-height:1.35;font-variant-numeric:tabular-nums;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.status-overview-dot{flex:none;width:8px;height:8px;border-radius:999px;background:var(--status-tone)}
+.status-overview-strip{display:flex;gap:2px;height:6px;overflow:hidden;border-radius:999px}
+.status-overview-strip>span{min-width:3px;background:color-mix(in oklab,var(--status-tone) 78%,transparent)}
+.status-overview-sections{display:grid;gap:18px}
+.status-overview-section-header{display:flex;align-items:baseline;gap:8px;padding:0 2px 6px;border-bottom:1px solid var(--color-input)}
+.status-overview-section-header h3{margin:0;color:var(--color-foreground);font-size:13.5px;font-weight:600}
+.status-overview-count{color:var(--color-muted-foreground);font-size:12.5px;font-variant-numeric:tabular-nums}
+.status-overview-section ul{margin:0;padding:0;list-style:none}
+.status-overview-section li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;gap:10px;padding:9px 2px;border-bottom:1px solid color-mix(in oklab,var(--color-input) 55%,transparent)}
+.status-overview-section li>.status-overview-dot{margin-top:6px}
+.status-overview-item{display:grid;gap:2px;min-width:0}
+.status-overview-title{color:var(--color-foreground);font-size:13.5px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.status-overview-detail{color:var(--color-muted-foreground);font-size:12px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status-overview-meta{display:grid;justify-items:end;gap:2px;color:var(--color-muted-foreground);font-size:12px;line-height:1.4;white-space:nowrap;font-variant-numeric:tabular-nums}
+.status-overview-state{color:color-mix(in oklab,var(--status-tone) 80%,var(--color-foreground))}
+.status-overview-empty{margin:0;padding:10px 2px;color:var(--color-muted-foreground);font-size:13px}
+.status-overview-more{margin-top:4px;color:var(--color-muted-foreground)}
+.status-overview-aside{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:10px 14px;border-radius:12px;font-size:12.5px;color:var(--color-muted-foreground)}
+.status-overview-aside-label{font-weight:500}
+.status-overview-aside-items{display:flex;flex-wrap:wrap;gap:4px 12px}
+.status-overview-aside-items strong{color:var(--color-foreground);font-weight:600;font-variant-numeric:tabular-nums}
+@container (min-width:640px){.status-overview-stats{grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}}
+@container (max-width:420px){
+  .status-overview-stats{gap:8px}
+  .status-overview-stat{padding:10px 12px}
+  .status-overview-stat-value{font-size:22px}
+  .status-overview-meta small{display:none}
+}

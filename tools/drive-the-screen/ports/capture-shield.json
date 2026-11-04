@@ -1,0 +1,54 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CAPTURE-SHIELD-FROM-TRILLION",
+  "status": "BASELINED",
+  "directive": {
+    "thread_id": "cloud job 2026-11-03: move the screen-driving computer tools into tools/drive-the-screen",
+    "message_multihash": "1f:a9193f70fed54191e24615a6a6cf26180f407904111dde73bebc373ec36fe6aa",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+      "path": "computer/capture-shield.mjs",
+      "multihash": "1f:7c28c6156a64930bce448eef1716ba12a0f5bce63e20d89f56793935502016c6",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/drive-the-screen/read-data/capture-shield.mjs"
+    }
+  ],
+  "preserve": [
+    "the end is posted whether the capture worked or not"
+  ],
+  "allowed_deltas": [
+    "the names are read from ./capture-shield.json (they were in macos/computer-reader.json, which left Trillion-X/trillion)"
+  ],
+  "banned_substitutions": [
+    "a second live copy of this file in Trillion-X/trillion once its callers there are gone",
+    "a rewritten screen driver"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "commit": "49301b9da6b4f3087865ac52a9e26e1b5ac3a58a",
+    "source_multihash": "1f:7c28c6156a64930bce448eef1716ba12a0f5bce63e20d89f56793935502016c6",
+    "target_multihash_at_baseline": "1f:7c28c6156a64930bce448eef1716ba12a0f5bce63e20d89f56793935502016c6",
+    "recorded_at": "2026-11-03T22:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export async function withShield"
+    ],
+    "test_refs": [
+      "tools/drive-the-screen/test/screen-driving-adoption.test.mjs"
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "read-what-is-on-screen-tool-rows",
-  "what_this_is": "The Workshop row for tools/read-what-is-on-screen: a short watch of the front window on the person's Mac, read as text, with secrets removed on the Mac.",
+  "what_this_is": "The Workshop row for tools/read-what-is-on-screen: a short watch of the front window on the person's Mac, read as text, with secrets removed on the Mac; and tool:parse-snapshot, the policy half of the Mac app's accessibility snapshot reader (fields out of a snapshot, redacted).",
   "records": [
     {
       "id": "package::read-what-is-on-screen::tool::read-what-is-on-screen",
@@ -72,6 +72,134 @@
         "maker": "maker:read-what-is-on-screen",
         "provenance": {
           "source": "A screen-reading continuity app's way of keeping the day's context, built 2026-10-15 from reverse engineering: the front window's accessibility text on a window change and a timer, with secrets removed on the Mac"
+        }
+      }
+    },
+    {
+      "id": "package::read-what-is-on-screen::tool::parse-snapshot",
+      "address": "package::read-what-is-on-screen::tool::parse-snapshot",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:read-what-is-on-screen",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:parse-snapshot",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "label": "Read fields out of a screen snapshot",
+        "job": "Turn the accessibility elements of one app's window ({ role, label }) into fields through that app's declarative parser row, with emails, card numbers and tokens removed before anything is returned",
+        "description": "Give app (its name) and elements ([{ role, label }], as the Mac app's reader takes them). The first parser row whose app_contains matches the app is used, else the generic one; it selects elements by role and label pattern and cuts fields out with regular expressions. Every field is redacted with the redact patterns. Answers rows: [{ field: value }]. Triggers, throttle, parsers and redaction: read-data/snapshot-triggers.json; the governor that decides when to take a snapshot is createGovernor in the same file, used by the Mac app's reader.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "elements"
+          ],
+          "properties": {
+            "app": {
+              "type": "string"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rows"
+          ],
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/read-what-is-on-screen",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-what-is-on-screen/read-data/snapshot-triggers.mjs",
+            "parse"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-what-is-on-screen",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/read-what-is-on-screen"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion snapshot-triggers (computer/, deleted in dc79bb0a87)"
         }
       }
     }

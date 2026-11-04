@@ -1,0 +1,1344 @@
+{
+  "package": "screen-recording",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::screen-recording::placeable-surface::screen-recording",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Monitor",
+        "id": "screen-recording.panel",
+        "kind": "placeable-surface",
+        "label": "Record screen",
+        "material_target": "screen-recording",
+        "factflow_ref": "package::screen-recording::factflow::screen-recording-surface",
+        "order": 640,
+        "surface_input": {
+          "frame_fit": "fill"
+        },
+        "surface_id": "screen-recording.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000640:screen-recording.panel",
+        "package_entry": {
+          "package_name": "screen-recording",
+          "entry_name": "screen-recording"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::factflow::screen-recording-surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "journal": {
+          "address_label": "screen-recording.surface.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::screen-recording::evidence-pipeline::config"
+          },
+          {
+            "address": "package::screen-recording::workflow-action::save-recording-state"
+          },
+          {
+            "address": "package::screen-recording::workflow-action::save-recorded-file"
+          },
+          {
+            "address": "package::screen-recording::workflow-action::save-recording-error"
+          },
+          {
+            "address": "package::screen-recording::input::recordings"
+          },
+          {
+            "address": "package::screen-recording::workflow-action::publish-recordings-feed"
+          },
+          {
+            "address": "package::screen-recording::workflow-action::set-recording-name"
+          },
+          {
+            "address": "package::screen-recording::workflow-action::remove-recording"
+          },
+          {
+            "address": "package::screen-recording::descriptor::media-capture-record-action-projection"
+          },
+          {
+            "address": "package::screen-recording::projection-descriptor::recordings"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::screen-recording::placeable-surface::screen-recording"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::screen-recording::entry::screen-recording"
+          },
+          {
+            "address": "package::screen-recording::capability::screen-recording"
+          },
+          {
+            "address": "package::screen-recording::descriptor::media-capture-record-action-projection"
+          },
+          {
+            "address": "package::screen-recording::projection-descriptor::recordings"
+          }
+        ],
+        "interpreter_facts": {
+          "intents": [
+            {
+              "address_label": "screen-recording.intent.start-stop-save"
+            }
+          ],
+          "effects": [
+            {
+              "address_label": "screen-recording.effect.browser-capture"
+            },
+            {
+              "address_label": "screen-recording.effect.workflow-record-write"
+            }
+          ],
+          "permissions": [
+            {
+              "address_label": "screen-recording.permission.invoke-workflow-intent"
+            },
+            {
+              "address_label": "screen-recording.permission.browser-display-capture"
+            }
+          ],
+          "materializations": [
+            {
+              "address_label": "screen-recording.materialization.placeable-surface"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::entry::screen-recording",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "screen-recording",
+        "entries",
+        "screen-recording"
+      ],
+      "payload": {
+        "entry_name": "screen-recording",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-screen-recording.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-screen-recording"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::capability::screen-recording",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:screen-recording",
+        "package": "screen-recording",
+        "label": "Record screen",
+        "description": "Captures the user's screen via getDisplayMedia, stages bytes through reusable material evidence, stores local playback refs, and publishes descriptor-driven media records through workflow.",
+        "owned_record_kinds": [
+          "record-action-projection.record",
+          "record-action-projection.event",
+          "record-action-projection.error"
+        ],
+        "does_not_own": [
+          "media-analysis.claim",
+          "media-composition.render",
+          "content-distribution.publish-status"
+        ],
+        "reuses": [
+          "workflow",
+          "screen-look",
+          "ui",
+          "content-media-evidence"
+        ],
+        "new_slot": false,
+        "backend_descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection",
+        "projection_descriptor_ref": "package::screen-recording::projection-descriptor::recordings"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::descriptor::media-capture-record-action-projection",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "record-action-projection-descriptor"
+      ],
+      "payload": {
+        "kind": "record-action-projection-descriptor",
+        "id": "record-action-projection:screen-recording:media-capture",
+        "descriptor_version": 1,
+        "owner_package": "screen-recording",
+        "record_family": {
+          "id": "media-capture-record",
+          "id_field": "record_id",
+          "address_prefix": "package::screen-recording::media-record::",
+          "row_kind": "record-action-projection.record"
+        },
+        "fields": [
+          {
+            "id": "label",
+            "value_type": "text",
+            "optional": true,
+            "display": {
+              "label": "Name"
+            }
+          },
+          {
+            "id": "capture_kind",
+            "value_type": "text",
+            "display": {
+              "label": "Kind"
+            }
+          },
+          {
+            "id": "media_type",
+            "value_type": "text",
+            "display": {
+              "label": "Media type"
+            }
+          },
+          {
+            "id": "byte_length",
+            "value_type": "number",
+            "display": {
+              "label": "Size"
+            }
+          },
+          {
+            "id": "duration_ms",
+            "value_type": "number",
+            "display": {
+              "label": "Length"
+            }
+          },
+          {
+            "id": "recorded_at",
+            "value_type": "timestamp",
+            "display": {
+              "label": "Created"
+            }
+          },
+          {
+            "id": "local_playback_ref",
+            "value_type": "object",
+            "local_only": true
+          },
+          {
+            "id": "source_ref",
+            "value_type": "object",
+            "material_ref": true
+          }
+        ],
+        "actions": [
+          {
+            "id": "save-recording-state",
+            "definition_id": "action:screen-recording:save-recording-state",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "save-captured-media",
+            "definition_id": "action:screen-recording:save-recorded-file",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "save-recording-error",
+            "definition_id": "action:screen-recording:save-recording-error",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "set-recording-name",
+            "definition_id": "action:screen-recording:set-recording-name",
+            "target": "slot::workflow"
+          },
+          {
+            "id": "remove-recording",
+            "definition_id": "action:screen-recording:remove-recording",
+            "target": "slot::workflow"
+          }
+        ],
+        "projection": {
+          "id": "projection:screen-recording:recordings",
+          "output_address_label": "screen-recording-recordings",
+          "source_kind": "record-action-projection.record",
+          "columns": [
+            {
+              "key": "id",
+              "from": "record_id"
+            },
+            {
+              "key": "label",
+              "from": "values.label"
+            },
+            {
+              "key": "mode",
+              "from": "values.capture_kind"
+            },
+            {
+              "key": "mediaType",
+              "from": "values.media_type"
+            },
+            {
+              "key": "byteLength",
+              "from": "values.byte_length"
+            },
+            {
+              "key": "durationMs",
+              "from": "values.duration_ms"
+            },
+            {
+              "key": "recordedAt",
+              "from": "values.recorded_at"
+            },
+            {
+              "key": "storedFileRef",
+              "from": "local_refs.playback"
+            },
+            {
+              "key": "sourceRef",
+              "from": "material_refs.source"
+            }
+          ]
+        },
+        "material": {
+          "source_ref_contract": "content-media-evidence.ContentMediaSourceRef",
+          "local_playback_ref_contract": "screen-recording.local-playback.indexeddb-chunks"
+        },
+        "adapters": [
+          {
+            "id": "browser-screen-capture",
+            "locus": "browser",
+            "output_action_id": "save-captured-media"
+          }
+        ],
+        "relationships": [
+          {
+            "id": "material-subject",
+            "from": "material_refs.source"
+          },
+          {
+            "id": "enrichment-subject",
+            "from": "record_id"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::projection-descriptor::recordings",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-projection-descriptor",
+        "id": "projection:screen-recording:recordings",
+        "descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection",
+        "source": {
+          "kind": "record-action-projection.record",
+          "owner_package": "screen-recording"
+        },
+        "output_address_label": "screen-recording-recordings",
+        "record_id_path": [
+          "record_id"
+        ],
+        "fields": [
+          {
+            "key": "id",
+            "from": "record_id"
+          },
+          {
+            "key": "label",
+            "from": "values.label"
+          },
+          {
+            "key": "mode",
+            "from": "values.capture_kind"
+          },
+          {
+            "key": "mediaType",
+            "from": "values.media_type"
+          },
+          {
+            "key": "byteLength",
+            "from": "values.byte_length"
+          },
+          {
+            "key": "durationMs",
+            "from": "values.duration_ms"
+          },
+          {
+            "key": "recordedAt",
+            "from": "values.recorded_at"
+          },
+          {
+            "key": "storedFileRef",
+            "from": "local_refs.playback"
+          },
+          {
+            "key": "sourceRef",
+            "from": "material_refs.source"
+          }
+        ],
+        "material_refs": [
+          {
+            "key": "source",
+            "path": [
+              "material_refs",
+              "source"
+            ]
+          }
+        ],
+        "local_refs": [
+          {
+            "key": "playback",
+            "path": [
+              "local_refs",
+              "playback"
+            ]
+          }
+        ],
+        "relationship_refs": [
+          {
+            "key": "enrichment_subject",
+            "path": [
+              "record_id"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::evidence-pipeline::config",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-media.evidence-pipeline.config",
+        "package": "screen-recording",
+        "roles": {
+          "events": [
+            "record-action-projection.event"
+          ],
+          "media_records": [
+            "record-action-projection.record"
+          ],
+          "errors": [
+            "record-action-projection.error"
+          ]
+        },
+        "artifact_roles": {
+          "source": [
+            "content-media-evidence.ContentMediaSourceRef"
+          ],
+          "local": [
+            "local-playback.indexeddb-chunks"
+          ]
+        },
+        "execution_capabilities": [
+          "browser.media-devices",
+          "browser.indexeddb",
+          "engine.operation.write-batch",
+          "workflow"
+        ],
+        "projection_lanes": [
+          "events",
+          "media_records",
+          "errors"
+        ],
+        "maintained_projection_label": "screen-recording-content-media-evidence",
+        "workflow_actions": [
+          {
+            "role": "save-recording-state",
+            "action_id": "action:screen-recording:save-recording-state",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "accepted-record-write"
+          },
+          {
+            "role": "save-recorded-file",
+            "action_id": "action:screen-recording:save-recorded-file",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "accepted-record-write"
+          },
+          {
+            "role": "save-recording-error",
+            "action_id": "action:screen-recording:save-recording-error",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "accepted-record-write"
+          }
+        ],
+        "backend_descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection",
+        "projection_descriptor_ref": "package::screen-recording::projection-descriptor::recordings"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::workflow-action::save-recording-state",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:screen-recording:save-recording-state",
+        "kind": "action",
+        "name": "screen-recording-save-recording-state",
+        "description": "Save one descriptor-scoped capture lifecycle event (started, paused, resumed, stopped).",
+        "input_schema": {
+          "required": [
+            "record_id",
+            "capture_kind",
+            "state",
+            "observed_at"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "capture_kind": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "observed_at": {
+              "type": "string"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::screen-recording::media-event::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "record-action-projection.event",
+                    "descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection",
+                    "action_descriptor_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "action_descriptor_id"
+                      }
+                    },
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "values": {
+                      "capture_kind": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "capture_kind"
+                        }
+                      },
+                      "state": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "state"
+                        }
+                      },
+                      "observed_at": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "observed_at"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1,
+        "extra_properties": {
+          "backend_descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::workflow-action::save-recorded-file",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:screen-recording:save-recorded-file",
+        "kind": "action",
+        "name": "screen-recording-save-captured-media",
+        "description": "Save one descriptor-scoped screen recording with reusable material evidence and local playback refs.",
+        "input_schema": {
+          "required": [
+            "record_id",
+            "capture_kind",
+            "media_type",
+            "byte_length",
+            "duration_ms",
+            "recorded_at",
+            "stored_file_ref",
+            "source_ref"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "capture_kind": {
+              "type": "string"
+            },
+            "media_type": {
+              "type": "string"
+            },
+            "byte_length": {
+              "type": "number"
+            },
+            "duration_ms": {
+              "type": "number"
+            },
+            "recorded_at": {
+              "type": "string"
+            },
+            "stored_file_ref": {
+              "type": "object"
+            },
+            "source_ref": {
+              "type": "object"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::screen-recording::media-record::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "record-action-projection.record",
+                    "descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection",
+                    "projection_descriptor_ref": "package::screen-recording::projection-descriptor::recordings",
+                    "action_descriptor_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "action_descriptor_id"
+                      }
+                    },
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "values": {
+                      "label": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "label"
+                        }
+                      },
+                      "capture_kind": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "capture_kind"
+                        }
+                      },
+                      "media_type": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "media_type"
+                        }
+                      },
+                      "byte_length": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "byte_length"
+                        }
+                      },
+                      "duration_ms": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "duration_ms"
+                        }
+                      },
+                      "recorded_at": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "recorded_at"
+                        }
+                      }
+                    },
+                    "local_refs": {
+                      "playback": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "stored_file_ref"
+                        }
+                      }
+                    },
+                    "material_refs": {
+                      "source": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "source_ref"
+                        }
+                      }
+                    },
+                    "relationships": {
+                      "enrichment_subject": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "record_id"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "action",
+            "config": {
+              "definition_id": "action:screen-recording:publish-recordings-feed",
+              "inputs": {}
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1,
+        "extra_properties": {
+          "backend_descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::workflow-action::save-recording-error",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:screen-recording:save-recording-error",
+        "kind": "action",
+        "name": "screen-recording-save-recording-error",
+        "description": "Save one descriptor-scoped capture error event.",
+        "input_schema": {
+          "required": [
+            "record_id",
+            "capture_kind",
+            "message",
+            "observed_at"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "capture_kind": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "observed_at": {
+              "type": "string"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::screen-recording::media-error::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "record-action-projection.error",
+                    "descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection",
+                    "action_descriptor_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "action_descriptor_id"
+                      }
+                    },
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "values": {
+                      "capture_kind": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "capture_kind"
+                        }
+                      },
+                      "message": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "message"
+                        }
+                      },
+                      "observed_at": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "observed_at"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1,
+        "extra_properties": {
+          "backend_descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::workflow-action::publish-recordings-feed",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:screen-recording:publish-recordings-feed",
+        "kind": "action",
+        "name": "screen-recording-publish-recordings-feed",
+        "description": "Publish the recordings feed from the descriptor-scoped media projection.",
+        "input_schema": {
+          "required": [],
+          "properties": {}
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "screen-recording-recordings",
+                  "path": [
+                    "screen-recording",
+                    "recordings"
+                  ],
+                  "payload": {
+                    "kind": "record-action-projection.materialized-feed",
+                    "descriptor_ref": "package::screen-recording::projection-descriptor::recordings",
+                    "source_kind": "record-action-projection.record"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1,
+        "extra_properties": {
+          "projection_descriptor_ref": "package::screen-recording::projection-descriptor::recordings"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::workflow-action::set-recording-name",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:screen-recording:set-recording-name",
+        "kind": "action",
+        "name": "screen-recording-set-recording-name",
+        "description": "Patch the descriptor-scoped display name.",
+        "input_schema": {
+          "required": [
+            "record_id",
+            "label"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::screen-recording::media-record::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "record-action-projection.record-patch",
+                    "descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection",
+                    "action_descriptor_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "action_descriptor_id"
+                      }
+                    },
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "values": {
+                      "label": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "label"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "action",
+            "config": {
+              "definition_id": "action:screen-recording:publish-recordings-feed",
+              "inputs": {}
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1,
+        "extra_properties": {
+          "backend_descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::workflow-action::remove-recording",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:screen-recording:remove-recording",
+        "kind": "action",
+        "name": "screen-recording-remove-recording",
+        "description": "Mark one descriptor-scoped media record removed from the active projection.",
+        "input_schema": {
+          "required": [
+            "record_id"
+          ],
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::screen-recording::media-record::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "record-action-projection.record-retraction",
+                    "descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection",
+                    "action_descriptor_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "action_descriptor_id"
+                      }
+                    },
+                    "record_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_id"
+                      }
+                    },
+                    "values": {
+                      "removed": true
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "action",
+            "config": {
+              "definition_id": "action:screen-recording:publish-recordings-feed",
+              "inputs": {}
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1,
+        "extra_properties": {
+          "backend_descriptor_ref": "package::screen-recording::descriptor::media-capture-record-action-projection"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-recording::input::recordings",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "screenRecordings",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "label",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "mode",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "mediaType",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 4,
+                "key": "byteLength",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 5,
+                "key": "durationMs",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 6,
+                "key": "recordedAt",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 7,
+                "key": "storedFileRef",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "screen-recording-recordings"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-screen-recording",
+      "source_path": "built-stored-bytes/entry-bytes-screen-recording",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-screen-recording.source-closure.json"
+    }
+  ]
+}

@@ -1,0 +1,596 @@
+/* Preserve native visibility semantics when component display utilities apply. */
+.coss-ui [hidden]:not([hidden="until-found"]){display:none!important}
+
+/* What a mouse resting on something reveals, a finger reveals by tapping it: every hover: and group-hover: utility also
+   matches the chain the last tap landed in (ui touch-equivalence.ts marks it data-touch-hover). A mouse keeps its own
+   hover, still only where the device can hover. */
+@custom-variant hover { @media (hover: hover) { &:hover { @slot; } } &[data-touch-hover] { @slot; } }
+/* A dark: utility answers the selected look's own scheme (data-look-scheme, set from the look's ground by
+   ApplyCurrentScreenLook), never the device's or a framing app's prefers-color-scheme: Tailwind's default dark variant
+   is that media query, so a dark device or an AI app's dark theme switched every dark: utility on under a light look. */
+@custom-variant dark (&:where([data-look-scheme=dark], [data-look-scheme=dark] *));
+@theme {
+  /* Each name reads the look variable that look-bridges.css binds it to, so a page or screen that has not added
+     body.screen-look-page (the workspace failure screen, a page before its look is mounted) still wears the look. */
+  --color-background: var(--glass-bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-popover: var(--glass-bg-popover);
+  --color-popover-foreground: var(--text-primary);
+  --color-card: var(--bg-surface);
+  --color-card-foreground: var(--text-primary);
+  --color-accent-foreground: var(--text-primary);
+  --color-muted: var(--glass-bg-subtle);
+  --color-muted-foreground: var(--text-secondary);
+  --color-input: var(--border-secondary);
+  /* The edge every shared part draws a line with; one colour with the inputs' edge, so a rule naming either draws. */
+  --color-border: var(--color-input);
+  --color-primary: var(--button-primary-bg);
+  --color-primary-foreground: var(--button-primary-text);
+  --color-secondary: var(--glass-bg-subtle);
+  --color-secondary-foreground: var(--text-primary);
+  --color-accent: var(--glass-bg-hover);
+  --color-ring: var(--focus-ring-color);
+  --color-destructive: var(--color-error);
+  --color-destructive-foreground: var(--color-error);
+  /* A quieter destructive tone for text and icons in menus: the warning without the alarm. */
+  --color-destructive-muted: color-mix(in oklab, var(--color-destructive) 58%, var(--color-muted-foreground));
+  /* Every rounded-* the shared parts use reads the look's own corners: a chip or tag the chip radius, a button, field or
+     menu item the control radius, a card, dialog or panel the card radius. A button on the workspace, the welcome tour and a
+     shared page therefore all wear the same corner. */
+  --radius-xs: var(--radius-chip);
+  --radius-sm: var(--radius-chip);
+  --radius-md: var(--radius-control);
+  --radius-lg: var(--radius-control);
+  --radius-xl: var(--radius-card);
+  --radius-2xl: var(--radius-card);
+  --radius-3xl: var(--radius-card);
+  /* The shared controls' text face: the chosen look's primary font (--font-primary), else the system face. */
+  --font-heading: var(--font-primary);
+  /* Every text-* size the shared parts use is a type role of the look (resolve-screen-look-palette.js TYPE_ROLES): its
+     size with the line height and tracking that size reads best at. text-xs and text-sm keep Tailwind's sizes and line
+     heights on the default look (12/16 and 14/20); the larger steps keep their sizes and take the role's tightening. */
+  --text-xs: var(--type-caption-size);
+  --text-xs--line-height: var(--type-caption-leading);
+  --text-xs--letter-spacing: var(--type-caption-tracking);
+  --text-sm: var(--type-body-size);
+  --text-sm--line-height: var(--type-body-leading);
+  --text-sm--letter-spacing: var(--type-body-tracking);
+  --text-base--letter-spacing: var(--type-body-lg-tracking);
+  --text-lg--letter-spacing: var(--type-title-3-tracking);
+  --text-xl--letter-spacing: var(--type-title-3-tracking);
+  --text-2xl--letter-spacing: var(--type-title-2-tracking);
+  --text-3xl--letter-spacing: var(--type-title-1-tracking);
+  --text-4xl--letter-spacing: var(--type-display-tracking);
+  /* Every shadow-* lifts by the look's own elevations (resolve-screen-look-palette.js resolveScreenLookDepth): a lit top
+     edge on a dark look, warm-tinted soft drops on a paper one; a card or an outlined button at rest is elevation 1. */
+  --shadow-xs: var(--elevation-1);
+  --shadow-sm: var(--elevation-1);
+  --shadow-md: var(--elevation-2);
+  --shadow-lg: var(--elevation-2);
+  --shadow-xl: var(--elevation-3);
+  --shadow-2xl: var(--elevation-4);
+  /* Every transition moves on the look's motion (durations scaled by --motion-scale, so reduced motion stills them). */
+  --ease-out: var(--ease-enter);
+  --ease-in: var(--ease-exit);
+  --ease-in-out: var(--ease-move);
+  --default-transition-duration: var(--motion-fast);
+  --default-transition-timing-function: var(--ease-snap);
+}
+/* The tones a chip or badge speaks in (ui Badge: success, warning, error, info, accent) are the worn look's own colours,
+   which ApplyCurrentScreenLook sets on the page; without these names every toned Badge drew as plain words. */
+@theme inline {
+  /* A status badge uses this colour for both ink and a translucent tint. Move the ink toward the look's text so
+     the label remains readable on that tint in light and dark looks. */
+  --color-status-success: color-mix(in srgb, var(--color-success) 65%, var(--text-primary));
+  --color-status-warning: var(--color-warning);
+  --color-status-error: var(--color-error);
+  --color-status-info: var(--color-info);
+  --color-accent-purple: var(--accent-purple);
+}
+.coss-ui {font-family:var(--font-heading);font-size:14px;line-height:1.5;color:var(--color-foreground)}
+/* Coss upstream components (toast, table) paint from the bare shadcn names
+   --popover, --card and --background. This look owns the --color-* names, so
+   the bare names follow them here; left undefined, color-mix() over them is
+   invalid and a toast card paints with no background at all. */
+.coss-ui {--popover:var(--color-popover);--card:var(--color-card);--background:var(--color-background)}
+/* Defaults, never overrides: zero specificity like Coss's own base layer, so a
+   component's border utilities (border-transparent on ghost and link buttons,
+   border-0) win. At class specificity these repainted every ghost button and
+   filter-chip remove icon with a visible box. */
+:where(.coss-ui) *, :where(.coss-ui) *::before, :where(.coss-ui) *::after {box-sizing:border-box;border-color:var(--color-input)}
+:where(.coss-ui) [data-slot] {border-style:solid;border-width:0}
+:where(.coss-ui) :is([data-slot=dialog-popup],[data-slot=input-control],[data-slot=textarea-control],[data-slot=checkbox],[data-slot=button]) {border-width:1px}
+.coss-ui [data-slot=input] {background:transparent;color:inherit;font:inherit;border:0;transition:none}
+.coss-ui [data-slot=input-control]>[data-slot=input] {width:100%;max-width:none;min-width:0;flex:1;background:transparent}
+.coss-ui [data-slot=button] {font:inherit}
+.coss-account-profile{max-width:760px;padding:32px 28px;min-width:0}.coss-account-header{display:flex;align-items:center;gap:16px;padding-bottom:28px;border-bottom:1px solid var(--color-input)}.coss-account-header h2{margin:0;font-size:24px;line-height:1.2;font-weight:650;letter-spacing:-.02em}.coss-account-header p{margin:4px 0 0;color:var(--color-muted-foreground)}.coss-account-fields{display:grid}.coss-account-field{display:grid;grid-template-columns:minmax(140px,200px) minmax(0,1fr);gap:16px;align-items:start;padding:20px 0;border-bottom:1px solid var(--color-input)}.coss-account-field>span{color:var(--color-muted-foreground)}.coss-account-field>strong{min-width:0;overflow-wrap:anywhere;font-weight:500;white-space:pre-wrap}@media(max-width:600px){.coss-account-profile{padding:24px 16px}.coss-account-field{grid-template-columns:1fr;gap:4px;padding:16px 0}}
+.coss-account-field [data-slot=input-control],.coss-account-field [data-slot=textarea-control]{width:100%}.coss-account-field small{display:block;margin-top:4px;color:var(--color-muted-foreground);font-size:12px;font-weight:400}.coss-account-save{display:flex;align-items:center;gap:12px;padding-top:24px}.coss-account-save>[role=status]{color:var(--color-muted-foreground)}
+.coss-publication-workspace{display:grid;gap:16px;min-width:0;padding:20px;border:1px solid var(--color-input);border-radius:var(--radius-2xl);background:var(--color-card)}
+.coss-publication-workspace-header{display:grid;gap:16px;min-width:0}
+.coss-publication-workspace-header h2{margin:0;font-size:18px;line-height:1.25;font-weight:650}.coss-publication-workspace-header p{margin:4px 0 0;color:var(--color-muted-foreground);font-size:13px}
+.coss-publication-destination-rail{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));align-items:start;gap:8px;max-height:320px;overflow:auto;min-width:0;padding:2px}.coss-publication-destination-group{min-width:0;border:1px solid var(--color-input);border-radius:12px;background:var(--color-background)}.coss-publication-destination-group-heading{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 12px;cursor:pointer;list-style:none}.coss-publication-destination-group-heading::-webkit-details-marker,.coss-publication-account-heading::-webkit-details-marker{display:none}.coss-publication-destination-group-heading strong{flex:1;min-width:0;font-size:13px;font-weight:650}.coss-publication-destination-group-heading small,.coss-publication-account-heading small{color:var(--color-muted-foreground);font-size:11px}.coss-publication-destination-group-heading>svg,.coss-publication-account-heading>svg{width:16px;height:16px;transition:transform .16s ease}.coss-publication-destination-group[open] .coss-publication-destination-group-heading>svg,.coss-publication-account[open] .coss-publication-account-heading>svg{transform:rotate(90deg)}.coss-publication-destination-group-heading:focus-visible,.coss-publication-account-heading:focus-visible{outline:2px solid var(--color-ring);outline-offset:-3px}.coss-publication-account-list{display:grid;gap:4px;padding:0 8px 8px}.coss-publication-account{min-width:0;border-top:1px solid var(--color-input)}.coss-publication-account-heading{display:flex;align-items:center;gap:8px;min-height:36px;padding:5px 4px;cursor:pointer;list-style:none}.coss-publication-account-heading span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:550}.coss-publication-destination-choices{display:grid;gap:4px;padding:0 0 8px}.coss-ui .coss-publication-destination{display:grid;grid-template-columns:minmax(0,1fr) auto;justify-items:start;align-items:center;gap:0 8px;width:100%;height:auto;min-height:36px;padding:7px 10px;border-radius:8px;text-align:left;white-space:normal}.coss-publication-destination[aria-pressed=true]{border-color:var(--color-primary);background:var(--color-accent)}.coss-publication-destination-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.coss-publication-destination-empty{margin:0;padding:12px;border:1px dashed var(--color-input);border-radius:10px;color:var(--color-muted-foreground);font-size:12px}
+.coss-publication-workspace-body{display:grid;grid-template-columns:minmax(148px,190px) minmax(0,1fr);gap:12px;align-items:start}.coss-publication-stage-rail{display:grid;gap:3px}.coss-ui .coss-publication-stage{height:auto;min-height:42px;justify-content:flex-start;padding:8px 10px;text-align:left;white-space:normal;border:0;box-shadow:none}.coss-publication-stage[aria-current=step]{background:var(--color-accent);font-weight:650}.coss-publication-stage small{display:block;margin-top:2px;color:var(--color-muted-foreground);font-size:11px;font-weight:400}.coss-publication-stage-content{min-width:0;padding:0}.coss-publication-stage-content>[data-slot=card-panel]{min-width:0;padding:16px}
+.coss-publication-action-rail{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding-top:2px;border-top:1px solid var(--color-input)}.coss-publication-action-rail>[data-slot=button]{margin-top:12px}
+.coss-publication-post-preview{width:min(100%,420px);overflow:hidden;border:1px solid var(--color-input);border-radius:var(--radius-xl);background:var(--color-background);color:var(--color-foreground)}
+.coss-publication-post-preview-header{display:flex;align-items:center;gap:10px;padding:12px 14px}.coss-publication-post-preview-header>div{min-width:0}.coss-publication-post-preview-header strong,.coss-publication-post-preview-header small{display:block;overflow-wrap:anywhere}.coss-publication-post-preview-header strong{font-size:13px;font-weight:650}.coss-publication-post-preview-header small{margin-top:2px;color:var(--color-muted-foreground);font-size:11px}
+.coss-publication-post-preview-media{display:block;width:100%;max-height:420px;aspect-ratio:4/5;object-fit:contain;background:var(--color-muted)}
+.coss-publication-post-preview-unavailable{display:grid;min-height:180px;place-content:center;justify-items:center;gap:8px;background:var(--color-muted);color:var(--color-muted-foreground);font-size:13px}.coss-publication-post-preview-unavailable svg{width:24px;height:24px}
+.coss-publication-post-preview-copy{display:grid;gap:8px;padding:12px 14px 14px}.coss-publication-post-preview-copy>strong{font-size:14px;font-weight:650}.coss-publication-post-preview-copy>p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.45}.coss-publication-post-preview-copy>p>span{display:block;margin-bottom:2px;color:var(--color-muted-foreground);font-size:10px;font-weight:600;}
+.coss-work-panel>[data-panel-body] {box-sizing:border-box;width:100%;min-width:0}
+.coss-text-reader{height:min(55vh,600px);min-width:0;color:var(--color-foreground)}
+.coss-text-reader-content{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;padding:16px;user-select:text}
+.coss-work-panel>[role=alert] {color:var(--color-destructive)}
+.coss-work-panel h3 {font-size:17px;font-weight:600;margin:16px 0 8px}
+
+.coss-work-panel [data-read][data-slot=button] {display:block;white-space:normal;height:auto;min-height:56px;text-align:left;padding:10px 12px;box-shadow:none;border-color:transparent}
+.coss-work-panel [data-read] strong {display:block;overflow-wrap:anywhere;font-weight:500;line-height:1.45}
+.coss-work-panel [data-read] small {display:block;margin-top:4px;color:var(--color-muted-foreground);font-size:12px}
+.coss-work-panel [data-panel-body] button:not([data-slot]):not([data-shared-root] *) {background:var(--color-background);border:1px solid var(--color-input);border-radius:var(--radius-control);padding:8px 12px;color:inherit;font:inherit;cursor:pointer}
+.coss-work-panel [data-panel-body] input:not([data-slot]):not([type=checkbox]):not([type=range]):not([data-shared-root] *),.coss-work-panel textarea:not([data-shared-root] *) {border:1px solid var(--color-input);border-radius:8px;background:var(--color-background);color:inherit;padding:10px 12px;font:inherit;min-width:0}
+.coss-work-panel textarea {width:100%;min-height:96px;resize:vertical}
+.coss-work-panel form label:has(>input,>select,>textarea,>.coss-select-host,>[data-slot=input-control]):not(.coss-choice):not(:has(>input[type=range])) {display:grid;gap:6px;margin:16px 0}
+.coss-work-panel form>p {color:var(--color-muted-foreground);line-height:1.6}
+.coss-work-panel form>button[type=submit] {background-color:var(--button-primary-bg,var(--color-primary));background-image:var(--button-sheen,none);color:var(--button-primary-text,var(--color-primary-foreground));border-color:transparent;box-shadow:var(--button-highlight),var(--button-shadow);margin-top:12px}
+.coss-work-panel form>button[type=submit]:hover {background-color:var(--button-primary-bg-hover,var(--button-primary-bg))}
+
+.coss-choice-chips{min-width:0;margin:0;padding:0;border:0}.coss-choice-chips legend{margin:0 0 7px;padding:0;color:var(--color-muted-foreground);font-size:12px;font-weight:600}.coss-choice-chip-row{display:flex;min-width:0;gap:7px;overflow-x:auto;padding:1px 1px 4px;scrollbar-width:thin}.coss-choice-chip-row>[data-slot=button]{flex:none;border-radius:var(--radius-chip, 0.375rem)}.coss-choice-chip-row>[aria-pressed=true]{border-color:var(--color-primary);background:var(--color-primary);color:var(--color-primary-foreground)}
+/* Choice chips drawn as one segmented control: `mountChoiceChips({variant:"segmented"})`. */
+.coss-choice-chips[data-variant=segmented] legend{margin:0 0 6px}
+.coss-choice-chips[data-variant=segmented] .coss-choice-chip-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:2px;padding:2px;overflow:visible;border-radius:10px;background:color-mix(in srgb,var(--color-foreground) 6%,transparent)}
+.coss-choice-chips[data-variant=segmented] .coss-choice-chip-row>[data-slot=button]{height:30px;border-color:transparent;border-radius:8px;background:transparent;box-shadow:none;color:var(--color-muted-foreground);font-weight:550}
+.coss-choice-chips[data-variant=segmented] .coss-choice-chip-row>[data-slot=button]::before{display:none}
+.coss-choice-chips[data-variant=segmented] .coss-choice-chip-row>[aria-pressed=true]{border-color:transparent;background:var(--color-background);color:var(--color-foreground);box-shadow:0 1px 2px color-mix(in srgb,var(--text-primary) 12%,transparent),0 0 0 1px color-mix(in srgb,var(--text-primary) 5%,transparent)}
+/* A record editor whose rows sit in the form itself, without card chrome: `mountRecordEditor({layout:"plain"})`. */
+.coss-record-editor-plain .coss-record-editor-row{border:0;border-radius:0;background:transparent;box-shadow:none}
+.coss-record-editor-plain .coss-record-editor-row::before,.coss-record-editor-plain .coss-record-editor-row>[data-slot=card-footer]{display:none}
+.coss-record-editor-plain .coss-record-editor-fields{padding:0}
+.coss-choices {padding:12px 0}
+.coss-choice-list-title {margin:0 0 8px;font-size:13px;font-weight:650;color:var(--color-foreground)}
+.coss-choice-rows {max-height:240px;overflow:auto;margin-top:8px}
+.coss-choice {display:flex;gap:10px;padding:10px 8px;border-radius:6px;cursor:pointer}
+.coss-choice:hover {background:var(--color-accent)}
+.coss-choice small {display:block;color:var(--color-muted-foreground);font-size:12px}
+.coss-choice[hidden] {display:none}
+.coss-record-field-count {justify-self:end;color:var(--color-muted-foreground);font-size:11px;line-height:1.2}
+
+.coss-native-value {position:absolute!important;inline-size:1px!important;block-size:1px!important;clip-path:inset(50%)!important;overflow:hidden!important;white-space:nowrap!important;padding:0!important;border:0!important}
+.coss-select-host {display:block;min-width:0;width:100%}
+.coss-ui [data-slot=select-trigger] {border-width:1px;font:inherit;min-width:0;width:100%;cursor:pointer}
+.coss-ui [data-slot=select-positioner],.coss-ui [data-slot=menu-positioner] {z-index:10000}
+.coss-ui [data-slot=select-popup],.coss-ui [data-slot=menu-popup] {font-size:14px}
+.coss-ui [data-slot=select-popup] {max-width:min(420px,calc(100vw - 24px))}
+.coss-ui [data-slot=menu-popup] {max-width:min(280px,calc(100vw - 24px))}
+.coss-ui [data-slot=menu-popup] {box-sizing:border-box;width:max-content;min-width:0;border-width:1px;border-color:var(--color-input);border-radius:var(--radius-lg,12px);box-shadow:0 12px 36px color-mix(in srgb,var(--color-foreground) 18%,transparent)}
+.coss-ui [data-slot=menu-popup]>div {padding:4px}
+.coss-ui [data-tray-screen][data-tray-drop-active]{box-shadow:inset 0 0 0 2px var(--color-primary);background:color-mix(in srgb,var(--color-primary) 5%,var(--color-background))}
+.coss-ui [data-slot=menu-item] {min-height:30px;padding:4px 8px;font-size:13px;line-height:1.35}
+/* The shared action menu, and every other floating menu and popover surface,
+   live in floating-menus.css: one anatomy for all of them. */
+/* Stacking comes from the shared layer scale (ui LAYER_ORDER.pictureInPicture), set on the host by mountFloatingPanel. */
+.coss-ui.coss-floating-panel {display:flex;flex-direction:column;box-sizing:border-box;width:100%;height:100%;overflow:hidden;border:1px solid var(--color-input);border-radius:var(--radius-lg,12px);background:var(--color-popover);color:var(--color-popover-foreground,var(--color-foreground));font-size:13px;box-shadow:0 12px 36px color-mix(in srgb,var(--color-foreground) 18%,transparent)}
+/* The whole strip is the grab area (no grip mark in the middle); its actions and close sit at the right, drawn with a light stroke. */
+.coss-ui .coss-floating-panel-grab {display:flex;flex:none;align-items:center;justify-content:flex-end;position:relative;min-height:32px;padding:2px 4px;cursor:grab;touch-action:none;color:var(--color-muted-foreground)}
+.coss-ui .coss-floating-panel-grab:active {cursor:grabbing}
+.coss-ui .coss-floating-panel-grab-actions {display:flex;align-items:center;gap:2px;cursor:default}
+.coss-ui .coss-floating-panel-grab-actions svg {stroke-width:1.5}
+.coss-ui .coss-floating-panel-scroll {flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain}
+.coss-ui .coss-floating-panel-content {padding:2px 16px 14px}
+.coss-ui .coss-floating-panel-content>:is([role=status],[role=alert]) {margin:8px 0 0;font-size:12px}
+.coss-ui .coss-floating-panel-content>:is([role=status],[role=alert]):empty {display:none}
+.coss-ui .coss-floating-panel-header {display:grid;gap:4px;margin:2px 0 14px}
+.coss-ui .coss-floating-panel-title {margin:0;font-size:17px;font-weight:600;line-height:1.3;color:var(--color-foreground)}
+.coss-ui .coss-floating-panel-description {margin:0;font-size:13px;line-height:1.5;color:var(--color-muted-foreground)}
+/* Choice chips that wrap onto more lines instead of scrolling sideways, so no choice is ever cut off. */
+.coss-choice-chips[data-wrap] .coss-choice-chip-row {flex-wrap:wrap;overflow:visible;padding-bottom:1px}
+/* Composer: a creation form in clear sections, an even grid of fields, and a sticky footer holding the primary action.
+   Anatomy: Runway and Higgsfield creation rails, Gemini Notebook "Customize" panel (inspiration only). */
+.coss-composer {display:grid;min-width:0}
+
+.coss-work-panel .coss-composer label:has(>input,>select,>textarea,>.coss-select-host,>[data-slot=input-control]):not(.coss-choice) {display:grid;gap:6px;margin:0;min-width:0;color:var(--color-muted-foreground);font-size:12px;font-weight:600}
+.coss-composer .coss-choice-chips legend {font-size:12px}
+
+.coss-composer [data-slot=accordion-trigger] {color:var(--color-foreground);font-size:13px;font-weight:600;opacity:1}
+
+.coss-ui [data-slot=select-list] {max-height:min(320px,var(--available-height));border:1px solid var(--color-input);border-radius:8px}
+.coss-ui [data-slot=select-item] {white-space:normal;line-height:1.5}
+.coss-ui [data-slot=select-item] svg {width:16px;height:16px}
+.coss-action-menu {position:relative;display:inline-flex}
+.coss-projects {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:12px;width:100%}
+.coss-ui .coss-project-card {display:flex;flex-direction:row;align-items:center;gap:12px;min-width:0;width:100%;padding:14px 16px;border:1px solid var(--color-input);text-align:left;cursor:pointer;font:inherit}
+.coss-ui .coss-project-card:hover {background:var(--color-accent)}
+.coss-ui .coss-project-card:focus-visible {outline:2px solid var(--color-ring);outline-offset:3px}
+.coss-project-name {flex:1;min-width:0;overflow-wrap:anywhere;font-weight:500;line-height:1.45}
+.coss-ui .coss-media-card {position:relative;background:transparent;border:0;box-shadow:none;border-radius:12px;overflow:visible}
+.coss-media-card::before {display:none}
+.coss-ui .coss-media-open {display:flex;flex-direction:column;align-items:stretch;width:100%;height:auto;padding:0;border:0;background:transparent;white-space:normal;text-align:left;box-shadow:none}
+.coss-media-poster {display:grid;place-items:center;width:100%;aspect-ratio:16/9;background:var(--color-muted);border-radius:12px;overflow:hidden;color:var(--color-muted-foreground)}
+.coss-media-poster img {display:block;width:100%;height:100%;object-fit:cover}
+.coss-ui .coss-media-card[data-layout=list] .coss-media-open {display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:10px;row-gap:1px;align-items:center}
+.coss-media-card[data-layout=list] .coss-media-poster {grid-row:1/span 2;width:64px;height:40px;aspect-ratio:auto;border-radius:6px}
+.coss-media-card[data-layout=list] strong {grid-column:2;align-self:end;margin:0;min-width:0;font-size:12px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.coss-media-card[data-layout=list] small {grid-column:2;align-self:start;color:var(--color-muted-foreground);font-size:11px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.coss-media-card[data-layout=list] .coss-media-open:not(:has(small)) strong {grid-row:1/span 2;align-self:center}
+.coss-ui .coss-media-card[data-layout=list] .coss-media-open[data-no-poster]{grid-template-columns:minmax(0,1fr);padding-left:36px;min-height:52px}
+.coss-media-card[data-layout=list] .coss-media-open[data-no-poster] :is(strong,small){grid-column:1}
+.coss-ui .coss-media-select {position:absolute;top:10px;left:10px;z-index:2;width:20px;height:20px;opacity:0;visibility:hidden;cursor:pointer;transition:opacity 100ms ease,visibility 0s linear 220ms}
+.coss-media-card:hover .coss-media-select,.coss-media-card:focus-within .coss-media-select,.coss-media-card[data-selected] .coss-media-select,.mw-selecting .coss-media-select {opacity:1;visibility:visible;transition-delay:0s}
+.coss-media-card[data-selected] .coss-media-poster {outline:2px solid var(--color-primary);outline-offset:3px}
+.coss-media-metadata{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0}.coss-media-card>.coss-media-metadata{position:static;display:flex;gap:5px;max-width:100%;margin-top:8px;pointer-events:auto}.coss-ui .coss-media-metadata-chip{pointer-events:auto;justify-content:flex-start;width:max-content;max-width:100%;min-width:0;overflow:hidden;box-shadow:none}.coss-media-metadata-label{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.coss-media-metadata-color{display:inline-block;flex:none;width:7px;height:7px;border-radius:50%}.coss-ui .coss-media-metadata-more{pointer-events:auto;min-width:30px;padding-inline:7px}
+.coss-media-metadata-heading{margin-right:6px;color:var(--color-muted-foreground);font-size:12px}
+.coss-ui .coss-media-card-menu{position:absolute;z-index:4;top:8px;right:8px;width:30px;height:30px;padding:0;border-radius:50%;opacity:0;background:color-mix(in srgb,var(--color-background) 90%,transparent);box-shadow:0 2px 8px color-mix(in srgb,var(--text-primary) 20%,transparent);cursor:pointer}.coss-media-card:hover .coss-media-card-menu,.coss-media-card:focus-within .coss-media-card-menu{opacity:1}
+.coss-media-card[data-layout=list] :is(.coss-media-metadata,.coss-media-card-menu){display:none}
+.coss-action-prompt{position:fixed;right:24px;bottom:22px;z-index:45;display:flex;flex-direction:row;align-items:center;gap:4px;box-sizing:border-box;max-width:min(520px,calc(100vw - 48px));padding:8px;overflow:hidden}.coss-action-prompt-handle{flex:none;cursor:grab;touch-action:none}.coss-action-prompt-handle:active{cursor:grabbing}.coss-action-prompt-open{display:flex;justify-content:flex-start;flex:0 1 180px;min-width:0;height:auto;min-height:34px;padding:4px 8px;text-align:left}.coss-action-prompt-mark{display:grid;place-items:center;flex:none}.coss-action-prompt-mark svg{width:16px;height:16px}.coss-action-prompt-copy{display:grid;min-width:0}.coss-action-prompt-copy small{color:var(--color-muted-foreground);font-size:10px;line-height:1.15}.coss-action-prompt-copy strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;line-height:1.35}.coss-action-prompt-actions{display:flex;flex:0 1 auto;gap:4px;min-width:0;overflow:hidden}.coss-action-prompt-actions>button{flex:0 1 auto;justify-content:flex-start;min-width:48px;max-width:190px;overflow:hidden}.coss-action-prompt-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.coss-action-prompt-more,.coss-action-prompt-collapse{flex:none}.coss-action-prompt[data-collapsed]{right:18px;bottom:18px;width:auto;padding:5px;border-radius:50%}.coss-action-prompt[data-collapsed]>:not(.coss-action-prompt-collapse){display:none}.coss-action-prompt[data-collapsed] .coss-action-prompt-collapse{border-radius:var(--radius-pill)}
+@media(max-width:700px){.coss-action-prompt{right:12px;bottom:12px;max-width:calc(100vw - 24px)}.coss-action-prompt-actions>button:nth-child(n+2){display:none}.coss-action-prompt-open{flex-basis:150px}}
+
+.coss-ui [data-slot=table-row] {border-bottom:1px solid var(--color-input)}
+.coss-ui [data-slot=table-cell] {white-space:normal;line-height:1.5}
+.coss-ui [data-slot=table-head] {background:var(--color-muted)}
+.source-owned-actions[hidden] {display:none!important}
+.coss-native-checkbox {position:relative;display:inline-flex;flex:none;width:20px;height:20px;vertical-align:middle;border-radius:var(--radius-check,4px)}
+.coss-native-checkbox>input[type=checkbox] {position:absolute!important;inset:0!important;z-index:2;width:100%!important;height:100%!important;margin:0!important;opacity:0!important;cursor:pointer}
+.coss-checkbox-face {display:flex;pointer-events:none}
+.coss-native-checkbox:focus-within {outline:2px solid var(--color-ring);outline-offset:3px}
+
+.coss-navigation {display:flex;flex-direction:column;gap:4px}
+.coss-ui .coss-navigation-item {display:flex;width:100%;height:auto;min-height:44px;justify-content:flex-start;gap:10px;padding:8px 10px;white-space:normal;text-align:left;border:0;box-shadow:none;line-height:1.45}
+.coss-navigation-item[aria-current=page] {background:var(--color-accent);font-weight:600}
+.coss-ui .coss-navigation-item:not([aria-current=page]) {background:transparent}
+
+.coss-ui [data-slot=checkbox] {padding:0}
+.coss-ui [data-slot=checkbox-indicator] svg {width:14px;height:14px}
+.coss-record-table [data-slot=table-cell]{vertical-align:top;white-space:normal}
+.coss-record-table-value{min-width:120px;max-width:340px;max-height:180px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+.coss-record-table-value>button{height:auto;text-align:left;white-space:normal;justify-content:flex-start;padding:0;font-weight:600}
+.coss-record-table-detail{margin-top:6px;color:var(--color-muted-foreground);font-size:12px}
+.coss-record-table-actions{display:flex;flex-wrap:wrap;gap:4px;min-width:140px}
+
+.coss-media-group-title{grid-column:1/-1;margin:0;color:var(--color-muted-foreground);font-size:14px;font-weight:600}
+
+@media(max-width:700px){.coss-work-panel [data-list]{max-height:180px;overflow:auto}.coss-publication-workspace{padding:14px}.coss-publication-workspace-header{display:grid}.coss-publication-destination-rail{justify-content:flex-start}.coss-publication-workspace-body{grid-template-columns:1fr}.coss-publication-stage-rail{display:flex;overflow:auto;padding-bottom:2px}.coss-ui .coss-publication-stage{flex:0 0 auto;min-height:36px}.coss-publication-stage small{display:none}.coss-publication-action-rail{justify-content:stretch}.coss-publication-action-rail>[data-slot=button]{flex:1}}
+@media(prefers-reduced-motion:reduce){.coss-ui *{transition:none!important;animation:none!important}}
+.coss-ui .coss-media-actions{display:flex;flex-wrap:wrap;gap:8px;padding:8px 0 12px;margin-top:auto}
+.coss-ui .coss-media-actions>button{max-width:100%;height:auto;min-height:32px;white-space:normal;overflow-wrap:anywhere}
+.coss-ui .coss-media-open:disabled{opacity:1;cursor:default}
+.coss-navigation-detail{display:block;font-size:12px;font-weight:400;line-height:1.5;color:var(--color-muted-foreground);white-space:normal}
+
+/* Dense folder tree composed from the shared Coss controls. Product data and
+   requests stay with the consuming app; this package owns reusable appearance. */
+.coss-project-tree{display:grid;gap:8px;min-width:0;width:100%}
+.coss-project-tree-tools{display:flex;align-items:center;gap:8px;min-width:0}
+.coss-project-tree-search{position:relative;display:flex;flex:1;min-width:0;align-items:center}
+.coss-project-tree-search>svg{position:absolute;left:9px;z-index:1;width:15px;height:15px;color:var(--color-muted-foreground);pointer-events:none}
+.coss-project-tree-search [data-slot=input]{width:100%;min-width:0;padding-left:30px}
+.coss-project-tree-rows{position:relative;isolation:isolate;max-height:min(48vh,420px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:2px 0}
+.coss-project-tree{--tree-indent:18px;--tree-disclosure:26px}
+.coss-project-tree-item{position:relative;z-index:1;overflow:hidden}
+.coss-project-tree-row{--tree-depth:0;position:relative;display:grid;grid-template-columns:26px 20px minmax(0,1fr) 28px;align-items:center;gap:5px;min-width:0;min-height:34px;padding:1px 2px 1px calc(var(--tree-depth) * var(--tree-indent));border-radius:8px;color:var(--color-foreground);outline:none;transition:background-color .15s ease}
+.coss-project-tree-row[aria-selected=true]{background:color-mix(in srgb,var(--color-ring) 14%,transparent)}
+/* The hover highlight glides from row to row under the pointer (project-tree.tsx glideTo). */
+.coss-project-tree-glide{position:absolute;left:0;right:0;z-index:0;border-radius:8px;background:var(--color-accent);pointer-events:none}
+/* The guide beside each open folder's rows (ui/show/nesting-guide, screen-look nesting-guide.css): one pill per folder,
+   from its first row to the last row of its open subtree, centred on the folder's disclosure column. */
+.coss-project-tree-guides{position:absolute;inset:0;pointer-events:none;--nesting-guide-step:var(--tree-indent);--nesting-guide-left:calc(var(--tree-disclosure) / 2 - var(--nesting-guide-width) / 2)}
+/* The disclosure turns as its folder opens. */
+.coss-project-tree-disclosure svg{transition:transform var(--motion-base) var(--ease-snap)}
+.coss-project-tree-row[aria-expanded=true]>.coss-project-tree-disclosure svg{transform:rotate(90deg)}
+/* A navigator tree (a sidebar's folders) has no checkbox column: disclosure, name, then its menu when it has one. It sits
+   in the sidebar, so its rows take the sidebar row's geometry: the disclosure in the 24px slot a
+   sidebar row keeps for its move grip, then 4px, then 12px of inset, a 20px icon, 12px, and the 14px label, 36px tall;
+   the disclosure is the section header's 12px muted chevron, and each level moves right by one icon plus its gap, so a
+   child's icon lines up under its parent's name. */
+.coss-project-tree[data-tree-mode=navigator] .coss-project-tree-rows{padding:0;max-height:none}
+.coss-project-tree[data-tree-mode=navigator]{--tree-indent:20px;--tree-disclosure:24px}
+.coss-project-tree[data-tree-mode=navigator] .coss-project-tree-row{grid-template-columns:24px minmax(0,1fr) auto;gap:2px;min-height:34px;padding:0 0 0 calc(var(--tree-depth) * var(--tree-indent))}
+.coss-ui .coss-project-tree[data-tree-mode=navigator] .coss-project-tree-disclosure{width:24px;min-width:24px;height:28px;color:var(--text-tertiary,var(--color-muted-foreground))}
+.coss-ui .coss-project-tree[data-tree-mode=navigator] .coss-project-tree-disclosure svg{width:12px;height:12px}
+.coss-ui .coss-project-tree[data-tree-mode=navigator] .coss-project-tree-name{gap:10px;height:34px;padding:0 8px 0 4px}
+.coss-ui .coss-project-tree[data-tree-mode=navigator] .coss-project-tree-name>svg{flex:none;width:18px;height:18px;margin:0}
+.coss-project-tree[data-tree-mode=navigator] .coss-project-tree-name strong{font-size:14px;font-weight:500;line-height:20px}
+.coss-project-tree-row:focus-visible{box-shadow:inset 0 0 0 2px var(--color-ring)}
+.coss-ui .coss-project-tree-disclosure{width:26px;height:28px;min-width:26px;padding:0;border:0;box-shadow:none;background:transparent}
+.coss-ui span.coss-project-tree-disclosure{display:block}
+.coss-ui .coss-project-tree-name{display:flex;justify-content:flex-start;gap:8px;min-width:0;width:100%;height:32px;padding:3px 5px;border:0;background:transparent;box-shadow:none;text-align:left}
+.coss-project-tree-name>svg{width:16px;height:16px;color:var(--project-tree-glyph,var(--color-muted-foreground));transition:color .15s ease}
+.coss-project-tree-row:hover .coss-project-tree-name>svg{color:var(--project-tree-glyph,var(--color-foreground))}
+.coss-project-tree-name>span{display:block;min-width:0;overflow:hidden}
+.coss-project-tree-name strong{display:block;overflow:hidden;text-overflow:ellipsis;font-size:13px;font-weight:520;line-height:18px;white-space:nowrap}
+.coss-project-tree-name small{display:block;overflow:hidden;text-overflow:ellipsis;color:var(--color-muted-foreground);font-size:11px;line-height:14px;white-space:nowrap}
+.coss-ui .coss-project-tree-add{opacity:0;border:0;background:transparent;box-shadow:none}
+.coss-project-tree-row:is(:hover,:focus-within,[aria-selected=true]) .coss-project-tree-add{opacity:1}
+.coss-project-tree-create{--tree-depth:0;display:grid;grid-template-columns:minmax(0,1fr) auto 28px;align-items:center;gap:6px;min-width:0;padding:4px 2px 4px calc(31px + var(--tree-depth) * 18px)}
+.coss-project-tree-create [data-slot=input]{min-width:0;height:32px}
+.coss-project-tree-details{--tree-depth:0;display:grid;gap:8px;min-width:0;margin:4px 2px 8px calc(31px + var(--tree-depth) * 18px);padding:10px;border-radius:9px;background:var(--color-muted)}
+.coss-project-tree-details>label{display:grid;gap:4px;color:var(--color-muted-foreground);font-size:12px}.coss-project-tree-details textarea{min-height:74px;resize:vertical}.coss-project-tree-details>div{display:flex;gap:6px;justify-content:flex-end}
+.coss-project-tree-empty,.coss-project-tree-error{margin:8px;color:var(--color-muted-foreground);font-size:13px}
+.coss-project-tree-error{color:var(--color-destructive)}
+.coss-project-tree-icon{display:inline-grid;place-items:center;flex:none;width:20px;height:20px;border-radius:6px;background:var(--color-accent);color:var(--color-accent-foreground);font-size:12px;font-weight:700;line-height:1}
+.coss-project-tree-thumb{flex:none;width:34px;height:22px;border-radius:5px;object-fit:cover;background:var(--color-muted)}
+.coss-project-tree-picker{position:relative;min-width:0}.coss-project-tree-picker>button{justify-content:flex-start;width:100%;overflow:hidden;text-overflow:ellipsis}.coss-project-tree-popover{position:absolute;z-index:80;top:calc(100% + 6px);left:0;width:min(420px,calc(100vw - 32px));padding:10px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-background);box-shadow:0 18px 50px color-mix(in srgb,var(--text-primary) 18%,transparent)}
+.coss-project-tree-mode,.coss-project-tree-confirm{--tree-depth:0;display:flex;align-items:center;gap:6px;min-width:0;padding:5px 6px 5px calc(31px + var(--tree-depth) * 18px);border-radius:8px;background:var(--color-accent);font-size:12px;color:var(--color-muted-foreground)}
+.coss-project-tree-mode>span,.coss-project-tree-confirm>span{flex:1;min-width:0}.coss-project-tree-mode strong{color:var(--color-foreground)}
+@media(max-width:420px){.coss-project-tree-tools{align-items:stretch}.coss-project-tree-tools>button{width:34px;padding:0}.coss-project-tree-tools>button svg{margin:0}.coss-project-tree-new-label{display:none}.coss-project-tree{--tree-indent:14px}}
+@media(prefers-reduced-motion:reduce){.coss-project-tree *{scroll-behavior:auto!important;transition:none!important}}
+.coss-action-cards{display:grid;gap:12px;margin-top:16px}
+.coss-ui .coss-action-card{padding:16px;gap:12px}
+.coss-action-card p{margin:0;overflow-wrap:anywhere}
+.coss-action-card small{color:var(--color-muted-foreground)}
+.coss-action-card [role=group]{display:flex;gap:8px;flex-wrap:wrap}
+/* Hidden secondary actions stay targetable: the pointer that would press one is
+   already hovering its row, which reveals it, so pointer-events:none only broke
+   hit-testing (a card intercepting its own button). */
+/* A hidden control also leaves the tab order and hit-testing (visibility), and hides only after a short grace
+   (visibility waits 220 ms) so a pointer crossing the gap from the card to a corner control never loses it. */
+.coss-action-card [role=group],.coss-record-table-actions,.coss-media-card .coss-media-actions,.coss-media-card-menu,.coss-media-preview-action{opacity:0;visibility:hidden;transition:opacity 100ms ease,visibility 0s linear 220ms}
+.coss-action-card:is(:hover,:focus-within,[data-selected]) [role=group],.coss-record-table [data-slot=table-row]:is(:hover,:focus-within,[data-selected]) .coss-record-table-actions,.coss-media-card:is(:hover,:focus-within,[data-selected]) .coss-media-actions,.coss-media-card:is(:hover,:focus-within,[data-selected]) :is(.coss-media-card-menu,.coss-media-preview-action){opacity:1;visibility:visible;transition-delay:0s}
+@media(hover:none){.coss-action-card [role=group],.coss-record-table-actions,.coss-media-card .coss-media-actions{opacity:1;visibility:visible;transition:none}}
+@media(hover:none){.coss-ui .coss-media-select,.coss-ui .coss-media-card :is(.coss-media-card-menu,.coss-media-preview-action,.coss-media-actions){opacity:1;visibility:visible;transition:none}}
+@media(prefers-reduced-motion:reduce){.coss-action-card [role=group],.coss-record-table-actions,.coss-media-card .coss-media-actions{transition:none}}
+.coss-action-card .coss-action-loading{align-self:center;color:var(--color-muted-foreground);font-size:.8125rem}
+.coss-ui .record-views-gallery-card{background:transparent;border-color:transparent}
+.coss-ui .record-views-gallery-card:hover,.coss-ui .record-views-gallery-card:focus-within{background:var(--t-background-transparent-light);border-color:var(--t-border-color-medium)}
+.coss-ui .record-views-gallery,
+.coss-ui .record-views-gallery-sections{background:transparent}
+.coss-ui .record-views-gallery-card{border-radius:10px}
+/* Selection actions stay inside a narrow pane, including a phone's Media list. */
+.coss-ui .record-views-selection-bar{flex-wrap:wrap;max-width:100%;box-sizing:border-box}
+.coss-ui .record-views-selection-bar>button{max-width:100%;white-space:normal;height:auto;min-height:28px}
+/* A gallery card's corner controls (select and the record's menu): one size, one inset from each corner,
+   one surface, so both sit on the same line whatever is under them. The surface is the look's popover glass with a
+   small lift, the backing every control floating over content gets, so a photo or the card's own words under a
+   control never show through it. References: Perplexity artifacts grid
+   (https://mobbin.com/screens/21fafb5b-83c9-4e3d-aee6-68e720e20915), Google Photos selection corners. */
+.coss-ui{--record-card-control-size:24px;--record-card-control-inset:8px;--record-card-control-radius:6px;--record-card-control-surface:var(--glass-bg-popover,color-mix(in srgb,var(--color-background) 96%,transparent));--record-card-control-border:color-mix(in srgb,var(--color-foreground) 18%,transparent);--record-card-control-shadow:0 1px 3px color-mix(in srgb,var(--text-primary) 14%,transparent)}
+.coss-ui .record-view-thumbnail{border-radius:8px;background:transparent}
+.coss-ui .record-views-gallery-card .record-views-card-corner{visibility:hidden;transition:opacity 100ms ease,visibility 0s linear 220ms}
+.coss-ui .record-views-gallery-card:is(:hover,:focus-within,[data-selected='true']) .record-views-card-corner{visibility:visible;transition-delay:0s}
+.coss-ui .record-views-gallery-card .record-views-card-corner :is([data-slot='checkbox'],[data-slot='button'],[data-slot='menu-trigger']){cursor:pointer}
+@media(hover:none){.coss-ui .record-views-gallery-card .record-views-card-corner{opacity:1;visibility:visible;transition:none}}
+.coss-ui .record-views-gallery-section .record-views-divider{display:flex;align-items:center;min-height:32px;padding:4px 8px}
+.coss-ui .record-views-title{gap:8px;align-items:center;font-family:var(--font-display,inherit);font-size:1.125rem;font-weight:500}
+.coss-ui .record-views-count{font-family:var(--font-primary,inherit);font-size:12px;line-height:16px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--t-font-color-tertiary)}
+.coss-ui .trillion-media-availability{max-width:24rem;color:var(--t-font-color-secondary);font-size:12px;line-height:1.35;white-space:normal;font-variant-numeric:tabular-nums}
+.coss-ui .record-views-board-column article{background:transparent;border-color:transparent}
+.coss-ui .record-views-board-column article:hover,.coss-ui .record-views-board-column article:focus-within{background:var(--t-background-transparent-light);border-color:var(--t-border-color-medium)}
+.coss-ui .record-view-tag-wrap{display:inline-flex;align-items:center;gap:0;max-width:100%;vertical-align:middle}
+.coss-ui .record-view-tag{color:var(--t-font-color-secondary);background:var(--t-background-transparent-light);border-color:var(--t-border-color-medium)}
+.coss-ui [data-slot=table] .record-view-tag{color:color-mix(in srgb,var(--t-font-color-primary) 65%,var(--t-font-color-secondary));background:transparent;border:0;padding:0 2px;font-weight:500}
+/* Inside a table a chip stays quiet, except one that needs the person: it keeps its amber or red badge, the same one
+   the decision itself shows, so "Your answer needed" is seen in a list without reading every row. */
+.coss-ui [data-slot=table] .record-view-tag:is([data-tone=warning],[data-tone=attention]){background:color-mix(in srgb,var(--color-warning) 11%,var(--color-background));border:1px solid color-mix(in srgb,var(--color-warning) 30%,transparent);color:color-mix(in srgb,var(--color-warning) 60%,var(--text-primary));padding:0 var(--t-spacing-2,8px)}
+.coss-ui [data-slot=table] .record-view-tag:is([data-tone=error],[data-tone=bad],[data-tone=danger]){background:color-mix(in srgb,var(--color-error) 9%,var(--color-background));border:1px solid color-mix(in srgb,var(--color-error) 28%,transparent);color:color-mix(in srgb,var(--color-error) 80%,var(--text-primary));padding:0 var(--t-spacing-2,8px)}
+.coss-ui [data-slot=table] .record-view-tag[data-filterable=true]:is(:hover,:focus-visible){color:var(--t-font-color-primary);text-decoration:underline;text-underline-offset:2px}
+.coss-ui .record-view-tag[data-filterable="true"]{cursor:pointer}
+.coss-ui .record-view-tag-count{max-width:0;overflow:hidden;opacity:0;transition:max-width 140ms ease,opacity 140ms ease;padding-inline:0;color:var(--t-font-color-tertiary);font-size:.72em;white-space:nowrap}
+.coss-ui .record-view-tag-wrap:hover .record-view-tag-count,.coss-ui .record-view-tag-wrap:focus-within .record-view-tag-count{max-width:5rem;opacity:1;padding-inline:.35rem}
+.coss-ui .record-view-tag-wrap[data-active="true"] .record-view-tag{box-shadow:0 0 0 1px currentColor}
+@media(prefers-reduced-motion:reduce){.coss-ui .record-view-tag-count{transition:none}}
+.mw-clip-surface .coss-action-cards{gap:0;margin-top:12px}
+.mw-clip-surface .coss-ui .coss-action-card{background:transparent;border:0;border-bottom:1px solid var(--t-border-color-medium);border-radius:0;box-shadow:none;padding:12px 0}
+.mw-clip-surface .coss-media-metadata{padding:12px 0;border-bottom:1px solid var(--t-border-color-medium);row-gap:8px}
+.mw-clip-surface .coss-action-card>p,.mw-clip-surface .coss-media-metadata-heading{margin:0 0 8px;color:var(--color-foreground);font-size:16px;font-weight:600;line-height:1.35}
+.mw-clip-surface .coss-action-card>small{display:block;color:var(--color-foreground);font-size:15px;line-height:1.55;white-space:pre-wrap}
+.mw-clip-surface .coss-media-metadata-heading{flex:0 0 100%;margin-bottom:0}
+
+/* Keep platform, account, and format levels visually distinct in dense pickers. */
+.coss-publication-destination-rail{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.coss-publication-destination-group{overflow:hidden}
+.coss-publication-destination-group-heading{background:color-mix(in srgb,var(--color-muted) 72%,var(--color-background))}
+.coss-publication-destination-group-heading:hover,.coss-publication-account-heading:hover{background:var(--color-accent)}
+.coss-publication-destination-group-heading small,.coss-publication-account-heading small{display:grid;place-items:center;min-width:22px;height:20px;padding:0 6px;border:1px solid var(--color-input);border-radius:var(--radius-chip, 0.375rem);background:var(--color-background);line-height:1}
+.coss-publication-destination-group[open]>.coss-publication-destination-group-heading{border-bottom:1px solid var(--color-input);border-radius:calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0}
+.coss-publication-account-list{gap:6px;padding:8px}
+.coss-publication-account{overflow:hidden;border:1px solid var(--color-input);border-radius:9px;background:color-mix(in srgb,var(--color-muted) 38%,var(--color-background))}
+.coss-publication-account-heading{padding:5px 8px}
+.coss-publication-account[open]>.coss-publication-account-heading{border-bottom:1px solid var(--color-input);background:color-mix(in srgb,var(--color-muted) 72%,var(--color-background))}
+.coss-publication-destination-choices{padding:6px 6px 8px}
+.coss-ui .coss-publication-destination[aria-pressed=true]{box-shadow:0 0 0 1px var(--color-primary) inset}
+.coss-ui .coss-publication-destination.is-unavailable{border-style:dashed;opacity:.82}
+.coss-publication-destination-status{grid-column:1/-1;color:var(--color-muted-foreground);font-size:11px}
+@media(max-width:700px){.coss-publication-destination-rail{grid-template-columns:minmax(0,1fr);max-height:min(38dvh,320px)}}
+@media(prefers-reduced-motion:reduce){.coss-publication-destination-group-heading>svg,.coss-publication-account-heading>svg{transition:none}}
+
+/* Openable text and marks. One token decides the hover colour of every link-like
+   thing (record titles, platform and account marks, the open arrow), so a
+   screen look changes them together. */
+:root{--link-hover-color:var(--accent-primary)}
+.coss-ui .record-views-open-link{text-decoration:underline;text-decoration-color:var(--t-border-color-medium,currentColor);text-underline-offset:3px;text-decoration-thickness:1px}
+.coss-ui .record-views-open-link:hover,.coss-ui .record-views-open-link:focus-visible{color:var(--link-hover-color);text-decoration-color:currentColor}
+.linked-identity{border-radius:var(--radius-chip)}
+.linked-identity-face{display:inline-flex;width:22px;height:22px;border-radius:var(--radius-chip);transition:transform .15s ease,box-shadow .15s ease}
+.linked-identity-face>*{width:100%;height:100%;min-width:0}
+.linked-identity-face[data-mark="provider"]{background:transparent}
+.linked-identity-fallback{background:var(--t-background-transparent-light,transparent);color:inherit}
+.linked-identity:hover .linked-identity-face,.linked-identity:focus-visible .linked-identity-face{transform:translateY(-1px);box-shadow:0 0 0 2px var(--link-hover-color)}
+.linked-identity-open-cue{width:12px;height:12px;color:var(--link-hover-color)}
+.coss-ui .record-views-caller-view{min-width:0}
+
+/* What kind of thing a record is. The tone keys come from
+   record-kind-appearance.json; each is one hue, drawn softly: tinted text and
+   icon over a faint wash of the same hue, so the kind reads at a glance without
+   competing with the title. A new tone is one line here. The same hues are the
+   colours a person gives a thing ([data-colour], ids from src/space-settings.json
+   colours): each line below also sets --record-kind for that colour, and
+   listing-card.css, collection-header.css and .colour-dot draw with it. */
+:root{--record-kind-blue:#6b9cf2;--record-kind-green:#4fbf8a;--record-kind-purple:#a98bf2;--record-kind-yellow:#e2b340;--record-kind-turquoise:#3fc1b0;--record-kind-grey:#9aa0a6;--record-kind-red:#e8736b;--record-kind-orange:#ec9a4c;--record-kind-pink:#e27bb4}
+/* The tone words other lists use (a status's success, warning, error, info) are the same hues, so a list that names
+   its states that way colours a map, a dot or a mark from this one palette too. */
+/* The look's own colour as a tone: a thing that should wear the worn look (a meeting on the calendar) names `accent`. */
+:root{--record-kind-accent:var(--accent-primary,var(--record-kind-blue))}
+:root{--record-kind-success:var(--record-kind-green);--record-kind-positive:var(--record-kind-green);--record-kind-warning:var(--record-kind-orange);--record-kind-attention:var(--record-kind-yellow);--record-kind-error:var(--record-kind-red);--record-kind-danger:var(--record-kind-red);--record-kind-bad:var(--record-kind-red);--record-kind-info:var(--record-kind-blue);--record-kind-neutral:var(--record-kind-grey);--record-kind-muted:var(--record-kind-grey)}
+.record-kind-mark{--record-kind:var(--record-kind-grey);display:inline-flex;align-items:center;gap:4px;flex-shrink:0;white-space:nowrap;font-weight:500;color:color-mix(in oklab,var(--record-kind) 70%,var(--text-primary,currentColor));background:color-mix(in oklab,var(--record-kind) 13%,transparent);border-color:color-mix(in oklab,var(--record-kind) 32%,transparent)}
+.record-kind-mark-icon{width:12px;height:12px;flex-shrink:0;color:var(--record-kind)}
+.record-kind-mark[data-compact]{padding-inline:4px}
+.record-kind-mark[data-tone="blue"],[data-colour="blue"]{--record-kind:var(--record-kind-blue)}
+.record-kind-mark[data-tone="green"],[data-colour="green"]{--record-kind:var(--record-kind-green)}
+.record-kind-mark[data-tone="purple"],[data-colour="purple"]{--record-kind:var(--record-kind-purple)}
+.record-kind-mark[data-tone="yellow"],[data-colour="yellow"]{--record-kind:var(--record-kind-yellow)}
+.record-kind-mark[data-tone="turquoise"],[data-colour="turquoise"]{--record-kind:var(--record-kind-turquoise)}
+.record-kind-mark[data-tone="red"],[data-colour="red"]{--record-kind:var(--record-kind-red)}
+.record-kind-mark[data-tone="orange"],[data-colour="orange"]{--record-kind:var(--record-kind-orange)}
+.record-kind-mark[data-tone="pink"],[data-colour="pink"]{--record-kind:var(--record-kind-pink)}
+.record-kind-mark[data-tone="accent"]{--record-kind:var(--record-kind-accent)}
+[data-colour="grey"]{--record-kind:var(--record-kind-grey)}
+.colour-dot[data-colour]{background:var(--record-kind)}
+.color-marker[data-color-marker-shape="spine"] { position: absolute; inset-inline-start: .25rem; inset-block: .2rem; width: .2rem; height: auto; border-radius: 999px; pointer-events: none; }
+.coss-project-tree-name .record-kind-mark{margin-left:auto}
+/* Lifecycle rules (ui/show/lifecycle-rules): a duration radiogroup, and rule
+ * cards that read as When … Then … sentences. */
+
+/* Settings sections of connections (Vercel sign-in methods, Linear connected
+   workspaces, 21st.dev Integrations 02): a card with a heading, a quiet
+   summary meter, and one row per service with its mark, name, formats, state
+   and one action. States share the record-kind tone hues. */
+.connection-section{border:1px solid var(--color-input);border-radius:12px;background:var(--color-card,transparent);overflow:hidden}
+.connection-section+.connection-section{margin-top:20px}
+.connection-section-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 20px 14px}
+.connection-section-heading h2{margin:0;font-size:15px;font-weight:600}
+.connection-section-heading p{margin:4px 0 0;max-width:560px;color:var(--color-muted-foreground);font-size:13px;line-height:1.45}
+.connection-section-summary{display:grid;gap:6px;justify-items:end;flex-shrink:0;color:var(--color-muted-foreground);font-size:12px;white-space:nowrap}
+.connection-section-meter{width:120px;height:4px;border:0;border-radius:999px;background:color-mix(in oklab,currentColor 14%,transparent)}
+.connection-section-meter::-webkit-meter-bar{background:color-mix(in oklab,currentColor 14%,transparent);border:0;border-radius:999px;height:4px}
+.connection-section-meter::-webkit-meter-optimum-value,.connection-section-meter::-webkit-meter-suboptimum-value,.connection-section-meter::-webkit-meter-even-less-good-value{background:var(--record-kind-green);border-radius:999px}
+.connection-section-rows{list-style:none;margin:0;padding:0;border-top:1px solid var(--color-input)}
+.connection-section-row{display:grid;grid-template-columns:32px minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:12px 20px}
+.connection-section-row+.connection-section-row{border-top:1px solid var(--color-input)}
+.connection-section-mark{display:inline-flex;width:32px;height:32px;align-items:center;justify-content:center;border-radius:8px;background:color-mix(in oklab,currentColor 6%,transparent)}
+.connection-section-copy{display:grid;gap:2px;min-width:0}
+.connection-section-copy strong{font-size:14px;font-weight:500}
+.connection-section-copy small{color:var(--color-muted-foreground);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.connection-section-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.connection-section-state{--record-kind:var(--record-kind-grey);gap:6px;color:color-mix(in oklab,var(--record-kind) 72%,var(--color-foreground,currentColor));background:color-mix(in oklab,var(--record-kind) 12%,transparent);border-color:color-mix(in oklab,var(--record-kind) 30%,transparent)}
+.connection-section-state::before{content:"";width:6px;height:6px;border-radius:999px;background:var(--record-kind)}
+.connection-section-state[data-tone="green"]{--record-kind:var(--record-kind-green)}
+.connection-section-state[data-tone="yellow"]{--record-kind:var(--record-kind-yellow)}
+.connection-section-state[data-tone="red"]{--record-kind:var(--record-kind-red)}
+.connection-section-state[data-tone="blue"]{--record-kind:var(--record-kind-blue)}
+.connection-section-action[data-tone="danger"]{color:var(--record-kind-red)}
+@container (max-width: 560px){.connection-section-row{grid-template-columns:32px minmax(0,1fr) auto}.connection-section-action{grid-column:2/-1;justify-self:start}.connection-section-header{flex-direction:column}.connection-section-summary{justify-items:start}}
+
+/* The profile reads as one settings card with its save action in a footer. */
+.coss-account-profile{max-width:720px}.coss-account-header{border-bottom:0;padding-bottom:20px}
+.coss-account-fields{border:1px solid var(--color-input);border-radius:12px;background:var(--color-card,transparent);overflow:hidden}
+.coss-account-fields>.coss-account-field{padding:16px 20px;margin:0;border-bottom:0}
+.coss-account-fields>.coss-account-field+.coss-account-field{border-top:1px solid var(--color-input)}
+.coss-account-save{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-direction:row-reverse;padding:12px 20px;border-top:1px solid var(--color-input);background:color-mix(in oklab,currentColor 3%,transparent);margin:0}
+
+/* A record's state (Waiting, Transcribing, Done, Failed): a quiet outline chip
+   with a coloured dot, sharing the record-kind tone hues. */
+.record-state-mark{--record-kind:var(--record-kind-grey);gap:6px;white-space:nowrap;font-weight:500;color:color-mix(in oklab,var(--record-kind) 72%,var(--color-foreground,currentColor));background:color-mix(in oklab,var(--record-kind) 10%,transparent);border-color:color-mix(in oklab,var(--record-kind) 28%,transparent)}
+.record-state-mark::before{content:"";flex:none;width:6px;height:6px;border-radius:999px;background:var(--record-kind)}
+.record-state-mark[data-tone="green"]{--record-kind:var(--record-kind-green)}
+.record-state-mark[data-tone="yellow"]{--record-kind:var(--record-kind-yellow)}
+.coss-selection-marquee{position:fixed;z-index:1000;pointer-events:none;border:1px solid var(--color-primary);border-radius:4px;background:color-mix(in srgb,var(--color-primary) 15%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--color-card) 70%,transparent)}
+.record-state-mark[data-tone="red"]{--record-kind:var(--record-kind-red)}
+.record-state-mark[data-tone="blue"]{--record-kind:var(--record-kind-blue)}
+
+/* Swipe cards use the same quiet surface, status colors and readable summary
+   spacing as the list they represent. */
+.record-views-swipe{display:grid;justify-items:center;gap:12px;width:min(100%,520px);margin-inline:auto}
+.record-views-swipe>[data-swipe-deck]{width:100%}
+.record-views-swipe-card{display:flex;height:100%;flex-direction:column;gap:12px;overflow:auto;border:1px solid var(--color-border);border-radius:16px;background:var(--color-card);padding:20px;color:var(--color-card-foreground)}
+.record-views-swipe-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.record-views-swipe-card-group{color:var(--color-muted-foreground);font-size:.75rem;font-weight:500}
+.record-views-swipe-card-title{min-width:0;overflow-wrap:anywhere;font-size:1.125rem;font-weight:600;line-height:1.35}
+.record-views-swipe-card-detail{margin:0;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--color-muted-foreground);line-height:1.55}
+.record-views-swipe-card-tour{margin-top:auto;border-top:1px solid var(--color-border);padding-top:10px;color:var(--color-muted-foreground);font-size:.8125rem}
+.record-views-swipe-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.record-views-swipe-help,.record-views-swipe-empty{margin:0;color:var(--color-muted-foreground);font-size:.8125rem;text-align:center}
+
+/* Designed views drawn as cards in cells (record-views/designs: design-parts, matrix, sprints), on a calendar or a
+   turning ring, all on the same quiet card surface and record-kind tones as the board. */
+.record-views-design-empty{margin:24px auto;color:var(--color-muted-foreground);font-size:.8125rem;text-align:center}
+.record-views-design-card{display:flex;min-width:0;flex-direction:column;gap:6px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-card);padding:8px 10px;color:var(--color-card-foreground);box-shadow:0 1px 2px color-mix(in srgb,var(--color-foreground) 6%,transparent)}
+.record-views-design-card[draggable=true]{cursor:grab}
+.record-views-design-card[draggable=true]:active{cursor:grabbing}
+.record-views-design-card:focus-visible{outline:2px solid var(--color-ring);outline-offset:2px}
+.record-views-design-card[data-size=large]{height:100%;gap:12px;border-radius:16px;padding:16px 18px;overflow:auto}
+.record-views-design-card-picture{overflow:hidden;border-radius:10px;aspect-ratio:16/10;background:var(--color-muted)}
+.record-views-design-card-picture>*{width:100%;height:100%;object-fit:cover}
+.record-views-design-card-head{display:flex;min-width:0;align-items:flex-start;justify-content:space-between;gap:8px}
+.record-views-design-card-title{min-width:0;height:auto;justify-content:flex-start;padding:0;white-space:normal;text-align:left;overflow-wrap:anywhere;font-weight:600;line-height:1.35}
+.record-views-design-card[data-size=large] .record-views-design-card-title{font-size:1.125rem}
+.record-views-design-card-detail{margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;color:var(--color-muted-foreground);font-size:.8125rem;line-height:1.5}
+.record-views-design-card[data-size=large] .record-views-design-card-detail{-webkit-line-clamp:8;font-size:.875rem}
+.record-views-placed{display:grid;grid-template-columns:repeat(var(--placed-columns),minmax(200px,1fr));gap:8px;min-width:0;overflow-x:auto;padding:12px var(--record-views-inset,16px) 24px}
+.record-views-placed[data-side-labels=true]{grid-template-columns:minmax(96px,140px) repeat(var(--placed-columns),minmax(200px,1fr))}
+.record-views-placed-row{display:contents}
+.record-views-placed-corner,.record-views-placed-column-label,.record-views-placed-row-label{color:var(--color-muted-foreground);font-size:.75rem;font-weight:600}
+.record-views-placed-column-label{position:sticky;top:0;z-index:1;padding:4px 2px;background:var(--color-background)}
+.record-views-placed-row-label{align-self:start;padding:8px 2px}
+.record-views-placed-row-header{grid-column:1/-1;margin-top:12px}
+.record-views-placed-cell{display:flex;min-height:96px;min-width:0;flex-direction:column;gap:8px;border:1px dashed transparent;border-radius:12px;background:color-mix(in srgb,var(--color-muted) 55%,transparent);padding:8px;transition:border-color .15s,background-color .15s}
+.record-views-placed-cell[data-drop-target=true]{border-color:var(--color-ring);background:color-mix(in srgb,var(--color-ring) 10%,var(--color-muted))}
+.record-views-matrix-axes{display:block;line-height:1.35}
+.record-views-sprint-head{display:grid;grid-template-columns:auto auto minmax(80px,1fr);align-items:center;gap:12px;font-size:.8125rem}
+.record-views-sprint-title{font-weight:600}
+.record-views-sprint-count{color:var(--color-muted-foreground);font-variant-numeric:tabular-nums}
+.record-views-placed-row-header[data-current=true] .record-views-sprint-title{color:var(--color-primary)}
+.record-views-calendar{display:flex;height:max(560px,calc(100dvh - 240px));min-height:0;flex-direction:column;padding:12px var(--record-views-inset,16px)}
+.record-views-carousel{padding:12px var(--record-views-inset,16px)}
+.record-views-carousel .source-rotating-face{height:330px}
+.record-views-carousel-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.record-views-document-section{margin:8px 0 0;color:var(--color-muted-foreground);font-size:.8125rem;font-weight:600}
+@media(prefers-reduced-motion:reduce){.record-views-placed-cell{transition:none}}
+/* Shared recording controls use the same focus token as other workspace controls. */
+[data-control="audio-seek"]:focus-visible,
+[data-control="audio-volume"]:focus-visible{outline:2px solid var(--border-focus);outline-offset:3px;border-radius:var(--radius-control)}
+/* Grouped navigation over caller-owned pages, including the Settings workspace. */
+.record-views-bar-actions:has(.record-views-toolbar-end) { max-width: min(60cqw, 52rem); }
+.record-views-toolbar-end { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; min-width: 0; }
+.record-views-primary-actions,
+.record-views-display-actions { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .25rem; min-width: 0; }
+@container record-views-bar (max-width: 700px) {
+  .record-views-bar-actions:has(.record-views-toolbar-end) { max-width: 100%; }
+}
+.sectioned-panels-host { height: 100%; min-height: 0; container-type: inline-size; }
+.sectioned-panels { display: grid; grid-template-columns: minmax(11rem, 15rem) minmax(0, 1fr); height: 100%; min-height: 0; }
+.sectioned-panels-navigation { overflow: auto; padding: 1rem .75rem; border-right: 1px solid var(--border-primary); }
+.sectioned-panels-group + .sectioned-panels-group { margin-top: 1.5rem; }
+.sectioned-panels-group-name { margin: 0 .5rem .5rem; font-size: .75rem; color: var(--text-muted); }
+.sectioned-panels-link { width: 100%; justify-content: flex-start; gap: .5rem; margin-top: .125rem; }
+.sectioned-panels-link[aria-current="page"] { background: var(--bg-tertiary); color: var(--text-primary); }
+.sectioned-panels-main { display: grid; grid-template-rows: minmax(0, 1fr) auto; min-width: 0; min-height: 0; }
+.sectioned-panels-main:has(.sectioned-panels-close) { grid-template-rows: auto minmax(0, 1fr) auto; }
+.sectioned-panels-close { display: flex; justify-content: flex-end; padding: .5rem .75rem 0; }
+.sectioned-panels-pages { min-width: 0; min-height: 0; overflow: auto; }
+.sectioned-panels-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; padding: .75rem 1rem 1rem; border-top: 1px solid var(--border-primary); }
+.sectioned-panels-step { display: grid; justify-items: start; gap: .125rem; height: auto; padding: .625rem .875rem; text-align: left; }
+.sectioned-panels-step[data-step="next"] { grid-column: 2; justify-items: end; text-align: right; }
+.sectioned-panels-step-direction { font-size: .75rem; color: var(--text-muted); }
+.sectioned-panels-step-name { font-weight: 500; }
+.sectioned-panels-page { height: 100%; min-height: 0; }
+.sectioned-panels-page[hidden] { display: none; }
+@container (max-width: 600px) {
+  .sectioned-panels { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .sectioned-panels-navigation { border-right: 0; border-bottom: 1px solid var(--border-primary); display: flex; flex-wrap: wrap; gap: 1rem; }
+  .sectioned-panels-group { flex: 1 1 11rem; min-width: 0; }
+  .sectioned-panels-group + .sectioned-panels-group { margin-top: 0; }
+}
+
+/* Shared record editing and the existing Coss notes popup. */
+.coss-ui .record-views-notes-popup {
+  width: min(42rem, calc(100vw - 2rem));
+  max-height: min(80vh, 48rem);
+}
+
+.record-views-edit-cell {
+  display: grid;
+  min-width: 0;
+  gap: var(--t-spacing-1);
+}
+
+.record-views-edit-error {
+  display: flex;
+  align-items: center;
+  gap: var(--t-spacing-2);
+  color: var(--t-font-color-danger, var(--t-font-color-error, currentColor));
+  font-size: var(--t-font-size-sm, 12px);
+}
+
+/* A toolbar that gives up what it can before it wraps: the row marks itself `data-collapse-labels`. Narrower than 46rem
+ * whatever it marks `data-collapsible-extra` (a stack of people, a count) goes; narrower than 34rem the words it marks
+ * `data-collapsible-label` go too and the icons and key hints stay. Every screen whose toolbar is marked this way gets
+ * the same behaviour. */
+[data-collapse-labels] { container-type: inline-size; container-name: collapse-labels; }
+@container collapse-labels (max-width: 46rem) { [data-collapsible-extra] { display: none; } }
+@container collapse-labels (max-width: 34rem) { [data-collapsible-label] { display: none; } }

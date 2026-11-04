@@ -1,0 +1,13 @@
+{
+  "_what": "Reading the same thing twice should cost nothing (read-data/capture-dedupe.mjs). Two tiers: an exact tier (the BLAKE3 of the text after `normalize`) and a near tier (a 64-bit SimHash over word groups; two texts are near when their hashes differ in at most `near_bits` bits). Memory is bounded by `most_entries` and by `remember_seconds`. Erasing a span forgets every hash first seen in it, so an erased capture cannot hide a later real one. The memory itself is the caller's: it is given as `entries` and answered as `entries`.",
+  "normalize": {
+    "lowercase": true,
+    "collapse_whitespace": true,
+    "strip_digits": false
+  },
+  "shingle_words": 3,
+  "near_bits": 6,
+  "least_words_for_near": 8,
+  "most_entries": 5000,
+  "remember_seconds": 86400
+}

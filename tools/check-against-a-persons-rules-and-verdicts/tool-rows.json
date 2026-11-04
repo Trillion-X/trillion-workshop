@@ -16,15 +16,50 @@
     "label": "Check words or anything made against a person's own rules and verdicts",
     "status": "active",
     "job": "Check words, a title, a script line or a plan against a person's own rules and the verdicts they already gave, and say pass, fail or uncertain for each, with why",
-    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
+    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's method rows (list:methods, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: the rows of their one Checks list (list:checks) whose method is that branch or a branch it extends, each branch read on its own, plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
     "input_schema": {
      "type": "object",
      "required": [
-      "rules",
       "units"
+     ],
+     "anyOf": [
+      {
+       "required": [
+        "rules"
+       ],
+       "not": {
+        "required": [
+         "branch"
+        ]
+       }
+      },
+      {
+       "required": [
+        "branch"
+       ],
+       "not": {
+        "anyOf": [
+         {
+          "required": [
+           "rules"
+          ]
+         },
+         {
+          "required": [
+           "verdict_rules"
+          ]
+         }
+        ]
+       }
+      }
      ],
      "additionalProperties": false,
      "properties": {
+      "branch": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The id of one of the person's method rows (list:methods) to check under, in place of rules and verdict_rules: its check rows, and those of every branch it extends, are read from the person's records"
+      },
       "rules": {
        "type": "array",
        "minItems": 1,
@@ -240,11 +275,60 @@
        "items": {
         "type": "string"
        }
+      },
+      "branch": {
+       "type": "string",
+       "description": "With branch: the branch checked under"
+      },
+      "lineage": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "With branch: the branch and every branch it extends, nearest first"
+      },
+      "rows_used": {
+       "type": "object",
+       "required": [
+        "branches",
+        "lists",
+        "skipped"
+       ],
+       "description": "With branch: the check rows read for each branch of the lineage, the rows of each check list read, and how many were left out as step rows or Off"
       }
      }
     },
     "invoke": {
      "kind": "container",
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "record:method",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:check",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "list",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "record:writing-voice",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     },
      "files": {
       "package_files": [
        {
@@ -254,6 +338,13 @@
          "read-data"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/records-door"
        },
        {
         "package": "judge-words",
@@ -382,6 +473,83 @@
       },
       "output_selector": "$.lines[2]",
       "contains": "They disagreed: \"not a word I use\""
+     },
+     {
+      "kind": "sample-run",
+      "input": {
+       "branch": "made-up-post",
+       "units": [
+        {
+         "text": "A sparkle of zorblax",
+         "kind": "title"
+        }
+       ]
+      },
+      "records": [
+       {
+        "id": "record:method:made-up-base",
+        "type": "record:method",
+        "value": {
+         "id": "made-up-base",
+         "name": "Any made-up thing"
+        }
+       },
+       {
+        "id": "record:method:made-up-post",
+        "type": "record:method",
+        "value": {
+         "id": "made-up-post",
+         "name": "A made-up post",
+         "extends": "made-up-base",
+         "judge_settings": {
+          "fold": {
+           "lowercase": true,
+           "collapse_space": true
+          },
+          "stage": {
+           "default": "final"
+          },
+          "stance_rule": "their-stance",
+          "novel": {
+           "rule": "novel",
+           "says": "Nothing of theirs judges this."
+          },
+          "agree_clears": {
+           "rules": []
+          }
+         }
+        }
+       },
+       {
+        "id": "record:check:no-sparkle",
+        "type": "record:check",
+        "value": {
+         "id": "no-sparkle",
+         "method": "made-up-base",
+         "words": [
+          "sparkle"
+         ],
+         "says": "No sparkle."
+        }
+       },
+       {
+        "id": "record:check:no-zorblax",
+        "type": "record:check",
+        "value": {
+         "id": "no-zorblax",
+         "method": "made-up-post",
+         "kinds": [
+          "title"
+         ],
+         "words": [
+          "zorblax"
+         ],
+         "says": "Never zorblax."
+        }
+       }
+      ],
+      "output_selector": "$.lineage[1]",
+      "contains": "made-up-base"
      }
     ]
    }

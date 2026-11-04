@@ -1,0 +1,12 @@
+{
+  "about": "What sealed records derive and how a sealed link carries its key (parts/sealed-records/do-work/sealed-records.mjs). contexts: the BLAKE3 derive-key context of each key a sealing key yields, one per use, so a key that seals names never seals record bodies (domain separation); changing a context makes every sealed name under it unreadable, so a new one is a new row with a new version, never an edit. names: the deterministic AES-SIV key (64 bytes) that seals a name or identity the same way every time under one key and scope, so a store can match, dedupe and compare-and-set opaque names it cannot read. name_longest: the most characters a sealed name holds. fragment_key: the URL fragment parameter a sealed link's key travels in; a fragment is never sent to a server. fragment_record: the fragment parameter that carries the record id the copy was sealed under, which a page opening the link needs (the id is part of what the key opens). file_reference_type: the record kind of a sealed file reference (the record that names a sealed file and carries its key). sealed_file_prefix: the record id prefix of a sealed file reference, followed by the file's sealed name. link_copy_longest: the most characters of ciphertext one sealed link copy carries.",
+  "contexts": {
+    "names": { "context": "Trillion sealed-records 2026-10-19 sealed names v1", "bytes": 64 }
+  },
+  "name_longest": 300,
+  "fragment_key": "k",
+  "fragment_record": "r",
+  "file_reference_type": "sealed-file-reference",
+  "sealed_file_prefix": "sealed-file:",
+  "link_copy_longest": 200000
+}

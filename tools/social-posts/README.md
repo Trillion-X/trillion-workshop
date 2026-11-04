@@ -23,6 +23,13 @@ signs a request with is ever in a record, a row or this code.
 | `tool:see-how-each-post-did` | How each place a post was published to did: that place's own counts (handed in), the visitors its link brought and what they bought (handed in, in tool:break-down-visits-and-sales' shape), joined by exact identity only | list `post` |
 | `tool:send-a-post-to-<place>` (one per place row: youtube, tiktok, instagram, facebook, instagram-facebook, threads, linkedin, substack, x, beehiiv, ghost) | Sends an approved post whose time has come to one destination (`account_id`, an account of that place's connection kind) and keeps where it went. The engine hands the run only that account's held values; each reaches only the place's hosts as the request leaves. Marked not known before sending, never sent twice. A post with a file hands the place that file from the person's files (media_from in its place row): a share it streams (address), the bytes streamed to it (stream), or the bytes as one piece (whole); a file no longer in their files is refused before anything leaves. Run at a post's time by `tool:send-each-post-at-its-time`, it is told the post's `armed_at` and sends nothing once the post no longer carries it. It posts publicly: run it only with the person's yes for that post | read and write `post`, read `connection`, share_file and read_file on the person's files |
 | `tool:send-each-post-at-its-time` | Runs on its own once the person switches on its wake (`at-its-time`, on their `post` records). For each changed post set to go at its time, it sets one run of the place's send row (the place row's `send_tool`) per destination still to be sent, at the post's `scheduled_for`, told its `armed_at`. A post taken back, changed or set again sends nothing at the old time. It sends nothing itself and nothing polls | read `post` and `connection`; it also holds the rights its sends need, because each send reaches only what the wake was granted |
+| `tool:save-a-snippet` | Keeps words the person sends again and again as a snippet (title, words with `{name}` blanks, tags), or changes one; `expected_set_at` refuses a change to a snippet saved since it was read. Sends nothing | read, list and write `snippet` |
+| `tool:find-snippets` | The person's snippets, newest used first, by the words in them or a tag, each with its blanks | read and list `snippet` |
+| `tool:use-a-snippet` | A snippet's words with the blanks given filled; each blank given no value is left as written and named back in `left_blank`. Counts the use; never rewrites the words | read, list and write `snippet` |
+| `tool:remove-a-snippet` | Removes one snippet | read, list and write `snippet` |
+| `tool:keep-a-thread-summary` | Keeps an AI's summary of one conversation, covering through `latest` (the newest message's id and time, handed in from the messages owner); keeping again replaces it | read, list and write `thread-summary` |
+| `tool:read-a-thread-summary` | The summary kept of one conversation, and how many of `message_times` (the conversation's newest message times, handed in) come after what it covers: `newer_messages`, `stale` | read and list `thread-summary` |
+| `tool:remove-a-thread-summary` | Removes the summary of one conversation; the messages are not touched | read, list and write `thread-summary` |
 
 ## Files
 
@@ -40,11 +47,16 @@ signs a request with is ever in a record, a row or this code.
 | `read-data/post-calendar.json` | The longest span one read covers (400 days) and how many unscheduled posts are shown (50). |
 | `read-data/post-results.mjs` | `seeHowEachPostDid`, run by the records door's export command: each delivery a post record says was posted (with the place's own post id) becomes one published row; observations, visits and conversions become the join's rows. |
 | `read-data/post-performance-attribution.ts` | `readPostPerformanceAttributionRows`, ported from bitfield-packages `packages/content-analytics`: the latest place count linked by the place row or the place's own post id, visits whose `utm_content` is exactly the post id, the place's post id or `post_id::account_id` and names one place only, and conversions of those visitors in the same project. Nothing missing becomes a zero. |
+| `read-data/snippets.mjs`, `read-data/snippets.json` | `makeSnippets`: save, list, use and remove a snippet over an `eeaf`, its record type, blank pattern, sizes and words as data. Moved byte for byte from trillion `src/snippets.mjs` and `src/snippets.json`. |
+| `read-data/thread-summaries.mjs`, `read-data/thread-summaries.json` | `makeThreadSummaries`: save, read and remove one conversation's summary over an `eeaf`, given the thread's `latest` and `newer`. Moved byte for byte from trillion `src/thread-summaries.mjs` and `src/thread-summaries.json`. |
+| `read-data/drafts-over-door.mjs` | The snippet and thread-summary rows: `heldEeafOver` (the `eeaf` both moved files call, `read`, `ids`, `write`, over records held in memory) and `passesOverDoor` (runs the moved code in passes, fetching through the records door each record or kind a pass missed, then sends the last pass's writes as one door write, each record that was read `expected` as read); `saveASnippet`, `findSnippets`, `useASnippet`, `removeASnippet`, `keepAThreadSummary`, `readAThreadSummary`, `removeAThreadSummary`. |
 | `tool-rows.json` | The rows. |
 | `test/send-a-post.test.mjs` | The sender against the fake records door and a stand-in place: sent once, the held value only in the place's own request and in no record, nothing before its time, not-known kept until resend, a file refused before anything leaves, the host guard, each send row's mounts in the order the sender reads them, and a post going at its time: one timed send per destination at its time, none for a post not set, removed or already sent, nothing sent by a timed send the post was taken back, changed or set again since, and the wake's rights equal to its sends'. |
 | `test/posts.test.mjs` | The posting rows against the fake records door: destinations, draft, check, approve as reviewed, set for its time with nothing sent, take back, the refusals; and each connection check asks with the value its place signs with, on one of that place's hosts. |
 | `test/post-calendar.test.mjs` | The calendar row against the fake records door: the span, the order, what can move, the refusals. |
 | `test/post-results.test.mjs` | The results row against the fake records door: per-place counts, visits and sales, the shared-token refusal, post_ids, refusals. |
+| `test/snippets.test.mjs`, `test/thread-summaries.test.mjs` | Trillion's tests of the two moved files, assertions unchanged, over `test/drafts-for-tests.mjs` (an in-memory `eeaf` standing in for trillion's `test/social-posts-for-tests.mjs`). Trillion's second test in each (the posts tools and page road, and the person store's thread ends from its messages owner) runs callers that stay in trillion and is not moved. |
+| `test/drafts-over-door.test.mjs` | The seven rows against the fake records door: save, find, use with a blank left, change, stale and empty refusals, remove; a summary kept through the latest message, fresh then stale by the message times, replaced, removed; and a write carrying each read record as `expected`. |
 | `test/post-performance-attribution.test.ts` | The join's own tests, carried from content-analytics. |
 
 ## Key Types / Functions
@@ -56,7 +68,16 @@ signs a request with is ever in a record, a row or this code.
 | Place row | `{ id, send_tool, platform, label, adapter, connection_vendor, options, account, hosts, media_from, default_settings, format }` | Where a post can go and what it takes. |
 | Observation | `{ post_id, account_id, metrics: { name: number }, observed_at? }` or `{ platform_post_id, account_id?, metrics }` | One place's own counts for one post, read with that place's tools. |
 | Result row | `{ post_id, account_id, title, platform_post_id, url, metrics, observed_at, brought?: { visits?, conversions?, value? }, evidence }` | What one published place did; `brought` holds only what was counted. |
+| Snippet record | id `snippet:<saved at>:<10 hex>`, type `snippet`, value `{ snippet_id, title, text, tags, set_at, uses, used_at? }` | Words the person sends again and again; `{name}` in `text` is a blank. |
+| Thread summary record | id `thread-summary:<app or ->:<conversation_id>`, type `thread-summary`, value `{ summary_id, app, conversation_id, summary, through_message_id, through_at, set_at }` | An AI's summary of one conversation and the message it covers through. |
 
 ## Dependencies
 
 **Depends on:** `tools/records-door`; `@opencoredev/social-sdk` 0.5.0 (MIT, locked in the Workshop's package-lock.json), packed by the send rows.
+
+## Moved from Trillion
+
+- `src/snippets.mjs`, `src/snippets.json` -> `read-data/snippets.mjs`, `read-data/snippets.json` (byte for byte); `test/snippets.test.mjs` -> `test/snippets.test.mjs`.
+- `src/thread-summaries.mjs`, `src/thread-summaries.json` -> `read-data/thread-summaries.mjs`, `read-data/thread-summaries.json` (byte for byte); `test/thread-summaries.test.mjs` -> `test/thread-summaries.test.mjs`.
+- Their words still name trillion's AI tools (`list_snippets`, `read_messages`, `save_thread_summary`); here those are `tool:find-snippets`, the messages owner's read, and `tool:keep-a-thread-summary`.
+- Trillion's `src/social-posts.mjs` (with `src/social-post-tools.mjs`, `src/work-posts.mjs` and the thread ends wired in `src/person-store.mjs`) still imports its own copies of both until it moves.
