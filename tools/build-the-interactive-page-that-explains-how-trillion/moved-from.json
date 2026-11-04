@@ -38,6 +38,14 @@
       "to": "tools/build-the-interactive-page-that-explains-how-trillion/scripts/build-anatomy-explainer.mjs",
       "source_identity": "1f:7b415d5f9cc3b2e6183c5e55b904959ff0a230332d11c39401a9401bebb06fab",
       "identity": "1f:7b415d5f9cc3b2e6183c5e55b904959ff0a230332d11c39401a9401bebb06fab"
+    },
+    {
+      "from": "parts/ui/show/server-rendered-page/escape-html.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/write-a-post-for-each-place/read-data/escape-html.mjs",
+      "source_identity": "1f:7735e3da0d51b4971f1f8ba7f7577d8b7de56bcf651941546e4e978636b4e144",
+      "identity": "1f:7735e3da0d51b4971f1f8ba7f7577d8b7de56bcf651941546e4e978636b4e144",
+      "reused": true
     }
   ]
 }
