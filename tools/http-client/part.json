@@ -1,0 +1,13 @@
+{
+  "public": [
+    "sender-config.json",
+    "do-work/public-address.mjs",
+    "do-work/same-origin.mjs",
+    "do-work/public-address.json",
+    "do-work/request-scopes.mjs",
+    "do-work/request-scopes.json",
+    "do-work/resolved-address.mjs",
+    "do-work/resolved-address.json",
+    "do-work/node-public-fetch.mjs"
+  ]
+}

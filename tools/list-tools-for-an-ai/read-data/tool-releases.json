@@ -1,0 +1,4 @@
+{
+  "_what": "How a Marketplace tool's releases are kept and chosen (src/tool-releases.mjs). A tool row may say `minimum_host_version`: the oldest Trillion (server.json `version`, the engine running the Workshop on the web or on a person's Mac) it runs on. Publishing a row that needs a newer Trillion than the maker's earlier releases keeps those earlier releases inside the published row (`earlier_releases`, newest first, one per minimum version), at most `keep_earlier` of them, so a Trillion that is not yet updated runs the newest release it can instead of failing.",
+  "keep_earlier": 8
+}

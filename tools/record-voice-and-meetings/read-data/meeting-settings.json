@@ -1,0 +1,247 @@
+{
+  "_what": "The words and limits of the meeting settings beyond when to start (meeting-start-settings.json): who the notes go to, smart pages, a calendar event for a recording made outside any event, the languages spoken, standing instructions for the person's AIs and words the speech model should spell right. They are kept in the same saved preference as the start mode (meeting-start-settings.json preference_key), under meeting_notes, transcription and ai_instructions. parts/record-audio/read-data/meeting-settings.mjs reads them; the Meeting recording screen draws them; src/account-transcription.mjs hears with the languages and words; src/share-destinations.mjs hands the chat instructions to the AI a share is sent to.",
+  "limits": {
+    "instructions_chars": 2000,
+    "words_count": 100,
+    "word_chars": 60,
+    "languages_count": 10,
+    "vocabulary_chars": 600
+  },
+  "notes": {
+    "title": "Meeting notes",
+    "description": "Who receives the notes after a recorded meeting.",
+    "label": "Send meeting notes to",
+    "default": "me",
+    "options": [
+      {
+        "id": "me",
+        "label": "Only me",
+        "description": "Keep the notes to yourself."
+      },
+      {
+        "id": "invitees",
+        "label": "Everyone invited",
+        "description": "Send the notes to everyone on the calendar event."
+      },
+      {
+        "id": "organization",
+        "label": "Organization",
+        "description": "Send the notes to everyone in your organization."
+      },
+      {
+        "id": "none",
+        "label": "None",
+        "description": "Do not send notes."
+      }
+    ]
+  },
+  "toggles": [
+    {
+      "id": "smart_pages",
+      "label": "Smart pages",
+      "description": "Turn each recorded meeting into a page with its notes, decisions and tasks.",
+      "default": false
+    },
+    {
+      "id": "adhoc_events",
+      "label": "Create calendar events for ad-hoc recordings",
+      "description": "A recording made outside any calendar event gets an event on your default calendar.",
+      "default": false
+    }
+  ],
+  "adhoc_event": {
+    "title": "Recording {time}",
+    "kept": "Added “{title}” to your calendar.",
+    "no_calendar": "No calendar you can add events to is connected, so this recording has no event.",
+    "failed": "The recording was saved, but its calendar event could not be added."
+  },
+  "languages": {
+    "title": "Preferred languages",
+    "description": "The languages you speak in meetings. One language is used to hear your recordings; with several, each recording's language is detected.",
+    "label": "Preferred languages",
+    "search_label": "Search languages",
+    "placeholder": "Search languages",
+    "none_chosen": "No language chosen. Each recording's language is detected.",
+    "none_found": "No language matches.",
+    "remove": "Remove {language}",
+    "options": [
+      {
+        "id": "en",
+        "label": "English"
+      },
+      {
+        "id": "es",
+        "label": "Spanish"
+      },
+      {
+        "id": "fr",
+        "label": "French"
+      },
+      {
+        "id": "de",
+        "label": "German"
+      },
+      {
+        "id": "it",
+        "label": "Italian"
+      },
+      {
+        "id": "pt",
+        "label": "Portuguese"
+      },
+      {
+        "id": "nl",
+        "label": "Dutch"
+      },
+      {
+        "id": "sv",
+        "label": "Swedish"
+      },
+      {
+        "id": "da",
+        "label": "Danish"
+      },
+      {
+        "id": "no",
+        "label": "Norwegian"
+      },
+      {
+        "id": "fi",
+        "label": "Finnish"
+      },
+      {
+        "id": "pl",
+        "label": "Polish"
+      },
+      {
+        "id": "cs",
+        "label": "Czech"
+      },
+      {
+        "id": "ro",
+        "label": "Romanian"
+      },
+      {
+        "id": "hu",
+        "label": "Hungarian"
+      },
+      {
+        "id": "el",
+        "label": "Greek"
+      },
+      {
+        "id": "tr",
+        "label": "Turkish"
+      },
+      {
+        "id": "ru",
+        "label": "Russian"
+      },
+      {
+        "id": "uk",
+        "label": "Ukrainian"
+      },
+      {
+        "id": "ar",
+        "label": "Arabic"
+      },
+      {
+        "id": "he",
+        "label": "Hebrew"
+      },
+      {
+        "id": "hi",
+        "label": "Hindi"
+      },
+      {
+        "id": "bn",
+        "label": "Bengali"
+      },
+      {
+        "id": "ur",
+        "label": "Urdu"
+      },
+      {
+        "id": "fa",
+        "label": "Persian"
+      },
+      {
+        "id": "id",
+        "label": "Indonesian"
+      },
+      {
+        "id": "ms",
+        "label": "Malay"
+      },
+      {
+        "id": "th",
+        "label": "Thai"
+      },
+      {
+        "id": "vi",
+        "label": "Vietnamese"
+      },
+      {
+        "id": "zh",
+        "label": "Chinese"
+      },
+      {
+        "id": "ja",
+        "label": "Japanese"
+      },
+      {
+        "id": "ko",
+        "label": "Korean"
+      },
+      {
+        "id": "tl",
+        "label": "Filipino"
+      },
+      {
+        "id": "sw",
+        "label": "Swahili"
+      },
+      {
+        "id": "af",
+        "label": "Afrikaans"
+      }
+    ]
+  },
+  "instructions": {
+    "title": "Custom instructions",
+    "description": "Standing instructions your AIs follow.",
+    "label": "Custom instructions",
+    "placeholder": "Tell your AIs how you like things done.",
+    "counter": "{count}/{max}",
+    "scopes_title": "Use these instructions for",
+    "scopes": [
+      {
+        "id": "chat",
+        "label": "AI Chat",
+        "default": true
+      },
+      {
+        "id": "summaries",
+        "label": "Meeting Summaries",
+        "default": true
+      },
+      {
+        "id": "drafts",
+        "label": "Email Drafts",
+        "default": true
+      }
+    ]
+  },
+  "words": {
+    "title": "Custom words",
+    "description": "Names and terms the speech model should spell correctly. Press Enter to add one.",
+    "label": "Custom words",
+    "placeholder": "Add a word",
+    "remove": "Remove {word}",
+    "none": "No custom words yet.",
+    "vocabulary_prefix": "Vocabulary: "
+  },
+  "saved": "Saved.",
+  "save_failed": "The meeting settings could not be saved.",
+  "save_after_ms": 800
+}

@@ -1,0 +1,159 @@
+{
+  "what_this_is": "The desktop apps use-an-app-here.mjs can work in on the person's own computer, each through the app's own tool server spoken to with the Model Context Protocol over standard input and output. A row is one server: `id` (what the tool's `app` input names), `label`, `about` (what it can do, in the person's words), `start` (the command that runs the server on this computer), `prepare` (run once when the server stops before it answers, as when it is not installed here yet), `env` (its server's settings: DAVINCI_RESOLVE_BRIDGE 1 keeps Resolve's server on the helper inside the open app, so it never starts Resolve itself), `needs_open` (the app program that must be running for an operation, as the ends of its paths in `processes`) and `opens` (how Trillion starts it when it is closed, with no one asked: `app` the name `open -a` takes, the row's label when absent; `ready` what must answer before the operation runs, such as `signed_health` with the `config` file of the app's loopback helper; `seconds` how long to wait, the file's `open_seconds` when absent): the app is launched in the background with `open -g -j -a`, without taking focus or showing a window, and if it does not come up the answer says so plainly, `places` (files the app itself runs, such as a script it loads when it opens: `file` beside this program, `into` one folder per platform as `{ platform, from, path }` where `from` names a base folder of the computer such as home, and `takes_effect` in the person's words), and how long it may take (`answer_seconds`, `prepare_seconds`; the file's own values when a row has none). `source` says where the server comes from and its licence. A `runtime` of `command` declares a server with no desktop app and requires its bounded local `check` to succeed before a native app job starts; an omitted runtime means `desktop` and keeps the installed-app row check. Whether a desktop app itself is on this computer, which version, and what that version allows are its row in computer/computer-sources.json. A new app is one row here.",
+  "protocol_version": "2025-06-18",
+  "client": { "name": "trillion", "version": "1" },
+  "answer_seconds": 240,
+  "prepare_seconds": 600,
+  "open_seconds": 90,
+  "apps": [
+    {"id":"filmcraft","label":"Filmcraft","about":"Cut, arrange and export videos in Filmcraft. Open files from the mounted Namespace in place and keep edits in one project.","platforms":["darwin-arm64","darwin-x64"],"check":["filmcraft-cli","--version"],"search_path":["~/.local/bin","/usr/local/bin","/opt/homebrew/bin"],"start":["filmcraft-cli","mcp"],"source":{"url":"https://github.com/storytold/filmcraft","licence":"Apache-2.0 OR MIT"}},
+    {
+      "id": "davinci-resolve",
+      "label": "DaVinci Resolve",
+      "about": "Work in the project DaVinci Resolve has open: projects, media pool, timelines and their clips, markers, colour, Fusion, Fairlight audio and rendering. Works in every edition: DaVinci Resolve Studio through its External scripting (Preferences > System > General, set to Local), and the free edition through a small helper Resolve runs itself when it opens, which this tool puts in Resolve's scripts folder.",
+      "start": ["npx", "--yes", "davinci-resolve-mcp@latest", "server"],
+      "env": { "DAVINCI_RESOLVE_BRIDGE": "1" },
+      "needs_open": { "processes": ["/Contents/MacOS/Resolve"] },
+      "opens": { "app": "DaVinci Resolve", "ready": { "signed_health": { "config": "~/.config/davinci-resolve-mcp/bridge.json" } } },
+      "prepare": ["npx", "--yes", "davinci-resolve-mcp@latest", "setup", "--clients", "manual", "--update-policy", "never"],
+      "places": [{ "file": "app-files/davinci-resolve/trillion-resolve-bridge.scriptlib", "into": [{ "platform": "darwin", "from": "home", "path": "Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts" }], "takes_effect": "the next time DaVinci Resolve opens" }],
+      "source": { "url": "https://github.com/samuelgursky/davinci-resolve-mcp", "package": "davinci-resolve-mcp", "licence": "MIT" }
+    },
+    {
+      "id": "davinci-resolve-files",
+      "label": "DaVinci Resolve project files",
+      "runtime": "command",
+      "check": ["npx", "--offline", "--no", "--call", "node -e 'const version=process.versions.node.split(\".\").map(Number);const [major,minor]=version;process.exit(version.length===3&&version.every(Number.isInteger)&&(major>20||(major===20&&minor>=9))?0:1)'"],
+      "search_path": ["/opt/homebrew/bin", "/usr/local/bin"],
+      "about": "Write and read DaVinci Resolve's own files without Resolve open: projects (.drp), timelines (.drt), grades (.drx), Fusion compositions, Fairlight audio plans, conform and deliverables, ready to import into any edition of Resolve, including the free one.",
+      "start": ["npx", "--yes", "--package", "davinci-resolve-mcp@4.10.4", "davinci-resolve-advanced-mcp"],
+      "source": { "url": "https://github.com/samuelgursky/davinci-resolve-mcp", "package": "davinci-resolve-mcp", "licence": "MIT" }
+    },
+    {
+      "id": "rea",
+      "label": "REA reverse engineering",
+      "runtime": "command",
+      "check": ["npx", "--offline", "--no", "--call", "node -e 'const version=process.versions.node.split(\".\").map(Number);const [major,minor]=version;process.exit(version.length===3&&version.every(Number.isInteger)&&((major===22&&minor>=19)||(major===24&&minor>=11)||major>=26)?0:1)'"],
+      "search_path": ["/opt/homebrew/bin", "/usr/local/bin"],
+      "about": "Take an app or file apart on this computer and explain how it works: inspect, decompile and explain native Mac, Linux and Windows programs, .NET, Android, Electron and JavaScript apps, firmware and websites. Native decompiling uses Hopper, Ghidra or IDA where one is installed; looking at a website or an Electron app while it runs uses a Chrome-family browser.",
+      "start": ["npx", "--yes", "rea-agents@6.4.0", "mcp"],
+      "answer_seconds": 600,
+      "source": { "url": "https://github.com/morluto/rea", "package": "rea-agents", "licence": "MIT" }
+    },
+    {
+      "id": "mflux",
+      "label": "Local image models",
+      "check": ["uv", "--version"],
+      "search_path": ["~/.local/bin", "/opt/homebrew/bin", "/usr/local/bin"],
+      "about": "Generate and edit images from a visual brief on an Apple Silicon Mac. Inference stays on this computer; no cloud inference or Trillion-paid model. MFLUX and its MCP wrapper are MIT; choose a model whose weight license permits your use. First use downloads the chosen model.",
+      "start": [
+        "uv",
+        "tool",
+        "run",
+        "--quiet",
+        "--python",
+        "3.12",
+        "--from",
+        "git+https://github.com/alampros/mflux-mcp.git@caa3fc3a928039357678d29cf89dd16c473fa8da",
+        "--with",
+        "mflux==0.22.0",
+        "mflux-mcp"
+      ],
+      "answer_seconds": 900,
+      "completion": {
+        "generate_image": {
+          "status_field": "status",
+          "done": "completed",
+          "failed": [
+            "failed",
+            "cancelled"
+          ],
+          "timeout_seconds": 900,
+          "interval_ms": 10000,
+          "poll": {
+            "operation": "get_job",
+            "arguments": {
+              "job_id": {
+                "reply": "job_id"
+              }
+            }
+          },
+          "cancel": {
+            "operation": "cancel_job",
+            "arguments": {
+              "job_id": {
+                "reply": "job_id"
+              }
+            }
+          }
+        },
+        "edit_image": {
+          "status_field": "status",
+          "done": "completed",
+          "failed": [
+            "failed",
+            "cancelled"
+          ],
+          "timeout_seconds": 900,
+          "interval_ms": 10000,
+          "poll": {
+            "operation": "get_job",
+            "arguments": {
+              "job_id": {
+                "reply": "job_id"
+              }
+            }
+          },
+          "cancel": {
+            "operation": "cancel_job",
+            "arguments": {
+              "job_id": {
+                "reply": "job_id"
+              }
+            }
+          }
+        },
+        "upscale_image": {
+          "status_field": "status",
+          "done": "completed",
+          "failed": [
+            "failed",
+            "cancelled"
+          ],
+          "timeout_seconds": 900,
+          "interval_ms": 10000,
+          "poll": {
+            "operation": "get_job",
+            "arguments": {
+              "job_id": {
+                "reply": "job_id"
+              }
+            }
+          },
+          "cancel": {
+            "operation": "cancel_job",
+            "arguments": {
+              "job_id": {
+                "reply": "job_id"
+              }
+            }
+          }
+        }
+      },
+      "source": {
+        "url": "https://github.com/alampros/mflux-mcp",
+        "commit": "caa3fc3a928039357678d29cf89dd16c473fa8da",
+        "package": "mflux-mcp",
+        "licence": "MIT",
+        "dependency": {
+          "url": "https://github.com/filipstrand/mflux",
+          "release_tag": "v.0.22.0",
+          "licence": "MIT"
+        }
+      },
+      "platforms": [
+        "darwin-arm64"
+      ]
+    }
+  ]
+}

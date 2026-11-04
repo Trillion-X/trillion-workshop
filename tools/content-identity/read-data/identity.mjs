@@ -31,6 +31,32 @@ export function makeHashCodeHexFromBytes(bytes) {
   return `1f:${bytesToHex(blake3(bytes))}`;
 }
 
+/**
+ * The same identity fed piece by piece as the pieces arrive (a file stream, a socket), without collecting them:
+ * `update(bytes)` as often as needed, then `identity()` once.
+ */
+export function makeHashCodeHasher() {
+  const hash = blake3.create();
+  return {
+    update(chunk) {
+      if (!(chunk instanceof Uint8Array)) throw new TypeError('Content identity requires byte chunks.');
+      hash.update(chunk);
+      return this;
+    },
+    identity: () => `1f:${bytesToHex(hash.digest())}`,
+  };
+}
+
+/**
+ * BLAKE3 in its keyed mode over bytes, as 64 hex digits: a message code that only a holder of the 32-byte key can
+ * make, never a content identity (the same bytes give a different code under every key).
+ */
+export function makeKeyedHashHexFromBytes(key, bytes) {
+  if (!(key instanceof Uint8Array) || key.length !== 32) throw new TypeError('A keyed hash requires a 32-byte key.');
+  if (!(bytes instanceof Uint8Array)) throw new TypeError('A keyed hash requires bytes.');
+  return bytesToHex(blake3(bytes, { key }));
+}
+
 /** Same identity from ordered byte chunks, without collecting the input. */
 export function makeHashCodeHexFromChunks(chunks) {
   const hash = blake3.create();

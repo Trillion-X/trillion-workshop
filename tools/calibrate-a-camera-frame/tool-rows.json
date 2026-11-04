@@ -1,0 +1,176 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:calibrate-a-camera-frame",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:calibrate-a-camera-frame",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Calibrate a camera frame",
+        "job": "Calibrate a camera's view of a court, table or screen once from four corners, so every later point is measured in that frame",
+        "description": "Give min_confidence (the floor an automatic result must reach) and detected ({ corners: four [x, y] in the order top-left, top-right, bottom-right, bottom-left, confidence }) as a corner detector gave it, or null; manual_corners (four [x, y] from a guided manual adjustment) are used when the automatic result is missing, too unsure or unusable. points ([[x, y]]) are mapped into the frame. Answers state (calibrated or needs_manual), source (auto or manual), the confidence seen, h (the projective map to the unit square) and failures: each failed automatic attempt with its reason, for the caller to keep as training data. Corners that are repeated or in a line are refused in words. It runs no detector and keeps nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "min_confidence"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "min_confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "detected": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "manual_corners": {
+              "type": [
+                "array",
+                "null"
+              ]
+            },
+            "points": {
+              "type": "array"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            },
+            "confidence": {
+              "type": "number"
+            },
+            "h": {
+              "type": "array"
+            },
+            "failures": {
+              "type": "array"
+            },
+            "points": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/calibrate-a-camera-frame",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/calibrate-a-camera-frame/do-work/calibrate-a-camera-frame.mjs",
+            "calibrateACameraFrame"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "calibrate-a-camera-frame",
+                "paths": [
+                  "do-work",
+                  "src"
+                ],
+                "at": "/opt/calibrate-a-camera-frame"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/frame-calibration.mjs at b92aa549f23873750ec918e86e7ed3896c9c4c0c, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "min_confidence": 0.8,
+              "detected": {
+                "corners": [
+                  [
+                    100,
+                    50
+                  ],
+                  [
+                    500,
+                    80
+                  ],
+                  [
+                    540,
+                    400
+                  ],
+                  [
+                    60,
+                    380
+                  ]
+                ],
+                "confidence": 0.95
+              },
+              "points": [
+                [
+                  100,
+                  50
+                ]
+              ]
+            },
+            "output_selector": "$.source",
+            "contains": "auto"
+          }
+        ]
+      }
+    }
+  ]
+}

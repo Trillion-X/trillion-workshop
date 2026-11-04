@@ -1,0 +1,21 @@
+{
+  "_what": "Problem reports sent from this computer (computer/sampled-report.mjs). `kinds` says how many reports of a kind are sent: `rate` is the share of launches that send (0 to 1), decided on this computer from the install and the launch so the same launch always decides the same way. `sinks` are where reports go: a sink may hold only an address and an ingest identifier, and its `scope` must be `ingest` (an identifier that can write a report and read nothing back). A sink row that holds anything else is refused when it is read. `scrub` rows remove this person's own paths and names from a report before it leaves.",
+  "kinds": {
+    "crash": { "rate": 0.5, "sink": "crashes" }
+  },
+  "sinks": [],
+  "allowed_sink_fields": ["id", "url", "ingest_id", "scope", "note"],
+  "scrub": [
+    { "pattern": "/Users/[^/\\s]+", "replace": "/Users/[user]" },
+    { "pattern": "/home/[^/\\s]+", "replace": "/home/[user]" },
+    { "pattern": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}", "replace": "[email]" }
+  ],
+  "max_chars": 20000,
+  "words": {
+    "sink_scope": "The sink {id} is not scoped to ingest, so it was not read.",
+    "sink_field": "The sink {id} holds {field}, which a shipped sink may not hold.",
+    "sink_url": "The sink {id} is not an https address.",
+    "no_sink": "No sink is set up for {kind} reports.",
+    "unknown_kind": "There is no report kind named {kind}."
+  }
+}

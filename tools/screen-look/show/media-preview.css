@@ -1,0 +1,269 @@
+/* packages/screen-look/show/media-preview.css
+ *
+ * Appearance of the shared MediaPreview (packages/ui/show/media-preview): the
+ * picture, waveform, text or type mark that stands in for one record. The
+ * preview fills whatever box its host gives it; the host decides the size.
+ *
+ * Shimmer: a highlight sweeping left to right across the placeholder while a
+ * picture or waveform loads, adapted from 21st.dev "Skeleton Loader"
+ * (animbits, id 19999) as a pure CSS transform so a hundred tiles cost no
+ * script. Text tiles follow the large muted passage with a small type mark
+ * seen in Higgsfield's asset grid; audio tiles follow the centred bar
+ * waveform in Descript's media library.
+ */
+
+.media-preview {
+  --media-preview-placeholder: var(--t-background-tertiary, rgb(0 0 0 / 0.06));
+  --media-preview-highlight: rgb(255 255 255 / 0.42);
+  --media-preview-ink: var(--t-font-color-tertiary, #5f6368);
+  --media-preview-muted: var(--t-font-color-light, #8a8f98);
+  --media-preview-bar: var(--t-font-color-tertiary, #5f6368);
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--t-border-radius-sm, 4px);
+  background-color: var(--media-preview-placeholder);
+  color: var(--media-preview-ink);
+  font-family: var(--t-font-family, inherit);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.media-preview-picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+}
+
+.media-preview[data-state='ready'] .media-preview-picture {
+  opacity: 1;
+}
+
+/* A document's first page shows whole on white, never cropped: a wide page is not cut at its sides. */
+.media-preview[data-renderer='document-page'] {
+  background-color: #fff;
+}
+
+.media-preview[data-renderer='document-page'] .media-preview-picture {
+  object-fit: contain;
+  object-position: top center;
+}
+
+.media-preview-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, var(--media-preview-highlight) 50%, transparent 100%);
+  transform: translateX(-100%);
+  animation: media-preview-shimmer 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes media-preview-shimmer {
+  to { transform: translateX(100%); }
+}
+
+.media-preview-waveform {
+  position: absolute;
+  inset: 12% 8%;
+  width: 84%;
+  height: 76%;
+}
+
+.media-preview-waveform-bar {
+  fill: var(--media-preview-bar);
+}
+
+.media-preview:is([data-renderer='text-snippet'], [data-renderer='markdown-snippet']) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--t-spacing-2, 8px);
+  /* A host that floats controls over the tile's top (a gallery card's select
+   * box and menu) names their height; the words start below them. */
+  padding-top: max(var(--t-spacing-2, 8px), var(--media-preview-overlay-top, 0px));
+}
+
+/* The passage takes the room above the type mark and never the mark's own
+ * line: a column with the passage allowed to shrink, clamped to whole lines
+ * that fit the tile (its max-height, rounded down to lines), so a small tile shows fewer
+ * lines instead of running words under "Note". One size for every tile,
+ * matching the type tile's title, never the page's body size. */
+.media-preview-snippet {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  flex: 0 1 auto;
+  min-height: 0;
+  /* Whole lines only: the room above the type mark (its 16px line and the 6px
+   * gap), rounded down to whole lines, never half a line. */
+  max-height: round(down, 100% - 22px, 16px);
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--media-preview-ink);
+  overflow-wrap: anywhere;
+}
+
+/* A written file's lines stay the lines it was written in. */
+.media-preview[data-renderer='text-snippet'] .media-preview-snippet {
+  white-space: pre-line;
+}
+
+/* A markdown passage reads as its words: a heading is a bold line, a quote an
+ * indented line with a rule beside it, a list its items; every block keeps the
+ * tile's one type size and line height, so the tile still holds whole lines. */
+.media-preview-snippet :is(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre) {
+  margin: 0;
+  font: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.media-preview-snippet :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 600;
+}
+
+.media-preview-snippet blockquote {
+  font-family: var(--font-display, inherit);
+  color: var(--media-preview-muted);
+}
+
+.media-preview-snippet :is(ul, ol) {
+  padding-inline-start: 14px;
+}
+
+.media-preview-snippet :is(code, pre) {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: inherit;
+  white-space: pre-wrap;
+}
+
+.media-preview-snippet hr {
+  display: none;
+}
+
+.media-preview:is([data-renderer='text-snippet'], [data-renderer='markdown-snippet']) .media-preview-type-mark {
+  flex: none;
+  margin-top: auto;
+}
+
+
+.media-preview-type {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: var(--t-spacing-2, 8px);
+  text-align: center;
+}
+
+.media-preview-type-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--media-preview-muted);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.media-preview-type-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.media-preview-type-title {
+  max-width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--media-preview-ink);
+  overflow-wrap: anywhere;
+}
+
+/* A tile smaller than a word (a table row's thumbnail) keeps only its icon. */
+@container (max-height: 40px) {
+  .media-preview-type-label,
+  .media-preview-type-title,
+  .media-preview-snippet {
+    display: none;
+  }
+}
+
+/* A tile narrower than a word (a file waiting in the message box, named beside it) keeps its icon with its type under
+ * it: a name there would show as its first few letters, and the type beside the icon would be cut at the edge. */
+@container (max-width: 64px) {
+  .media-preview-type {
+    padding: 4px;
+  }
+  .media-preview-type-mark {
+    flex-direction: column;
+  }
+  .media-preview-type-title {
+    display: none;
+  }
+}
+
+.media-preview {
+  container-type: size;
+}
+
+[data-look-scheme="dark"] .media-preview {
+  --media-preview-highlight: rgb(255 255 255 / 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-preview-shimmer {
+    animation: none;
+    transform: none;
+    background: var(--media-preview-highlight);
+    opacity: 0.4;
+  }
+
+  .media-preview-picture {
+    transition: none;
+  }
+}
+
+/* Scrubbing a video tile: the frame under the pointer, cut from a strip of
+ * small frames, covers the tile the way the still picture does (a frame of
+ * another shape is cropped, never stretched), with a thin bar along the bottom
+ * saying how far into the video it is. */
+.media-preview-scrub {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  container-type: size;
+}
+
+.media-preview-scrub-frame {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100cqw, calc(100cqh * var(--media-preview-frame-aspect, 1.7778)));
+  height: max(100cqh, calc(100cqw / var(--media-preview-frame-aspect, 1.7778)));
+  transform: translate(-50%, -50%);
+  background-repeat: no-repeat;
+}
+
+.media-preview-scrub-line {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgb(255 255 255 / 0.9);
+  box-shadow: 0 -1px 0 rgb(0 0 0 / 0.25);
+}

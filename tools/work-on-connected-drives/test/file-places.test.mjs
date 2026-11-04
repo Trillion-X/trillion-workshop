@@ -53,3 +53,20 @@ test('reports an incomplete read instead of claiming every place was checked', a
   assert.equal(answer.complete, false);
   assert.deepEqual(answer.unreadable, [{ path: path.join(root, 'Private'), error: 'EACCES' }]);
 });
+
+test('the person\'s own files are read through the run\'s door by identity, and a file not there is no place', async t => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'trillion-file-places-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const source = path.join(root, 'clip.mov'); await writeFile(source, 'same bytes');
+  const asked = [];
+  const door = known => ({ files: async (method, input) => {
+    asked.push([method, input]);
+    if (!known) throw Object.assign(new Error('No file with that name or identity is in your namespace.'), { code: 'namespace_not_found' });
+    return { identity: input.name_or_identity, names: ['/Projects/clip.mov'] };
+  } });
+  const places = createFilePlaces({ devices: async () => [{ mount: root, name: 'Drive' }], identityOf, candidates: async () => ({ paths: [], unreadable: [] }) });
+  const found = await places({ path: source }, { door: door(true) });
+  assert.deepEqual(found.places.at(-1), { kind: 'trillion-space', identity: 'test:same bytes', names: ['/Projects/clip.mov'] });
+  assert.deepEqual(asked[0], ['find_file', { name_or_identity: 'test:same bytes' }]);
+  assert.deepEqual((await places({ path: source }, { door: door(false) })).places.map(place => place.kind), ['drive']);
+});
