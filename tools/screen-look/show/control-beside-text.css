@@ -1,0 +1,7 @@
+/* A check beside text that can wrap sits on the text's first line, centred on it. A row that holds a check and its words
+   marks itself data-control-row and sets the words' size and leading on the row (--first-line-size, --first-line-leading,
+   which its words read too); the check then centres on one line of that leading with no typed offset: 1lh is the row's
+   own line height, --check-size the check's. The check's shape is --radius-check, a token of the look. */
+:root { --check-size: 1.125rem; }
+[data-control-row] { align-items: flex-start; }
+[data-control-row] > [data-slot='checkbox'] { margin-block-start: calc((1lh - var(--check-size)) / 2); }

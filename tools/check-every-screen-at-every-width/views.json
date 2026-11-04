@@ -1,0 +1,122 @@
+{
+  "_what": "budget_ms (none here; a screens file sets it in settings) is the longest a run may read before it stops and refuses with that reason. decided_colours are colours the person decided for their look: text on or in such a colour (within near, RGB distance, so a page darkened by Dark Reader still matches) whose weight is at least words_weight_at_least is judged at bar, and any contrast failure still left there is reported, not refused, because the check never makes anyone change a decided look value. What check-screens.mjs looks at every screen in, as DATA. A width is a window (its viewport, whether it is a phone with touch, and whether the page may scroll sideways at all: no_horizontal_scroll). A mode is how the person has their device set: only emulation fields, applied the same way for every mode (colour_scheme and forced_colors go to the browser's media emulation, darkreader is the options Dark Reader's own enable() takes, extension marks the mode that needs a real unpacked extension handed over with --extension and is skipped without one; apply says how the mode reaches the page: live is media emulation changed on a page already loaded, so every live mode of a screen at a width shares one load, and load is a mode that needs its own load because an init script or an extension acts while the page opens). thresholds are read by the probes: contrast_aa and contrast_aa_large are WCAG AA (large text is large_px or more, or large_bold_px or more at bold_weight or more); pixel_slack is how much of that ratio the brightest pixel of a glyph must reach where the colour behind text comes from the picture (anti-aliasing never paints the full colour of thin strokes); tolerance_px is the sub-pixel give every box comparison has; ring_px is how far outside a text box the picture is read for the ground behind it. system_font_names are the names of a font stack that asks for the platform's own font (ui-monospace, system-ui, a generic): text whose whole font-family is only such names is meant to be drawn by whatever font the platform has, so it never counts as a fallback (a stack that names a real page font first is still checked). always_allowed_fonts are the families a platform draws a character with that no page font has (emoji and symbols) and so never count as a fallback. animation_wait_ms is the longest a page is waited on for its running fades and transitions that end (ones that never end are left alone) before it is read. pool is how many pages are open at once, open_within_ms how long a page may take to open and idle_within_ms how long its requests may keep running before it is read anyway. A screens file (scripts/screen-matrix-screens.json of each deploy) names, per screen row, the families its CSS declares in fonts, so a platform font drawing its text is told apart from the font it asked for.",
+  "budget_ms": null,
+  "pool": 6,
+  "settle_ms": 100,
+  "animation_wait_ms": 2000,
+  "open_within_ms": 30000,
+  "idle_within_ms": 10000,
+  "max_scroll_steps": 80,
+  "decided_colours": [
+    {
+      "colour": [255, 29, 29],
+      "near": 48,
+      "words_weight_at_least": 600,
+      "bar": 3,
+      "why": "Decided 2026-10-08 (f69bdd22b): the strong action is the logo thread red #ff1d1d with white semibold words in every look, judged at the 3:1 bold-text bar. A decided look value is reported, never changed to pass this check."
+    }
+  ],
+  "thresholds": {
+    "contrast_aa": 4.5,
+    "contrast_aa_large": 3,
+    "large_px": 24,
+    "large_bold_px": 18.66,
+    "bold_weight": 700,
+    "pixel_slack": 0.85,
+    "tolerance_px": 1,
+    "ring_px": 2
+  },
+  "always_allowed_fonts": [
+    "Apple Color Emoji",
+    "Noto Color Emoji",
+    "Segoe UI Emoji",
+    "Apple Symbols",
+    "Symbola"
+  ],
+  "system_font_names": [
+    "ui-monospace",
+    "sfmono-regular",
+    "menlo",
+    "consolas",
+    "monospace",
+    "system-ui",
+    "ui-sans-serif",
+    "ui-serif",
+    "ui-rounded",
+    "-apple-system",
+    "blinkmacsystemfont",
+    "sans-serif",
+    "serif"
+  ],
+  "widths": [
+    {
+      "id": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mobile": true,
+      "no_horizontal_scroll": true
+    },
+    {
+      "id": "tablet",
+      "viewport": {
+        "width": 820,
+        "height": 1180
+      },
+      "mobile": false,
+      "no_horizontal_scroll": false
+    },
+    {
+      "id": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "mobile": false,
+      "no_horizontal_scroll": false
+    }
+  ],
+  "modes": [
+    {
+      "id": "light",
+      "colour_scheme": "light",
+      "apply": "live"
+    },
+    {
+      "id": "dark",
+      "colour_scheme": "dark",
+      "apply": "live"
+    },
+    {
+      "id": "forced",
+      "colour_scheme": "light",
+      "forced_colors": "active",
+      "apply": "live"
+    },
+    {
+      "id": "darkreader",
+      "colour_scheme": "light",
+      "darkreader": {
+        "brightness": 100,
+        "contrast": 100,
+        "sepia": 0
+      },
+      "apply": "live"
+    },
+    {
+      "id": "darkreader-extension",
+      "colour_scheme": "light",
+      "extension": true,
+      "apply": "load"
+    }
+  ],
+  "quiet_ms": 150,
+  "scroll_beat_ms": 60,
+  "craft_rules": [
+    "control_name",
+    "eyebrow",
+    "repeated_supporting_text",
+    "inline_icon_scale"
+  ]
+}

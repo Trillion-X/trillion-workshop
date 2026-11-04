@@ -1,0 +1,33 @@
+{
+  "groups": {
+    "insert": "Insert",
+    "move": "Move",
+    "layout": "Layout",
+    "more": "More",
+    "table": "Table"
+  },
+  "actions": {
+    "above": "Add above",
+    "below": "Add below",
+    "left": "Add left",
+    "right": "Add right",
+    "turn-into": "Turn into",
+    "duplicate": "Duplicate",
+    "move-up": "Move up",
+    "move-down": "Move down",
+    "spacing": "Block spacing",
+    "create-component": "Create component",
+    "connect": "Connect to\u2026",
+    "show-when": "Show when\u2026",
+    "float": "Float on canvas",
+    "collapse": "Collapse panel",
+    "expand": "Expand panel",
+    "delete": "Delete",
+    "insert-row-above": "Insert row above",
+    "insert-row-below": "Insert row below",
+    "insert-column-left": "Insert column left",
+    "insert-column-right": "Insert column right",
+    "delete-row": "Delete row",
+    "delete-column": "Delete column"
+  }
+}

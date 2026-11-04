@@ -1,0 +1,33 @@
+/* parts/screen-look/show/canvas-edit.css: the look of Edit on canvas (src/workspace/canvas-edit-screen.tsx), a thing laid
+   out as its parts on the canvas with the picked part's fields beside it (anatomy from MagicPath's visual edit mode and
+   Klaviyo's editor on Mobbin). The panel sits beside the canvas in a wide pane and over its lower part in a narrow one;
+   both follow the pane, never the window. */
+.trillion-canvas-edit { height: 100%; min-height: 0; }
+.canvas-edit { container: canvas-edit / inline-size; height: 100%; min-height: 0; padding: 12px; gap: 8px; }
+.canvas-edit__head, .canvas-edit__hint { padding-inline: 4px; }
+.canvas-edit__body { position: relative; flex: 1 1 auto; min-height: 0; gap: 12px; }
+.canvas-edit__stage { position: relative; flex: 1 1 auto; min-width: 0; min-height: 420px; }
+/* The lasso a Shift-drag draws over the canvas. */
+.canvas-edit__lasso {
+  position: absolute; z-index: 3; pointer-events: none; border: 1px solid var(--accent-primary); border-radius: 4px;
+  background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+}
+.canvas-edit__panel {
+  flex: 0 0 340px; min-width: 0; overflow: auto; border: 1px solid var(--border-primary); border-radius: 14px;
+  background: var(--glass-bg-popover, var(--bg-primary)); box-shadow: var(--surface-shadow-raised);
+}
+@container canvas-edit (max-width: 720px) {
+  .canvas-edit__panel { position: absolute; left: 0; right: 0; bottom: 0; max-height: 58%; z-index: 4; }
+}
+/* The picked part, ringed wherever it is drawn on the canvas. */
+.canvas-edit [data-canvas-picked] { outline: 2px solid var(--accent-primary); outline-offset: 3px; border-radius: 6px; }
+.canvas-edit [data-canvas-piece] { cursor: pointer; }
+.canvas-edit [data-canvas-piece] [data-walkthrough-copy]:hover, .canvas-edit [data-canvas-piece] [data-nav-role]:hover {
+  outline: 1px dashed color-mix(in srgb, var(--accent-primary) 70%, transparent); outline-offset: 3px; border-radius: 6px;
+}
+/* A screen laid out as its row: drawn on the sidebar's own ground so it reads as it does there. */
+.canvas-edit .canvas-edit__screen-row {
+  width: 100%; padding: 4px; border-radius: 10px; background: var(--sidebar, var(--bg-secondary, var(--bg-primary)));
+  border: 1px solid var(--border-primary);
+}
+.canvas-edit [data-canvas-piece] .canvas-edit__screen-row:hover { outline: 1px dashed color-mix(in srgb, var(--accent-primary) 70%, transparent); outline-offset: 3px; }

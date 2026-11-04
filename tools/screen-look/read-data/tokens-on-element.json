@@ -1,0 +1,12 @@
+{
+  "_what": "Which properties of an element count when finding the look tokens it wears, in the order the card offers them, and the word the card says for each (read by tokens-on-element.ts). A token is worn on a property when changing that token changes that property of the element.",
+  "properties": {
+    "background-color": "Fill",
+    "color": "Text",
+    "border-top-color": "Border",
+    "outline-color": "Outline",
+    "fill": "Icon fill",
+    "stroke": "Icon line",
+    "border-top-left-radius": "Corners"
+  }
+}

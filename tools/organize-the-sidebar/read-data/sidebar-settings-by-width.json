@@ -1,0 +1,13 @@
+{
+  "_what": "What the window's sidebar offers at each width. Every row whose narrower_than_px is wider than the window applies its settings, a narrower row winning (sidebar-settings.ts sidebarSettingsAtWidth); a switch no row names stays on. The switch names are SIDEBAR_SWITCHES: position, collapse, undock, hide, resize, stay_open, rail. On a phone the sidebar keeps its Position control, so it can sit on any side, and drops Show / Hide, which needs a pointer resting on the screen's edge to bring it back; it starts collapsed and collapses again after a screen is chosen, so it never covers the work. Collapsed, it is the thin bar on whichever edge or seam it sits at every width (sidebar-bar.json); a width row may still turn the bar on an edge off (`rail`), leaving only its handle.",
+  "rows": [
+    {
+      "id": "phone",
+      "narrower_than_px": 768,
+      "settings": {
+        "hide": false,
+        "stay_open": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "_what": "Model servers a person's other computers offer to this one (computer/offered-endpoints.mjs, asked after this computer's own servers by computer/local-models.mjs askLocal). The person keeps `sets` in `file`: each set is { id, label, offered_from, allowed_hosts, model, timeout_seconds? }, where `offered_from` is a text file (an https address or a path) listing one chat-completions address per line (# starts a comment). A line is accepted only if its scheme is in `schemes` and its host is one of the set's `allowed_hosts` (a name, or *.suffix); a set with none allows only `default_allowed_hosts`, this computer, so nothing leaves it until the person names another of their own computers. Accepted lines become rows tried in order after this computer's servers; the answer says which one served it (`served_by`) and the read's report says what each set offered, accepted and refused with the reason. `most_bytes` bounds the offered file, `fetch_seconds` how long it is waited for, `most_endpoints` how many lines a set may offer.",
+  "file": "~/.trillion/computer-sources/offered-model-endpoints.json",
+  "default_allowed_hosts": ["127.0.0.1", "localhost", "::1"],
+  "schemes": ["http:", "https:"],
+  "most_bytes": 8192,
+  "most_endpoints": 8,
+  "fetch_seconds": 5,
+  "default_timeout_seconds": 60,
+  "words": {
+    "not_allowed": "{host} is not one of the hosts you allowed",
+    "bad_scheme": "{scheme} is not an address scheme this computer uses for models",
+    "not_an_address": "it is not an address",
+    "too_many_lines": "more than {most} addresses were offered; the rest are ignored",
+    "unreadable": "the offered file could not be read: {why}"
+  }
+}

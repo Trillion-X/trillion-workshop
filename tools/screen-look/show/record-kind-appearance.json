@@ -1,0 +1,157 @@
+{
+  "_what": "How each kind of record looks wherever it appears: an icon name, a short label and a tone. The key is the record's own record_kind, written by the producer that made the record. A kind with no row here still draws, with its key made readable and the fallback icon and tone, so a producer can introduce a kind before anyone styles it.",
+  "fallback": {
+    "icon": "File",
+    "tone": "grey"
+  },
+  "kinds": {
+    "sealed": {
+      "label": "Sealed",
+      "icon": "Lock",
+      "tone": "grey"
+    },
+    "original": {
+      "label": "Original",
+      "icon": "Camera",
+      "tone": "blue"
+    },
+    "library-file": {
+      "label": "Original",
+      "icon": "File",
+      "tone": "grey"
+    },
+    "edit-project": {
+      "label": "Project",
+      "icon": "Clapperboard",
+      "tone": "purple"
+    },
+    "export": {
+      "label": "Export",
+      "icon": "FileVideo",
+      "tone": "green"
+    },
+    "draft": {
+      "label": "Draft",
+      "icon": "PencilLine",
+      "tone": "yellow"
+    },
+    "clip": {
+      "label": "Clip",
+      "icon": "Scissors",
+      "tone": "turquoise"
+    },
+    "transcript": {
+      "label": "Transcript",
+      "icon": "Captions",
+      "tone": "orange"
+    },
+    "post": {
+      "label": "Post",
+      "icon": "Send",
+      "tone": "pink"
+    },
+    "note": {
+      "label": "Note",
+      "icon": "StickyNote",
+      "tone": "turquoise"
+    },
+    "format": {
+      "label": "Format",
+      "icon": "LayoutTemplate",
+      "tone": "grey"
+    },
+    "decision": {
+      "label": "Decision",
+      "icon": "Compass",
+      "tone": "purple"
+    },
+    "pursuit": {
+      "label": "Goal",
+      "icon": "TrendingUp",
+      "tone": "green"
+    },
+    "message": {
+      "label": "Message",
+      "icon": "MessagesSquare",
+      "tone": "blue"
+    }
+  },
+  "states": {
+    "queued": {
+      "label": "Waiting",
+      "tone": "grey"
+    },
+    "paused": {
+      "label": "Paused",
+      "tone": "grey"
+    },
+    "running": {
+      "label": "In progress",
+      "tone": "yellow"
+    },
+    "pausing": {
+      "label": "Pausing",
+      "tone": "yellow"
+    },
+    "cancelling": {
+      "label": "Stopping",
+      "tone": "yellow"
+    },
+    "cancelled": {
+      "label": "Stopped",
+      "tone": "grey"
+    },
+    "interrupted": {
+      "label": "Interrupted",
+      "tone": "red"
+    },
+    "failed": {
+      "label": "Failed",
+      "tone": "red"
+    },
+    "complete": {
+      "label": "Done",
+      "tone": "green"
+    },
+    "no_speech": {
+      "label": "No speech",
+      "tone": "grey"
+    },
+    "planning": {
+      "label": "Planning",
+      "tone": "yellow"
+    },
+    "preparing": {
+      "label": "Preparing",
+      "tone": "yellow"
+    },
+    "rendering": {
+      "label": "Rendering",
+      "tone": "yellow"
+    },
+    "draft": {
+      "label": "Not scheduled",
+      "tone": "grey"
+    },
+    "scheduled": {
+      "label": "Scheduled",
+      "tone": "blue"
+    },
+    "published": {
+      "label": "Published",
+      "tone": "green"
+    }
+  },
+  "kind_states": {
+    "transcript": {
+      "running": {
+        "label": "Transcribing"
+      }
+    },
+    "draft": {
+      "complete": {
+        "label": "Ready"
+      }
+    }
+  }
+}

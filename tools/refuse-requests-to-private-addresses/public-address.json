@@ -1,0 +1,35 @@
+{
+  "about": "Addresses this service never sends a request to (src/public-address.mjs): this computer, private and shared networks, link-local and cloud-metadata addresses, and names only a private network resolves. A new range or name is a row here.",
+  "max_redirects": 5,
+  "private_names": ["localhost", "local", "internal", "intranet", "lan", "home", "home.arpa", "corp", "private", "localdomain"],
+  "blocked_ipv4": [
+    { "range": "0.0.0.0/8", "is": "this network" },
+    { "range": "10.0.0.0/8", "is": "private network" },
+    { "range": "100.64.0.0/10", "is": "shared address space (carrier NAT)" },
+    { "range": "127.0.0.0/8", "is": "this computer" },
+    { "range": "169.254.0.0/16", "is": "link-local, including cloud metadata 169.254.169.254" },
+    { "range": "172.16.0.0/12", "is": "private network" },
+    { "range": "192.0.0.0/24", "is": "protocol assignments" },
+    { "range": "192.0.2.0/24", "is": "documentation" },
+    { "range": "192.168.0.0/16", "is": "private network" },
+    { "range": "198.18.0.0/15", "is": "benchmarking" },
+    { "range": "198.51.100.0/24", "is": "documentation" },
+    { "range": "203.0.113.0/24", "is": "documentation" },
+    { "range": "224.0.0.0/4", "is": "multicast" },
+    { "range": "240.0.0.0/4", "is": "reserved and broadcast" }
+  ],
+  "blocked_ipv6": [
+    { "range": "::/128", "is": "unspecified" },
+    { "range": "::1/128", "is": "this computer" },
+    { "range": "fc00::/7", "is": "unique local (private network)" },
+    { "range": "fe80::/10", "is": "link-local" },
+    { "range": "ff00::/8", "is": "multicast" },
+    { "range": "2001:db8::/32", "is": "documentation" },
+    { "range": "fd00:ec2::254/128", "is": "cloud metadata" }
+  ],
+  "ipv4_inside_ipv6": [
+    { "prefix": "::ffff:0:0", "is": "IPv4-mapped" },
+    { "prefix": "64:ff9b::", "is": "IPv4/IPv6 translation" },
+    { "prefix": "::", "is": "IPv4-compatible (deprecated)" }
+  ]
+}

@@ -1,0 +1,747 @@
+{
+  "_what": "The kinds of thing the Marketplace screen (src/workspace/marketplace-screen.tsx, through src/work-marketplace.mjs) shows on one shelf, in the order they are shown. Each kind says where its rows come from and how a row reads as a shelf item. rows.from is one of the readers the Worker hands in: `store` (a route of the person's own store, the same one their AI calls: method, path, body, and the list inside the reply at `list`, read whole and paged by the Marketplace route) or `page` (a /work/api route of this Worker read with the same session, which pages itself: `query` names the parameters it takes for the search, the offset and the limit, and `total` where its reply says how many there are). fields: for each shelf fact, the paths to try in a row, the first one filled wins. preview: a truthful renderer plus source-row paths; the shared detail view renders the row's actual image, look colours, or layout arrangement. made_by_words: the words the source uses for who made a row, as the person reads them. mine: the paths to a row's fact that says it is the person's own, and the values that mean yes. facts: more labelled facts a card shows, each read from its paths. published.from `pool` names the shared shelf (src/pool.mjs publishedRows) and `shelf` which of its shelves holds this kind; a row this account published there is shown as published. published.from `deploy` (an installable kind with no shelf) means Trillion ships the rows in the deploy (records/starting-set-records.json, src/starting-catalog.mjs), read with no pool read; `deploy: true` on a pool kind (tool, workflow) says Trillion ships some of that kind too, which are looked for in the deploy first. Installable kinds are never shown on the shelf; a Marketplace configuration may hold them (src/marketplace-configurations.mjs). open: the screen a row opens in and the input key its id is given under; null when no screen opens one yet. publish and withdraw: how one of the person's own rows is published or withdrawn: `from` the reader (store or page), the method, the path, and whether its id goes in the body under `id_field` or at the end of the path (`id_in`). A kind that is not published separately (every row of it is already on the shelf) only withdraws. use: what anyone can do with any row of the kind (wear a look), the same route shape with its verb `id`; optional `input_from` maps row values into extra fields required by its owner. verbs: the words each verb shows on a card and a row (label, icon) and says once it is done or has failed; a verb a kind names must have its words here. Adding a kind is a row here, never a change to the screen or the route. link: a web address a row carries to its original (only http and https addresses are shown), with the words and icon the card's button uses. filters: where a self-paging kind's reply lists the fields a person can narrow it by, each field's id, label and choices (a choice is its own words, or { id, label }); a chosen value is sent back to that kind's route as a parameter named by the field's id. rows.query.fixed (optional, `page` kinds): constant parameters the kind always sends with its read, such as which one list of a shared route it shows; a chosen filter or a search never overrides one, so two kinds can share a route and each show only its own list.",
+  "page": {
+    "default_limit": 60,
+    "max_limit": 200
+  },
+  "installable": [
+    { "id": "public-app", "one": "Public app", "published": { "shelf": "public-app" }, "install": { "version": "declared", "action": "public-app" } },
+    { "id": "rule", "one": "Rule", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "event-rule-template", "one": "Event rule", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "module", "one": "Account module", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "program", "one": "Mac program", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "oauth-client", "one": "Sign-in client", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "computer-source", "one": "Computer source", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "hold-default", "one": "Hold default", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "local-model-server", "one": "Local model server", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "video-fetcher", "one": "Video fetcher", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "speech-engine", "one": "Speech engine", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "model-field", "one": "Model field", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "dns-template", "one": "DNS template", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "favicon-template", "one": "Favicon template", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "storage-origin", "one": "Storage origin", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "seed-catalog", "one": "Starting catalog", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } },
+    { "id": "ai-harness", "one": "AI harness", "published": { "from": "deploy" }, "install": { "version": "deploy", "action": "deploy" } }
+  ],
+  "who": [
+    {
+      "id": "everyone",
+      "label": "Everyone's",
+      "icon": "Globe"
+    },
+    {
+      "id": "mine",
+      "label": "Yours",
+      "icon": "UserRound"
+    }
+  ],
+  "badges": {
+    "published": {
+      "label": "Published",
+      "tone": "good"
+    },
+    "mine": {
+      "label": "Yours",
+      "tone": "info"
+    }
+  },
+  "facts": {
+    "price": {
+      "label": "Price",
+      "icon": "CircleDollarSign"
+    },
+    "runs": {
+      "label": "Runs",
+      "icon": "History",
+      "words": [
+        "{n} run",
+        "{n} runs"
+      ]
+    }
+  },
+  "verbs": {
+    "add": { "label": "Add to layouts", "icon": "LayoutGrid", "done": "was added to your Layouts menu", "failed": "could not be added to your Layouts menu" },
+    "publish": {
+      "label": "Publish",
+      "icon": "Upload",
+      "done": "is published for everyone",
+      "failed": "could not be published"
+    },
+    "withdraw": {
+      "label": "Withdraw",
+      "icon": "Undo2",
+      "done": "is withdrawn",
+      "failed": "could not be withdrawn"
+    },
+    "wear": {
+      "label": "Wear",
+      "icon": "Palette",
+      "done": "is now your look",
+      "failed": "could not be worn"
+    }
+  },
+  "kinds": [
+    {
+      "id": "tool",
+      "label": "Tools",
+      "one": "Tool",
+      "icon": "Wrench",
+      "rows": {
+        "from": "store",
+        "method": "POST",
+        "path": "/tools/list",
+        "body": {},
+        "list": [
+          "tools"
+        ]
+      },
+      "fields": {
+        "id": [
+          [
+            "tool_id"
+          ]
+        ],
+        "title": [
+          [
+            "title"
+          ],
+          [
+            "name"
+          ],
+          [
+            "label"
+          ]
+        ],
+        "job": [
+          [
+            "description"
+          ],
+          [
+            "job"
+          ]
+        ],
+        "made_by": [
+          [
+            "source",
+            "api"
+          ],
+          [
+            "made_by"
+          ]
+        ],
+        "price": [
+          [
+            "price"
+          ]
+        ],
+        "runs": [
+          [
+            "earlier_runs",
+            "runs"
+          ]
+        ],
+        "picture": []
+      },
+      "facts": [
+        { "label": "Licence", "icon": "Scale", "from": [["source", "licence"]] }
+      ],
+      "link": { "label": "See the original", "icon": "ExternalLink", "from": [["source", "url"]] },
+      "filters": null,
+      "made_by_words": {
+        "this account": "You",
+        "shared": "Trillion",
+        "another account": "Another account",
+        "a registry": "A public registry",
+        "a public source": "A public source"
+      },
+      "mine": {
+        "field": [
+          [
+            "made_by"
+          ]
+        ],
+        "is_one_of": [
+          "this account"
+        ]
+      },
+      "published": {
+        "from": "pool",
+        "shelf": "tool",
+        "deploy": true
+      },
+      "install": { "version": "workshop", "action": "tool" },
+      "open": {
+        "surface": "trillion.workshop-tool",
+        "input": "id"
+      },
+      "publish": {
+        "from": "store",
+        "method": "POST",
+        "path": "/tools/publish",
+        "id_in": "body",
+        "id_field": "tool_id",
+        "inputs": ["usage_price", "show_on_public_site"],
+        "price_label": "Price for each completed run (USD)",
+        "site_label": "Show on public website"
+      },
+      "withdraw": {
+        "from": "store",
+        "method": "POST",
+        "path": "/tools/unpublish",
+        "id_in": "body",
+        "id_field": "tool_id"
+      },
+      "use": null
+    },
+    {
+      "id": "workflow",
+      "label": "Workflows",
+      "one": "Workflow",
+      "icon": "Workflow",
+      "rows": {
+        "from": "store",
+        "method": "POST",
+        "path": "/workflows/find",
+        "body": {},
+        "list": [
+          "workflows"
+        ]
+      },
+      "fields": {
+        "id": [
+          [
+            "workflow_id"
+          ]
+        ],
+        "title": [
+          [
+            "label"
+          ]
+        ],
+        "job": [
+          [
+            "job"
+          ]
+        ],
+        "made_by": [
+          [
+            "source",
+            "author"
+          ],
+          [
+            "made_by"
+          ]
+        ],
+        "price": [],
+        "runs": [],
+        "picture": []
+      },
+      "facts": [
+        { "label": "Licence", "icon": "Scale", "from": [["source", "licence"]] },
+        { "label": "Use", "icon": "BookOpen", "from": [["source", "use"]] },
+        { "label": "Made from", "icon": "GitFork", "from": [["made_from_labels"]] },
+        { "label": "Variations", "icon": "GitBranch", "from": [["variation_count"]] }
+      ],
+      "link": { "label": "See the original", "icon": "ExternalLink", "from": [["source", "url"]] },
+      "filters": null,
+      "made_by_words": {
+        "this account": "You",
+        "Trillion": "Trillion",
+        "a public repository": "A public repository",
+        "another account": "Another account"
+      },
+      "mine": {
+        "field": [
+          [
+            "made_by"
+          ]
+        ],
+        "is_one_of": [
+          "this account"
+        ]
+      },
+      "published": {
+        "from": "pool",
+        "shelf": "workflow",
+        "deploy": true
+      },
+      "install": { "version": "workflow", "action": "workflow" },
+      "open": {
+        "surface": "trillion.workflow",
+        "input": "id"
+      },
+      "publish": {
+        "from": "store",
+        "method": "POST",
+        "path": "/workflows/publish",
+        "id_in": "body",
+        "id_field": "workflow_id"
+      },
+      "withdraw": {
+        "from": "store",
+        "method": "POST",
+        "path": "/workflows/unpublish",
+        "id_in": "body",
+        "id_field": "workflow_id"
+      },
+      "use": null
+    },
+    {
+      "id": "studied-screen",
+      "label": "Screens",
+      "one": "Screen",
+      "icon": "PanelsTopLeft",
+      "rows": {
+        "from": "page",
+        "path": "/work/api/shared-library",
+        "list": [
+          "rows"
+        ],
+        "total": [
+          "total"
+        ],
+        "query": {
+          "search": "q",
+          "offset": "offset",
+          "limit": "limit",
+          "max_limit": 50,
+          "who": "who",
+          "fixed": {
+            "dataset": "studied-screens"
+          }
+        }
+      },
+      "fields": {
+        "id": [
+          [
+            "id"
+          ]
+        ],
+        "title": [
+          [
+            "title"
+          ]
+        ],
+        "job": [
+          [
+            "fields",
+            "anatomy"
+          ],
+          [
+            "dataset"
+          ]
+        ],
+        "made_by": [
+          [
+            "fields",
+            "app"
+          ],
+          [
+            "added_by"
+          ]
+        ],
+        "price": [],
+        "runs": [],
+        "picture": [
+          [
+            "image_url"
+          ]
+        ]
+      },
+      "facts": [
+        {
+          "label": "Platform",
+          "icon": "Monitor",
+          "from": [
+            [
+              "fields",
+              "platform"
+            ]
+          ]
+        },
+        {
+          "label": "Kind of screen",
+          "icon": "PanelsTopLeft",
+          "from": [
+            [
+              "fields",
+              "screen_kind"
+            ]
+          ]
+        },
+        {
+          "label": "Patterns",
+          "icon": "Shapes",
+          "from": [
+            [
+              "fields",
+              "patterns"
+            ]
+          ]
+        }
+      ],
+      "preview": { "type": "screen" },
+      "link": {
+        "label": "See the original",
+        "icon": "ExternalLink",
+        "from": [
+          [
+            "fields",
+            "source_url"
+          ]
+        ]
+      },
+      "filters": {
+        "list": [
+          "datasets"
+        ],
+        "fields": [
+          "fields"
+        ],
+        "id": [
+          "id"
+        ],
+        "label": [
+          "label"
+        ],
+        "choices": [
+          "choices"
+        ]
+      },
+      "made_by_words": {},
+      "mine": {
+        "field": [
+          [
+            "yours"
+          ]
+        ],
+        "is_one_of": [
+          true
+        ]
+      },
+      "published": null,
+      "open": null,
+      "publish": null,
+      "withdraw": {
+        "from": "page",
+        "method": "DELETE",
+        "path": "/work/api/shared-library",
+        "id_in": "path"
+      },
+      "use": null
+    },
+    {
+      "id": "design-component",
+      "label": "Components",
+      "one": "Component",
+      "icon": "Puzzle",
+      "rows": {
+        "from": "page",
+        "path": "/work/api/shared-library",
+        "list": [
+          "rows"
+        ],
+        "total": [
+          "total"
+        ],
+        "query": {
+          "search": "q",
+          "offset": "offset",
+          "limit": "limit",
+          "max_limit": 50,
+          "who": "who",
+          "fixed": {
+            "dataset": "design-components"
+          }
+        }
+      },
+      "fields": {
+        "id": [
+          [
+            "id"
+          ]
+        ],
+        "title": [
+          [
+            "title"
+          ]
+        ],
+        "job": [
+          [
+            "fields",
+            "kind"
+          ],
+          [
+            "fields",
+            "category"
+          ]
+        ],
+        "made_by": [
+          [
+            "fields",
+            "source"
+          ]
+        ],
+        "price": [],
+        "runs": [],
+        "picture": [
+          [
+            "image_url"
+          ]
+        ]
+      },
+      "facts": [
+        {
+          "label": "Licence",
+          "icon": "Scale",
+          "from": [
+            [
+              "fields",
+              "licence"
+            ]
+          ]
+        },
+        {
+          "label": "Made for",
+          "icon": "Layers",
+          "from": [
+            [
+              "fields",
+              "frameworks"
+            ]
+          ]
+        },
+        {
+          "label": "May be shipped",
+          "icon": "BadgeCheck",
+          "from": [
+            [
+              "fields",
+              "can_ship"
+            ]
+          ]
+        }
+      ],
+      "link": {
+        "label": "See the original",
+        "icon": "ExternalLink",
+        "from": [
+          [
+            "fields",
+            "item_url"
+          ],
+          [
+            "fields",
+            "docs_url"
+          ],
+          [
+            "fields",
+            "source_url"
+          ]
+        ]
+      },
+      "filters": {
+        "list": [
+          "datasets"
+        ],
+        "fields": [
+          "fields"
+        ],
+        "id": [
+          "id"
+        ],
+        "label": [
+          "label"
+        ],
+        "choices": [
+          "choices"
+        ]
+      },
+      "made_by_words": {},
+      "mine": {
+        "field": [
+          [
+            "yours"
+          ]
+        ],
+        "is_one_of": [
+          true
+        ]
+      },
+      "published": null,
+      "open": null,
+      "publish": null,
+      "withdraw": {
+        "from": "page",
+        "method": "DELETE",
+        "path": "/work/api/shared-library",
+        "id_in": "path"
+      },
+      "use": null
+    },
+    {
+      "id": "look",
+      "label": "Looks",
+      "one": "Look",
+      "icon": "Palette",
+      "rows": {
+        "from": "store",
+        "method": "POST",
+        "path": "/looks/shelf",
+        "body": {},
+        "list": [
+          "looks"
+        ]
+      },
+      "fields": {
+        "id": [
+          [
+            "look_id"
+          ]
+        ],
+        "title": [
+          [
+            "name"
+          ]
+        ],
+        "job": [
+          [
+            "description"
+          ]
+        ],
+        "made_by": [
+          [
+            "made_by"
+          ]
+        ],
+        "price": [],
+        "runs": [],
+        "picture": []
+      },
+      "facts": [
+        {
+          "label": "Background",
+          "icon": "PaintBucket",
+          "from": [
+            [
+              "colours",
+              "background"
+            ]
+          ]
+        },
+        {
+          "label": "Text",
+          "icon": "Type",
+          "from": [
+            [
+              "colours",
+              "text"
+            ]
+          ]
+        },
+        {
+          "label": "Accent",
+          "icon": "Palette",
+          "from": [
+            [
+              "colours",
+              "accent"
+            ]
+          ]
+        }
+      ],
+      "preview": { "type": "look", "fields": { "colours": [["colours"]] } },
+      "link": null,
+      "filters": null,
+      "made_by_words": {
+        "this account": "You",
+        "Trillion": "Trillion",
+        "another account": "Another account"
+      },
+      "mine": {
+        "field": [
+          [
+            "made_by"
+          ]
+        ],
+        "is_one_of": [
+          "this account"
+        ]
+      },
+      "published": {
+        "from": "pool",
+        "shelf": "look"
+      },
+      "open": null,
+      "publish": {
+        "from": "store",
+        "method": "POST",
+        "path": "/looks/publish",
+        "id_in": "body",
+        "id_field": "look_id"
+      },
+      "withdraw": {
+        "from": "store",
+        "method": "POST",
+        "path": "/looks/withdraw",
+        "id_in": "body",
+        "id_field": "look_id"
+      },
+      "use": {
+        "id": "wear",
+        "from": "store",
+        "method": "POST",
+        "path": "/looks/wear",
+        "id_in": "body",
+        "id_field": "look_id"
+      }
+    },
+    {
+      "id": "layout",
+      "label": "Layouts",
+      "one": "Layout",
+      "icon": "LayoutGrid",
+      "rows": { "from": "page", "path": "/work/api/marketplace/layouts", "list": ["rows"], "total": ["total"], "query": { "search": "q", "offset": "offset", "limit": "limit" } },
+      "fields": { "id": [["id"]], "title": [["name"]], "job": [["description"]], "made_by": [["made_by"]], "price": [], "runs": [], "picture": [] },
+      "preview": { "type": "layout", "fields": { "arrangement": [["arrangement"]], "screen_labels": [["screen_labels"]] } },
+      "facts": [], "link": null, "filters": null,
+      "made_by_words": { "Trillion": "Trillion" },
+      "mine": null, "published": null, "open": null, "publish": null, "withdraw": null,
+      "use": {
+        "id": "add", "from": "store", "method": "POST", "path": "/layouts/save", "id_in": "none",
+        "inputs": ["layout"],
+        "input_from": { "layout": { "id": [["id"]], "name": [["name"]], "icon": [["icon"]], "arrangement": [["arrangement"]] } }
+      }
+    },
+    {
+      "id": "configuration",
+      "label": "Installable setups",
+      "one": "Installable setup",
+      "icon": "PackagePlus",
+      "rows": {
+        "from": "page",
+        "path": "/work/api/marketplace/configurations",
+        "query": { "search": "q", "offset": "offset", "limit": "limit" },
+        "list": ["rows"],
+        "total": ["total"]
+      },
+      "fields": {
+        "id": [["id"]],
+        "title": [["title"]],
+        "job": [["description"]],
+        "made_by": [["made_by"]],
+        "price": [], "runs": [], "picture": []
+      },
+      "facts": [],
+      "link": { "from": [["url"]], "label": "Preview and install", "icon": "ArrowUpRight" },
+      "filters": null,
+      "made_by_words": { "this account": "You", "another account": "Another account" },
+      "mine": { "field": [["made_by"]], "is_one_of": ["this account"] },
+      "published": null,
+      "open": null,
+      "publish": null,
+      "withdraw": null,
+      "use": null
+    }
+  ]
+}

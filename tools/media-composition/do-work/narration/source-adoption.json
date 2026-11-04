@@ -1,0 +1,302 @@
+{
+  "schema": "licensed-source-adoption/v1",
+  "owner": "parts/media-composition",
+  "adopted_on": "2026-10-27",
+  "upstream": "Showtime 0.4.5",
+  "copyright": "2026 Favio Vazquez",
+  "license": "MIT",
+  "license_file": "LICENSE",
+  "scope": "Narration script, local alignment and readback; no renderer, launcher, CLI, installer or MCP service adopted",
+  "source_policy": "Old tree remains read-only migration input. This source owner is the only editable narration implementation used by author-voice-script.mjs.",
+  "files": [
+    {
+      "path": "LICENSE",
+      "migration_input": "LICENSE",
+      "source_blake3": "1f:3bf50667dec90ace35356713d6e1684a053420288ff18b68af6f68a0f9341c1e",
+      "adopted_blake3": "1f:3bf50667dec90ace35356713d6e1684a053420288ff18b68af6f68a0f9341c1e",
+      "changed": false
+    },
+    {
+      "path": "README.md",
+      "origin": "New integration source",
+      "adopted_blake3": "1f:3af1054bc88a83b7d1f7d58364f5589036cef669c492a52384391f5c058ab071"
+    },
+    {
+      "path": "identity.mjs",
+      "origin": "New integration source",
+      "adopted_blake3": "1f:46428516f0c837c83c793cd718ed4d568207f29043672ad4f70f92e7d5ca16ec"
+    },
+    {
+      "path": "lib/st/__init__.py",
+      "migration_input": "skills/showtime/lib/st/__init__.py",
+      "source_blake3": "1f:7ed88285385a633686a3018476c14b07de377836b50f56105074d7c984928e4d",
+      "adopted_blake3": "1f:7ed88285385a633686a3018476c14b07de377836b50f56105074d7c984928e4d",
+      "changed": false
+    },
+    {
+      "path": "lib/st/captions_rules.py",
+      "migration_input": "skills/showtime/lib/st/captions_rules.py",
+      "source_blake3": "1f:93d85a6ca8c1997014fbd2dfbadfb7fa543c17823f0b1afc1ae4f71a86f337fc",
+      "adopted_blake3": "1f:93d85a6ca8c1997014fbd2dfbadfb7fa543c17823f0b1afc1ae4f71a86f337fc",
+      "changed": false
+    },
+    {
+      "path": "lib/st/common.py",
+      "migration_input": "skills/showtime/lib/st/common.py",
+      "source_blake3": "1f:799393a8553bcb99023ab4d02c1a200d01ed5832f01dd2987c97efe61b2b1a1b",
+      "adopted_blake3": "1f:0f2f73a145f9d0476661b3c6d982297e831e525ef4f563d25d80cc631c36e426",
+      "changed": true,
+      "adaptation": "Unused checksum API removed; no internal SHA-256 identity minting."
+    },
+    {
+      "path": "lib/st/content_hash.py",
+      "origin": "New integration source",
+      "adopted_blake3": "1f:dc191369da302e1e0b2692dbeafb4b46118f2ca00110db1d2ed78e1912872752"
+    },
+    {
+      "path": "lib/st/ff.py",
+      "migration_input": "skills/showtime/lib/st/ff.py",
+      "source_blake3": "1f:7d72d3858ab56069167caa6432a0a2ed4eda0bbe3f8bd2da9810d886e6312287",
+      "adopted_blake3": "1f:7d72d3858ab56069167caa6432a0a2ed4eda0bbe3f8bd2da9810d886e6312287",
+      "changed": false
+    },
+    {
+      "path": "lib/st/footage/__init__.py",
+      "migration_input": "skills/showtime/lib/st/footage/__init__.py",
+      "source_blake3": "1f:4030ef29fecad47de8595901df8a35982cec64b0c7e4bb183d19991aac512465",
+      "adopted_blake3": "1f:4030ef29fecad47de8595901df8a35982cec64b0c7e4bb183d19991aac512465",
+      "changed": false
+    },
+    {
+      "path": "lib/st/footage/asr_models.py",
+      "migration_input": "skills/showtime/lib/st/footage/asr_models.py",
+      "source_blake3": "1f:ad5ca1d94af167e469bdd0c2bae05bd5e74f01dbf96087c19c9c07fd56346488",
+      "adopted_blake3": "1f:ad5ca1d94af167e469bdd0c2bae05bd5e74f01dbf96087c19c9c07fd56346488",
+      "changed": false
+    },
+    {
+      "path": "lib/st/footage/fillers.py",
+      "migration_input": "skills/showtime/lib/st/footage/fillers.py",
+      "source_blake3": "1f:2fa4d0650ec73a6c55c798bd72ef490ac0dc0faeff2681028e5404e8520ea3c8",
+      "adopted_blake3": "1f:2fa4d0650ec73a6c55c798bd72ef490ac0dc0faeff2681028e5404e8520ea3c8",
+      "changed": false
+    },
+    {
+      "path": "lib/st/footage/transcribe.py",
+      "migration_input": "skills/showtime/lib/st/footage/transcribe.py",
+      "source_blake3": "1f:50a65e97d476e81add7595eedff514e9a394d496a9f833192661c059e5c3d6b2",
+      "adopted_blake3": "1f:010b25af2601e5ce92bd8e062cbb80d529b093817d73ffe7aa382e3b48fbdb82",
+      "changed": true,
+      "adaptation": "New cache keys use shared BLAKE3 owner; absent Whisper model refuses downloads."
+    },
+    {
+      "path": "lib/st/footage/util.py",
+      "migration_input": "skills/showtime/lib/st/footage/util.py",
+      "source_blake3": "1f:319b4e0a43e0430382103dc6a1d778eb14b6e66a7e9f16fb4d1d250ef13e57bd",
+      "adopted_blake3": "1f:c4dc2a08073b83e851cd70f03e491609592b3180ed1827e40ca19adc9ee199d7",
+      "changed": true,
+      "adaptation": "Sampled media cache fingerprint uses shared BLAKE3 owner; not an exact full-file identity."
+    },
+    {
+      "path": "lib/st/lazy.py",
+      "migration_input": "skills/showtime/lib/st/lazy.py",
+      "source_blake3": "1f:c94674bd65eef80496967216852aad9bdf5a30d4077b0c66adcc2da9a312794f",
+      "adopted_blake3": "1f:0c25001f33904706f8d4c823162a3cf2a1295083bbda7102bc9f8a7c7b94f72b",
+      "changed": true,
+      "adaptation": "Readiness only; installer and download behavior removed."
+    },
+    {
+      "path": "lib/st/platform.py",
+      "migration_input": "skills/showtime/lib/st/platform.py",
+      "source_blake3": "1f:a053518b876e256b9df912f96e972177c1f387826d68a3ee1dc3698f81a563bb",
+      "adopted_blake3": "1f:a053518b876e256b9df912f96e972177c1f387826d68a3ee1dc3698f81a563bb",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/__init__.py",
+      "migration_input": "skills/showtime/lib/st/voice/__init__.py",
+      "source_blake3": "1f:0af0e2788cce07efbb3d49d602d39cb02a153658738a1ffea99bbce5a9e185d4",
+      "adopted_blake3": "1f:0af0e2788cce07efbb3d49d602d39cb02a153658738a1ffea99bbce5a9e185d4",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/align.py",
+      "migration_input": "skills/showtime/lib/st/voice/align.py",
+      "source_blake3": "1f:48fd75020e2da1f31edd34733c331545b4705e2bb20c130d4ab7cea9d5470a22",
+      "adopted_blake3": "1f:48fd75020e2da1f31edd34733c331545b4705e2bb20c130d4ab7cea9d5470a22",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/audio_io.py",
+      "migration_input": "skills/showtime/lib/st/voice/audio_io.py",
+      "source_blake3": "1f:907582591df79b2af1e6589edf442b3222385db6f78bb1b79ad65f90108ccd49",
+      "adopted_blake3": "1f:907582591df79b2af1e6589edf442b3222385db6f78bb1b79ad65f90108ccd49",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/engines/__init__.py",
+      "migration_input": "skills/showtime/lib/st/voice/engines/__init__.py",
+      "source_blake3": "1f:7d271648af395de70e706312118e14b8248049ed791b683a7f93afdd4265dbb3",
+      "adopted_blake3": "1f:a1886074cb68641b9b832b963f15fb1a3acee700ad068ec246dc10310ef0d18a",
+      "changed": true,
+      "adaptation": "Error hints describe the adopted source boundary."
+    },
+    {
+      "path": "lib/st/voice/engines/base.py",
+      "migration_input": "skills/showtime/lib/st/voice/engines/base.py",
+      "source_blake3": "1f:602bfde0dee0f23c22f9a1f408b97f288659fdbc094dec0337b45b1949358721",
+      "adopted_blake3": "1f:602bfde0dee0f23c22f9a1f408b97f288659fdbc094dec0337b45b1949358721",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/engines/kokoro.py",
+      "migration_input": "skills/showtime/lib/st/voice/engines/kokoro.py",
+      "source_blake3": "1f:1b350bf07987841d275b1397f7f401605bc109afd702063e5b0caf730dad39fa",
+      "adopted_blake3": "1f:1b350bf07987841d275b1397f7f401605bc109afd702063e5b0caf730dad39fa",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/engines/piper.py",
+      "migration_input": "skills/showtime/lib/st/voice/engines/piper.py",
+      "source_blake3": "1f:798ab498985292f6ad5c2a092f58ca070e21521153ccffe6ab0b16aad0af2419",
+      "adopted_blake3": "1f:798ab498985292f6ad5c2a092f58ca070e21521153ccffe6ab0b16aad0af2419",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/engines/supertonic.py",
+      "migration_input": "skills/showtime/lib/st/voice/engines/supertonic.py",
+      "source_blake3": "1f:3ee06ea17c0005599dae9670e061fde6498a8025df799cbf08478522a76152f1",
+      "adopted_blake3": "1f:3ee06ea17c0005599dae9670e061fde6498a8025df799cbf08478522a76152f1",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/engines/trillion_voice.py",
+      "origin": "New integration source",
+      "adopted_blake3": "1f:bfdc9caac5810405b0c62733e2a7a9627f90b646634c0000c2a6272ba06a4523"
+    },
+    {
+      "path": "lib/st/voice/espeak.py",
+      "migration_input": "skills/showtime/lib/st/voice/espeak.py",
+      "source_blake3": "1f:ddced7f25d412c097c90bd5dd17f18e5d786f795efdca5b3ec3b7e606c01abac",
+      "adopted_blake3": "1f:ddced7f25d412c097c90bd5dd17f18e5d786f795efdca5b3ec3b7e606c01abac",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/lexicon.json",
+      "migration_input": "skills/showtime/lib/st/voice/lexicon.json",
+      "source_blake3": "1f:0c9b8325b7b952d9608485c45d85a4d1dbf7f9bfcda7e2dd3bd985e788fdd666",
+      "adopted_blake3": "1f:0c9b8325b7b952d9608485c45d85a4d1dbf7f9bfcda7e2dd3bd985e788fdd666",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/lexicon.py",
+      "migration_input": "skills/showtime/lib/st/voice/lexicon.py",
+      "source_blake3": "1f:1f367853ca09cad12252826df0876049ffa765bbdcf9b69c8eb78a2145df714f",
+      "adopted_blake3": "1f:1f367853ca09cad12252826df0876049ffa765bbdcf9b69c8eb78a2145df714f",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/master.py",
+      "migration_input": "skills/showtime/lib/st/voice/master.py",
+      "source_blake3": "1f:338171b69da92e03a0cb84ed56a7f2fbf83a0da95f9634f9cc1c723ce6b15834",
+      "adopted_blake3": "1f:338171b69da92e03a0cb84ed56a7f2fbf83a0da95f9634f9cc1c723ce6b15834",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/models.py",
+      "migration_input": "skills/showtime/lib/st/voice/models.py",
+      "source_blake3": "1f:3516f3dbcf10af859af2ce23ff5aa7adb04b203ebaa3431076dcbc769c36bc7b",
+      "adopted_blake3": "1f:d2819f5cab00a032d730994db1f39e80a92c02cf37b47c7a8808da50d6096439",
+      "changed": true,
+      "adaptation": "Installer and download calls refused, preserving local installed models."
+    },
+    {
+      "path": "lib/st/voice/onnx_patch.py",
+      "migration_input": "skills/showtime/lib/st/voice/onnx_patch.py",
+      "source_blake3": "1f:ffdbf157bbaea4e6339801ed4e87e080673768d2299f4d596ecb431d9f0e1647",
+      "adopted_blake3": "1f:ffdbf157bbaea4e6339801ed4e87e080673768d2299f4d596ecb431d9f0e1647",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/readback.py",
+      "migration_input": "skills/showtime/lib/st/voice/readback.py",
+      "source_blake3": "1f:1e946173ceec0226898b8a29088ef882a71a59284e71b3c38be168b8134a0d47",
+      "adopted_blake3": "1f:d0f6045359059f7207ca80f3300bb31ab1ea165b849432bff18807954a0cb861",
+      "changed": true,
+      "adaptation": "Adopted current math/identifier repairs, with new cache keys using shared BLAKE3 owner."
+    },
+    {
+      "path": "lib/st/voice/registry.py",
+      "migration_input": "skills/showtime/lib/st/voice/registry.py",
+      "source_blake3": "1f:c35c7ec87c8477346d28fe3912cec0abf190945c5942c67951e033df66ad794f",
+      "adopted_blake3": "1f:32ef893c9958ee35b19b0285de135a2bf6d06ed5e97a8c5026a707fe9dea7356",
+      "changed": true,
+      "adaptation": "Engine discovery restricted to adopted source modules; installed/ambient plugins ignored."
+    },
+    {
+      "path": "lib/st/voice/script.py",
+      "migration_input": "skills/showtime/lib/st/voice/script.py",
+      "source_blake3": "1f:074be45bad798284de4f2de2c3d74b1971567164e24f41b8ab0efa3b2e6b89e4",
+      "adopted_blake3": "1f:074be45bad798284de4f2de2c3d74b1971567164e24f41b8ab0efa3b2e6b89e4",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/textnorm.py",
+      "migration_input": "skills/showtime/lib/st/voice/textnorm.py",
+      "source_blake3": "1f:e0306386267847e1c0bd0e18114c598f2eeab77123a08f724afc2e372d28b96b",
+      "adopted_blake3": "1f:e0306386267847e1c0bd0e18114c598f2eeab77123a08f724afc2e372d28b96b",
+      "changed": false
+    },
+    {
+      "path": "lib/st/voice/tts.py",
+      "migration_input": "skills/showtime/lib/st/voice/tts.py",
+      "source_blake3": "1f:f353fa6e32a05e1047adadf0dd1ec851da2c85330f35e64ab7db93e6f89dc1d9",
+      "adopted_blake3": "1f:2d5815e2a50369946a8a0d4f3f14d1cc0efe7b61035bc0929b711191e9239c33",
+      "changed": true,
+      "adaptation": "New cache keys use shared BLAKE3 owner."
+    },
+    {
+      "path": "lib/st/voice/voices.py",
+      "migration_input": "skills/showtime/lib/st/voice/voices.py",
+      "source_blake3": "1f:c964f1bd908d9c082aa6eaa0d4186fc3507b7b7ea12c2c04ef9ec9cf70009226",
+      "adopted_blake3": "1f:c964f1bd908d9c082aa6eaa0d4186fc3507b7b7ea12c2c04ef9ec9cf70009226",
+      "changed": false
+    },
+    {
+      "path": "produce.py",
+      "origin": "New integration source",
+      "adopted_blake3": "1f:c928e434f99320e351286b4ff92dfa671dc12c344d5c2299d3bfc994281de627"
+    },
+    {
+      "path": "runtime.json",
+      "origin": "New integration source",
+      "adopted_blake3": "1f:685997172c76d41bd652e8bcfa82b46cd0a9f68446718332ec24d3b0fc6ad541"
+    },
+    {
+      "path": "setup/manifest.json",
+      "migration_input": "skills/showtime/setup/manifest.json",
+      "source_blake3": "1f:80497e20503be5b7086dd832570fc23fe11437592470101ca1519ba68216c033",
+      "adopted_blake3": "1f:1ed1fcacf850775bb952cca3dafb637be98596dc7b4ac3edb9051dea4faeb787",
+      "changed": true,
+      "adaptation": "Only voice/ASR model metadata and Whisper dependency metadata retained."
+    },
+    {
+      "path": "speak.mjs",
+      "origin": "New integration source",
+      "adopted_blake3": "1f:07ad3f7c36ff314f24dcd5a31d7d7527b6230f2032001ba41f6a131058dfd108"
+    },
+    {
+      "path": "tests/test_readback.py",
+      "migration_input": "skills/showtime/tests/test_readback.py",
+      "source_blake3": "1f:80447259dff65f91b02b4a5194557589ad0ac0b463e099d7977d1c8712ce2648",
+      "adopted_blake3": "1f:1657edf7c9dd07f57443bc4fc2eb2b41919e81995bf7f9148ac257020cfc8a21",
+      "changed": true,
+      "adaptation": "Focused adopted matcher tests only; old launcher/QA/receipt/soundtrack cases outside adoption."
+    },
+    {
+      "path": "tests/test_source_boundary.py",
+      "origin": "New integration source",
+      "adopted_blake3": "1f:6ef217b45355afd6b6e9d1bb3e2756e02fda3179e4cbe81025e7f19d82adc856"
+    }
+  ]
+}

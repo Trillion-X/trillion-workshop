@@ -1,0 +1,108 @@
+/* parts/screen-look/show/file-card.css
+ * PORTED FROM: the media-workspace checkout's media-player.css .mw-clip-surface [data-summary] (lines 2068-2094: the open
+ * recording's summary grid and its transcript beside the player) and its shared-controls.css
+ * .mw-clip-surface .coss-action-cards (lines 9191-9200: the action row), recorded in scripts/port-sources.json; the
+ * Expansion selectors are renamed to the shared file card's and its colours read the worn look's tokens.
+ *
+ * Appearance of the shared file card (ui/show/file-card): what a file is and what can be done with it, under its
+ * screen in every hover card and beside the file in its own tab. Order and rhythm after Dropbox Dash's file hover
+ * card (facts first, then actions; mobbin.com/screens/45d0683f-4dce-47b9-af7b-8413b6a17db2) and Frame.io's asset
+ * panel (each comment led by its person). Sections are quiet: a small muted heading, then rows; nothing boxed but the
+ * related files' pictures. The card sizes to its container, so it reads the same at a phone's width and a wide pane.
+ */
+
+/* In a hover card the video gives the card room: a shorter screen, so the facts and actions show without scrolling
+ * wherever the card opens (a card near the top of the window has little height). */
+.record-preview:has(.file-card) .hover-preview-screen[data-preview-screen="video"] { height: min(26vh, 220px); }
+.record-preview:has(.file-card) .hover-preview-screen[data-preview-screen="video"] [data-media-playback-browser-source] { max-height: 26vh; }
+
+.file-card { container-type: inline-size; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.file-card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.file-card-section { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.file-card-next { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+
+/* Everything about the file sits in one disclosure behind the info button beside the ⋯ (closed in a hover card, open
+ * in the file's own view); the button shows it is open the way a pressed toggle does. */
+.file-card-info { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.file-card-info[hidden] { display: none; }
+.file-card-info-toggle[aria-expanded="true"] { color: var(--color-foreground); background: color-mix(in srgb, var(--color-foreground) 8%, transparent); }
+.file-card-heading {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--color-muted-foreground);
+}
+
+.file-card-people { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 0; padding: 0; list-style: none; }
+.file-card-person[data-unsure] { opacity: .72; font-style: italic; }
+
+/* What was said, as a transcript: each line starts with its time, a small muted chip in a column of its own so every
+ * line's words start at the same place, then who said it and the words, wrapping under themselves. */
+.file-card-words {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: min(30vh, 260px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.file-card[data-file-card="full"] .file-card-words { max-height: none; }
+.file-card-turn { display: grid; grid-template-columns: 3.25rem minmax(0, 1fr); align-items: baseline; gap: 8px; min-width: 0; font-size: 13px; line-height: 1.5; }
+.file-card-at.file-card-at {
+  justify-self: start;
+  height: 20px;
+  min-width: 0;
+  padding: 0 6px;
+  border-radius: var(--radius-chip);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted-foreground);
+  background: color-mix(in srgb, var(--color-foreground) 6%, transparent);
+}
+.file-card-line { min-width: 0; overflow-wrap: anywhere; }
+.file-card-who { display: inline-flex; vertical-align: baseline; margin-inline-end: 6px; font-size: 12px; font-weight: 600; }
+.file-card-turn[data-unsure] .file-card-who { font-style: italic; opacity: .8; }
+.file-card-turn[data-me] .file-card-who { color: var(--accent-primary); }
+.file-card-all { align-self: flex-start; }
+
+/* Files beside it: small pictures in a grid that wraps, two across on a phone. */
+.file-card-related {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.file-card-related-item.file-card-related-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+  height: auto;
+  padding: 4px;
+  white-space: normal;
+}
+.file-card-related-item img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-chip);
+  background: color-mix(in srgb, var(--color-foreground) 6%, transparent);
+}
+.file-card-related-title {
+  overflow: hidden;
+  font-size: 11px;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@container (max-width: 360px) {
+  .file-card-related { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

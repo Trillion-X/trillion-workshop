@@ -1,0 +1,38 @@
+/* parts/screen-look/show/write-page.css
+ *
+ * The Write screen's page (parts/documents/show/write-screen.tsx, the documents surface under the class `trillion-write`):
+ * one reading column about 45rem wide, centred with generous margins, body words at a comfortable 16px, a page's
+ * title block large (its size is the title block's own DATA), and an empty title showing "Untitled" even while the
+ * caret is elsewhere. The column is the surface's own content plane, so the layout engine measures and lays out
+ * inside the reading width. After Notion, Dropbox Dash and Tana's page editors (Mobbin
+ * ff1d684c-08e6-454d-af4c-f0d0d57e6308, f7b146fb-ea9a-4596-a37a-3f72b340ea1e, 54a131b3-1fd5-4927-b1d4-517f742e1718).
+ */
+.trillion-write .ca-root .ca-stage:not(.ca-stage-canvas) { margin: 2.5rem 1.5rem 3rem; }
+.trillion-write .ca-root .ca-stage:not(.ca-stage-canvas) > .ca-content-plane {
+  width: min(45rem, calc(100% - 2 * var(--ca-gutter)));
+  margin-left: auto;
+  margin-right: auto;
+}
+.trillion-write .ca-root .ca-page-controls { padding: 0.5rem 1rem 0; }
+.trillion-write .ca-text-node[data-indent-level] { padding-inline-start: min(40%, calc(var(--document-indent-level, 0) * var(--document-list-indent-step, 1.5rem))); }
+.trillion-write .ca-root .ca-text-node { font-size: 1rem; line-height: 1.7; }
+.trillion-write .ca-root .ca-text-node[data-placeholder-always="true"][data-empty="true"] { position: relative; }
+.trillion-write .ca-root .ca-text-node[data-placeholder-always="true"][data-empty="true"]::before {
+  content: attr(data-placeholder);
+  position: absolute; top: 1px; left: 0; right: 0;
+  color: var(--text-tertiary, rgb(0 0 0 / 30%));
+  pointer-events: none; white-space: nowrap;
+}
+@media (max-width: 720px) {
+  .trillion-write .ca-root .ca-stage:not(.ca-stage-canvas) { margin: 1.5rem 0.5rem 2rem; }
+  /* One touch-sized actions target occupies the writing gutter. The same menu
+     contains insertion actions, so two tiny adjacent targets are unnecessary. */
+  .trillion-write .ca-grip button[aria-label="Add block below"] { display: none; }
+  .trillion-write .ca-grip { transform: translateX(-6px); }
+  .trillion-write .ca-grip button[aria-label="Block actions"] {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    transform: translateY(-10px);
+  }
+}
