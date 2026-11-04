@@ -45,7 +45,7 @@
   "proof": {
     "minimum_meaningful_line_retention": 1,
     "required_mechanisms": [
-      "export function recordText",
+      "export const recordText",
       "export function validRecordField"
     ],
     "test_refs": ["tools/keep-lists-of-rows/test/imports-resolve.test.mjs"]
