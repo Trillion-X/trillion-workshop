@@ -1,0 +1,39 @@
+/* The one loading animation (parts/ui/show/loading-mark): a needle stitches the look's accent thread across the space,
+   pulls it through and starts again. It waits the look's placeholder-reveal-delay (~500 ms) before showing so a fast answer never flashes, and holds still
+   for reduced motion. Also the moving highlight over the screen-state loading rows (21st.dev Skeleton Loader, 19999). */
+.loading-mark {display:inline-flex;align-items:center;justify-content:center;flex:none;animation:loading-mark-appear .24s ease-out var(--placeholder-reveal-delay,.3s) both;line-height:0}
+.loading-mark[data-loading-mark=sm] {width:30px;height:12px}
+.loading-mark[data-loading-mark=md] {width:48px;height:18px}
+.loading-mark[data-loading-mark=lg] {width:96px;height:36px}
+.loading-mark-art {width:100%;height:100%;overflow:visible}
+.loading-mark-guide {stroke:currentColor;stroke-opacity:.12;stroke-width:1;stroke-dasharray:2.4 2.6;stroke-linecap:round}
+.loading-mark-thread {stroke:var(--thread-line,var(--accent-primary,#ff1d1d));stroke-width:1.8;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:loading-mark-thread 1.9s cubic-bezier(.55,0,.35,1) var(--placeholder-reveal-delay,.3s) infinite}
+.loading-mark-needle {offset-rotate:auto;offset-distance:0%;animation:loading-mark-needle 1.9s cubic-bezier(.55,0,.35,1) var(--placeholder-reveal-delay,.3s) infinite}
+.loading-mark-needle-body {fill:currentColor}
+.loading-mark-needle-eye {fill:var(--glass-bg-primary,#fffdf8)}
+[data-loading-mark=sm] .loading-mark-thread {stroke-width:2.4}
+[data-loading-mark=sm] .loading-mark-guide {display:none}
+/* Inside a pressed button the thread takes the button's own text colour, so it reads on a red or an ink fill. */
+:is(button,[role=button],a) .loading-mark-thread {stroke:currentColor}
+:is(button,[role=button],a) .loading-mark-needle-eye {fill:transparent}
+@keyframes loading-mark-appear {from {opacity:0;transform:translateY(2px)}}
+@keyframes loading-mark-thread {0% {stroke-dashoffset:100} 62% {stroke-dashoffset:0} 100% {stroke-dashoffset:-100}}
+@keyframes loading-mark-needle {0% {offset-distance:0%;opacity:0} 8% {opacity:1} 62% {offset-distance:100%;opacity:1} 80%,100% {offset-distance:100%;opacity:0}}
+/* The screen-state loading rows: the mark over them, the whole block waiting the look's reveal delay, a highlight crossing each bar. */
+.shared-media-loading[data-screen-state=loading] {animation:loading-mark-appear .24s ease-out var(--placeholder-reveal-delay,.3s) both}
+.screen-state-loading-mark {grid-column:1/-1;display:flex;justify-content:center;padding:28px 0 20px}
+.shared-media-loading[data-screen-state=loading] [data-slot=skeleton] {background:linear-gradient(100deg,var(--glass-bg-secondary,rgba(25,25,25,.05)) 30%,color-mix(in srgb,var(--thread-line,var(--accent-primary,#ff1d1d)) 6%,var(--glass-bg-secondary,rgba(25,25,25,.05))) 50%,var(--glass-bg-secondary,rgba(25,25,25,.05)) 70%);background-size:300% 100%;animation:loading-mark-shimmer var(--shimmer-duration,1.9s) ease-in-out infinite}
+@keyframes loading-mark-shimmer {from {background-position:100% 0} to {background-position:0 0}}
+@media(prefers-reduced-motion:reduce){
+  .loading-mark,.shared-media-loading[data-screen-state=loading] {animation-duration:.01s}
+  .loading-mark-thread {animation:none;stroke-dashoffset:0}
+  .loading-mark-needle {animation:none;offset-distance:100%;opacity:1}
+  .shared-media-loading[data-screen-state=loading] [data-slot=skeleton] {animation:none}
+}
+
+/* A load that runs long says it is still working (parts/ui/show/still-working): one quiet line under the needle and
+   thread whose words change as time passes, with a light sweeping across it like a thinking line, still under reduced
+   motion. */
+.screen-state-still-working {grid-column:1/-1;margin:-8px 0 16px;text-align:center;font-size:.875rem;line-height:1.4;color:var(--color-muted-foreground);background:linear-gradient(90deg,var(--color-muted-foreground) 0%,var(--color-muted-foreground) 40%,var(--color-foreground) 50%,var(--color-muted-foreground) 60%,var(--color-muted-foreground) 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:still-working-sweep 2.4s linear infinite}
+@keyframes still-working-sweep {from{background-position:100% 0}to{background-position:-100% 0}}
+@media (prefers-reduced-motion: reduce) {.screen-state-still-working{animation:none;-webkit-text-fill-color:currentColor;background:none}}

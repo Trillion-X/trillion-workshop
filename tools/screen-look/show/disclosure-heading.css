@@ -1,0 +1,114 @@
+/* packages/screen-look/show/disclosure-heading.css
+ *
+ * How the one folding heading looks (ui/show/disclosure-heading): a sidebar
+ * list heading and a group of records in the Library are the same row. No box
+ * and no border at rest; the whole row lights on hover like a sidebar row, the
+ * chevron turns to show which way it will go, the count is the sidebar's
+ * neutral badge chip, and the row's own actions fade in at its end.
+ *
+ * References (anatomy only): the sidebar list heading it replaces
+ * (sidebar/show/SidebarContent.tsx), Higgsfield's asset library day headings
+ * (Mobbin 0d41df30-eca5-48b2-8235-978e81fa827f), 21st.dev 31385 Collapsible and
+ * 14029 Disclosure (whole-row trigger, turning chevron).
+ */
+
+/* The toggle stretches to the row's height, so the heading is exactly as tall
+ * as the action group at its end (a sidebar list's pin and auto-hide). */
+.disclosure-heading {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  width: 100%;
+  min-width: 0;
+}
+
+.coss-ui .disclosure-heading-toggle,
+.disclosure-heading-toggle {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-width: 0;
+  height: auto;
+  min-height: 32px;
+  padding: 4px 10px;
+  border-color: transparent;
+  border-radius: var(--radius-control, 8px);
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-primary, var(--color-foreground));
+  font-size: var(--font-size-body-sm, 13px);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.coss-ui .disclosure-heading-toggle::before {
+  display: none;
+}
+
+.coss-ui .disclosure-heading-toggle:hover,
+.disclosure-heading-toggle:hover {
+  border-color: transparent;
+  background: var(--glass-bg-hover, color-mix(in srgb, var(--color-foreground) 7%, transparent));
+}
+
+.coss-ui .disclosure-heading-toggle:focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color, var(--color-ring));
+  outline-offset: -2px;
+}
+
+.disclosure-heading-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.disclosure-heading[data-chevron='start'] .disclosure-heading-label {
+  flex: 0 1 auto;
+}
+
+.disclosure-heading-count {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.disclosure-heading-chevron {
+  flex: none;
+  color: var(--text-tertiary, var(--color-muted-foreground));
+  transition: transform 150ms ease;
+}
+
+.disclosure-heading[data-open='false'] .disclosure-heading-chevron {
+  transform: rotate(-90deg);
+}
+
+.disclosure-heading-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  /* Keep the controls' width in the row while hidden, so pointing at the
+     heading never changes the toggle's hit area or moves its words. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 150ms ease, visibility 0s linear 150ms;
+}
+
+.disclosure-heading-actions[data-revealed],
+.disclosure-heading-actions:has([data-popup-open]) {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disclosure-heading-chevron,
+  .disclosure-heading-actions {
+    transition: none;
+  }
+}

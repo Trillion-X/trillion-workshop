@@ -1,0 +1,123 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-a-packages-declared-permissions",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:check-a-packages-declared-permissions",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Check a package's declared permissions",
+        "job": "Say whether a package's manifest names only permissions the host has a row for, and what each permission it names lets it do",
+        "description": "Give manifest ({ permissions: [ids] }) and, if wanted, permissions (the host's own rows, each { id, says, calls }; the shipped rows otherwise: network_egress, read_files, write_files, run_programs, use_microphone, read_screen). A permission with no row is refused, never ignored. Answers ok, unknown (the ids with no row), needs (the rows of the ids it named) and why when one is unknown.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "manifest"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "manifest": {
+              "type": "object"
+            },
+            "permissions": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "ok",
+            "unknown",
+            "needs"
+          ],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "unknown": {
+              "type": "array"
+            },
+            "needs": {
+              "type": "array"
+            },
+            "why": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/check-a-packages-declared-permissions",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/check-a-packages-declared-permissions/do-work/check-a-manifest.mjs",
+            "checkDeclaredPermissions"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-a-packages-declared-permissions",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/check-a-packages-declared-permissions"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}

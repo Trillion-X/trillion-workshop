@@ -1,0 +1,46 @@
+{
+  "_what": "The programs this Mac fetches on first use instead of carrying them in the app (computer/helper-runtimes.mjs). A helper is a row in `helpers`: `url` (https) to fetch, `blake3` (64 hex characters) the bytes must hash to, `size` the most bytes accepted, `file` the name it is kept under, `executable`, an optional `arch` (process.arch) it is for, and an optional `withdrawn_at` (an ISO time after which the Mac refuses to run it and says so). A row with no pinned `blake3` or `size` is refused, never fetched on trust. Nothing here names a program: a new helper is a new row, and an empty list fetches nothing. `blocked` rows ({ blake3, reason }) name content that must not run: `recheck` disables every installed helper whose bytes are blocked, with the reason, and restores it to what it was when the block is lifted. A helper row may carry `verify` (argument arrays, `{app}` filled in as the unpacked entry; any non-zero exit refuses the install before anything is moved in; so an unpinned helper is still checked for its publisher's signature). A helper row may also carry `signer` and its `url` is its source; both go in the receipt kept beside each install. A row with `unpinned: true` and no `blake3` is fetched within `size` (or `unpinned_max_bytes`) and its receipt says `pinned: false`; `adopt` lists paths of a copy the person installed themselves, used as it is; `archive: \"zip\"` with `entry` unpacks a zip and hands out the entry. `manifest` ({ url, signature_url, channel }, null while no list is followed) names a published list; `refresh` takes from it, after the signature is verified by a trusted key (computer/signed-manifest.json), only a strictly newer version of a helper, as { id, version, url, size, blake3, file, ... } entries.",
+  "install_dir": ".trillion/helpers",
+  "helpers": [
+    {
+      "id": "model-server",
+      "what": "The program that serves models on this Mac (Ollama).",
+      "version": "latest",
+      "unpinned": true,
+      "url": "https://ollama.com/download/Ollama-darwin.zip",
+      "archive": "zip",
+      "entry": "Ollama.app",
+      "adopt": [
+        "/Applications/Ollama.app",
+        "~/Applications/Ollama.app"
+      ],
+      "signer": "Ollama Inc.",
+      "verify": [["codesign", "--verify", "--deep", "--strict", "{app}"]]
+    }
+  ],
+  "words": {
+    "unknown": "This Mac has no helper named {id}. See the list for the ones it keeps.",
+    "unpinned": "The helper {id} has no pinned hash and size, so it is not fetched.",
+    "wrong_machine": "The helper {id} is for {arch} Macs; this one is {here}.",
+    "withdrawn": "The helper {id} was withdrawn on {at} and is not run.",
+    "insecure": "The helper {id} is not offered over https, so it is not fetched.",
+    "too_big": "The helper {id} is larger than the {size} bytes it is pinned to.",
+    "not_verified": "The helper {id} did not pass its check, so it was not installed.",
+    "wrong_bytes": "The helper {id} did not match its pinned hash, so it was not installed.",
+    "fetch_failed": "The helper {id} could not be fetched: {error}",
+    "installed": "The helper {id} is installed and matches its pinned hash.",
+    "removed": "The helper {id} was removed.",
+    "blocked": "The helper {id} is turned off: {reason}",
+    "disabled_by_person": "The helper {id} was turned off.",
+    "enabled": "The helper {id} is turned on.",
+    "blocked_now": "Turned off {count} blocked helper(s); turned on {restored} whose block was lifted.",
+    "adopted": "The helper {id} you installed yourself at {path} is used as it is.",
+    "installed_unpinned": "The helper {id} is installed. Its publisher offers nothing to check it against, so it was not verified.",
+    "no_manifest": "This Mac follows no published helper list, so nothing was fetched.",
+    "refreshed": "Took {count} newer helper(s) from the signed list."
+  },
+  "blocked": [],
+  "state_file": "state.json",
+  "unpinned_max_bytes": 2147483648,
+  "manifest": null
+}

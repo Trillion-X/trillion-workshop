@@ -80,7 +80,63 @@
         "verify": [
           { "kind": "sample-run", "input": { "origin": "https://example.com", "row_kind": "record:example" }, "output_selector": "$", "contains": "published" }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "sharing",
+              "parts": [
+                {
+                  "role": "record",
+                  "path": [
+                    "record"
+                  ]
+                },
+                {
+                  "role": "space",
+                  "path": [
+                    "spaces"
+                  ]
+                },
+                {
+                  "role": "person",
+                  "path": [
+                    "people"
+                  ]
+                }
+              ],
+              "_read_by": "src/record-sharing.mjs: who and which spaces a record is shared with",
+              "guard_properties": {
+                "chain": "boolean",
+                "changed_at": "text",
+                "choice_made": "boolean",
+                "choice_revision": "text",
+                "leave_out": "list",
+                "link_grants": "objects",
+                "match_only": "list",
+                "network": "any",
+                "owner_intent_order": "number",
+                "people": "list",
+                "record": "text",
+                "spaces": "list"
+              }
+            }
+          ],
+          "indexes": [
+            {
+              "type": "sharing",
+              "name": "chain",
+              "backfill": "sharing-chain-v1",
+              "paths": [
+                [
+                  "chain"
+                ]
+              ],
+              "_read_by": "src/record-sharing.mjs chainSharingRows (the choices that cover the records linked to theirs)"
+            }
+          ]
+        }
       }
     }
   ]

@@ -1,0 +1,7 @@
+{
+  "public": [
+    "read-data/loop-guards.mjs",
+    "read-data/loop-guards.json",
+    "do-work/check-a-run-of-calls.mjs"
+  ]
+}

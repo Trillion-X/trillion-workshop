@@ -1,0 +1,147 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:credit-kept-lines-to-their-writer",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:credit-kept-lines-to-their-writer",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Credit the kept lines to who wrote them",
+        "job": "Credit each line of a text's newest version to whoever first wrote it, an AI or a person, from its versions, and count how many kept lines are each writer's",
+        "description": "Give versions, oldest first, each { by, text } (by is the writer: ai, person, or any name). Answers by ({ writer: lines }), kept (lines in the newest version) and versions. It counts kept work, not generated work: a line edited away is not counted, a line a person rewrote is the person's, and spacing alone is not a rewrite (lines compare by the BLAKE3 identity of their normalized text, src/kept-work.json). It keeps nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "versions"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "versions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "by",
+                  "text"
+                ],
+                "properties": {
+                  "by": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "by": {
+              "type": "object"
+            },
+            "kept": {
+              "type": "integer"
+            },
+            "versions": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/credit-kept-lines-to-their-writer",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/credit-kept-lines-to-their-writer/do-work/credit-kept-lines-to-their-writer.mjs",
+            "creditKeptLines"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "credit-kept-lines-to-their-writer",
+                "paths": [
+                  "do-work",
+                  "src"
+                ],
+                "at": "/opt/credit-kept-lines-to-their-writer"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/kept-work.mjs at b92aa549f23873750ec918e86e7ed3896c9c4c0c, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "versions": [
+                {
+                  "by": "ai",
+                  "text": "Intro\nBody"
+                },
+                {
+                  "by": "person",
+                  "text": "Intro\nBody rewritten"
+                }
+              ]
+            },
+            "output_selector": "$.kept",
+            "contains": "2"
+          }
+        ]
+      }
+    }
+  ]
+}

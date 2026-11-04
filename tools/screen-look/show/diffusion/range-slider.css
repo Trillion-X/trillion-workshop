@@ -1,0 +1,30 @@
+/* Diffusion Studio semantic colors, scoped to the shared range control. */
+.mw-range-slider { grid-column: 1 / -1; min-width: 0; }
+.diffusion-range {
+  --diffusion-accent: #008cff;
+  --diffusion-track: #dedfe2;
+  --diffusion-background: #fff;
+  --diffusion-foreground: #252528;
+  --color-muted: var(--diffusion-track);
+  --color-primary: var(--diffusion-accent);
+  --color-background: var(--diffusion-background);
+  --color-foreground: var(--diffusion-foreground);
+  color: var(--color-foreground);
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px 14px;
+  box-sizing: border-box;
+}
+.diffusion-range [data-slot="slider-group"] { gap: 12px; align-items: baseline; }
+.diffusion-range [data-slot="slider-label"] { overflow-wrap: anywhere; font-size: 11px; line-height: 1.35; font-weight: 450; }
+.diffusion-range output { color: var(--diffusion-foreground); font-size: 11px; line-height: 1.35; font-weight: 450; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.diffusion-range [data-slot="slider-track"] { margin-top: 10px; margin-bottom: 8px; }
+.diffusion-range [data-slot="slider-thumb"] { box-sizing: border-box; cursor: grab; }
+.diffusion-range [data-slot="slider-thumb"]::after { content: ''; position: absolute; inset: -10px; }
+.diffusion-range [data-slot="slider-thumb"]:focus-visible { outline: 1px solid var(--color-primary); outline-offset: 3px; }
+[data-look-scheme="dark"] .diffusion-range {
+  --diffusion-track: hsla(0, 0%, 100%, 0.09);
+  --diffusion-background: hsla(0, 0%, 7%, 1);
+  --diffusion-foreground: hsla(0, 0%, 95%, 1);
+}
+@media (prefers-reduced-motion: reduce) { .diffusion-range * { transition: none !important; } }

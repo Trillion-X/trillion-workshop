@@ -78,7 +78,322 @@
         "maker": "maker:trillion",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
-        "provenance": { "source": "Written for the Workshop: a declarative mapping from staged records to write commands, with a basis kept for each derived value" }
+        "provenance": { "source": "Written for the Workshop: a declarative mapping from staged records to write commands, with a basis kept for each derived value" },
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "list",
+              "guard_properties": {
+                "about": "text",
+                "fields": "objects",
+                "icon": "text",
+                "indexes": "objects",
+                "label": "text",
+                "managed_rows": "object",
+                "ordering": "object",
+                "placement": "object",
+                "public_page": "object",
+                "review": "object",
+                "review_changes": "boolean",
+                "row_sources": "objects",
+                "row_type": "text",
+                "share_when": "object",
+                "stamps": "boolean",
+                "title_field": "text",
+                "views": "objects"
+              }
+            },
+            {
+              "type": "list-view",
+              "_what": "One saved view of a list, kept on its own (lists.json view_records).",
+              "guard_properties": {
+                "list_id": "text",
+                "order": "text",
+                "view": "object"
+              }
+            }
+          ],
+          "declared_by": [
+            {
+              "type": "list",
+              "kind": {
+                "path": [
+                  "row_type"
+                ],
+                "prefix": "record:"
+              },
+              "properties": {
+                "path": [
+                  "fields"
+                ],
+                "name": [
+                  "id"
+                ],
+                "kind": [
+                  "kind"
+                ],
+                "choices": [
+                  "choices"
+                ]
+              },
+              "indexes": {
+                "path": [
+                  "indexes"
+                ]
+              },
+              "kind_values_from": "src/lists.json field_kinds",
+              "parts_when": [
+                "row-ids",
+                "file"
+              ],
+              "part_references": {
+                "link": {
+                  "path": [
+                    "links_to"
+                  ],
+                  "prefix": "list:",
+                  "absolute_prefix": "record:"
+                }
+              },
+              "_read_by": "src/lists.mjs: a list is a kind its person declared, its fields the kind's properties, and a field that names a thing is a link to it: a link field a set of rows of another list (row-ids), a file field one of their files (field kind file)"
+            }
+          ],
+          "field_kinds": [
+            {
+              "id": "text",
+              "icon": "Type",
+              "label": "Text",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text"
+            },
+            {
+              "id": "long-text",
+              "icon": "AlignLeft",
+              "label": "Long text",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "document": true,
+              "_what": "Written and read as a document (markdown): the first such field is each row's notes, edited with the documents editor wherever a row is opened."
+            },
+            {
+              "id": "record",
+              "icon": "Contact",
+              "label": "Name from records",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "record_pick": true,
+              "_what": "A name chosen with the shared record picker. The field declares from (lists, row_types and/or holds), and optionally new (where an explicitly requested missing row is made). Lists keep the chosen title as text, so existing name values and title-based filters still work; this is a name, not an identity link (use link for that). The picker transport JSON is decoded before storage, never displayed or compared as JSON."
+            },
+            {
+              "id": "number",
+              "icon": "Hash",
+              "label": "Number",
+              "kind": "number",
+              "ruleKind": "number",
+              "value": "number"
+            },
+            {
+              "id": "date",
+              "icon": "Calendar",
+              "label": "Date",
+              "kind": "date",
+              "ruleKind": "date",
+              "value": "text"
+            },
+            {
+              "id": "choice",
+              "icon": "CircleDot",
+              "label": "Choice",
+              "kind": "tag",
+              "ruleKind": "choice",
+              "value": "text"
+            },
+            {
+              "id": "tags",
+              "icon": "Tags",
+              "label": "Tags",
+              "kind": "tag",
+              "ruleKind": "tags",
+              "value": "texts"
+            },
+            {
+              "id": "email",
+              "icon": "Mail",
+              "label": "Email",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "normalize": "email"
+            },
+            {
+              "id": "phone",
+              "icon": "Phone",
+              "label": "Phone",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "normalize": "phone"
+            },
+            {
+              "id": "link-address",
+              "icon": "Link",
+              "label": "Web address",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "normalize": "domain"
+            },
+            {
+              "id": "link",
+              "icon": "Link2",
+              "label": "Link to another list",
+              "kind": "tag",
+              "ruleKind": "tags",
+              "value": "row-ids",
+              "links": true
+            },
+            {
+              "id": "formula",
+              "icon": "Sigma",
+              "label": "Formula",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "carries": {
+                "key": "derive",
+                "defaults": {
+                  "target": "slot::formula-engine",
+                  "result_path": [
+                    "value"
+                  ]
+                },
+                "_what": "A value worked out from the row's other values by the formula engine: derive.request.binding is the formula (a formula-engine binding, e.g. { \"$kind\": \"binding\", \"select\": { \"from\": \"self\", \"path\": [\"minutes\"] }, \"transform\": [{ \"op\": \"op:core.mul\", \"args\": { \"value\": 60 } }] }); context_from_fields names the fields it reads (every kept field when left out)."
+              }
+            },
+            {
+              "id": "progress",
+              "icon": "CirclePercent",
+              "label": "Progress",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "reads_outside": true,
+              "carries": {
+                "key": "measure",
+                "defaults": {},
+                "_what": "Read-only bounded progress. Set source_field to a row field holding a work reference, or done_field and total_field to numeric fields plus evidence_field. tree_field may name a row field containing a JSON job tree; only verified completed leaves count, and it is used when source_field cannot be measured. Unknown scope or missing evidence reads as Not measured."
+              }
+            },
+            {
+              "id": "file",
+              "icon": "Image",
+              "label": "Picture, video or file",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "media": true,
+              "_what": "One of the person's files, by its identity (1f:...) or its name (/Media/clip.mp4). Lists and pages show it as the picture, video or sound it is; a shared or published copy of the list serves its bytes through that same link."
+            },
+            {
+              "id": "shown-when",
+              "icon": "Eye",
+              "label": "Shown when",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "rule",
+              "_what": "A rule over the row's own values and the moment it is read (now, a date in milliseconds; opened, how many times the link showing it was opened): the formula engine's tree { kind: \"group\", combinator, negate, rules: [{ kind: \"rule\", field, operator, params }] }. In a shared or published copy of the list the row shows only while its rule holds, so a row can start, stop, come back, or appear after so many views; the list itself shows every row."
+            },
+            {
+              "id": "applies-when",
+              "icon": "MapPin",
+              "label": "Applies when",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "rule",
+              "rule_over": "place-facts",
+              "_what": "A rule over the facts a place is chosen by (src/place-lists.mjs: what is known about a list to keep, or a piece of work to run): the formula engine's tree { kind: \"group\", combinator, negate, rules: [{ kind: \"rule\", field, operator, params }] } over the facts its kind declares (src/place-lists.json). A row of a places list is chosen only while its rule holds; a row without one always may be. It never leaves in a shared copy."
+            },
+            {
+              "id": "checked-by",
+              "icon": "CircleCheck",
+              "label": "Done once",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "rule",
+              "rule_over": "device-facts",
+              "_what": "A rule over what one of the person's devices reports about itself (src/device-facts.mjs: a page on a Mac says which cameras it sees as `cameras`, the iPhone app says whether a switch is on as `<switch>.on`): the formula engine's tree { kind: \"group\", combinator, negate, rules: [{ kind: \"rule\", field, operator, params }] } with each fact as a text field. On the person's Waiting on you list a row whose rule passes on one device's facts is marked Done by itself. It never leaves in a shared copy."
+            },
+            {
+              "id": "done-when-rule",
+              "icon": "ListChecks",
+              "label": "Done when (Trillion checks)",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "done-rule",
+              "rule_over": "done-when-facts",
+              "_what": "What done means, as a check Trillion makes itself against what is true now (src/done-when.mjs, src/done-when-facts.json): { over, match, tree, says }. `over` is a facts source id (saved-logins, connections, computer-sources, device-facts, files, arrived, work, or list:<list id>; arrived is what one of the person's own places brought, such as a route of Downloads with text containing .cer for a certificate download); `tree` is the formula engine's rule group { kind: \"group\", combinator, negate, rules: [{ kind: \"rule\", field, operator, params }] } over that source's rows (their fields are in src/done-when-facts.json); `match` says how many of the source's rows must pass the tree: all, any (at least one) or none; `says` is the plain words of what is counted, read after \"<passing> of <all> \" (for example \"logins your AIs can read\"). On the person's Waiting on you list a row whose check passes is set Done by itself when what waits is read and whenever a source changes, and its card says how far it is. It never leaves in a shared copy."
+            },
+            {
+              "id": "rollup",
+              "icon": "Sigma",
+              "label": "From linked rows",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "carries": {
+                "key": "rollup",
+                "defaults": {},
+                "_what": "A value worked out on every read from the rows a link field of the same row names (src/list-rollups.mjs): rollup.through is that link field, rollup.field a field of the list it links to, rollup.op a row of `aggregates` (count, sum, average, min, max, distinct, values for the linked values themselves ...), run by the formula engine. Nothing is kept in the row, so it is never out of date."
+              }
+            },
+            {
+              "id": "relationship",
+              "icon": "Handshake",
+              "label": "How well you know them",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "reads_outside": true,
+              "carries": {
+                "key": "relationship",
+                "defaults": {},
+                "_what": "Always derived, never typed: worked out on every read from the records that name this row (messages mentioning them, arrivals they spoke in; src/list-relationships.json sources), through the store's participation index (src/list-relationships.mjs). relationship.attribute is a row of src/list-relationships.json attributes: first_interaction, last_interaction, next_interaction, last_message, last_heard, interactions or strength."
+              }
+            },
+            {
+              "id": "history",
+              "icon": "History",
+              "label": "From its history",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "carries": {
+                "key": "history",
+                "defaults": {},
+                "_what": "A value worked out on every read from the values another field of the same row has held (src/list-value-history.mjs): history.field names a field that says keeps_history: true, history.op a row of value_history.ops (value_at with at or days_ago, previous_value, value_set_at, time_spent_in with value and unit, has_been_in with value). It answers null when the history it needs is not kept."
+              }
+            },
+            {
+              "id": "button",
+              "icon": "MousePointerClick",
+              "label": "Button",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "carries": {
+                "key": "action",
+                "defaults": {
+                  "target": "workshop.run-tool"
+                },
+                "_what": "A button on every row that runs a Workshop tool: action.definition_ids names the tool, action.label the button's words, action.input fixed inputs, and action.copy maps the row's values to the tool's inputs ({ key: <tool input>, from: \"answers.<field id>\" } or \"record.title\"). The tool receives only the inputs its own schema takes."
+              }
+            }
+          ]
+        }
       }
     },
     {

@@ -1,0 +1,81 @@
+/* The one on/off switch (ui/show/switch). A pill track whose two-colour background slides from "off" to "on", and a
+ * white pill thumb that follows it, springier on the way on. Anatomy and motion from 21st.dev component 21948
+ * (serafimcloud/switch, MIT). Base UI marks the state with data-checked / data-unchecked / data-disabled. */
+.ui-switch {
+  --switch-height: 20px;
+  --switch-width: 44px;
+  --switch-thumb-height: 18px;
+  --switch-thumb-width: 25px;
+  --switch-color: var(--color-primary, var(--accent-primary, #111));
+  --switch-muted: color-mix(in oklch, var(--color-muted-foreground, #737373) 22%, transparent);
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  width: var(--switch-width);
+  height: var(--switch-height);
+  padding: 1px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  appearance: none;
+  cursor: pointer;
+  background-color: transparent;
+  background-image: linear-gradient(to right, var(--switch-color) 35%, var(--switch-muted) 65%);
+  background-size: calc(var(--switch-width) * 2.8) 100%;
+  background-repeat: no-repeat;
+  background-position-x: 100%;
+  box-shadow: inset 0 0 0 1px oklch(0 0 0 / 0.05), inset 0 1.5px 2px oklch(0 0 0 / 0.1);
+  transition: background-position 125ms cubic-bezier(.26, .75, .38, .45), box-shadow 125ms ease;
+}
+
+.ui-switch[data-size='sm'] {
+  --switch-height: 16px;
+  --switch-width: 36px;
+  --switch-thumb-height: 14px;
+  --switch-thumb-width: 20px;
+}
+
+.ui-switch[data-checked] {
+  background-position-x: 0%;
+  transition-duration: 250ms;
+}
+
+/* Off reads as off at a glance on every look: an outlined track and a dimmed thumb, so on (filled, white thumb) and off
+ * never look alike. */
+.ui-switch[data-unchecked] {
+  box-shadow: inset 0 0 0 1.5px color-mix(in oklch, var(--color-muted-foreground, #737373) 55%, transparent);
+}
+.ui-switch-thumb[data-unchecked] {
+  background: color-mix(in oklch, var(--color-muted-foreground, #737373) 60%, #fff);
+  box-shadow: none;
+}
+
+.ui-switch:focus-visible {
+  outline: 2px solid var(--color-ring, var(--border-focus, #3b82f6));
+  outline-offset: 2px;
+}
+
+.ui-switch[data-disabled] {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.ui-switch-thumb {
+  pointer-events: none;
+  width: var(--switch-thumb-width);
+  height: var(--switch-thumb-height);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 1px 1px oklch(0 0 0 / 0.08), 0 1px 1px oklch(0 0 0 / 0.12), 1px 2px 4px -1px oklch(0 0 0 / 0.18);
+  translate: 0 0;
+  transition: translate 125ms cubic-bezier(.26, .75, .38, .45);
+}
+
+.ui-switch-thumb[data-checked] {
+  translate: calc(var(--switch-width) - var(--switch-thumb-width) - 2px) 0;
+  transition-duration: 250ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-switch, .ui-switch-thumb { transition: none; }
+}

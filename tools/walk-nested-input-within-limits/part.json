@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/bounded-walk.mjs", "read-data/bounded-walk.json"]
+}

@@ -1,0 +1,74 @@
+{
+  "_what": "Recording the screen as a helper process (tools/record-the-screen/do-work/capture-session.mjs). A recording is one chosen display or one chosen window (`source_kinds`); the capturer that records it is the first row of `capturers`, in order, that this Mac has, that can take that kind of source and that can leave out what the person listed. A capturer is a program: its JSON config goes in as `{config}` on its command line, and the verbs pause, resume and stop reach it as the row says (`stdin` text, or a `signal`; a verb the row does not give is refused in words, never faked). `handshake` is the line it prints when it is really recording (null: it records as soon as it runs). The recording is written into a fresh private folder under `work_dir` and only `save` moves it to a place the person chose, which must be under `save.allowed_roots`, not under `save.refused_roots`, with an allowed extension. The person's own choices are the file `prefs_file` (hide_own_windows, pointer, fps, exclude: { apps, titles }, overrides: { <app name>: { capturer, fps } }); `defaults` is what holds until they choose. Pointer: only positions and button presses are noted, never keys, normalised to the captured source and written as the `pointer` sidecar. `capture_shield` names the two Darwin notifications posted around a recording so the app's own windows are left out of it (do-work/capture-shield.mjs).",
+  "work_dir": "~/.trillion/capture/work",
+  "prefs_file": "~/.trillion/capture/session-prefs.json",
+  "status_file": "~/.trillion/capture/session.json",
+  "capture_shield": { "begin": "ai.gettrillion.capture.begin", "end": "ai.gettrillion.capture.end" },
+  "defaults": { "hide_own_windows": true, "pointer": true, "fps": 30, "exclude": { "apps": [], "titles": [] }, "overrides": {} },
+  "source_kinds": {
+    "display": { "label": "display", "list": "displays" },
+    "window": { "label": "window", "list": "windows" }
+  },
+  "sources": { "program": "/usr/bin/swift", "script": "list-capture-sources.swift", "timeout_ms": 20000 },
+  "watch_ms": 2000,
+  "start_ms": 15000,
+  "stop_ms": 15000,
+  "capturers": [
+    {
+      "id": "screen-kit-helper",
+      "program": "/usr/bin/swift",
+      "script": "capture-display.swift",
+      "args": ["{script}", "{config}"],
+      "kinds": ["display", "window"],
+      "leaves_out": true,
+      "handshake": "started",
+      "verbs": { "pause": { "stdin": "pause\n" }, "resume": { "stdin": "resume\n" }, "stop": { "stdin": "stop\n" } }
+    },
+    {
+      "id": "screencapture",
+      "program": "/usr/sbin/screencapture",
+      "args": ["-v", "-x", "{source_flag}", "{file}"],
+      "source_flags": { "display": "-D{number}", "window": "-l{number}" },
+      "kinds": ["display", "window"],
+      "leaves_out": false,
+      "handshake": null,
+      "verbs": { "stop": { "signal": "SIGINT" } }
+    }
+  ],
+  "pointer": {
+    "program": "/usr/bin/swift",
+    "script": "track-pointer.swift",
+    "hz": 60,
+    "least_move": 0.002,
+    "space": "normalized-source"
+  },
+  "save": {
+    "allowed_roots": ["~/Movies", "~/Desktop", "~/Documents", "~/Downloads"],
+    "refused_roots": ["~/.ssh", "~/.trillion", "~/.gnupg", "~/Library", "/System", "/etc", "/private/etc", "/usr", "/bin", "/sbin", "/var", "/private/var"],
+    "extensions": [".mov", ".mp4", ".m4v"],
+    "default_folder": "~/Movies/Trillion Recordings",
+    "default_name": "Screen recording {stamp}"
+  },
+  "words": {
+    "source_required": "Say what to record: a display or a window ({kinds}). Nothing is recorded without one.",
+    "source_unknown": "There is no {kind} called {id} to record right now.",
+    "no_capturer": "No program on this Mac can record that: {why}",
+    "why_none_have": "none of the capturers is installed here",
+    "why_kind": "{id} cannot record a {kind}",
+    "why_leaves_out": "{id} cannot leave out the apps and windows you listed ({list})",
+    "busy": "A recording is already running ({id}). Stop it first.",
+    "not_running": "No recording is running.",
+    "cannot": "{id} cannot {verb}. Stop and record again.",
+    "start_failed": "{id} did not start recording: {why}",
+    "source_gone": "The {kind} being recorded went away, so the recording ended.",
+    "nothing_to_save": "There is nothing recorded to save.",
+    "save_outside": "{place} is not under a place recordings may be saved. They may go under: {roots}.",
+    "save_refused": "{place} is a place recordings are never saved.",
+    "save_extension": "A recording is saved as one of {extensions}.",
+    "save_exists": "{place} already exists. Choose another name.",
+    "save_link": "{place} is a link; recordings are not written through links.",
+    "pref_unknown": "There is no setting {name}. They are: {names}.",
+    "exclude_what": "Say whether to leave out an app or a window title.",
+    "pointer_none": "No pointer was noted for this recording."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "_what": "How pictures are found by colour and by likeness, as DATA read by src/colour-search.mjs. Distances are CIE-LAB delta-E (perceptual), never RGB. `typed_hex_ceiling` is the largest delta-E at which any of a picture's palette colours matches a colour the person typed; `named_colour` is the stricter match for a colour word, over only the picture's `top` leading colours. A palette keeps `palette_size` colours: the picture's own dominant colours first, then colours from a `histogram_bits`-per-channel histogram of its pixels, each skipped when within `diversity_l1` (sum of absolute RGB differences) of one already kept. `similar` ranks pictures against an anchor by embedding cosine at or above `embedding_floor`, at most `limit`; when the anchor has no embedding, fewer than `min_rows` pictures exist or none passes the floor, the answer falls back to palette distance (smallest summed nearest-colour delta-E first, within `palette_ceiling`). `names` maps a colour word in a question to the hex it stands for (the stricter named ceiling applies); a typed #rrggbb in a question uses `typed_hex_ceiling`. The picture-colours search lane (src/search.json) asks both of them through coloursIn.",
+  "typed_hex_ceiling": 22,
+  "named_colour": {
+    "ceiling": 16,
+    "top": 3
+  },
+  "palette_size": 8,
+  "histogram_bits": 5,
+  "diversity_l1": 60,
+  "similar": {
+    "embedding_floor": 0.3,
+    "limit": 60,
+    "min_rows": 2,
+    "palette_ceiling": 30
+  },
+  "names": {
+    "red": "#d32f2f",
+    "orange": "#f57c00",
+    "yellow": "#fdd835",
+    "green": "#388e3c",
+    "blue": "#1976d2",
+    "purple": "#7b1fa2",
+    "pink": "#ec407a",
+    "brown": "#6d4c41",
+    "black": "#111111",
+    "white": "#f5f5f5",
+    "grey": "#9e9e9e",
+    "gray": "#9e9e9e"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "_what": "What a failed or unsettled effect tells whoever acts next, read by src/failure.mjs effectOutcome for the tool-run owner (src/tool-run-owner.mjs, a run's effect_state) and the handoff effects ledger (src/agents.mjs recordEffect). Each row of `states` is one effect state: retryable says the same work may be asked again as it is, side_effect says what may have happened outside Trillion, required_next names the row of `next` that says what must happen first. A new state or a new next step is a row here; no code names one. `lock_while_unknown`: while an effect of a handoff is unknown (it may or may not have happened), the holder may only look: starting any further effect answers proceed false until a receipt from checking the target settles it or the person's next message in the conversation the work came from releases it (Muse 8.0, F-0244). The released effect stays unknown in the record, because that is still the truth, and is never started blindly again.",
+  "lock_while_unknown": true,
+  "states": {
+    "done": { "retryable": false, "side_effect": "happened", "required_next": "none" },
+    "failed": { "retryable": true, "side_effect": "none", "required_next": "retry" },
+    "unknown": { "retryable": false, "side_effect": "unknown", "required_next": "check_target" },
+    "not_asked": { "retryable": true, "side_effect": "none", "required_next": "run_again_with_key" },
+    "handed": { "retryable": false, "side_effect": "unknown", "required_next": "wait_for_computer" }
+  },
+  "fallback_state": "unknown",
+  "next": {
+    "none": { "said": "Nothing further is needed." },
+    "retry": { "said": "It did not happen; it may be asked again." },
+    "check_target": { "said": "It may have happened. Look at the target, then record what it shows; only reading is allowed until then or until the person says what to do." },
+    "run_again_with_key": { "said": "It was never asked; run it again with the key it needs." },
+    "wait_for_computer": { "said": "A computer took it and has not answered yet." }
+  }
+}
