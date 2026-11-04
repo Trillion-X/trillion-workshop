@@ -33,7 +33,7 @@
  "proof": {
   "search": {
    "phrasings": [
-    "read the elements of a JSON array file a piece at a time",
+    "read the elements of a JSON array file a piece at a time, so a ChatGPT conversations.json too large to parse whole is kept one conversation at a time and resumed at a byte offset",
     "json array elements"
    ],
    "capability_rows": [],
