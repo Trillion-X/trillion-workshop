@@ -282,6 +282,208 @@
           "source": "The tool's own loudness, noise and clipping measures (read-data/measure.py)"
         }
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:enhance-speech",
+        "status": "active",
+        "label": "Clean a recording's noise and find where the speech is",
+        "job": "Clean the noise out of a recording on my own computer with what it can afford, and tell me where the speech is",
+        "description": "Reads a recording from the person's files (`file`) through the run's door, picks the most expensive noise-removal tier within the CPU budget whose ffmpeg filters (and model file, in the models folder the person granted) exist here (light, near-voice, neural), writes the cleaned sound beside it (`<name>.clean.wav`, or `output`), and answers the speech places found by a silence-detect pass, in seconds of the original. When no tier fits, the recording is left as it is and `why` says what is missing. The person's recording is never changed.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "file"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400,
+              "description": "The recording's name or identity in the person's files",
+              "x-free-text-because": "A file name in the person's files."
+            },
+            "output": {
+              "type": "string",
+              "maxLength": 400,
+              "description": "Where to write the cleaned sound in the person's files (default: beside the recording, .clean.wav)",
+              "x-free-text-because": "A file name in the person's files."
+            },
+            "ffmpeg": {
+              "type": "string",
+              "maxLength": 400,
+              "description": "The ffmpeg program the person granted (default: the one on PATH)",
+              "x-free-text-because": "A file path on this computer."
+            },
+            "models_folder": {
+              "type": "string",
+              "maxLength": 400,
+              "description": "The folder on this computer holding noise models (for example rnnoise.rnnn for the neural tier)",
+              "x-free-text-because": "A folder path on this computer."
+            },
+            "cpu_budget": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64,
+              "description": "How much CPU cost enhancement may use (light 1, near-voice 2, neural 4; default: this computer's cores over 2)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "tier",
+            "speech",
+            "file"
+          ],
+          "properties": {
+            "tier": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "why": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "budget": {
+              "type": "integer"
+            },
+            "file": {
+              "type": "string"
+            },
+            "output": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "speech": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "number"
+                  },
+                  "end": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/grade-and-repair-speech-audio",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/grade-and-repair-speech-audio/read-data/speech-enhance.mjs",
+            "enhanceSpeech"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "files": "/",
+                "operations": [
+                  "find_file",
+                  "read_file",
+                  "write_file_start",
+                  "write_file_piece",
+                  "write_file_finish"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "grade-and-repair-speech-audio",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/grade-and-repair-speech-audio"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "file": "/Recordings/sample-talk.wav",
+              "ffmpeg": "ffmpeg",
+              "cpu_budget": 1
+            },
+            "door_files": {
+              "/Recordings/sample-talk.wav": "made-up sound bytes"
+            },
+            "stand_in_programs": {
+              "ffmpeg": "last=\"\"; for a in \"$@\"; do last=\"$a\"; done\ncase \" $* \" in\n  *\" -filters \"*) printf ' ... highpass A->A High-pass\\n ... afftdn A->A Denoise\\n' ;;\n  *silencedetect*) echo 'silence_start: 0' >&2; echo 'silence_end: 1.0 | silence_duration: 1' >&2 ;;\n  *\" -af \"*) printf 'RIFF' > \"$last\" ;;\n  *) echo '  Duration: 00:00:04.00, start: 0.000000, bitrate: 256 kb/s' >&2; exit 1 ;;\nesac"
+            }
+          }
+        ],
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": false,
+          "memory_mb": 1024
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:trillion",
+        "provenance": {
+          "source": "grade-and-repair-speech-audio/read-data/speech-enhance.mjs, wired from from-old-trillion/computer/speech-enhance.mjs (old trillion computer/speech-enhance.mjs, F-0478)"
+        }
+      }
     }
   ]
 }

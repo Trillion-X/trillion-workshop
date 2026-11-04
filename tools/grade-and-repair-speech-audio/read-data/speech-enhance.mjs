@@ -1,4 +1,4 @@
-// computer/speech-enhance.mjs
+// tools/grade-and-repair-speech-audio/read-data/speech-enhance.mjs (moved from old trillion computer/speech-enhance.mjs)
 //
 // Purpose
 //   Cleans a recording of noise before it is heard and says where the speech is, on this Mac, with interchangeable
@@ -11,12 +11,17 @@
 //      not assumed); when nothing fits the answer says why and the recording is returned untouched (`tier: null`).
 //   3. The recording is read in place; the cleaned sound is a new file. Speech places come from the sound that was
 //      given, as seconds, so they line up with the original.
+//   4. In Workshop (F-0478, `enhanceSpeech`, tool:enhance-speech): the recording is read through the run's door into
+//      the run's own folder, the program and the models folder are the ones the person granted (input `ffmpeg`,
+//      `models_folder`), the cleaned sound is written beside the person's recording, which is never changed, and the
+//      run's folder is removed whatever happens.
 //
 import { execFile } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const expand = (place, home = os.homedir()) => String(place).replace(/^~(?=\/|$)/, home);
@@ -93,3 +98,49 @@ export const enhanceTools = {
     return enhance({ input: file, output: input.output ? expand(input.output) : file.replace(/(\.\w+)?$/, '.clean.wav'), settings });
   },
 };
+
+const fail = (message, status = 400) => Object.assign(new Error(message), { status });
+
+/** The budget a request asks for: a whole number 1..64, else this computer's own (budgetOf). */
+export function budgetAsked(asked, settings) {
+  if (asked == null) return budgetOf(settings);
+  if (!Number.isInteger(asked) || asked < 1 || asked > 64) throw fail(settings.words.bad_budget);
+  return asked;
+}
+
+/** The cleaned file's name beside the recording: `<name>.clean.wav`. */
+export const cleanedName = name => String(name).replace(/(\.[A-Za-z0-9]+)?$/, '.clean.wav');
+
+/** The settings of one request: the models folder the person granted (none: a tier naming a model file is passed
+ *  over), and the granted ffmpeg found first by its folder. */
+export function settingsFor(input, settings = enhanceSettings()) {
+  const program = String(input?.ffmpeg ?? '').trim();
+  const models = input?.models_folder ?? settings.models_folder;
+  return { ...settings, models_folder: models, tiers: models ? settings.tiers : settings.tiers.filter(tier => !tier.model_file),
+    search_path: program.includes('/') ? [path.dirname(program)] : settings.search_path };
+}
+
+/**
+ * tool:enhance-speech: { file, ffmpeg?, models_folder?, cpu_budget?, output? } -> { tier, why, budget, file, output, speech }.
+ * The recording is read through the door into the run's own folder; when a tier ran, the cleaned sound is written beside
+ * it in the person's files (`output`, default `<name>.clean.wav`). `steps.enhance` replaces the ffmpeg work for tests.
+ */
+export async function enhanceSpeech(input, { door }, steps = {}) {
+  const settings = settingsFor(input);
+  if (!String(input?.file ?? '').trim()) throw fail(settings.words.needs_input);
+  const budget = budgetAsked(input.cpu_budget, settings);
+  const { title, size, bytes } = await readWholeFile(door, input.file);
+  if (!bytes) throw fail(fill(settings.words.too_large, { file: input.file, size }));
+  const folder = mkdtempSync(path.join(os.tmpdir(), 'enhance-'));
+  try {
+    const source = path.join(folder, `in${path.extname(title) || '.wav'}`);
+    const cleaned = path.join(folder, 'out.wav');
+    writeFileSync(source, bytes, { mode: 0o600 });
+    const done = await (steps.enhance ?? enhance)({ input: source, output: cleaned, settings, budget });
+    const output = done.output ? String(input.output ?? cleanedName(input.file)) : null;
+    if (output) await writeWholeFile(door, output, readFileSync(cleaned), { mediaType: 'audio/wav' });
+    return { ...done, budget, file: input.file, output };
+  } finally {
+    rmSync(folder, { recursive: true, force: true });
+  }
+}
