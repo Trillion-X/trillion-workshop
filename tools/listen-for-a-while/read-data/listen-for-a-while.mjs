@@ -24,11 +24,14 @@
 //      recording-rules.mjs) are asked again for every piece, in this capture owner: a piece recorded while they say blocked
 //      is let go unheard. With none, nothing is ever blocked.
 //   8. What listening sends off this computer is told from DATA (read-data/leaves.json, leavesOf), in every answer.
+//   9. A stretch that is only text a hearing model makes up out of silence (read-data/meeting-ledger.mjs isFalseText) is
+//      left out before it is named or written.
 import { spawn, execFile } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { evaluate } from './recording-rules.mjs';
+import { isFalseText } from './meeting-ledger.mjs';
 import leaves from './leaves.json' with { type: 'json' };
 
 const run = promisify(execFile);
@@ -209,7 +212,9 @@ export async function listenForAWhile(input, { door }, steps = {}) {
     if (paused !== null) tally.paused = new Date(paused).toISOString();
     if (paused !== null && piece.startMs >= paused) { tally.let_go += 1; return true; }
     const segments = beforePause((await hear(piece.file)).map(segment => ({ ...segment, start_ms: piece.startMs + Math.round(segment.start * 1000) })), paused)
-      .map(({ start_ms: _, ...segment }) => segment);
+      .map(({ start_ms: _, ...segment }) => segment)
+      // Text a hearing model makes up out of silence is left out before it is named or kept (isFalseText).
+      .filter(segment => !isFalseText(segment.text));
     tally.pieces += 1;
     if (!segments.length) return false;
     const prints = [];

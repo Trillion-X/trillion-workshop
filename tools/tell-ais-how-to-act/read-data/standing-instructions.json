@@ -1,0 +1,9 @@
+{
+  "schema": "trillion.standing-instructions/v1",
+  "_what": "The standing instructions kept in an AI's own harness instruction file as one short marked block, read by do-work/standing-instructions.mjs. Moved from Trillion-X/trillion harness/standing-instructions.json. `text` is the block's content (a caller may pass the current words instead); `markers` bracket the block, and only the lines between them (and the two marker lines) are ever written or removed: every other byte of the file is left as it was. Where each harness keeps its instructions is DATA on its row in harness-instruction-files.json (`standing_instructions`).",
+  "markers": {
+    "start": "<!-- trillion standing instructions: start -->",
+    "end": "<!-- trillion standing instructions: end -->"
+  },
+  "text": "At the start of a conversation, read recent Trillion messages, pursuits and relevant assigned work. Do the authorized work and check its outcome. Use decisions and workflows when they help; routine answers, edits and fixes need no external-method prerequisite. Report the real result in plain words."
+}

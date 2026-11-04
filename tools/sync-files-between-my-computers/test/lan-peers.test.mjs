@@ -9,12 +9,11 @@ import { mkdtempSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import dgram, { createSocket } from 'node:dgram';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { createPeers } from '../do-work/lan-peers.mjs';
 import { settingsOf } from '../do-work/drive-sync-status.mjs';
 
-const identityOf = bytes => `1f:${bytesToHex(blake3(bytes))}`;
+const identityOf = bytes => makeHashCodeHexFromBytes(bytes);
 const text = value => Buffer.from(value);
 
 // The old Drive's peer answer (computer/trillion-drive.mjs peerAnswer): 403 unless verify passes, 404 unless held whole.

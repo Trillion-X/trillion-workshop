@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/frame-calibration.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/calibrate-a-camera-frame/src/frame-calibration.mjs",
+      "source_identity": "1f:abee89db27ef45359912e4e953cbe098e54438262343b71a432780ecc65a651b",
+      "identity": "1f:abee89db27ef45359912e4e953cbe098e54438262343b71a432780ecc65a651b"
+    },
+    {
+      "from": "test/frame-and-stream.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/calibrate-a-camera-frame/test/frame-and-stream.test.mjs",
+      "source_identity": "1f:5a130a3d2728b31a709b6ce86af81756bdd338abd42a10349a563432b481c143",
+      "identity": "1f:5a130a3d2728b31a709b6ce86af81756bdd338abd42a10349a563432b481c143"
+    }
+  ]
+}
