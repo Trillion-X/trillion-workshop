@@ -36,7 +36,7 @@
 //   readingRow(row, settings)   -> the row with its `ask` ({ question, options, fail, per, calibration?, model?, ... })
 //   checkABranch(input, door)   -> rulesOfBranch, then check; the answer of the rules mode plus branch, lineage, rows_used,
 //                                  read_by_a_model; with no row to judge or read, status no-applicable-rule
-import { lineageOf } from './branch.mjs';
+import { lineageOf, whereOfLink } from './branch.mjs';
 import { check, CheckRefusal, compileVerdictRules, linesOf, statusOf } from './rules-and-verdicts.mjs';
 import { SELECTOR_NAMES } from '../../judge-words/do-work/judge-words.mjs';
 import SETTINGS from '../read-data/branch.json' with { type: 'json' };
@@ -115,7 +115,7 @@ export async function rulesOfBranch(door, branch) {
   const listsRead = new Set();
   for (const [at, id] of lineage.entries()) {
     const isVerdict = judgeAt >= 0 && at <= judgeAt;
-    const own = (await valuesOf(door, { type: SETTINGS.check_type, where: { [SETTINGS.link_field]: id } }))
+    const own = (await valuesOf(door, { type: SETTINGS.check_type, where: whereOfLink(methods, SETTINGS.link_field, id) }))
       .sort((a, b) => (String(a.id) < String(b.id) ? -1 : 1));
     rows_used.branches[id] = own.length;
     take(own, isVerdict);
