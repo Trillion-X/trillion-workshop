@@ -342,7 +342,7 @@
     "src/native-namespace-evidence.mjs"
    ],
    "to": "tools/held-native-namespace-evidence",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (tools/probe-native-namespace-evidence/src/device-rows.mjs:59 still calls kv (env.APP_KV); add a swap row for it in calls; tools/probe-native-namespace-evidence/src/device-rows.mjs:63 still calls kv (env.APP_KV); add a swap row for it in calls); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure carries src/device-rows.mjs, which calls KV (env.APP_KV, lines 59 and 63); swapping those calls is a code change, not a byte-for-byte move, so it waits for an adapted port"
   },
   {
    "id": "held-native-resource-profile",
