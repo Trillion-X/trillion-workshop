@@ -19,8 +19,8 @@
       "trillion": {
         "status": "built",
         "by": [
-          "src/workspace/needs-you-hold.tsx",
-          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+          "repo:Trillion-X/trillion-apps/web/src/workspace/needs-you-hold.tsx",
+          "../hold-one-thing-until-done/read-data/needs-you-hold.mjs"
         ]
       }
     },
@@ -41,8 +41,8 @@
       "trillion": {
         "status": "built",
         "by": [
-          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs",
-          "src/who-does-it.mjs",
+          "../hold-one-thing-until-done/read-data/needs-you-hold.mjs",
+          "../say-for-each-step-of-a-plan-who-should-do/src/who-does-it.mjs",
           "src/waiting-on-you.json"
         ]
       }
@@ -66,7 +66,7 @@
       "trillion": {
         "status": "built",
         "by": [
-          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs",
+          "../hold-one-thing-until-done/read-data/needs-you-hold.mjs",
           "src/waiting-on-you.json"
         ]
       }
@@ -86,9 +86,9 @@
       "trillion": {
         "status": "built",
         "by": [
-          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs",
+          "../hold-one-thing-until-done/read-data/needs-you-hold.mjs",
           "src/waiting-on-you.json",
-          "src/workspace/hold-ways-out.tsx"
+          "repo:Trillion-X/trillion-apps/web/src/workspace/hold-ways-out.tsx"
         ]
       }
     },
@@ -132,7 +132,7 @@
       "trillion": {
         "status": "built",
         "by": [
-          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+          "../hold-one-thing-until-done/read-data/needs-you-hold.mjs"
         ]
       }
     },
@@ -153,7 +153,7 @@
       "trillion": {
         "status": "built",
         "by": [
-          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+          "../hold-one-thing-until-done/read-data/needs-you-hold.mjs"
         ]
       }
     },
@@ -176,7 +176,7 @@
       "trillion": {
         "status": "built",
         "by": [
-          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+          "../hold-one-thing-until-done/read-data/needs-you-hold.mjs"
         ]
       }
     },
@@ -199,8 +199,8 @@
       "trillion": {
         "status": "built",
         "by": [
-          "src/workspace/main.tsx",
-          "src/workspace/alone-page.tsx"
+          "repo:Trillion-X/trillion-apps/web/src/workspace/main.tsx",
+          "repo:Trillion-X/trillion-apps/web/src/workspace/alone-page.tsx"
         ]
       }
     },
@@ -245,7 +245,7 @@
       "trillion": {
         "status": "built",
         "by": [
-          "src/waiting-nudge.mjs",
+          "repo:Trillion-X/trillion/src/waiting-nudge.mjs",
           "src/waiting-on-you.json"
         ]
       }
@@ -288,8 +288,8 @@
       "trillion": {
         "status": "built",
         "by": [
-          "src/waiting-nudge.mjs",
-          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+          "repo:Trillion-X/trillion/src/waiting-nudge.mjs",
+          "../hold-one-thing-until-done/read-data/needs-you-hold.mjs"
         ]
       }
     },
@@ -312,7 +312,7 @@
       "trillion": {
         "status": "wall",
         "by": [
-          "node_modules/trillion-workshop/tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+          "../hold-a-computer-quiet/read-data/hold-this-mac.mjs",
           "lock-in-protocol lane"
         ],
         "wall": "The Mac helper that knows a hold with `only` ships only in the next notarized Trillion.app (a lane-built app cannot run on the owner's Mac), and the hold does not start a Mac hold by itself yet: that needs the store to run tool:hold-a-device-quiet on the person's Mac when a thing becomes held"
@@ -336,7 +336,7 @@
       "trillion": {
         "status": "built",
         "by": [
-          "node_modules/trillion-workshop/tools/hold-a-computer-quiet/read-data/hold-this-mac.json",
+          "../hold-a-computer-quiet/read-data/hold-this-mac.json",
           "harness/decisions-since.mjs"
         ]
       }
@@ -382,7 +382,7 @@
       "trillion": {
         "status": "built",
         "by": [
-          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+          "../hold-one-thing-until-done/read-data/needs-you-hold.mjs"
         ]
       }
     },
@@ -404,7 +404,7 @@
       "trillion": {
         "status": "built",
         "by": [
-          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+          "../hold-one-thing-until-done/read-data/needs-you-hold.mjs"
         ]
       }
     },
@@ -425,8 +425,8 @@
       "trillion": {
         "status": "built",
         "by": [
-          "src/workspace/needs-you-hold.tsx",
-          "src/waiting-nudge.mjs"
+          "repo:Trillion-X/trillion-apps/web/src/workspace/needs-you-hold.tsx",
+          "repo:Trillion-X/trillion/src/waiting-nudge.mjs"
         ]
       }
     },
@@ -473,8 +473,8 @@
       "trillion": {
         "status": "built",
         "by": [
-          "src/waiting-nudge.mjs",
-          "node_modules/trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs"
+          "repo:Trillion-X/trillion/src/waiting-nudge.mjs",
+          "../hold-one-thing-until-done/read-data/needs-you-hold.mjs"
         ]
       }
     },
@@ -493,8 +493,8 @@
       "trillion": {
         "status": "built",
         "by": [
-          "src/who-does-it.mjs",
-          "src/waiting-nudge.mjs"
+          "../say-for-each-step-of-a-plan-who-should-do/src/who-does-it.mjs",
+          "repo:Trillion-X/trillion/src/waiting-nudge.mjs"
         ]
       }
     },
@@ -553,7 +553,7 @@
         "status": "built",
         "by": [
           "src/waiting-on-you.json",
-          "src/workspace/needs-you-hold.tsx"
+          "repo:Trillion-X/trillion-apps/web/src/workspace/needs-you-hold.tsx"
         ]
       }
     }

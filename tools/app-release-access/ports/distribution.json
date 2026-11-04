@@ -4,7 +4,7 @@
   "status": "ADAPTED",
   "directive": {
     "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
-    "quote": "Jibran, 2026-11-03: move code, never rewrite it: port the correct parts one to one, carry the original tests."
+    "quote": "move code, never rewrite it"
   },
   "mode": "SOURCE_FIRST_PORT",
   "sources": [

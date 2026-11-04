@@ -48,6 +48,8 @@ const ASK_CARRIES = ['adapter', 'model', 'examples'];
 export class CheckRefusal extends Error {}
 
 // A row states a test when judge-words can compile it; a row with only `says` and `ask` is a reading row, answered by a model.
+// A rule that reads a unit's value (judge-words invariant 6 and 11) rather than its words.
+const readsValue = rule => rule.path !== undefined || rule.evidence !== undefined;
 const states = row => ['words', 'pattern', 'exact', 'check', 'path'].some(field => row[field] !== undefined);
 const VERDICT_FIELDS = [['rows', doc => Array.isArray(doc.rows)], ['fold', doc => Boolean(doc.fold) && typeof doc.fold === 'object'],
   ['stage.default', doc => STAGES.includes(doc.stage?.default)], ['stance_rule', doc => typeof doc.stance_rule === 'string'],
@@ -215,8 +217,9 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
   const readingOf = new Map(), ruleBreaksByResult = new Map();
   const results = units.map((unit, at) => {
     const item = itemOf(unit);
-    const applicableRules = unit.view !== undefined ? [] : rules.filter(rule => ruleApplies(rule, item));   // word rules judge words, never a JSON artifact
-    const findings = unit.view !== undefined ? [] : judge([item]);
+    // Word rules judge words, never a JSON artifact; a rule that reads a value (`path`, `evidence`) judges a unit's view.
+    const applicableRules = rules.filter(rule => (unit.view === undefined || readsValue(rule)) && ruleApplies(rule, item));
+    const findings = judge([item]);
     // a row's `held_when` names the units on which its finding only holds, read from the unit's facts
     const holds = finding => { const row = judgedById.get(finding.rule); return Boolean(row?.held_when) && ruleApplies({ when: row.held_when }, item); };
     const breaks = findings.filter(finding => !holds(finding)).map(finding => ({ rule: finding.rule, found: finding.found, says: finding.says, ...(finding.suggest ? { suggest: finding.suggest } : {}) }));

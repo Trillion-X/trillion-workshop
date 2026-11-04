@@ -1,0 +1,45 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PUBLIC-DOOR-TOOLS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:fe288908d13b23fc32433ef95fdc6a18f45ff36cf30bcdb64d8f3745706a84f1",
+    "quote": "Replace only its source: file reads and writes become door records reads and writes."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "run the public door's rows as Workshop tool functions: see where the door runs, rent or release a host lease, cut a hostname over, each provider key taken from the row's credential mount by its vault name",
+  "sources": [],
+  "targets": [
+    { "path": "tools/move-the-public-door/do-work/door-tools.mjs" }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [],
+  "baseline": {},
+  "distinct_from": [
+    { "repository": "trillion", "path": "scripts/portable-host-lease.mjs", "why": "Its command-line entry read a config file and the key on descriptor 3; tool:rent-a-host-for-the-public-door and tool:release-a-host-of-the-public-door run these functions instead. That file leaves with the older owner's door scripts." },
+    { "repository": "trillion", "path": "scripts/portable-dns-cutover.mjs", "why": "Its command-line entry read a config file and asked the old vault for the token; tool:cut-a-hostname-over-to-a-new-address runs cutAHostnameOver instead. That file leaves with the older owner's door scripts." },
+    { "repository": "trillion", "path": "scripts/move-public-door.mjs", "why": "Its command-line entry wired the old vault and the certificate script's host steps; the move's row comes with the certificate and tunnel tools that own those steps. That file leaves with the older owner's door scripts." }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "run the public door's rows as Workshop tool functions: see where the door runs, rent or release a host lease, cut a hostname over, each provider key taken from the row's credential mount by its vault name",
+        "run the public door's rows as Workshop tool functions",
+        "rent a host for the public door",
+        "cut a hostname over to a new address"
+      ],
+      "capability_rows": [],
+      "code_patterns": ["seeWhereTheDoorRuns", "rentAHost", "cutAHostnameOver"],
+      "repositories": [
+        { "repository": "trillion-workshop", "commit": "6323f8f" },
+        { "repository": "trillion", "commit": "9b5614150bf2ff506cb296337b79af328ffc7381" }
+      ]
+    },
+    "test_refs": [
+      "tools/move-the-public-door/test/door-rows.test.mjs where the door runs is read from the Service connections rows the row may list, and nothing is written",
+      "tools/move-the-public-door/test/door-rows.test.mjs a row that needs a held value refuses, naming the mount, when the run was handed none",
+      "tools/move-the-public-door/test/public-door.test.mjs a held value comes only from the mount its vault name names"
+    ]
+  }
+}

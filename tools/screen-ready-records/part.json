@@ -1,4 +1,8 @@
 {
+  "imported_by": [
+    "tools/show-any-file-as-itself",
+    "tools/transcript-reader"
+  ],
   "public": [
     "read-data/read-screen-ready-records.ts"
   ]

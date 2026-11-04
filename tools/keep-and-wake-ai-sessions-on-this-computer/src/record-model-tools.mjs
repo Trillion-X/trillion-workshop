@@ -22,7 +22,7 @@
 import modelData from './record-model.json' with { type: 'json' };
 import scopeData from './record-scope.json' with { type: 'json' };
 import { factsOf } from '../../record-log/do-work/record-model.mjs';
-import { isOrderKey, keyBetween } from '../parts/visual-database/do-work/fractional-order.ts';
+import { isOrderKey, keyBetween } from '../../keep-lists-of-rows/do-work/fractional-order.ts';
 
 const MOST = 1000;
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);

@@ -38,7 +38,9 @@
     "the user and port are the caller's admin_user and ssh_port instead of root and 22",
     "the address may be a DNS name as well as IPv4",
     "no agent (IdentityAgent=none) and no global known_hosts",
-    "checkedHost and knownHostsLine pin the host from a host_key the caller gives"
+    "checkedHost and knownHostsLine pin the host from a host_key the caller gives",
+    "c.proxy, when given, starts the arguments with proxied(c.proxy): the ssh ProxyCommand through a run's loopback CONNECT proxy and a 30 second keepalive, moved here from tools/keep-a-door-tunnel-open (which took it from renew-a-tls-certificate) so there is one administrationArguments",
+    "heldKeyFile gives a mounted key file back the newline the vault drops, for every caller that hands ssh a held key"
   ],
   "banned_substitutions": [
     "a user, port or host written into the code",
@@ -55,7 +57,9 @@
     "minimum_meaningful_line_retention": 0.6,
     "test_refs": [
       "tools/administer-a-rented-host/test/administration-arguments.test.mjs the arguments reach the given user, address and port with only the given key and pinned host key",
-      "tools/administer-a-rented-host/test/administration-arguments.test.mjs a host that cannot be reached safely is refused, naming the field to fix"
+      "tools/administer-a-rented-host/test/administration-arguments.test.mjs a host that cannot be reached safely is refused, naming the field to fix",
+      "tools/administer-a-rented-host/test/administration-arguments.test.mjs a run's proxy is reached through its CONNECT tunnel with a keepalive, and only a loopback http proxy is taken",
+      "tools/administer-a-rented-host/test/administration-arguments.test.mjs a held key file gets back the last newline ssh needs, once, in place"
     ]
   }
 }

@@ -1,4 +1,8 @@
 {
+  "imported_by": [
+    "tools/media-composition",
+    "tools/run-on-a-persons-computer"
+  ],
   "public": [
     "read-data/program-here.mjs"
   ]
