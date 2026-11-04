@@ -146,7 +146,6 @@ import { checkPairs, pairWrites } from './list-pairs.mjs';
 import { addsForms, fillPage, formsOf, keyRecordId, keysMarkId, keysSignature, keyWrites, uniqueFields } from './list-keys.mjs';
 import { machineWritten, stampedValue } from './list-stamps.mjs';
 import { readAt } from '../record-log/do-work/record-time.mjs';
-import { logPositionOf } from '../parts/record-log/do-work/record-log-store.mjs';
 import { ListTransferError, transferRows } from './list-row-transfer.mjs';
 
 const NAME = /^[a-z0-9][a-z0-9-]{0,63}$/;
@@ -457,10 +456,11 @@ export function makeLists({ eeaf, newId = () => crypto.randomUUID(), progressOfR
     if (next._stamps) value._stamps = next._stamps; else delete value._stamps;
     return value;
   };
-  // What a removed row held just before its removal, from the log (null when the log no longer keeps it).
-  const removedValue = (rowRecordId, removedAt) => {
+  // What a removed row held just before its removal, from the log (null when the log no longer keeps it). The records
+  // handed in answer the row's own log; the newest change to the row decides, so no log position is needed to find it.
+  const removedValue = rowRecordId => {
     if (typeof eeaf.log !== 'function') return null;
-    const rows = eeaf.log({ record_id: rowRecordId, ...(removedAt ? { since: logPositionOf(removedAt) } : {}) });
+    const rows = eeaf.log({ record_id: rowRecordId });
     for (const row of [...rows].reverse()) for (const envelope of [...row.envelopes].reverse()) {
       if (envelope.id !== rowRecordId) continue;
       if (!envelope.remove || !envelope.prior?.value) return null;
@@ -1831,7 +1831,7 @@ export function makeLists({ eeaf, newId = () => crypto.randomUUID(), progressOfR
         last = entry;
         const trash = eeaf.read(entry.id);
         if (!trash || eeaf.read(`${prefix}${trash.row_id}`)) continue;
-        rows.push({ id: trash.row_id, title: titleOf(list, removedValue(`${prefix}${trash.row_id}`, trash.removed_at)) ?? trash.row_id, removed_at: trash.removed_at, by: trash.by, said: viaWords(trash) });
+        rows.push({ id: trash.row_id, title: titleOf(list, removedValue(`${prefix}${trash.row_id}`)) ?? trash.row_id, removed_at: trash.removed_at, by: trash.by, said: viaWords(trash) });
       }
       const more = rows.length >= most && entries.length > entries.indexOf(last) + 1;
       return { list_id: slug, rows, next_cursor: more ? JSON.stringify([last.values[1], last.id]) : null };
@@ -1853,7 +1853,7 @@ export function makeLists({ eeaf, newId = () => crypto.randomUUID(), progressOfR
           const rowRecordId = `${prefix}${rowId}`;
           if (eeaf.read(rowRecordId)) { notRestored.push({ row_id: rowId, reason: 'kept' }); continue; }
           const held = eeaf.read(trashId(slug, rowId));
-          const value = removedValue(rowRecordId, held?.removed_at);
+          const value = removedValue(rowRecordId);
           if (!value) { notRestored.push({ row_id: rowId, reason: 'history_gone' }); continue; }
           restored.push({ recordId: rowRecordId, rowId, before: null, after: value });
           if (held) trash.push({ id: trashId(slug, rowId), type: data.history.trash_type, value: null });

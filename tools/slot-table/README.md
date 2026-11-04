@@ -51,4 +51,4 @@ A JavaScript `Map` keyed by text hashes the key on every lookup and walks a hash
 
 **Depends on:** nothing.
 
-**Depended on by:** `parts/record-log/do-work/record-log-store.mjs` (its resident records), `test/slot-table.test.mjs`.
+**Depended on by:** `tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs` (its resident records), `test/slot-table.test.mjs`.

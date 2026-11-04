@@ -1,6 +1,0 @@
-{
-  "public": [
-    "do-work/eeaf-sqlite-store.mjs",
-    "do-work/eeaf-field-reads.mjs"
-  ]
-}
