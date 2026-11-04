@@ -1,0 +1,244 @@
+import { spacePageSize } from './space-page-size.mjs';
+import {compareSourceRefs,privateSourceReadResultField} from './native-shared-source-query.mjs';
+import {sharedDependencyStub} from './shared-native-dependency-command.mjs';
+import {orderFeed} from './community-activity.mjs';
+import {handoffIdFor,itemOf} from '../../../shared-code/src/agents.mjs';
+import {resolveItemShard,sourceRouteKey} from './space-content-directory.mjs';
+import {CONTENT_SHARD_COUNT,contentShardAddress,contentCommandShard,contentShardIndex} from './space-content-shards.mjs';
+import {identityOf} from '../../../shared-code/src/typed-operation-contract.mjs';
+import {taskCommandAddress} from '../../../give-shared-tasks-to-people-and-ais-keep/from-old-trillion/src/space-task-command-owner.mjs.held';
+import {mergeTaskShardQueuePages,taskQueueCursorOf} from '../../../give-shared-tasks-to-people-and-ais-keep/from-old-trillion/src/space-task-shard-query.mjs';
+const fanoutReads=new Set(['readPrivateSpaceSources','readSharedPresentationCursor','spaceResponses','boardRecords','space','community','whatsNew','spaceWritingMembers','spaceResponseSummaries','spacePublicApps','spaceMarketplaceInstallations','sendDigestsNow']);
+// Page reads whose answer from a shard holding none of the Space's content is
+// the empty value of their merge. They ask shard 0, which answers the Space's
+// own fields, and every shard that holds content.
+const heldShardReads=new Set(['readPrivateSpaceSources','spaceResponses','boardRecords','space','community','whatsNew','spaceWritingMembers','spaceResponseSummaries','spacePublicApps','spaceMarketplaceInstallations']);
+const readsHeldShards=(operation,input)=>heldShardReads.has(operation)&&!(operation==='spaceResponses'&&input.record)
+  ||operation==='spaceItems'&&!input.item_id&&!input.anchor_record||operation==='spaceAgents'&&['read','find'].includes(input.verb);
+export async function heldContentShards(env,spaceId,generation){
+  const supply=(env?.env??env).NETWORK;
+  const held=await Promise.all(Array.from({length:CONTENT_SHARD_COUNT},(_,index)=>index===0||supply.get(supply.idFromName(contentShardAddress(spaceId,index))).contentShardHolds({space_id:spaceId,generation,index})));
+  return held.flatMap((holds,index)=>holds?[index]:[]);
+}
+export const shardCommandAddress=(spaceId,input)=>`space:board-command:${spaceId}:${identityOf([input.relay,input.request_key??crypto.randomUUID()])}`;
+export function shardInvocationTargets(spaceId,operation,args) {
+  const input=args[0]??{};
+  if(['spaceResponses','reactToSpaceAnchor','setSpaceResponseResolved'].includes(operation)&&input.record) return [contentShardAddress(spaceId,contentShardIndex(input.record))];
+  if(operation==='spaceAgents'&&input.verb==='take'&&!input.input?.handoff_id)return [taskCommandAddress(spaceId,input)];
+  if(operation==='boardCommit') return [shardCommandAddress(spaceId,input)];
+  if(fanoutReads.has(operation)||operation==='spaceItems'&&!input.item_id&&!input.anchor_record||operation==='spaceAgents'&&['read','find'].includes(input.verb)) return Array.from({length:CONTENT_SHARD_COUNT},(_,i)=>contentShardAddress(spaceId,i));
+  let index=contentCommandShard(operation,input);
+  if(['spacePicture','boardMember','spaceMemberStores','spaceToolGrants','spaceToolGrant','spaceAddedTools','authorizeSpacePublicApp','spaceEvents','eventFile','myMatches','spaceBriefs'].includes(operation)||operation==='describeSpace') index=0;
+  if(['shareIntoSpace','checkSpaceShare'].includes(operation))index=contentShardIndex(`${input.relay}\u0000${input.record?.private_ref??input.private_ref}`);
+  if(['claimReward','completeLesson','setNotifications'].includes(operation))index=contentShardIndex(input.relay);
+  if(operation==='spaceItems'&&input.anchor_record) index=contentShardIndex(input.anchor_record);
+  if(operation==='spaceAgents') {
+    const agent=input.input?.agent_id??(input.verb==='publish'?String(input.input?.name??'').toLowerCase().replace(/[^a-z0-9-]+/g,'-'):null);
+    if(agent) index=contentShardIndex(`${agent}~${String(input.relay).slice(-8)}`);
+    else if(input.input?.to_agent) index=contentShardIndex(input.input.to_agent);
+  }
+  if(['spacePublicAppInstallation','spacePublicAppAnalytics','spacePublicAppRecords','setSpacePublicAppLive','updateSpacePublicAppDefinition','installSpacePublicApp'].includes(operation)) index=contentShardIndex(input.installation_id);
+  return [contentShardAddress(spaceId,index??0)];
+}
+const itemAt=row=>row.provenance?.added_at??row.added_at??row.at??'';
+const sorted=(values,key,descending=false)=>values.sort((a,b)=>(descending?-1:1)*String(key(a)).localeCompare(String(key(b))));
+export function mergeShardAnswers(operation,args,answers) {
+  if(answers.length===1) return answers[0];
+  const input=args[0]??{}, first=answers[0], limit=spacePageSize(input.limit);
+  if(operation==='readSharedPresentationCursor')return answers;
+  if(operation==='readPrivateSpaceSources'){
+    const field=privateSourceReadResultField(input.mode);
+    if(!field)throw new Error('This private source query mode is not installed.');
+    if(field==='copies')return {copies:answers.flatMap(row=>row.copies)};
+    const held=new Map((input.private_refs??[]).map(ref=>[ref,new Set()]));
+    for(const answer of answers)for(const row of answer.holding)for(const space of row.spaces)held.get(row.private_ref)?.add(space);
+    const result={holding:[...held].map(([private_ref,spaces])=>({private_ref,spaces:[...spaces]}))};
+    if(input.backfill_after_ref!==undefined){const refs=[...new Set(answers.flatMap(row=>row.backfill.private_refs))].sort(compareSourceRefs),page=refs.slice(0,100);
+      result.backfill={after_ref:input.backfill_after_ref,private_refs:page,next_after_ref:page.at(-1)??input.backfill_after_ref,complete:refs.length<=100&&answers.every(row=>row.backfill.complete)};}
+    return result;
+  }
+  if(operation==='boardRecords') return sorted(answers.flat(),row=>row.address).slice(0,5000);
+  if(operation==='spaceWritingMembers') return {writers:new Set(answers.flatMap(row=>row.writer_relays??[])).size};
+  if(operation==='spaceItems'||operation==='spaceResponses') {
+    const ascending=operation==='spaceResponses'&&Boolean(input.record);
+    const rows=sorted(answers.flatMap(row=>row.items??[]),row=>`${itemAt(row)}${row.item_id}`,!ascending);
+    const items=rows.slice(0,limit),cursorField=ascending?'next_after':'next_before';
+    const more=rows.length>limit||answers.some(row=>row[cursorField]);
+    // One part answers from every shard holding its records: the same part (all but its records) is one part, its
+    // records together in address order, as boardRecords merges them.
+    const byPart=new Map();
+    for(const part of answers.flatMap(row=>row.parts??[])){
+      const {records,...rest}=part,key=JSON.stringify(rest),held=byPart.get(key);
+      if(!held){byPart.set(key,Array.isArray(records)?{...part,records:[...records]}:part);continue;}
+      if(Array.isArray(records))held.records=[...new Map([...(held.records??[]),...records].map(row=>[row.address??JSON.stringify(row),row])).values()];
+    }
+    const parts=[...byPart.values()].map(part=>Array.isArray(part.records)?{...part,records:sorted(part.records,row=>row.address??'')}:part);
+    return {...first,items,[cursorField]:more&&items.length?`${itemAt(items.at(-1))}${items.at(-1).item_id}`:null,...(parts.length?{parts}:{})};
+  }
+  if(operation==='space') return {...first,items:answers.reduce((sum,row)=>sum+row.items,0),items_by_kind:Object.fromEntries([...new Set(answers.flatMap(row=>Object.keys(row.items_by_kind)))].map(kind=>[kind,answers.reduce((sum,row)=>sum+(row.items_by_kind[kind]??0),0)])),unread:answers.reduce((sum,row)=>sum+row.unread,0),last_activity_at:answers.map(row=>row.last_activity_at).sort().at(-1),agents:[...new Map(answers.flatMap(row=>row.agents??[]).map(row=>[row.agent_id,row])).values()]};
+  if(operation==='spacePublicApps') return sorted(answers.flat(),row=>row.installed_at,true);
+  if(operation==='spaceMarketplaceInstallations') return {installations:answers.flatMap(row=>row.installations)};
+  if(operation==='spaceAgents') return {...first,agents:[...new Map(answers.flatMap(row=>row.agents??[]).map(row=>[row.agent_id,row])).values()],handoffs:[...new Map(answers.flatMap(row=>row.handoffs??[]).map(row=>[row.handoff_id,row])).values()],work:[...new Map(answers.flatMap(row=>row.work??[]).map(row=>[row.handoff_id,row])).values()]};
+  if(operation==='spaceResponseSummaries') {
+    const byRecord=new Map();
+    for(const row of answers.flatMap(answer=>answer.summaries??[])) {
+      const prior=byRecord.get(row.record);
+      byRecord.set(row.record,prior?{record:row.record,count:prior.count+row.count,last_at:[prior.last_at,row.last_at].filter(Boolean).sort().at(-1)??null,resolved:prior.resolved&&row.resolved}:row);
+    }
+    const rows=sorted([...byRecord.values()],row=>row.record),summaries=rows.slice(0,limit);
+    return {...first,summaries,next_after:(rows.length>limit||answers.some(row=>row.next_after))&&summaries.length?summaries.at(-1).record:null};
+  }
+  if(operation==='whatsNew') return {...first,posts:sorted(answers.flatMap(row=>row.posts??[]),row=>row.at,true).slice(0,50),events:[...new Map(answers.flatMap(row=>row.events??[]).map(row=>[row.event_id,row])).values()]};
+  if(operation==='sendDigestsNow')return {...first,considered:answers.reduce((sum,row)=>sum+row.considered,0),sent:answers.reduce((sum,row)=>sum+row.sent,0),held_back:answers.flatMap(row=>row.held_back)};
+  if(operation==='community'){const {__feed_configuration,...view}=first;return {...view,feed:orderFeed(sorted(answers.flatMap(row=>row.feed??[]),row=>row.at,true).slice(0,Math.min(100,Number(input.feed_limit)||30)),__feed_configuration??{}),...(answers.some(row=>row.claims)?{claims:sorted(answers.flatMap(row=>row.claims??[]),row=>row.at,true).slice(0,100)}:{})};}
+  throw new Error('This aggregate needs its installed shard query contract.');
+}
+export async function invokeSharedContentShards(env,mount,operation,args) {
+  if(operation==='boardCommit'&&!args[0].request_key)args=[{...args[0],request_key:crypto.randomUUID()},...args.slice(1)];
+  if(operation==='spaceAgents'&&args[0]?.verb==='take'&&!args[0]?.input?.handoff_id) return takeSpaceAgentAcrossShards(env,mount,args);
+  if(operation==='spaceAgents'&&args[0]?.verb==='withdraw') return withdrawSpaceAgentAcrossShards(env,mount,args);
+  const plan=await resolveShardCommandPlan(env,mount,operation,args);
+  const answers=[];
+  for(let at=0;at<plan.length;at+=8) {
+    const page=await Promise.all(plan.slice(at,at+8).map(command=>sharedDependencyStub(env,command.address,{spaceId:mount.resource,generation:mount.content_generation}).invokeSharedResource({resource:mount.resource,operation,args:command.args,generation:mount.content_generation})));
+    for(const answer of page) {if(answer?.state!=='answered') return answer;answers.push(answer.result);}
+  }
+  if(operation==='addSharedSpaceItems'){const size=args[0].entries.length,result={ids:new Array(size),replayed:new Array(size),withdrawn:new Array(size)};for(let at=0;at<answers.length;at++)for(const field of Object.keys(result))for(let i=0;i<answers[at][field].length;i++)result[field][plan[at].positions?.[i]??i]=answers[at][field][i];return {state:'answered',result:{...result,added:answers.reduce((sum,row)=>sum+row.added,0)}};}
+  if(operation==='addSpaceItems'){const ids=new Array(args[0].items.length);for(let at=0;at<answers.length;at++)for(let i=0;i<answers[at].ids.length;i++)ids[plan[at].positions?.[i]??i]=answers[at].ids[i];return {state:'answered',result:{ids,added:answers.flatMap(row=>row.added),already_there:answers.reduce((sum,row)=>sum+row.already_there,0)}};}
+  return {state:'answered',result:mergeShardAnswers(operation,args,answers)};
+}
+
+async function withdrawSpaceAgentAcrossShards(env,mount,args) {
+  const original=args[0],spaceId=mount.resource;
+  const targets=await resolveShardInvocationTargets(env,mount,'spaceAgents',args);
+  const answer=await sharedDependencyStub(env,targets[0],{spaceId,generation:mount.content_generation}).invokeSharedResource({
+    resource:spaceId,operation:'spaceAgents',args,generation:mount.content_generation,
+  });
+  if(answer?.state!=='answered'||!answer.result?.withdrawn)return answer;
+  const agentId=String(original.input.agent_id??'');
+  const addresses=Array.from({length:CONTENT_SHARD_COUNT},(_,index)=>contentShardAddress(spaceId,index));
+  for(let at=0;at<addresses.length;at+=8) {
+    const released=await Promise.all(addresses.slice(at,at+8).map(address=>sharedDependencyStub(env,address,{spaceId,generation:mount.content_generation}).retireSpaceAgentWork({
+      resource:spaceId,relay:original.relay,generation:mount.content_generation,agent_id:agentId,
+    })));
+    for(const response of released)if(response?.state!=='answered')return response;
+  }
+  return answer;
+}
+
+async function takeSpaceAgentAcrossShards(env,mount,args) {
+  let original=args[0],asked=original.input??{},spaceId=mount.resource;
+  if(!asked.request_key){asked={...asked,request_key:`take:${crypto.randomUUID()}`};original={...original,input:asked};args=[original,...args.slice(1)];}
+  const address=taskCommandAddress(spaceId,original);
+  return sharedDependencyStub(env,address,{spaceId,generation:mount.content_generation}).invokeSharedResource({resource:spaceId,operation:'spaceAgents',args,generation:mount.content_generation});
+}
+
+export async function selectSpaceTaskForAgent(env,mount,args,progress) {
+  const original=args[0],asked=original.input??{},spaceId=mount.resource;
+  const agentId=`${asked.agent_id}~${String(original.relay).slice(-8)}`;
+  const addresses=Array.from({length:CONTENT_SHARD_COUNT},(_,index)=>contentShardAddress(spaceId,index));
+  const seen=progress.tried;
+  const nowIso=new Date().toISOString();
+  const attempt=async(handoffId)=>{
+    progress.saveCandidate(handoffId);
+    const candidateInput={...asked,handoff_id:handoffId,request_key:`candidate:${identityOf([asked.request_key,handoffId])}`};
+    const index=await resolveItemShard(env,spaceId,handoffId);
+    const response=await sharedDependencyStub(env,contentShardAddress(spaceId,index),{spaceId,generation:mount.content_generation}).invokeSharedResource({
+      resource:spaceId,operation:'spaceAgents',args:[{...original,_task_command_address:taskCommandAddress(spaceId,original),input:candidateInput}],generation:mount.content_generation,
+    });
+    if(response?.state!=='answered')return response;
+    if(response.result?.handoff||response.result?.capacity?.status==='full'||response.result?.capacity?.status==='paused')return response;
+    progress.markTried(handoffId);
+    return null;
+  };
+  if(progress.selected){
+    const selected=await attempt(progress.selected);
+    if(selected)return selected;
+  }
+  const query=async(to_agent)=>{
+    let after=null;
+    for(;;) {
+      const pages=[];
+      for(let at=0;at<addresses.length;at+=8) {
+        const responses=await Promise.all(addresses.slice(at,at+8).map(address=>sharedDependencyStub(env,address,{spaceId,generation:mount.content_generation}).querySpaceTaskQueue({
+          resource:spaceId,relay:original.relay,generation:mount.content_generation,to_agent,now_iso:nowIso,after,limit:100,
+        })));
+        for(const response of responses) {
+          if(response?.state!=='answered') return response;
+          pages.push(response.result);
+        }
+      }
+      const page=mergeTaskShardQueuePages(pages,100);
+      if(!page.items.length)return {state:'answered',result:null};
+      for(const candidate of page.items) {
+        const cursor=taskQueueCursorOf(candidate);
+        if(seen.has(candidate.handoff_id)){after=cursor;continue;}
+        const response=await attempt(candidate.handoff_id);
+        if(response)return response;
+        after=cursor;
+      }
+      if(!page.more)return {state:'answered',result:null};
+    }
+  };
+  for(const phase of asked.only_mine===true?[agentId]:[agentId,null]) {
+    const response=await query(phase);
+    if(response?.state!=='answered')return response;
+    if(response.result?.handoff)return response;
+  }
+  const home=contentShardIndex(agentId);
+  const fallbackInput={...asked,request_key:`${asked.request_key}:fallback`};
+  return sharedDependencyStub(env,contentShardAddress(spaceId,home),{spaceId,generation:mount.content_generation}).invokeSharedResource({
+    resource:spaceId,operation:'spaceAgents',args:[{...original,_task_command_address:taskCommandAddress(spaceId,original),input:fallbackInput}],generation:mount.content_generation,
+  });
+}
+
+export async function validateSpaceTaskTake(env,mount,args) {
+  const input=args[0]??{};
+  return sharedDependencyStub(env,contentShardAddress(mount.resource,0),{spaceId:mount.resource,generation:mount.content_generation}).querySpaceTaskQueue({
+    resource:mount.resource,relay:input.relay,generation:mount.content_generation,to_agent:null,now_iso:new Date().toISOString(),limit:1,
+  });
+}
+
+export async function resolveShardInvocationTargets(env,mount,operation,args) {
+  let targets=shardInvocationTargets(mount.resource,operation,args);
+  if(targets.length===CONTENT_SHARD_COUNT&&readsHeldShards(operation,args[0]??{}))targets=(await heldContentShards(env,mount.resource,mount.content_generation)).map(index=>contentShardAddress(mount.resource,index));
+  const input=args[0],key=input.item_id??(operation==='spaceAgents'?input.input?.handoff_id??input.input?.parent_handoff_id:null)??input.installation_id??(['shareIntoSpace','checkSpaceShare'].includes(operation)?sourceRouteKey(input.relay,input.record?.private_ref??input.private_ref):null);
+  if(key){
+  const index=await resolveItemShard(env,mount.resource,key,operation==='withdrawSpaceItem'?{create:false}:{});
+  if(index===null||index===undefined)throw Object.assign(new Error('The existing shared item route is unavailable.'),{status:409});
+  targets=[contentShardAddress(mount.resource,index)];
+ }
+  if(operation==='spaceAgents'&&input.verb==='handOff'){
+    // spaces.mjs binds the member relay into the request key before agents.mjs
+    // derives its immutable handoff id. Route by that exact id. Parent and
+    // dependency edges are query coordinates, not ownership of every
+    // descendant; children must stay independently writable.
+    const once=itemOf(input.input);
+    const handoff=handoffIdFor(once?`once-per:${once}`:`${input.relay}:${input.input.request_key}`);
+    const index=await resolveItemShard(env,mount.resource,handoff);
+    targets=[contentShardAddress(mount.resource,index)];
+  }
+  return targets;
+}
+
+export async function resolveShardCommandPlan(env,mount,operation,args) {
+  let input=args[0]??{};
+  if(operation==='spaceAgents'&&input.verb==='take'&&!input.input?.handoff_id){
+    if(!input.input?.request_key)input={...input,input:{...input.input,request_key:`take:${crypto.randomUUID()}`}};
+    return [{address:taskCommandAddress(mount.resource,input),args:[input,...args.slice(1)]}];
+  }
+  const entries=operation==='addSharedSpaceItems'?input.entries:input.items;
+  if(!['addSpaceItems','addSharedSpaceItems'].includes(operation)||!Array.isArray(entries)||!entries.length||entries.length>100) return (await resolveShardInvocationTargets(env,mount,operation,args)).map(address=>({address,args}));
+  const groups=new Map(),defaultIndex=contentCommandShard(operation,input);
+  for(let position=0;position<entries.length;position++){
+    const entry=entries[position],item=operation==='addSharedSpaceItems'?entry.item??entry.record:entry;let index=item.anchor?.record?contentShardIndex(item.anchor.record):defaultIndex;
+    if(item.reply_to)index=await resolveItemShard(env,mount.resource,item.reply_to);
+    if(item.reply_to_source)index=await resolveItemShard(env,mount.resource,sourceRouteKey(input.relay,item.reply_to_source));
+    const source=operation==='addSharedSpaceItems'?entry.record?.private_ref??entry.source_ref:item.source_ref;
+    if(source!=null)index=await resolveItemShard(env,mount.resource,sourceRouteKey(input.relay,source),{index});
+    const address=contentShardAddress(mount.resource,index);
+    if(!groups.has(address))groups.set(address,{address,positions:[],items:[],order:[]});
+    const group=groups.get(address);group.positions.push(position);group.items.push(entry);if(input.order_at)group.order.push(input.order_at[position]);
+  }
+  return [...groups.values()].map(group=>({address:group.address,positions:group.positions,args:[{...input,...(operation==='addSharedSpaceItems'?{entries:group.items}:{items:group.items}),...(input.order_at?{order_at:group.order}:{}),...(input.request_key?{request_key:`${input.request_key}:${group.address}`}:{})},...args.slice(1)]}));
+}

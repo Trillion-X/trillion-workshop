@@ -1,0 +1,61 @@
+// The last facts setup read from each owner (src/setup-known.mjs): kept only from a successful read, written only when a
+// value changed, and offered only for an owner that could not be read now.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { knownFacts, mergeKnown, normalizeLive } from '../src/setup-known.mjs';
+
+const NOW = Date.parse('2026-10-08T14:02:00Z');
+const LATER = Date.parse('2026-10-09T09:00:00Z');
+
+test('a read that changes a value keeps it with the time, an unchanged one keeps its old time, and a failed one is carried over', () => {
+  const first = mergeKnown(null, normalizeLive({ pursuits: [{ title: 'Ship setup', status: 'active' }], connected: true }), NOW);
+  assert.equal(first.changed, true);
+  assert.deepEqual(first.snapshot.pursuits, { value: ['Ship setup'], at: '2026-10-08T14:02:00.000Z' });
+  const same = mergeKnown(first.snapshot, normalizeLive({ pursuits: [{ title: 'Ship setup' }] }), LATER);
+  assert.equal(same.changed, false);
+  assert.equal(same.snapshot.pursuits.at, '2026-10-08T14:02:00.000Z');
+  const failed = mergeKnown(first.snapshot, normalizeLive({ pursuits: undefined }), LATER);
+  assert.equal(failed.changed, false);
+  assert.deepEqual(failed.snapshot.pursuits, first.snapshot.pursuits);
+});
+
+test('a fact read now wins, and a kept fact says when it was read', () => {
+  const snapshot = mergeKnown(null, normalizeLive({ pursuits: [{ title: 'Old' }], apps: ['Claude'] }), NOW).snapshot;
+  const now = knownFacts(normalizeLive({ pursuits: [{ title: 'New' }] }), snapshot);
+  assert.deepEqual(now.owned.pursuits, [{ title: 'New', status: 'active' }]);
+  assert.equal(now.known_at.owned?.pursuits, undefined, 'a fact read now is not stale');
+  assert.deepEqual(now.aiApps, ['Claude']);
+  assert.equal(now.known_at.ai.apps, '2026-10-08T14:02:00.000Z');
+});
+
+test('nothing read and nothing kept is unknown, not an empty fact', () => {
+  const facts = knownFacts(normalizeLive({}), {});
+  assert.equal(facts.owned.pursuits, null);
+  assert.equal(facts.owned.profile, null);
+  assert.equal(facts.aiApps, null);
+});
+
+test('lists are capped and only titles and names are kept', () => {
+  const live = normalizeLive({ pursuits: Array.from({ length: 250 }, (_, index) => ({ title: `P${index}`, now: 'secret', after: 'secret' })) });
+  assert.equal(live.pursuits.length, 200);
+  assert.equal(live.pursuits[0], 'P0');
+  assert.equal(JSON.stringify(live).includes('secret'), false);
+});
+
+test('an ended or archived pursuit is not kept as one Trillion knows', () => {
+  const live = normalizeLive({ pursuits: [{ title: 'Ship setup', status: 'active' }, { title: 'Old', status: 'ended' }, { title: 'Shelf', status: 'archived' }] });
+  assert.deepEqual(live.pursuits, ['Ship setup']);
+  assert.deepEqual(knownFacts(live, {}).owned.pursuits, [{ title: 'Ship setup', status: 'active' }]);
+});
+
+test('the last read keeps runtime component evidence and resolved requirements, each with the time it was read', () => {
+  const components = [{ id: 'agents', state: 'ready', ready: true, evidence: { agents: [{ name: 'Codex', takes_work: true }] } }];
+  const policy = { requirements_resolved: true, required_ids: ['ai-connection'] };
+  const first = mergeKnown(null, { ...normalizeLive({ components, connected: true }), policy }, NOW);
+  const facts = knownFacts(normalizeLive({}), first.snapshot);
+  assert.equal(facts.components[0].id, 'agents');
+  assert.equal(facts.known_at.components.agents, new Date(NOW).toISOString());
+  assert.deepEqual(facts.held_policy, { ...policy, known_at: new Date(NOW).toISOString() });
+  const later = mergeKnown(first.snapshot, { ...normalizeLive({ components }), policy }, LATER);
+  assert.equal(later.changed, false, 'an unchanged read keeps its old time');
+});

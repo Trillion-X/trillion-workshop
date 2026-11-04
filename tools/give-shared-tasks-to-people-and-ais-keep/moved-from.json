@@ -1,0 +1,38 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/space-assignment-delivery.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/give-shared-tasks-to-people-and-ais-keep/from-old-trillion/src/space-assignment-delivery.mjs.held",
+      "source_identity": "1f:8f18584271e589aaf222cc389d12315c7608cd889fcfc5dced438a3543f27185",
+      "identity": "1f:d18a09b2c554c387ad2e302206bc6dca6f958f5858cb94531402a1d8cf0382b7",
+      "held": true
+    },
+    {
+      "from": "src/space-task-command-owner.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/give-shared-tasks-to-people-and-ais-keep/from-old-trillion/src/space-task-command-owner.mjs.held",
+      "source_identity": "1f:107449086837351aca77517a687011a21d830771cc543eb1868c3cbc29693909",
+      "identity": "1f:52d88930dff76bc476edb6677b369f4ca63c11f09cc8d42a6a47e413889f6791",
+      "held": true
+    },
+    {
+      "from": "src/space-task-shard-query.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/give-shared-tasks-to-people-and-ais-keep/from-old-trillion/src/space-task-shard-query.mjs",
+      "source_identity": "1f:a6f09c65f7c79107adc1455440d0755710eb1f947ff04c396455d049abe49589",
+      "identity": "1f:a6f09c65f7c79107adc1455440d0755710eb1f947ff04c396455d049abe49589"
+    },
+    {
+      "from": "test/space-task-shard-query.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/give-shared-tasks-to-people-and-ais-keep/from-old-trillion/test/space-task-shard-query.test.mjs",
+      "source_identity": "1f:aff15b31bdccdde9c90d94b9ef1159e70d78ad36aa2ab0c33f35194ed8ebea24",
+      "identity": "1f:aff15b31bdccdde9c90d94b9ef1159e70d78ad36aa2ab0c33f35194ed8ebea24"
+    }
+  ]
+}

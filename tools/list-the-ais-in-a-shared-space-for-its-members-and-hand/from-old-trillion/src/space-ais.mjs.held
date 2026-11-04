@@ -1,0 +1,85 @@
+// src/space-ais.mjs
+//
+// PURPOSE
+//   The AIs in one space, shown to its members so the whole team is visible (three people with twelve AIs): every
+//   member's AIs put to work there, by member name and AI name, read from the space's own native owner (its `space`
+//   operation: members and the AI cards published there). And one member adding one of their own AIs to the space: its
+//   card is published there through the account's own AI owner (src/native-ai-space-owner.mjs), so every member sees it
+//   by its name, and this space is added to that AI's reach (src/ai-reach.mjs), so the AI reads it, adds to it and takes
+//   work there on its next request.
+//
+//   GET  /work/api/spaces/<id>/ais       { members: [{ name, you, ais: [{ name }], can_add?: [{ ai_id, name }] }],
+//                                          agents: [{ name, member, takes_work }] }   can_add only on your own row
+//   POST /work/api/spaces/<id>/ais/add   { ai }   one of your AIs (its ai_id from can_add): { said, ai_id }
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. The space is asked as this person, by its own native owner and rules: read_space to list, put_agent_to_work to
+//      add an AI, so someone the rules do not let (a non-member) reads and adds nothing.
+//   2. About another member's AI only two things leave: that it is at work in this space, and its name as published
+//      there. Never when it connected or was used, what else it reaches, or anything it did.
+//   3. Only the signed-in person adds, only an AI on their own list (src/ais.mjs), from their own page; an AI cannot add
+//      itself. Adding never widens an AI past what it was approved with (src/ai-reach.mjs choicesFor).
+//   4. Writes come only from this service's own pages (the origin check every /work/api write makes).
+//
+import { aisOf, chooseAiReach } from './account-routes.mjs';
+import { AI_REACH_WORDS, currentReach, reachesSpace, withSpace } from './ai-reach.mjs';
+import { within } from '../../../limit-what-one-sign-in-may-reach-the-persons/src/reach.mjs';
+
+const json = (value, status = 200) => Response.json(value, { status });
+const PATH = /^\/work\/api\/spaces\/([^/]+)\/ais(\/add)?$/;
+export const isSpaceAisPath = path => PATH.test(path);
+
+/** Whether an AI reaches a space now: any of its sign-ins does. */
+export const aiInSpace = (ai, spaceId) => ai.sign_ins.some(signIn => reachesSpace(currentReach(signIn), spaceId));
+/** Whether its person can add an AI to a space here: every sign-in is known and may be given the space. */
+export const aiAddable = (ai, spaceId) => Boolean(ai.reach) && ai.sign_ins.every(signIn => signIn.made && within(withSpace(ai.reach, spaceId), signIn.ceiling));
+
+/** The space's members, each with the AIs at work there by name (invariant 2), and on your own row the AIs of your own
+ *  list not yet at work there. `view` is the native `space` answer; `mine` the account's AIs (src/ais.mjs rows). */
+export function spaceAiRows(view, mine) {
+  const agents = view.agents ?? [];
+  return {
+    members: (view.members ?? []).map(member => {
+      const theirs = agents.filter(agent => agent.member_id === member.member_id);
+      // A member's card is named for the space and the member (src/spaces.mjs memberAgentId): the AI's key, then `~`.
+      const placed = new Set(theirs.map(agent => agent.agent_id.slice(0, agent.agent_id.lastIndexOf('~'))));
+      return { name: member.name, you: member.you === true, ais: theirs.map(agent => ({ name: agent.name })),
+        ...(member.you ? { can_add: mine.filter(ai => !placed.has(ai.id.slice(3))).map(ai => ({ ai_id: ai.id, name: ai.label })) } : {}) };
+    }),
+    agents: agents.map(agent => ({ name: agent.name, member: agent.member, takes_work: agent.takes_work === true })),
+  };
+}
+
+/** The account's reach owner widening an added AI's sign-ins to the space, where they may be given it (invariant 3).
+ *  Sign-in reach has no native owner yet; it stays with the account's sign-ins until one exists. */
+export const widenAiReach = ({ env, userId, person, readAis }) => async (ai, spaceId) => {
+  const { apps, keys } = await aisOf(env, userId, person, readAis);
+  for (const entry of [...apps, ...keys])
+    if (entry.sign_ins.some(signIn => ai.sign_ins?.includes(signIn.sign_in)) && !aiInSpace(entry, spaceId) && aiAddable(entry, spaceId))
+      await chooseAiReach(env, userId, person, entry.ai_id, withSpace(entry.reach, spaceId), readAis);
+};
+
+/** `space({ resource, operation, input, requestKey })` runs one operation of the space's native owner as this page; `readAis()` reads
+ *  the account's own AI list; `publish({ resource, input, requestKey })` puts one to work through the account's AI owner;
+ *  `widenReach(ai, spaceId)` gives its sign-ins the space. Left out (a look, a viewer), the AIs are not offered. */
+export async function handleSpaceAis(request, { origin, url, space, readAis, publish, widenReach }) {
+  const [, rawId, add] = PATH.exec(url.pathname);
+  const spaceId = decodeURIComponent(rawId);
+  if (request.method !== (add ? 'POST' : 'GET')) return json({ error: 'Not found' }, 404);
+  if (add && request.headers.get('origin') !== origin) return json({ error: 'Not allowed.' }, 403);
+  if (typeof space !== 'function' || typeof readAis !== 'function' || typeof publish !== 'function') return json({ error: 'Not allowed.' }, 403);
+  try {
+    if (add) {
+      const body = await request.json().catch(() => ({}));
+      const ai = (await readAis()).find(row => row.id === String(body?.ai ?? ''));
+      if (!ai) return json({ error: 'That AI is not connected to your account.' }, 404);
+      await publish({ resource: spaceId, input: { ai: ai.id, description: AI_REACH_WORDS.in_space.description.replace('{name}', ai.label) }, requestKey: `space-ais:add:${crypto.randomUUID()}` });
+      if (widenReach) await widenReach(ai, spaceId);
+      return json({ said: AI_REACH_WORDS.said.added.replace('{name}', ai.label), ai_id: ai.id });
+    }
+    const [view, mine] = await Promise.all([space({ resource: spaceId, operation: 'space', input: {}, requestKey: `space-ais:${crypto.randomUUID()}` }), readAis()]);
+    return json(spaceAiRows(view, mine));
+  } catch (error) {
+    return json({ error: error.message }, Number.isInteger(error.status) && error.status >= 400 ? error.status : 400);
+  }
+}

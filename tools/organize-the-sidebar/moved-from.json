@@ -1,9 +1,41 @@
 {
-  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
-  "source": "trillion",
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
   "calls": [],
   "files": [
+    {
+      "from": "src/community-logic/board-votes.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-the-sidebar/read-data/board-votes.ts",
+      "source_identity": "1f:3b84f7d50ea2795bce2a15281e3386bd6065494d87cb990ab278bebd26e82bc1",
+      "identity": "1f:313444101269ca619b37f3b8ad5a33d94ebc816499af2921373f3f81d6d9f5eb",
+      "reused": true,
+      "adapted": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "src/community-logic/board-weighted-signals.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-the-sidebar/read-data/board-weighted-signals.ts",
+      "source_identity": "1f:0346babe142280410daddbce529743cbd5219521115f9a772193ee7bbe6a1a69",
+      "identity": "1f:df65c2e3597ba3ad9903e1f1f9f393aa60a972a22443eca35cf60dab8899759f",
+      "reused": true,
+      "adapted": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "test/community-logic/board-votes.test.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-the-sidebar/test/community-logic/board-votes.test.ts",
+      "source_identity": "1f:85827b2db75d6a06596164501f86d7cc3eb85d76eb551334f04c132b7088ecf6",
+      "identity": "1f:f77f7d3d8dae5c0ec2a2d700d86fbc16645d36d4b3ca52b3073d03a27dd43fd8"
+    },
+    {
+      "from": "test/community-logic/board-weighted-signals.test.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-the-sidebar/test/community-logic/board-weighted-signals.test.ts",
+      "source_identity": "1f:9972a26f6b1cb220c72a14c41a8df4c7647dbfb44befa8f9f69d8406541c4775",
+      "identity": "1f:10b63d98bc11b32c4c90b8ad8ae079e157b6c1e15f6f1b15381c103b61515500"
+    },
     {
       "from": "parts/group/do-work/apply-grouping-intent.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
@@ -1451,24 +1483,6 @@
       "to": "tools/organize-the-sidebar/read-data/board-view-store.ts",
       "source_identity": "1f:edd1b66fa6c30bff4b1061637ce6eb176a30abc889708b4f00b23619973d85c0",
       "identity": "1f:edd1b66fa6c30bff4b1061637ce6eb176a30abc889708b4f00b23619973d85c0",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/group/read-data/board-votes.ts",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
-      "to": "tools/organize-the-sidebar/read-data/board-votes.ts",
-      "source_identity": "1f:313444101269ca619b37f3b8ad5a33d94ebc816499af2921373f3f81d6d9f5eb",
-      "identity": "1f:313444101269ca619b37f3b8ad5a33d94ebc816499af2921373f3f81d6d9f5eb",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/group/read-data/board-weighted-signals.ts",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
-      "to": "tools/organize-the-sidebar/read-data/board-weighted-signals.ts",
-      "source_identity": "1f:df65c2e3597ba3ad9903e1f1f9f393aa60a972a22443eca35cf60dab8899759f",
-      "identity": "1f:df65c2e3597ba3ad9903e1f1f9f393aa60a972a22443eca35cf60dab8899759f",
       "found_by": "same bytes"
     },
     {

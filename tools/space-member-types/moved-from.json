@@ -10,6 +10,21 @@
       "to": "tools/space-member-types/src/space-member-types.json",
       "source_identity": "1f:b32676ff2fc1e14afef76ddda90ebf4af21c48a07d0c3e8218fba0c931e02cf3",
       "identity": "1f:b32676ff2fc1e14afef76ddda90ebf4af21c48a07d0c3e8218fba0c931e02cf3"
+    },
+    {
+      "from": "src/space-member-types.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/space-member-types/src/space-member-types.json",
+      "source_identity": "1f:b32676ff2fc1e14afef76ddda90ebf4af21c48a07d0c3e8218fba0c931e02cf3",
+      "identity": "1f:b32676ff2fc1e14afef76ddda90ebf4af21c48a07d0c3e8218fba0c931e02cf3",
+      "reused": true
+    },
+    {
+      "from": "test/space-member-types-read-through.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/space-member-types/test/space-member-types-read-through.test.mjs",
+      "source_identity": "1f:49998479b88fe87f1d4724d0724d82f5e82b63bec7b17422c279166bb6040037",
+      "identity": "1f:a02ba8cc008ba6c87134365cb846aed2c5e34ec507fc90b0efe94e578420dfee"
     }
   ]
 }

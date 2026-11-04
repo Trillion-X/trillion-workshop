@@ -1,0 +1,81 @@
+{
+  "_what": "What a Waiting on you row's done_when_rule (src/lists.json kind done-when-rule) can be checked over (src/done-when.mjs): each source id is a real current read of the thing it names, shaped into rows with typed fields the formula engine's rules compare. `reader` names the read the owner (src/person-store.mjs doneWhenReaders) answers fresh every time, an array of items (or { items, fields } when the fields are only known at the read: `flat` rows are used as they come, `spread` copies the item's object at that path in as extra fields of the kind named). `row` says how each field is read from an item: a path list (the first path holding a value wins), { value }, or { path, as: boolean | ms | number, equals?, default? }. `named_by` is a field whose is_text / is_any_of tests in the rule name the things to look at (a file's path, a job's id), so the reader looks only at those. `prefix` makes the id a family (list:<list id>), the rest of the id handed to the reader as its `arg`; `fields_reader` answers that family's fields without reading rows. `noun` is how the source's rows are called in a refusal. `newest` bounds how many of the newest items of each named thing a reader looks at (arrived: what a carrier route brought, the person's own words in that place, read from the message speaker index, so a download is checked by its kind in the words the carrier wrote, such as a route of Downloads and text containing .cer, never by an exact file name). Nothing here is cached: a source is read each time a row is checked. `rows_most` bounds how many records a check will load (more fails with too_many, naming the count). `columns` (saved-logins) maps each field to the one plain SQL column holding it, so a check reads only the columns its rule names, never the sealed values.",
+  "check_seconds": 5,
+  "retry_seconds": 15,
+  "settle_ms": 400,
+  "rows_most": 5000,
+  "says_chars": 200,
+  "rules_most": 40,
+  "matches": [
+    { "id": "all", "what": "every row passes the rule", "done_when": "all" },
+    { "id": "any", "what": "at least one row passes the rule", "done_when": "any" },
+    { "id": "none", "what": "no row passes the rule", "done_when": "none" }
+  ],
+  "sources": {
+    "saved-logins": {
+      "label": "Saved logins", "noun": "logins", "reader": "saved-logins",
+      "columns": { "login_id": "id", "title": "title", "site": "site", "ai_can_read": "ai_can_read" },
+      "fields": [{ "id": "login_id", "kind": "text" }, { "id": "title", "kind": "text" }, { "id": "site", "kind": "text" }, { "id": "ai_can_read", "kind": "boolean" }],
+      "row": { "login_id": [["login_id"]], "title": [["title"]], "site": [["site"]], "ai_can_read": { "path": [["ai_can_read"]], "as": "boolean" } }
+    },
+    "connections": {
+      "label": "Connected services", "noun": "connections", "reader": "connections",
+      "fields": [{ "id": "service", "kind": "text" }, { "id": "connected", "kind": "boolean" }, { "id": "account", "kind": "text" }],
+      "row": { "service": [["vendor"]], "connected": { "path": [["status"]], "as": "boolean", "equals": "connected", "default": "connected" }, "account": [["account_label"]] }
+    },
+    "computer-sources": {
+      "label": "What the person's computers can read", "noun": "computer sources", "reader": "computer-sources", "named_by": "source_id",
+      "fields": [{ "id": "computer_id", "kind": "text" }, { "id": "computer", "kind": "text" }, { "id": "source_id", "kind": "text" }, { "id": "source", "kind": "text" }, { "id": "state", "kind": "text" }, { "id": "reported_at", "kind": "date" }],
+      "row": { "computer_id": [["computer_id"]], "computer": [["computer"]], "source_id": [["source_id"]], "source": [["source"]], "state": [["state"]], "reported_at": { "path": [["reported_at"]], "as": "ms" } }
+    },
+    "device-facts": {
+      "label": "What the person's devices report", "noun": "devices", "reader": "device-facts",
+      "fields": [{ "id": "device", "kind": "text" }, { "id": "reported_at", "kind": "date" }],
+      "row": { "device": [["device"]], "reported_at": { "path": [["at"]], "as": "ms" } },
+      "spread": { "path": ["facts"], "kind": "text" }
+    },
+    "list": {
+      "label": "Rows of one of the person's lists (list:<list id>)", "noun": "rows", "prefix": "list:", "arg": "list_id", "reader": "list", "fields_reader": "list-fields", "revision": "list", "flat": true,
+      "fields": [{ "id": "row_id", "kind": "text" }]
+    },
+    "files": {
+      "label": "Files by path", "noun": "files", "reader": "files", "named_by": "path",
+      "fields": [{ "id": "path", "kind": "text" }, { "id": "exists", "kind": "boolean" }, { "id": "modified", "kind": "date" }, { "id": "bytes", "kind": "number" }],
+      "row": { "path": [["path"]], "exists": { "path": [["found"]], "as": "boolean" }, "modified": { "path": [["modified_at_ms"]], "as": "ms" }, "bytes": { "path": [["byte_length"]], "as": "number" } }
+    },
+    "arrived": {
+      "label": "What the person's own places brought, by route (a Mac's Downloads or Screenshots, Voice Memos, any carrier), newest first", "noun": "arrivals", "reader": "arrived", "named_by": "route", "newest": 50,
+      "fields": [{ "id": "route", "kind": "text" }, { "id": "text", "kind": "text" }, { "id": "at", "kind": "date" }, { "id": "files", "kind": "text" }],
+      "row": { "route": [["app"]], "text": [["text"]], "at": { "path": [["at"]], "as": "ms" }, "files": [["files"]] }
+    },
+    "work": {
+      "label": "Work handed to AIs and things given to the person, by id", "noun": "items", "reader": "work", "named_by": "id",
+      "fields": [{ "id": "id", "kind": "text" }, { "id": "kind", "kind": "text" }, { "id": "status", "kind": "text" }, { "id": "said", "kind": "text" }, { "id": "finished", "kind": "boolean" }],
+      "row": { "id": [["id"]], "kind": [["kind"]], "status": [["status"]], "said": [["said"]], "finished": { "path": [["finished"]], "as": "boolean" } }
+    }
+  },
+  "words": {
+    "counts": "{good} of {total} {says}",
+    "no_rule": "Trillion can't check this by itself. Press Done when it's done.",
+    "device": "Waiting for one of your devices to show it's done.",
+    "unfinished": "Trillion can't check this by itself: its check is not finished ({why}). Press Done when it's done.",
+    "unknown_source": "Trillion can't check this by itself: it has no way to look at {over}. Press Done when it's done.",
+    "failed": "Couldn't check just now: {reason}. Trying again in {seconds} s.",
+    "too_slow": "it took longer than {seconds} s",
+    "too_many": "too many records to check ({count})",
+    "closed": "Checked: {says}",
+    "already_done": "already done: {says}",
+    "row_done": "already done: it was marked Done",
+    "no_longer_held": "no longer waiting: it is not waiting on you any more",
+    "row_gone": "no longer waiting: it is not on the list",
+    "bad_over": "done_when_rule.over \"{over}\" is not something Trillion can check. It can check: {allowed}.",
+    "bad_list": "done_when_rule.over \"{over}\" names a list this person does not keep. list_lists shows their lists.",
+    "bad_match": "done_when_rule.match \"{match}\" is not one of: {allowed}.",
+    "bad_says": "done_when_rule.says is the plain words of what is counted, read after \"<passing> of <all> \", such as \"logins your AIs can read\"; it must be 1 to {chars} characters.",
+    "bad_tree": "done_when_rule.tree must be a rule group { kind: \"group\", combinator: \"and\" | \"or\", negate: false, rules: [{ kind: \"rule\", field, operator, params }] } with at least one rule and at most {most}.",
+    "bad_field": "done_when_rule.tree names the field \"{field}\", which {over} does not have. Its fields are: {fields}.",
+    "bad_operator": "done_when_rule.tree uses the operator \"{operator}\", which is not one of the operators for {field} ({kind}). Allowed: {allowed}.",
+    "bad_params": "done_when_rule.tree: the rule on {field} ({operator}) is missing what it compares with ({input}).",
+    "needs_names": "done_when_rule.tree must name what to look at with {field} is_text (or is_any_of), because {over} looks only at the {noun} named."
+  }
+}

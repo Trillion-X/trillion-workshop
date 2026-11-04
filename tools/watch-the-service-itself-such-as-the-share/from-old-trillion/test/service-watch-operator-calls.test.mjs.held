@@ -1,0 +1,47 @@
+// test/service-watch-operator-calls.test.mjs
+//
+// The indirect form test/no-service-work-in-person-store.test.mjs reads by shape, run for real: one whole service-watch
+// pass (src/service-watch.mjs runServiceWatch, waking the checks a changed watch moved, then startServiceOwners, the
+// Worker's starter, which starts every watch owner and check owner that never ran) with every watch failing, a notice to tell and a
+// deploy waiting, over a stand-in PERSON namespace that records each store call. The operator account's store may be
+// asked only the methods the allowance row of src/service-watch.json (the one setting that names it) names (test/service-work-allowance.json `runtime_calls`);
+// a pass that reaches it any other way, or for a row that was removed, fails here even when no source line has the shape.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { runServiceWatch, startServiceOwners } from '../src/service-watch.mjs';
+import settings from '../../../service-watch/src/service-watch.json' with { type: 'json' };
+import { readServiceCheckStates } from '../../../run-trillions-own-capability-checks-each-on-its-own-schedule-and/from-old-trillion/src/service-checks.mjs.held';
+import { recordBooks } from './record-book-for-tests.mjs';
+
+const allowance = JSON.parse(readFileSync(new URL('./service-work-allowance.json', import.meta.url), 'utf8')).files;
+const OPERATOR = 'operator-fixture';
+
+test('a whole service-watch pass asks the operator store only what its allowance row names', async () => {
+  const calls = [];
+  const kept = new Map();
+  const store = id => new Proxy({}, { get: (_, method) => (method === 'then' ? undefined : async () => { calls.push({ id, method }); return { handoff_id: 'handoff_1', state: 'completed', output: {} }; }) });
+  const env = {
+    OPERATOR_ACCOUNT_ID: OPERATOR,
+    APP_KV: { async get(key, options) { const value = kept.get(key) ?? null; return value !== null && (options === 'json' || options?.type === 'json') ? JSON.parse(value) : value; }, async put(key, value) { kept.set(key, value); }, async delete(key) { kept.delete(key); }, async list() { return { keys: [] }; } },
+    PERSON: { idFromName: name => name, idFromString: name => name, get: id => store(id) },
+  };
+  // A deploy waiting past its window, so the release path runs too.
+  for (const watch of settings.watches) if (watch.waiting_key) kept.set(watch.waiting_key, JSON.stringify({ commit: 'c0ffee', ready_at: '2026-01-01T00:00:00.000Z' }));
+  const fetch = async () => { throw new Error('offline in this fixture'); };
+  // The service's own checks, each in its own record book with the real owner wiring (src/book-handlers.mjs), are
+  // started in the same pass.
+  env.RECORD_BOOK = recordBooks(env);
+  const run = await runServiceWatch(env, { now: Date.now(), fetch });
+  assert.ok(Array.isArray(run.checked) && run.checked.every(item => !item.error), JSON.stringify(run.checked));
+  assert.ok(run.checked.length <= settings.checks.length, 'a pass wakes only the checks its changed watches moved');
+  const started = await startServiceOwners(env, { now: Date.now() });
+  assert.ok(started.watches.every(item => !item.error) && started.checks.every(item => !item.error), JSON.stringify(started));
+  assert.equal(run.checked.length + started.checks.length, settings.checks.length, 'every check was started in its own owner, once');
+  assert.equal((await readServiceCheckStates(env)).length, settings.checks.length, 'each owner published what it saw');
+  const asked = [...new Set(calls.filter(call => call.id === OPERATOR).map(call => call.method))].sort();
+  const allowed = [...(allowance['src/service-watch.json']?.runtime_calls ?? [])].sort();
+  assert.ok(asked.length > 0 || allowed.length === 0, 'the fixture reaches the stores a pass reaches');
+  assert.deepEqual(asked.filter(method => !allowed.includes(method)), [], 'the operator store was asked work its allowance does not name');
+  assert.deepEqual(allowed.filter(method => !asked.includes(method)), [], 'lower the allowance: a pass no longer asks the operator store this');
+});

@@ -1,0 +1,96 @@
+// Trillion's defaults (src/starting-rules.mjs) read through the account's real automations (src/automations.mjs), over
+// the records exactly as src/person-store.mjs hands them (src/shipped-defaults.mjs), with no adapter in between: every
+// default is there and runs while nothing of it is written into the store.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { sqliteHost } from '../src/local-store.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { makeAutomations } from '../src/automations.mjs';
+import { shippedAutomations } from '../src/starting-rules.mjs';
+import { overlayRecords } from '../src/shipped-defaults.mjs';
+import startingRuleRows from '../records/starting-rules.json' with { type: 'json' };
+import { builtInToolsForTests } from './engine-tools-for-tests.mjs';
+
+// One account's automations over its records with these defaults shipped, as person-store builds them.
+function account(rows, run = async () => ({ run_id: 'run_1' }), partition = 'person:test') {
+  const { sql, transaction } = sqliteHost(':memory:');
+  let automations = null;
+  const store = decisionStore(sql, { transaction, watch: { active: () => automations.watching(), changed: records => automations.changed(records) } });
+  const records = overlayRecords(store.eeaf, shippedAutomations({ every_account: rows }), { ignore: ['set_at', 'revision'] });
+  automations = makeAutomations({
+    eeaf: records, sql, builtIn: builtInToolsForTests, partition,
+    eventRules: () => ({ set: async () => {}, list: async () => ({ rules: [], listening: [], recent_events: [] }) }),
+    check: async () => {},
+    run,
+  });
+  return { store, automations, records };
+}
+
+test('every default reads through the automations person-store hands them, and none of it is written', async () => {
+  const { store, automations } = account(startingRuleRows.every_account);
+  const rules = (await automations.listRules()).rules;
+  const schedules = (await automations.listSchedules()).schedules;
+  for (const row of startingRuleRows.every_account) {
+    const shown = row.schedule_id ? schedules.find(item => item.schedule_id === row.schedule_id) : rules.find(item => item.rule_id === row.rule_id);
+    assert.ok(shown, `${row.schedule_id ?? row.rule_id} is there`);
+    assert.equal(shown.made_by, 'trillion');
+  }
+  assert.deepEqual(store.eeaf.ids('trigger-rule'), [], 'no rule is copied into the store');
+  assert.deepEqual(store.eeaf.ids('schedule'), [], 'no schedule is copied into the store');
+});
+
+test('finished media rules dispatch audio and video once, while other files stay out', async () => {
+  const runs = [];
+  const { store, automations } = account(startingRuleRows.every_account.filter(row => row.rule_id?.startsWith('starting:transcribe-')), async (then, input, requestKey) => { runs.push({ then, input, requestKey }); return { run_id: requestKey }; }, 'person:media-rules');
+  const identity = '1f:' + 'a'.repeat(64);
+  // The sound a tool took out of a video (made_by_tool) is a step of its work, never a new recording to work through.
+  for (const [suffix, media_type, made_by_tool] of [['audio', 'audio/mpeg', false], ['video', 'video/mp4', false], ['text', 'text/plain', false], ['tool-sound', 'audio/mpeg', true]]) {
+    store.eeaf.write([{ id: `file-arrival:${suffix}`, type: 'file-arrival', value: { identity, media_type, made_by_tool } }], { actor: { by: 'test' } });
+    await automations.settled();
+  }
+  assert.equal(runs.length, 2);
+  assert.deepEqual(runs.map(run => run.input.identity), [identity, identity]);
+  // A finished recording is transcribed and handed to the person's AIs in one step (tool:keep-a-voice-memo).
+  assert.ok(runs.every(run => run.then.tool_id === 'tool:keep-a-voice-memo'));
+});
+
+test('the board for each decided build ships turned off: a decided build makes no space until the person turns the rule on', async () => {
+  const shipped = startingRuleRows.every_account.filter(row => row.then?.tool_id === 'tool:keep-a-board');
+  assert.equal(shipped.length, 1);
+  const decided = { id: 'case:open-a-bakery', type: 'decision', value: { status: 'needs_outcome', method: { id: 'universal' }, input: { goal: 'Open a bakery' }, decision: { reason: 'The street needs one' } } };
+  const offRuns = [];
+  const off = account(shipped, async (then, input, requestKey) => { offRuns.push({ then, input, requestKey }); return { run_id: requestKey }; }, 'person:board-rule-off');
+  off.store.eeaf.write([decided], { actor: { by: 'test' } });
+  await off.automations.settled();
+  assert.equal(offRuns.length, 0, 'as shipped, no decision gets a space');
+
+  const runs = [];
+  const { store, automations } = account(shipped.map(row => ({ ...row, enabled: true })), async (then, input, requestKey) => { runs.push({ then, input, requestKey }); return { run_id: requestKey }; }, 'person:board-rule-on');
+  store.eeaf.write([decided], { actor: { by: 'test' } });
+  await automations.settled();
+  assert.equal(runs.length, 1, 'turned on, a decided build runs the tool');
+  assert.deepEqual(runs[0].input, { subject: 'case:open-a-bakery', title: 'Open a bakery' }, 'the board is named for the decision and copies nothing its page already shows');
+});
+
+test('an AI\'s recorded message starts the weigher of what AIs leave the person; the person\'s own and anyone else\'s start nothing', async () => {
+  const runs = [];
+  const { store, automations } = account(startingRuleRows.every_account.filter(row => row.then?.tool_id === 'tool:weigh-steps-ais-left-you'), async (then, input, requestKey) => { runs.push({ then, input, requestKey }); return { run_id: requestKey }; }, 'person:weigher');
+  for (const [id, speaker] of [['m1', 'person'], ['m2', 'ai'], ['m3', 'Someone (voice-2)']]) {
+    store.eeaf.write([{ id: `message:${id}`, type: 'message', value: { app: 'Codex', conversation_id: 'c1', speaker, final_reply: speaker === 'ai', text: 'words', recorded_at: new Date().toISOString() } }], { actor: { by: 'test' } });
+    await automations.settled();
+  }
+  assert.equal(runs.length, 1, 'only the AI message starts a run');
+  assert.equal(runs[0].then.tool_id, 'tool:weigh-steps-ais-left-you');
+  assert.deepEqual(runs[0].input, { message_id: 'message:m2' });
+});
+
+test('the weigher of what AIs leave the person starts when an AI writes, and a person\'s own message starts nothing', async () => {
+  const runs = [];
+  const { store, automations } = account(startingRuleRows.every_account.filter(row => row.then?.tool_id === 'tool:weigh-steps-ais-left-you'), async (then, input, requestKey) => { runs.push({ then, requestKey }); return { run_id: requestKey }; }, 'person:weigher');
+  store.eeaf.write([{ id: 'message:person-1', type: 'message', value: { app: 'Codex', conversation_id: 'c1', speaker: 'person', text: 'Fix it.' } }], { actor: { by: 'test' } });
+  await automations.settled();
+  assert.equal(runs.length, 0, 'no AI wrote, so nothing runs');
+  store.eeaf.write([{ id: 'message:ai-1', type: 'message', value: { app: 'Codex', conversation_id: 'c1', speaker: 'ai', final_reply: true, text: 'Press the switch on /connections.' } }], { actor: { by: 'test' } });
+  await automations.settled();
+  assert.deepEqual(runs.map(run => run.then.tool_id), ['tool:weigh-steps-ais-left-you']);
+});

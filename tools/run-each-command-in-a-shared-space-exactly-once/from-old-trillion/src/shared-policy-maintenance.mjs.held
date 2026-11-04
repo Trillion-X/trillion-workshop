@@ -1,0 +1,62 @@
+// Completing an already-held policy fence is an obligation of the original
+// canonical command, including when that command just removed its own member.
+// This proof admits only reconciliation, never a new content/domain action.
+import {identityOf} from '../../../shared-code/src/typed-operation-contract.mjs';
+import {sharedAccountMove} from './shared-account-identity.mjs';
+import {sharedNativeExecution} from './shared-native-execution-context.mjs';
+import {contentShardAddress} from '../../../keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-shards.mjs';
+import { hostOf, isAt } from './resource-host.mjs';
+export const sharedPolicyMaintenanceMethods=new Set(['fenceContentPolicy','acceptContentPolicy','publishContentPolicy','spaceContentInvariantProjection','ackSpaceMarketplaceRevokes','contentPolicyActivity']);
+export function setupSharedPolicyMaintenance(sql){
+ sql.exec('CREATE TABLE IF NOT EXISTS shared_policy_reconciliation_origins(space_id TEXT NOT NULL,fence_id TEXT NOT NULL,permit_id TEXT NOT NULL,descriptor_json TEXT NOT NULL,context_json TEXT NOT NULL,PRIMARY KEY(space_id,fence_id,permit_id))');
+}
+export function sharedPolicyScopeContains(owner,spaceId,context=sharedNativeExecution()?.context){
+ if(!context)return false;
+ if(sharedAccountMove(context))return true;
+ const root=context.commitment.resource,seen=new Set();let current=spaceId;
+ // A canonical parent mutation may publish actual descendant policies. A
+ // shared physical Book alone never supplies an unrelated logical scope.
+ for(let depth=0;depth<64;depth++){
+  if(current===root)return true;
+  if(!current)return false;
+  if(seen.has(current))throw new Error('Canonical policy ancestry is cyclic.');seen.add(current);
+  current=owner.sql.exec('SELECT parent_id FROM memberships WHERE id=?',current).toArray()[0]?.parent_id;
+ }
+ throw new Error('Canonical policy ancestry exceeds its installed bound.');
+}
+export function captureSharedPolicyMaintenance(owner,route,fenceId){
+ const context=sharedNativeExecution()?.context;
+ const move=sharedAccountMove(context);
+ if(!context||!isAt(owner, { kind: 'network', key: context.commitment.address })||!sharedPolicyScopeContains(owner,route.space_id,context))throw new Error('Policy reconciliation requires its exact admitted canonical parent.');
+ const copy=owner.sql.exec("SELECT space_id,transfer_id FROM space_partition_copy WHERE state='sealed' LIMIT 1").toArray()[0];
+ const erasure=context.commitment.lifecycle?.kind==='sharedResumeLifecycle'&&context.commitment.lifecycle.erasure_relay;
+ if(!copy||context.commitment.address!==`space:${copy.space_id}`||(!erasure&&!move&&String(copy.transfer_id)!==String(context.commitment.generation)))throw new Error('Policy reconciliation has a different canonical incarnation.');
+ const descriptor={space_id:route.space_id,policy_address:context.commitment.address,policy_generation:copy.transfer_id,content_address:route.address,content_generation:route.generation,fence_id:fenceId,permit_id:context.permit_id,input_identity:context.input_identity};
+ owner.sql.exec('INSERT OR IGNORE INTO shared_policy_reconciliation_origins VALUES(?,?,?,?,?)',route.space_id,fenceId,context.permit_id,JSON.stringify(descriptor),JSON.stringify(context));
+ return descriptor;
+}
+export function readSharedPolicyMaintenance(owner,{descriptor,claims,recorder}){
+ const copy=owner.sql.exec("SELECT space_id,transfer_id FROM space_partition_copy WHERE state='sealed' LIMIT 1").toArray()[0];
+ if(!copy||descriptor.policy_address!==owner.ctx.id.toString()||descriptor.policy_address!==`space:${copy.space_id}`||String(copy.transfer_id)!==String(descriptor.policy_generation))throw Object.assign(new Error('Original policy reconciliation incarnation changed.'),{status:403});
+ const saved=owner.sql.exec('SELECT descriptor_json,context_json FROM shared_policy_reconciliation_origins WHERE space_id=? AND fence_id=? AND permit_id=? LIMIT 1',descriptor.space_id,descriptor.fence_id,descriptor.permit_id).toArray()[0];
+ const pending=owner.sql.exec('SELECT address,generation,fence_id FROM space_content_policy_reconcile WHERE space_id=?',descriptor.space_id).toArray()[0];
+ if(!saved||identityOf(JSON.parse(saved.descriptor_json))!==identityOf(descriptor)||!pending||pending.address!==descriptor.content_address||String(pending.generation)!==String(descriptor.content_generation)||pending.fence_id!==descriptor.fence_id)throw Object.assign(new Error('Original policy reconciliation fence is not pending.'),{status:403});
+ const context=JSON.parse(saved.context_json);
+ if(!sharedPolicyScopeContains(owner,descriptor.space_id,context))throw Object.assign(new Error('Original policy reconciliation descendant scope changed.'),{status:403});
+ if(identityOf(context.claims)!==identityOf(claims)||identityOf(context.recorder)!==identityOf(recorder))throw Object.assign(new Error('Original policy reconciliation principal changed.'),{status:403});
+ const command=owner.ctx.storage.sql.exec('SELECT state,input_identity,context_json FROM shared_native_commands WHERE permit_id=?',descriptor.permit_id).toArray()[0];
+ if(!command||command.state==='aborted'||command.input_identity!==descriptor.input_identity||identityOf(JSON.parse(command.context_json))!==identityOf(context))throw Object.assign(new Error('Original policy reconciliation command changed.'),{status:403});
+ return {allowed:true,fence_id:descriptor.fence_id,context};
+}
+export async function verifySharedPolicyMaintenance(owner,input,context){
+ const proof=context.commitment.policy_maintenance;
+ if(!proof)return false;
+ if(!sharedPolicyMaintenanceMethods.has(input.method)||proof.space_id!==context.commitment.resource||String(proof.content_generation)!==String(context.commitment.generation)||!(context.commitment.address===proof.content_address||Array.from({length:32},(_,index)=>contentShardAddress(proof.space_id,index)).includes(context.commitment.address)))throw Object.assign(new Error('This dependency is outside its original policy reconciliation fence.'),{status:403});
+ const canonical=hostOf(owner.env, { kind: 'network', key: proof.policy_address });
+ const current=await canonical.readSharedPolicyMaintenance({descriptor:proof,claims:context.claims,recorder:context.recorder});
+ const parent=current.context;
+ const gate=hostOf(owner.env, { kind: 'account-control', key: `gate:${JSON.stringify([parent.owner,parent.claims.sign_in,parent.resource])}` });
+ const checked=await gate.checkResourcePermit({owner:parent.owner,resource:parent.resource,claims:parent.claims,id:parent.permit_id,lease:parent.quota_reservation.lease,replay:true});
+ if(!checked.accepted)throw Object.assign(new Error('Original policy reconciliation parent rights changed.'),{status:403});
+ return true;
+}

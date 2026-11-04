@@ -1,6 +1,6 @@
 // A source quote is observed by this service, not accepted from an AI's or a page's claim.
 // Only the short quote and where/when it was seen are kept; nothing is published.
-import { identityOf } from '../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { identityOf } from '../../shared-code/src/record-identity.mjs';
 import { publicAddress } from '../../refuse-requests-to-private-addresses/public-address.mjs';
 
 const words = value => typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : '';

@@ -1,0 +1,24 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/device-distribution.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-devices-and-cameras/src/device-distribution.mjs",
+      "source_identity": "1f:5ced1d8073f4fae14f2e20f91b8818cbd0c1547893e4c20bb5775dfa5b460a5c",
+      "identity": "1f:2f42a94ed4d5057de69868a02623ceb47e771eac34989bb7ad5970282ed8f0e7",
+      "reused": true
+    },
+    {
+      "from": "src/devices.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-devices-and-cameras/src/devices.json",
+      "source_identity": "1f:a1e179d52364497179e248b462a6335dbb6fb5977fab38650dfdbfcae6049a4b",
+      "identity": "1f:a1e179d52364497179e248b462a6335dbb6fb5977fab38650dfdbfcae6049a4b",
+      "reused": true
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "id": "move:trillion-pr243-tests-to-apps-adapted",
+  "about": "A second round of the tests Trillion-X/trillion PR #243 (4ffa1dc4a2) deleted with no home and no port-backlog row whose imports are home in two repositories: screens and their parts in Trillion-X/trillion-apps web/, and the rows and code they read in Trillion-X/trillion-workshop. Each is carried byte for byte from 1e886c3f68 (each test there has the same bytes as at the tag old-trillion-before-worker-retire) into trillion-apps web/test/, the one tree that can reach both: trillion-apps depends on the trillion-workshop package, the Workshop does not depend on trillion-apps. Here every file they reach is home byte for byte, or as a copy an earlier lane adapted in trillion-apps (adapted_homes, each with how it was found); only a test with no failure by name that passes at the tag stays. A file home in the Workshop is imported through that package (homes_in_packages), never copied a second time. trillion-workshop docs/pr243-deleted-tests.json lists every such test and where it went.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-apps",
+    "package": "trillion-apps",
+    "shared_folder": "web"
+  },
+  "groups": [
+    {
+      "id": "tests-of-web-against-adapted-copies",
+      "owner": [
+        "test/screen-former-names.test.mjs",
+        "test/screen-view-request-retry.test.ts"
+      ],
+      "to": "web"
+    }
+  ],
+  "homes_in_packages": [
+    {
+      "from": "parts/ai-tool-catalog/do-work/talk-to-a-tool-server.mjs",
+      "home": "trillion-workshop/tools/ai-tool-catalog/do-work/talk-to-a-tool-server.mjs",
+      "source_identity": "1f:7b625a9a8ba000e3025a5370d41c8061ed7b7362bf1e1d9b60dd9fd7e8d6dbc4"
+    },
+    {
+      "from": "parts/headless-browser/launch.mjs",
+      "home": "trillion-workshop/tools/headless-browser/launch.mjs",
+      "source_identity": "1f:53bf2afcd25a2ba48a9366566e690187c1d0592c3fab79b793c28a01e6fc540e"
+    },
+    {
+      "from": "parts/http-client/do-work/public-address.mjs",
+      "home": "trillion-workshop/tools/refuse-requests-to-private-addresses/public-address.mjs",
+      "source_identity": "1f:0ca1798c69be9260d16d7d6328e0051d593c2fa36427a6bd81df328d864dc9e3"
+    },
+    {
+      "from": "parts/screen-look/do-work/workspace-utility-source.mjs",
+      "home": "trillion-workshop/tools/screen-look/do-work/workspace-utility-source.mjs",
+      "source_identity": "1f:8e0399ff0dbacbdc61999b3be696ec9260ca0a51671ef262d8a6594c7444d99a"
+    },
+    {
+      "from": "parts/screen-look/show/coss-workspace.css",
+      "home": "trillion-workshop/tools/screen-look/show/coss-workspace.css",
+      "source_identity": "1f:5eba3348dfdcbec2c141a80823bfe79f77565646938911f58fae264b2cae5625"
+    },
+    {
+      "from": "parts/ui/show/placeable-surface-intent/open-choices.json",
+      "home": "trillion-workshop/tools/decide-when-things-show/read-data/open-choices.json",
+      "source_identity": "1f:0a9b6f21761d52f67a53544cc48a4efc4337aaa597748c4c134f059ff2cd1cd9"
+    },
+    {
+      "from": "parts/ui/show/server-rendered-page/page-sections-html.mjs",
+      "home": "trillion-workshop/tools/organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs",
+      "source_identity": "1f:96f3a44bbfbce604301db538e1b6676b6b008742efda4fe0e000cdd5b4c24283"
+    },
+    {
+      "from": "src/agent-delivery.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/agent-delivery.mjs",
+      "source_identity": "1f:1f66131dabb94be766a0da8847244d1bc9a50380e25277308bc7872169a7c375"
+    },
+    {
+      "from": "src/public-app-visitor-view.mjs",
+      "home": "trillion-workshop/tools/place-a-sign-up-form-or-a-published-recipe-on-a-site/src/public-app-visitor-view.mjs",
+      "source_identity": "1f:9ddffdf36cc55b35ea3f18bf97770e86cab90ecc4ae5ef8581c4fdef15255319"
+    },
+    {
+      "from": "src/waiting-on-you.json",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json",
+      "source_identity": "1f:8c4ddf371dd7a703d77ef484d1e7682dce45d32faf90118ffbb6f50f5f8cbb76"
+    },
+    {
+      "from": "src/work-workshop.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/work-workshop.mjs",
+      "source_identity": "1f:633442d4f150582bf1c558fc96916852cfc6129d7adcd059dd9bab5db28d52d6"
+    },
+    {
+      "from": "src/workshop.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs",
+      "source_identity": "1f:172fc5ddc10f4c05d04ea73375a4daadc2c7c29db6ceed3b769499b9703fa787"
+    },
+    {
+      "from": "src/workspace-page.mjs",
+      "home": "trillion-workshop/tools/show-the-workspace-screen-my-picture-name-and-account/src/workspace-page.mjs",
+      "source_identity": "1f:bc09929f06d4f3dda175f0a07deb37924ed6f18492d9d3fffbafdb89ec3a7243"
+    },
+    {
+      "from": "src/workspace/first-answers.json",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/first-answers.json",
+      "source_identity": "1f:84d0a68d47310625782a078a7e13f264419d9cd424c3ca831d048fbf1f21cac4"
+    },
+    {
+      "from": "src/workspace/inputs.json",
+      "home": "trillion-workshop/tools/choose-and-publish-screen-looks/src/workspace/inputs.json",
+      "source_identity": "1f:6a580e935bc7a96cebefa683da4160e185f2d63ee5321e77d6295a3090d67f93"
+    },
+    {
+      "from": "src/workspace/looks.json",
+      "home": "trillion-workshop/tools/choose-and-publish-screen-looks/src/workspace/looks.json",
+      "source_identity": "1f:695728bc3942d65541aaf93bede165bf22d1b183dd426c406f65251b12302128"
+    },
+    {
+      "from": "src/workspace/recording.json",
+      "home": "trillion-workshop/tools/turn-any-recording-already-in-the-persons-files/src/workspace/recording.json",
+      "source_identity": "1f:79a76f32ff5972307f349dda59416b58d13e957124af729ea8bdab8c48ee4927"
+    },
+    {
+      "from": "src/workspace/screens.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/screens.mjs",
+      "source_identity": "1f:f0ed2de02fce29b48abfd428ca7c5803bb99b1afb8bad71692dda7cec6454d27"
+    },
+    {
+      "from": "src/workspace/show-rules.json",
+      "home": "trillion-workshop/tools/set-up-my-account/read-data/show-rules.json",
+      "source_identity": "1f:b9b96c69ed269fa02ca31587fb4cf5a46d2e2626378f34cffdaab043fd3681b1"
+    }
+  ],
+  "calls": [
+    {
+      "id": "made-up-owner-name",
+      "means": "A real person's first name used as a test's sample owner becomes a made-up one. Nothing else in the file changes.",
+      "find": "Avery",
+      "replace": "Sam Example"
+    },
+    {
+      "id": "made-up-account-address",
+      "means": "A sample account address built on a real person's first name becomes a made-up one at the same example domain. Nothing else in the file changes.",
+      "find": "Avery@example.com",
+      "replace": "sam@example.com"
+    }
+  ],
+  "adapted_homes": [
+    {
+      "from": "src/workspace/api.ts",
+      "home": "web/src/workspace/api.ts",
+      "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "scripts/screen-modules.mjs",
+      "home": "web/scripts/screen-modules.mjs",
+      "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    }
+  ]
+}

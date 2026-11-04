@@ -1,7 +1,7 @@
 // Native workspace invariant owner. The original conflict/HLC algorithms are
 // supplied directly over this resource's carried SQL, without account forwarding.
 import {workspaceRecordSql,makeWorkspaceConflict,tickHybridClock,workspaceConflictLabel,workspaceValueIdentity} from '../../set-up-my-account/read-data/conflicts.mjs';
-import {jsonExpansionBytes} from '../../keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs';
+import {jsonExpansionBytes} from '../../json-expansion.mjs';
 import settings from '../../keep-and-wake-ai-sessions-on-this-computer/src/pool-settings.json' with {type:'json'};
 import firstAnswers from '../../keep-and-wake-ai-sessions-on-this-computer/src/workspace/first-answers.json' with {type:'json'};
 import historyRules from '../../make-screen-layouts-and-controls/src/workspace-record-history.json' with {type:'json'};

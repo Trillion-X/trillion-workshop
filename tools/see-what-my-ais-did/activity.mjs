@@ -42,7 +42,7 @@
 //   `depth` hops, each row and id once, so a loop ends), then the calls that used the item or were done for it.
 
 import marksData from './activity-marks.json' with { type: 'json' };
-import { EXECUTION_LIMITS, executionText } from './execution-context.mjs';
+import { EXECUTION_LIMITS, executionText } from '../keep-and-wake-ai-sessions-on-this-computer/src/execution-context.mjs';
 
 const TITLE_LENGTH = 200;
 const REASON_LENGTH = 400;

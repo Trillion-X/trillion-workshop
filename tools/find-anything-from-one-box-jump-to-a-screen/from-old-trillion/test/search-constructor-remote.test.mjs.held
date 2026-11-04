@@ -1,0 +1,125 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { searchFeedWriter } from '../../../shared-code/src/search-feed.mjs';
+import { makeSearch } from '../src/search.mjs';
+import { searchFollower } from '../src/search-follower.mjs';
+import search from '../../../shared-code/src/search.json' with { type: 'json' };
+import useData from '../../../shared-code/src/metered-use.json' with { type: 'json' };
+
+function fixture() {
+  const { sql } = sqliteHost(':memory:');
+  const files = namespaceStore(sql);
+  resultsStore(sql, identity => files.identitiesOf(identity));
+  return { sql, writer: searchFeedWriter(sql) };
+}
+
+function remote(writer) {
+  const calls = [];
+  let refuse = false;
+  const results = Object.fromEntries(['register', 'page', 'known', 'row', 'feed', 'ack'].map(name => [name, async (...args) => {
+    calls.push({ name, args });
+    if (name === 'page' && refuse) throw new Error('remote page unavailable');
+    return writer[name](...args);
+  }]));
+  return { results, calls, refuse: value => { refuse = value; } };
+}
+
+test('cold and settled search construction launches no remote page RPCs', async () => {
+  const { writer } = fixture();
+  const { sql } = sqliteHost(':memory:');
+  const source = remote(writer);
+  const open = () => makeSearch({ sql, results: source.results, follows: true });
+  const first = open();
+  assert.deepEqual(source.calls, [], 'construction must not start unowned remote promises');
+  assert.ok(first.building().length > 0, 'remote lanes wait for their bounded admission');
+  await first.catchUp(10);
+  assert.deepEqual(first.building(), []);
+  source.calls.length = 0;
+  open();
+  assert.deepEqual(source.calls, [], 'a settled reopen must not launch discarded remote probes');
+});
+
+test('a failed awaited remote admission retains its cursor and retries after reopen', async () => {
+  const { writer } = fixture();
+  const { sql } = sqliteHost(':memory:');
+  const source = remote(writer);
+  const first = makeSearch({ sql, results: source.results, follows: true });
+  const before = sql.exec('SELECT lane, phase, cursor FROM search_backfill ORDER BY lane').toArray();
+  source.refuse(true);
+  await assert.rejects(first.catchUp(10), /remote page unavailable/);
+  assert.deepEqual(sql.exec('SELECT lane, phase, cursor FROM search_backfill ORDER BY lane').toArray(), before);
+  source.refuse(false);
+  source.calls.length = 0;
+  const reopened = makeSearch({ sql, results: source.results, follows: true });
+  assert.deepEqual(source.calls, []);
+  await reopened.catchUp(10);
+  assert.deepEqual(reopened.building(), []);
+  assert.ok(source.calls.some(call => call.name === 'page'), 'the bounded wake owns the remote calls');
+});
+
+test('a local empty store still resolves its result lanes at construction', () => {
+  const { sql } = fixture();
+  assert.deepEqual(makeSearch({ sql }).building(), []);
+});
+
+test('the actual follower owns remote failures in work and retries to ready', async () => {
+  const { sql: written } = fixture();
+  // Each remote call's statements are counted at its owner, as its metered read counts them.
+  let statements = 0;
+  const writer = searchFeedWriter({ exec: (...args) => { statements += 1; return written.exec(...args); } });
+  const counted = Object.fromEntries(['register', 'page', 'known', 'row', 'feed', 'ack'].map(name => [name, (...args) => {
+    statements = 0; const answer = writer[name](...args); counts.push({ name, statements }); return answer; }]));
+  const counts = [];
+  const { sql } = sqliteHost(':memory:');
+  const source = remote(counted);
+  const next = searchFollower({ sql, records: null, results: source.results });
+  assert.deepEqual(source.calls, []);
+  source.refuse(true);
+  await assert.rejects(next.work(), /remote page unavailable/);
+  assert.deepEqual(sql.exec('SELECT identity FROM search_marks').toArray(), []);
+  source.refuse(false);
+  const step = await next.work();
+  assert.equal(step.ready, true);
+  assert.equal(step.more, false);
+  // A page asks at most the wake's admission (src/search.json catch_up.admit_per_wake), and every call stays inside half of
+  // one metered read's statements. (It asked at most 50 while admission was 50 a wake, before 2026-10-19.)
+  assert.ok(source.calls.filter(call => call.name === 'page').every(call => call.args[2] <= search.catch_up.admit_per_wake));
+  // At the old admission of 50 a wake, a page still asks at most 50 (the measured limit kept from before 2026-10-19).
+  const admitted = search.catch_up.admit_per_wake;
+  search.catch_up.admit_per_wake = 50;
+  try {
+    const { writer: smallWriter } = fixture();
+    const source = remote(smallWriter);
+    const smallNext = searchFollower({ sql: sqliteHost(':memory:').sql, records: null, results: source.results });
+    await smallNext.work();
+    assert.ok(source.calls.filter(call => call.name === 'page').every(call => call.args[2] <= 50));
+  } finally { search.catch_up.admit_per_wake = admitted; }
+  assert.ok(counts.length > 0 && counts.every(call => call.statements <= useData.most_held_statements / 2), JSON.stringify(counts));
+});
+
+test('the local synchronous capability uses the same page and a finisher never probes', () => {
+  const { sql, writer } = fixture();
+  sql.exec("INSERT INTO namespace_results (identity, kind, value, value_identity, recorded_at) VALUES ('source', 'transcript', '{\"text\":\"harbour\"}', 'version', 'now')");
+  assert.deepEqual(writer.pageNow('transcript', '', 1), writer.page('transcript', '', 1));
+  assert.equal(writer.pageNow('transcript', '', 1).length, 1);
+  assert.ok(makeSearch({ sql }).building().includes('transcript-words'));
+  makeSearch({ sql, index: false, results: {
+    page: () => assert.fail('the finisher must not probe a remote page'),
+    pageNow: () => assert.fail('the finisher must not probe a local page'),
+  } });
+});
+
+test('an empty local source retains existing marks until their bounded sweep', async () => {
+  const { sql } = fixture();
+  sql.exec('CREATE TABLE search_marks (lane TEXT NOT NULL, identity TEXT NOT NULL, value_identity TEXT NOT NULL, PRIMARY KEY (lane, identity))');
+  sql.exec("INSERT INTO search_marks VALUES ('transcript-words', 'removed-source', 'previous')");
+  const index = makeSearch({ sql });
+  assert.ok(index.building().includes('transcript-words'));
+  assert.equal(sql.exec('SELECT 1 FROM search_marks').toArray().length, 1);
+  await index.catchUp(10);
+  assert.deepEqual(index.building(), []);
+  assert.deepEqual(sql.exec('SELECT 1 FROM search_marks').toArray(), []);
+});

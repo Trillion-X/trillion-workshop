@@ -1,0 +1,24 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/setup-access-records.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-accounts-setup-access-request-in-a-book/from-old-trillion/src/setup-access-records.mjs.held",
+      "source_identity": "1f:a38b58eb6f3b4cc5d2ed660ab2115d6678780528034073ddc47f80414851364b",
+      "identity": "1f:c4ab4e497a1e038f93eaae2cecbf6536b169e6548f140dd545a424747abc8e88",
+      "held": true
+    },
+    {
+      "from": "test/setup-access-records.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-accounts-setup-access-request-in-a-book/from-old-trillion/test/setup-access-records.test.mjs.held",
+      "source_identity": "1f:60fa71f5a56ba592c832786934ead4ba08013ebee7b481b33ad3ca373460d461",
+      "identity": "1f:00d1825eeff0c93334dc4ef908daff70fb80b7c7ea51d8495798bb336a0479f1",
+      "held": true
+    }
+  ]
+}

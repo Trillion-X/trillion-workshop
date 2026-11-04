@@ -1,0 +1,48 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/space-names.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/name-a-space-by-its-name-when-posting-to-it-find/from-old-trillion/src/space-names.mjs.held",
+      "source_identity": "1f:71d88b82376a772da4a6ee69c3b71aaad32bfaf34cd1acd62af6311bc6bc24e5",
+      "identity": "1f:71d88b82376a772da4a6ee69c3b71aaad32bfaf34cd1acd62af6311bc6bc24e5",
+      "held": true
+    },
+    {
+      "from": "src/space-search.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/name-a-space-by-its-name-when-posting-to-it-find/from-old-trillion/src/space-search.mjs.held",
+      "source_identity": "1f:f359695dad068b937439e7cb9e455fca31e6e50be83a6d54d47ecfdcb7e9155f",
+      "identity": "1f:f359695dad068b937439e7cb9e455fca31e6e50be83a6d54d47ecfdcb7e9155f",
+      "held": true
+    },
+    {
+      "from": "src/space-shareable.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/name-a-space-by-its-name-when-posting-to-it-find/from-old-trillion/src/space-shareable.mjs.held",
+      "source_identity": "1f:081ed9ed5d69193ad39e4d8c9aaa96204ebb724378ad336585cc76f6ce9e4d3e",
+      "identity": "1f:79cf26ed33b185ba6c4f28cf99e7ddfb669626b4192728e319d63504c5e45b53",
+      "held": true
+    },
+    {
+      "from": "test/space-search.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/name-a-space-by-its-name-when-posting-to-it-find/from-old-trillion/test/space-search.test.mjs.held",
+      "source_identity": "1f:03f00eaee580e220976ffecdef767577594c1658e77450ff111244599321c94b",
+      "identity": "1f:7e8ebef78ac754fe6d3ea49893c3b5e3b4ce38e17e2626531e440ab9fcf1445e",
+      "held": true
+    },
+    {
+      "from": "test/space-shareable.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/name-a-space-by-its-name-when-posting-to-it-find/from-old-trillion/test/space-shareable.test.mjs.held",
+      "source_identity": "1f:1b1647a6a5b3e17cae4b756a8e9be2e8a1faafb82e8715271dd0935fb7fadb5c",
+      "identity": "1f:2c989fafa7a481247edf3f75a63792108aade1f46f0d8ae838b35ba09016513a",
+      "held": true
+    }
+  ]
+}

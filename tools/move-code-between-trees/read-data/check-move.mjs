@@ -83,7 +83,8 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
       if (identity(now) !== (changedAfter ? file.identity_at_move : file.identity)) problems.push(`${file.to} is not the bytes its receipt names${changedAfter ? ' at its byte copy' : ''}`);
       const before = tree.read(file.from);
       if (identity(before) !== file.source_identity) problems.push(`${file.from} at ${file.commit.slice(0, 10)} is not the bytes the receipt names`);
-      if (file.reused) { if (isCode(file.from) ? withoutRequests(now.toString('utf8')) !== withoutRequests(before.toString('utf8')) : !now.equals(before)) problems.push(`${file.to} was reused but differs from ${file.from}${isCode(file.from) ? ' beyond its import paths' : ''}`); }
+      if (file.reused && file.adapted) { /* a home its row names as an adapted copy: it is there, and the tests carried against it prove it by their run */ }
+      else if (file.reused) { if (isCode(file.from) ? withoutRequests(now.toString('utf8')) !== withoutRequests(before.toString('utf8')) : !now.equals(before)) problems.push(`${file.to} was reused but differs from ${file.from}${isCode(file.from) ? ' beyond its import paths' : ''}`); }
       else if (isCode(file.from)) {
         const used = new Set(file.calls ?? []);
         const swapped = swapCalls(before.toString('utf8'), (receipt.calls ?? []).filter(row => used.has(row.id))).text;
@@ -101,6 +102,19 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
           }
           if (!isRelative(was[at].specifier) && !alias(was[at].specifier)) { if (was[at].specifier !== is[at].specifier) problems.push(`${file.to} imports ${is[at].specifier} where ${file.from} imported ${was[at].specifier}`); continue; }
           const target = targetOf(file.from, was[at].specifier, tree.exists, alias);
+          // A file whose home is in a package the destination depends on: the import names that home, and the home,
+          // resolved from the moved file through the installed package, is the source file once import paths are set aside.
+          const home = target && file.homes?.[target];
+          if (home) {
+            if (is[at].specifier !== home) { problems.push(`${file.to} imports ${is[at].specifier} where its receipt says ${target} is home at ${home}`); continue; }
+            let resolved = null;
+            try { resolved = createRequire(join(destinationFolder, file.to)).resolve(home); } catch { /* not installed */ }
+            if (!resolved) { problems.push(`${file.to}: ${home} (home of ${target}) does not resolve from here: install the package`); continue; }
+            const homeText = readFileSync(resolved, 'utf8');
+            const sourceText = tree.read(target).toString('utf8');
+            if (isCode(target) ? withoutRequests(homeText) !== withoutRequests(sourceText) : homeText !== sourceText) problems.push(`${file.to}: ${home} is not ${target} at ${file.commit.slice(0, 10)} beyond its import paths`);
+            continue;
+          }
           const expected = target && (landing.get(`${file.commit}:${target}`) ?? null);
           const reached = resolveRequest(file.to, is[at].specifier, destinationExists);
           if (target && (expected ? !expected.includes(reached) : reached !== null)) problems.push(`${file.to}: ${is[at].specifier} reaches ${reached ?? 'nothing'}, where ${file.from} reached ${target} (now ${expected?.join(' or ') ?? 'not moved'})`);

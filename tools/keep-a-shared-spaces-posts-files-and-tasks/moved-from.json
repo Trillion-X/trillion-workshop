@@ -1,0 +1,82 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/space-commit-context.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-commit-context.mjs",
+      "source_identity": "1f:1ca7ab0c817a0128fde753c2cef4baa1b4d76d4bbf463f61195b0479ca4e7200",
+      "identity": "1f:1ca7ab0c817a0128fde753c2cef4baa1b4d76d4bbf463f61195b0479ca4e7200"
+    },
+    {
+      "from": "src/space-content-coordination.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-coordination.mjs.held",
+      "source_identity": "1f:f9a3a60d6056c5962855a69cddbf05c800ab1aa9be6f9d85a69314c583291d7d",
+      "identity": "1f:57aa3ea88d0ee13f0ba5a50fe3b540ef3bb3a91ae230fce870956212f6347b9a",
+      "held": true
+    },
+    {
+      "from": "src/space-content-directory.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-directory.mjs.held",
+      "source_identity": "1f:c4145846a9f95307a1656c744631ada81c4e56a0aa1c86c3bdd28b7ed1d56d8f",
+      "identity": "1f:c4145846a9f95307a1656c744631ada81c4e56a0aa1c86c3bdd28b7ed1d56d8f",
+      "held": true
+    },
+    {
+      "from": "src/space-content-policy.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-policy.mjs",
+      "source_identity": "1f:bb5e3d5625fa02c83c9f1c91a6b3880805b1a9512249a0575014b2c594b0e515",
+      "identity": "1f:bb5e3d5625fa02c83c9f1c91a6b3880805b1a9512249a0575014b2c594b0e515"
+    },
+    {
+      "from": "src/space-content-shards.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-shards.mjs",
+      "source_identity": "1f:1b7c79d349d01a2b79cc8543ccf9a8ed7a113c07332f74925991f3d8fc69382c",
+      "identity": "1f:5fc90dcb95a73a7a0a3e6a2b55addd5ab1161fa5e58d8b0d993c756e856ed8b0"
+    },
+    {
+      "from": "src/space-list-read.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-list-read.mjs",
+      "source_identity": "1f:f8c0dddd7af9f7c02afe8a051b7208a1b351d26734623f969e1557d10cb8d319",
+      "identity": "1f:17aa5565d8d6d9be5e266feeaf1f2aa00d64dc0f0c5286ca3747c901f0f6ea32"
+    },
+    {
+      "from": "src/space-page-size.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-page-size.mjs.held",
+      "source_identity": "1f:ba72f0ae0e9ff78f15298a94489687f61b821f9a50f205d836e7563daa5359a4",
+      "identity": "1f:ba72f0ae0e9ff78f15298a94489687f61b821f9a50f205d836e7563daa5359a4",
+      "held": true
+    },
+    {
+      "from": "src/space-shard-routing.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-shard-routing.mjs.held",
+      "source_identity": "1f:c092cb5ebc5ad73d390929b8ea1d98cfc40f9d56697acc09b38494eef0cb0753",
+      "identity": "1f:2d4301d46d6e224644e69d1e80c0397c1cb2747962cf09aa47aecc9a9554fc6e",
+      "held": true
+    },
+    {
+      "from": "test/space-commit-context.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/test/space-commit-context.test.mjs",
+      "source_identity": "1f:554ad05e0e65db070131ba1a1da9d93e4f63a8c014748f9e60e2ab044dcda6c3",
+      "identity": "1f:554ad05e0e65db070131ba1a1da9d93e4f63a8c014748f9e60e2ab044dcda6c3"
+    },
+    {
+      "from": "test/space-content-policy.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/test/space-content-policy.test.mjs",
+      "source_identity": "1f:aba0d4b615693a80aca4adeb580fdb0b65cf9a2fea1dba635fbdc8bafd16bfba",
+      "identity": "1f:aba0d4b615693a80aca4adeb580fdb0b65cf9a2fea1dba635fbdc8bafd16bfba"
+    }
+  ]
+}

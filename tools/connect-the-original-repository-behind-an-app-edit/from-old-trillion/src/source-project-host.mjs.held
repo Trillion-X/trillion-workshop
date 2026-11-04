@@ -1,0 +1,950 @@
+// Connect the original repository behind an app. Repository access and writes
+// use this person's existing GitHub Workshop connection and its locked box.
+// A compiled public-app installation is never treated as repository source.
+import { resolveSourceSelection, applySourceEdit, sourceCandidateFiles } from './source-project-edit.mjs';
+import { inspectRenderedSource, browseRenderedSource, sourcePreviewRoutes, sourceSitemapRoutes } from '../../../refresh-one-page-of-a-copied-site-from-its-original/src/source-project-preview.mjs';
+import { publicAppFilePath, publicAppMediaType } from 'trillion-workshop/tools/shared-code/src/public-app-files.mjs';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { checkedSourceBuildInputs } from '../../../assemble-and-publish-an-app-project/src/source-build-inputs.mjs';
+import { ACCOUNT_APP_OWNER, accountAppReply } from './account-app-state.mjs';
+import { pinnedSourceWorkshop } from './tool-run-call.mjs';
+import {failureFromReply,failureOf} from '../../../tweak-live-controls/failure.mjs';
+import { checkedSelfContainedWorkerModule, checkedSiteWorkerSourceManifest, pinnedWorkerAssets, SITE_WORKER_SOURCE_MANIFEST_PATH } from '../../../host-a-sites-own-backend-inside-trillion-install/from-old-trillion/src/site-worker-source.mjs';
+
+const KEY = 'source-project:';
+const IDENTITY_KEY = 'source-project-identity:';
+const SITE_LINK_KEY = 'source-project-site-link:';
+const PUBLIC_APP_ROUTE_KEY = 'public-app-route:';
+const PUBLIC_APP_OWNER_KEY = 'public-app-owner:';
+const PUBLIC_APP_ASSEMBLY_KEY = 'public-app-assembly:';
+const PUBLIC_APP_SITE_WORKER_KEY = 'public-app-site-worker:';
+const SOURCE_HISTORY_KEY = 'source-project-history:';
+// The derived source index of one connected project: the commit it was read at and each source file's blob sha and
+// text, so a later scan of the same commit reads no blob again and a scan of a new commit reads only the files whose
+// blob sha changed (sourceDirtySet). Kept SOURCE_INDEX_KEEP_SECONDS after its last write and removed with the project.
+const SOURCE_INDEX_KEY = 'source-project-index:';
+const SOURCE_INDEX_KEEP_SECONDS = 30 * 86_400;
+const ID = /^[a-f0-9]{32}$/;
+const REPO_PART = /^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/;
+const BRANCH = /^(?!\/|.*(?:\/\/|\.\.|@\{|\\|\s))[A-Za-z0-9._\/-]{1,200}$/;
+const SHA = /^[0-9a-f]{40}$/;
+const SOURCE_FILE = /\.(?:tsx?|jsx?|vue|svelte|astro|mdx|html?|json)$/i;
+const SKIPPED_FOLDER = /(?:^|\/)(?:node_modules|dist|build|out|coverage|\.next|\.nuxt|\.git|vendor)\//;
+const MAX_SOURCE_FILES = 256;
+const SOURCE_BLOB_BATCH = 16;
+const MAX_DISCOVERY_FILES = 8;
+const MAX_SOURCE_BYTES = 12_000_000;
+const SOURCE_ROUTE_MAP = 'trillion-sites-source-map.json';
+const MAX_WEB_FILES = 512;
+const MAX_WEB_FILE_BYTES = 20_000_000;
+const MAX_WEB_BYTES = 128_000_000;
+const WEB_TEXT = new Set(['html', 'css', 'js', 'mjs', 'json', 'webmanifest', 'svg', 'txt']);
+const json = (value, status = 200) => Response.json(value, { status, headers: { 'cache-control': 'no-store' } });
+const problem = (status, error, detail) => json({ status, error, ...(detail ? { detail } : {}) }, status === 'conflict' ? 409 : status === 'unavailable' ? 503 : 400);
+const projectKey = (userId, id) => `${KEY}${userId}:${id}`;
+const sourceIndexKey = (userId, id) => `${SOURCE_INDEX_KEY}${userId}:${id}`;
+// The derived index read and written through the app store, or none: where the account app owner holds the store
+// (env[ACCOUNT_APP_OWNER]) it keeps only its declared account records, and a derived cache is not one of them.
+const sourceIndexOf = (env, userId, project) => env?.APP_KV && !env[ACCOUNT_APP_OWNER] ? {
+  read: () => env.APP_KV.get(sourceIndexKey(userId, project.id), 'json'),
+  write: value => env.APP_KV.put(sourceIndexKey(userId, project.id), JSON.stringify(value), { expirationTtl: SOURCE_INDEX_KEEP_SECONDS }),
+} : null;
+
+/** The tree compare between a kept source index and the source rows of a commit's Git tree: kept (same path, same blob
+ * sha: its text is reused), changed (new or different blob: read again) and removed (in the index, not in the tree).
+ * An index of another repository answers every row as changed. */
+export function sourceDirtySet(index, rows, repository) {
+  const known = index?.repository === repository && index.files && typeof index.files === 'object' ? index.files : {};
+  const kept = [], changed = [];
+  for (const row of rows) {
+    const held = Object.hasOwn(known, row.path) ? known[row.path] : null;
+    if (held && SHA.test(row.sha ?? '') && held.sha === row.sha && typeof held.text === 'string') kept.push({ path: row.path, sha: row.sha, text: held.text });
+    else changed.push(row);
+  }
+  const present = new Set(rows.map(row => row.path));
+  return { kept, changed, removed: Object.keys(known).filter(path => !present.has(path)) };
+}
+const normalizedRepoIdentity = project => [String(project.owner ?? '').toLowerCase(),
+  String(project.repo ?? '').toLowerCase(), String(project.branch ?? '')];
+const sameRepoIdentity = (left, right) => left?.provider === 'github' && right?.provider === 'github' &&
+  JSON.stringify(normalizedRepoIdentity(left)) === JSON.stringify(normalizedRepoIdentity(right));
+const repoIdentityDigest = (userId, project) => bytesToHex(blake3(new TextEncoder().encode(JSON.stringify([
+  'trillion.source-project.identity', userId, ...normalizedRepoIdentity(project),
+]))).slice(0, 16));
+const projectIdentityKey = (userId, project) => `${IDENTITY_KEY}${userId}:${repoIdentityDigest(userId, project)}`;
+const gitInput = project => ({ owner: project.owner, repo: project.repo });
+const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object'
+  ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value;
+const same = (left, right) => JSON.stringify(canonical(left)) === JSON.stringify(canonical(right));
+const sourceProjectRevision = project => {
+  const saved = Object.fromEntries(Object.entries(project).filter(([key]) => key !== 'owner_user_id'));
+  return `1f:${bytesToHex(blake3(new TextEncoder().encode(JSON.stringify(canonical(saved)))))}`;
+};
+
+function likelySourcePaths(paths, route) {
+  const routeName = String(route ?? '/').split('/').filter(Boolean).at(-1)?.replace(/[^a-z0-9]/gi, '').toLowerCase() ?? '';
+  const ranked = paths.map(path => {
+    const name = path.split('/').at(-1).toLowerCase();
+    const compact = name.replace(/[^a-z0-9]/g, '');
+    const data = /\.(?:json|ts|js)$/i.test(name);
+    const score = (routeName && compact.includes(routeName) ? 8 : 0) +
+      (/^(?:copy|content|pages?)(?:\.|[-_])/.test(name) ? 6 : 0) +
+      (/^(?:home|landing|index)(?:\.|[-_])/.test(name) ? 3 : 0) +
+      (data ? 1 : 0);
+    return { path, score };
+  }).filter(row => row.score > 1);
+  ranked.sort((left, right) => right.score - left.score || left.path.length - right.path.length || left.path.localeCompare(right.path));
+  return ranked.slice(0, MAX_DISCOVERY_FILES).map(row => row.path);
+}
+
+function sourceRoute(path) {
+  if (typeof path !== 'string' || path.length > 500 || !path.startsWith('/') || path.startsWith('//') ||
+      /[?#\\]/.test(path)) return null;
+  try {
+    const address = new URL(path, 'https://source.invalid');
+    if (address.pathname !== path || address.search || address.hash) return null;
+    const decoded = decodeURIComponent(path);
+    if (decoded.split('/').some(part => part === '.' || part === '..')) return null;
+    return path.length > 1 ? path.replace(/\/$/, '') : '/';
+  } catch { return null; }
+}
+
+function publicHttpsUrl(value) {
+  if (value == null || value === '') return null;
+  const url = new URL(value);
+  const host = url.hostname.toLowerCase();
+  if (url.protocol !== 'https:' || url.username || url.password || url.port ||
+      !host.includes('.') || host.endsWith('.') || host === 'localhost' || /(?:^|\.)(?:localhost|local|internal)$/.test(host) ||
+      /^\d+(?:\.\d+){3}$/.test(host) || host.includes(':')) throw new Error('Use a public HTTPS app address.');
+  url.hash = '';
+  return url.toString();
+}
+
+async function github(workshop, tool, input, requestKey) {
+  const response = await workshop.run({ tool_id: `tool:github-${tool}`, input, request_key: requestKey, wait_seconds: 30,
+    job: 'Read or edit the connected original source project' });
+  let result = await response.json();
+  if (response.ok && result.state === 'working' && typeof result.task_id === 'string') {
+    // A connected GitHub read can outlive the first wait. Read that same task
+    // instead of starting another GitHub operation under a new request key.
+    for (let attempt = 0; attempt < 10 && result.state === 'working'; attempt++) {
+      if (attempt) await new Promise(resolve => setTimeout(resolve, 3_000));
+      const read = await workshop.read(result.task_id);
+      result = await read.json();
+      if (!read.ok) throw Object.assign(failureFromReply(result.error || `GitHub ${tool} task could not be read (${read.status}).`,result),{status:read.status});
+    }
+  }
+  if (!response.ok || result.state !== 'completed') throw Object.assign(failureFromReply(result.error || `GitHub ${tool} did not complete (${result.state ?? response.status}).`,result),{status:response.status});
+  return result.output;
+}
+
+async function branchHead(workshop, project) {
+  const result = await github(workshop, 'read_branch', { ...gitInput(project), branch: project.branch },
+    `source-branch:${project.id}:${crypto.randomUUID()}`);
+  const commit = result?.commit?.sha;
+  if (!SHA.test(commit ?? '')) throw new Error('GitHub did not return the connected branch commit.');
+  return commit;
+}
+
+async function sourceFile(workshop, project, path, commit) {
+  const result = await github(workshop, 'read_file_at_revision', { ...gitInput(project), path, ref: commit },
+    `source-file:${project.id}:${commit}:${path}`);
+  if (result?.type !== 'file' || result?.path !== path || result.encoding !== 'base64' || !SHA.test(result.sha ?? '')) {
+    throw new Error('GitHub did not return the requested source file at the pinned commit.');
+  }
+  const bytes = Uint8Array.from(atob(result.content.replace(/\s/g, '')), char => char.charCodeAt(0));
+  if (bytes.length > 1_000_000) throw new Error('This source file is too large for a visual edit.');
+  const content = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  return { content, sha: result.sha };
+}
+
+async function sourceFileBytes(workshop, project, path, commit) {
+  const result = await github(workshop, 'read_file_at_revision', { ...gitInput(project), path, ref: commit },
+    `source-file:${project.id}:${commit}:${path}`);
+  if (result?.type !== 'file' || result?.path !== path || result.encoding !== 'base64' || !SHA.test(result.sha ?? '')) {
+    throw new Error('GitHub did not return the requested source file at the pinned commit.');
+  }
+  return { bytes: Uint8Array.from(atob(result.content.replace(/\s/g, '')), char => char.charCodeAt(0)), sha: result.sha };
+}
+
+// Materialize only files named by a manifest at the exact connected commit or
+// by that commit's exact source-build-lock.json. This reads already bundled
+// Worker code; Sites does not run a repository's build scripts.
+export async function pinnedSiteWorkerBundle(env, userId, origin, workshop = pinnedSourceWorkshop(env, userId)) {
+  if (origin?.connection === 'provenance') throw new Error('Connect this repository in your own account before attaching its copied server.');
+  if (origin?.source_account_id && origin.source_account_id !== userId) {
+    if (!env[ACCOUNT_APP_OWNER]?.materializePinnedSiteWorkerSource) throw new Error('Reconnect this GitHub source before attaching its copied server.');
+    return env[ACCOUNT_APP_OWNER].materializePinnedSiteWorkerSource(origin);
+  }
+  const verified = await verifyPinnedSourceBuildOrigin(env, userId, origin, workshop);
+  const roots = new Map([['source', { owner: verified.owner, repo: verified.repo,
+    commit: verified.commit, paths: null }]]);
+  for (const input of verified.build_inputs?.inputs ?? []) {
+    roots.set(input.mount, { owner: input.repository.split('/')[0], repo: input.repository.split('/')[1],
+      commit: input.commit, paths: input.paths });
+  }
+  const trees = new Map();
+  const readTree = async mount => {
+    if (trees.has(mount)) return trees.get(mount);
+    const root = roots.get(mount);
+    if (!root) throw new Error('The pinned Worker names an undeclared source mount.');
+    const result = await github(workshop, 'read_tree', { owner: root.owner, repo: root.repo, ref: root.commit },
+      `site-worker-tree:${origin.project_id}:${root.owner}/${root.repo}:${root.commit}`);
+    if (result?.truncated || !Array.isArray(result?.tree)) throw new Error('The pinned Worker source tree is incomplete.');
+    const rows = new Map(result.tree.filter(row => row?.type === 'blob' && typeof row.path === 'string').map(row => [row.path, row]));
+    trees.set(mount, rows);
+    return rows;
+  };
+  const readPinnedFile = async (mount, path) => {
+    const root = roots.get(mount);
+    const row = (await readTree(mount)).get(path);
+    if (!row || !SHA.test(row.sha ?? '') || root.paths && !root.paths.some(allowed => allowed === path || path.startsWith(`${allowed}/`))) {
+      throw new Error(`The pinned Worker file ${path} is outside its declared source inputs.`);
+    }
+    const file = await sourceFileBytes(workshop, { owner: root.owner, repo: root.repo }, path, root.commit);
+    if (file.sha !== row.sha) throw new Error(`The pinned Worker file ${path} changed outside its Git tree.`);
+    return { ...file, root };
+  };
+
+  const manifestFile = await readPinnedFile('source', SITE_WORKER_SOURCE_MANIFEST_PATH);
+  if (manifestFile.bytes.byteLength > 1_000_000) throw new Error('The pinned Worker manifest is too large.');
+  let raw;
+  try { raw = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(manifestFile.bytes)); }
+  catch { throw new Error('The pinned Worker manifest is invalid JSON.'); }
+  const manifest = checkedSiteWorkerSourceManifest(raw, verified.build_inputs);
+  const files = new Map();
+  const refs = [...manifest.assets, ...manifest.data, manifest.module];
+  for (const ref of refs) {
+    const key = `${ref.mount}\0${ref.path}`;
+    if (files.has(key)) continue;
+    const file = await readPinnedFile(ref.mount, ref.path);
+    files.set(key, { ...file, path: ref.path, mount: ref.mount });
+  }
+  const moduleFile = files.get(`source\0${manifest.module.path}`);
+  let module;
+  try { module = new TextDecoder('utf-8', { fatal: true }).decode(moduleFile.bytes); }
+  catch { throw new Error('The pinned Worker module is not valid UTF-8.'); }
+  checkedSelfContainedWorkerModule(module);
+  const assets = pinnedWorkerAssets(manifest, (mount, path) => files.get(`${mount}\0${path}`)?.bytes);
+  const sourceFiles = refs.map(ref => {
+    const file = files.get(`${ref.mount}\0${ref.path}`);
+    return { mount: ref.mount, repository: `${file.root.owner}/${file.root.repo}`, commit: file.root.commit,
+      path: ref.path, sha: file.sha, ...(ref.as ? { output_path: ref.as } : {}),
+      ...(ref === manifest.module ? { kind: 'worker-module' } : { kind: manifest.assets.includes(ref) ? 'asset' : 'data' }) };
+  });
+  return { module_file: module, assets, permissions: manifest.permissions, compatibility_date: manifest.compatibility_date,
+    compatibility_flags: manifest.compatibility_flags, source: { schema: 'trillion.site-worker-origin/v1',
+    project_id: verified.project_id, owner: verified.owner, repo: verified.repo, branch: verified.branch,
+    commit: verified.commit, ...(verified.source_account_id ? { source_account_id: verified.source_account_id } : {}),
+    ...(verified.build_inputs ? { build_inputs: verified.build_inputs } : {}),
+    manifest_path: SITE_WORKER_SOURCE_MANIFEST_PATH, manifest_sha: manifestFile.sha, files: sourceFiles } };
+}
+
+function base64(bytes) {
+  let binary = '';
+  for (let at = 0; at < bytes.length; at += 32_768) binary += String.fromCharCode(...bytes.subarray(at, at + 32_768));
+  return btoa(binary);
+}
+
+// Optional source discovery cannot absorb current rights, quota or passing
+// failures. Their existing owners retain the exact error and retry policy.
+function assertSourceFallbackAllowed(error) {
+  if(failureOf(error).tries_again_later||Number.isInteger(error?.status)&&error.status>=400&&error.status<=599)throw error;
+}
+
+async function pinnedWebSnapshot(workshop, project, commit, { browser, browseRendered, fetcher }) {
+  const tree = await github(workshop, 'read_tree', { ...gitInput(project), ref: commit },
+    `source-web-tree:${project.id}:${commit}`);
+  if (tree?.truncated || !Array.isArray(tree?.tree)) return { status: 'unsupported', reason: 'GitHub did not return the complete project file tree.' };
+  let buildInputs;
+  if (tree.tree.some(row => row?.type === 'blob' && row.path === 'source-build-lock.json')) {
+    try {
+      const lock = await sourceFile(workshop, project, 'source-build-lock.json', commit);
+      buildInputs = checkedSourceBuildInputs(JSON.parse(lock.content));
+    } catch (error) { assertSourceFallbackAllowed(error); return { status: 'unsupported', reason: 'The repository source build lock is invalid or unavailable.' }; }
+  }
+  const candidates = tree.tree.filter(row => row?.type === 'blob' && typeof row.path === 'string' &&
+    !SKIPPED_FOLDER.test(`${row.path}/`) && !row.path.split('/').some(part => part.startsWith('.') && part !== '.well-known') &&
+    !/\.(?:test|spec|stories)\.[jt]sx?$/i.test(row.path)).map(row => row.path);
+  const paths = [];
+  for (const path of candidates) {
+    try {
+      if (path === 'source-build-lock.json' || publicAppFilePath(path) !== path) continue;
+      publicAppMediaType(path);
+      paths.push(path);
+    } catch { /* Framework and server source is not a hostable web file. */ }
+  }
+  const hasApplicationSource = candidates.some(path => /\.(?:tsx?|jsx?|vue|svelte|astro|mdx)$/i.test(path));
+  // An unbuilt HTML entry is not a hostable file if its local script is absent
+  // from the file set that Sites can serve.
+  let indexContent;
+  if (paths.includes('index.html') && hasApplicationSource) indexContent = (await sourceFile(workshop, project, 'index.html', commit)).content;
+  const missingEntry = indexContent && [...indexContent.matchAll(/<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi)]
+    .some(([, reference]) => {
+      if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(reference)) return false;
+      const entry = reference.split(/[?#]/, 1)[0].replace(/^\//, '');
+      return entry && !paths.includes(entry);
+    });
+  if (!paths.includes('index.html') || missingEntry) {
+    let liveUrl;
+    try {
+      const address = new URL(project.live_url);
+      if (address.pathname !== '/' || address.search || address.hash) throw new Error('not an app root');
+      liveUrl = publicHttpsUrl(project.live_url);
+    } catch {
+      return { status: 'unsupported', reason: 'This repository has no root index.html. Connect its running app address to add it as a hosted page.' };
+    }
+    if (!hasApplicationSource) return { status: 'unsupported', reason: 'This repository has no root index.html or supported application source.' };
+    const rendered = await browseRendered(browser, liveUrl, '/', null, 1280);
+    if (rendered?.status !== 'ready') return { status: 'unsupported', reason: 'The connected running app could not be opened as a hosted page.', live_page: rendered };
+    const sitemapRoutes = await sourceSitemapRoutes(liveUrl, fetcher);
+    return { status: 'hosted', hosted: { kind: 'running-web-origin', project_id: project.id,
+      owner: project.owner, repo: project.repo, branch: project.branch, commit, url: liveUrl,
+      routes: sourcePreviewRoutes(liveUrl, [...(rendered.routes ?? []), ...sitemapRoutes.map(route => new URL(route.slice(1), liveUrl).href)]),
+      ...(buildInputs ? { build_inputs: buildInputs } : {}) },
+    live_page: { status: rendered.status, route: rendered.route, width: rendered.width, height: rendered.height } };
+  }
+  if (paths.length > MAX_WEB_FILES) return { status: 'unsupported', reason: `This repository has more than ${MAX_WEB_FILES} hostable web files.` };
+  const files = {};
+  let cursor = 0;
+  let bytesRead = 0;
+  await Promise.all(Array.from({ length: Math.min(8, paths.length) }, async () => {
+    while (cursor < paths.length) {
+      const path = paths[cursor++];
+      const { bytes } = path === 'index.html' && indexContent !== undefined
+        ? { bytes: new TextEncoder().encode(indexContent) }
+        : await sourceFileBytes(workshop, project, path, commit);
+      if (bytes.length > MAX_WEB_FILE_BYTES) throw new Error(`The ${path} file is too large to add to Sites.`);
+      bytesRead += bytes.length;
+      if (bytesRead > MAX_WEB_BYTES) throw new Error('This repository has more than 128 MB of hostable web files.');
+      const media = publicAppMediaType(path);
+      const extension = path.split('.').at(-1)?.toLowerCase();
+      files[path] = WEB_TEXT.has(extension) ? new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+        : `data:${media};base64,${base64(bytes)}`;
+    }
+  }));
+  return { status: 'ready', snapshot: { project_id: project.id, owner: project.owner, repo: project.repo,
+    branch: project.branch, commit, files, ...(buildInputs ? { build_inputs: buildInputs } : {}) }, skipped_source_files: candidates.length - paths.length,
+    skipped_application_files: candidates.filter(path => /\.(?:tsx?|jsx?|vue|svelte|astro|mdx)$/i.test(path)).length };
+}
+
+async function sourceFiles(workshop, project, commit, selection, index = null) {
+  const tree = await github(workshop, 'read_tree', { ...gitInput(project), ref: commit },
+    `source-tree:${project.id}:${commit}`);
+  if (tree?.truncated || !Array.isArray(tree?.tree)) return { status: 'unsupported', reason: 'GitHub did not return the complete project file tree.' };
+  const sourceRows = tree.tree.filter(row => row?.type === 'blob' && SOURCE_FILE.test(row.path ?? '') &&
+    !SKIPPED_FOLDER.test(row.path ?? '') && !/\.(?:test|spec|stories)\.[jt]sx?$/i.test(row.path ?? ''));
+  const paths = sourceRows.map(row => row.path);
+  // A repository may declare the complete source set for each browser route.
+  // The declaration, files, and Git tree must all be from this same commit.
+  // This avoids a whole-repository read for data-backed dynamic pages while
+  // retaining an explicit source-owner assertion and unique match requirement.
+  const mapRow = sourceRows.find(row => row.path === SOURCE_ROUTE_MAP);
+  if (mapRow) {
+    const manifest = await sourceFile(workshop, project, SOURCE_ROUTE_MAP, commit);
+    if (manifest.sha !== mapRow.sha) throw new Error('The route source map changed outside the pinned Git tree.');
+    let declared;
+    try { declared = JSON.parse(manifest.content); } catch { /* Invalid declarations never authorize edits. */ }
+    if (declared?.schema !== 'trillion.sites-source-map' || !Array.isArray(declared.routes) ||
+        declared.routes.length > 100 || Object.keys(declared).some(key => !['schema', 'routes'].includes(key))) {
+      return { status: 'unsupported', reason: 'The pinned repository route source map is invalid.' };
+    }
+    const wanted = sourceRoute(selection?.route);
+    const matches = declared.routes.filter(row => row && sourceRoute(row.path) === wanted);
+    if (!wanted || matches.length !== 1) return { status: 'unsupported',
+      reason: 'This route has no unique source mapping in the pinned repository.' };
+    const mapping = matches[0];
+    if (Object.keys(mapping).some(key => !['path', 'source_files'].includes(key)) ||
+        !Array.isArray(mapping.source_files) || mapping.source_files.length < 1 || mapping.source_files.length > 8 ||
+        new Set(mapping.source_files).size !== mapping.source_files.length ||
+        mapping.source_files.some(path => typeof path !== 'string' || path === SOURCE_ROUTE_MAP || !paths.includes(path))) {
+      return { status: 'unsupported', reason: 'This route names invalid or unavailable source files.' };
+    }
+    const files = {};
+    const shas = {};
+    for (const path of mapping.source_files) {
+      const file = await sourceFile(workshop, project, path, commit);
+      if (file.sha !== sourceRows.find(row => row.path === path)?.sha) {
+        throw new Error('A route source file changed outside the pinned Git tree.');
+      }
+      files[path] = file.content;
+      shas[path] = file.sha;
+    }
+    return { status: 'ready', files, shas, complete_source_set: true, declared_route_set: true };
+  }
+  // An explicit marker names its source file. The complete Git tree proves
+  // that path belongs to this pinned revision; the resolver still requires
+  // the same marker on exactly one matching source element in that file.
+  const marker = selection?.element?.attributes?.['data-trillion-source'];
+  const markedPath = typeof marker === 'string' && /^[A-Za-z0-9_./-]+\.(?:html?|[jt]sx?|vue|svelte)#[A-Za-z0-9_-]+$/.test(marker)
+    ? marker.slice(0, marker.lastIndexOf('#')) : null;
+  if (markedPath && paths.includes(markedPath)) {
+    const file = await sourceFile(workshop, project, markedPath, commit);
+    return { status: 'ready', files: { [markedPath]: file.content }, shas: { [markedPath]: file.sha }, complete_source_set: false };
+  }
+  if (paths.length > MAX_SOURCE_FILES) {
+    // GitHub search finds possible files without fetching the whole repository
+    // through one account object. Search results never authorize a source edit.
+    const words = String(selection?.element?.text ?? selection?.text ?? '').match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu) ?? [];
+    const query = words.length >= 3 ? `"${words.slice(0, 3).join(' ')}" repo:${project.owner}/${project.repo}` : null;
+    if (!query) return { status: 'unsupported', reason: 'This selected text is too short to narrow the source search.',
+      total_source_files: paths.length, candidate_files: [], candidate_count: 0 };
+    let found;
+    let search_unavailable = false;
+    try { found = await github(workshop, 'search_code', { query }, `source-candidates:${project.id}:${commit}:${crypto.randomUUID()}`); }
+    catch (error) { assertSourceFallbackAllowed(error); search_unavailable = true; }
+    const allowed = new Set(paths);
+    const searchHits = [...new Set((Array.isArray(found?.items) ? found.items : []).filter(item =>
+      item?.repository?.full_name?.toLowerCase() === `${project.owner}/${project.repo}`.toLowerCase() && allowed.has(item.path))
+      .map(item => item.path))].slice(0, MAX_DISCOVERY_FILES);
+    const hits = searchHits.length ? searchHits : likelySourcePaths(paths, selection?.route);
+    const files = {};
+    let unreadable_files = 0;
+    for (const path of hits) {
+      try { files[path] = (await sourceFile(workshop, project, path, commit)).content; }
+      catch (error) { assertSourceFallbackAllowed(error); unreadable_files++; /* A search hint cannot authorize an edit. */ }
+    }
+    return { status: 'unsupported', reason: 'Possible files were found, but a complete source match was not proved.',
+      total_source_files: paths.length, searched_files: hits.length, unreadable_files,
+      discovery_method: searchHits.length ? 'code_search' : 'path_hints', search_unavailable, search_incomplete: true,
+      ...sourceCandidateFiles(selection?.element ?? selection, files) };
+  }
+  const files = {};
+  const shas = {};
+  const repository = `${project.owner}/${project.repo}`.toLowerCase();
+  const prior = index ? await index.read() : null;
+  const dirty = sourceDirtySet(prior, sourceRows, repository);
+  let bytes = 0;
+  for (const file of dirty.kept) {
+    bytes += new TextEncoder().encode(file.text).length;
+    files[file.path] = file.text;
+    shas[file.path] = file.sha;
+  }
+  if (bytes > MAX_SOURCE_BYTES) throw new Error('The project source exceeds the bounded visual edit scan.');
+  const batches = [];
+  for (let at = 0; at < dirty.changed.length; at += SOURCE_BLOB_BATCH) batches.push(dirty.changed.slice(at, at + SOURCE_BLOB_BATCH));
+  let cursor = 0;
+  // One pinned GraphQL read returns several blobs. The request key makes each
+  // completed batch reusable if a later batch is interrupted. No batch is a
+  // source locator until every eligible file and every tree oid checks out.
+  await Promise.all(Array.from({ length: Math.min(3, batches.length) }, async () => {
+    while (cursor < batches.length) {
+      const batchIndex = cursor++;
+      const rows = batches[batchIndex];
+      const objects = rows.map((row, index) => `f${index}: object(expression: ${JSON.stringify(`${commit}:${row.path}`)}) { ... on Blob { oid text isBinary byteSize } }`).join(' ');
+      const query = `query SourceBlobs { repository(owner: ${JSON.stringify(project.owner)}, name: ${JSON.stringify(project.repo)}) { nameWithOwner ${objects} } }`;
+      // Keyed by the blob shas it reads, so the same changed files at any commit are read once.
+      const result = await github(workshop, 'read_source_blobs', { query },
+        `source-blobs:v2:${project.id}:${bytesToHex(blake3(new TextEncoder().encode(JSON.stringify(rows.map(row => [row.path, row.sha])))))}`);
+      const repository = result?.data?.repository;
+      if (result?.errors?.length || repository?.nameWithOwner?.toLowerCase() !== `${project.owner}/${project.repo}`.toLowerCase()) {
+        throw new Error('GitHub did not return the pinned repository source batch.');
+      }
+      for (const [index, row] of rows.entries()) {
+        const blob = repository[`f${index}`];
+        if (!SHA.test(row.sha ?? '') || blob?.oid !== row.sha || blob.isBinary !== false ||
+            typeof blob.text !== 'string' || !Number.isInteger(blob.byteSize)) {
+          throw new Error('GitHub source bytes did not match the pinned project tree.');
+        }
+        const length = new TextEncoder().encode(blob.text).length;
+        if (length !== blob.byteSize || length > 1_000_000) throw new Error('GitHub source file is incomplete or too large for a visual edit.');
+        bytes += length;
+        if (bytes > MAX_SOURCE_BYTES) throw new Error('The project source exceeds the bounded visual edit scan.');
+        files[row.path] = blob.text;
+        shas[row.path] = blob.oid;
+      }
+    }
+  }));
+  if (index && (prior?.commit !== commit || prior?.repository !== repository)) {
+    await index.write({ repository, commit, files: Object.fromEntries(Object.keys(files).map(path => [path, { sha: shas[path], text: files[path] }])) });
+  }
+  return { status: 'ready', files, shas, source_index: { commit, previous_commit: prior?.repository === repository ? prior.commit ?? null : null,
+    reused_files: dirty.kept.length, read_files: dirty.changed.length, removed_files: dirty.removed.length } };
+}
+
+function encodedUtf8(text) {
+  const bytes = new TextEncoder().encode(text);
+  let binary = '';
+  for (let at = 0; at < bytes.length; at += 32_768) binary += String.fromCharCode(...bytes.subarray(at, at + 32_768));
+  return btoa(binary);
+}
+
+async function connectedProject(env, userId, id) {
+  if (!ID.test(id)) return null;
+  const row = env[ACCOUNT_APP_OWNER]?.readSource ? await env[ACCOUNT_APP_OWNER].readSource(userId, id)
+    : await env.APP_KV.get(projectKey(userId, id), 'json');
+  return row?.owner_user_id === userId && row.id === id ? row : null;
+}
+
+// A saved Sites assembly is client supplied. Verify its repository identity
+// and build lock against the connected project and exact pinned GitHub tree.
+export async function verifyPinnedSourceBuildOrigin(env, userId, origin, workshop = pinnedSourceWorkshop(env, userId)) {
+  if (origin?.connection === 'provenance') throw new Error('Connect this repository in your own account before editing its original source.');
+  const sourceAccount = origin?.source_account_id ?? userId;
+  // An authorized shared-site read uses the source owner's connector for this
+  // exact immutable input. It grants no original-source edit or credential.
+  if (sourceAccount !== userId) {
+    if (!env[ACCOUNT_APP_OWNER]?.verifyPinnedSourceOrigin) throw new Error('Reconnect this GitHub source before saving it in Sites.');
+    return env[ACCOUNT_APP_OWNER].verifyPinnedSourceOrigin(origin);
+  }
+  const project = await connectedProject(env, sourceAccount, origin?.project_id);
+  if (!project || project.provider !== 'github' ||
+      !sameRepoIdentity(project, { ...origin, provider: 'github' }) ||
+      project.commit !== origin.commit) {
+    throw new Error('Reconnect this GitHub source before saving it in Sites.');
+  }
+  const tree = await github(workshop, 'read_tree', { ...gitInput(project), ref: project.commit },
+    `source-build-tree:${project.id}:${project.commit}`);
+  if (tree?.truncated || !Array.isArray(tree?.tree)) {
+    throw new Error('The pinned GitHub project files could not be checked.');
+  }
+  const hasLock = tree.tree.some(row => row?.type === 'blob' && row.path === 'source-build-lock.json');
+  let actual;
+  if (hasLock) {
+    const file = await sourceFile(workshop, project, 'source-build-lock.json', project.commit);
+    actual = checkedSourceBuildInputs(JSON.parse(file.content));
+  }
+  if (!same(actual ?? null, origin.build_inputs ?? null)) {
+    throw new Error('The source build lock differs from the pinned GitHub project.');
+  }
+  return { project_id: project.id, owner: project.owner, repo: project.repo,
+    branch: project.branch, commit: project.commit,
+    ...(origin.source_account_id ? { source_account_id: sourceAccount } : {}), ...(actual ? { build_inputs: actual } : {}) };
+}
+
+async function connectedProjects(env, userId) {
+  const rows = [];
+  let cursor;
+  do {
+    const page = await env.APP_KV.list({ prefix: `${KEY}${userId}:`, limit: 64, ...(cursor ? { cursor } : {}) });
+    const pageRows = await Promise.all(page.keys.map(key => env.APP_KV.get(key.name, 'json')));
+    rows.push(...pageRows.filter(row => row?.owner_user_id === userId));
+    cursor = page.list_complete === false && page.cursor ? page.cursor : null;
+  } while (cursor);
+  return rows;
+}
+
+async function savedSourceDependencies(env, userId, projectId) {
+  const dependencies = [];
+  let cursor;
+  do {
+    const page = await env.APP_KV.list({ prefix: `${SITE_LINK_KEY}${userId}:`, limit: 64, ...(cursor ? { cursor } : {}) });
+    for (const key of page.keys) {
+      const link = await env.APP_KV.get(key.name, 'json');
+      if (link?.owner_user_id === userId && link.source_project_id === projectId) {
+        dependencies.push({ kind: 'site-link', installation_id: link.installation_id });
+      }
+    }
+    cursor = page.list_complete === false && page.cursor ? page.cursor : null;
+  } while (cursor);
+
+  const ownerPrefix = `${PUBLIC_APP_OWNER_KEY}${userId}:`;
+  let routeCursor;
+  do {
+    const page = await env.APP_KV.list({ prefix: ownerPrefix, limit: 64, ...(routeCursor ? { cursor: routeCursor } : {}) });
+    for (const key of page.keys) {
+      const installationId = key.name.slice(ownerPrefix.length);
+      if (!ID.test(installationId)) continue;
+      const route = await env.APP_KV.get(`${PUBLIC_APP_ROUTE_KEY}${installationId}`, 'json');
+      if (route?.owner_user_id !== userId || route.installation_id !== installationId) continue;
+      const assembly = await env.APP_KV.get(`${PUBLIC_APP_ASSEMBLY_KEY}${installationId}`, 'json');
+      const referencesProject = assembly?.project?.sources?.some(source =>
+        source?.project?.source?.origin?.project_id === projectId && source.project.source.origin.connection !== 'provenance');
+      if (referencesProject) dependencies.push({ kind: 'saved-assembly', installation_id: installationId });
+      if (route.project_origin?.project_id === projectId && route.project_origin.connection !== 'provenance') dependencies.push({ kind: 'installed-app-source', installation_id: installationId });
+      const worker = await env.APP_KV.get(`${PUBLIC_APP_SITE_WORKER_KEY}${installationId}`, 'json');
+      if (worker?.source?.project_id === projectId) dependencies.push({ kind: 'site-worker-source', installation_id: installationId });
+    }
+    routeCursor = page.list_complete === false && page.cursor ? page.cursor : null;
+  } while (routeCursor);
+  return dependencies;
+}
+
+const runningPreviewUrl = project => project.preview_url ?? project.live_url;
+
+export const isSourceProjectApiPath = path => /^\/(?:mcp|work)\/api\/source-projects(?:\/site-link|\/[a-f0-9]{32}(?:\/(?:preview|select|resolve|edit|verify|site-snapshot|dependencies))?)?$/.test(path);
+
+export async function answerSourceProjectApi(request, { env, person, workshop, userId, actor = null, inspectRendered = inspectRenderedSource, browseRendered = browseRenderedSource, fetcher = fetch, confirmSourceRemoval = null, sourceDependencies = null }) {
+  if (!env[ACCOUNT_APP_OWNER] && typeof person?.accountAppRequest === 'function') return accountAppReply(person, userId, request, env, actor);
+  const requestUrl = new URL(request.url);
+  const path = requestUrl.pathname.replace(/^\/(?:mcp|work)\/api/, '');
+  try {
+    if (path === '/source-projects/site-link') {
+      const installationId = requestUrl.searchParams.get('installation_id');
+      if (!ID.test(installationId ?? '')) return problem('unsupported', 'Choose a site to connect.');
+      const route = await env.APP_KV.get(`${PUBLIC_APP_ROUTE_KEY}${installationId}`, 'json');
+      if (route?.installation_id !== installationId || route.owner_user_id !== userId) {
+        return json({ error: 'That site was not found.' }, 404);
+      }
+      const linkKey = `${SITE_LINK_KEY}${userId}:${installationId}`;
+      const linked = await env.APP_KV.get(linkKey, 'json');
+      const current = linked?.source_project_id ?? null;
+      if (request.method === 'GET') return json({ installation_id: installationId, source_project_id: current });
+      if (request.method !== 'PUT' && request.method !== 'DELETE') return problem('unsupported', 'This source connection action is unavailable.');
+      const input = await request.json();
+      if (request.method === 'DELETE' && current === null && input && typeof input === 'object' &&
+          !Array.isArray(input) && Object.hasOwn(input, 'expected_source_project_id') &&
+          (input.expected_source_project_id === null || ID.test(input.expected_source_project_id))) {
+        await env.APP_KV.delete(linkKey);
+        return json({ installation_id: installationId, source_project_id: null });
+      }
+      if (!input || typeof input !== 'object' || Array.isArray(input) ||
+          !Object.hasOwn(input, 'expected_source_project_id') ||
+          (input.expected_source_project_id !== null && !ID.test(input.expected_source_project_id ?? '')) ||
+          input.expected_source_project_id !== current) {
+        return problem('conflict', 'The site source connection changed. Reload it before changing the repository.');
+      }
+      if (request.method === 'DELETE') {
+        await env.APP_KV.delete(linkKey);
+        return json({ installation_id: installationId, source_project_id: null });
+      }
+      if (!ID.test(input.source_project_id ?? '') || Object.keys(input).some(key =>
+        !['source_project_id', 'expected_source_project_id'].includes(key))) {
+        return problem('unsupported', 'Choose a connected repository for this site.');
+      }
+      const source = await connectedProject(env, userId, input.source_project_id);
+      if (!source) return json({ error: 'That repository connection was not found.' }, 404);
+      await env.APP_KV.put(linkKey, JSON.stringify({ installation_id: installationId, owner_user_id: userId,
+        source_project_id: source.id }));
+      return json({ installation_id: installationId, source_project_id: source.id });
+    }
+    if (path === '/source-projects' && request.method === 'GET') {
+      const cursor = requestUrl.searchParams.get('cursor');
+      const page = await env.APP_KV.list({ prefix: `${KEY}${userId}:`, limit: 64, ...(cursor ? { cursor } : {}) });
+      const rows = await Promise.all(page.keys.map(key => env.APP_KV.get(key.name, 'json')));
+      return json({ projects: rows.filter(row => row?.owner_user_id === userId).map(({ owner_user_id: _, ...row }) => ({
+        ...row, source_account_id: userId, revision: sourceProjectRevision(row),
+      })),
+        next_cursor: page.list_complete ? null : page.cursor });
+    }
+    if (path === '/source-projects' && request.method === 'POST') {
+      const input = await request.json();
+      if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key =>
+        !['owner', 'repo', 'branch', 'preview_url', 'live_url', 'project_id', 'expected_commit', 'current_commit'].includes(key))) {
+        return problem('unsupported', 'Give a GitHub repository and branch to connect.');
+      }
+      const owner = String(input.owner ?? '');
+      const repo = String(input.repo ?? '');
+      const branch = String(input.branch ?? '');
+      if (!REPO_PART.test(owner) || !REPO_PART.test(repo) || !BRANCH.test(branch) || repo === '.' || repo === '..') {
+        return problem('unsupported', 'Choose an existing GitHub repository and branch.');
+      }
+      const repository = await github(workshop, 'read_repository', { owner, repo }, `source-repo:${userId}:${owner}/${repo}:${crypto.randomUUID()}`);
+      if (repository?.full_name?.toLowerCase() !== `${owner}/${repo}`.toLowerCase()) return problem('unsupported', 'The connected GitHub account cannot read that repository.');
+      const identity = { provider: 'github', owner, repo, branch };
+      let project;
+      let created = false;
+      if (input.project_id !== undefined) {
+        if (!ID.test(input.project_id ?? '') || !SHA.test(input.expected_commit ?? '')) {
+          return problem('unsupported', 'Choose the existing connection and give its pinned commit.');
+        }
+        project = await connectedProject(env, userId, input.project_id);
+        if (!project || !sameRepoIdentity(project, identity)) return json({ error: 'That source connection does not match this repository and branch.' }, 404);
+        if (input.expected_commit !== project.commit) return json({ status: 'conflict', error: 'The source connection changed. Read it again before refreshing.', project_id: project.id }, 409);
+      } else {
+        const digest = repoIdentityDigest(userId, identity);
+        const indexedId = await env.APP_KV.get(projectIdentityKey(userId, identity));
+        const indexed = ID.test(indexedId ?? '') ? await connectedProject(env, userId, indexedId) : null;
+        if (indexed && sameRepoIdentity(indexed, identity)) project = indexed;
+        else {
+          const matches = (await connectedProjects(env, userId)).filter(row => sameRepoIdentity(row, identity));
+          if (matches.length > 1) {
+            const current_commit = await branchHead(workshop, { id: digest, owner, repo, branch });
+            return json({ status: 'conflict', error: 'Several saved connections point to this repository and branch. Choose the one Sites should keep.',
+              existing_project_ids: matches.map(row => row.id).sort(), current_commit }, 409);
+          }
+          if (matches.length === 1) project = matches[0];
+          else {
+            const id = digest;
+            const occupied = await connectedProject(env, userId, id);
+            if (occupied && !sameRepoIdentity(occupied, identity)) return problem('conflict', 'The repository connection identity is already in use.');
+            project = occupied ?? { id, owner_user_id: userId, provider: 'github', connection_id: 'service_connection:github',
+              owner, repo, branch, commit: null, preview_url: null, live_url: null,
+              connected_at: new Date().toISOString(), generation: crypto.randomUUID() };
+            created = !occupied;
+          }
+        }
+      }
+
+      const head = await branchHead(workshop, project);
+      if (input.current_commit !== undefined && input.current_commit !== head) {
+        return json({ status: 'conflict', error: 'The branch moved again. Read its current commit before refreshing.',
+          project_id: project.id, expected_commit: project.commit, current_commit: head }, 409);
+      }
+      if (input.project_id !== undefined && head !== project.commit && input.current_commit !== head) {
+        return json({ status: 'conflict', error: 'The branch moved. Pass its exact current commit to refresh this saved connection.',
+          project_id: project.id, expected_commit: project.commit, current_commit: head }, 409);
+      }
+      if (project.pending_edit && project.pending_edit.commit !== head) {
+        return json({ status: 'conflict', error: 'Check the earlier source edit before refreshing this connection.',
+          project_id: project.id, expected_commit: project.commit, current_commit: head }, 409);
+      }
+      if (!created) {
+        const latest = await connectedProject(env, userId, project.id);
+        if (!latest || latest.commit !== project.commit || latest.connected_at !== project.connected_at ||
+            latest.preview_url !== project.preview_url || latest.live_url !== project.live_url ||
+            JSON.stringify(latest.last_edit ?? null) !== JSON.stringify(project.last_edit ?? null) ||
+            JSON.stringify(latest.pending_edit ?? null) !== JSON.stringify(project.pending_edit ?? null)) {
+          return json({ status: 'conflict', error: 'The saved connection changed while it was being refreshed. Read it again.',
+            project_id: project.id }, 409);
+        }
+      }
+      const updated = { ...project, generation: project.generation ?? crypto.randomUUID(), commit: head,
+        ...(project.pending_edit?.commit === head ? { last_edit: project.pending_edit, pending_edit: null } : {}),
+        ...(Object.hasOwn(input, 'preview_url') ? { preview_url: publicHttpsUrl(input.preview_url) } : {}),
+        ...(Object.hasOwn(input, 'live_url') ? { live_url: publicHttpsUrl(input.live_url) } : {}) };
+      await env.APP_KV.put(projectKey(userId, updated.id), JSON.stringify(updated));
+      await env.APP_KV.put(projectIdentityKey(userId, identity), updated.id);
+      const { owner_user_id: _, ...visible } = updated;
+      return json({ ...visible, source_account_id: userId, revision: sourceProjectRevision(updated), current_commit: head, stale: false, reused: !created }, created ? 201 : 200);
+    }
+    const match = /^\/source-projects\/([a-f0-9]{32})(?:\/(preview|select|resolve|edit|verify|dependencies))?$/.exec(path);
+    const snapshotMatch = /^\/source-projects\/([a-f0-9]{32})\/site-snapshot$/.exec(path);
+    if (snapshotMatch && request.method === 'GET') {
+      const project = await connectedProject(env, userId, snapshotMatch[1]);
+      if (!project) return json({ error: 'That source project was not found.' }, 404);
+      const expected = requestUrl.searchParams.get('expected_commit');
+      const head = await branchHead(workshop, project);
+      if (expected !== project.commit || head !== project.commit) return problem('conflict', 'The GitHub branch changed. Refresh the connection before adding this source.');
+      return json(await pinnedWebSnapshot(workshop, project, project.commit, { browser: env.BROWSER, browseRendered, fetcher }));
+    }
+    if (!match) return problem('unsupported', 'This source project action is unavailable.');
+    const project = await connectedProject(env, userId, match[1]);
+    if (!project && request.method === 'DELETE' && !match[2]) {
+      if (env[ACCOUNT_APP_OWNER]?.sourceRemoved && !env[ACCOUNT_APP_OWNER].sourceRemoved(match[1])) {
+        return problem('unavailable', 'This saved connection could not be confirmed. Reload it before removing it.');
+      }
+      return json({ status: 'already_absent' });
+    }
+    if (!project) return json({ error: 'That source project was not found.' }, 404);
+    if (!match[2] && request.method === 'DELETE') {
+      const input = await request.json();
+      if (!input || typeof input !== 'object' || Array.isArray(input) ||
+          Object.keys(input).some(key => key !== 'expected_revision') || typeof input.expected_revision !== 'string') {
+        return problem('unsupported', 'Give the saved connection revision before removing it.');
+      }
+      if (input.expected_revision !== sourceProjectRevision(project)) {
+        return json({ status: 'conflict', error: 'This connection changed. Reload it before removing it.',
+          revision: sourceProjectRevision(project) }, 409);
+      }
+      // Native source confirmation can span bounded admitted continuations.
+      // Rejected input/revisions must never create such an intent, and an edit
+      // awaiting reconciliation cannot become a removal while that work waits.
+      if (project.pending_edit) return json({ status: 'conflict', error: 'Check the saved source edit before removing this connection.' }, 409);
+      if (confirmSourceRemoval) await confirmSourceRemoval(project, input.expected_revision);
+      const page = sourceDependencies ? await sourceDependencies(project.id,{after:'',limit:64}) : {dependencies:await savedSourceDependencies(env,userId,project.id),complete:true,next_after:null};
+      if(!page||!Array.isArray(page.dependencies)||typeof page.complete!=='boolean'||page.complete&&page.next_after!==null||!page.complete&&(!page.dependencies.length||typeof page.next_after!=='string'))throw new Error('The source dependency page has no exact exhaustion result.');
+      const dependencies = page.dependencies;
+      if (dependencies.length) {
+        return json({ status: 'conflict', error: 'Remove this source from its saved sites before removing the connection.',
+          dependencies,...(sourceDependencies?{dependencies_page:{complete:page.complete,next:page.complete?null:`/work/api/source-projects/${project.id}/dependencies?after=${encodeURIComponent(page.next_after)}`}}:{}) }, 409);
+      }
+      const latest = await connectedProject(env, userId, project.id);
+      if (!latest || sourceProjectRevision(latest) !== input.expected_revision) {
+        return json({ status: 'conflict', error: 'This connection changed. Reload it before removing it.' }, 409);
+      }
+      if (project.last_edit) {
+        const historyKey = `${SOURCE_HISTORY_KEY}${userId}:${project.id}:${project.generation ?? project.connected_at}`;
+        await env.APP_KV.put(historyKey, JSON.stringify({ project_id: project.id, owner_user_id: userId,
+          provider: project.provider, owner: project.owner, repo: project.repo, branch: project.branch,
+          connected_at: project.connected_at, last_edit: project.last_edit, removed_at: new Date().toISOString() }));
+      }
+      await env.APP_KV.delete(projectKey(userId, project.id));
+      if (!env[ACCOUNT_APP_OWNER]) await env.APP_KV.delete(sourceIndexKey(userId, project.id));
+      const identityKey = projectIdentityKey(userId, project);
+      if (await env.APP_KV.get(identityKey) === project.id) await env.APP_KV.delete(identityKey);
+      return json({ status: 'removed', project_id: project.id, revision: input.expected_revision });
+    }
+    if (match[2]==='dependencies' && request.method==='GET') {
+      if(!sourceDependencies)return problem('unavailable','The native source dependency reader is unavailable.');
+      const page=await sourceDependencies(project.id,{after:requestUrl.searchParams.get('after')??'',limit:64});
+      return json({...page,next:page.complete?null:`/work/api/source-projects/${project.id}/dependencies?after=${encodeURIComponent(page.next_after)}`});
+    }
+    if (!match[2] && request.method === 'GET') {
+      const head = await branchHead(workshop, project);
+      const { owner_user_id: _, ...visible } = project;
+      return json({ ...visible, source_account_id: userId, revision: sourceProjectRevision(project), current_commit: head, stale: head !== project.commit });
+    }
+    if (!match[2] && request.method === 'PATCH') {
+      const input = await request.json();
+      if (!input || typeof input !== 'object' || Array.isArray(input)) return problem('unsupported', 'Give the current revision and an address to change.');
+      const head = await branchHead(workshop, project);
+      if (input.expected_commit !== project.commit || (head !== project.commit && input.current_commit !== head) ||
+          (input.current_commit && input.current_commit !== head)) {
+        return problem('conflict', 'The project branch changed. Give both the pinned and current branch commits to refresh it.');
+      }
+      if (!Object.hasOwn(input, 'preview_url') && !Object.hasOwn(input, 'live_url') && head === project.commit) {
+        return problem('unsupported', 'Give a running preview or live address to change.');
+      }
+      if (project.pending_edit && project.pending_edit.commit !== head) {
+        return problem('conflict', 'Check the earlier source edit before refreshing this project.');
+      }
+      const updated = { ...project, commit: head,
+        ...(project.pending_edit?.commit === head ? { last_edit: project.pending_edit, pending_edit: null } : {}),
+        ...(Object.hasOwn(input, 'preview_url') ? { preview_url: publicHttpsUrl(input.preview_url) } : {}),
+        ...(Object.hasOwn(input, 'live_url') ? { live_url: publicHttpsUrl(input.live_url) } : {}) };
+      await env.APP_KV.put(projectKey(userId, project.id), JSON.stringify(updated));
+      const { owner_user_id: _, ...visible } = updated;
+      return json({ ...visible, current_commit: head, stale: false });
+    }
+    if (match[2] === 'preview' && request.method === 'GET') {
+      const previewUrl = runningPreviewUrl(project);
+      if (!previewUrl) return problem('unsupported', 'Connect the running preview address first.');
+      const route = requestUrl.searchParams.get('route') ?? '/';
+      const preview = await browseRendered(env.BROWSER, previewUrl, route, null, Number(requestUrl.searchParams.get('width') ?? 1280));
+      return json({ ...preview, ...(preview.status === 'ready' ? { current_commit: await branchHead(workshop, project) } : {}) });
+    }
+    if (match[2] === 'select' && request.method === 'POST') {
+      const previewUrl = runningPreviewUrl(project);
+      if (!previewUrl) return problem('unsupported', 'Connect the running preview address first.');
+      const input = await request.json();
+      const head = await branchHead(workshop, project);
+      if (input.expected_commit !== head) return problem('conflict', 'The project branch changed. Reload its current revision.');
+      const route = String(input.route ?? '/');
+      const chosen = await browseRendered(env.BROWSER, previewUrl, route, { x: input.x, y: input.y }, Number(input.width ?? 1280));
+      if (chosen.status !== 'selected') return json(chosen);
+      const page_path = route === '/' ? 'index.html' : route.endsWith('/') ? `${route.slice(1)}index.html` : route.slice(1);
+      return json({ ...chosen, selection: { ...chosen.element, route, page_path, revision: head } });
+    }
+    if (match[2] === 'resolve' && request.method === 'POST') {
+      const input = await request.json();
+      const head = await branchHead(workshop, project);
+      if (input.expected_commit !== head) return problem('conflict', 'The project branch changed. Reload its current revision.');
+      if (!input.selection || typeof input.selection !== 'object') return json({ status: 'unsupported', reason: 'Select a rendered element first.' });
+      if (input.selection.project_id !== project.id || input.selection.revision !== head) return problem('conflict', 'The selection does not name this exact project preview revision.');
+      const selection = input.selection;
+      const previewUrl = runningPreviewUrl(project);
+      if (!previewUrl) return json({ status: 'unsupported', reason: 'Connect the original running preview address before mapping a selected element.' });
+      const observed = await inspectRendered(env.BROWSER, previewUrl, selection, { kind: 'selection' });
+      if (observed.status !== 'matched') return json({ status: 'unsupported', reason: 'The selected element could not be confirmed on the connected running preview.', preview: observed });
+      const scan = await sourceFiles(workshop, project, head, selection, sourceIndexOf(env, userId, project));
+      if (scan.status !== 'ready') return json(scan);
+      const result = resolveSourceSelection({ project: { id: project.id, revision: head }, selection,
+        files: scan.files, file_shas: scan.shas, complete_source_set: scan.complete_source_set !== false });
+      if (result.status !== 'resolved') return json(result);
+      return json({ ...result, preview: observed, preview_revision: 'unverified', ...(scan.source_index ? { source_index: scan.source_index } : {}) });
+    }
+    if (match[2] === 'edit' && request.method === 'POST') {
+      const input = await request.json();
+      const head = await branchHead(workshop, project);
+      if (input.expected_commit !== head) return problem('conflict', 'The project branch changed. Reload its current revision.');
+      const locator = input.locator;
+      if (typeof locator?.path !== 'string' || locator.commit !== head || locator.project_id !== project.id ||
+          !input.selection || typeof input.selection !== 'object') return json({ status: 'unsupported', reason: 'Choose a current verified source element.' });
+      if (input.selection.project_id !== project.id || input.selection.revision !== head) return problem('conflict', 'The selection does not name this exact project preview revision.');
+      const selection = input.selection;
+      const previewUrl = runningPreviewUrl(project);
+      if (!previewUrl) return json({ status: 'unsupported', reason: 'Connect the original running preview address before editing a selected element.' });
+      const observed = await inspectRendered(env.BROWSER, previewUrl, selection, { kind: 'selection' });
+      if (observed.status !== 'matched') return json({ status: 'unsupported', reason: 'The selected element changed on the connected running preview.', preview: observed });
+      const scan = await sourceFiles(workshop, project, head, selection, sourceIndexOf(env, userId, project));
+      if (scan.status !== 'ready') return json(scan);
+      const resolved = resolveSourceSelection({ project: { id: project.id, revision: head }, selection,
+        files: scan.files, file_shas: scan.shas, complete_source_set: scan.complete_source_set !== false });
+      if (resolved.status !== 'resolved') return json(resolved);
+      if (!same(resolved.locator, locator) || scan.shas[locator.path] !== locator.file_sha) {
+        return problem('conflict', 'The selected element no longer matches its verified source.');
+      }
+      const edit = applySourceEdit({ source: scan.files[locator.path], file_sha: locator.file_sha, commit: head,
+        locator, intent: input.intent });
+      if (edit.status !== 'ready') return json(edit);
+      const currentHead = await branchHead(workshop, project);
+      if (currentHead !== head) return problem('conflict', 'The project branch changed before the edit was written.');
+      const content = edit.content;
+      if (typeof content !== 'string' || content === scan.files[locator.path]) return json({ status: 'unsupported', reason: 'The requested edit made no source change.' });
+      const content_base64 = encodedUtf8(content);
+      const base = await github(workshop, 'read_git_commit', { ...gitInput(project), ref: head },
+        `source-base:${project.id}:${head}`);
+      if (base?.sha !== head || !SHA.test(base?.tree?.sha ?? '')) throw new Error('GitHub did not return the pinned commit tree.');
+      const blob = await github(workshop, 'create_git_blob', { ...gitInput(project), content_base64 },
+        `source-blob:${project.id}:${edit.change_id}`);
+      if (!SHA.test(blob?.sha ?? '')) throw new Error('GitHub did not stage the edited source blob.');
+      const tree = await github(workshop, 'create_git_tree', { ...gitInput(project), base_tree: base.tree.sha,
+        path: locator.path, blob_sha: blob.sha }, `source-tree-write:${project.id}:${edit.change_id}`);
+      if (!SHA.test(tree?.sha ?? '')) throw new Error('GitHub did not stage the edited source tree.');
+      const staged = await github(workshop, 'create_git_commit', { ...gitInput(project), tree_sha: tree.sha,
+        expected_head: head, message: `Edit ${locator.path} from visual selection` },
+      `source-commit:${project.id}:${edit.change_id}`);
+      const commit = staged?.sha;
+      if (!SHA.test(commit ?? '') || staged?.parents?.length !== 1 || staged.parents[0]?.sha !== head) {
+        throw new Error('GitHub did not stage a commit on the exact expected parent.');
+      }
+      const last_edit = { commit, previous_commit: head, selection, intent: input.intent, path: locator.path, blob_sha: blob.sha };
+      await env.APP_KV.put(projectKey(userId, project.id), JSON.stringify({ ...project,
+        pending_edit: last_edit }));
+      try {
+        const moved = await github(workshop, 'update_git_ref', { ...gitInput(project), branch: project.branch, commit },
+          `source-ref:${project.id}:${edit.change_id}`);
+        if (moved?.object?.sha !== commit) throw new Error('GitHub did not confirm the branch move.');
+      } catch (error) {
+        let observedHead;
+        try { observedHead = await branchHead(workshop, project); }
+        catch { return json({ status: 'publication_unknown', project_id: project.id, staged_commit: commit,
+          reason: 'GitHub did not confirm whether the branch moved. Reload this project before retrying.' }); }
+        if (observedHead !== commit) {
+          await env.APP_KV.put(projectKey(userId, project.id), JSON.stringify(project));
+          return problem('conflict', 'The project branch changed before this source edit could be published.');
+        }
+      }
+      const updated = { ...project, commit, last_edit, pending_edit: null };
+      let metadata_saved = true;
+      try { await env.APP_KV.put(projectKey(userId, project.id), JSON.stringify(updated)); }
+      catch { metadata_saved = false; }
+      let source_readback = false;
+      try { source_readback = (await sourceFile(workshop, project, locator.path, commit)).content === content; }
+      catch { /* A committed edit remains reportable even if readback is temporarily unavailable. */ }
+      return json({ status: metadata_saved && source_readback ? 'source_written' : 'source_written_verification_pending',
+        project_id: project.id, previous_commit: head, commit, changed_path: locator.path, diff: edit.diff,
+        verification: { source_readback, metadata_saved, build: 'pending', preview: 'pending', live: 'pending' } });
+    }
+    if (match[2] === 'verify' && request.method === 'POST') {
+      const input = await request.json();
+      const commit = String(input.commit ?? '');
+      if (!SHA.test(commit)) return problem('unsupported', 'Give the source commit to verify.');
+      const recordedEdit = project.last_edit?.commit === commit ? project.last_edit
+        : project.pending_edit?.commit === commit ? project.pending_edit : null;
+      if (!recordedEdit) return problem('unsupported', 'This commit has no recorded source edit in this project.');
+      const head = await branchHead(workshop, project);
+      if (head !== commit) return problem('conflict', 'The branch has changed since this source edit.');
+      let source_readback = false;
+      try { source_readback = (await sourceFile(workshop, project, recordedEdit.path, commit)).sha === recordedEdit.blob_sha; }
+      catch { /* Build and rendered readback remain separately reportable. */ }
+      if (source_readback && project.pending_edit?.commit === commit) {
+        await env.APP_KV.put(projectKey(userId, project.id), JSON.stringify({ ...project,
+          commit, last_edit: recordedEdit, pending_edit: null }));
+      }
+      const checks = await github(workshop, 'read_commit_checks', { ...gitInput(project), ref: commit },
+        `source-checks:${project.id}:${commit}:${crypto.randomUUID()}`);
+      const runs = Array.isArray(checks?.check_runs) ? checks.check_runs : [];
+      const buildRuns = runs.filter(run => /build|deploy|pages/i.test(run.name ?? '') && (!run.head_sha || run.head_sha === commit));
+      const build = Number(checks?.total_count ?? 0) > runs.length || buildRuns.length === 0 ? 'unverified' : runs.some(run => run.head_sha && run.head_sha !== commit) ? 'unverified'
+        : runs.some(run => run.conclusion && run.conclusion !== 'success') ? 'failed'
+        : buildRuns.every(run => run.status === 'completed' && run.conclusion === 'success') ? 'passed' : 'pending';
+      const { selection, intent } = recordedEdit;
+      const previewUrl = runningPreviewUrl(project);
+      const preview = build === 'passed' ? await inspectRendered(env.BROWSER, previewUrl, selection, intent) : { status: 'waiting_for_build' };
+      const live = build === 'passed' ? project.live_url === previewUrl ? preview
+        : await inspectRendered(env.BROWSER, project.live_url, selection, intent) : { status: 'waiting_for_build' };
+      const status = build === 'passed' && preview.status === 'matched' && live.status === 'matched' ? 'rendered_value_observed'
+        : build === 'failed' ? 'build_failed' : build === 'pending' ? 'build_pending' : 'verification_incomplete';
+      return json({ status,
+        commit, source_readback, build, checks: runs.map(({ name, status, conclusion, details_url }) => ({ name, status, conclusion, details_url })),
+        preview, live, preview_url: previewUrl, live_url: project.live_url,
+        deployment_commit: 'unverified', visual_change: 'unverified_without_comparable_before_and_after', backend: 'not_checked' });
+    }
+    return problem('unsupported', 'This source project action is unavailable.');
+  } catch (error) {
+    if(failureOf(error).tries_again_later)throw error;
+    const message = error instanceof Error ? error.message : 'The source project action failed.';
+    if (error?.code === 'source_connection_conflict') return problem('conflict', message,
+      error.unconfirmed_sites ? { unconfirmed_sites: error.unconfirmed_sites } : undefined);
+    if(Number.isInteger(error?.status)&&error.status>=400&&error.status<=599)
+      return json({status:error.status===409?'conflict':error.status>=500?'unavailable':'unsupported',error:message},error.status);
+    if (/\b(?:409|conflict)\b|sha (?:does not match|mismatch)/i.test(message)) {
+      return problem('conflict', 'The source repository changed before this edit completed. Reload the current revision.');
+    }
+    if (/public HTTPS app address|invalid URL/i.test(message)) return problem('unsupported', message);
+    return problem('unavailable', message);
+  }
+}

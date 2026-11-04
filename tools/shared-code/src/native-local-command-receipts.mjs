@@ -2,7 +2,7 @@
 // A local domain write and its exact protected result share one transaction.
 // Recovery finishes only supplied idempotent bookkeeping, never replays the
 // mutation or an external tool effect. No private input enters receipt facts.
-import { canonical, identityOf } from '../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { canonical, identityOf } from './record-identity.mjs';
 const resultIdentity = value => identityOf(canonical(value));
 const fail = (message, status = 409) => Object.assign(new Error(message), { status });
 const json = value => JSON.parse(JSON.stringify(value));

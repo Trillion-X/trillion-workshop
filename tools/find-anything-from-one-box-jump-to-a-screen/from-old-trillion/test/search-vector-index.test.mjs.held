@@ -1,0 +1,96 @@
+// A meaning search reads the vectors near its question (src/search-vector-index.mjs), never every vector kept: a
+// lane past its size learns buckets as idle work, every vector gets one, and a search reads only the nearest buckets
+// plus vectors with no bucket yet, while still finding what a full read finds.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { makeSearch } from '../src/search.mjs';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+
+const lane = settings.lanes.find(item => item.id === 'speech-meaning');
+const index = { min_vectors: 1000, sample: 1000, iterations: 6, probe: 4, min_buckets: 8, max_buckets: 64, regrow: 4, assign_page: 500 };
+const DIMENSIONS = 16, CLUSTERS = 40, EACH = 60;
+
+// A fixed pseudo-random sequence, so every run sees the same vectors.
+let seed = 7;
+const random = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+const unit = vector => { const norm = Math.hypot(...vector) || 1; return vector.map(value => value / norm); };
+const centres = Array.from({ length: CLUSTERS }, () => unit(Array.from({ length: DIMENSIONS }, () => random() * 2 - 1)));
+const near = centre => unit(centre.map(value => value + (random() * 2 - 1) * 0.15));
+const packed = vector => new Uint8Array(Int8Array.from(vector, value => Math.round(value * 127)).buffer);
+const hex = n => n.toString(16).padStart(64, '0');
+
+function account() {
+  const { sql } = sqliteHost(':memory:');
+  const files = namespaceStore(sql);
+  resultsStore(sql, identity => files.identitiesOf(identity));
+  let reads = 0;
+  const counted = { exec(query, ...values) {
+    const cursor = sql.exec(query, ...values);
+    if (!/FROM search_vectors/.test(query) || !/SELECT/.test(query)) return cursor;
+    return { toArray() { const rows = cursor.toArray(); reads += rows.length; return rows; } };
+  } };
+  return { sql, counted, reads: () => reads, reset: () => { reads = 0; } };
+}
+
+async function finishSearch(search, question, options) {
+  let answer = await search.search(question, options);
+  for (let page = 0; page < 2048 && answer.pending?.length; page++) answer = await search.search(question, options);
+  assert.deepEqual(answer.pending, [], 'the repeated request finishes the durable candidate walk');
+  return answer;
+}
+
+async function keptAccount({ probe = index.probe } = {}) {
+  const { sql, counted, reads, reset } = account();
+  let asked = centres[0];
+  const config = { ...settings, lanes: [lane], vector_index: { ...index, probe } };
+  makeSearch({ sql, config, embed: null });
+  let n = 0;
+  for (const centre of centres) {
+    for (let item = 0; item < EACH; item += 1) {
+      sql.exec('INSERT INTO search_vectors (lane, identity, n, start, finish, said, vector) VALUES (?, ?, 0, 1, 2, ?, ?)', lane.id, `1f:${hex(n)}`, 'toss', packed(near(centre)));
+      n += 1;
+    }
+  }
+  const search = makeSearch({ sql: counted, config, embed: async () => [asked] });
+  for (let wake = 0; wake < 100 && (await search.stale()); wake += 1) await search.catchUp(10);
+  assert.equal((await search.stale()), 0, 'the alarm finishes learning buckets and giving every vector one');
+  return { sql, search, reads, reset, ask: vector => { asked = vector; }, total: n };
+}
+
+test('a meaning search over an indexed lane reads a small share of the vectors and still finds the near ones', async () => {
+  const { sql, search, reads, reset, ask, total } = await keptAccount();
+  assert.equal(sql.exec('SELECT COUNT(*) AS n FROM search_vectors WHERE bucket IS NULL').toArray()[0].n, 0, 'every vector has a bucket');
+  assert.ok(sql.exec('SELECT buckets FROM search_vector_trained WHERE lane = ?', lane.id).toArray()[0].buckets >= index.min_buckets);
+  for (const cluster of [0, 13, 27]) {
+    ask(centres[cluster]);
+    reset();
+    const found = await finishSearch(search, 'toss', { sources: ['files'], limit: 20 });
+    assert.ok(reads() <= total * 0.2, `read ${reads()} of ${total} vectors`);
+    const wanted = new Set(Array.from({ length: EACH }, (_, item) => `1f:${hex(cluster * EACH + item)}`));
+    assert.ok(found.results.length > 0);
+    assert.ok(found.results.every(result => wanted.has(result.identity)), 'every result comes from the cluster the question is in');
+  }
+});
+
+test('a vector with no bucket yet is still read by a search on an indexed lane', async () => {
+  const { sql, search, ask } = await keptAccount();
+  const fresh = unit(Array.from({ length: DIMENSIONS }, (_, at) => (at === 3 ? 1 : 0)));
+  sql.exec('INSERT INTO search_vectors (lane, identity, n, start, finish, said, vector) VALUES (?, ?, 0, 1, 2, ?, ?)', lane.id, '1f:' + 'f'.repeat(64), 'toss', packed(fresh));
+  ask(fresh);
+  const found = await finishSearch(search, 'toss', { sources: ['files'], limit: 5 });
+  assert.equal(found.results[0]?.identity, '1f:' + 'f'.repeat(64), 'a vector with no bucket is still read');
+});
+
+test('a lane under its size is read whole, with no index', async () => {
+  const { sql: plain, counted: sql } = account();
+  const config = { ...settings, lanes: [lane], vector_index: { ...index, min_vectors: 100000 } };
+  const search = makeSearch({ sql, config, embed: async () => [centres[0]] });
+  plain.exec('INSERT INTO search_vectors (lane, identity, n, start, finish, said, vector) VALUES (?, ?, 0, 1, 2, ?, ?)', lane.id, `1f:${hex(1)}`, 'toss', packed(centres[0]));
+  assert.equal((await search.stale()), 0);
+  const found = await finishSearch(search, 'toss', { sources: ['files'] });
+  assert.equal(found.results[0]?.identity, `1f:${hex(1)}`);
+  assert.equal(plain.exec('SELECT COUNT(*) AS n FROM search_vector_centroids').toArray()[0].n, 0);
+});

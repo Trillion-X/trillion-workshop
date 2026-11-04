@@ -1,0 +1,24 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/spend-meter.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/estimate-what-a-persons-services-cost-from/from-old-trillion/src/spend-meter.mjs.held",
+      "source_identity": "1f:e5ef0b2596d788b7192c17e5176677225d773f4fc574be3c78df1bae29fa051c",
+      "identity": "1f:18c5bf3865e382acb7bba514cb437874b67f14e40888566b80474dba53c498a6",
+      "held": true
+    },
+    {
+      "from": "test/spend-meter.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/estimate-what-a-persons-services-cost-from/from-old-trillion/test/spend-meter.test.mjs.held",
+      "source_identity": "1f:b1fe40652af3cd28d335b737f299a40cb4896570b6e1b10ac5bb18483ea83764",
+      "identity": "1f:453c6847e56f336b42650cc607c6b7ca2af9a660bf48fb0944a46a0595d56989",
+      "held": true
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "_what": "How the web app's Record and Formats screens keep a recording (DATA, read by src/workspace/recording.mjs, src/workspace/record-screen.tsx and src/workspace/recordings.ts). folder is where a recording made in the browser is kept in the person's Files, one folder per day beneath it (the iPhone keeps its own under /Recordings from iPhone, ios/Shared/TrillionRecordingData.swift). sources are what the Record screen offers to record, in order: each names a source of the one recorder (parts/record-audio/read-data/capture-sources.json, where its recording kinds and file endings live) and the word the choice shows. meeting is recording one meeting together from several devices: Record with others starts a pursuit titled `title` and shows a link (the Record address with the query field Record's screen row names in its `route_query` for `meeting`, set to the pursuit's invite code) that another signed-in device opens to join it, whatever screen the link's path names; while recording, each device adds every finished turn it hears to that pursuit as an item of kind `item_kind` with its device and time, reads them back every read_every_ms (read_limit at most), and shows one transcript with each turn named by who heard it, the same words heard by two devices within same_words_within_seconds (sharing same_words_share of their words) kept once (src/workspace/recording.mjs meetingTurns). Only the device that started the meeting hands its words to the AIs, so a moment is routed once. live_work says when the words heard while recording go to the person's AIs as they are said: each finished turn of at least turn_min_words new words is handed with the job jobs.live_words names (shorter turns join the next, until quiet_seconds pass with nothing said, when what gathered goes once it holds quiet_min_words), a turn still being said is handed once long_turn_words have gathered, each with up to earlier_words said before it and the newest already_kept things the AIs already did in this recording (src/workspace/recording.mjs liveStretch) and a heading of heading_chars, and AI work is read back every check_every_ms to show beside the live words. follow_lookahead_words is how far ahead in a script a spoken word is looked for, so a skipped or misheard word does not lose the reader's place. script_views are the ways a script can be read on the teleprompter, in the order they are offered (the first opens): each shows, for every part of the script, the part's fields named in `show` in order, joined by `between`, with its words cut to `words_up_to` words when that is set; follows_voice says whether a teleprompter that follows the voice through the words drawn (Record video's) can follow it in that way of reading; adding a way of reading is one row. live_words_every_ms is how often the words said so far are written into the transcript file while recording, so an AI can read them before Done. edited names how a recording that was cut or added to is kept: its name gets `suffix`, and its sound is made at `sample_rate` samples a second in one channel. write_without_thought is what a script is about when Have my AI write it is pressed with no thought given, so the AI picks the subject from the person's pursuits. jobs name the rows of src/queued-work.json each screen asks the person's AIs with: a recording, a recording read from a script, a recording made about something shared (the share's own record names what to do with it), a script to write out, and a recording's corrected words. parts are the recording parts whose own screens (Record video, Record audio) keep their recordings here: for each part, the input its screen lists its recordings from (src/workspace/inputs.json); what that part records is kept in the same folder by day, beside its words, and handed to the person's AIs with the same jobs. takes is a run of takes read one after another (Record video opened on a list's saved view: route query takes and view): each row of the view with words in one of script_fields is one take, its script split into sentences; one press of Start takes lets the run start each take by itself for authorized_minutes, with a countdown of countdown_seconds; execution is how every take ends, as the record-video part's session reads it (parts/record-video/read-data/recording-session.ts invariant 5): the last word read (within completion_slack_words) then script_end_quiet_seconds without a new word, a stop phrase heard, silence_stop_seconds of silence after speech, or auto_stop_seconds at most. Each kept take goes to the person's AIs with jobs.recorded_take, and the next take comes up. A script view whose row says mirror draws the script mirrored, for a teleprompter's glass.",
+  "folder": "/Recordings from the web",
+  "sources": [
+    {
+      "id": "voice",
+      "label": "Voice"
+    },
+    {
+      "id": "meeting-audio",
+      "label": "Meeting audio"
+    },
+    {
+      "id": "camera",
+      "label": "Video"
+    }
+  ],
+  "follow_lookahead_words": 6,
+  "write_without_thought": "whatever matters most to me right now, from my pursuits",
+  "meeting": {
+    "title": "Meeting",
+    "item_kind": "said",
+    "read_every_ms": 3000,
+    "read_limit": 100,
+    "same_words_within_seconds": 20,
+    "same_words_share": 0.6
+  },
+  "live_work": {
+    "turn_min_words": 80,
+    "long_turn_words": 160,
+    "quiet_seconds": 4,
+    "quiet_min_words": 8,
+    "earlier_words": 120,
+    "heading_chars": 80,
+    "already_kept": 12,
+    "check_every_ms": 5000
+  },
+  "script_views": [
+    {
+      "id": "full",
+      "label": "Full script",
+      "show": [
+        "words"
+      ],
+      "follows_voice": true
+    },
+    {
+      "id": "structure",
+      "label": "Structure",
+      "show": [
+        "label"
+      ],
+      "follows_voice": false
+    },
+    {
+      "id": "ideas",
+      "label": "Ideas",
+      "show": [
+        "label",
+        "words"
+      ],
+      "between": ": ",
+      "words_up_to": 8,
+      "follows_voice": false
+    },
+    {
+      "id": "glass",
+      "label": "Teleprompter glass",
+      "show": [
+        "words"
+      ],
+      "follows_voice": true,
+      "mirror": true
+    }
+  ],
+  "takes": {
+    "script_fields": [
+      "script"
+    ],
+    "countdown_seconds": 3,
+    "authorized_minutes": 240,
+    "execution": {
+      "stop_on_final_word": true,
+      "completion_slack_words": 2,
+      "script_end_quiet_seconds": 3,
+      "stop_phrases": [
+        "I'm done",
+        "I am done",
+        "that's a wrap"
+      ],
+      "silence_stop_seconds": 15,
+      "auto_stop_seconds": 300
+    }
+  },
+  "live_words_every_ms": 3000,
+  "edited": {
+    "suffix": " edited",
+    "sample_rate": 24000
+  },
+  "jobs": {
+    "recorded": "hand-recording",
+    "recorded_with_script": "hand-script-recording",
+    "recorded_about_share": "hand-recording-about-share",
+    "write_script": "write-in-format",
+    "corrected": "hand-corrected-transcript",
+    "live_words": "act-on-live-words",
+    "recorded_take": "hand-take"
+  },
+  "parts": {
+    "record-video": {
+      "recordings": "recordVideoRecordings"
+    },
+    "record-audio": {
+      "recordings": "recordAudioRecordings"
+    }
+  },
+  "calendar_context_hint": "Calendar details stay with your recording and transcript.",
+  "capture_source_preference": {
+    "key": "record-capture-source",
+    "save_failed": "Trillion couldn't queue your recording choice. Try again."
+  }
+}

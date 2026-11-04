@@ -1,6 +1,6 @@
 // The decision to place a reviewed question in private draft work. All rows must
 // come from the account's current store; caller text alone cannot clear evidence.
-import { canonical, identityOf } from '../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { canonical, identityOf } from '../../shared-code/src/record-identity.mjs';
 import { yourRecordsStore } from '../../keep-and-wake-ai-sessions-on-this-computer/src/your-records.mjs';
 import { currentAudienceSource, keepAudienceSource, readAudienceSource, publicSourceUrl, readPublicAudiencePage } from './audience-question-sources.mjs';
 import { failureOf } from '../../keep-and-wake-ai-sessions-on-this-computer/src/failure.mjs';

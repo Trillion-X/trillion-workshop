@@ -5,6 +5,15 @@
   "calls": [],
   "files": [
     {
+      "from": "src/community-logic/band-membership.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/read-data/band-membership.ts",
+      "source_identity": "1f:3980c8ef5f8841e766f5f4f78b9d4a5e974ef87c0dd85a6e7982127812888313",
+      "identity": "1f:78b1168f39df79d37161fc78621cfee710b8f14381750103d243cb58c7822c3e",
+      "reused": true,
+      "adapted": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
       "from": "src/community-logic/board-habit-cadence.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/evaluate-progress/read-data/board-habit-cadence.ts",
@@ -21,6 +30,40 @@
       "reused": true
     },
     {
+      "from": "src/community-logic/derive-measure.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/read-data/derive-measure.ts",
+      "source_identity": "1f:ea6e6fac91c189f7b12f7e4018a3aa07a8790d051abc1b2212207918ac43b36b",
+      "identity": "1f:6d435053663fa3740d15388b3972e753f440f36132f6d30348c6630052486342",
+      "reused": true,
+      "adapted": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "src/community-logic/evaluate-progression.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/read-data/evaluate-progression.ts",
+      "source_identity": "1f:1df355d42a12ff904f9b72c48c7cf04bc19c4c3901afaca064902a5531e86374",
+      "identity": "1f:83c0475f867afe05478058c78f91d401b980ecb1ec68674db4850e04c83651fd",
+      "reused": true,
+      "adapted": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "src/community-logic/measure-ops.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/read-data/measure-ops.ts",
+      "source_identity": "1f:de1405e48f78013c8c88a84a335ea9de54bb6bc85003cef7e277928b3a4efa7a",
+      "identity": "1f:3967d721863f47505478a515cb9d1ae5778c0ec377e3e199d8c08640a308c546",
+      "reused": true,
+      "adapted": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "test/community-logic/band-membership.test.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/test/community-logic/band-membership.test.ts",
+      "source_identity": "1f:cb9cb884b1aa4380de5d75e08c5042076ca8cf8e37750b6b4928de7fda34d820",
+      "identity": "1f:c52b0a03ad2f70ca470b6b227064527d4ea52fbf9dc405c1dd137f6e4a4cd754"
+    },
+    {
       "from": "test/community-logic/board-habit-cadence.test.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/evaluate-progress/test/community-logic/board-habit-cadence.test.ts",
@@ -33,6 +76,27 @@
       "to": "tools/evaluate-progress/test/community-logic/board-habit.test.ts",
       "source_identity": "1f:c68ad2fa9197fd5d349e5951ebb88ade01be9d0cb098fa8bc2bc2ffe3a2d5246",
       "identity": "1f:980a36db3fdc14451f495c0ca0067b21d8a7e741743ed896b1c273fa66850e11"
+    },
+    {
+      "from": "test/community-logic/derive-measure.test.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/test/community-logic/derive-measure.test.ts",
+      "source_identity": "1f:cb72f456178634702d23fc81146304403d7e788ce3577a9b3c27e4d8278e4c31",
+      "identity": "1f:17331edb5aba23b9b8bbc6aa5c6ad5cef4e24fab020af1d0eeb3928925e5d2b2"
+    },
+    {
+      "from": "test/community-logic/rr01-relevance-rank.test.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/test/community-logic/rr01-relevance-rank.test.ts",
+      "source_identity": "1f:12ac0341409c5455e169274614be10b6c5b575ace8aced8aa044628e2c6cc892",
+      "identity": "1f:94fa727aeafa47c49dfa1d656a344f85cfd9eb9635f61d593cab54c3ebe29a48"
+    },
+    {
+      "from": "test/community-logic/swv03-quantile-op.test.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/evaluate-progress/test/community-logic/swv03-quantile-op.test.ts",
+      "source_identity": "1f:e745a49ebfa5dfebe8db77c7532e54b9494babf72b59c77f6ab1c38fb490a3f1",
+      "identity": "1f:cd4e80cfe2226a1867c60ded04c965fad2ae608e577187d7acbe926179383290"
     },
     {
       "from": "src/progression.mjs",

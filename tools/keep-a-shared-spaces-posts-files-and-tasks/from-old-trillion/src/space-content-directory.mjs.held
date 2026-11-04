@@ -1,0 +1,53 @@
+import {sharedDependencyStub} from './shared-native-dependency-command.mjs';
+import {contentShardIndex} from './space-content-shards.mjs';
+import { isAt } from './resource-host.mjs';
+export const itemRouteName=(spaceId,key)=>`space:item-route:${spaceId}:${key}`;
+const cache=new WeakMap();
+export async function resolveItemShard(env,spaceId,key,{create=true,index=null}={}){
+ let rows=cache.get(env);if(!rows){rows=new Map();cache.set(env,rows);}
+ const name=itemRouteName(spaceId,key),lookup=JSON.stringify([name,create,index]);
+ if(!rows.has(lookup)){
+  const work=Promise.resolve(sharedDependencyStub(env,name,{spaceId}).resolveContentItemRoute({space_id:spaceId,key,create,index})).then(row=>{if(row.index===null||row.index===undefined)rows.delete(lookup);return row.index;}).catch(error=>{rows.delete(lookup);throw error;});
+  rows.set(lookup,work);if(rows.size>1024)rows.delete(rows.keys().next().value);
+ }
+ return rows.get(lookup);
+}
+export const sourceRouteKey=(relay,ref)=>`source:${relay}\u0000${ref}`;
+function ensureContentItemRoute(sql){
+ sql.exec('CREATE TABLE IF NOT EXISTS space_content_item_route(space_id TEXT NOT NULL,key TEXT NOT NULL,shard_index INTEGER NOT NULL,PRIMARY KEY(space_id,key))');
+}
+export const itemDirectoryMethods={
+ resolveContentItemRoute({space_id:spaceId,key,create=true,index=null}){
+  if(!isAt(this, { kind: 'network', key: itemRouteName(spaceId,key) }))throw new Error('Wrong content item route.');
+  if(create)ensureContentItemRoute(this.sql);
+  else if(!this.sql.exec("SELECT 1 FROM sqlite_master WHERE type='table' AND name='space_content_item_route'").toArray().length)return {index:null};
+  let row=this.sql.exec('SELECT shard_index FROM space_content_item_route WHERE space_id=? AND key=? LIMIT 1',spaceId,key).toArray()[0];
+  if(!row&&create){const selected=Number.isInteger(index)&&index>=0&&index<32?index:contentShardIndex(key);this.sql.exec('INSERT INTO space_content_item_route VALUES(?,?,?)',spaceId,key,selected);row={shard_index:selected};}
+  return {index:row?.shard_index??null};
+ },
+ installContentItemRoute({space_id:spaceId,key,index}){
+  if(!Number.isInteger(index)||index<0||index>=32||!isAt(this, { kind: 'network', key: itemRouteName(spaceId,key) }))throw new Error('Wrong installed content item route.');
+  ensureContentItemRoute(this.sql);
+  this.sql.exec('INSERT OR IGNORE INTO space_content_item_route VALUES(?,?,?)',spaceId,key,index);
+  if(this.sql.exec('SELECT shard_index FROM space_content_item_route WHERE space_id=? AND key=? LIMIT 1',spaceId,key).toArray()[0].shard_index!==index)throw new Error('Content item has another invariant writer.');
+  return {installed:true,index};
+ },
+ // An account merge hands one source key to the merged account's live copy.
+ // Move the route only from the exact writer the caller read, never blindly.
+ reassignContentItemRoute({space_id:spaceId,key,from_index:from,index}){
+  if(![from,index].every(value=>Number.isInteger(value)&&value>=0&&value<32)||!isAt(this, { kind: 'network', key: itemRouteName(spaceId,key) }))throw new Error('Wrong reassigned content item route.');
+  ensureContentItemRoute(this.sql);
+  this.sql.exec('UPDATE space_content_item_route SET shard_index=? WHERE space_id=? AND key=? AND shard_index=?',index,spaceId,key,from);
+  if(this.sql.exec('SELECT shard_index FROM space_content_item_route WHERE space_id=? AND key=? LIMIT 1',spaceId,key).toArray()[0]?.shard_index!==index)throw new Error('Content item route changed before its reassignment.');
+  return {installed:true,index};
+ },
+ // The writer that held a receiving account's source key gives it up only when
+ // every copy it holds under that key was already withdrawn. A live copy there
+ // is a real second owner of the same source and stops the merge.
+ retireWithdrawnSourceCopies({space_id:spaceId,relay,private_ref:privateRef}){
+  const live=this.sql.exec("SELECT COUNT(*) AS n FROM space_items WHERE space_id=? AND contributed_by=? AND source_ref=? AND origin='private' AND withdrawn_at IS NULL",spaceId,relay,privateRef).toArray()[0].n;
+  if(live)return {retired:0,live};
+  const retired=this.sql.exec("UPDATE space_items SET source_ref=NULL WHERE space_id=? AND contributed_by=? AND source_ref=? AND origin='private' AND withdrawn_at IS NOT NULL RETURNING id",spaceId,relay,privateRef).toArray().length;
+  return {retired,live:0};
+ },
+};

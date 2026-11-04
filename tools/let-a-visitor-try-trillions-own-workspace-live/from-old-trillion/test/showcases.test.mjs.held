@@ -1,0 +1,490 @@
+// The live workspace (src/showcases.mjs): a visitor to a showcase's address gets a throwaway account whose store is
+// told when it empties itself, the showcase's tour saved in it (playing by itself) and shown, and this browser signed
+// in to it on the live host only, starting with the showcase's seed DATA; starts are counted per address; the throwaway session reaches the workspace minus
+// the refused routes; every showcase row's tour is one save_tour accepts; a tool with no row gets one made from it;
+// and the shared page draws a live page as a frame.
+// Bundled as the Worker bundles them, over in-memory stand-ins.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { build } from 'esbuild';
+import { importSource } from './import-source-for-tests.mjs';
+import { sqliteHost } from '../src/local-store.mjs';
+import { showcaseSpareFacts } from '../src/showcase-spare-facts.mjs';
+
+const root = new URL('..', import.meta.url).pathname;
+const built = await build({
+  stdin: {
+    resolveDir: root,
+    contents: `
+      export * from './src/showcases.mjs';
+      export { makeTours, handleToursRequest } from './src/tours.mjs';
+      export { sectionHtml } from './parts/ui/show/server-rendered-page/page-sections-html.mjs';
+      export { default as settings } from './src/showcases.json';
+      export { browserPage } from './src/browser-pages.mjs';
+    `,
+    loader: 'js',
+  },
+  bundle: true, format: 'esm', platform: 'node', write: false, external: ['node:*'], logLevel: 'error',
+});
+const m = await importSource(built.outputFiles[0].text);
+
+const kv = () => {
+  const kept = new Map();
+  return { kept, get: async name => kept.get(name) ?? null, put: async (name, value) => { kept.set(name, value); } };
+};
+// A stand-in store: its tours as src/tours.mjs keeps them, and what it was told about being throwaway.
+const store = () => {
+  const records = {};
+  const tours = m.makeTours({ records: { read: () => records, write: writes => { for (const { address_label, payload } of writes) records[address_label] = payload; } } });
+  return {
+    records, told: null,
+    beThrowaway(input) { this.told = input; return { until: input.until }; },
+    granted: false,
+    fetch: request => m.handleToursRequest(tours, request),
+  };
+};
+// A stand-in answer holding a value at every path a seed row keeps from its answer, so each later row's tokens are filled;
+// `seedPaths` are a showcase's seed paths as they are sent with those values.
+const keepPaths = new Map(m.settings.showcases.flatMap(showcase => showcase.seed ?? []).flatMap(row => Object.entries(row.keep ?? {})));
+const keptAnswer = () => {
+  const answer = {};
+  for (const at of keepPaths.values()) { const names = at.split('.'); names.slice(0, -1).reduce((into, key) => (into[key] ??= {}), answer)[names.at(-1)] = `kept:${at}`; }
+  return answer;
+};
+const seedPaths = rows => rows.map(({ path }) => path.replace(/\{\{(\w+)\}\}/g, (all, name) => (keepPaths.has(name) ? `kept:${keepPaths.get(name)}` : all)));
+const deps = (overrides = {}) => {
+  const stores = new Map();
+  const seeded = [];
+  return {
+    stores,
+    env: { APP_KV: kv() }, origin: 'https://app.gettrillion.ai', cookieName: 'nm_session', keyHash: value => `h-${value.length}-${value.slice(0, 6)}`,
+    personFor: userId => { if (!stores.has(userId)) stores.set(userId, store()); return stores.get(userId); },
+    isWorkspacePath: path => path === '/' || path === '/files',
+    sessionUser: async () => null,
+    grantPlan: async userId => { if (!stores.has(userId)) stores.set(userId, store()); stores.get(userId).granted = true; },
+    seeded, made: [],
+    // Its own records, made before anything is written in them (src/worker.mjs makeOwnRecords).
+    makeOwnRecords: async function (userId) { this.made.push(userId); },
+    seedSession: async (userId, seconds) => ({ userId, id: `seed-${userId}`, seconds }),
+    browserGeneration: async () => 0,
+    // Every write goes through the account's own routes as its own sign-in; its tour lands in its own tours.
+    seed: async function (session, path, body) {
+      if (path === '/tours/save') return this.personFor(session.userId).fetch(new Request('https://person/tours/save', { method: 'POST', body: JSON.stringify(body) }));
+      assert.ok(this.made.includes(session.userId), 'its own records are made before its seed is written');
+      seeded.push({ userId: session.userId, path, body, session }); return Response.json(keptAnswer());
+    },
+    describe: async () => null,
+    ...overrides,
+  };
+};
+const live = path => new Request(`https://${m.settings.host}${path}`, { headers: { 'cf-connecting-ip': '203.0.113.9' } });
+
+test('a showcase address starts a throwaway workspace with its tour playing, signed in on the live host only', async () => {
+  const d = deps();
+  const answer = await m.answerLiveHost(live(`/${m.settings.showcases[0].id}`), d);
+  assert.equal(answer.status, 303);
+  assert.equal(answer.headers.get('location'), m.settings.showcases[0].opens);
+  const cookie = answer.headers.get('set-cookie');
+  assert.match(cookie, /^nm_session=[0-9a-f]{64};/);
+  for (const part of ['HttpOnly', 'Secure', 'SameSite=None', 'Partitioned', `Max-Age=${m.settings.lifetime_minutes * 60}`]) assert.ok(cookie.includes(part), part);
+  const [[, person]] = [...d.stores];
+  assert.equal(person.granted, true, 'the throwaway account holds the plan, so the whole product shows');
+  assert.deepEqual(d.seeded.map(({ path }) => path), seedPaths(m.settings.showcases[0].seed), 'it starts with the showcase\'s own lists and files, in order');
+  assert.ok(d.seeded.every(({ body }) => !JSON.stringify(body).includes('{{account}}') && !JSON.stringify(body).includes('{{now}}')), 'its own tokens are filled before anything is written');
+  assert.ok(d.seeded.every(({ userId }) => d.stores.has(userId)), 'kept in the throwaway account only');
+  const until = Date.parse(person.told.until);
+  assert.ok(Math.abs(until - (Date.now() + m.settings.lifetime_minutes * 60000)) < 5000, 'the store empties itself when its lifetime ends');
+  const saved = Object.values(person.records).find(value => Array.isArray(value))?.[0];
+  assert.ok(saved, 'the showcase tour is kept in the throwaway account');
+  assert.deepEqual(saved.play, m.settings.showcases[0].tour.play, 'the tour keeps how it plays itself');
+  const asked = Object.values(person.records).find(value => value && value.tour_id);
+  assert.equal(asked.tour_id, saved.id, 'and is shown at once');
+  const session = JSON.parse([...d.env.APP_KV.kept].find(([name]) => name.startsWith('session:'))[1]);
+  assert.equal(session.throwaway, true);
+});
+
+test('the same browser back at its showcase gets its workspace again with the tour replayed, not a second account', async () => {
+  const d = deps();
+  const first = await m.answerLiveHost(live(`/${m.settings.showcases[0].id}`), d);
+  const session = JSON.parse([...d.env.APP_KV.kept].find(([name]) => name.startsWith('session:'))[1]);
+  assert.equal(session.showcase, m.settings.showcases[0].id, 'the session names its showcase');
+  const back = deps({ sessionUser: async () => ({ ...session, throwaway: true }), personFor: d.personFor, env: d.env });
+  const again = await m.answerLiveHost(live(`/${m.settings.showcases[0].id}`), back);
+  assert.equal(again.status, 303);
+  assert.equal(again.headers.get('set-cookie'), null, 'no new sign-in');
+  assert.equal(d.stores.size, 1, 'no second throwaway account');
+  const shown = Object.values([...d.stores.values()][0].records).filter(value => value && value.tour_id);
+  assert.ok(shown.length >= 1, 'the tour is shown again');
+  assert.equal(first.status, 303);
+});
+
+test('starts are counted per address per hour', async () => {
+  const d = deps();
+  for (let at = 0; at < m.settings.starts_per_address_per_hour; at += 1) assert.equal((await m.answerLiveHost(live(`/${m.settings.showcases[0].id}`), d)).status, 303);
+  const refused = await m.answerLiveHost(live(`/${m.settings.showcases[0].id}`), d);
+  assert.equal(refused.status, 429);
+  assert.equal(await refused.text(), m.settings.words.too_many);
+});
+
+test('the live host answers the workspace as anyone, robots stay out, and everything else is the app', async () => {
+  assert.equal(await m.answerLiveHost(live('/work/api/screens'), deps()), null);
+  assert.equal(await m.answerLiveHost(live('/files'), deps({ sessionUser: async () => ({ throwaway: true }) })), null);
+  const expired = await m.answerLiveHost(live('/files'), deps());
+  assert.equal(expired.headers.get('location'), m.liveAddress(m.settings.showcases[0].id), 'a screen with no live workspace behind it starts one');
+  assert.match(await (await m.answerLiveHost(live('/robots.txt'), deps())).text(), /Disallow: \//);
+  assert.equal((await m.answerLiveHost(live('/account?x=1'), deps())).headers.get('location'), 'https://app.gettrillion.ai/account?x=1');
+});
+
+test('live workspace byte requests reach the lease owner without a redirect or body change', async () => {
+  for (const [method, path] of [
+    ['POST', '/namespace/whole-files'],
+    ['POST', '/namespace/growing'],
+    ['PUT', '/namespace/growing/test-upload/pieces/0'],
+    ['DELETE', '/namespace/growing/test-upload'],
+    ['GET', '/namespace/bytes/test-file'],
+    ['OPTIONS', '/namespace/bytes/test-file'],
+  ]) {
+    const bytes = !['GET', 'OPTIONS'].includes(method) ? new Uint8Array([0, 4, 127, 255]) : null;
+    const request = new Request(`https://${m.settings.host}${path}`, { method,
+      headers: { authorization: 'Bearer isolated-test-lease' }, ...(bytes ? { body: bytes } : {}) });
+    assert.equal(await m.answerLiveHost(request, deps()), null, `${method} ${path}: handled by the existing lease owner`);
+    assert.equal(request.headers.get('authorization'), 'Bearer isolated-test-lease');
+    if (bytes) assert.deepEqual(new Uint8Array(await request.arrayBuffer()), bytes);
+  }
+});
+
+test('a throwaway session counts only on the live host and is refused the routes that reach outside the workspace', () => {
+  const liveUrl = new URL(`https://${m.settings.host}/files`);
+  const appUrl = new URL('https://app.gettrillion.ai/files');
+  assert.equal(m.throwawayHostMismatch({ throwaway: true }, liveUrl), false);
+  assert.equal(m.throwawayHostMismatch({ throwaway: true }, appUrl), true);
+  assert.equal(m.throwawayHostMismatch({}, liveUrl), true);
+  assert.equal(m.throwawayHostMismatch({}, appUrl), false);
+  const session = { throwaway: true };
+  for (const row of m.settings.refused_paths) {
+    assert.equal(m.throwawayRefusal(session, new URL(`https://x${row.path}`), 'POST'), m.settings.words.refused, row.path);
+    for (const method of row.except_methods ?? []) assert.equal(m.throwawayRefusal(session, new URL(`https://x${row.path}`), method), null);
+  }
+  assert.equal(m.throwawayRefusal(session, new URL('https://x/work/api/lists'), 'POST'), null);
+  assert.equal(m.throwawayRefusal({}, new URL('https://x/work/api/billing'), 'POST'), null, 'a real session is never refused here');
+});
+
+test('a tool with no row gets a showcase made from its own record, which save_tour accepts', async () => {
+  const tool = { id: 'tool:count-words', kind: 'tool', label: 'Count words', job: 'Counts the words in a text.', screen: { kind: 'described' },
+    input_schema: { type: 'object', properties: { text: { type: 'string' } } }, verify: [{ input: { text: 'one two three' } }] };
+  const row = await m.showcaseFor('tool:count-words', { describe: async id => (id === tool.id ? tool : null) });
+  assert.equal(row.opens, '/use/tool%3Acount-words');
+  assert.equal(row.tour.steps.find(step => step.id === 'type').act.text, 'one two three');
+  assert.ok(row.tour.steps.every(step => step.look.backdrop.opacity === 0 && step.look.spotlight.blur_px === 0), 'the tool stays in plain sight at every step');
+  assert.match(row.tour.steps[0].target_ref.query, /tool-screen/, 'a tool with its own screen is pointed at too');
+  assert.equal(await m.showcaseFor('tool:missing', { describe: async () => null }), null);
+  assert.equal(await m.liveToolAddress('tool:count-words', { describe: async id => (id === tool.id ? tool : null) }), `https://${m.settings.host}/tool%3Acount-words`, 'a listing names where it runs live');
+  assert.equal(await m.liveToolAddress('tool:missing', { describe: async () => null }), null);
+  assert.equal(await m.showcaseFor('../etc', { describe: async () => tool }), null);
+  const person = store();
+  const saved = await person.fetch(new Request('https://person/tours/save', { method: 'POST', body: JSON.stringify({ tour: row.tour }) }));
+  assert.equal(saved.status, 200, await saved.clone().text());
+});
+
+test('a made tour plays even when the words of the item are refused: its line for people as one sentence, else the plain words for its kind', async () => {
+  const long = { id: 'tool:keep-a-page', kind: 'tool', label: 'Keep a page', job: 'Keeps one page and answers its address and size', description: 'Keeps one web page in your files. Returns its address, size and every word on it' };
+  const row = await m.showcaseFor(long.id, { describe: async () => long });
+  assert.equal(row.tour.steps[0].content.payload.body, 'Keeps one web page in your files.', 'the line for people, its first sentence');
+  assert.equal((await m.showcaseFor('tool:x', { describe: async () => ({ id: 'tool:x', kind: 'tool', job: 'Writes a page' }) })).tour.steps[0].content.payload.body, 'Writes a page.', 'a sentence ends as one');
+  const refused = { id: 'tool:dash-words', kind: 'tool', label: 'Dash words', job: 'Writes a page \u2014 fast.' };
+  const d = deps({ describe: async id => (id === refused.id ? refused : null) });
+  const answer = await m.answerLiveHost(live(`/${encodeURIComponent(refused.id)}`), d);
+  assert.equal(answer.status, 303);
+  const [[, person]] = [...d.stores];
+  const kept = JSON.stringify(person.records);
+  assert.ok(kept.includes(m.settings.item_showcases.tool.plain_body), 'its plain words were kept, so the tour still plays');
+  assert.ok(!kept.includes('\u2014'), 'the refused words were not');
+});
+
+test('a workflow, and a tool with no screen of its own, are shown live from the row for their kind', async () => {
+  const workflow = { id: 'workflow:plan-a-week', kind: 'workflow', label: 'Plan a week', job: 'Turns what you want into a week of steps.', steps: [{ id: 'a', title: 'Ask' }] };
+  const plain = { id: 'tool:say-hello', kind: 'tool', job: 'Says hello.', input_schema: { type: 'object', properties: { name: { type: 'string', examples: ['Ada'] } } } };
+  const describe = async id => [workflow, plain].find(item => item.id === id) ?? null;
+  const shown = await m.showcaseFor(workflow.id, { describe });
+  assert.equal(shown.opens, '/workflows/workflow%3Aplan-a-week', 'a workflow opens on its own screen');
+  assert.deepEqual(shown.tour.steps[0].target_preparation.surface, { id: 'trillion.workflow', surface_input: { id: workflow.id } });
+  assert.equal(shown.tour.steps[0].content.payload.title, 'Plan a week');
+  assert.ok(!shown.tour.steps.some(step => step.act), 'nothing is typed into a workflow');
+  const used = await m.showcaseFor(plain.id, { describe });
+  assert.equal(used.opens, '/use/tool%3Asay-hello', 'a tool with no screen of its own opens on the Use screen');
+  assert.equal(used.title, 'Say hello', 'named from its id, as a sentence starts');
+  assert.equal(used.tour.steps.find(step => step.id === 'type').act.text, 'Ada');
+  assert.equal(await m.liveToolAddress(workflow.id, { describe }), `https://${m.settings.host}/workflow%3Aplan-a-week`);
+  assert.equal(await m.showcaseFor('recipe:unknown-kind', { describe: async id => ({ id, kind: 'recipe' }) }), null, 'a kind with no row has no showcase');
+  const person = store();
+  for (const row of [shown, used]) {
+    const saved = await person.fetch(new Request('https://person/tours/save', { method: 'POST', body: JSON.stringify({ tour: row.tour }) }));
+    assert.equal(saved.status, 200, await saved.clone().text());
+  }
+});
+
+test('every showcase row\'s tour is one save_tour accepts, playing by itself', async () => {
+  for (const row of m.settings.showcases) {
+    const person = store();
+    const saved = await person.fetch(new Request('https://person/tours/save', { method: 'POST', body: JSON.stringify({ tour: row.tour }) }));
+    assert.equal(saved.status, 200, `${row.id}: ${await saved.clone().text()}`);
+    assert.ok(Object.values(person.records).find(value => Array.isArray(value))[0].play.step_ms > 0);
+  }
+});
+
+test('the shared page draws a live page as a frame, sized from DATA', () => {
+  const html = m.sectionHtml({ media: { src: 'https://live.gettrillion.ai/workspace', type: 'text/html', label: 'Trillion, live', height_px: 720, phone_height_px: 640, allow: 'clipboard-write' } });
+  assert.match(html, /<iframe class="page-media page-media-frame" src="https:\/\/live\.gettrillion\.ai\/workspace" title="Trillion, live" loading="lazy" allow="clipboard-write" style="--page-frame-height:720px;--page-frame-phone-height:640px"><\/iframe>/);
+  assert.doesNotMatch(m.sectionHtml({ media: { src: 'javascript:alert(1)', type: 'text/html' } }), /iframe/);
+});
+
+test('a live copy that cannot open shows how the workspace looks, calmly, never a broken page', async () => {
+  for (const status of [429, 500, 503]) {
+    const page = await m.browserPage({ status, request: new Request(`https://${m.settings.host}/workspace`) }).text();
+    assert.match(page, /live-workspace\.webp/, `${status}: the workspace's picture`);
+    assert.doesNotMatch(page, /Something broke/, `${status}: no broken page`);
+  }
+  const elsewhere = await m.browserPage({ status: 500, request: new Request('https://app.gettrillion.ai/files') }).text();
+  assert.match(elsewhere, /Something broke/, 'other addresses keep their own page');
+});
+
+// ---- the seed engine and the guided tour's own data -------------------------------------------------------------------
+
+test('seed rows are written in order, with their tokens filled, their headers and method, and what an answer kept held for the rows after', async () => {
+  const calls = [];
+  const answers = { '/first': { made: { id: 'abc123' } } };
+  const held = await m.seedShowcase([
+    { path: '/first', body: { name: 'Studio {{account}}' }, keep: { first_id: 'made.id' } },
+    { path: '/second/{{first_id}}', body: { at: '{{now}}', audio: '{{silent_wav_1}}' }, headers: { 'x-trillion-reader': 'Claude' }, method: 'PUT' },
+    { path: '/lost', body: {}, keep: { never: 'nothing.here' } },
+    { path: '/after', body: { still: '{{first_id}}' } },
+  ], '12345678-aaaa-bbbb-cccc-ddddeeeeffff', async (userId, path, body, headers, method) => {
+    calls.push({ userId, path, body, headers, method });
+    if (path === '/lost') return new Response('no', { status: 500 });
+    return Response.json(answers[path] ?? {});
+  }, 'test-showcase');
+  assert.deepEqual(calls.map(call => call.path), ['/first', '/second/abc123', '/lost', '/after'], 'a row that fails is skipped, the rest still go in');
+  assert.equal(calls[0].body.name, 'Studio 12345678');
+  assert.equal(calls[1].method, 'PUT');
+  assert.deepEqual(calls[1].headers, { 'x-trillion-reader': 'Claude' });
+  assert.equal(calls[0].method, 'POST', 'POST unless a row says otherwise');
+  assert.match(calls[1].body.at, /^\d{4}-\d\d-\d\dT/);
+  assert.equal(calls[1].body.audio.slice(0, 5), 'UklGR', 'a recording\'s bytes: a RIFF header');
+  assert.equal(calls[3].body.still, 'abc123');
+  assert.equal(held.first_id, 'abc123');
+  assert.equal('never' in held, false);
+});
+
+test('nothing holding a value its seed did not keep is sent: not a seed row, not a tour step', async () => {
+  // Every write answers nothing to keep, as when a route refuses: no {{name}} may reach a route or the visitor's tour.
+  const d = deps({ seed: async function (session, path, body) {
+    if (path === '/tours/save') return this.personFor(session.userId).fetch(new Request('https://person/tours/save', { method: 'POST', body: JSON.stringify(body) }));
+    d.seeded.push({ userId: session.userId, path, body }); return Response.json({});
+  } });
+  const errors = [], told = console.error;
+  console.error = (...line) => errors.push(line.join(' '));
+  try { await m.answerLiveHost(live(`/${m.settings.showcases[0].id}`), d); } finally { console.error = told; }
+  const showcase = m.settings.showcases[0];
+  assert.ok(d.seeded.length > 0 && d.seeded.length < showcase.seed.length, 'the rows needing no kept value still go in');
+  assert.deepEqual(d.seeded.filter(row => m.unfilledTokens(row).length), [], 'no seed row is sent holding a {{name}}');
+  const [[, person]] = [...d.stores];
+  const saved = Object.values(person.records).find(value => Array.isArray(value))?.[0];
+  assert.ok(saved, 'the tour is still kept');
+  assert.deepEqual(m.unfilledTokens(saved), [], 'no tour step holds a {{name}}');
+  const leftOut = showcase.tour.steps.filter(step => m.unfilledTokens(step).some(token => token !== '{{account}}' && token !== '{{now}}')).map(step => step.id);
+  assert.ok(leftOut.includes('space'), 'the space step needs the space a seed row keeps');
+  assert.deepEqual(saved.steps.map(step => step.id), showcase.tour.steps.map(step => step.id).filter(id => !leftOut.includes(id)), 'only the steps naming an unkept value are left out');
+  assert.ok(errors.some(line => line.startsWith('showcase tour step left out')), 'and each one left out is told');
+});
+
+test('every value a seed row or tour step names is kept by an earlier row, never read from an asynchronous list', () => {
+  for (const showcase of m.settings.showcases) {
+    const kept = new Set(['account', 'now']);
+    const names = value => m.unfilledTokens(value).map(token => token.slice(2, -2)).filter(name => !/^silent_wav_\d+$/.test(name));
+    for (const row of showcase.seed ?? []) {
+      const { keep, ...sent } = row;
+      for (const name of names(sent)) assert.ok(kept.has(name), `${showcase.id} ${row.path} names {{${name}}} no earlier row keeps`);
+      // A native list answers from a projection published after the write (collection_coverage.initial_projection_pending),
+      // so its first row is not there yet when the next seed row asks (2026-10-17: GET /decisions?limit=1 kept nothing).
+      if (keep) assert.ok(!((row.method ?? 'POST') === 'GET' && row.path.includes('?')), `${showcase.id} ${row.path} keeps a value from a list read`);
+      for (const name of Object.keys(keep ?? {})) kept.add(name);
+    }
+    for (const step of showcase.tour?.steps ?? []) for (const name of names(step)) assert.ok(kept.has(name), `${showcase.id} tour step ${step.id} names {{${name}}} no seed row keeps`);
+  }
+});
+
+test('a silent recording is a real WAV of the length asked', () => {
+  const bytes = Uint8Array.from(atob(m.silentWavBase64(3)), letter => letter.charCodeAt(0));
+  assert.equal(String.fromCharCode(...bytes.subarray(0, 4)), 'RIFF');
+  assert.equal(String.fromCharCode(...bytes.subarray(8, 12)), 'WAVE');
+  assert.equal(new DataView(bytes.buffer).getUint32(40, true), 3 * 8000);
+  assert.equal(bytes.length, 44 + 3 * 8000);
+});
+
+test('what a throwaway session may do is refused by prefix, except the routes allowed by name first (the message box\'s Send)', () => {
+  const session = { throwaway: true };
+  assert.equal(m.throwawayRefusal(session, new URL('https://x/work/api/share-destinations'), 'POST'), m.settings.words.refused);
+  for (const row of m.settings.allowed_paths) {
+    for (const method of row.methods) assert.equal(m.throwawayRefusal(session, new URL(`https://x${row.path}`), method), null, `${method} ${row.path}`);
+  }
+  assert.equal(m.throwawayRefusal(session, new URL('https://x/work/api/share-destinations/deliver'), 'POST'), null, 'Send on the home screen is not refused');
+  assert.equal(m.throwawayRefusal(session, new URL('https://x/work/api/share-destinations/other'), 'POST'), m.settings.words.refused, 'only the named route is let through');
+});
+
+const workspaceShowcases = () => m.settings.showcases.filter(row => row.tour?.steps?.length);
+
+test('the workspace showcase seeds one person\'s whole story, in plain words, with nothing that reads as made up', () => {
+  const row = m.settings.showcases[0];
+  const seed = JSON.stringify(row.seed);
+  const tour = JSON.stringify(row.tour.steps.map(step => step.content));
+  for (const [name, text] of [['seed', seed], ['tour', tour]]) {
+    assert.doesNotMatch(text, /\b(fictional|test|demo|sample|lorem|placeholder|throwaway)\b/i, `${name} has no word that gives the game away`);
+    assert.doesNotMatch(text, /[—–]/, `${name} has no dashes in its words`);
+  }
+  // Each kind of thing the product does is there to be seen.
+  const paths = row.seed.map(item => item.path);
+  for (const [kind, test_] of Object.entries({
+    'a decision in progress and one finished': () => paths.filter(path => path === '/cases').length >= 2,
+    'goals found from notes and messages': () => paths.some(path => path.startsWith('/pursuits')) && paths.some(path => path.startsWith('/messages')) && paths.some(path => path.startsWith('/namespace/write')),
+    'what waits on the person': () => paths.some(path => path.startsWith('/waiting-on-you')),
+    'AIs handing work to each other': () => paths.includes('/handoffs') && paths.includes('/handoffs/take') && paths.includes('/handoffs/finish'),
+    'a recording with captioned clips': () => row.seed.some(item => item.path === '/media/edit' && item.body.clips.length >= 3 && item.body.captions.length >= 3 && item.body.captions.every(caption => caption.text && caption.end > caption.start)),
+    'a published site': () => paths.some(path => path.startsWith('/public-app/')),
+    'a shared space': () => paths.includes('/spaces') && paths.some(path => /^\/spaces\/.+\/share$/.test(path)),
+    'the welcome tour already behind her': () => row.seed.some(item => item.path === '/records' && item.body.writes.some(write => write.address_label === 'guided-overlay::walkthrough-progress' && write.payload.consumed_once_keys.includes('first-run'))),
+  })) assert.ok(test_(), kind);
+  const rows = row.seed.map(item => JSON.stringify([item.path, item.body]));
+  assert.equal(new Set(rows).size, rows.length, 'no row is written twice');
+  assert.doesNotMatch(seed, /\b[0-9a-f]{12,}\b/, 'no hash in her words');
+  assert.deepEqual(row.seed.filter(item => item.path.startsWith('setting:')).map(item => item.path), [], 'every seed row is one of the account\'s own routes');
+});
+
+test('every step of the workspace tour points at a real screen and a selector the client draws', async () => {
+  const { readFileSync } = await import('node:fs');
+  const records = JSON.parse(readFileSync(new URL('../../../keep-and-wake-ai-sessions-on-this-computer/records/workshop-screen-tool-records.json', import.meta.url), 'utf8')).records;
+  const surfaces = new Set(records.map(record => record.payload?.screen?.surface?.id).filter(Boolean));
+  const read = file => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
+  const sources = { composer: read('parts/ui/show/composer/Composer.tsx'), mediaEdit: read('src/workspace/media-edit-screen.tsx'), captions: read('src/workspace/media-edit/captions-panel.tsx') };
+  const held = Object.fromEntries(['call_file', 'space', 'account'].map(name => [name, `${name}-value`]));
+  for (const row of workspaceShowcases()) {
+    assert.ok(row.tour.steps.length >= 9 && row.tour.steps.length <= 12, `${row.id}: a tour of nine to twelve steps`);
+    for (const step of row.tour.steps) {
+      const surface = step.target_preparation?.surface?.id;
+      assert.ok(surfaces.has(surface), `${row.id}/${step.id}: ${surface} is a screen the workspace offers`);
+      assert.equal(step.target_ref.from, 'selector', `${step.id} points at a selector`);
+      const query = step.target_ref.query;
+      for (const [, screen] of query.matchAll(/\[data-trillion-screen="([^"]+)"\]/g)) {
+        assert.equal(`trillion.${screen}`, surface, `${step.id}: the selector names the screen the step opens`);
+      }
+      if (query.includes('[data-trillion-media-edit]')) assert.ok(sources.mediaEdit.includes('data-trillion-media-edit'), `${step.id}: the clip editor draws its marker`);
+      for (const [, label] of query.matchAll(/\[aria-label="([^"]+)"\]/g)) assert.ok([sources.mediaEdit, sources.captions].some(source => source.includes(`"${label}"`) || source.includes(`label: '${label}'`) || source.includes(`ariaLabel="${label}"`)), `${step.id}: something on the screen is labelled ${label}`);
+      if (query.includes('.composer-field')) assert.ok(sources.composer.includes('composer-field'), `${step.id}: the message box draws its field`);
+      if (query.includes('button[type="submit"]')) assert.ok(sources.composer.includes('type="submit"') || sources.composer.includes("type='submit'") || sources.composer.includes('submit'), `${step.id}: the message box has its send button`);
+    }
+    const filled = JSON.stringify(m.fillSeedTokens(row.tour, held));
+    assert.doesNotMatch(filled, /\{\{\w+\}\}/, `${row.id}: every token of the tour is one the seed keeps or the engine knows`);
+    // A token the tour uses was kept by a seed row (or is one the engine fills).
+    const kept = new Set(row.seed.flatMap(item => Object.keys(item.keep ?? {})).concat(['account', 'now']));
+    for (const [, name] of JSON.stringify(row.tour).matchAll(/\{\{(\w+)\}\}/g)) assert.ok(kept.has(name), `${row.id}: {{${name}}} is kept by a seed row`);
+  }
+});
+
+test('the tour\'s words are plain: short, no eyebrows, no jargon', () => {
+  for (const row of workspaceShowcases()) {
+    for (const step of row.tour.steps) {
+      const { title, body, ...rest } = step.content.payload;
+      assert.deepEqual(Object.keys(rest), [], `${step.id}: a title and a body, nothing else (no eyebrow)`);
+      assert.ok(title.length <= 40, `${step.id}: a short title`);
+      assert.ok(body.length <= 180, `${step.id}: a short body`);
+      assert.doesNotMatch(`${title} ${body}`, /AI-powered|seamless|leverage|revolution|\bnamespace\b|\bhandoff\b|\bmcp\b|\bpursuit_?id\b/i, `${step.id}: no jargon`);
+    }
+  }
+});
+
+// Spare accounts (src/showcases.mjs invariant 5): a key-value stand-in that lists by prefix, and each spare's own
+// records keeping its preparation facts and holding them one holder at a time (src/showcase-spare-facts.mjs, over SQLite).
+const listingKv = () => {
+  const base = kv();
+  return { ...base, delete: async name => { base.kept.delete(name); }, list: async ({ prefix }) => ({ keys: [...base.kept.keys()].filter(name => name.startsWith(prefix)).map(name => ({ name })) }) };
+};
+const spareRecords = () => {
+  const facts = showcaseSpareFacts(sqliteHost(':memory:').sql);
+  return { fact: name => facts.fact(name), setFact: (name, value) => facts.keep(name, value), holdFact: (name, holder, ms = null) => facts.hold(name, holder, ms, Date.now()),
+    drop: name => facts.keep(name, null) };
+};
+const spareDeps = (overrides = {}) => {
+  const d = deps({ env: { APP_KV: listingKv() }, ...overrides });
+  d.spares = new Map();
+  d.spareFor = userId => { if (!d.spares.has(userId)) d.spares.set(userId, spareRecords()); return d.spares.get(userId); };
+  return d;
+};
+const workspaceRow = () => m.settings.showcases.find(row => row.spare_accounts > 0);
+
+test('spare accounts are seeded ahead, in order, and a visitor gets a ready one at once', async () => {
+  const row = workspaceRow();
+  assert.ok(row, 'a showcase keeps spares');
+  const d = spareDeps();
+  await m.prepareSpares(d);
+  const kept = [...d.env.APP_KV.kept.keys()];
+  assert.equal(kept.filter(name => name.startsWith(`live-spare:ready:${row.id}:`)).length, row.spare_accounts, 'every missing spare seeded in the same step');
+  const [spareId] = [...d.stores.keys()];
+  assert.deepEqual(d.seeded.filter(({ userId }) => userId === spareId).map(({ path }) => path), seedPaths(row.seed), 'every seed row, in order, once');
+  assert.equal(d.stores.get(spareId).granted, true);
+  d.env.APP_KV.kept.delete('live-spare:asked');
+  await m.prepareSpares(d);
+  assert.equal([...d.env.APP_KV.kept.keys()].filter(name => name.startsWith(`live-spare:ready:${row.id}:`)).length, row.spare_accounts, 'kept topped up to its count');
+  const written = d.seeded.length;
+  const answer = await m.answerLiveHost(live(`/${row.id}`), d);
+  assert.equal(answer.status, 303);
+  assert.equal(d.seeded.length, written, 'the visitor waits for no seed write');
+  const session = JSON.parse([...d.env.APP_KV.kept].find(([name]) => name.startsWith('session:'))[1]);
+  assert.ok(d.stores.has(session.userId) && d.stores.size === row.spare_accounts, 'signed in to a spare, no new account');
+  const person = d.stores.get(session.userId);
+  assert.ok(Math.abs(Date.parse(person.told.until) - (Date.now() + m.settings.lifetime_minutes * 60000)) < 5000, 'its lifetime starts now');
+  assert.ok(Object.values(person.records).some(value => value && value.tour_id), 'its tour is shown');
+  assert.equal(session.seeded.account, session.userId.replace(/-/g, '').slice(0, 8));
+  assert.equal([...d.env.APP_KV.kept.keys()].some(name => name === `live-spare:ready:${row.id}:${session.userId}`), false, 'no longer offered');
+});
+
+test('a spare goes to one visitor only, and a half-seeded spare is never handed out', async () => {
+  const row = workspaceRow();
+  const d = spareDeps();
+  await m.prepareSpares(d);
+  const [spareId] = [...d.stores.keys()];
+  d.spareFor(spareId).holdFact('throwaway_claimed', 'visitor', null);
+  const answer = await m.answerLiveHost(live(`/${row.id}`), d);
+  const session = JSON.parse([...d.env.APP_KV.kept].find(([name]) => name.startsWith('session:'))[1]);
+  assert.equal(answer.status, 303);
+  assert.notEqual(session.userId, spareId, 'a spare another visitor holds is skipped');
+  const half = spareDeps();
+  await half.env.APP_KV.put(`live-spare:ready:${row.id}:u-half`, '1');
+  half.spareFor('u-half').setFact('throwaway_spare', { next: 3, held: {}, done: false });
+  await m.answerLiveHost(live(`/${row.id}`), half);
+  const halfSession = JSON.parse([...half.env.APP_KV.kept].find(([name]) => name.startsWith('session:'))[1]);
+  assert.notEqual(halfSession.userId, 'u-half');
+});
+
+test('preparing spares stops at its step and carries on where it stopped, one writer at a time', async () => {
+  const row = workspaceRow();
+  const d = spareDeps();
+  await m.prepareSpares(d, { now: Date.now() - m.settings.spare_step_seconds * 1000 });
+  const [spareId] = [...d.stores.keys()];
+  const spare = d.spareFor(spareId);
+  assert.deepEqual(spare.fact('throwaway_spare').next, 0, 'started, its step already over');
+  spare.drop('throwaway_spare_writer');
+  assert.equal(spare.holdFact('throwaway_spare_writer', 'someone-else', 60000), true);
+  d.env.APP_KV.kept.delete('live-spare:asked');
+  await m.prepareSpares(d);
+  assert.equal(d.seeded.filter(({ userId }) => userId === spareId).length, 0, 'nothing written to it while another writer holds it');
+  spare.drop('throwaway_spare_writer');
+  d.env.APP_KV.kept.delete('live-spare:asked');
+  await m.prepareSpares(d);
+  assert.deepEqual(d.seeded.filter(({ userId }) => userId === spareId).map(({ path }) => path), seedPaths(row.seed), 'no row written twice, none skipped');
+  assert.equal(spare.fact('throwaway_spare').done, true);
+});
+
+test('without a listing key-value store nothing is prepared and starts stay as before', async () => {
+  const d = deps();
+  await m.prepareSpares(d);
+  assert.equal(d.stores.size, 0);
+});

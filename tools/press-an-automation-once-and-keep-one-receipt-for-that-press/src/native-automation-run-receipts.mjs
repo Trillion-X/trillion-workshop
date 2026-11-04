@@ -1,6 +1,6 @@
 // One original press -> one original native child command. This is binding
 // evidence beside the existing journal, never a queue or another execution path.
-import { canonical, identityOf } from '../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { canonical, identityOf } from '../../shared-code/src/record-identity.mjs';
 
 const fail = (message, status = 409) => Object.assign(new Error(message), { status });
 const operations = new Set(['rules:run', 'schedules:run', 'automations:request']);

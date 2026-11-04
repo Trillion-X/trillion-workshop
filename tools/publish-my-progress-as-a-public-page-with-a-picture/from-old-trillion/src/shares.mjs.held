@@ -1,0 +1,291 @@
+// src/shares.mjs
+//
+// PURPOSE
+//   A person's link, their shared progress, and who joined through the link, kept in APP_KV. Every account has one
+//   link code (share-of:<person> names it; share:<code> names its person and, once they press Share on Progress, the
+//   numbers of their card, with the picture at share-image:<code>). One row per account made through a link
+//   (referral:<person whose link it was>:<new person>, with referred-by:<new person> naming them) holds what that join
+//   has earned under the referral rules (src/referrals.json): the day the new person first paid, and whether the credit
+//   it earned is owed, given on Stripe or past a yearly limit (only when the rules set one). The public page reads the share row
+//   (src/share-pages.mjs); account creation credits the join (creditReferral); a first payment marks the row
+//   (friendPaid) and the payment owner gives the reward (src/payment.mjs rewardReferrals); deleting an account removes
+//   its link, its picture and its rows (removeShares). A visit that came from a post (src/referrals.json `source_cookie`,
+//   set by gettrillion.ai for ?from=<post id>) is recorded on the new account as came-from:<new person> { from, at },
+//   and on its referral row when a link also brought it (cameFrom reads it back).
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. A share holds the numbers the server computed (src/progress-trends.mjs shareSnapshot) and a picture; never a
+//      decision's words, and never numbers sent by the browser.
+//   2. One code per person: the link on Account, every Progress card and both link addresses are the same code, so a
+//      person costs at most one picture however often they press Share, and every link they sent still credits them.
+//   3. The picture must be a PNG no larger than PICTURE_LIMIT; anything else is refused and the earlier picture stays.
+//   4. A join is credited once, to someone else: a person following their own link credits nobody.
+//   5. A reward is earned only by a payment above zero, once per new person, and never past a yearly limit when the
+//      rules set one (`max_per_year`; none is no limit); a row whose reward was given stays (without the new person's
+//      name, which leaves with their account) so a limit still counts it.
+
+import rules from './referrals.json' with { type: 'json' };
+import friendInvites from './friend-invites.json' with { type: 'json' };
+import adjustmentRecords from '../records/checkout-code-adjustment-records.json' with { type: 'json' };
+import { scoreCandidates } from '../parts/choose-per-observer/read-data/score-candidates.ts';
+
+export const PICTURE_LIMIT = 1_500_000;
+export const REF_COOKIE = rules.join_cookie;
+const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+export const CODE = /^[0-9a-f]{20}$/;
+const YEAR_MS = 365 * 86400000;
+
+const newCode = () => [...crypto.getRandomValues(new Uint8Array(10))].map(byte => byte.toString(16).padStart(2, '0')).join('');
+const rowKey = (referrerId, friendId) => `referral:${referrerId}:${friendId}`;
+const poolOf = env => env.POOL?.get?.(env.POOL.idFromName('everyone')) ?? null;
+// What someone who joins through a link gets: the checkout-code-adjustment row the rules name (its `adjustment`).
+const friendReward = adjustmentRecords.records.find(record => record.id === rules.friend.code_id) ?? (() => { throw new Error(`The referral code ${rules.friend.code_id} is not a checkout-code-adjustment row.`); })();
+
+/** The picture sent with a share, as bytes, or the reason it is refused (invariant 3). */
+export function pictureBytes(base64) {
+  if (base64 === undefined || base64 === null || base64 === '') return { bytes: null };
+  if (typeof base64 !== 'string' || base64.length > Math.ceil(PICTURE_LIMIT / 3) * 4 + 4) return { error: 'The card picture is too large. Try again.' };
+  let bytes;
+  try { bytes = Uint8Array.from(atob(base64), char => char.charCodeAt(0)); } catch { return { error: 'The card picture could not be read. Try again.' }; }
+  if (bytes.length > PICTURE_LIMIT || !PNG.every((byte, index) => bytes[index] === byte)) return { error: 'The card picture must be a PNG image. Try again.' };
+  return { bytes };
+}
+
+/** This person's one code (invariant 2), made the first time anything asks for it. */
+export async function codeOf(env, userId) {
+  const prior = await env.APP_KV.get(`share-of:${userId}`);
+  const pool = poolOf(env);
+  const code = pool?.claimShareCode ? await pool.claimShareCode(userId, prior ?? newCode()) : prior ?? newCode();
+  const now = new Date().toISOString();
+  if (pool?.claimShareCode && pool.readPublicShare && pool.savePublicShare && !(await pool.readPublicShare(code)) && !(await env.APP_KV.get(`share:${code}`, 'json')))
+    if (!(await pool.savePublicShare(userId, code, null, null, now))) throw new Error('This account has ended.');
+  if (!pool?.claimShareCode && !(await env.APP_KV.get(`share:${code}`, 'json'))) await env.APP_KV.put(`share:${code}`, JSON.stringify({ user_id: userId, snapshot: null, picture_at: null, created_at: now, updated_at: now }));
+  await env.APP_KV.put(`share-of:${userId}`, code);
+  if (pool?.canPublishShare && !(await pool.canPublishShare(userId, code))) {
+    await env.APP_KV.delete(`share:${code}`);
+    await env.APP_KV.delete(`share-of:${userId}`);
+    throw new Error('This account has ended.');
+  }
+  return code;
+}
+
+/** The addresses this person's link takes (src/referrals.json `links`), the first being the one shown. */
+export const linksFor = code => rules.links.map(address => address.replace('{code}', code));
+
+/** Keeps a person's shared card on their code and returns the code (invariants 1 and 2). */
+export async function saveShare(env, userId, { snapshot, picture }) {
+  const code = await codeOf(env, userId);
+  const pool = poolOf(env);
+  if (pool?.savePublicShare) {
+    if (!(await pool.savePublicShare(userId, code, snapshot, picture, new Date().toISOString()))) throw new Error('This account has ended.');
+    return code;
+  }
+  if (pool?.canPublishShare && !(await pool.canPublishShare(userId, code))) throw new Error('This account has ended.');
+  const earlier = await env.APP_KV.get(`share:${code}`, 'json');
+  const now = new Date().toISOString();
+  // The picture goes first: a share row never names a picture that is not there.
+  if (picture) await env.APP_KV.put(`share-image:${code}`, picture);
+  await env.APP_KV.put(`share:${code}`, JSON.stringify({ user_id: userId, snapshot, picture_at: picture ? now : earlier?.picture_at ?? null, created_at: earlier?.created_at ?? now, updated_at: now }));
+  if (pool?.canPublishShare && !(await pool.canPublishShare(userId, code))) {
+    const late = await env.APP_KV.get(`share:${code}`, 'json');
+    if (late?.user_id === userId) await env.APP_KV.delete(`share:${code}`);
+    await env.APP_KV.delete(`share-image:${code}`);
+    throw new Error('This account has ended.');
+  }
+  return code;
+}
+
+export async function readShare(env, code) {
+  if (!CODE.test(code)) return null;
+  const pool = poolOf(env);
+  const pooled = await pool?.readPublicShare?.(code);
+  if (pooled) return pooled;
+  const share = await env.APP_KV.get(`share:${code}`, 'json');
+  if (!share?.user_id) return null;
+  return pool?.shareOwnerActive && !(await pool.shareOwnerActive(share.user_id, code)) ? null : share;
+}
+export async function readSharePicture(env, code) {
+  if (!CODE.test(code)) return null;
+  const pool = poolOf(env);
+  if (await pool?.readPublicShare?.(code)) return pool.readPublicSharePicture?.(code) ?? null;
+  if (!(await readShare(env, code))) return null;
+  const picture = await env.APP_KV.get(`share-image:${code}`, 'arrayBuffer');
+  if (!(await readShare(env, code))) return null;
+  return picture;
+}
+
+// Every referral row of one person, as { friend_id, ...row }.
+async function rowsOf(env, userId) {
+  const prefix = `referral:${userId}:`;
+  const rows = [];
+  let cursor;
+  do {
+    const page = await env.APP_KV.list({ prefix, cursor });
+    for (const { name } of page.keys) rows.push({ friend_id: name.slice(prefix.length), ...((await env.APP_KV.get(name, 'json')) ?? {}) });
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+  return rows;
+}
+
+/** How many accounts were made through this person's link. */
+export async function referredCount(env, userId) {
+  let count = 0, cursor;
+  do {
+    const page = await env.APP_KV.list({ prefix: `referral:${userId}:`, cursor });
+    count += page.keys.length;
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+  return count;
+}
+
+/**
+ * Who joined through this person's link and what each earned, newest first:
+ * [{ friend_id, name, joined_at, paid_at, reward: 'none' | 'owed' | 'given' | 'over_limit', given_at, amount_cents, currency }].
+ * `name` is the new person's account name while their account exists.
+ */
+export async function referralsOf(env, userId) {
+  const rows = await rowsOf(env, userId);
+  const named = await Promise.all(rows.map(row => (row.gone ? null : env.APP_KV.get(`account-name:${row.friend_id}`))));
+  return rows.map((row, index) => ({
+    friend_id: row.friend_id, name: named[index] ?? null, joined_at: row.at ?? null, paid_at: row.paid_at ?? null,
+    reward: row.reward ?? 'none', given_at: row.given_at ?? null, amount_cents: row.amount_cents ?? null, currency: row.currency ?? null,
+  })).sort((a, b) => String(b.joined_at ?? '').localeCompare(String(a.joined_at ?? '')));
+}
+
+/** The person whose link brought this account: { user_id, code, at } or null. */
+export const referredBy = (env, userId) => env.APP_KV.get(`referred-by:${userId}`, 'json');
+
+const cookieValue = (request, cookie) => (request.headers.get('cookie') ?? '').split(/;\s*/).map(part => part.split('=')).find(([name]) => name === cookie)?.[1] ?? null;
+const cookieCode = request => cookieValue(request, REF_COOKIE);
+// A post id as the landing remembered it: letters, digits and . _ : - only, at most 120 characters.
+export const SOURCE = /^[A-Za-z0-9._:-]{1,120}$/;
+const cookieSource = (request) => {
+  const value = cookieValue(request, rules.source_cookie);
+  return value && SOURCE.test(value) ? value : null;
+};
+
+/** The join address: remember whose link brought this visitor (src/referrals.json `join_cookie_days`), then open account creation. */
+export function joinResponse(code, origin) {
+  const headers = new Headers({ location: `${origin}/account` });
+  if (CODE.test(code)) headers.append('set-cookie', `${REF_COOKIE}=${code}; Path=/; Max-Age=${rules.join_cookie_days * 86400}; Secure; HttpOnly; SameSite=Lax`);
+  return new Response(null, { status: 303, headers });
+}
+
+/** Credits the person whose link brought this new account (invariant 4). Never refuses the account itself. */
+export async function creditReferral(env, request, newUserId) {
+  try {
+    const at = new Date().toISOString();
+    const from = cookieSource(request);
+    if (from && !(await env.APP_KV.get(`came-from:${newUserId}`))) await env.APP_KV.put(`came-from:${newUserId}`, JSON.stringify({ from, at }));
+    const code = cookieCode(request);
+    if (!code || !CODE.test(code) || (await env.APP_KV.get(`referred-by:${newUserId}`))) return;
+    const share = await readShare(env, code);
+    if (!share?.user_id || share.user_id === newUserId) return;
+    await env.APP_KV.put(rowKey(share.user_id, newUserId), JSON.stringify({ code, at, ...(from ? { from } : {}) }));
+    await env.APP_KV.put(`referred-by:${newUserId}`, JSON.stringify({ user_id: share.user_id, code, at }));
+  } catch (error) { console.error('referral credit failed:', String(error?.message ?? error)); }
+}
+
+/** The post or page that brought this account, as recorded when it was made: { from, at }, or null. */
+export const cameFrom = (env, userId) => env.APP_KV.get(`came-from:${userId}`, 'json');
+
+/** Whether this account joined through someone's link recently enough to get the friend's code at checkout. */
+export async function friendCodeApplies(env, userId, now = Date.now()) {
+  const by = await referredBy(env, userId);
+  return Boolean(by?.at) && now - Date.parse(by.at) <= rules.friend.window_days * 86400000;
+}
+
+/**
+ * A payment above zero from `friendId` on one of the referral rules' paid offers: the first one marks the row of the
+ * person whose link brought them, owed a reward unless that person is at the yearly limit (invariant 5). Returns
+ * that person's id when a reward became owed, else null.
+ */
+export async function friendPaid(env, friendId, { offer_id: offerId, amount_cents: cents, at = new Date().toISOString() }) {
+  if (!(Number(cents) > 0) || !rules.referrer.paid_offer_ids.includes(offerId)) return null;
+  const by = await referredBy(env, friendId);
+  if (!by?.user_id) return null;
+  const key = rowKey(by.user_id, friendId);
+  const row = await env.APP_KV.get(key, 'json');
+  if (!row || row.paid_at) return null;
+  const limit = rules.referrer.max_per_year;
+  const counted = Number.isInteger(limit) ? (await rowsOf(env, by.user_id)).filter(item => ['owed', 'given'].includes(item.reward) && Date.parse(at) - Date.parse(item.paid_at) < YEAR_MS).length : 0;
+  const reward = Number.isInteger(limit) && counted >= limit ? 'over_limit' : 'owed';
+  await env.APP_KV.put(key, JSON.stringify({ ...row, paid_at: at, reward }));
+  return reward === 'owed' ? by.user_id : null;
+}
+
+/** The rows of this person whose reward is owed: [{ friend_id, ... }]. */
+export const owedRewards = async (env, userId) => (await rowsOf(env, userId)).filter(row => row.reward === 'owed');
+
+/** Records what happened to one owed reward: `{ reward: 'given', given_at, amount_cents, currency, credit_ref }` or `{ last_try_at, last_error }`. */
+export async function recordReward(env, userId, friendId, fields) {
+  const key = rowKey(userId, friendId);
+  const row = await env.APP_KV.get(key, 'json');
+  if (row) await env.APP_KV.put(key, JSON.stringify({ ...row, ...fields }));
+}
+
+/** Removes a person's link, its picture and the rows they earned, and their own join, when their account is deleted (invariant 5). */
+export async function removeSharesPage(env,userId,progress={stage:0,cursor:null}) {
+  const pool=poolOf(env);await pool?.endShareOwner?.(userId);
+  if(progress.stage===0){
+    const page=await env.APP_KV.list({prefix:'share:',cursor:progress.cursor??undefined,limit:32});
+    if(!Array.isArray(page.keys)||page.keys.length>32)throw new Error('Shared account erasure requires its bounded source page.');
+    for(const {name} of page.keys){const row=await env.APP_KV.get(name,'json');if(row?.user_id===userId){const code=name.slice('share:'.length);await env.APP_KV.delete(name);await env.APP_KV.delete(`share-image:${code}`);}}
+    return {complete:false,progress:page.list_complete?{stage:1,cursor:null}:{stage:0,cursor:page.cursor}};
+  }
+  if(progress.stage===1){
+    const code=await env.APP_KV.get(`share-of:${userId}`);
+    if(code){const row=await env.APP_KV.get(`share:${code}`,'json');if(!row||row.user_id===userId){await env.APP_KV.delete(`share:${code}`);await env.APP_KV.delete(`share-image:${code}`);}}
+    await env.APP_KV.delete(`share-of:${userId}`);
+    const by=await referredBy(env,userId);
+    if(by?.user_id){const key=rowKey(by.user_id,userId),row=await env.APP_KV.get(key,'json');if(row?.reward==='given')await env.APP_KV.put(key,JSON.stringify({...row,gone:true}));else await env.APP_KV.delete(key);}
+    await env.APP_KV.delete(`referred-by:${userId}`);await env.APP_KV.delete(`came-from:${userId}`);
+    return {complete:false,progress:{stage:2,cursor:null}};
+  }
+  if(progress.stage===2){
+    const page=await env.APP_KV.list({prefix:`referral:${userId}:`,cursor:progress.cursor??undefined,limit:32});
+    if(!Array.isArray(page.keys)||page.keys.length>32)throw new Error('Referral erasure requires its bounded source page.');
+    for(const {name} of page.keys)await env.APP_KV.delete(name);
+    return {complete:false,progress:page.list_complete?{stage:3,cursor:null}:{stage:2,cursor:page.cursor}};
+  }
+  if(progress.stage===3){
+    const page=await env.APP_KV.list({prefix:`${friendInvites.fact_prefix}${userId}:`,cursor:progress.cursor??undefined,limit:32});
+    if(!Array.isArray(page.keys)||page.keys.length>32)throw new Error('Invite erasure requires its bounded source page.');
+    for(const {name} of page.keys)await env.APP_KV.delete(name);
+    return {complete:page.list_complete,progress:page.list_complete?{stage:4,cursor:null}:{stage:3,cursor:page.cursor}};
+  }
+  return {complete:true,progress};
+}
+export async function removeShares(env,userId){let progress;for(;;){const page=await removeSharesPage(env,userId,progress);if(page.complete)return;progress=page.progress;}}
+
+/**
+ * The credit a referrer gets for each friend who pays: one arm of referrals.json `credit_arms`, picked by
+ * choose-per-observer's sticky_hash over the arms' weights, so the same referrer always lands on the same arm.
+ */
+export function creditFor(userId) {
+  const arms = rules.referrer.credit_arms;
+  const split = Object.fromEntries(Object.entries(arms).map(([id, arm]) => [id, arm.weight ?? 1]));
+  const surface = { address: rules.referrer.credit_experiment, candidates: Object.keys(split).map(candidate_id => ({ candidate_id })) };
+  const decider = { accepts_trust: [], score: { op: 'sticky_hash', of: { fact_path: ['observer'] }, split: { split } } };
+  const facts = [{ path: ['observer'], value: `${rules.referrer.credit_experiment}:${userId}`, trust_ref: 'trust:this-service' }];
+  const arm = scoreCandidates(surface, facts, decider).winner?.candidate_id;
+  return arm ? { arm, amount_cents: arms[arm].amount_cents, currency: arms[arm].currency } : null;
+}
+
+/**
+ * Everything a person (or their AI) reads about their link: the addresses, what each side gets, and each person who
+ * joined with what it earned. One answer for the Account screen and the my_referrals tool.
+ */
+export async function referralSummary(env, userId) {
+  const [code, people] = await Promise.all([codeOf(env, userId), referralsOf(env, userId)]);
+  return {
+    links: linksFor(code),
+    friend_gets: { ...friendReward.adjustment, duration: friendReward.duration ?? null, offer_ids: rules.friend.offer_ids, within_days_of_joining: rules.friend.window_days },
+    you_get: { ...creditFor(userId), offer_ids: rules.referrer.offer_ids, at_most_per_year: rules.referrer.max_per_year ?? null, when: 'the first time someone who joined with your link pays' },
+    joined: people.length,
+    paying: people.filter(person => person.paid_at).length,
+    credit_given_cents: people.filter(person => person.reward === 'given').reduce((sum, person) => sum + (person.amount_cents ?? 0), 0),
+    waiting: people.filter(person => person.reward === 'owed').length,
+    people: people.map(({ friend_id, ...person }) => person),
+  };
+}

@@ -18,12 +18,9 @@
 // fields, one answered step and one call are read and written in place (parts/eeaf readOwn, readMember, memberFields,
 // writeOwn, writeMember). A whole decision an older Worker writes after the store moved to the packed log is laid
 // apart transactionally before its next mutation, so that mutation never copies the embedded history.
-import { blake3 } from '../parts/live-namespace/do-work/blake3.mjs';
 import { decisionResult, decisionStatus } from './check-uses.mjs';
 import { progressFromSteps } from './work-progress.mjs';
 import decisionSteps from '../../decide-with-a-method/read-data/decision-progress.json' with { type: 'json' };
-import { bytesToHex } from '@noble/hashes/utils.js';
-import { compiledByteIdentityNow } from '../parts/live-namespace/do-work/byte-identity.mjs';
 import { RecordTooLarge } from '../parts/record-log/do-work/record-log-store.mjs';
 import { openRecords } from './record-engine.mjs';
 import { makeRecordMove } from './record-move.mjs';
@@ -50,26 +47,8 @@ const refused = (error, id) => {
 };
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
-export const canonical = value => JSON.stringify(value, (key, item) => object(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b))) : item);
-// Digested by the declared BLAKE3 owner's compiled build (crates/content-chunks) wherever the host installed it
-// (src/namespace-identity-module.mjs), fed 1 MiB at a time; measured in workerd 2026-10-18, about 650 MB/s against
-// 16 MB/s for the JavaScript hasher, which a host without it (and one whose engine trapped) still uses. Same identity.
-const IDENTITY_WINDOW = 1024 * 1024;
-export const identityOf = text => {
-  const bytes = new TextEncoder().encode(text);
-  let compiled = null;
-  try {
-    compiled = compiledByteIdentityNow();
-    if (compiled) {
-      for (let at = 0; at < bytes.byteLength; at += IDENTITY_WINDOW) compiled.update(bytes.subarray(at, at + IDENTITY_WINDOW));
-      return `1f:${compiled.hex()}`;
-    }
-  } catch (error) {
-    // A trapped engine is started again for its next caller (src/restartable-engine.mjs); this one is answered here.
-    if (!(error instanceof WebAssembly.RuntimeError)) throw error;
-  } finally { try { compiled?.free(); } catch {} }
-  return `1f:${bytesToHex(blake3(bytes))}`;
-};
+import { canonical, identityOf } from '../../shared-code/src/record-identity.mjs';
+export { canonical, identityOf };
 
 // Whether the AI that took a decision's next action has said it was done (or named the wall it reached), for the
 // decision as it stands now: a revised decision is owed again. src/engine.mjs recordCarriedOut keeps what was said.

@@ -1,0 +1,192 @@
+import { boundToolParts } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/source-connection.mjs';
+import { toolTelemetryMethods } from '../../../keep-the-tables-that-record-how-tools-are/from-old-trillion/src/tool-telemetry.mjs';
+// Shared publication is still authoritative at Pool. Its existing alarm publishes
+// derived immutable pages; ordinary resource reads use the independent KV supply.
+import { resourceProjectionOutbox } from './resource-projection-outbox.mjs';
+import {blake3} from '@noble/hashes/blake3.js';
+import {bytesToHex} from '@noble/hashes/utils.js';
+const key = (...parts) => `workshop-projection:${JSON.stringify(parts)}`;
+// Immutable evidence that a publisher took ownership of a shipped identity.
+// Withdrawal removes the public body, never this content-free evidence.
+export const publishedIdentityKey = (shelf,id,maker) => key('published-identity',bytesToHex(blake3(new TextEncoder().encode(JSON.stringify([shelf,id,maker])))));
+// What the identity key holds: the time a publish was queued, 'withdrawn', or '1' (an identity from before either was kept).
+const PUBLISHED_AT = 'published:', WITHDRAWN = 'withdrawn';
+// How long after a publish a shelf that does not show the row yet is taken to be catching up, not to have lost it.
+export const PUBLICATION_VISIBLE_WITHIN_MS = 10 * 60_000;
+const unavailable = () => Object.assign(new Error('The complete Marketplace projection is still being published. Try again shortly.'),{status:503,retry_at:Date.now()+1000});
+export function sharedWorkshopProjectionReader(kv) {
+  const json = async (...parts) => {const text=await kv?.get(key(...parts));return text?JSON.parse(text):null;};
+  const reader = {
+    async hasShelf(shelf) { return (await json('shelf',shelf)) !== null; },
+    async wasPublished(shelf,id,maker) { return (await kv?.get(publishedIdentityKey(shelf,id,maker))) != null; },
+    // 'published' with the time it was queued, 'withdrawn', 'earlier' (an identity with neither), or null: never published.
+    async publicationOf(shelf,id,maker) {
+      const held = await kv?.get(publishedIdentityKey(shelf,id,maker));
+      if (held == null) return null;
+      if (held === WITHDRAWN) return { state: 'withdrawn' };
+      if (held.startsWith(PUBLISHED_AT)) return { state: 'published', at: Number(held.slice(PUBLISHED_AT.length)) };
+      return { state: 'earlier' };
+    },
+    async published(shelf,{containing}={}) {
+      if(containing&&(!/^\w+$/.test(containing.field)||typeof containing.value!=='string'))throw new TypeError('Choose a published list field and its text member.');
+      const manifest=await json('shelf',shelf);if(!manifest?.complete)throw unavailable();
+      const rows=[];
+      for(let page=0;page<manifest.pages;page++){
+        const part=await json('page',shelf,manifest.version,page);if(!Array.isArray(part))throw unavailable();
+        rows.push(...part.filter(item=>!containing||(Array.isArray(item.row?.[containing.field])&&item.row[containing.field].includes(containing.value))));
+      }
+      return rows;
+    },
+    async publishedPage(shelf,{after=0,limit=60,query=''}={}) {
+      if(!Number.isInteger(limit)||limit<1||limit>100||typeof after!=='string'&&after!==0)throw new TypeError('Read a bounded immutable Marketplace page.');
+      const manifest=await json('shelf',shelf);if(!manifest?.complete||!Number.isSafeInteger(manifest.pages)||manifest.pages<1)throw unavailable();
+      const term=String(query).trim().toLowerCase().slice(0,200);let cursor={page:0,index:0};
+      if(after){try{cursor=JSON.parse(after);}catch{throw unavailable();}
+        if(cursor.shelf!==shelf||cursor.version!==manifest.version||cursor.query!==term||!Number.isInteger(cursor.page)||cursor.page<0||cursor.page>=manifest.pages||!Number.isInteger(cursor.index)||cursor.index<0||cursor.index>=64)throw unavailable();
+      }
+      const part=await json('page',shelf,manifest.version,cursor.page);if(!Array.isArray(part)||part.length>64||cursor.index>part.length)throw unavailable();
+      const candidates=part.slice(cursor.index,cursor.index+limit),index=cursor.index+candidates.length,page=cursor.page+(index===part.length?1:0),complete=page>=manifest.pages;
+      return {rows:candidates.filter(item=>!term||JSON.stringify(item.row).toLowerCase().includes(term)),total:term?null:manifest.total??null,
+        complete,next:complete?null:JSON.stringify({shelf,version:manifest.version,query:term,page,index:page===cursor.page?index:0}),collection_coverage:{basis:'shared_projection',complete,consistency:'asynchronous'}};
+    },
+    async publishedOne(shelf,id,{bounded=false}={}) {
+      // A point read is derived too. Absence is calibrated only after initial
+      // carry is complete; it never silently empties an unpublished catalogue.
+      const manifest=await json('shelf',shelf);if(!manifest?.complete)throw unavailable();
+      const item=await json('item',shelf,manifest.version,id);
+      if(item)return item;
+      if(bounded){
+        if(manifest.pages!==1)throw unavailable();
+        const part=await json('page',shelf,manifest.version,0);if(!Array.isArray(part)||part.length>64)throw unavailable();
+        return part.find(item=>item.row.id===id)??null;
+      }
+      // KV keys propagate independently. A missing point key is never enough
+      // to claim absence; the complete immutable page set proves it instead.
+      return (await reader.published(shelf)).find(item=>item.row.id===id)??null;
+    },
+    async stats(ids) {
+      return Object.fromEntries(await Promise.all(ids.map(async id=>[id,await json('stats',id)])));
+    },
+  };
+  return reader;
+}
+export function sharedWorkshopProjectionPublisher(pool) {
+  const sql=pool.sql,transaction=work=>pool.ctx.storage.transactionSync(work),kv=pool.env.APP_KV;
+  sql.exec('CREATE INDEX IF NOT EXISTS published_rows_projection_order ON published_rows(shelf,published_at,id)');
+  sql.exec('CREATE INDEX IF NOT EXISTS kept_source_tools_projection_order ON kept_source_tools(kept_at,id)');
+  sql.exec('CREATE TABLE IF NOT EXISTS workshop_projection_carry (kind TEXT PRIMARY KEY,after_id TEXT,done INTEGER NOT NULL)');
+  sql.exec('CREATE TABLE IF NOT EXISTS tool_learning_aliases (private_id TEXT PRIMARY KEY,public_id TEXT NOT NULL)');
+  sql.exec('CREATE INDEX IF NOT EXISTS tool_learning_aliases_public ON tool_learning_aliases(public_id,private_id)');
+  for(const kind of ['shelves','stats','publish-stats'])sql.exec('INSERT OR IGNORE INTO workshop_projection_carry VALUES(?,NULL,0)',kind);
+  let outbox;
+  const cleanup=(id,version,pages)=>outbox.recordPrepared(JSON.stringify(['cleanup',id,version]),{kind:'cleanup',id,version,page:0,pages},{replace:true});
+  const mark=(kind,id)=>{
+    if(kind==='stats'){const publicId=boundToolParts(id)?.tool_id??id;sql.exec('INSERT OR IGNORE INTO tool_learning_aliases VALUES(?,?)',id,publicId);id=publicId;}
+    const pending=outbox.read(JSON.stringify([kind,id]));
+    if(kind==='shelf'&&pending&&(pending.page>0||pending.started))cleanup(id,pending.version,pending.page+1);
+    return outbox.recordPrepared(JSON.stringify([kind,id]),{kind,id,version:crypto.randomUUID(),page:0,after:null},{replace:true});
+  };
+  outbox=resourceProjectionOutbox(sql,{transaction,table:'shared_workshop_projection_outbox',deliver:async(id,row,stage)=>{
+    if(!kv?.put)throw unavailable();
+    if(row.kind==='published-identity'){
+      await kv.put(publishedIdentityKey(row.shelf,row.id,row.maker),row.state==='withdrawn'?WITHDRAWN:row.at?`${PUBLISHED_AT}${row.at}`:'1');
+      return {projected:true};
+    }
+    if(row.kind==='cleanup'){
+      if(!kv.delete)throw unavailable();
+      const pageKey=key('page',row.id,row.version,row.page),text=await kv.get(pageKey),items=text?JSON.parse(text):[];
+      let point=row.point??0,processed=0;
+      for(;point<items.length&&processed<8&&(!stage||processed===0||stage.left()>0);point++,processed++)await kv.delete(key('item',row.id,row.version,items[point].row.id));
+      if(point<items.length){outbox.recordPrepared(id,{...row,point},{replace:true});return {projected:true};}
+      await kv.delete(pageKey);
+      if(row.page+1<row.pages)outbox.recordPrepared(id,{...row,page:row.page+1,point:0},{replace:true});
+      return {projected:true};
+    }
+    if(row.kind==='stats'){
+      await kv.put(key('stats',row.id),JSON.stringify({...toolTelemetryMethods.toolStats.call(pool,[row.id],null,{aliases:true})[row.id],basis:'shared_projection',legacy_complete:sql.exec("SELECT done FROM workshop_projection_carry WHERE kind='stats' LIMIT 1").toArray()[0].done===1,projected_at:new Date().toISOString()}));
+      return {projected:true};
+    }
+    const published=sql.exec('SELECT value FROM pool_facts WHERE name=?',`workshop-projection-manifest:${row.id}`).toArray()[0];
+    if(published&&JSON.parse(published.value).version===row.version){console.info('shared projection shelf already published',{shelf:row.id,version:String(row.version).slice(0,8)});return {projected:true};}
+    if(!row.started)outbox.recordPrepared(id,{...row,started:true},{replace:true});
+    const rows=row.id==='@source-tools'
+      ?sql.exec("SELECT 'registry' AS maker,row,kept_at AS published_at,id FROM kept_source_tools WHERE (? IS NULL OR kept_at>? OR (kept_at=? AND id>?)) ORDER BY kept_at,id LIMIT 64",row.after?.at??null,row.after?.at??null,row.after?.at??null,row.after?.id??null).toArray()
+      :sql.exec(`SELECT maker,row,published_at,id FROM published_rows WHERE shelf=? AND (? IS NULL OR published_at>? OR (published_at=? AND id>?)) ORDER BY published_at,id LIMIT 64`,row.id,row.after?.at??null,row.after?.at??null,row.after?.at??null,row.after?.id??null).toArray();
+    const values=rows.map(item=>pool.publishedValue(row.id,item));
+    // A page is put once per version and page; re-putting a large page every
+    // step spent the whole stage and froze its item cursor (live workflow
+    // shelf: 764 KB page 0, item cursor stuck at 7 of 64).
+    if(!row.page_put){await kv.put(key('page',row.id,row.version,row.page),JSON.stringify(values));if(outbox.read(id)?.version!==row.version)return {projected:true};row={...row,started:true,page_put:true};outbox.recordPrepared(id,row,{replace:true});}
+    let point=row.point??0,processed=0;
+    // Each step writes at least one item, so a spent stage never stalls the cursor.
+    for(;point<values.length&&processed<8&&(!stage||processed===0||stage.left()>0);point++,processed++){
+      const item=values[point];
+      // A publish already queued its own identity (with its time); a row the snapshot meets without one gets the plain mark.
+      if(await kv.get(publishedIdentityKey(row.id,item.row.id,item.maker))==null)await kv.put(publishedIdentityKey(row.id,item.row.id,item.maker),'1');
+      await kv.put(key('item',row.id,row.version,item.row.id),JSON.stringify(item));
+      if(outbox.read(id)?.version!==row.version)return {projected:true};
+    }
+    // Which shelf page a step reached and how far its items moved: the only record of a catalogue stalled short of its manifest.
+    console.info('shared projection shelf step',{shelf:row.id,version:String(row.version).slice(0,8),page:row.page,from:row.point??0,to:point,rows:values.length});
+    if(point<values.length){
+      if(outbox.read(id)?.version===row.version)outbox.recordPrepared(id,{...row,started:true,point},{replace:true});
+      return {projected:true};
+    }
+    // A mutation while KV awaited replaces the source revision; it must not
+    // advertise an incomplete or superseded manifest as a complete discovery.
+    if(outbox.read(id)?.version!==row.version)return {projected:true};
+    if(rows.length===64){
+      outbox.recordPrepared(id,{...row,page:row.page+1,point:0,page_put:false,after:{at:rows.at(-1).published_at,id:rows.at(-1).id}},{replace:true});
+      return {projected:true};
+    }
+    const manifest={complete:true,version:row.version,pages:row.page+1,total:row.page*64+rows.length};
+    await kv.put(key('shelf',row.id),JSON.stringify(manifest));
+    transaction(()=>{
+      const name=`workshop-projection-manifest:${row.id}`,before=sql.exec('SELECT value FROM pool_facts WHERE name=?',name).toArray()[0];
+      const old=before?JSON.parse(before.value):null;
+      if(old&&old.version!==row.version)cleanup(row.id,old.version,old.pages);
+      sql.exec('INSERT INTO pool_facts VALUES(?,?) ON CONFLICT(name) DO UPDATE SET value=excluded.value',name,JSON.stringify(manifest));
+    });
+    return {projected:true};
+  }});
+  // A shelf with no published manifest and nothing queued to publish one was dropped mid-snapshot (an unchanged
+  // re-record was once acknowledged as done); it starts a fresh snapshot instead of staying unreadable for good.
+  transaction(()=>{
+    const shelves=new Set(['tool','tool-price','workflow','@source-tools',...sql.exec('SELECT DISTINCT shelf FROM published_rows').toArray().map(row=>row.shelf)]);
+    for(const shelf of shelves){
+      if(sql.exec('SELECT 1 FROM pool_facts WHERE name=?',`workshop-projection-manifest:${shelf}`).toArray().length||outbox.read(JSON.stringify(['shelf',shelf])))continue;
+      if(sql.exec("SELECT done FROM workshop_projection_carry WHERE kind='shelves' LIMIT 1").toArray()[0]?.done!==1)continue;
+      console.info('shared projection shelf restarted',{shelf});
+      mark('shelf',shelf);
+    }
+  });
+  return {
+    mark,
+    remember(shelf,id,maker,state='published'){
+      // A separate outbox identity survives publish+withdraw before a shelf
+      // snapshot finishes, a restart and a lost KV acknowledgement. It says when it was published, or that it was withdrawn,
+      // so a reader that finds the identity before the shelf shows the row knows which it is (publicationOf).
+      return outbox.recordPrepared(JSON.stringify(['published-identity',shelf,id,maker]),state==='withdrawn'?{kind:'published-identity',shelf,id,maker,state}:{kind:'published-identity',shelf,id,maker,at:Date.now()},{replace:true});
+    },
+    nextAt(){return sql.exec('SELECT 1 FROM workshop_projection_carry WHERE done=0 LIMIT 1').toArray().length?0:outbox.nextAt();},
+    async step(stage){
+      transaction(()=>{
+        for(const kind of ['shelves','stats','publish-stats']){
+          const state=sql.exec('SELECT after_id,done FROM workshop_projection_carry WHERE kind=? LIMIT 1',kind).toArray()[0];if(state.done)continue;
+          if(kind==='publish-stats'&&!sql.exec("SELECT done FROM workshop_projection_carry WHERE kind='stats' LIMIT 1").toArray()[0].done)continue;
+          const rows=kind==='shelves'
+            ?sql.exec('SELECT DISTINCT shelf AS id FROM published_rows WHERE (? IS NULL OR shelf>?) ORDER BY shelf LIMIT 64',state.after_id,state.after_id).toArray()
+            :kind==='publish-stats'?sql.exec('SELECT DISTINCT public_id AS id FROM tool_learning_aliases WHERE (? IS NULL OR public_id>?) ORDER BY public_id LIMIT 64',state.after_id,state.after_id).toArray()
+            :sql.exec('SELECT tool_id AS id FROM tool_jobs WHERE (? IS NULL OR tool_id>?) UNION SELECT tool_id AS id FROM tool_reports WHERE (? IS NULL OR tool_id>?) ORDER BY id LIMIT 64',state.after_id,state.after_id,state.after_id,state.after_id).toArray();
+          for(const row of rows)mark(kind==='shelves'?'shelf':'stats',row.id);
+          // Empty shelves remain explicit complete empty projections.
+          if(kind==='shelves'&&!state.after_id)for(const shelf of ['tool','tool-price','workflow','@source-tools'])if(!rows.some(row=>row.id===shelf))mark('shelf',shelf);
+          sql.exec('UPDATE workshop_projection_carry SET after_id=?,done=? WHERE kind=?',rows.at(-1)?.id??state.after_id,rows.length<64?1:0,kind);
+        }
+      });
+      const head=sql.exec('SELECT permit_id FROM shared_workshop_projection_outbox ORDER BY due_at,permit_id LIMIT 4').toArray().map(row=>String(row.permit_id).slice(0,60));
+      console.info('shared projection queue',{rows:sql.exec('SELECT COUNT(*) AS n FROM shared_workshop_projection_outbox').toArray()[0].n,head});
+      await outbox.flush({limit:8,stage});
+    },
+  };
+}

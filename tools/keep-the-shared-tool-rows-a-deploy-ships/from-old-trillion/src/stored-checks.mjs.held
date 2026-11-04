@@ -1,0 +1,62 @@
+// Files the deploy keeps in APP_KV (the Workshop's shared rows among them).
+// A value larger than one KV write the deploy can send is stored in parts under one prefix:
+// `<prefix>:parts` holds the count, `<prefix>:0`, `<prefix>:1`… the bytes, `<prefix>:identity` their BLAKE3 hex.
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { readToolData } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
+import { cachedDefaultPublished, defaultsRefreshMs, defaultRow, defaultRows, defaultMakers } from './marketplace-defaults.mjs';
+
+export async function readParts(env, prefix) {
+  const parts = Number(await env.APP_KV.get(`${prefix}:parts`));
+  if (!parts) return null;
+  const pieces = await Promise.all(Array.from({ length: parts }, (_, part) => env.APP_KV.get(`${prefix}:${part}`, 'arrayBuffer')));
+  if (pieces.some(piece => !piece)) return null;
+  return new Blob(pieces).arrayBuffer();
+}
+
+// The Workshop's shared rows (tools, placements, licence classes), stored by the deploy under their BLAKE3
+// identity and bound as WORKSHOP_IDENTITY, decoded by the one tool decoder. Once per instance.
+export const workshopPrefix = identity => `workshop:rows:${identity}`;
+let workshopRows = null;
+let workshopRowsIdentity = null;
+export function loadShippedWorkshopRows(env) {
+  if (!env.WORKSHOP_IDENTITY) return Promise.resolve(readToolData([]));
+  if (workshopRowsIdentity !== env.WORKSHOP_IDENTITY || !workshopRows) {
+    const identity = env.WORKSHOP_IDENTITY;
+    workshopRowsIdentity = identity;
+    workshopRows = (async () => {
+      const bytes = await readParts(env, workshopPrefix(identity));
+      if (!bytes || bytesToHex(blake3(new Uint8Array(bytes))) !== identity) throw new Error('The tool list is not available yet. Please try again in a minute.');
+      return readToolData(JSON.parse(new TextDecoder().decode(bytes)).map(payload => ({ payload })));
+    })().catch(error => { if (workshopRowsIdentity === identity) workshopRows = null; throw error; });
+  }
+  return workshopRows;
+}
+
+// The event sources Trillion listens to (connects_with, routes, polls): shipped rows only, read once per instance with the
+// shipped Workshop rows. Every record book's scheduler asks them on each pass (src/events.mjs nextCheck); through
+// loadWorkshopRows each pass also rebuilt every published Marketplace default tool, which no event source reads
+// (2026-10-20: event-rule-retries' data stage was the most frequent slow scheduler source, 599 passes, median 3.5 s).
+export const loadEventSources = async env => (await loadShippedWorkshopRows(env)).event_sources ?? [];
+
+// The engine's placements/licences stay deployed capabilities. Executable
+// descriptions and saved code are default Marketplace content like any other
+// publisher's tool. Use the same decoder before granting the service's reach.
+const defaultWorkshopRows=new WeakMap();
+export async function loadWorkshopRows(env,{only}={}) {
+  const shipped=await loadShippedWorkshopRows(env);
+  const makers=[...defaultMakers(env)];
+  if(!makers.length)return shipped;
+  const published=await cachedDefaultPublished(env,'tool'),now=Date.now();
+  let held=defaultWorkshopRows.get(env);
+  if(!held||held.shipped!==shipped||held.published!==published||now-held.at>=defaultsRefreshMs()){
+    const rows=await defaultRows(env,'tool',shipped.tools,{published});
+    const decoded=readToolData(rows.map(payload=>({payload:{kind:'ai-tool-descriptor',...payload}})),shipped.placements);
+    held={shipped,published,at:now,rows:{...shipped,tools:decoded.tools,default_makers:makers,refused:[...shipped.refused,...decoded.refused]}};
+    defaultWorkshopRows.set(env,held);
+  }
+  if(!only)return held.rows;
+  const current=await defaultRow(env,'tool',only,shipped.tools.find(tool=>tool.id===only)??null);
+  const decoded=readToolData(current?[{payload:{kind:'ai-tool-descriptor',...current}}]:[],shipped.placements);
+  return {...held.rows,tools:[...held.rows.tools.filter(tool=>tool.id!==only),...decoded.tools],refused:[...held.rows.refused,...decoded.refused]};
+}

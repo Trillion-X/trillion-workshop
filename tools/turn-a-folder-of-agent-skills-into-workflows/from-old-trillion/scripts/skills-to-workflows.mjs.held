@@ -1,0 +1,116 @@
+// scripts/skills-to-workflows.mjs
+//
+// Purpose
+//   Turns agent skill folders (a SKILL.md with a `name` and a `description` in its front matter, and the files beside
+//   it) into workflows every Trillion account's AI can find with find_workflow, read with describe_workflow and run
+//   with start_workflow. One skill becomes one workflow-recipe row: the skill's instructions are its one step's `do`,
+//   and its text files ride along under `files`. The rows are written into records/workflow-recipe-records.json, the
+//   workflows the deploy ships (src/person-store.mjs), replacing every earlier workflow:skill- row and keeping every
+//   other row as it is, so the shelf always matches the folders it was made from.
+//
+//     node scripts/skills-to-workflows.mjs <sources.json> [--write]
+//
+//   sources.json (kept with the skills, never in this repository) says where the skills are and whose they are:
+//     { "roots": ["<folder of skill folders>", ...],            relative to the sources file, or absolute
+//       "made_here": ["<skill name>", ...],                     skills the publishing account wrote itself
+//       "private_words": ["<word>", ...] }                      words that name the publisher's private people,
+//                                                               businesses or systems; a skill holding one stays home
+//   Without --write it only reports what would ship and what would stay home, and why.
+//
+// Non-negotiable invariants
+//   1. A skill ships only when its maker may share it: it is named in made_here, or its own folder declares an open
+//      licence (records/skill-import-rules.json open_licences, read from the Workshop's licence classes). An unknown
+//      licence stays home; nothing is guessed.
+//   2. A skill ships only when none of the text that would ship matches a never_share pattern or a private word. The
+//      text screened is exactly the text that ships.
+//   3. Every --write replaces all the workflow:skill- rows from the folders, so a skill removed or held back leaves the
+//      shelf on the next deploy; the rows it did not make are never touched. A skill already brought in by hand (its
+//      name is the source.name of one of those other rows) is not made twice.
+//   4. Nothing here names a skill, an author, a subject or a computer. Screens, budgets and file types are rows in
+//      records/skill-import-rules.json.
+//
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { skillRow } from '../../../read-public-repositories-of-agent-skills-and-offer/from-old-trillion/src/skill-rows.mjs.held';
+
+const repo = resolve(import.meta.dirname, '..');
+const readJson = path => JSON.parse(readFileSync(path, 'utf8'));
+const RULES_FILE = 'records/skill-import-rules.json';
+const ROWS_FILE = 'records/workflow-recipe-records.json';
+// The rows this script did not make: Trillion's own workflows, written by hand.
+const handRows = rules => readJson(join(repo, ROWS_FILE)).records.filter(record => !record.payload?.id?.startsWith(rules.id_prefix));
+
+// The files of one skill folder other than SKILL.md: path relative to the folder, and its text (null when it is not a
+// text file the rules name). A link is never followed, and a folder holding its own SKILL.md is its own skill.
+function filesOf(folder, rules) {
+  const files = [];
+  const walk = at => {
+    for (const entry of readdirSync(at, { withFileTypes: true })) {
+      const path = join(at, entry.name);
+      if (entry.isSymbolicLink()) continue;
+      if (entry.isDirectory()) { if (!rules.skipped_folders.includes(entry.name) && !existsSync(join(path, 'SKILL.md'))) walk(path); continue; }
+      const rel = relative(folder, path);
+      if (rel === 'SKILL.md' || /^licen[cs]e/i.test(entry.name) || entry.name === '.DS_Store') continue;
+      const extension = entry.name.includes('.') ? entry.name.split('.').pop().toLowerCase() : '';
+      files.push({ path: rel, text: rules.text_files.includes(extension) ? readFileSync(path, 'utf8') : null });
+    }
+  };
+  walk(folder);
+  return files;
+}
+
+// Every skill folder under the roots, first root first; a name seen once is not taken again.
+function skillFolders(roots, rules) {
+  const found = new Map();
+  const walk = (at, depth) => {
+    if (depth > 4) return;
+    for (const entry of readdirSync(at, { withFileTypes: true })) {
+      if (!(entry.isDirectory() || entry.isSymbolicLink()) || rules.skipped_folders.includes(entry.name)) continue;
+      const path = join(at, entry.name);
+      if (existsSync(join(path, 'SKILL.md')) && !found.has(entry.name)) found.set(entry.name, path);
+      if (entry.isDirectory()) walk(path, depth + 1);
+    }
+  };
+  for (const root of roots) walk(root, 0);
+  return found;
+}
+
+export function importSkills({ sources, sourcesDir, rules = readJson(join(repo, RULES_FILE)) }) {
+  const classes = readJson(join(repo, 'node_modules', rules.open_licences.module, rules.open_licences.file)).records.map(record => record.payload);
+  const openLicences = new Set(classes.filter(item => rules.open_licences.classes.includes(item.id)).flatMap(item => item.licences));
+  const handMade = new Set(handRows(rules).map(record => record.payload?.source?.name).filter(Boolean));
+  const madeHere = new Set(sources.made_here ?? []);
+  const privateWords = sources.private_words ?? [];
+  const roots = (sources.roots ?? []).map(root => (isAbsolute(root) ? root : resolve(sourcesDir, root)));
+  const shipped = [];
+  const home = [];
+  const ids = new Set();
+  for (const [name, folder] of skillFolders(roots, rules)) {
+    if (handMade.has(name)) { home.push({ skill: name, folder, reasons: ['already one of Trillion\'s own workflows'] }); continue; }
+    const licenceFile = readdirSync(folder).find(file => /^licen[cs]e/i.test(file));
+    const result = skillRow({
+      folder, name, skillText: readFileSync(join(folder, 'SKILL.md'), 'utf8'), files: filesOf(folder, rules),
+      licenceText: licenceFile ? readFileSync(join(folder, licenceFile), 'utf8') : null, madeHere: madeHere.has(name), rules, openLicences, privateWords,
+    });
+    if (result.row && ids.has(result.row.id)) { home.push({ skill: result.skill, folder, reasons: [`${result.row.id} is already taken by another skill`] }); continue; }
+    if (result.row) { ids.add(result.row.id); shipped.push(result.row); } else home.push(result);
+  }
+  shipped.sort((a, b) => a.id.localeCompare(b.id));
+  return { shipped, home };
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const sourcesPath = process.argv[2];
+  if (!sourcesPath) { console.error('usage: node scripts/skills-to-workflows.mjs <sources.json> [--write]'); process.exit(2); }
+  const { shipped, home } = importSkills({ sources: readJson(sourcesPath), sourcesDir: dirname(resolve(sourcesPath)) });
+  for (const row of shipped) console.log(`ships  ${row.id}`);
+  for (const item of home) console.log(`home   ${item.skill}: ${item.reasons.join('; ')}`);
+  console.log(`\n${shipped.length} skills ship, ${home.length} stay home.`);
+  if (process.argv.includes('--write')) {
+    const rules = readJson(join(repo, RULES_FILE));
+    const file = readJson(join(repo, ROWS_FILE));
+    const made = shipped.map(row => ({ id: row.id.slice('workflow:'.length), address: `workflow-recipe:${row.id.slice('workflow:'.length)}`, payload: row }));
+    writeFileSync(join(repo, ROWS_FILE), `${JSON.stringify({ ...file, records: [...handRows(rules), ...made] }, null, 1)}\n`);
+    console.log(`Wrote ${ROWS_FILE}.`);
+  }
+}

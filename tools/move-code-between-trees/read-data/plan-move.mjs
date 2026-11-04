@@ -13,6 +13,9 @@ import { aliasesOf, isCode, isRelative, requestFor, requestsIn, targetOf } from 
 import { swapCalls, providerCallsLeft } from './swap-calls.mjs';
 
 const TEST_FILE = /\.test\.(?:mjs|cjs|js|ts|tsx|mts)$/;
+// A request with a scheme (node:fs, cloudflare:workers) names a module the runtime itself provides, never a package: no
+// package name holds a colon.
+const RUNTIME_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 export const packageOf = name => name.split('/').slice(0, name.startsWith('@') ? 2 : 1).join('/');
 
 /** The groups a move row names: its own `groups`, plus one per row of the source's owner index that names a destination. */
@@ -39,6 +42,14 @@ export function planMove(row, source, destination) {
   // moved, and holds nothing; the moved file reads those rows from its caller once adapted.
   const asRows = row.read_as_rows ?? [];
   const readAsRows = path => asRows.some(glob => globMatches(path, glob));
+  // A source file that already has a home in a package the destination depends on (an earlier move carried it to that
+  // package's tree; its receipt there names the path): { from, home, source_identity }. It is not followed or moved and
+  // holds nothing, even when a keep row names it; a moved file imports it from home, the package specifier.
+  const homesInPackages = new Map();
+  for (const item of row.homes_in_packages ?? []) {
+    if (!item?.from || !item?.home || !item?.source_identity) throw new MoveRefusal('row_incomplete', 'Each homes_in_packages row names from (the source path), home (the package specifier it is imported by) and source_identity (the identity of its source bytes, which the receipt in that package names).');
+    homesInPackages.set(item.from, item);
+  }
   const swaps = row.calls ?? [];
   const detectors = row.provider_calls ?? [];
   // A detector match the row names as no provider call (a parameter called env holding the process environment, say):
@@ -57,6 +68,15 @@ export function planMove(row, source, destination) {
   const leaveTests = row.leave_tests ?? [];
   for (const item of leaveTests) if (!item?.path || !item?.why) throw new MoveRefusal('row_incomplete', 'Each leave_tests row names path (the test file in the source) and why it does not move with its group.');
   const leftTest = path => leaveTests.some(item => item.path === path);
+  // Files the destination holds in another shape (an earlier lane adapted them, so they are not the same bytes once import
+  // paths are set aside): { from, home, why }. The row names the adapted copy as the source file's home; it is not
+  // followed or moved, what moves imports it there, and its receipt entry says adapted with why. A test carried against
+  // it proves, by its own run, that the adaptation kept what the test checks.
+  const adaptedHomes = new Map();
+  for (const item of row.adapted_homes ?? []) {
+    if (!item?.from || !item?.home || !item?.why) throw new MoveRefusal('row_incomplete', 'Each adapted_homes row names from (the source path), home (the destination path that holds it in another shape) and why.');
+    adaptedHomes.set(item.from, item);
+  }
 
   source.readMany([...source.files].filter(isCode));
   const text = path => source.read(path).toString('utf8');
@@ -71,12 +91,17 @@ export function planMove(row, source, destination) {
     const stack = [...roots];
     while (stack.length) {
       const path = stack.pop();
-      if (found.has(path) || !source.exists(path) || readAsRows(path)) continue;
+      if (found.has(path) || !source.exists(path) || readAsRows(path) || homesInPackages.has(path)) continue;
       found.add(path);
       for (const item of requestsOf(path)) if (item.target) stack.push(item.target);
     }
     return found;
   };
+  for (const [path, item] of homesInPackages) {
+    if (!source.exists(path)) throw new MoveRefusal('home_unknown', `homes_in_packages names ${path}, which the source does not hold at ${source.commit.slice(0, 10)}.`);
+    const identity = makeHashCodeHexFromBytes(new Uint8Array(source.read(path)));
+    if (identity !== item.source_identity) throw new MoveRefusal('home_other_bytes', `homes_in_packages says ${item.home} holds ${path} as ${item.source_identity}, but at ${source.commit.slice(0, 10)} it is ${identity}.`);
+  }
 
   // 1. Each group's files and closure, and whether it reaches a file that must stay.
   const groups = groupsOf(row, source).map(group => {
@@ -111,6 +136,12 @@ export function planMove(row, source, destination) {
   const homes = new Map();
   const homeElsewhere = path => {
     if (homes.has(path)) return homes.get(path);
+    if (adaptedHomes.has(path)) {
+      const there = destination.exists(adaptedHomes.get(path).home) ? adaptedHomes.get(path).home : null;
+      if (!there) throw new MoveRefusal('home_unknown', `adapted_homes names ${adaptedHomes.get(path).home} for ${path}, which the destination does not hold.`);
+      homes.set(path, there);
+      return there;
+    }
     const named = byName.get(posix.basename(path)) ?? [];
     destination.readMany(named);
     const before = source.exists(path) ? bare(path, source.read(path)) : null;
@@ -129,7 +160,7 @@ export function planMove(row, source, destination) {
     const stack = [start];
     while (stack.length) {
       const path = stack.pop();
-      if (found.has(path) || !source.exists(path) || readAsRows(path)) continue;
+      if (found.has(path) || !source.exists(path) || readAsRows(path) || homesInPackages.has(path)) continue;
       found.add(path);
       if (path !== start && !movingFiles.has(path) && !inTestFolder(path) && homeElsewhere(path)) continue;
       for (const item of requestsOf(path)) if (item.target) stack.push(item.target);
@@ -174,7 +205,7 @@ export function planMove(row, source, destination) {
     if (reused.has(path) || !destination.exists(to)) continue;
     const here = destination.read(to);
     const before = source.read(path);
-    if (here.equals(before) || (isCode(path) && withoutRequests(here.toString('utf8')) === withoutRequests(before.toString('utf8')))) {
+    if (here.equals(before) || (isCode(path) && withoutRequests(here.toString('utf8')) === withoutRequests(before.toString('utf8'))) || adaptedHomes.get(path)?.home === to) {
       reused.set(path, to);
       homeAlready.set(path, makeHashCodeHexFromBytes(new Uint8Array(here)));
     }
@@ -182,7 +213,7 @@ export function planMove(row, source, destination) {
   // A file an earlier move already carried to another place in the destination (under another group's folder, say), with
   // the same bytes once import paths are set aside, is home already there: what moves now imports it there, no second
   // copy is made. Of several such copies, the one whose path ends most like the source path is the one.
-  const elsewhere = [...landing.keys()].filter(path => !reused.has(path) && !destination.exists(landing.get(path)) && byName.has(posix.basename(path)));
+  const elsewhere = [...landing.keys()].filter(path => !reused.has(path) && !destination.exists(landing.get(path)) && (byName.has(posix.basename(path)) || adaptedHomes.has(path)));
   for (const path of elsewhere) {
     const there = homeElsewhere(path);
     if (!there) continue;
@@ -214,14 +245,20 @@ export function planMove(row, source, destination) {
   const packagesToAdd = new Map();
   for (const [path, to] of landing) {
     const owners = needed.get(path);
-    const plan = { from: path, to, groups: owners, reused: reused.has(path), source_identity: makeHashCodeHexFromBytes(new Uint8Array(source.read(path))), ...(homeAlready.has(path) ? { identity_here: homeAlready.get(path) } : {}) };
+    const plan = { from: path, to, groups: owners, reused: reused.has(path), source_identity: makeHashCodeHexFromBytes(new Uint8Array(source.read(path))), ...(homeAlready.has(path) ? { identity_here: homeAlready.get(path) } : {}), ...(adaptedHomes.has(path) && reused.get(path) === adaptedHomes.get(path).home ? { adapted: adaptedHomes.get(path).why } : {}) };
     if (!reused.has(path) && destination.exists(to)) {
       for (const id of owners) byId.get(id).held.push(`${to} is already in the destination with other bytes`);
     }
     if (isCode(path) && !reused.has(path)) {
       const changes = [];
       for (const item of requestsOf(path)) {
-        if (item.target && landing.has(item.target)) {
+        if (item.target && homesInPackages.has(item.target)) {
+          const home = homesInPackages.get(item.target).home;
+          // A file read by its address is not imported: its home in a package is no path beside this one.
+          if (item.how === 'url') for (const id of owners) byId.get(id).held.push(`${path} reads ${item.target} by its address, and its home ${home} is in a package`);
+          else changes.push({ start: item.start, end: item.end, specifier: home, was: item.specifier });
+          plan.homes = { ...plan.homes, [item.target]: home };
+        } else if (item.target && landing.has(item.target)) {
           // A tree's own import name means nothing in the other tree: it becomes the path, ending and all.
           const written = item.specifier.startsWith('#') ? item.target : item.specifier;
           const specifier = requestFor(to, landing.get(item.target), written, item.target);
@@ -230,7 +267,7 @@ export function planMove(row, source, destination) {
           // A file that already imports a moved file through the destination package imports it by path once it is there too.
           const there = item.specifier.slice(packageName.length + 1);
           changes.push({ start: item.start, end: item.end, specifier: requestFor(to, there, there, there), was: item.specifier });
-        } else if (!isRelative(item.specifier) && !item.specifier.startsWith('#') && !item.specifier.startsWith('node:') && !builtinModules.includes(item.specifier) && item.how !== 'url') {
+        } else if (!isRelative(item.specifier) && !item.specifier.startsWith('#') && !RUNTIME_SCHEME.test(item.specifier) && !builtinModules.includes(item.specifier) && item.how !== 'url') {
           const name = packageOf(item.specifier);
           if (!declared[name] && name !== packageName) {
             packagesToAdd.set(name, sourceVersions[name] ?? null);

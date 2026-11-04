@@ -1,0 +1,2225 @@
+// src/search.mjs
+//
+// PURPOSE
+//   The one search for every screen; a screen that adds its own search repeats it. It is one search over everything a
+//   person keeps: their files (what is said in a recording, what is seen in it, its name
+//   and title, their notes, the words written inside a document), their Trillion records (decisions, pursuits,
+//   messages) and the services they connected (GitHub). A result is one THING with the PLACES it matched (name, said,
+//   seen, notes and text), the address that opens it, and, for a recording, the moments; people and AIs filter by
+//   place and by source. The Files and Media screens and the MCP
+//   `search` tool all call this one owner (routes /work/api/search and /search in the person's store).
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. Places, sources and lanes are DATA (search.json). This file holds the matching mechanisms only (words in
+//      results, words in names, meaning in results, words in records, a connected service's search) and names no
+//      result kind, record type, service or place.
+//   2. Every match comes from something kept (a result, a name, a record, a service's own answer); nothing is guessed.
+//      A lane that cannot answer is named in `unavailable` with the reason; one still working (a picture encoder
+//      starting, an index lane still reading) is named in `pending`, and the screen asks again.
+//   3. Meaning vectors are derived once per result value into search_vectors (int8, unit length), keyed by the
+//      result's value_identity, so a search never parses the kept JSON of every result; a changed value is derived
+//      again and a removed one is dropped. Filling happens a counted number of results at a time (catchUp) at
+//      the store's alarm until nothing is stale; a search only reads the index already kept. The count is the budget
+//      because a Worker's clock stands still while it works.
+//   4. A thing found in several places adds its lanes' weights (`rank`), so it ranks above one found in one place.
+//   5. The same file is one result, whichever of its identities a result was kept under (namespace_aliases).
+//   6. Whether anything waits (stale, still_reading, the check every arm and every search makes) is answered by one
+//      existence seek per lane and a position compare, never by counting, grouping or walking a backlog; the alarm
+//      drains a backlog `values_per_wake` values and `bytes_per_wake` bytes at a time, from the rows themselves (the
+//      change queue, the record log's kept position, a keyset cursor), so a wake's cost follows what changed.
+//
+//   7. The search follower (src/search-follower.mjs, in the person's PersonWork object) keeps the index lanes for its
+//      own copy of the results, fed by the store's change feed (search_feed, src/search-feed.mjs) through its own
+//      position. The store finishes every answer from its own results, and an answer whose feed holds a change the
+//      follower has not read carries no index lanes (still_reading): a stale index is never answered as current.
+import { reasonOf } from './failure-reason.mjs';
+import { answeredInSpace, encodersAccepting, spaceOf } from './meaning-spaces.mjs';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+import filePreviews from '../../../run-on-a-persons-computer/file-type.json' with { type: 'json' };
+import { hiddenAmong } from './namespace-set-aside.mjs';
+import { namespaceView } from '../../../recently-deleted-and-storage/namespace-view.mjs';
+import { ensureSearchChangeQueue } from './namespace-results.mjs';
+import { coloursIn, deltaE, labOf, rgbOf } from '../../../find-pictures-by-colour-and-likeness/src/colour-search.mjs';
+import { INDEX_MATCHES, RECORD_CALL, ROWS_MOST, feedKinds, readRecords, recordFeedWriter, searchFeedWriter } from '../../../shared-code/src/search-feed.mjs';
+import { searchWordIndex } from '../../../find-my-records-by-the-words-i-type-on-the-hosted/src/search-word-index.mjs';
+import { recordSearchIndex } from './record-search-index.mjs';
+import { searchVectorIndex } from '../../../answer-one-search-over-my-results-by-matching-words/src/search-vector-index.mjs';
+import { searchCandidatePages, realizeSearchCandidateTransfers } from '../../../answer-one-search-over-my-results-by-matching-words/src/search-candidate-pages.mjs';
+import { searchCleanupPage } from '../../../keep-my-search-index-beside-a-copy-of-my-results/from-old-trillion/src/search-cleanup-pages.mjs';
+import { MATCHED_BY_WORDS, meaningOrNone } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/meaning-or-words.mjs';
+
+const BYTES_PATH = '/work/api/namespace/bytes/';
+// Marks kept in SQL text, so printable: a NUL is cut off where a reader takes the text as a C string (node:sqlite).
+// '#' begins no tool id (an encoder catalog cursor) and no content identity.
+const SPACES_CURSOR = '#spaces-after:';
+// A candidate with no file identity (a record, a service's hit) is ranked under its key, marked so it is never read as a file.
+const KEYED = '#key:';
+const isKeyed = identity => identity.startsWith(KEYED);
+const words = value => String(value ?? '').toLocaleLowerCase().replace(/['’]/g, '').match(/[\p{L}\p{N}]+/gu) ?? [];
+const identityOf = text => bytesToHex(blake3(utf8ToBytes(text))).slice(0, 32);
+const round = (value, places = 3) => Math.round(value * 10 ** places) / 10 ** places;
+
+// float16 -> float32 for all 65536 values, made the first time a kept vector is read, never at a start.
+let halfTable = null;
+const half = () => halfTable ??= (() => {
+  const table = new Float32Array(65536);
+  for (let bits = 0; bits < 65536; bits += 1) {
+    const sign = bits & 0x8000 ? -1 : 1, exponent = (bits >> 10) & 0x1f, fraction = bits & 0x3ff;
+    table[bits] = exponent === 0 ? sign * 2 ** -14 * (fraction / 1024) : exponent === 31 ? (fraction ? NaN : sign * Infinity) : sign * 2 ** (exponent - 15) * (1 + fraction / 1024);
+  }
+  return table;
+})();
+function unitFromHalves(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+  const halves = new Uint16Array(bytes.buffer, 0, bytes.length >> 1);
+  const table = half();
+  return unit(Float32Array.from(halves, bits => table[bits]));
+}
+function unit(vector) {
+  let norm = 0;
+  for (const value of vector) norm += value * value;
+  norm = Math.sqrt(norm) || 1;
+  return vector.map(value => value / norm);
+}
+// A unit vector as signed bytes (x127): a search reads 1 byte per number and never parses JSON.
+const quantized = vector => new Uint8Array(Int8Array.from(vector, value => Math.max(-127, Math.min(127, Math.round(value * 127)))).buffer);
+// Whether a kept row (a blob comes back as bytes or as an ArrayBuffer) is the moment this derivation made.
+const bytesOf = blob => (blob instanceof ArrayBuffer ? new Uint8Array(blob) : new Uint8Array(blob.buffer, blob.byteOffset, blob.byteLength));
+const sameVector = (row, item) => {
+  if (row.n !== item.n || row.start !== item.start || row.finish !== item.finish || row.said !== item.said) return false;
+  const kept = bytesOf(row.vector), made = quantized(item.vector);
+  return kept.length === made.length && kept.every((byte, at) => byte === made[at]);
+};
+function dot(asked, blob) {
+  const stored = new Int8Array(blob instanceof ArrayBuffer ? blob : blob.buffer.slice(blob.byteOffset, blob.byteOffset + blob.byteLength));
+  if (stored.length !== asked.length) return null;
+  let sum = 0;
+  for (let index = 0; index < asked.length; index += 1) sum += asked[index] * stored[index];
+  return sum / 127;
+}
+
+// "$.a.b[0].c" read from a value; anything else reads nothing.
+const stepsOf = path => (typeof path === 'string' && path.startsWith('$') ? [...path.slice(1).matchAll(/\.([A-Za-z0-9_-]+)|\[(\d+)\]/g)].map(match => match[1] ?? Number(match[2])) : null);
+function atPath(value, path) {
+  const steps = stepsOf(path);
+  return steps ? steps.reduce((held, step) => (held === null || held === undefined ? undefined : held[step]), value) : undefined;
+}
+// Every {name} in the strings of a template, from values; the rest is kept as written.
+const filled = (template, values) => (typeof template === 'string' ? template.replace(/\{([a-z_]+)\}/g, (whole, name) => (values[name] ?? whole))
+  : Array.isArray(template) ? template.map(item => filled(item, values))
+    : template && typeof template === 'object' ? Object.fromEntries(Object.entries(template).map(([key, item]) => [key, filled(item, values)])) : template);
+// A records lane's `when` ({ path, is: [values] }): the record counts only while the value at path is one of them (a
+// list value counts when it holds one), so a report is a source only once it is solved.
+const holdsWhen = (value, when) => {
+  const held = atPath(value, when.path);
+  return (Array.isArray(held) ? held : [held]).some(item => when.is.includes(item));
+};
+const holdsEvery = (text, terms) => { const said = words(text); return terms.every(term => said.some(word => word.startsWith(term))); };
+// The words around the first asked word, cut to `length`.
+function around(text, terms, length) {
+  const whole = String(text ?? '').replace(/\s+/g, ' ').trim();
+  const at = terms.length ? Math.max(0, whole.toLocaleLowerCase().indexOf(terms[0]) - 60) : 0;
+  return (at ? '…' : '') + whole.slice(at, at + length).trim();
+}
+// A title from text: its first line with any leading list, quote or heading marks, cut to a title's length.
+const headline = text => {
+  const line = String(text ?? '').split('\n').map(part => part.replace(/^[\s#>*\-•]+/, '').trim()).find(Boolean);
+  return line ? line.slice(0, 140) : null;
+};
+const familyOf = (mediaType, name = '') => {
+  if (typeof mediaType === 'string' && mediaType.includes('/') && mediaType !== 'application/octet-stream') return mediaType.split('/')[0];
+  const dot = name.lastIndexOf('.');
+  return dot > 0 ? filePreviews.families_by_extension[name.slice(dot + 1).toLowerCase()] ?? null : null;
+};
+
+/**
+ * The search owner in one person's store.
+ *   sql          the person's store
+ *   eeaf         their records ({ find({ words, fields, types, limit }), read(id) }, parts/eeaf)
+ *   records      the record log as the record index and the words-in-records lane read it, awaited (src/search-feed.mjs
+ *                recordFeedWriter; the follower's RPC facade); the default reads `eeaf`. recordPage: log transactions a wake reads
+ *   embed        (modelId, texts) -> vectors (Workers AI), or null where none is reachable
+ *   runTool      ({ tool_id, input, request_key, wait_seconds }) -> a Workshop task ({ state, output, error }), or null
+ *   transaction  fn -> runs fn in one write transaction
+ *   origin       this service's address, so a found file's open_url opens it in Trillion
+ *   results      the writer's results a follower reads (src/search-feed.mjs searchFeedWriter: page, known, row, feed, ack);
+ *                the default reads this store's own namespace_results
+ *   index        false for the writer's finish-only owner: it keeps no index and never catches up (invariant 7)
+ *   follows      true for a follower's index: it reads results through `results`
+ *   triggers     whether the result triggers stand on `sql` (default: not for a follower); the writer's frozen index passes its state
+ */
+// Internal execution selection retains the public plan's positional answer shape.
+// A frozen owner is needed only for requested index lanes still building remotely.
+export function frozenSearchLanes(building, { places = null, sources = null, matches = null } = {}, config = settings) {
+  const selected = new Set(building);
+  return config.lanes.filter(lane => selected.has(lane.id) && INDEX_MATCHES.has(lane.match)
+    && (!places || places.includes(lane.place)) && (!sources || sources.includes(lane.source))
+    && (!matches || matches.includes(lane.match))).map(lane => lane.id);
+}
+
+export function makeSearch({ sql, eeaf = null, records = eeaf ? recordFeedWriter(eeaf) : null, recordPage = null, embed = null, runTool = null, encoders = null, answers = null, transaction = fn => fn(), origin = '', config = settings, results = searchFeedWriter(sql), index = true, follows = false, triggers = !follows, headroom = () => null }) {
+  if (index) sql.exec('CREATE TABLE IF NOT EXISTS search_vectors (lane TEXT NOT NULL, identity TEXT NOT NULL, n INTEGER NOT NULL, start REAL, finish REAL, said TEXT, vector BLOB NOT NULL, PRIMARY KEY (lane, identity, n))');
+  // A lane whose results hold several vector sets (`sets_path`: one per model space and place) keeps each set as its own
+  // lane, `<lane>@<space>@<place>`; these rows say which a result holds, so replacing or forgetting it is a seek, and a
+  // dropped lane takes its sets with it.
+  // The leading colours of each picture's palette as CIE-LAB points (lane `colour-in-results`), seekable by lightness.
+  if (index) { sql.exec('CREATE TABLE IF NOT EXISTS search_colours (lane TEXT NOT NULL, identity TEXT NOT NULL, n INTEGER NOT NULL, l REAL NOT NULL, a REAL NOT NULL, b REAL NOT NULL, PRIMARY KEY (lane, identity, n))'); sql.exec('CREATE INDEX IF NOT EXISTS search_colours_by_lightness ON search_colours (lane, l)'); }
+  if (index) sql.exec('CREATE TABLE IF NOT EXISTS search_set_lanes (lane TEXT NOT NULL, identity TEXT NOT NULL, set_lane TEXT NOT NULL, PRIMARY KEY (lane, identity, set_lane))');
+  if (index) sql.exec('CREATE TABLE IF NOT EXISTS search_set_lane_names (lane TEXT NOT NULL, set_lane TEXT NOT NULL, PRIMARY KEY (lane, set_lane))');
+  if (index) {
+    sql.exec("CREATE TABLE IF NOT EXISTS search_set_cleanup (lane TEXT PRIMARY KEY, cursor TEXT NOT NULL DEFAULT '', row_cursor INTEGER NOT NULL DEFAULT 0, phase INTEGER NOT NULL DEFAULT 0, active_set TEXT NOT NULL DEFAULT '', row_key TEXT NOT NULL DEFAULT '[]', version INTEGER NOT NULL DEFAULT 2)");
+    const cleanupColumns = new Set(sql.exec('PRAGMA table_info(search_set_cleanup)').toArray().map(row => row.name));
+    if (!cleanupColumns.has('row_cursor')) sql.exec('ALTER TABLE search_set_cleanup ADD COLUMN row_cursor INTEGER NOT NULL DEFAULT 0');
+    if (!cleanupColumns.has('phase')) sql.exec('ALTER TABLE search_set_cleanup ADD COLUMN phase INTEGER NOT NULL DEFAULT 0');
+    if (!cleanupColumns.has('active_set')) sql.exec("ALTER TABLE search_set_cleanup ADD COLUMN active_set TEXT NOT NULL DEFAULT ''");
+    if (!cleanupColumns.has('row_key')) sql.exec("ALTER TABLE search_set_cleanup ADD COLUMN row_key TEXT NOT NULL DEFAULT '[]'");
+    if (!cleanupColumns.has('version')) sql.exec('ALTER TABLE search_set_cleanup ADD COLUMN version INTEGER NOT NULL DEFAULT 1');
+    sql.exec("CREATE TABLE IF NOT EXISTS search_retired_lane_cleanup (lane TEXT PRIMARY KEY, phase INTEGER NOT NULL DEFAULT 0, after_rowid INTEGER NOT NULL DEFAULT 0, row_key TEXT NOT NULL DEFAULT '[]', version INTEGER NOT NULL DEFAULT 2)");
+    const retiredColumns = new Set(sql.exec('PRAGMA table_info(search_retired_lane_cleanup)').toArray().map(row => row.name));
+    if (!retiredColumns.has('row_key')) sql.exec("ALTER TABLE search_retired_lane_cleanup ADD COLUMN row_key TEXT NOT NULL DEFAULT '[]'");
+    if (!retiredColumns.has('version')) sql.exec('ALTER TABLE search_retired_lane_cleanup ADD COLUMN version INTEGER NOT NULL DEFAULT 1');
+    sql.exec("CREATE TABLE IF NOT EXISTS search_retired_lane_discovery (singleton INTEGER PRIMARY KEY CHECK (singleton=1), definition TEXT NOT NULL, cursor TEXT NOT NULL DEFAULT '', complete INTEGER NOT NULL DEFAULT 0)");
+  }
+  if (index) sql.exec('CREATE TABLE IF NOT EXISTS search_marks (lane TEXT NOT NULL, identity TEXT NOT NULL, value_identity TEXT NOT NULL, PRIMARY KEY (lane, identity))');
+  // One word index for every lane that keeps the text of a result kind (words-in-index), filled like the vectors, so
+  // a search over it reads the index alone and never parses every kept result.
+  const wordIndex = index ? searchWordIndex(sql, transaction) : null;
+  const recordIndex = index ? recordSearchIndex({ sql, records, transaction,
+    lanes: config.lanes.filter(lane => lane.match === 'words-in-records'), valueAt: atPath, limit: config.limit, logPage: recordPage }) : null;
+  // The nearest buckets of each meaning lane's vectors (src/search-vector-index.mjs), so a meaning search reads the
+  // vectors near its question, never every vector kept.
+  const vectorIndex = index ? searchVectorIndex(sql, { settings: config.vector_index, transaction }) : null;
+  const PAGE = 128;
+  const candidatePages = searchCandidatePages(sql, { pageSize: PAGE, transaction });
+  if (index) ensureSearchChangeQueue(sql, { triggers });
+  // Admission of results from before a lane subscribed is a durable keyset walk, never a whole-table first load.
+  if (index) sql.exec("CREATE TABLE IF NOT EXISTS search_backfill (lane TEXT PRIMARY KEY, kind TEXT NOT NULL, phase TEXT NOT NULL, cursor TEXT NOT NULL, force INTEGER NOT NULL, sweep INTEGER NOT NULL)");
+  if (index) sql.exec('CREATE TABLE IF NOT EXISTS search_feed_position (singleton INTEGER PRIMARY KEY, seq INTEGER NOT NULL)');
+  if (index) sql.exec('CREATE TABLE IF NOT EXISTS search_step (singleton INTEGER PRIMARY KEY CHECK (singleton = 1), open INTEGER NOT NULL, values_cap INTEGER NOT NULL, bytes_cap INTEGER NOT NULL, pending TEXT)');
+  // Encoder catalogs are walked one bounded page per search request. The question key keeps progress across retries;
+  // a changed catalog revision clears the old answers before the first page is read again.
+  sql.exec(`CREATE TABLE IF NOT EXISTS search_encoder_walks (
+    lane TEXT NOT NULL, question TEXT NOT NULL, revision TEXT NOT NULL, cursor TEXT NOT NULL, spaces TEXT NOT NULL,
+    PRIMARY KEY (lane, question)
+  )`);
+  sql.exec(`CREATE TABLE IF NOT EXISTS search_encoder_space_rows (
+    lane TEXT NOT NULL, question TEXT NOT NULL, revision TEXT NOT NULL, space TEXT NOT NULL, state TEXT NOT NULL,
+    PRIMARY KEY (lane, question, revision, space)
+  )`);
+  sql.exec("CREATE TABLE IF NOT EXISTS search_encoder_cleanup (lane TEXT NOT NULL, question TEXT NOT NULL, revision TEXT NOT NULL, cursor TEXT NOT NULL DEFAULT '', PRIMARY KEY (lane, question, revision))");
+  sql.exec(`CREATE TABLE IF NOT EXISTS search_nearest_walks (
+    lane TEXT NOT NULL, question TEXT NOT NULL, phase INTEGER NOT NULL, identity TEXT NOT NULL, n INTEGER NOT NULL, best TEXT NOT NULL,
+    PRIMARY KEY (lane, question)
+  )`);
+  sql.exec(`CREATE TABLE IF NOT EXISTS search_set_walks (
+    lane TEXT NOT NULL, question TEXT NOT NULL, space TEXT NOT NULL, cursor TEXT NOT NULL, hits TEXT NOT NULL, done INTEGER NOT NULL,
+    PRIMARY KEY (lane, question, space)
+  )`);
+  sql.exec('CREATE TABLE IF NOT EXISTS search_set_results (lane TEXT NOT NULL, question TEXT NOT NULL, hits TEXT NOT NULL, PRIMARY KEY (lane, question))');
+  sql.exec('CREATE TABLE IF NOT EXISTS search_set_source_revisions (lane TEXT PRIMARY KEY, revision INTEGER NOT NULL DEFAULT 0)');
+  sql.exec('CREATE TABLE IF NOT EXISTS search_walk_activity (kind TEXT NOT NULL, lane TEXT NOT NULL, question TEXT NOT NULL, touched_at INTEGER NOT NULL, PRIMARY KEY (kind, lane, question))');
+  sql.exec("CREATE TABLE IF NOT EXISTS search_walk_cleanup (kind TEXT NOT NULL, lane TEXT NOT NULL, question TEXT NOT NULL, cursor TEXT NOT NULL DEFAULT '', PRIMARY KEY (kind, lane, question))");
+  sql.exec('CREATE TABLE IF NOT EXISTS search_candidate_cleanup (kind TEXT NOT NULL, lane TEXT NOT NULL, question TEXT NOT NULL, after_seq INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (kind, lane, question))');
+  const all = (query, ...values) => sql.exec(query, ...values).toArray();
+  const WALK_TTL_MS = 24 * 60 * 60 * 1000;
+  const touchWalk = (kind, lane, question) => sql.exec(`INSERT INTO search_walk_activity (kind, lane, question, touched_at) VALUES (?, ?, ?, ?)
+    ON CONFLICT(kind, lane, question) DO UPDATE SET touched_at = excluded.touched_at`, kind, lane, question, Date.now());
+  const clearWalk = (kind, lane, question) => sql.exec('DELETE FROM search_walk_activity WHERE kind = ? AND lane = ? AND question = ?', kind, lane, question);
+  const queueEncoderCleanup = (lane, question, revision) => sql.exec("INSERT OR IGNORE INTO search_encoder_cleanup (lane, question, revision, cursor) VALUES (?, ?, ?, '')", lane, question, revision);
+  const queueWalkCleanup = (kind, lane, question) => sql.exec("INSERT OR IGNORE INTO search_walk_cleanup (kind, lane, question, cursor) VALUES (?, ?, ?, '')", kind, lane, question);
+  const laneRetirementPending = lane => Boolean(index && all(`SELECT 1 WHERE
+    EXISTS (SELECT 1 FROM search_retired_lane_cleanup WHERE lane = ?) OR
+    EXISTS (SELECT 1 FROM search_set_cleanup WHERE lane = ?) LIMIT 1`, lane, lane).length);
+  const placeLabel = Object.fromEntries(config.places.map(place => [place.id, place.label]));
+  const sourceById = Object.fromEntries(config.sources.map(source => [source.id, source]));
+  const firstAnswers = new Map(); // source id -> values kept from its first request
+
+  // ---- meaning vectors, derived once per result value ----
+  function derive(lane, identity, value) {
+    const items = (Array.isArray(value?.[lane.items_path]) ? value[lane.items_path] : []).filter(item => typeof item?.v === 'string');
+    const fields = lane.time_fields ?? {};
+    const vectors = items.map(item => unitFromHalves(item.v));
+    if (lane.keep === 'average') {
+      if (!vectors.length) return [];
+      const sum = new Float32Array(vectors[0].length);
+      for (const vector of vectors) if (vector.length === sum.length) vector.forEach((value, index) => { sum[index] += value; });
+      return [{ n: 0, start: null, finish: null, said: null, vector: unit(sum) }];
+    }
+    return items.map((item, n) => ({ n, start: Number.isFinite(item[fields.start]) ? item[fields.start] : null, finish: Number.isFinite(item[fields.end]) ? item[fields.end] : null, said: typeof item[fields.said] === 'string' ? item[fields.said] : null, vector: vectors[n] }));
+  }
+  // What a lane keeps of one result value, and how its kept rows are replaced and dropped: vectors for a meaning lane,
+  // the text for either words lane. A plain words-in-results search must never scan every result value on the hot read.
+  // The vector sets of one result of a sets lane: each { space, place, items } becomes its own lane's rows.
+  const setLaneOf = (lane, space, place) => `${lane.id}@${space}@${place}`;
+  function deriveSets(lane, identity, value) {
+    const sets = Array.isArray(atPath(value, lane.sets_path)) ? atPath(value, lane.sets_path) : [];
+    const by = new Map();
+    for (const set of sets) {
+      if (typeof set?.space !== 'string' || typeof set?.place !== 'string' || !Array.isArray(set.items)) continue;
+      const id = setLaneOf(lane, set.space, set.place);
+      by.set(id, derive({ ...lane, id, items_path: 'items' }, identity, set));
+    }
+    return by;
+  }
+  function* vectorsFor(laneId, identity) {
+    let after = -1;
+    for (;;) {
+      const rows = all('SELECT n, start, finish, said, vector FROM search_vectors WHERE lane = ? AND identity = ? AND n > ? ORDER BY n LIMIT ?', laneId, identity, after, PAGE);
+      if (!rows.length) return;
+      yield rows;
+      after = rows.at(-1).n;
+      if (rows.length < PAGE) return;
+    }
+  }
+  const vectorCount = (laneId, identity) => {
+    let count = 0;
+    for (const rows of vectorsFor(laneId, identity)) count += rows.length;
+    return count;
+  };
+  function writeVectors(laneId, identity, kept) {
+    const before = vectorCount(laneId, identity);
+    let unchanged = before === kept.length, at = 0;
+    if (unchanged) for (const rows of vectorsFor(laneId, identity)) {
+      if (!rows.every(row => sameVector(row, kept[at++]))) { unchanged = false; break; }
+    }
+    if (unchanged) { vectorIndex.changed(laneId, 0); return false; }
+    sql.exec('DELETE FROM search_vectors WHERE lane = ? AND identity = ?', laneId, identity);
+    for (const item of kept) sql.exec('INSERT INTO search_vectors (lane, identity, n, start, finish, said, vector, bucket) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', laneId, identity, item.n, item.start, item.finish, item.said, quantized(item.vector), vectorIndex.bucketOf(laneId, item.vector));
+    vectorIndex.changed(laneId, kept.length - before, true);
+    return true;
+  }
+  function visitSetLanes(laneId, identity, visit) {
+    let after = '';
+    for (;;) {
+      const rows = all('SELECT set_lane FROM search_set_lanes WHERE lane = ? AND identity = ? AND set_lane > ? ORDER BY set_lane LIMIT ?', laneId, identity, after, PAGE);
+      for (const { set_lane: setLane } of rows) visit(setLane);
+      if (rows.length < PAGE) return;
+      after = rows.at(-1).set_lane;
+    }
+  }
+  const setsKeeper = {
+    replace(lane, identity, value) {
+      let sets = new Map();
+      let changed = false;
+      try { sets = deriveSets(lane, identity, value); } catch { sets = new Map(); }
+      visitSetLanes(lane.id, identity, gone => {
+        if (sets.has(gone)) return;
+        writeVectors(gone, identity, []); changed = true;
+        sql.exec('DELETE FROM search_set_lanes WHERE lane = ? AND identity = ? AND set_lane = ?', lane.id, identity, gone);
+      });
+      for (const [setLane, kept] of sets) {
+        changed = writeVectors(setLane, identity, kept) || changed;
+        changed = all('INSERT OR IGNORE INTO search_set_lanes (lane, identity, set_lane) VALUES (?, ?, ?) RETURNING set_lane', lane.id, identity, setLane).length > 0 || changed;
+        sql.exec('INSERT OR IGNORE INTO search_set_lane_names (lane, set_lane) VALUES (?, ?)', lane.id, setLane);
+      }
+      if (changed) sql.exec('INSERT INTO search_set_source_revisions (lane, revision) VALUES (?, 1) ON CONFLICT(lane) DO UPDATE SET revision = revision + 1', lane.id);
+    },
+    forget(lane, identity) {
+      let changed = false;
+      visitSetLanes(lane.id, identity, gone => { writeVectors(gone, identity, []); changed = true; });
+      sql.exec('DELETE FROM search_set_lanes WHERE lane = ? AND identity = ?', lane.id, identity);
+      if (changed) sql.exec('INSERT INTO search_set_source_revisions (lane, revision) VALUES (?, 1) ON CONFLICT(lane) DO UPDATE SET revision = revision + 1', lane.id);
+    },
+  };
+  const keepers = {
+    'meaning-in-results': {
+      replace(lane, identity, value) {
+        if (lane.sets_path) return setsKeeper.replace(lane, identity, value);
+        let kept = [];
+        try { kept = derive(lane, identity, value); } catch { kept = []; }
+        // A result that changed in a field this lane does not read derives the vectors it already has: they stay as kept.
+        const before = vectorCount(lane.id, identity);
+        let unchanged = before === kept.length, at = 0;
+        if (unchanged) for (const rows of vectorsFor(lane.id, identity)) {
+          if (!rows.every(row => sameVector(row, kept[at++]))) { unchanged = false; break; }
+        }
+        if (unchanged) { vectorIndex.changed(lane.id, 0); return; }
+        sql.exec('DELETE FROM search_vectors WHERE lane = ? AND identity = ?', lane.id, identity);
+        for (const item of kept) sql.exec('INSERT INTO search_vectors (lane, identity, n, start, finish, said, vector, bucket) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', lane.id, identity, item.n, item.start, item.finish, item.said, quantized(item.vector), vectorIndex.bucketOf(lane.id, item.vector));
+        vectorIndex.changed(lane.id, kept.length - before, true);
+      },
+      forget(lane, identity) {
+        if (lane.sets_path) return setsKeeper.forget(lane, identity);
+        const before = vectorCount(lane.id, identity);
+        sql.exec('DELETE FROM search_vectors WHERE lane = ? AND identity = ?', lane.id, identity);
+        vectorIndex.changed(lane.id, -before);
+      },
+    },
+    'words-in-index': {
+      replace(lane, identity, value) {
+        const text = atPath(value, lane.text_path);
+        wordIndex.replace(lane.id, identity, text);
+      },
+      forget: (lane, identity) => wordIndex.forget(lane.id, identity),
+    },
+  };
+  keepers['colour-in-results'] = {
+    replace(lane, identity, value) {
+      const palette = atPath(value, lane.colour_path);
+      sql.exec('DELETE FROM search_colours WHERE lane = ? AND identity = ?', lane.id, identity);
+      (Array.isArray(palette) ? palette : []).slice(0, config.colour_palette_most ?? 16).forEach((hex, n) => {
+        const rgb = rgbOf(hex);
+        if (rgb) { const [l, a, b] = labOf(rgb); sql.exec('INSERT INTO search_colours (lane, identity, n, l, a, b) VALUES (?, ?, ?, ?, ?, ?)', lane.id, identity, n, l, a, b); }
+      });
+    },
+    forget: (lane, identity) => sql.exec('DELETE FROM search_colours WHERE lane = ? AND identity = ?', lane.id, identity),
+  };
+  keepers['words-in-results'] = keepers['words-in-index'];
+  const keptLanes = () => config.lanes.filter(lane => keepers[lane.match]);
+  // ---- lane switches: the index service's enable, disable, prune and stats (laneIndex) ----
+  // A lane the person's store switched off is neither built nor asked; its derived rows stay until pruned. The switch is
+  // a row of store state (`search_lane_switch`, one per lane at most, the lane's declared mode recorded beside it), never
+  // a change to search.json, which keeps the shipped lanes.
+  if (index) sql.exec('CREATE TABLE IF NOT EXISTS search_lane_switch (lane TEXT PRIMARY KEY, enabled INTEGER NOT NULL, mode TEXT NOT NULL, changed_at TEXT NOT NULL)');
+  // The switches are read once, when the owner is made, and kept until laneIndex changes one: a switch is only ever
+  // written through this owner, so no request ever reads them.
+  let switches = new Set();
+  const loadSwitches = () => {
+    // reads-ok: one row per declared lane at most (a switch exists only for a lane in search.json), bounded again by LIMIT
+    switches = new Set(all('SELECT lane FROM search_lane_switch WHERE enabled = 0 LIMIT ?', config.lanes.length + 1).map(row => row.lane));
+  };
+  if (index) loadSwitches();
+  const switchedOff = () => switches;
+  const switchedOn = lanes => { if (!lanes.length) return lanes; const off = switchedOff(); return off.size ? lanes.filter(lane => !off.has(lane.id)) : lanes; };
+  const liveLanes = () => switchedOn(keptLanes());
+
+  // DATA lanes subscribe to only the result kinds they derive. A subscription starts the bounded backfill below;
+  // the trigger catches changes to identities already passed by its cursor.
+  const activeLaneIds = new Set(keptLanes().map(lane => lane.id));
+  const discoverRetiredLanePage=limit=>{
+      const [discovery] = all('SELECT definition, cursor, complete FROM search_retired_lane_discovery WHERE singleton = 1 LIMIT 1');
+      if (discovery && !discovery.complete) {
+        // Bound examined subscriptions before filtering. A run of current lanes
+        // must not make SQLite walk beyond this page looking for retired ones.
+        const rows = all(`SELECT lane FROM search_result_lanes
+          WHERE lane > ? ORDER BY lane LIMIT ?`, discovery.cursor, limit);
+        transaction(() => {
+          for (const { lane } of rows) {
+            if(activeLaneIds.has(lane))continue;
+            sql.exec('DELETE FROM search_backfill WHERE lane = ?', lane);
+            sql.exec('DELETE FROM search_result_lanes WHERE lane = ?', lane);
+            sql.exec('INSERT OR IGNORE INTO search_retired_lane_cleanup (lane, phase, after_rowid, row_key) VALUES (?, 0, 0, \'[]\')', lane);
+            sql.exec("INSERT OR IGNORE INTO search_set_cleanup (lane, cursor, row_cursor, phase, row_key) VALUES (?, '', 0, 0, '[]')", lane);
+          }
+          if (rows.length < limit) sql.exec('UPDATE search_retired_lane_discovery SET complete = 1 WHERE singleton = 1');
+          else sql.exec('UPDATE search_retired_lane_discovery SET cursor = ? WHERE singleton = 1', rows.at(-1).lane);
+        });
+        return rows.length === limit;
+      }
+    return false;
+  };
+  if (index) {
+    const definition = identityOf(JSON.stringify([...activeLaneIds].sort()));
+    const [discovery] = all('SELECT definition FROM search_retired_lane_discovery WHERE singleton = 1 LIMIT 1');
+    if (!discovery) transaction(() => sql.exec('INSERT INTO search_retired_lane_discovery (singleton, definition, cursor, complete) VALUES (1, ?, \'\', 0)', definition));
+    else if (discovery.definition !== definition) transaction(() => sql.exec("UPDATE search_retired_lane_discovery SET definition = ?, cursor = '', complete = 0 WHERE singleton = 1", definition));
+  }
+  // One metadata page during construction settles ordinary small catalogs; larger catalogs retain their durable continuation.
+  if(index)discoverRetiredLanePage(PAGE);
+  if (index) for (const lane of keptLanes()) {
+    const definition = identityOf(JSON.stringify(lane));
+    const [before] = all('SELECT kind, definition FROM search_result_lanes WHERE lane = ?', lane.id);
+    // A same-name lane returning while retirement pages are in flight waits for their completion. Otherwise
+    // cleanup could erase freshly backfilled rows or expose the old index through the re-added lane.
+    if (laneRetirementPending(lane.id)) continue;
+    if (before?.kind === lane.kind && before.definition === definition) continue;
+    transaction(() => {
+      sql.exec('INSERT INTO search_result_lanes (lane, kind, definition) VALUES (?, ?, ?) ON CONFLICT(lane) DO UPDATE SET kind = excluded.kind, definition = excluded.definition', lane.id, lane.kind, definition);
+      // Keep the existing vectors and words readable during migration. A changed definition re-derives each
+      // source, while the marks pass finds rows belonging only to its earlier kind or already removed sources.
+      const sweep = Number(Boolean(all('SELECT 1 FROM search_marks WHERE lane = ? LIMIT 1', lane.id).length));
+      sql.exec("INSERT INTO search_backfill (lane, kind, phase, cursor, force, sweep) VALUES (?, ?, 'results', '', ?, ?) ON CONFLICT(lane) DO UPDATE SET kind = excluded.kind, phase = 'results', cursor = '', force = excluded.force, sweep = excluded.sweep", lane.id, lane.kind, before ? 1 : 0, sweep);
+    });
+  }
+  // Only an explicitly local synchronous page may be probed during construction. Calling a remote page here to
+  // inspect its return type launched discarded RPC promises (even for completed lanes) and left rejections unowned.
+  // A local empty lane with no mark resolves immediately; remote lanes wait for their first awaited bounded wake.
+  if (index && typeof results.pageNow === 'function') for (const lane of keptLanes()) {
+    const first = results.pageNow(lane.kind, '', 1);
+    if (Array.isArray(first) && !first.length && !all('SELECT 1 FROM search_marks WHERE lane = ? LIMIT 1', lane.id).length) transaction(() => sql.exec('DELETE FROM search_backfill WHERE lane = ?', lane.id));
+  }
+
+  // A lane whose walk is all admitted is still building until what it admitted is derived (building()): admission runs
+  // ahead of derivation by up to catch_up.admit_per_wake a wake, so a lane is named whole only once its changes are done.
+  const DERIVING = "UPDATE search_backfill SET phase = 'deriving', cursor = '' WHERE lane = ?";
+  // Admits one page of a lane's keyset walk. The results are read from `results` (the writer's, for a follower), never
+  // from a table this owner may not hold: a page of kept identities, and for the marks phase, which of them still exist.
+  async function admit(lane, limit) {
+    let checked = 0;
+    // A phase may be empty. Finish it in this call so an empty account does not require another alarm.
+    for (let phaseChanges = 0; phaseChanges < 2; phaseChanges += 1) {
+      const [state] = all('SELECT phase, cursor, force, sweep FROM search_backfill WHERE lane = ?', lane.id);
+      if (!state || state.phase === 'deriving' || checked >= limit) break;
+      const pageLimit = limit - checked;
+      if (state.phase === 'results') {
+        const rows = await results.page(lane.kind, state.cursor, pageLimit);
+        // reads-ok: only the identities of one page, each by the (lane, identity) key
+        const kept = new Map(all('SELECT identity, value_identity FROM search_marks WHERE lane = ? AND identity IN (SELECT value FROM json_each(?))', lane.id, JSON.stringify(rows.map(row => row.identity))).map(row => [row.identity, row.value_identity]));
+        transaction(() => {
+          for (const row of rows) if (state.force || kept.get(row.identity) !== row.value_identity) sql.exec('INSERT OR IGNORE INTO search_changed (lane, identity) VALUES (?, ?)', lane.id, row.identity);
+          if (rows.length < pageLimit && state.sweep) sql.exec("UPDATE search_backfill SET phase = 'marks', cursor = '' WHERE lane = ?", lane.id);
+          else if (rows.length < pageLimit) sql.exec(DERIVING, lane.id);
+          else sql.exec('UPDATE search_backfill SET cursor = ? WHERE lane = ?', rows.at(-1).identity, lane.id);
+        });
+        checked += rows.length;
+        if (rows.length === pageLimit) break;
+      } else {
+        const marks = all('SELECT identity FROM search_marks WHERE lane = ? AND identity > ? ORDER BY identity LIMIT ?', lane.id, state.cursor, pageLimit);
+        const present = new Set(await results.known(lane.kind, marks.map(row => row.identity)));
+        transaction(() => {
+          for (const row of marks) if (!present.has(row.identity)) sql.exec('INSERT OR IGNORE INTO search_changed (lane, identity) VALUES (?, ?)', lane.id, row.identity);
+          if (marks.length < pageLimit) sql.exec(DERIVING, lane.id);
+          else sql.exec('UPDATE search_backfill SET cursor = ? WHERE lane = ?', marks.at(-1).identity, lane.id);
+        });
+        checked += marks.length;
+        break;
+      }
+    }
+    return checked;
+  }
+
+  /**
+   * Derives at most `values` changed results across the meaning and indexed words lanes.
+   * The budget is a count, never a clock: inside a Worker the clock only moves between requests, so a time budget
+   * never runs out and one search or wake would derive everything that is stale.
+   */
+  // The slice a wake starts with is remembered in search_step. A wake marks itself open, with the slice it chose, before
+  // any work, and clears the mark only at its end. A wake that finds the mark still open was killed (the platform resets
+  // a Durable Object over its CPU limit and nothing after the reset runs), so this wake halves the slice the killed one
+  // had, and a clean wake doubles it back toward the DATA caps. Each value's progress is already committed, so a smaller
+  // slice resumes where the killed wake stopped and loses only the value it was reading.
+  function openStep(values, bytesCap) {
+    const [last] = all('SELECT open, values_cap, bytes_cap, pending FROM search_step WHERE singleton = 1 LIMIT 1');
+    const slice = !last ? { values, bytes: bytesCap }
+      : last.open ? { values: Math.max(1, Math.floor(last.values_cap / 2)), bytes: Math.max(1, Math.floor(last.bytes_cap / 2)) }
+        : { values: Math.min(values, last.values_cap * 2), bytes: Math.min(bytesCap, last.bytes_cap * 2) };
+    // A wake with one result to derive cannot be given a smaller slice, so it writes no mark (a quiet wake writes nothing
+    // here). A killed wake with several results leaves its mark open for the next wake.
+    const marked = Boolean(all('SELECT 1 FROM search_backfill LIMIT 1').length || all('SELECT 1 FROM search_changed LIMIT 2').length > 1);
+    if (marked) transaction(() => sql.exec("INSERT INTO search_step (singleton, open, values_cap, bytes_cap, pending) VALUES (1, 1, ?, ?, 'interrupted') ON CONFLICT (singleton) DO UPDATE SET open = 1, values_cap = excluded.values_cap, bytes_cap = excluded.bytes_cap, pending = 'interrupted'", slice.values, slice.bytes));
+    return { ...slice, marked, last };
+  }
+
+  // A caller that names no count gets the DATA's per-wake count, never an unbound one.
+  async function catchUp(requested = config.catch_up?.values_per_wake ?? 50) {
+    const beforeOpen = headroom()?.rows_read;
+    const slice = openStep(requested, config.catch_up?.bytes_per_wake ?? Number.MAX_SAFE_INTEGER);
+    const afterOpen = headroom()?.rows_read;
+    if (typeof beforeOpen === 'number' && typeof afterOpen === 'number' && beforeOpen - afterOpen >= 1000) { try { console.info('search catch-up stage cost', { stage: 'open-step', rows_read: beforeOpen - afterOpen }); } catch {} }
+    try { return await catchUpWithin(slice); } catch (error) {
+      // A wake that fails with an error (a call to the results' owner that was refused, or never answered) ran its finally: it was not
+      // killed, so the next wake does not halve its slice for it. Only a wake the platform cut off leaves its mark open (it runs nothing
+      // after the reset), which is what the halving is for. Failures of the owner halved a slice from 5000 values and 8 MB to 625 and 1 MB
+      // on a customer's follower within an hour, 2026-10-20.
+      if (slice.marked) transaction(() => sql.exec('UPDATE search_step SET open = 0 WHERE singleton = 1'));
+      throw error;
+    }
+  }
+  async function catchUpWithin(slice) {
+    let budget = slice.values;
+    const left = {};
+    // Admission reads only small indexed columns. Reserve derivation work for this wake even during a long migration.
+    let admissionBudget = Math.min(config.catch_up?.admit_per_wake ?? 50, Math.max(1, Math.ceil(slice.values / 2)));
+    // Values are also counted in bytes (a value is up to 1.5 MB): a wake stops starting another once it has read
+    // `bytes_per_wake`, though always derives at least one so a large value is never left behind.
+    const bytesCap = slice.bytes;
+    let bytes = 0;
+    // Run inside a metered command (the Namespace book's alarm), the wake also stops starting a value its remaining rows_read room
+    // cannot hold, judged by the costliest value derived so far: one wake derived 117,353 rows against an admitted 40,000 (the
+    // Namespace evidence step, a customer's book, 2026-10-20). The first value of a wake is always derived, so none is left behind.
+    let costliest = 0;
+    const roomRows = () => { const left = headroom()?.rows_read; return typeof left !== 'number' || (costliest === 0 ? left > 0 : left > costliest); };
+    const room = () => budget > 0 && bytes < bytesCap && roomRows();
+    // Run inside a metered command, a stage of the wake that reads 1,000 rows or more names itself and what it read.
+    let stageFrom = headroom()?.rows_read;
+    const stageCost = stage => {
+      const now = headroom()?.rows_read;
+      if (typeof stageFrom === 'number' && typeof now === 'number' && stageFrom - now >= 1000) { try { console.info('search catch-up stage cost', { stage, rows_read: stageFrom - now }); } catch {} }
+      stageFrom = now;
+    };
+    // Lanes are admitted one after another, those named in catch_up.rebuild_last after the rest, so a lane becomes whole
+    // and answers while a larger one is still being built; a lane is named building until it is whole (building()).
+    const last = new Set(config.catch_up?.rebuild_last ?? []);
+    const pendingLanes = liveLanes().filter(lane => all("SELECT 1 FROM search_backfill WHERE lane = ? AND phase <> 'deriving' LIMIT 1", lane.id).length)
+      .sort((a, b) => Number(last.has(a.id)) - Number(last.has(b.id)));
+    // Every pending lane takes its share of the wake's admission, so no lane waits for another to be walked whole (a lane with 33
+    // thousand results held eight others at the start of their walk for days, 2026-10-20). The lanes of a group are admitted
+    // together: each admission is a metered call to the results' owner (about 0.3 to 1 s of waiting for a few ms of work), and
+    // one after another they were 5 to 15 s of a wake. The lanes named in rebuild_last form the second group and share only
+    // what the first leaves.
+    const inGroups = lanes => [lanes.filter(lane => !last.has(lane.id)), lanes.filter(lane => last.has(lane.id))].filter(group => group.length);
+    for (const group of inGroups(pendingLanes)) {
+      if (!admissionBudget) break;
+      const share = Math.max(1, Math.ceil(admissionBudget / group.length));
+      const taken = await Promise.all(group.map(lane => admit(lane, share)));
+      admissionBudget = Math.max(0, admissionBudget - taken.reduce((sum, count) => sum + count, 0));
+    }
+    // The old FTS rows remain searchable while a bounded page of their rowid keys is admitted. Only the words lane
+    // waits; other lanes can continue deriving. Result changes are still recorded by the result store.
+    stageCost('admission');
+    const wordsAdmitting = wordIndex.admit(Math.min(128, Math.max(1, slice.values * 2)));
+    stageCost('word-index-admission');
+    // Derived in the same order as admitted, so the wake's values go first to the lanes that become whole first. A group's lanes
+    // are read together (one metered call to the results' owner a lane, awaited at once) and then derived one after another, each
+    // lane with its share of what is left of the wake's values and bytes.
+    for (const group of inGroups([...liveLanes()])) {
+      const waiting = group.filter(lane => (lane.match === 'words-in-index' || lane.match === 'words-in-results') && wordsAdmitting);
+      for (const lane of waiting) left[lane.id] = 1;
+      // Two rounds at most: what the first round's lanes leave of the wake (a lane with little to derive) is shared again among the
+      // lanes that still have changes.
+      let active = group.filter(lane => !waiting.includes(lane));
+      for (let round = 0; round < 2 && active.length && room(); round += 1) {
+        const laneValues = Math.max(1, Math.ceil(budget / active.length)), laneBytes = Math.max(1, Math.ceil((bytesCap - bytes) / active.length));
+        const fetched = await Promise.all(active.map(async lane => {
+          // Each value (up to 1.5 MB, many times that once parsed) is read, derived and marked on its own, so the store holds
+          // one value at a time. Reading a step's values together ran the store out of memory.
+          const changed = all('SELECT identity FROM search_changed WHERE lane = ? ORDER BY identity LIMIT ?', lane.id, Math.min(laneValues, ROWS_MOST));
+          // The lane's changed values are read in one bounded rows read (its share of the bytes left in this wake), not one read a
+          // value: a read of the results is a metered call to their owner (about 220 ms each, 2026-10-19). An owner on an earlier
+          // release without rows is read a value at a time, as before.
+          let batch = null;
+          if (changed.length > 1 && typeof results.rows === 'function') {
+            try { batch = await results.rows(lane.kind, changed.map(row => row.identity), laneBytes); } catch { batch = null; }
+          }
+          return { lane, changed, batch };
+        }));
+        for (const { lane, changed, batch } of fetched) {
+          const readNow = batch ? new Map(batch.rows.map(row => [row.identity, row])) : null;
+          for (const { identity } of changed) {
+            if (!room()) break;
+            // Past the batch's last considered identity: not read in this wake.
+            if (batch && (batch.through === null || identity > batch.through)) break;
+            budget -= 1;
+            const roomBefore = headroom()?.rows_read;
+            const row = batch ? (readNow.get(identity) ?? null) : await results.row(identity, lane.kind);
+            bytes += row?.value.length ?? 0;
+            transaction(() => {
+              if (row) {
+                let value = null;
+                try { value = JSON.parse(row.value); } catch { /* A malformed value yields no derived match. */ }
+                keepers[lane.match].replace(lane, identity, value);
+                sql.exec('INSERT INTO search_marks (lane, identity, value_identity) VALUES (?, ?, ?) ON CONFLICT (lane, identity) DO UPDATE SET value_identity = excluded.value_identity', lane.id, identity, row.value_identity);
+              } else {
+                keepers[lane.match].forget(lane, identity);
+                sql.exec('DELETE FROM search_marks WHERE lane = ? AND identity = ?', lane.id, identity);
+              }
+              sql.exec('DELETE FROM search_changed WHERE lane = ? AND identity = ?', lane.id, identity);
+            });
+            const roomAfter = headroom()?.rows_read;
+            if (typeof roomBefore === 'number' && typeof roomAfter === 'number') costliest = Math.max(costliest, roomBefore - roomAfter);
+          }
+        }
+        active = active.filter(lane => all('SELECT 1 FROM search_changed WHERE lane = ? LIMIT 1', lane.id).length > 0);
+      }
+      for (const lane of group.filter(lane => !waiting.includes(lane))) {
+        const changesLeft = all('SELECT 1 FROM search_changed WHERE lane = ? LIMIT 1', lane.id).length > 0;
+        if (!changesLeft) transaction(() => sql.exec("DELETE FROM search_backfill WHERE lane = ? AND phase = 'deriving'", lane.id));
+        if (changesLeft || all('SELECT 1 FROM search_backfill WHERE lane = ? LIMIT 1', lane.id).length) left[lane.id] = 1;
+      }
+    }
+    stageCost('derivation');
+    if(index&&discoverRetiredLanePage(Math.max(1,Math.min(PAGE,slice.values))))left.retired_lane_discovery=1;
+    stageCost('retired-lane-discovery');
+    // Retired sets are reclaimed by the account alarm, a bounded keyset page at a time. Constructor work only queues
+    // this walk; it never drains a catalog-wide cleanup while another request waits on the store.
+    for (const job of all('SELECT lane, cursor, row_cursor, phase, active_set, row_key, version FROM search_set_cleanup ORDER BY lane LIMIT 1')) {
+      if (job.version < 2) {
+        transaction(() => sql.exec("UPDATE search_set_cleanup SET phase = 0, row_cursor = 0, row_key = '[]', active_set = '', version = 2 WHERE lane = ?", job.lane));
+        left[job.lane] = 1;
+        continue;
+      }
+      const limit = Math.max(1, Math.min(PAGE, slice.values));
+      const setTables = [
+        { name: 'search_vectors', where: 'lane = ?', values: () => [setLane], columns: ['identity', 'n'] },
+        { name: 'search_vector_centroids', where: 'lane = ?', values: () => [setLane], columns: ['bucket'] },
+        ...['search_vector_trained', 'search_vector_counts', 'search_vector_generation'].map(name => ({ name, where: 'lane = ?', values: () => [setLane], columns: [] })),
+        { name: 'search_nearest_walks', where: 'lane = ?', values: () => [setLane], columns: ['question'] },
+        { name: 'search_walk_activity', where: "kind = 'nearest' AND lane = ?", values: () => [setLane], columns: ['question'] },
+        { name: 'search_candidate_hits', where: "kind = 'nearest' AND lane = ?", values: () => [setLane], columns: ['question', 'seq'] },
+        { name: 'search_candidate_participation', where: "kind = 'nearest' AND lane = ?", values: () => [setLane], columns: ['question', 'actual_lane'] },
+        { name: 'search_candidate_revision', where: "kind = 'nearest' AND lane = ?", values: () => [setLane], columns: ['question'] },
+      ];
+      let setLane = job.active_set || null;
+      if (job.phase === 0 && !setLane) {
+        const named = all('SELECT set_lane FROM search_set_lane_names WHERE lane = ? AND set_lane > ? ORDER BY set_lane LIMIT ?', job.lane, job.cursor, limit);
+        const cleanPrefix = [];
+        for (const row of named) {
+          const candidate = row.set_lane;
+          const held = all(`SELECT 1 WHERE
+            EXISTS (SELECT 1 FROM search_vectors WHERE lane = ?) OR
+            EXISTS (SELECT 1 FROM search_vector_centroids WHERE lane = ?) OR
+            EXISTS (SELECT 1 FROM search_vector_trained WHERE lane = ?) OR
+            EXISTS (SELECT 1 FROM search_vector_counts WHERE lane = ?) OR
+            EXISTS (SELECT 1 FROM search_vector_generation WHERE lane = ?) OR
+            EXISTS (SELECT 1 FROM search_nearest_walks WHERE lane = ?) OR
+            EXISTS (SELECT 1 FROM search_walk_activity WHERE kind = 'nearest' AND lane = ?) OR
+            EXISTS (SELECT 1 FROM search_candidate_cleanup WHERE kind = 'nearest' AND lane = ?) OR
+            EXISTS (SELECT 1 FROM search_candidate_hits WHERE kind = 'nearest' AND lane = ?) OR
+            EXISTS (SELECT 1 FROM search_candidate_participation WHERE kind = 'nearest' AND lane = ?) OR
+            EXISTS (SELECT 1 FROM search_candidate_revision WHERE kind = 'nearest' AND lane = ?) LIMIT 1`,
+          candidate, candidate, candidate, candidate, candidate, candidate, candidate, candidate, candidate, candidate, candidate).length > 0;
+          if (held) { setLane = candidate; break; }
+          cleanPrefix.push(candidate);
+        }
+        if (cleanPrefix.length) {
+          transaction(() => {
+            for (const candidate of cleanPrefix) sql.exec('DELETE FROM search_set_lane_names WHERE lane = ? AND set_lane = ?', job.lane, candidate);
+            sql.exec('UPDATE search_set_cleanup SET cursor = ? WHERE lane = ?', cleanPrefix.at(-1), job.lane);
+            if (!setLane && named.length < limit) sql.exec('UPDATE search_set_cleanup SET phase = ?, row_cursor = 0 WHERE lane = ?', setTables.length + 1, job.lane);
+          });
+        }
+        if (!named.length) sql.exec('UPDATE search_set_cleanup SET phase = ?, row_cursor = 0 WHERE lane = ?', setTables.length + 1, job.lane);
+        if (setLane) sql.exec('UPDATE search_set_cleanup SET active_set = ? WHERE lane = ?', setLane, job.lane);
+        else if (!cleanPrefix.length || named.length === limit) left[job.lane] = 1;
+      }
+      transaction(() => {
+        if (setLane != null && job.phase < setTables.length) {
+          const { name: table, where, values } = setTables[job.phase];
+          const cleanup = setTables[job.phase];
+          const page = searchCleanupPage(sql, cleanup, JSON.parse(job.row_key || '[]'), limit, ...values());
+          if (page.rowids.length) sql.exec(`DELETE FROM ${table} WHERE rowid IN (SELECT value FROM json_each(?))`, JSON.stringify(page.rowids));
+          if (page.more) sql.exec('UPDATE search_set_cleanup SET row_cursor = 0, row_key = ? WHERE lane = ?', JSON.stringify(page.cursor), job.lane);
+          else sql.exec("UPDATE search_set_cleanup SET phase = phase + 1, row_cursor = 0, row_key = '[]' WHERE lane = ?", job.lane);
+          if (table === 'search_vectors' && page.rowids.length) vectorIndex.changed(setLane, -page.rowids.length, true);
+          if (page.more || setLane != null) left[job.lane] = 1;
+        } else if (setLane != null && job.phase === setTables.length) {
+          const candidateCleanupPending = all("SELECT 1 FROM search_candidate_cleanup WHERE kind = 'nearest' AND lane = ? LIMIT 1", setLane).length > 0;
+          if (candidateCleanupPending) { left[job.lane] = 1; return; }
+          sql.exec('DELETE FROM search_set_lane_names WHERE lane = ? AND set_lane = ?', job.lane, setLane);
+          vectorIndex.drop(setLane);
+          sql.exec("UPDATE search_set_cleanup SET cursor = ?, row_cursor = 0, row_key = '[]', phase = 0, active_set = '' WHERE lane = ?", setLane, job.lane);
+          left[job.lane] = 1;
+        } else if (job.phase === setTables.length + 1) {
+          const cleanup = { name: 'search_set_lanes', where: 'lane = ?', values: () => [job.lane], columns: ['identity', 'set_lane'] };
+          const page = searchCleanupPage(sql, cleanup, JSON.parse(job.row_key || '[]'), limit, job.lane);
+          if (page.rowids.length) sql.exec('DELETE FROM search_set_lanes WHERE rowid IN (SELECT value FROM json_each(?))', JSON.stringify(page.rowids));
+          if (page.more) {
+            sql.exec('UPDATE search_set_cleanup SET row_cursor = 0, row_key = ? WHERE lane = ?', JSON.stringify(page.cursor), job.lane);
+            left[job.lane] = 1;
+          } else {
+            sql.exec('DELETE FROM search_set_source_revisions WHERE lane = ?', job.lane);
+            sql.exec('DELETE FROM search_set_cleanup WHERE lane = ?', job.lane);
+            vectorIndex.drop(job.lane);
+          }
+        }
+      });
+      if (all('SELECT 1 FROM search_set_cleanup WHERE lane = ? LIMIT 1', job.lane).length) left[job.lane] = 1;
+    }
+    for (const job of all('SELECT lane, question, revision, cursor FROM search_encoder_cleanup ORDER BY lane, question, revision LIMIT 1')) {
+      const limit = Math.max(1, Math.min(PAGE, slice.values));
+      const rows = all('SELECT space FROM search_encoder_space_rows WHERE lane = ? AND question = ? AND revision = ? AND space > ? ORDER BY space LIMIT ?', job.lane, job.question, job.revision, job.cursor, limit);
+      transaction(() => {
+        for (const { space } of rows) sql.exec('DELETE FROM search_encoder_space_rows WHERE lane = ? AND question = ? AND revision = ? AND space = ?', job.lane, job.question, job.revision, space);
+        if (rows.length < limit) {
+          sql.exec('DELETE FROM search_encoder_cleanup WHERE lane = ? AND question = ? AND revision = ?', job.lane, job.question, job.revision);
+          const next = all('SELECT revision FROM search_encoder_space_rows WHERE lane = ? AND question = ? LIMIT 1', job.lane, job.question)[0];
+          if (next) queueEncoderCleanup(job.lane, job.question, next.revision);
+        } else {
+          sql.exec('UPDATE search_encoder_cleanup SET cursor = ? WHERE lane = ? AND question = ? AND revision = ?', rows.at(-1).space, job.lane, job.question, job.revision);
+          left.encoder_space_cleanup = 1;
+        }
+      });
+    }
+    for (const job of all("SELECT kind, lane, question, cursor FROM search_walk_cleanup WHERE kind = 'sets' ORDER BY lane, question LIMIT 1")) {
+      const limit = Math.max(1, Math.min(PAGE, slice.values));
+      const rows = all('SELECT space FROM search_set_walks WHERE lane = ? AND question = ? AND space > ? ORDER BY space LIMIT ?', job.lane, job.question, job.cursor, limit);
+      transaction(() => {
+        for (const { space } of rows) sql.exec('DELETE FROM search_set_walks WHERE lane = ? AND question = ? AND space = ?', job.lane, job.question, space);
+        if (rows.length < limit) {
+          sql.exec('DELETE FROM search_set_results WHERE lane = ? AND question = ?', job.lane, job.question);
+          sql.exec('DELETE FROM search_walk_cleanup WHERE kind = ? AND lane = ? AND question = ?', job.kind, job.lane, job.question);
+        } else {
+          sql.exec('UPDATE search_walk_cleanup SET cursor = ? WHERE kind = ? AND lane = ? AND question = ?', rows.at(-1).space, job.kind, job.lane, job.question);
+          left.set_walk_cleanup = 1;
+        }
+      });
+    }
+    const candidateCleanup = all('SELECT kind, lane, question, after_seq FROM search_candidate_cleanup ORDER BY lane, question LIMIT 1')[0];
+    if (candidateCleanup) {
+      const page = candidatePages.deletePage(candidateCleanup.kind, candidateCleanup.lane, candidateCleanup.question, candidateCleanup.after_seq);
+      transaction(() => {
+        if (page.more) sql.exec('UPDATE search_candidate_cleanup SET after_seq = ? WHERE kind = ? AND lane = ? AND question = ?', page.after, candidateCleanup.kind, candidateCleanup.lane, candidateCleanup.question);
+        else sql.exec('DELETE FROM search_candidate_cleanup WHERE kind = ? AND lane = ? AND question = ?', candidateCleanup.kind, candidateCleanup.lane, candidateCleanup.question);
+      });
+      if (page.more) left.candidate_cleanup = 1;
+    }
+    const retiredLaneCleanup = all('SELECT lane, phase, after_rowid, row_key, version FROM search_retired_lane_cleanup ORDER BY lane LIMIT 1')[0];
+    if (retiredLaneCleanup) {
+      if (retiredLaneCleanup.version < 2) {
+        transaction(() => sql.exec("UPDATE search_retired_lane_cleanup SET phase = 0, after_rowid = 0, row_key = '[]', version = 2 WHERE lane = ?", retiredLaneCleanup.lane));
+        left[retiredLaneCleanup.lane] = 1;
+      } else {
+      const limit = Math.max(1, Math.min(PAGE, slice.values));
+      const tables = [
+        { name: 'search_changed', where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: ['identity'] },
+        { name: 'search_vectors', where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: ['identity', 'n'] },
+        { name: 'search_word_rows', where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: ['identity', 'word_row'] },
+        { name: 'search_marks', where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: ['identity'] },
+        { name: 'search_nearest_walks', where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: ['question'] },
+        { name: 'search_set_walks', where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: ['question', 'space'] },
+        { name: 'search_set_results', where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: ['question'] },
+        ...['encoder', 'nearest', 'sets'].map(kind => ({ name: 'search_walk_activity', where: 'kind = ? AND lane = ?', values: () => [kind, retiredLaneCleanup.lane], columns: ['question'] })),
+        ...['nearest', 'sets'].map(kind => ({ name: 'search_walk_cleanup', where: 'kind = ? AND lane = ?', values: () => [kind, retiredLaneCleanup.lane], columns: ['question'] })),
+        ...['nearest', 'sets'].map(kind => ({ name: 'search_candidate_cleanup', where: 'kind = ? AND lane = ?', values: () => [kind, retiredLaneCleanup.lane], columns: ['question'] })),
+        ...['nearest', 'sets'].map(kind => ({ name: 'search_candidate_hits', where: 'kind = ? AND lane = ?', values: () => [kind, retiredLaneCleanup.lane], columns: ['question', 'seq'] })),
+        ...['nearest', 'sets'].map(kind => ({ name: 'search_candidate_participation', where: 'kind = ? AND lane = ?', values: () => [kind, retiredLaneCleanup.lane], columns: ['question', 'actual_lane'] })),
+        ...['nearest', 'sets'].map(kind => ({ name: 'search_candidate_revision', where: 'kind = ? AND lane = ?', values: () => [kind, retiredLaneCleanup.lane], columns: ['question'] })),
+        { name: 'search_encoder_walks', where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: ['question'] },
+        { name: 'search_encoder_space_rows', where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: ['question', 'revision', 'space'] },
+        { name: 'search_encoder_cleanup', where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: ['question', 'revision'] },
+        { name: 'search_vector_centroids', where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: ['bucket'] },
+        ...['search_vector_trained', 'search_vector_counts', 'search_vector_generation'].map(name => ({ name, where: 'lane = ?', values: () => [retiredLaneCleanup.lane], columns: [] })),
+      ];
+      transaction(() => {
+        const cleanup = tables[retiredLaneCleanup.phase];
+        if (cleanup) {
+          const { name: table } = cleanup;
+          if (table === 'search_word_rows' && wordIndex.pending()) {
+            left[retiredLaneCleanup.lane] = 1;
+          } else {
+            const page = searchCleanupPage(sql, cleanup, JSON.parse(retiredLaneCleanup.row_key || '[]'), limit, ...cleanup.values());
+            if (table === 'search_word_rows') {
+              for (const row of page.rows) sql.exec('DELETE FROM search_words WHERE rowid = ?', row.word_row);
+            }
+            if (page.rowids.length) sql.exec(`DELETE FROM ${table} WHERE rowid IN (SELECT value FROM json_each(?))`, JSON.stringify(page.rowids));
+            if (page.more) {
+              sql.exec('UPDATE search_retired_lane_cleanup SET after_rowid = 0, row_key = ? WHERE lane = ?', JSON.stringify(page.cursor), retiredLaneCleanup.lane);
+            } else {
+              sql.exec("UPDATE search_retired_lane_cleanup SET phase = phase + 1, after_rowid = 0, row_key = '[]' WHERE lane = ?", retiredLaneCleanup.lane);
+            }
+          }
+        } else if (all('SELECT 1 FROM search_set_cleanup WHERE lane = ? LIMIT 1', retiredLaneCleanup.lane).length) {
+          // The derived set rows must be reclaimed before their source revision and retirement fence disappear.
+          left[retiredLaneCleanup.lane] = 1;
+        } else {
+          sql.exec('DELETE FROM search_set_source_revisions WHERE lane = ?', retiredLaneCleanup.lane);
+          sql.exec('DELETE FROM search_retired_lane_cleanup WHERE lane = ?', retiredLaneCleanup.lane);
+          vectorIndex.drop(retiredLaneCleanup.lane);
+        }
+      });
+      if (all('SELECT 1 FROM search_retired_lane_cleanup WHERE lane = ? LIMIT 1', retiredLaneCleanup.lane).length) left[retiredLaneCleanup.lane] = 1;
+      }
+    }
+    stageCost('cleanups');
+    const expiredWalks = all('SELECT kind, lane, question FROM search_walk_activity WHERE touched_at < ? ORDER BY touched_at LIMIT ?', Date.now() - WALK_TTL_MS, Math.max(1, Math.min(PAGE, slice.values)));
+    if (expiredWalks.length) transaction(() => {
+      for (const walk of expiredWalks) {
+        if (walk.kind === 'nearest') {
+          sql.exec('DELETE FROM search_nearest_walks WHERE lane = ? AND question = ?', walk.lane, walk.question);
+          sql.exec("INSERT OR IGNORE INTO search_candidate_cleanup (kind, lane, question, after_seq) VALUES ('nearest', ?, ?, 0)", walk.lane, walk.question);
+        } else if (walk.kind === 'sets') {
+          queueWalkCleanup('sets', walk.lane, walk.question);
+          sql.exec("INSERT OR IGNORE INTO search_candidate_cleanup (kind, lane, question, after_seq) VALUES ('sets', ?, ?, 0)", walk.lane, walk.question);
+        }
+        else if (walk.kind === 'encoder') {
+          sql.exec('DELETE FROM search_encoder_walks WHERE lane = ? AND question = ?', walk.lane, walk.question);
+          const [revision] = all('SELECT revision FROM search_encoder_space_rows WHERE lane = ? AND question = ? LIMIT 1', walk.lane, walk.question);
+          if (revision) queueEncoderCleanup(walk.lane, walk.question, revision.revision);
+        }
+        clearWalk(walk.kind, walk.lane, walk.question);
+      }
+    });
+    const legacyEncoderWalk = all("SELECT lane, question FROM search_encoder_walks WHERE spaces <> '{}' LIMIT 1")[0];
+    if (legacyEncoderWalk) transaction(() => sql.exec("UPDATE search_encoder_walks SET cursor = '', spaces = '{}' WHERE lane = ? AND question = ?", legacyEncoderWalk.lane, legacyEncoderWalk.question));
+    // Record text uses the count the account alarm assigned to this wake.
+    // A hidden 300-record floor held the same store that answers shared reads.
+    Object.assign(left, (await recordIndex?.catchUp(slice.values)) ?? {});
+    // One bounded piece of the meaning index per wake: a lane learning its buckets, or a page of vectors given one.
+    stageCost('expired-walks-and-records');
+    const indexed = vectorIndex.step();
+    stageCost('vector-index-step');
+    if (indexed && vectorIndex.due()) left[indexed.lane] = 1;
+    // A lane re-added during retirement becomes subscribable only after both durable cleanup walks finish.
+    // Its normal bounded backfill then reconstructs the index from current results.
+    for (const lane of keptLanes()) {
+      if (laneRetirementPending(lane.id) || all('SELECT 1 FROM search_result_lanes WHERE lane = ? LIMIT 1', lane.id).length) continue;
+      transaction(() => {
+        sql.exec('INSERT INTO search_result_lanes (lane, kind, definition) VALUES (?, ?, ?)', lane.id, lane.kind, identityOf(JSON.stringify(lane)));
+        sql.exec("INSERT INTO search_backfill (lane, kind, phase, cursor, force, sweep) VALUES (?, ?, 'results', '', 0, 0)", lane.id, lane.kind);
+      });
+      left[lane.id] = 1;
+    }
+    stageCost('lane-registration');
+    // Changed results left unread past the byte slice are what backlog() names until a later wake reads them. The row is
+    // written only when a mark was opened, a stale mark is cleared, or the named backlog changed.
+    const unread = (bytes >= bytesCap || budget <= 0) ? all('SELECT lane FROM search_changed LIMIT 1') : [];
+    const pending = unread[0]?.lane ?? null;
+    if (slice.marked || slice.last?.open || (slice.last?.pending ?? null) !== pending) transaction(() => sql.exec('INSERT INTO search_step (singleton, open, values_cap, bytes_cap, pending) VALUES (1, 0, ?, ?, ?) ON CONFLICT (singleton) DO UPDATE SET open = 0, pending = excluded.pending', slice.values, slice.bytes, pending));
+    return left;
+  }
+
+  // The follower's change feed (src/search-feed.mjs): one page of the writer's feed becomes changed rows here, in one
+  // transaction with the position it advances to. Only then is the page acknowledged, so a change that lands after a read
+  // stays in the feed until it is marked. Answers the rows read by this call.
+  // Every kept lane starts again from its first result (each value, then the marks), as a new kind or definition does.
+  function forceBackfill() {
+    transaction(() => {
+      for (const lane of keptLanes()) sql.exec("INSERT INTO search_backfill (lane, kind, phase, cursor, force, sweep) VALUES (?, ?, 'results', '', 1, 1) ON CONFLICT(lane) DO UPDATE SET kind = excluded.kind, phase = 'results', cursor = '', force = 1, sweep = 1", lane.id, lane.kind);
+    });
+  }
+  async function feedStep(limit) {
+    if (!follows) return { rows: 0 };
+    await results.register(feedKinds(keptLanes()));
+    // reads-ok: the one row of the follower's feed position (singleton key)
+    const [position] = all('SELECT seq FROM search_feed_position WHERE singleton = 1');
+    const rows = await results.feed(position?.seq ?? 0, limit);
+    if (!rows.length) return { rows: 0 };
+    // A feed that trimmed rows this follower never read (its first row is past the next seq) lost changes: every kept
+    // lane is rebuilt from its results and marks, so the index holds what the results hold.
+    const gap = position?.seq > 0 && rows[0].seq > position.seq + 1;
+    if (gap) forceBackfill();
+    transaction(() => {
+      for (const row of rows) for (const lane of keptLanes()) if (lane.kind === row.kind) sql.exec('INSERT OR IGNORE INTO search_changed (lane, identity) VALUES (?, ?)', lane.id, row.identity);
+      sql.exec('INSERT INTO search_feed_position (singleton, seq) VALUES (1, ?) ON CONFLICT (singleton) DO UPDATE SET seq = excluded.seq', rows.at(-1).seq);
+    });
+    await results.ack(rows.at(-1).seq);
+    return { rows: rows.length, gap };
+  }
+  // What waits beyond one wake (a follower's readiness, src/search-follower.mjs), or null: a lane still walking its results
+  // or marks (backfill), more changed results than one wake admits (`values`), the word index still being admitted, or the
+  // record index behind by more than a wake (src/record-search-index.mjs behind()). Existence seeks only, never a count.
+  // The answer names the lanes it found, so a follower that stays not ready says why (src/person-work.mjs alarm).
+  async function backlog(values) {
+    if (!index) return null;
+    // reads-ok: one row per declared lane at most; the changed queue is probed at one offset of the wake's count
+    const backfill = all('SELECT lane, phase FROM search_backfill LIMIT 20');
+    if (backfill.length) return { backfill };
+    const setCleanup = all('SELECT lane FROM search_set_cleanup LIMIT 20');
+    if (setCleanup.length) return { set_lane_cleanup: setCleanup };
+    if (all('SELECT 1 FROM search_retired_lane_discovery WHERE complete = 0 LIMIT 1').length) return { retired_lane_discovery: true };
+    const retiredCleanup = all('SELECT lane FROM search_retired_lane_cleanup LIMIT 20');
+    if (retiredCleanup.length) return { retired_lane_cleanup: retiredCleanup };
+    const encoderCleanup = all('SELECT lane FROM search_encoder_cleanup LIMIT 20');
+    if (encoderCleanup.length) return { encoder_space_cleanup: encoderCleanup };
+    const walkCleanup = all('SELECT kind, lane FROM search_walk_cleanup LIMIT 20');
+    if (walkCleanup.length) return { search_walk_cleanup: walkCleanup };
+    const candidateCleanup = all('SELECT kind, lane FROM search_candidate_cleanup LIMIT 20');
+    if (candidateCleanup.length) return { search_candidate_cleanup: candidateCleanup };
+    if (all("SELECT 1 FROM search_encoder_walks WHERE spaces <> '{}' LIMIT 1").length) return { encoder_walk_migration: true };
+    if (all('SELECT 1 FROM search_walk_activity WHERE touched_at < ? LIMIT 1', Date.now() - WALK_TTL_MS).length) return { expired_search_walks: true };
+    const cap = Math.max(1, Math.min(config.catch_up?.values_per_wake ?? 50, Math.trunc(values) || 1));
+    const changed = all('SELECT lane FROM search_changed LIMIT ?', cap + 1);
+    if (changed.length > cap) return { changed_past_a_wake: changed[cap].lane };
+    // A wake that stopped on its byte slice, or was killed, leaves work its count cannot see.
+    const [step] = all('SELECT pending FROM search_step WHERE singleton = 1 LIMIT 1');
+    if (step?.pending) return { changed_past_a_wake: step.pending };
+    if (wordIndex.pending()) return { word_index: 'admitting' };
+    // reads-ok: one state row per declared record lane
+    if (recordIndex && await recordIndex.behind()) return { records: all('SELECT lane, phase FROM search_record_state LIMIT 20') };
+    return null;
+  }
+  // The lanes still being built for the first time (or again after a gap): a result lane walking its results or marks
+  // (search_backfill), or a record lane on its first walk of the records (src/record-search-index.mjs phase 'records').
+  // Their index holds only part of what they will; every other lane's index is whole, perhaps a wake behind.
+  function building() {
+    if (!index) return [];
+    // reads-ok: one row per declared lane at most
+    const lanes = all('SELECT lane FROM search_backfill LIMIT 50').map(row => row.lane);
+    // reads-ok: one state row per declared record lane
+    // A lane a family made (a list's rows, src/record-search-index.mjs) is building as its family.
+    if (recordIndex) for (const row of all("SELECT COALESCE(family, lane) AS lane FROM search_record_state WHERE phase = 'records' LIMIT 50")) lanes.push(row.lane);
+    return [...new Set(lanes)];
+  }
+
+  // A follower's partial answer with the lanes it is still building taken from `frozen` (the store's own index as it
+  // stood at the switch, src/person-store.mjs searchFrozen) and named still reading: both partials list the same planned
+  // lanes in the same order, so each lane is taken from one of them whole.
+  function fromBuilding(partial, frozen, buildingLanes, { places = null, sources = null, matches = null } = {}) {
+    const fromFrozen = new Set(buildingLanes);
+    const lanes = planned(places, sources, matches);
+    const still = {};
+    for (const [lane, value] of Object.entries(partial.still_reading ?? {})) if (!fromFrozen.has(lane)) still[lane] = value;
+    for (const lane of lanes) if (fromFrozen.has(lane.id) && INDEX_MATCHES.has(lane.match)) still[lane.id] = 1;
+    const frozenReport = id => fromFrozen.has(id) || lanes.some(lane => lane.sets_path && fromFrozen.has(lane.id) && id.startsWith(`${lane.id}@`));
+    const of = (list, frozenSide) => list.filter(item => frozenReport(item.lane) === frozenSide);
+    return {
+      ...partial,
+      answered: lanes.map((lane, at) => (fromFrozen.has(lane.id) ? frozen.answered[at] : partial.answered[at])),
+      participated: Object.fromEntries(lanes.flatMap(lane => {
+        const held = (fromFrozen.has(lane.id) ? frozen : partial).participated?.[lane.id];
+        return held ? [[lane.id, held]] : [];
+      })),
+      unavailable: [...of(partial.unavailable ?? [], false), ...of(frozen.unavailable ?? [], true)],
+      pending: [...of(partial.pending ?? [], false), ...of(frozen.pending ?? [], true)],
+      candidate_refs: [...of(partial.candidate_refs ?? [], false), ...of(frozen.candidate_refs ?? [], true)],
+      still_reading: still,
+    };
+  }
+
+  // Whether the writer's feed holds a change this follower has not read: one row read, never a count.
+  async function feedWaiting() {
+    if (!follows) return false;
+    // reads-ok: the one row of the follower's feed position (singleton key)
+    const [position] = all('SELECT seq FROM search_feed_position WHERE singleton = 1');
+    return (await results.feed(position?.seq ?? 0, 1)).length > 0;
+  }
+
+  // A read reports unfinished lanes without deriving source values on the person's request. The account alarm owns
+  // that work; even a words-only search must not synchronously derive unrelated meaning vectors.
+  // Whether a lane waits is one index seek per lane (existence, never a count or a walk of its backlog): the backlog of a
+  // large import is read by the alarm 50 a wake, and this runs on every arm and every search.
+  async function staleLanes(execution = null) {
+    const selected = execution === null ? null : new Set(execution.map(lane => lane.id));
+    const lanes = liveLanes().filter(lane => selected === null || selected.has(lane.id));
+    const recordStale = async () => {
+      if (execution !== null && !execution.some(lane => lane.match === 'words-in-records')) return [];
+      const stale = (await recordIndex?.stale()) ?? [];
+      return selected === null ? [...stale] : [...stale].filter(lane => selected.has(lane));
+    };
+    if (!lanes.length) return new Set(await recordStale());
+    const wordsPending = lanes.some(lane => lane.match === 'words-in-index' || lane.match === 'words-in-results') && wordIndex.pending();
+    // reads-ok: one row per supplied declared lane; EXISTS does not enumerate changed records.
+    const pending = new Set(all(
+      `SELECT asked.value AS lane FROM json_each(?) AS asked
+       WHERE EXISTS (SELECT 1 FROM search_changed WHERE lane = asked.value)
+         OR EXISTS (SELECT 1 FROM search_backfill WHERE lane = asked.value)
+         OR EXISTS (SELECT 1 FROM search_retired_lane_cleanup WHERE lane = asked.value)
+         OR EXISTS (SELECT 1 FROM search_set_cleanup WHERE lane = asked.value)`,
+      JSON.stringify(lanes.map(lane => lane.id)),
+    ).map(row => row.lane));
+    return new Set([...lanes.filter(lane => ((lane.match === 'words-in-index' || lane.match === 'words-in-results') && wordsPending) || pending.has(lane.id)).map(lane => lane.id), ...(await recordStale())]);
+  }
+
+  // The kept vectors of one lane nearest the asked vector, at or above the lane's floor.
+  async function nearest(lane, asked, terms, question, scope) {
+    const probed = vectorIndex.probe(lane.id, asked);
+    const generation = vectorIndex.generation(lane.id);
+    const key = identityOf(JSON.stringify(['candidate-rows-v1', String(question ?? '').trim().toLocaleLowerCase(), Array.from(asked), probed, generation, scope]));
+    // A TTL cleanup may have thousands of saved candidates. Keep its fence in place until the alarm
+    // has deleted them in pages; restarting the same key here would mix stale hits into the new walk.
+    if (all('SELECT 1 FROM search_candidate_cleanup WHERE kind = ? AND lane = ? AND question = ? LIMIT 1', 'nearest', lane.id, key).length) {
+      return { hits: [], pending: true };
+    }
+    touchWalk('nearest', lane.id, key);
+    const pageSize = Math.max(1, Math.min(4096, Math.floor(config.vector_scan_page_size ?? 256)));
+    const prior = all('SELECT phase, identity, n, best FROM search_nearest_walks WHERE lane = ? AND question = ? LIMIT 1', lane.id, key)[0];
+    let phase = prior?.phase ?? 0;
+    let cursorIdentity = prior?.identity ?? '', cursorN = prior?.n ?? -1;
+    let rows = [];
+    if (phase < 2 && probed && phase === 0 && probed.length) {
+      const inList = probed.map(() => '?').join(',');
+      rows = all(`SELECT identity, n, start, finish, said, vector FROM search_vectors
+        WHERE lane = ? AND bucket IN (${inList}) AND (identity, n) > (?, ?)
+        ORDER BY identity, n LIMIT ?`, lane.id, ...probed, cursorIdentity, cursorN, pageSize);
+    } else if (phase < 2) {
+      phase = 1;
+      rows = all(`SELECT identity, n, start, finish, said, vector FROM search_vectors
+        WHERE lane = ? AND ${probed ? 'bucket IS NULL AND ' : ''}(identity, n) > (?, ?)
+        ORDER BY identity, n LIMIT ?`, lane.id, cursorIdentity, cursorN, pageSize);
+    }
+    const pageHits = [];
+    for (const row of rows) {
+      const score = dot(asked, row.vector);
+      if (score === null) continue;
+      const enough = score >= lane.floor || (lane.floor_with_every_word !== undefined && score >= lane.floor_with_every_word && row.said && holdsEvery(row.said, terms));
+      if (!enough) continue;
+      const hit = { identity: row.identity, n: row.n, start: row.start ?? 0, end: row.finish ?? (row.start ?? 0) + config.moment_seconds, timed: row.start !== null, said: row.said ? row.said.trim() : null, score };
+      pageHits.push(hit);
+    }
+    for (let at = 0; at < pageHits.length; at += candidatePages.pageSize) candidatePages.putPage('nearest', lane.id, key, pageHits.slice(at, at + candidatePages.pageSize));
+    // Keep every qualifying candidate through reciprocal-rank fusion. A candidate's rank can be arbitrarily deep in
+    // one lane and still win by agreeing across other lanes; a global multiple of the answer limit is not exact.
+    // `lane.top` is the one declared per-lane bound. Average lanes deliberately refine only their strongest results.
+    let pending = phase < 2 && rows.length === pageSize;
+    const switchedToUnassigned = !pending && Boolean(probed) && phase === 0;
+    if (switchedToUnassigned) { phase = 1; cursorIdentity = ''; cursorN = -1; pending = true; }
+    if (pending) {
+      if (rows.length && !switchedToUnassigned) { cursorIdentity = rows.at(-1).identity; cursorN = rows.at(-1).n; }
+      sql.exec(`INSERT INTO search_nearest_walks (lane, question, phase, identity, n, best) VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(lane, question) DO UPDATE SET phase=excluded.phase, identity=excluded.identity, n=excluded.n, best=excluded.best`,
+        lane.id, key, phase, cursorIdentity, cursorN, '[]');
+    } else if (phase < 2) sql.exec(`INSERT INTO search_nearest_walks (lane, question, phase, identity, n, best) VALUES (?, ?, 2, '', -1, '[]')
+      ON CONFLICT(lane, question) DO UPDATE SET phase=2, identity='', n=-1, best='[]'`, lane.id, key);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    // A lane with `top` keeps only its nearest: a model whose scale no floor was measured for still answers few.
+    // Other per-vector lanes leave the full exact candidate set in SQLite. The consumer reads it by score keyset;
+    // returning every hit here made a successful walk's final hydration grow with the whole index.
+    if (lane.keep !== 'average') return { candidate_ref: { kind: 'nearest', lane: lane.id, question: key,
+      revision: candidatePages.sourceRevision('nearest', lane.id, key), max_hits: lane.top ?? null, relative_floor: lane.relative_floor ?? null }, pending };
+    // The best moment of each strongest result, compared one by one. The ranked index supplies
+    // just the refinement candidates; draining the complete saved walk here made the final request
+    // proportional to every vector that passed the floor.
+    const strongest = candidatePages.readRankedPage('nearest', lane.id, key, null, 0, config.refine_top).rows
+      .map(({ seq, ...hit }) => hit);
+    const field = lane.time_fields?.start;
+    for (const hit of strongest) {
+      const row = await results.row(hit.identity, lane.kind);
+      let items = [];
+      try { items = JSON.parse(row?.value ?? '{}')[lane.items_path] ?? []; } catch { items = []; }
+      let top = null;
+      for (const item of items) {
+        if (typeof item?.v !== 'string') continue;
+        const vector = unitFromHalves(item.v);
+        if (vector.length !== asked.length) continue;
+        let score = 0;
+        for (let index = 0; index < asked.length; index += 1) score += asked[index] * vector[index];
+        if (!top || score > top.score) top = { score, at: item[field] };
+      }
+      if (top && Number.isFinite(top.at)) Object.assign(hit, { start: top.at, end: top.at + config.moment_seconds, timed: true, score: Math.max(hit.score, top.score) });
+    }
+    return { hits: strongest, pending };
+  }
+
+  // A sets lane: each space the question was encoded in is searched in every place it holds vectors for (the set lanes
+  // its results wrote), each set lane reported and ranked as its own.
+  async function nearestInSpaces(lane, { question, terms, report, given, places, walkScope }) {
+    const made = given?.spaces ? given : (runTool && encoders ? await encodeInSpaces(lane, question) : { spaces: {} });
+    if (made.pending === true) { report.pending(lane); return []; }
+    const spaces = made.spaces ?? {};
+    if (!Object.keys(spaces).length && made.encoder_page?.complete !== false) return [];
+    const sourceRevision = all('SELECT revision FROM search_set_source_revisions WHERE lane = ? LIMIT 1', lane.id)[0]?.revision ?? 0;
+    const walkKey = identityOf(JSON.stringify(['candidate-sets-v2', String(question ?? '').trim().toLocaleLowerCase(), made.encoder_page?.revision ?? null, sourceRevision, places, walkScope]));
+    // Expired set walks and their candidate rows are removed by the alarm in bounded pages.
+    // Do not cancel that work or reuse the key until both collections have drained.
+    if (all(`SELECT 1 FROM search_candidate_cleanup WHERE kind = ? AND lane = ? AND question = ?
+      UNION ALL SELECT 1 FROM search_walk_cleanup WHERE kind = ? AND lane = ? AND question = ? LIMIT 1`,
+    'sets', lane.id, walkKey, 'sets', lane.id, walkKey).length) {
+      report.pending(lane);
+      return [];
+    }
+    touchWalk('sets', lane.id, walkKey);
+    sql.exec("INSERT OR IGNORE INTO search_set_results (lane, question, hits) VALUES (?, ?, '[]')", lane.id, walkKey);
+    for (const space of Object.keys(spaces)) sql.exec(`INSERT OR IGNORE INTO search_set_walks (lane, question, space, cursor, hits, done) VALUES (?, ?, ?, '', '[]', 0)`, lane.id, walkKey, space);
+    let setBudget = 8;
+    spaceWalk: for (const [space, state] of Object.entries(spaces)) {
+      const prefix = `${lane.id}@${space}@`;
+      const encoded = fromGiven(state);
+      const named = { ...lane, id: `${lane.id}@${space}` };
+      if (encoded.pending) { report.pending(named); continue; }
+      if (encoded.unavailable) {
+        sql.exec('UPDATE search_set_walks SET done = 1 WHERE lane = ? AND question = ? AND space = ?', lane.id, walkKey, space);
+        report.unavailable(named, encoded.unavailable);
+        continue;
+      }
+      const walk = all('SELECT cursor, hits, done FROM search_set_walks WHERE lane = ? AND question = ? AND space = ? LIMIT 1', lane.id, walkKey, space)[0];
+      if (!walk || walk.done) continue;
+      if (!setBudget) break;
+      // Read a bounded page plus one lookahead row, so exhausting a small space needs no second name query.
+      // '@' to 'A' is an exclusive prefix bound, including supplementary Unicode place names in SQLite UTF-8 order.
+      const upper = `${lane.id}@${space}A`, allowance = setBudget;
+      const names = walk.cursor
+        ? all(`SELECT set_lane FROM search_set_lane_names
+          WHERE lane = ? AND set_lane >= ? AND set_lane < ? AND set_lane > ? ORDER BY set_lane LIMIT ?`, lane.id, prefix, upper, walk.cursor, allowance + 1)
+        : all(`SELECT set_lane FROM search_set_lane_names
+          WHERE lane = ? AND set_lane >= ? AND set_lane < ? ORDER BY set_lane LIMIT ?`, lane.id, prefix, upper, allowance + 1);
+      for (const row of names.slice(0, allowance)) {
+        const setLane = row.set_lane;
+        const place = setLane.slice(prefix.length);
+        setBudget -= 1;
+        if (places && !places.includes(place)) {
+          sql.exec('UPDATE search_set_walks SET cursor = ? WHERE lane = ? AND question = ? AND space = ?', setLane, lane.id, walkKey, space);
+          continue;
+        }
+        const set = { ...lane, id: setLane, place, keep: 'each' };
+        const scanned = await nearest(set, encoded.vector, terms, question, walkScope);
+        if (scanned.pending) {
+          report.pending(named);
+          break spaceWalk;
+        }
+        let transfer;
+        try { transfer = walk.hits && walk.hits !== '[]' ? JSON.parse(walk.hits) : null; } catch { transfer = null; }
+        if (!transfer) transfer = { question: scanned.candidate_ref.question, score: null, seq: 0, copied: 0, max_hits: scanned.candidate_ref.max_hits };
+        const leftForLane = Number.isFinite(transfer.max_hits) ? Math.max(0, transfer.max_hits - transfer.copied) : candidatePages.pageSize;
+        const page = leftForLane ? candidatePages.readRankedPage('nearest', setLane, transfer.question, transfer.score, transfer.seq, Math.min(candidatePages.pageSize, leftForLane), lane.relative_floor ?? null) : { rows: [], more: false, afterScore: transfer.score, afterSeq: transfer.seq };
+        if (page.rows.length) candidatePages.putPage('sets', lane.id, walkKey, page.rows, setLane);
+        transfer = { ...transfer, score: page.afterScore, seq: page.afterSeq, copied: transfer.copied + page.rows.length };
+        const capped = Number.isFinite(transfer.max_hits) && transfer.copied >= transfer.max_hits;
+        if (capped || !page.more) {
+          sql.exec('INSERT OR IGNORE INTO search_candidate_participation (kind, lane, question, actual_lane) VALUES (?, ?, ?, ?)', 'sets', lane.id, walkKey, setLane);
+          sql.exec('UPDATE search_set_walks SET cursor = ?, hits = \'[]\' WHERE lane = ? AND question = ? AND space = ?', setLane, lane.id, walkKey, space);
+          walk.hits = '[]';
+        } else {
+          sql.exec('UPDATE search_set_walks SET hits = ? WHERE lane = ? AND question = ? AND space = ?', JSON.stringify(transfer), lane.id, walkKey, space);
+          report.pending(named);
+          break spaceWalk;
+        }
+      }
+      if (names.length <= allowance) sql.exec('UPDATE search_set_walks SET done = 1 WHERE lane = ? AND question = ? AND space = ?', lane.id, walkKey, space);
+      if (!setBudget) break;
+    }
+    const remaining = all('SELECT 1 FROM search_set_walks WHERE lane = ? AND question = ? AND done = 0 LIMIT 1', lane.id, walkKey).length > 0;
+    const encodersRemaining = made.encoder_page?.complete === false;
+    if (remaining || encodersRemaining) report.pending(lane);
+    // Completed space cursors remain until the existing bounded walk cleanup.
+    // Recreating them while fusion or hydration is pending restarts every set.
+    if (!remaining && !encodersRemaining) sql.exec('DELETE FROM search_set_results WHERE lane = ? AND question = ?', lane.id, walkKey);
+    if (remaining || encodersRemaining) return [];
+    return { candidate_ref: { kind: 'sets', lane: lane.id, question: walkKey,
+      revision: candidatePages.sourceRevision('sets', lane.id, walkKey), max_hits: null, relative_floor: lane.relative_floor ?? null } };
+  }
+
+  // ---- encoders ----
+  async function encode(lane, question) {
+    const encoder = lane.encoder ?? {};
+    if (encoder.via === 'workers-ai') {
+      if (!embed) return { unavailable: 'no model to read the words with here' };
+      // When the model road is stopped this lane says why and the word lanes answer alone (src/meaning-or-words.mjs).
+      const made = await meaningOrNone(() => embed(encoder.model, [`${encoder.query_prefix ?? ''}${question}`]));
+      if (!made) return { unavailable: MATCHED_BY_WORDS };
+      return { vector: unit(Float32Array.from(made[0])) };
+    }
+    if (encoder.via === 'workshop-tool') {
+      if (!runTool) return { unavailable: 'no Marketplace tools here' };
+      const key = `search:${lane.id}:${identityOf(question.toLocaleLowerCase())}`;
+      let task = await runTool({ tool_id: encoder.tool_id, input: { texts: [question] }, request_key: key, wait_seconds: config.tool_wait_seconds });
+      // A run that failed is tried once more under an hour's key, so one bad start never blocks these words for good.
+      if (task?.state === 'failed') task = await runTool({ tool_id: encoder.tool_id, input: { texts: [question] }, request_key: `${key}:${Math.floor(Date.now() / 3600000)}`, wait_seconds: config.tool_wait_seconds });
+      if (task?.state === 'completed') {
+        const named = task.output?.model ?? {};
+        if (encoder.model && Object.entries(encoder.model).some(([field, wanted]) => named[field] !== wanted)) return { unavailable: 'the picture model answered with another model' };
+        return { vector: Float32Array.from(task.output.vectors[0]) };
+      }
+      if (task?.state === 'failed') return { unavailable: task.error ?? 'the picture model did not start' };
+      return { pending: true };
+    }
+    return { unavailable: `no encoder ${encoder.via}` };
+  }
+
+  // The question in every space an installed encoder that accepts text makes. Catalogs are read one page per call;
+  // accumulated answers live under the exact normalized question and are discarded when the catalog revision moves.
+  async function encodeInSpaces(lane, question) {
+    const normalized = String(question ?? '').trim().slice(0, 500).toLocaleLowerCase();
+    touchWalk('encoder', lane.id, normalized);
+    const held = all('SELECT revision, cursor FROM search_encoder_walks WHERE lane = ? AND question = ? LIMIT 1', lane.id, normalized)[0] ?? null;
+    const readSpacePage = (revision, after = '') => {
+      const rows = all(`SELECT space, state FROM search_encoder_space_rows
+        WHERE lane = ? AND question = ? AND revision = ? AND space > ? ORDER BY space LIMIT 33`, lane.id, normalized, revision, after);
+      const page = rows.slice(0, 32).filter(row => !answers?.retired(`${lane.id}@${row.space}@`));
+      const more = rows.length > 32;
+      if (more) sql.exec(`INSERT INTO search_encoder_walks (lane, question, revision, cursor, spaces) VALUES (?, ?, ?, ?, '{}')
+        ON CONFLICT(lane, question) DO UPDATE SET revision=excluded.revision, cursor=excluded.cursor, spaces=excluded.spaces`,
+        lane.id, normalized, revision, `${SPACES_CURSOR}${rows[31].space}`);
+      else sql.exec('DELETE FROM search_encoder_walks WHERE lane = ? AND question = ?', lane.id, normalized);
+      return { spaces: Object.fromEntries(page.map(row => [row.space, JSON.parse(row.state)])), pending: false,
+        encoder_page: { after: more ? rows[31].space : null, revision, complete: !more } };
+    };
+    const request = async (after, revision, limit = 32) => {
+      const found = await encoders({ after: after || null, revision: revision || null, limit });
+      // Array results remain supported for tests and explicit legacy fixtures. Live owners use the bounded page form.
+      return Array.isArray(found)
+        ? { tools: found, cursor: { after: null, revision: 'legacy' }, complete: true, restart: false }
+        : found;
+    };
+    if (held?.cursor?.startsWith(SPACES_CURSOR)) {
+      const current = await request(null, held.revision, 1);
+      const revision = String(current?.cursor?.revision ?? current?.revision ?? '');
+      if (!current || current.restart || revision !== held.revision) {
+        queueEncoderCleanup(lane.id, normalized, held.revision);
+        sql.exec('DELETE FROM search_encoder_walks WHERE lane = ? AND question = ?', lane.id, normalized);
+        return { spaces: {}, pending: true, encoder_page: { after: null, revision, complete: false, restart: true } };
+      }
+      return readSpacePage(held.revision, held.cursor.slice(SPACES_CURSOR.length));
+    }
+    let page = await request(held?.cursor ?? null, held?.revision ?? null);
+    if (page?.restart) {
+      if (held?.revision) queueEncoderCleanup(lane.id, normalized, held.revision);
+      sql.exec('DELETE FROM search_encoder_walks WHERE lane = ? AND question = ?', lane.id, normalized);
+      page = await request(null, null);
+    }
+    if (!page || !Array.isArray(page.tools)) return { spaces: {}, pending: true, encoder_page: { after: held?.cursor ?? null, revision: held?.revision ?? null, complete: false } };
+    const revision = String(page.cursor?.revision ?? page.revision ?? '');
+    if (page.restart || (held && revision !== held.revision)) {
+      if (held?.revision) queueEncoderCleanup(lane.id, normalized, held.revision);
+      sql.exec('DELETE FROM search_encoder_walks WHERE lane = ? AND question = ?', lane.id, normalized);
+      return { spaces: {}, pending: true, encoder_page: { after: null, revision, complete: false, restart: true } };
+    }
+    // A space measured useless here is not asked (search-answers retired).
+    const tools = encodersAccepting(page.tools, 'text').filter(tool => !answers?.retired(`${lane.id}@${spaceOf(tool)}@`));
+    const neededSpaces = tools.map(spaceOf);
+    const knownRows = neededSpaces.length ? all(`SELECT space, state FROM search_encoder_space_rows
+      WHERE lane = ? AND question = ? AND revision = ? AND space IN (SELECT value FROM json_each(?)) LIMIT 33`, lane.id, normalized, revision, JSON.stringify(neededSpaces)) : [];
+    const known = new Map(knownRows
+      .map(row => [row.space, JSON.parse(row.state)]));
+    const needed = tools.filter(tool => !known.has(spaceOf(tool)) || known.get(spaceOf(tool))?.pending === true);
+    const answered = await Promise.all(needed.map(async tool => {
+      const space = spaceOf(tool);
+      try {
+        const text = `${tool.encodes.space.query_prompt ?? ''}${question}`;
+        const key = `search:${space}:${identityOf(question.toLocaleLowerCase())}`;
+        let task = await runTool({ tool_id: tool.id, input: { texts: [text] }, request_key: key, wait_seconds: config.tool_wait_seconds });
+        if (task?.state === 'failed') task = await runTool({ tool_id: tool.id, input: { texts: [text] }, request_key: `${key}:${Math.floor(Date.now() / 3600000)}`, wait_seconds: config.tool_wait_seconds });
+        if (task?.state === 'completed') {
+          if (!answeredInSpace(tool, task.output)) return [space, { unavailable: `${tool.id} answered with another model than its space declares` }];
+          const vector = task.output?.vectors?.[0];
+          return [space, Array.isArray(vector) && vector.length === tool.encodes.space.dim ? { vector: Array.from(unit(Float32Array.from(vector))) } : { unavailable: `${tool.id} answered no vector of ${tool.encodes.space.dim} numbers` }];
+        }
+        if (task?.state === 'failed') return [space, { unavailable: task.error ?? `${tool.id} did not start` }];
+        return [space, { pending: true }];
+      } catch (error) { return [space, { unavailable: reasonOf(error) }]; }
+    }));
+    for (const [space, state] of answered) sql.exec(`INSERT INTO search_encoder_space_rows (lane, question, revision, space, state) VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT(lane, question, revision, space) DO UPDATE SET state=excluded.state`, lane.id, normalized, revision, space, JSON.stringify(state));
+    const cursor = page.cursor?.after ?? page.next_cursor ?? null;
+    const complete = page.complete === true;
+    const pending = page.pending === true || answered.some(([, state]) => state.pending === true);
+    if (complete && !pending) {
+      return readSpacePage(revision);
+    }
+    // If a tool is still running, keep this page's cursor so the same stable request keys are retried next time.
+    const savedCursor = pending ? (held?.cursor ?? null) : cursor;
+    sql.exec(`INSERT INTO search_encoder_walks (lane, question, revision, cursor, spaces) VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT(lane, question) DO UPDATE SET revision=excluded.revision, cursor=excluded.cursor, spaces=excluded.spaces`,
+      lane.id, normalized, revision, savedCursor ?? '', '{}');
+    return { spaces: {}, pending: true, encoder_page: { after: savedCursor, revision, complete: false } };
+  }
+
+  // A question encoded by another owner (encodeQuestion) arrives as plain data; a vector that is not a list of numbers
+  // is refused rather than searched with.
+  function fromGiven(given) {
+    if (given.pending === true) return { pending: true };
+    if (typeof given.unavailable === 'string') return { unavailable: given.unavailable };
+    if (Array.isArray(given.vector) && given.vector.length && given.vector.every(Number.isFinite)) return { vector: Float32Array.from(given.vector) };
+    return { unavailable: 'the question was encoded into something that is not a vector' };
+  }
+
+  /**
+   * The question encoded for each planned meaning lane this owner can run the encoder of (a Marketplace tool needs
+   * runTool, a hosted model needs embed): { [lane id]: { vector: [number] } | { pending: true } | { unavailable } }.
+   * The owner that can run tools encodes once and hands the answer to the index owners (the follower, the frozen index),
+   * which have no tools; a lane it cannot encode is left out and its index owner encodes it as before.
+   */
+  async function encodeQuestion(question, { places = null, sources = null, matches = null } = {}) {
+    question = String(question ?? '').trim().slice(0, 500);
+    if (!question) return {};
+    const runs = lane => (lane.sets_path && runTool && encoders) || (lane.encoder?.via === 'workshop-tool' && runTool) || (lane.encoder?.via === 'workers-ai' && embed);
+    const lanes = planned(places, sources, matches).filter(lane => lane.match === 'meaning-in-results' && runs(lane));
+    const encoded = await Promise.all(lanes.map(async lane => {
+      if (lane.sets_path) {
+        const page = await encodeInSpaces(lane, question);
+        return [lane.id, { spaces: page.spaces, pending: page.pending, encoder_page: page.encoder_page }];
+      }
+      try {
+        const made = await encode(lane, question);
+        return [lane.id, made.vector ? { vector: Array.from(made.vector) } : made];
+      } catch (error) { return [lane.id, { unavailable: reasonOf(error) }]; }
+    }));
+    return Object.fromEntries(encoded);
+  }
+
+  // The asked words worth handing the word index: a word held by more than `common_ratio` times as many documents as
+  // the rarest asked word says nothing bm25 would rank by, yet the index walks and scores every document holding it.
+  // Counts come from the index's own vocabulary (a word asked as a prefix counts every word it starts). The words left
+  // out are still checked on each candidate where a mechanism needs every word.
+  const docsOf = term => wordIndex.documentsHolding(term);
+  const informative = (terms, documentsHolding = wordIndex.documentsHolding) => {
+    if (terms.length < 2 || !documentsHolding) return terms;
+    const counted = terms.map(term => ({ term, docs: documentsHolding(term) }));
+    const rarest = Math.min(...counted.map(item => item.docs).filter(docs => docs > 0));
+    if (!Number.isFinite(rarest)) return terms;
+    return counted.filter(item => item.docs > 0 && item.docs <= rarest * config.common_ratio).map(item => item.term);
+  };
+
+  // ---- mechanisms: each answers hits { key, identity?, start?, end?, timed, said, score, ... } ----
+  const mechanisms = {
+    async 'words-in-results'(lane, { terms, report }) {
+      if (!terms.length) return [];
+      // Existing rows join the index in bounded alarm pages. Search what is indexed now and tell the caller when
+      // more results are still being admitted; never fall back to a full JSON scan during an outage.
+      if (wordIndex.pending() || all('SELECT 1 FROM search_backfill WHERE lane = ? LIMIT 1', lane.id).length
+        || all('SELECT 1 FROM search_changed WHERE lane = ? LIMIT 1', lane.id).length) report.pending(lane);
+      // A word no document holds means no thing holds every word. Common words narrow nothing: the candidates are
+      // matched on the rest, and each is checked for every word below.
+      // Both checks are synchronous before source reads can yield. Reuse only
+      // this admission's counts, never a result across searches or arrivals.
+      const counted = new Map();
+      const documentsHolding = wordIndex.documentsHolding ? term => {
+        if (!counted.has(term)) counted.set(term, docsOf(term));
+        return counted.get(term);
+      } : null;
+      if (documentsHolding && terms.some(term => documentsHolding(term) === 0)) return [];
+      const asked = informative(terms, documentsHolding).map(term => `"${term.replace(/"/g, '""')}"*`).join(' AND ');
+      const candidates = all('SELECT identity FROM search_words WHERE search_words MATCH ? AND lane = ? ORDER BY rank LIMIT ?', asked, lane.id, config.limit);
+      const hits = [];
+      for (const { identity } of candidates) {
+        // The text and its timed segments come from the kept value (a follower reads it through `results`), one result at a time.
+        const kept = await results.row(identity, lane.kind);
+        if (!kept) continue;
+        let value = null;
+        try { value = JSON.parse(kept.value); } catch { value = null; }
+        const row = { text: value ? atPath(value, lane.text_path) : null };
+        let segments = [];
+        try { segments = lane.segments_path && value ? (atPath(value, lane.segments_path) ?? []) : []; } catch { segments = []; }
+        const timed = Array.isArray(segments) ? segments.filter(segment => Number.isFinite(segment?.start) && holdsEvery(segment.text, terms)) : [];
+        if (timed.length) for (const segment of timed) hits.push({ identity, start: segment.start, end: Number.isFinite(segment.end) ? segment.end : segment.start + config.moment_seconds, timed: true, said: String(segment.text).trim(), score: 1 });
+        else if (holdsEvery(row.text, terms)) hits.push({ identity, start: 0, end: config.moment_seconds, timed: false, said: around(row.text, terms, config.said_characters), score: 1 });
+      }
+      return hits;
+    },
+    // Any asked word, the best matches first (bm25 weighs a rare word above common ones, so 'what is my EIN' finds the
+    // file holding 'EIN'), each with the words around the match.
+    'words-in-index'(lane, { terms }) {
+      if (!terms.length) return [];
+      const kept = informative(terms);
+      if (!kept.length) return [];
+      const asked = kept.map(term => `"${term.replace(/"/g, '""')}"*`).join(' OR ');
+      const rows = all(`SELECT identity, snippet(search_words, 2, '', '', '…', 40) AS said FROM search_words WHERE search_words MATCH ? AND lane = ? ORDER BY rank LIMIT ?`, asked, lane.id, config.limit);
+      return rows.map((row, index) => ({ identity: row.identity, start: 0, end: config.moment_seconds, timed: false, said: String(row.said ?? '').replace(/\s+/g, ' ').trim(), score: 1 - index / (rows.length + 1) }));
+    },
+    // The in-memory name view (src/namespace-view.mjs) proposes the rows whose last part holds every word, read back
+    // here by row id; a store whose names are past the view's memory bound is searched by the table.
+    'words-in-names'(lane, { terms }) {
+      if (!terms.length) return [];
+      const proposed = namespaceView(sql).candidates(terms, config.limit * 4);
+      const rows = proposed === null
+        ? all(`SELECT name, identity FROM namespace_names WHERE identity IS NOT NULL AND ${terms.map(() => 'instr(lower(name), lower(?)) > 0').join(' AND ')} LIMIT ?`, ...terms, config.limit * 4)
+        : proposed.length ? all('SELECT name, identity FROM namespace_names WHERE rowid IN (SELECT value FROM json_each(?)) AND identity IS NOT NULL ORDER BY rowid', JSON.stringify(proposed)) : [];
+      return rows
+        .filter(row => holdsEvery(row.name.slice(row.name.lastIndexOf('/') + 1), terms))
+        .map(row => ({ identity: row.identity, named: row.name, start: 0, end: config.moment_seconds, timed: false, said: null, score: 1 }));
+    },
+    // A colour typed (#rrggbb) or named in the question: pictures whose kept palette colours lie within the lane's
+    // CIE-LAB distance. Lightness bounds the distance from below, so the seek reads only the colours in range.
+    'colour-in-results'(lane, { question }) {
+      const best = new Map();
+      for (const { hex, ceiling, top } of coloursIn(question)) {
+        const want = labOf(rgbOf(hex));
+        const rows = all('SELECT identity, l, a, b FROM search_colours WHERE lane = ? AND l BETWEEN ? AND ? AND n < ? LIMIT ?', lane.id, want[0] - ceiling, want[0] + ceiling, top ?? 1_000_000, config.limit * 20);
+        for (const row of rows) {
+          const gap = deltaE([row.l, row.a, row.b], want);
+          if (gap <= ceiling && gap < (best.get(row.identity) ?? Infinity)) best.set(row.identity, gap);
+        }
+      }
+      return [...best].sort((x, y) => x[1] - y[1] || (x[0] < y[0] ? -1 : 1)).slice(0, config.limit)
+        .map(([identity, gap]) => ({ identity, start: 0, end: config.moment_seconds, timed: false, said: null, score: 1 / (1 + gap) }));
+    },
+    async 'meaning-in-results'(lane, { question, terms, report, given, places, walkScope }) {
+      if (!question.trim()) return [];
+      if (lane.sets_path) return nearestInSpaces(lane, { question, terms, report, given, places, walkScope });
+      const encoded = given ? fromGiven(given) : await encode(lane, question);
+      if (encoded.pending) { report.pending(lane); return []; }
+      if (encoded.unavailable) { report.unavailable(lane, encoded.unavailable); return []; }
+      const scanned = await nearest(lane, encoded.vector, terms, question, walkScope);
+      if (scanned.candidate_ref) return scanned;
+      if (scanned.pending) report.pending(lane);
+      return scanned.hits;
+    },
+    async 'words-in-records'(lane, { terms }) {
+      if (!records || !terms.length) return [];
+      // A family of lanes (rows_of: a list's rows) is read only from the index, each row by the lane its list made.
+      if (lane.rows_of && !recordIndex) return [];
+      // The record-log engine's find walks every root for rare words. The account alarm admits its records into
+      // the shared word index; each candidate is checked against the current record before anything is returned.
+      // A page's new candidates are read together (in calls of RECORD_CALL.ids, src/search-feed.mjs), and reading stops
+      // once the limit is met, so a broad question reads no more records than the limit needs.
+      const hits = [];
+      // Records that are not what the lane prefers (lane.prefer, DATA) wait here: reachable, but after the preferred ones.
+      const later = [];
+      const seen = new Set();
+      const pageSize = Math.max(1, Math.min(200, config.limit * 4));
+      let offset = 0;
+      for (;;) {
+        const candidates = recordIndex
+          ? recordIndex.candidates(lane, terms, { offset, pageSize }).map(row => ({ ...row, lane: row.lane ? recordIndex.lane(row.lane) : lane })).filter(row => row.lane)
+          : (eeaf ? eeaf.find({ words: terms, fields: lane.text_paths.map(stepsOf), types: [lane.record_type], limit: config.limit }) : []).map(({ id }) => ({ id }));
+        if (!candidates.length) break;
+        const laneOf = new Map(candidates.map(row => [row.id, row.lane ?? lane]));
+        const ids = [...new Set(candidates.map(({ id }) => id))].filter(id => !seen.has(id));
+        for (const id of ids) seen.add(id);
+        for (let at = 0; at < ids.length && hits.length < config.limit && hits.length + later.length < config.limit * 2; at += RECORD_CALL.ids) {
+          const batch = ids.slice(at, at + RECORD_CALL.ids);
+          const loaded = await readRecords(records, batch);
+          for (const id of batch) {
+            const found = loaded.get(id);
+            const read = laneOf.get(id) ?? lane;
+            if (!found?.value || found.type !== read.record_type) continue;
+            const value = found.value;
+            if (lane.when && !holdsWhen(value, lane.when)) continue;
+            const text = read.text_paths.map(path => atPath(value, path)).filter(item => typeof item === 'string').join('\n');
+            if (!holdsEvery(text, terms)) continue;
+            const title = String(atPath(value, read.title_path ?? lane.title_path) ?? id).replace(/\s+/g, ' ').trim().slice(0, 140);
+            const open = lane.open ? { id: lane.open.surface, title, surfaceInput: { ...lane.open.input, ...(read.open_input ?? {}), ...(lane.open.id_as ? { [lane.open.id_as]: id } : {}) } } : null;
+            const url = lane.url_path ? atPath(value, lane.url_path) : null;
+            (lane.prefer && atPath(value, lane.prefer.path) !== lane.prefer.equals ? later : hits).push({ key: `record:${id}`, title, kind_label: lane.kind_label, open, ...(typeof url === 'string' && url ? { url } : {}),
+              at: (lane.at_path ? atPath(value, lane.at_path) : null) ?? value.at ?? value.recorded_at ?? value.created_at ?? null, start: 0, end: 0, timed: false, said: around(text, terms, config.said_characters), score: 1 });
+            if (hits.length >= config.limit || hits.length + later.length >= config.limit * 2) break;
+          }
+        }
+        if (!recordIndex || hits.length >= config.limit || hits.length + later.length >= config.limit * 2 || candidates.length < pageSize) break;
+        offset += pageSize;
+        // A broad approximate FTS match cannot monopolize this person's store while exact matches are checked.
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      return [...hits, ...later].slice(0, config.limit);
+    },
+    async 'service-search'(lane, { question, terms, report }) {
+      if (!terms.length) return [];
+      const source = sourceById[lane.source];
+      if (!runTool) { report.unavailable(lane, 'no Marketplace tools here'); return []; }
+      // The source's first request runs once for every lane of it (lanes run together), and is kept while it answered.
+      if (!firstAnswers.has(source.id)) {
+        firstAnswers.set(source.id, (async () => {
+          if (!source.first) return {};
+          const task = await runTool({ tool_id: source.first.tool_id, input: source.first.input ?? {}, request_key: `search-first:${source.id}:${Math.floor(Date.now() / 86400000)}`, wait_seconds: config.tool_wait_seconds });
+          if (task?.state !== 'completed') { firstAnswers.delete(source.id); return task?.state === 'failed' || !task ? { refused: source.connect_words ?? task?.error ?? 'not reachable' } : { working: true }; }
+          return Object.fromEntries(Object.entries(source.first.keep ?? {}).map(([name, path]) => [name, atPath(task.output, path)]));
+        })());
+      }
+      const kept = await firstAnswers.get(source.id);
+      if (kept.refused) { report.unavailable(lane, kept.refused); return []; }
+      if (kept.working) { report.pending(lane); return []; }
+      const input = filled(lane.input, { ...kept, words: question });
+      const task = await runTool({ tool_id: lane.tool_id, input, request_key: `search:${lane.id}:${identityOf(JSON.stringify(input))}:${Math.floor(Date.now() / 3600000)}`, wait_seconds: config.tool_wait_seconds });
+      if (task?.state !== 'completed') { if (task?.state === 'failed') report.unavailable(lane, task.error ?? 'the service did not answer'); else report.pending(lane); return []; }
+      const items = atPath(task.output, lane.items_path);
+      return (Array.isArray(items) ? items : []).map(item => {
+        const url = atPath(item, lane.url_path);
+        const said = atPath(item, lane.said_path);
+        return { key: `${source.id}:${url ?? JSON.stringify(item).slice(0, 80)}`, title: String(atPath(item, lane.title_path) ?? url ?? ''), detail: atPath(item, lane.detail_path) ?? null, url: typeof url === 'string' ? url : null, kind_label: lane.kind_label, start: 0, end: 0, timed: false, said: typeof said === 'string' ? said.replace(/\s+/g, ' ').trim().slice(0, config.said_characters) : null, score: 1 };
+      });
+    },
+  };
+
+  // ---- what a found file is called and whether it plays ----
+  function canonicalFiles(identities) {
+    if (!identities.length) return new Map();
+    const aliased = new Map(all('SELECT alias, identity FROM namespace_aliases WHERE alias IN (SELECT value FROM json_each(?))', JSON.stringify(identities)).map(row => [row.alias, row.identity]));
+    return new Map(identities.map(identity => [identity, aliased.get(identity) ?? identity]));
+  }
+  function describeFiles(canonical) {
+    const described = new Map();
+    const { entry_kind: entryKind, entry_fields: entryFields, fields } = config.describe;
+    for (const identity of canonical) {
+      const known = [identity, ...all('SELECT alias FROM namespace_aliases WHERE identity = ?', identity).map(row => row.alias)];
+      const list = JSON.stringify(known);
+      const [file] = all('SELECT identity, media_type FROM namespace_files WHERE identity = ?', identity);
+      const [named] = all('SELECT name, modified_at_ms FROM (SELECT name, modified_at_ms FROM namespace_names WHERE identity IN (SELECT value FROM json_each(?)) LIMIT 20) ORDER BY name LIMIT 1', list);
+      const [entryRow] = all('SELECT value FROM namespace_results WHERE kind = ? AND identity IN (SELECT value FROM json_each(?)) LIMIT 1', entryKind, list);
+      let entry = {};
+      try { entry = entryRow ? JSON.parse(entryRow.value) : {}; } catch { entry = {}; }
+      // A name several fields read as takes the first that holds a value (a title the person chose, then the summary's).
+      const more = {};
+      for (const field of fields) more[field.as] ??= all('SELECT json_extract(value, ?) AS value FROM namespace_results WHERE kind = ? AND identity IN (SELECT value FROM json_each(?)) LIMIT 1', field.path, field.kind, list)[0]?.value ?? null;
+      const path = named?.name ?? atPath(entry, entryFields.path) ?? null;
+      // A file with no name (a note kept only as text) is called by its first line, never by its identity.
+      const title = headline(more.title);
+      const name = atPath(entry, entryFields.name) ?? (path ? path.slice(path.lastIndexOf('/') + 1) : title ?? identity);
+      described.set(identity, {
+        name, path, title: title ?? name, duration: Number.isFinite(more.duration) ? more.duration : null,
+        media_kind: atPath(entry, entryFields.media_kind) ?? familyOf(file?.media_type, name), media_type: file?.media_type ?? null,
+        file: file ? identity : null, stored: Boolean(file), bytes: file ? BYTES_PATH + encodeURIComponent(identity) : null, modified_ms: named?.modified_at_ms ?? null,
+        open_url: `${origin}${config.open_path}${encodeURIComponent(identity)}`,
+      });
+    }
+    return described;
+  }
+
+  /**
+   * Things matching `question`, strongest first.
+   *   places / sources  ids to keep (all when left out)
+   *   matches           the mechanisms to ask (all when left out): a quick answer as words are typed names only the
+   *                     word mechanisms, so no model is asked and no outside service waited on
+   * Answers { question, terms, places, sources, results, unavailable, pending, still_reading }.
+   */
+  // The lanes a question asks, in data order: the places, sources and mechanisms it names (all when left out).
+  function planned(places, sources, matches) {
+    return switchedOn(config.lanes.filter(lane => (!places || lane.place == null || places.includes(lane.place)) && (!sources || sources.includes(lane.source)) && (!matches || matches.includes(lane.match))));
+  }
+  const fusionSessionFor = (question, { places = null, sources = null, matches = null } = {}) => identityOf(JSON.stringify([
+    'search-fusion-v1', String(question ?? '').trim().slice(0, 500),
+    places ? [...places].sort() : null, sources ? [...sources].sort() : null, matches ? [...matches].sort() : null,
+  ]));
+
+  function hydrateFusionDetails(session, identities) {
+    const wanted = [...new Set(identities)];
+    const targetKey = identityOf(JSON.stringify(['paged-projection-v1', wanted]));
+    let targetState = all('SELECT target_key, cleanup_table, cleanup_after FROM search_fusion_hydration_state WHERE session = ? LIMIT 1', session)[0];
+    if (!targetState || targetState.target_key !== targetKey) {
+      sql.exec(`INSERT INTO search_fusion_hydration_state (session, target_key, cleanup_table, cleanup_after) VALUES (?, ?, 0, '')
+        ON CONFLICT(session) DO UPDATE SET target_key=excluded.target_key, cleanup_table=0, cleanup_after=''`, session, targetKey);
+      targetState = { target_key: targetKey, cleanup_table: 0, cleanup_after: '' };
+    }
+    const targetCleanup = [
+      ['search_fusion_hydration_targets', ['identity']], ['search_fusion_hydration_progress', ['identity']],
+      ['search_fusion_hydration_places', ['identity', 'lane']], ['search_fusion_hydration_moments', ['identity', 'ordinal']],
+      ['search_fusion_hydration_moment_places', ['identity', 'ordinal', 'lane']], ['search_fusion_hydration_projection', ['identity']],
+      ['search_fusion_projection_pages', ['identity', 'seq']],
+    ];
+    if (targetState.cleanup_table >= 0) {
+      const [table, columns] = targetCleanup[targetState.cleanup_table] ?? [];
+      if (table) {
+        const cursor = targetState.cleanup_after ? JSON.parse(targetState.cleanup_after) : null;
+        const page = searchCleanupPage(sql, { name: table, where: 'session = ?', columns }, cursor, candidatePages.pageSize, session);
+        transaction(() => {
+          if (page.rowids.length) sql.exec(`DELETE FROM ${table} WHERE rowid IN (SELECT value FROM json_each(?))`, JSON.stringify(page.rowids));
+          if (page.more) sql.exec('UPDATE search_fusion_hydration_state SET cleanup_after = ? WHERE session = ?', JSON.stringify(page.cursor), session);
+          else sql.exec('UPDATE search_fusion_hydration_state SET cleanup_table = cleanup_table + 1, cleanup_after = \'\' WHERE session = ?', session);
+        });
+        return { done: false, lane: 'search-candidate-details' };
+      }
+      transaction(() => {
+        wanted.forEach((identity, ordinal) => {
+          sql.exec('INSERT INTO search_fusion_hydration_targets (session, identity, ordinal) VALUES (?, ?, ?)', session, identity, ordinal);
+          sql.exec('INSERT INTO search_fusion_hydration_progress (session, identity) VALUES (?, ?)', session, identity);
+          sql.exec('INSERT INTO search_fusion_hydration_projection (session, identity) VALUES (?, ?)', session, identity);
+        });
+        sql.exec('UPDATE search_fusion_hydration_state SET cleanup_table = -1, cleanup_after = \'\' WHERE session = ?', session);
+      });
+      return { done: false, lane: 'search-candidate-details' };
+    }
+
+    let budget = candidatePages.pageSize;
+    let pendingLane = null;
+    for (const { identity } of all('SELECT identity FROM search_fusion_hydration_targets WHERE session = ? ORDER BY ordinal LIMIT ?', session, wanted.length)) {
+      const progress = all('SELECT after_priority, after_lane_order, after_seq, after_lane, after_n, processed, done FROM search_fusion_hydration_progress WHERE session = ? AND identity = ? LIMIT 1', session, identity)[0];
+      if (progress?.done) continue;
+      const cursor = progress?.after_priority == null ? null : {
+        priority: progress.after_priority, lane_order: progress.after_lane_order, source_seq: progress.after_seq,
+        lane: progress.after_lane, n: progress.after_n,
+      };
+      const page = candidatePages.hydrationPage(session, identity, cursor, budget);
+      if (!page.rows.length) {
+        sql.exec('UPDATE search_fusion_hydration_progress SET done = 1 WHERE session = ? AND identity = ?', session, identity);
+        continue;
+      }
+      transaction(() => {
+        const processed = progress?.processed ?? 0;
+        for (let at = 0; at < page.rows.length; at += 1) {
+          const hit = page.rows[at];
+          const eventOrder = processed + at;
+          sql.exec(`INSERT OR IGNORE INTO search_fusion_hydration_places
+            (session, identity, lane, n, start, end, timed, said, score, priority, lane_order, source_seq)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          session, identity, hit.lane, hit.n, hit.start, hit.end, Number(Boolean(hit.timed)), hit.said, hit.score,
+          hit.priority, hit.lane_order, hit.source_seq);
+          const moments = all('SELECT ordinal, start, end, timed, said FROM search_fusion_hydration_moments WHERE session = ? AND identity = ? ORDER BY ordinal LIMIT ?', session, identity, config.moments_per_thing);
+          if (!hit.timed && moments.length) continue;
+          const near = moments.find(moment => (moment.timed && hit.timed && Math.abs(moment.start - hit.start) < config.merge_seconds)
+            || (!moment.timed && !hit.timed));
+          if (near) {
+            sql.exec('INSERT OR IGNORE INTO search_fusion_hydration_moment_places (session, identity, ordinal, lane, event_order) VALUES (?, ?, ?, ?, ?)', session, identity, near.ordinal, hit.lane, eventOrder);
+            if (!near.said && hit.said) sql.exec('UPDATE search_fusion_hydration_moments SET said = ? WHERE session = ? AND identity = ? AND ordinal = ?', hit.said, session, identity, near.ordinal);
+          } else if (moments.length < config.moments_per_thing) {
+            const ordinal = (moments.at(-1)?.ordinal ?? -1) + 1;
+            sql.exec(`INSERT INTO search_fusion_hydration_moments (session, identity, ordinal, start, end, timed, said)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`, session, identity, ordinal, hit.start, hit.end, Number(Boolean(hit.timed)), hit.said);
+            sql.exec('INSERT INTO search_fusion_hydration_moment_places (session, identity, ordinal, lane, event_order) VALUES (?, ?, ?, ?, ?)', session, identity, ordinal, hit.lane, eventOrder);
+          }
+        }
+        const last = page.rows.at(-1);
+        sql.exec(`UPDATE search_fusion_hydration_progress SET after_priority = ?, after_lane_order = ?, after_seq = ?, after_lane = ?, after_n = ?, processed = ?, done = ?
+          WHERE session = ? AND identity = ?`, last.priority, last.lane_order, last.source_seq, last.lane, last.n,
+        processed + page.rows.length, Number(!page.more), session, identity);
+      });
+      budget -= page.rows.length;
+      if (page.more) {
+        pendingLane = page.rows.at(-1).lane;
+        break;
+      }
+      if (budget <= 0) break;
+    }
+    const pending = all(`SELECT p.identity, d.lane FROM search_fusion_hydration_progress p
+      JOIN search_fusion_hydration_targets t ON t.session = p.session AND t.identity = p.identity
+      LEFT JOIN search_fusion_hydration_places d ON d.session = p.session AND d.identity = p.identity
+      WHERE p.session = ? AND p.done = 0 ORDER BY t.ordinal LIMIT 1`, session)[0];
+    return { done: !pending, lane: pendingLane ?? pending?.lane ?? null };
+  }
+
+  // Save independent output pages; a continuation never parses or rewrites the growing result assembled so far.
+  // The terminal reply assembles those pages once, proportional to its requested output.
+  function projectFusionDetails(session) {
+    const target = all(`SELECT t.identity, p.projection_phase, p.projection_cursor, p.projection_page, p.done
+      FROM search_fusion_hydration_targets t JOIN search_fusion_hydration_progress p
+      ON p.session = t.session AND p.identity = t.identity
+      WHERE t.session = ? AND p.done = 1 AND p.projection_phase <> 'done' ORDER BY t.ordinal LIMIT 1`, session)[0];
+    if (!target) return { done: true };
+    const { identity, projection_phase: phase, projection_cursor: cursor = '', projection_page: seq } = target;
+    const progress = candidatePages.pageSize;
+    const keepPage = (rows, nextPhase, nextCursor) => transaction(() => {
+      if (rows.length) sql.exec('INSERT INTO search_fusion_projection_pages (session, identity, seq, phase, payload) VALUES (?, ?, ?, ?, ?)', session, identity, seq, phase, JSON.stringify(rows));
+      sql.exec('UPDATE search_fusion_hydration_progress SET projection_phase = ?, projection_cursor = ?, projection_page = ? WHERE session = ? AND identity = ?', nextPhase, nextCursor, seq + Number(rows.length > 0), session, identity);
+    });
+    if (phase === 'places') {
+      const rows = all(`SELECT lane, n, start, end, timed, said, score, priority, lane_order, source_seq FROM search_fusion_hydration_places
+        WHERE session = ? AND identity = ? AND lane > ? ORDER BY lane LIMIT ?`, session, identity, cursor, progress);
+      const next = rows.at(-1)?.lane ?? cursor;
+      keepPage(rows, rows.length < progress ? 'ranks' : 'places', rows.length < progress ? '' : next);
+      return { done: false, lane: rows.length ? rows.at(-1).lane : 'search-candidate-details' };
+    }
+    if (phase === 'ranks') {
+      const rows = all(`SELECT s.lane, s.rank, l.base_rank, l.weight FROM search_fusion_seen s
+        JOIN search_fusion_lanes l ON l.session = s.session AND l.lane = s.lane
+        WHERE s.session = ? AND s.identity = ? AND s.lane > ? ORDER BY s.lane LIMIT ?`, session, identity, cursor, progress);
+      const next = rows.at(-1)?.lane ?? cursor;
+      keepPage(rows, rows.length < progress ? 'moments' : 'ranks', rows.length < progress ? '' : next);
+      return { done: false, lane: rows.length ? rows.at(-1).lane : 'search-candidate-details' };
+    }
+    if (phase === 'moments') {
+      const rows = all(`SELECT ordinal, start, end, timed, said FROM search_fusion_hydration_moments
+        WHERE session = ? AND identity = ? AND ordinal > ? ORDER BY ordinal LIMIT ?`, session, identity, Number(cursor) || -1, progress);
+      const next = rows.at(-1)?.ordinal ?? (Number(cursor) || -1);
+      keepPage(rows, rows.length < progress ? 'moment_places' : 'moments', rows.length < progress ? '' : String(next));
+      return { done: false, lane: 'search-candidate-details' };
+    }
+    if (phase === 'moment_places') {
+      const parsed = cursor ? JSON.parse(cursor) : { ordinal: -1, event_order: -1, lane: '' };
+      const rows = parsed.ordinal < 0 ? all(`SELECT ordinal, event_order, lane FROM search_fusion_hydration_moment_places
+          WHERE session = ? AND identity = ? ORDER BY ordinal, event_order, lane LIMIT ?`, session, identity, progress)
+        : all(`SELECT ordinal, event_order, lane FROM search_fusion_hydration_moment_places
+          WHERE session = ? AND identity = ? AND (ordinal, event_order, lane) > (?, ?, ?)
+          ORDER BY ordinal, event_order, lane LIMIT ?`, session, identity, parsed.ordinal, parsed.event_order, parsed.lane, progress);
+      const last = rows.at(-1);
+      const next = last ? JSON.stringify({ ordinal: last.ordinal, event_order: last.event_order, lane: last.lane }) : cursor;
+      keepPage(rows, rows.length < progress ? 'done' : 'moment_places', rows.length < progress ? '' : next);
+      return { done: false, lane: 'search-candidate-details' };
+    }
+    sql.exec("UPDATE search_fusion_hydration_progress SET projection_phase = 'done' WHERE session = ? AND identity = ?", session, identity);
+    return { done: false, lane: 'search-candidate-details' };
+  }
+
+  function readFusionProjection(session, identity) {
+    const payload = { places: [], ranks: [], moments: [], moment_places: [] };
+    let after = -1;
+    for (;;) {
+      const pages = all('SELECT seq, phase, payload FROM search_fusion_projection_pages WHERE session = ? AND identity = ? AND seq > ? ORDER BY seq LIMIT 32', session, identity, after);
+      for (const page of pages) payload[page.phase].push(...JSON.parse(page.payload));
+      if (pages.length < 32) break;
+      after = pages.at(-1).seq;
+    }
+    for (const moment of payload.moments) moment.places = [];
+    const moments = new Map(payload.moments.map(moment => [moment.ordinal, moment]));
+    for (const row of payload.moment_places) {
+      const moment = moments.get(row.ordinal);
+      const base = config.lanes.find(item => row.lane === item.id || row.lane.startsWith(`${item.id}@`));
+      if (!moment || !base) continue;
+      const place = row.lane === base.id ? base.place : row.lane.slice(row.lane.lastIndexOf('@') + 1);
+      if (!moment.places.includes(place)) moment.places.push(place);
+    }
+    return payload;
+  }
+
+  /**
+   * The index half of a search (invariant 7): the lanes this owner keeps an index for (words in results and in the index,
+   * meaning in results, words in records) are answered here, and the lanes still waiting are named. Answers
+   * { question, terms, answered (per planned lane; null for a lane this half does not answer), unavailable, pending,
+   * still_reading }, which finish() takes as they are.
+   */
+  async function indexSearch(question, { places = null, sources = null, matches = null, encoded = null } = {}, executionLanes = null) {
+    question = String(question ?? '').trim().slice(0, 500);
+    const terms = [...new Set(words(question).filter(word => word.length >= config.min_word_length))];
+    const lanes = planned(places, sources, matches);
+    const unavailable = [], pending = [], participated = new Map();
+    const report = {
+      unavailable: (lane, reason) => unavailable.push({ lane: lane.id, place: lane.place, source: lane.source, reason }),
+      pending: lane => pending.push({ lane: lane.id, place: lane.place, source: lane.source }),
+    };
+    const selected = executionLanes === null ? null : new Set(executionLanes);
+    const executes = lane => selected === null || selected.has(lane.id);
+    const walkScope = {
+      places: places ? [...places].sort() : null,
+      sources: sources ? [...sources].sort() : null,
+      matches: matches ? [...matches].sort() : null,
+      execution: selected ? [...selected].sort() : null,
+    };
+    const stale = await staleLanes(lanes.filter(executes));
+    const stillReading = Object.fromEntries(lanes.filter(lane => stale.has(lane.id)).map(lane => [lane.id, 1]));
+    const executing = lanes.filter(executes);
+    const retiring = new Set((executing.length ? all(`SELECT asked.value AS lane FROM json_each(?) AS asked
+      WHERE EXISTS (SELECT 1 FROM search_retired_lane_cleanup WHERE lane = asked.value)
+        OR EXISTS (SELECT 1 FROM search_set_cleanup WHERE lane = asked.value) LIMIT ?`,
+    JSON.stringify(executing.map(lane => lane.id)), executing.length) : []).map(row => row.lane));
+    const laneAnswers = question ? await Promise.all(lanes.map(async lane => {
+      if (!INDEX_MATCHES.has(lane.match) || !executes(lane) || retiring.has(lane.id)) return null;
+      const tookPart = new Set();
+      const laneReport = { ...report, answered: actual => tookPart.add(actual.id) };
+      try {
+        const answer = await mechanisms[lane.match](lane, { question, terms, report: laneReport, places, walkScope, given: encoded?.[lane.id] ?? null });
+        if (!lane.sets_path && !answer?.pending && !unavailable.some(item => item.lane === lane.id) && !pending.some(item => item.lane === lane.id)) tookPart.add(lane.id);
+        if (tookPart.size && !stale.has(lane.id)) participated.set(lane.id, [...tookPart]);
+        if (answer?.candidate_ref) {
+          if (answer.pending) { report.pending(lane); return null; }
+          return { candidate_ref: answer.candidate_ref };
+        }
+        return (answer ?? []).map(hit => ({ ...hit, lane: hit.lane ?? lane }));
+      } catch (error) { report.unavailable(lane, reasonOf(error)); return []; }
+    })) : lanes.map(() => null);
+    const candidate_refs = laneAnswers.flatMap((answer, at) => answer?.candidate_ref ? [{ lane: lanes[at].id, source: lanes[at].source, place: lanes[at].place, ...answer.candidate_ref }] : []);
+    const answered = laneAnswers.map(answer => answer?.candidate_ref ? [] : answer);
+    return { question, terms, answered, candidate_refs, fusion_session: fusionSessionFor(question, { places, sources, matches }), fusion_scope: { places, sources, matches }, unavailable, pending, participated: Object.fromEntries(participated), still_reading: stillReading };
+  }
+
+  /**
+   * The finish half of a search: the names and connected-service lanes are answered here (from the person's store, which
+   * the writer keeps), merged with the index half's answers when they are given. Then hidden files are left out, things
+   * are made one per file, ranked and described. With no partial, every index lane is named as still reading (an owner
+   * that keeps no index, such as the writer's finish-only owner).
+   */
+  async function finish(question, { places = null, sources = null, matches = null, limit = config.limit } = {}, partial = null) {
+    question = String(question ?? '').trim().slice(0, 500);
+    const terms = [...new Set(words(question).filter(word => word.length >= config.min_word_length))];
+    const lanes = planned(places, sources, matches);
+    const given = partial ?? { answered: lanes.map(() => null), unavailable: [], pending: [], still_reading: Object.fromEntries(lanes.filter(lane => INDEX_MATCHES.has(lane.match)).map(lane => [lane.id, 1])) };
+    const unavailable = [...given.unavailable], pending = [...given.pending];
+    const participated = new Map(Object.entries(given.participated ?? {}));
+    const report = {
+      unavailable: (lane, reason) => unavailable.push({ lane: lane.id, place: lane.place, source: lane.source, reason }),
+      pending: lane => pending.push({ lane: lane.id, place: lane.place, source: lane.source }),
+    };
+    const answered = question ? await Promise.all(lanes.map(async (lane, at) => {
+      if (INDEX_MATCHES.has(lane.match)) return given.answered[at] ?? [];
+      try {
+        const found = await mechanisms[lane.match](lane, { question, terms, report });
+        if (!unavailable.some(item => item.lane === lane.id) && !pending.some(item => item.lane === lane.id)) participated.set(lane.id, [lane.id]);
+        return found.map(hit => ({ ...hit, lane }));
+      }
+      catch (error) { report.unavailable(lane, reasonOf(error)); return []; }
+    })) : [];
+    // An index lane still reading is still working, as a picture model starting is: it is named pending, so every screen
+    // and AI that reads this answer asks again rather than taking an empty answer as final (a follower still rebuilding).
+    if (question) for (const lane of lanes) if (given.still_reading?.[lane.id] && !pending.some(item => item.lane === lane.id)) report.pending(lane);
+    // A file the person deleted or archived and left with no name is not found until it is put back.
+    const found = answered.flat();
+    const hidden = hiddenAmong(sql, found.map(hit => hit.identity));
+    const shown = hidden.size ? found.filter(hit => !hidden.has(hit.identity)) : found;
+    const canonical = canonicalFiles([...new Set(shown.filter(hit => hit.identity).map(hit => hit.identity))]);
+    const keyOf = hit => (hit.identity ? `file:${canonical.get(hit.identity)}` : hit.key);
+
+    // Each lane's own ranking (its hits by score, one place per thing); a word-index lane whose best hit holds few of
+    // the asked words sits this question out (the word gate, measured held-out in the find-by-meaning plan §9).
+    const fusion = config.fusion ?? {};
+    const rankings = new Map();
+    for (const hit of [...shown].sort((a, b) => b.score - a.score)) {
+      const ranking = rankings.get(hit.lane.id) ?? { lane: hit.lane, keys: [] };
+      rankings.set(hit.lane.id, ranking);
+      if (!ranking.keys.includes(keyOf(hit))) ranking.keys.push(keyOf(hit));
+    }
+    const satOut = [];
+    for (const [id, { lane, keys }] of rankings) {
+      if (lane.match !== 'words-in-index' || !terms.length || !Number.isFinite(fusion.word_confidence_floor)) continue;
+      const best = shown.find(hit => hit.lane.id === id && keyOf(hit) === keys[0]);
+      const held = words(best?.said ?? '');
+      if (terms.filter(term => held.some(word => word.startsWith(term))).length / terms.length < fusion.word_confidence_floor) { rankings.delete(id); satOut.push({ lane: id, reason: 'its best match holds few of the asked words' }); }
+    }
+    const hits = shown.filter(hit => rankings.has(hit.lane.id));
+    const weights = answers ? answers.weights([...rankings.keys()]) : {};
+    const k = Number.isFinite(fusion.k) ? fusion.k : 60;
+    const candidateRefs = given.candidate_refs ?? [];
+    const candidateSession = given.fusion_session ?? fusionSessionFor(question, { places, sources, matches });
+    let candidateReady = false;
+    let candidateStagePending = false;
+    if (candidateRefs.length) {
+      const fingerprint = candidateFusionFingerprint(candidateRefs, { places, sources, matches });
+      const fusionChanged = ensureCandidateFusion(candidateSession, fingerprint);
+      const fusionReady = candidateFusionReady(candidateSession, fingerprint);
+      if (fusionChanged) {
+        given.candidate_refs = candidateRefs.map(ref => ({ ...ref, transferred: false }));
+        given.pending = [...(given.pending ?? []), ...candidateRefs.map(ref => ({ lane: ref.lane, source: ref.source, place: ref.place }))];
+        for (const ref of candidateRefs) report.pending({ id: ref.lane, source: ref.source, place: ref.place });
+        candidateStagePending = true;
+      }
+      const candidateInputsStable = fusionReady && all('SELECT 1 FROM search_fusion_session_state WHERE session = ? AND fingerprint = ? LIMIT 1', candidateSession, fingerprint).length > 0;
+      if (candidateInputsStable) {
+        let staged = false;
+        for (const [laneId, ranking] of rankings) {
+          const laneHits = shown.filter(hit => hit.lane.id === laneId).sort((a, b) => b.score - a.score);
+          const unique = [];
+          const seen = new Set();
+          for (let at = 0; at < laneHits.length; at += 1) {
+            const hit = laneHits[at], key = keyOf(hit);
+            if (seen.has(key)) continue;
+            seen.add(key);
+            unique.push({ identity: hit.identity ? canonical.get(hit.identity) : `${KEYED}${key}`, lane: laneId, score: hit.score, source_seq: at, ...(!hit.identity ? { key } : {}) });
+          }
+          const detailFingerprint = laneHits.map((hit, at) => [hit.identity ? canonical.get(hit.identity) : null, hit.score, at, hit.n ?? 0, hit.start ?? 0, hit.end ?? 0, Boolean(hit.timed), hit.said ?? null]);
+          const laneFingerprint = identityOf(JSON.stringify([unique.map(({ identity, score, source_seq }) => [identity, score, source_seq]), detailFingerprint]));
+          // reads-ok: offset is a saved array position in one primary-key row, never a SQL OFFSET scan.
+          let progress = all('SELECT offset, detail_offset, fingerprint, done FROM search_fusion_ordinary_progress WHERE session = ? AND lane = ? LIMIT 1', candidateSession, laneId)[0];
+          if (progress && progress.fingerprint !== laneFingerprint) {
+            resetCandidateFusion(candidateSession);
+            given.candidate_refs = candidateRefs.map(ref => ({ ...ref, transferred: false }));
+            candidateStagePending = true;
+            staged = true;
+            break;
+          }
+          if (progress?.done) continue;
+          if (!progress) {
+            const done = !unique.length && !laneHits.length;
+            sql.exec('INSERT INTO search_fusion_ordinary_progress (session, lane, offset, detail_offset, fingerprint, done) VALUES (?, ?, 0, 0, ?, ?)', candidateSession, laneId, laneFingerprint, Number(done));
+            progress = { offset: 0, detail_offset: 0, fingerprint: laneFingerprint, done: Number(done) };
+          }
+          if (progress.done) continue;
+          const offset = progress.offset;
+          const pageRows = unique.slice(offset, offset + candidatePages.pageSize);
+          const detailOffset = progress.detail_offset ?? 0;
+          const detailPage = laneHits.slice(detailOffset, detailOffset + candidatePages.pageSize).flatMap((hit, index) => {
+            if (!hit.identity) return [];
+            return [{
+              identity: canonical.get(hit.identity) ?? hit.identity, lane: laneId, score: hit.score,
+              source_seq: detailOffset + index, n: hit.n ?? 0, start: hit.start ?? 0, end: hit.end ?? 0,
+              timed: Boolean(hit.timed), said: hit.said ?? null,
+            }];
+          });
+          const base = ranking.lane;
+          const descriptor = { baseRank: base.rank, weight: weights[laneId] ?? 1, order: lanes.indexOf(base) };
+          const savedLane = all('SELECT base_rank, weight FROM search_fusion_lanes WHERE session = ? AND lane = ? LIMIT 1', candidateSession, laneId)[0];
+          if (savedLane && (savedLane.base_rank !== descriptor.baseRank || savedLane.weight !== descriptor.weight)) {
+            resetCandidateFusion(candidateSession);
+            given.candidate_refs = candidateRefs.map(ref => ({ ...ref, transferred: false }));
+            candidateStagePending = true;
+            staged = true;
+            break;
+          }
+          if (!savedLane) candidatePages.setFusionLane(candidateSession, laneId, descriptor.baseRank, descriptor.weight);
+          const nextOffset = offset + pageRows.length;
+          const nextDetailOffset = detailOffset + Math.min(candidatePages.pageSize, laneHits.length - detailOffset);
+          const isDone = nextOffset >= unique.length && nextDetailOffset >= laneHits.length;
+          candidatePages.rankCandidatePage(candidateSession, pageRows, new Map([[laneId, descriptor]]), {
+            k, details: false, detailRows: detailPage,
+            progress: { lane: laneId, offset: nextOffset, detailOffset: nextDetailOffset, done: isDone },
+          });
+          if (!isDone) {
+            report.pending(base);
+            candidateStagePending = true;
+          }
+          staged = true;
+          break;
+        }
+        const refsDone = candidateRefs.every(ref => ref.transferred);
+        const ordinaryDone = !all('SELECT 1 FROM search_fusion_ordinary_progress WHERE session = ? AND done = 0 LIMIT 1', candidateSession).length;
+        candidateReady = refsDone && ordinaryDone && !candidateStagePending && !candidatePages.resetPending(candidateSession);
+        // Definition ranks are in the fingerprint; learned weights are in the durable revision.
+        // No complete lane-catalog read is needed to validate a resumed fusion.
+        if (!refsDone) candidateStagePending = true;
+        if (candidateStagePending && !given.pending.some(item => candidateRefs.some(ref => ref.lane === item.lane))) {
+          const ref = candidateRefs.find(item => !item.transferred);
+          if (ref) report.pending({ id: ref.lane, source: ref.source, place: ref.place });
+        }
+        if (staged && !candidateReady) candidateStagePending = true;
+      }
+    }
+    // Reciprocal rank fusion: a thing is worth each lane's weight over (k + its rank in that lane), so lanes whose scores
+    // are on different scales (words, one model, another model) add by rank, never by raw score.
+    const fused = (laneId, key) => {
+      const { lane, keys } = rankings.get(laneId);
+      const rank = keys.indexOf(key) + 1;
+      return { rank, value: lane.rank * (weights[laneId] ?? 1) / (k + rank) };
+    };
+
+    // One thing per file, record or service item; its places, its moments and its weight.
+    const things = new Map();
+    for (const hit of hits.sort((a, b) => b.score * b.lane.rank - a.score * a.lane.rank)) {
+      const identity = hit.identity ? canonical.get(hit.identity) : null;
+      const key = keyOf(hit);
+      const thing = things.get(key) ?? { key, source: hit.lane.source, identity, hit, lanes: new Map(), ranks: {}, places: new Map(), moments: [] };
+      things.set(key, thing);
+      if (!thing.lanes.has(hit.lane.id)) { const { rank, value } = fused(hit.lane.id, key); thing.lanes.set(hit.lane.id, value); thing.ranks[hit.lane.id] = rank; }
+      if (!thing.places.has(hit.lane.place)) thing.places.set(hit.lane.place, { place: hit.lane.place, label: placeLabel[hit.lane.place] ?? hit.lane.place, ...(hit.timed ? { start: round(hit.start, 2) } : {}), said: hit.said ?? null, score: round(hit.score) });
+      if (hit.timed || !thing.moments.length) {
+        const near = thing.moments.find(moment => (moment.timed && hit.timed && Math.abs(moment.start - hit.start) < config.merge_seconds) || (!moment.timed && !hit.timed));
+        if (near) { if (!near.places.includes(hit.lane.place)) near.places.push(hit.lane.place); near.said ??= hit.said; }
+        else if (thing.moments.length < config.moments_per_thing) thing.moments.push({ start: round(hit.start, 2), end: round(hit.end, 2), timed: Boolean(hit.timed), said: hit.said ?? null, places: [hit.lane.place] });
+      }
+    }
+    let ranked = [...things.values()].map(thing => ({ ...thing, score: [...thing.lanes.values()].reduce((sum, value) => sum + value, 0) }))
+      .sort((a, b) => b.score - a.score).slice(0, limit);
+    let learningLanes = [...rankings.keys()];
+    if (candidateReady) {
+      const top = candidatePages.topTotals(candidateSession, null, limit).rows;
+      const identities = top.filter(row => !isKeyed(row.identity)).map(row => row.identity);
+      const hydration = hydrateFusionDetails(candidateSession, identities);
+      if (!hydration.done) {
+        candidateReady = false;
+        candidateStagePending = true;
+        const pendingLane = config.lanes.find(item => hydration.lane === item.id || hydration.lane?.startsWith(`${item.id}@`));
+        report.pending(pendingLane ? { ...pendingLane, id: hydration.lane } : { id: hydration.lane ?? 'search-candidate-details' });
+      } else {
+        const projected = projectFusionDetails(candidateSession);
+        if (!projected.done) {
+          candidateReady = false;
+          candidateStagePending = true;
+          const pendingLane = config.lanes.find(item => projected.lane === item.id || projected.lane?.startsWith(`${item.id}@`));
+          report.pending(pendingLane ? { ...pendingLane, id: projected.lane } : { id: projected.lane ?? 'search-candidate-details' });
+        } else for (const row of top) {
+          if (isKeyed(row.identity)) continue;
+          const identity = row.identity;
+          const key = `file:${identity}`;
+          const payload = readFusionProjection(candidateSession, identity);
+          const laneRows = payload.places.sort((a, b) => b.priority - a.priority || a.lane_order - b.lane_order || a.source_seq - b.source_seq || (a.lane < b.lane ? -1 : a.lane > b.lane ? 1 : 0));
+          const rankedLanes = payload.ranks;
+          if (!laneRows.length || !rankedLanes.length) continue;
+          const firstRow = laneRows[0];
+          const firstBase = config.lanes.find(item => firstRow.lane === item.id || firstRow.lane.startsWith(`${item.id}@`));
+          if (!firstBase) continue;
+          const firstPlace = firstRow.lane === firstBase.id ? firstBase.place : firstRow.lane.slice(firstRow.lane.lastIndexOf('@') + 1);
+          const firstLane = { ...firstBase, id: firstRow.lane, place: firstPlace };
+          const thing = things.get(key) ?? { key, source: firstBase.source, identity, hit: null, lanes: new Map(), ranks: {}, places: new Map(), moments: [] };
+          thing.source = firstBase.source;
+          thing.hit = { lane: firstLane, title: identity, score: firstRow.score, timed: Boolean(firstRow.timed), start: firstRow.start, end: firstRow.end, said: firstRow.said };
+          thing.lanes = new Map();
+          thing.ranks = {};
+          for (const lane of rankedLanes) {
+            thing.lanes.set(lane.lane, lane.base_rank * lane.weight / (k + lane.rank));
+            thing.ranks[lane.lane] = lane.rank;
+          }
+          thing.places = new Map();
+          for (const placeRow of laneRows) {
+            const base = config.lanes.find(item => placeRow.lane === item.id || placeRow.lane.startsWith(`${item.id}@`));
+            if (!base) continue;
+            const place = placeRow.lane === base.id ? base.place : placeRow.lane.slice(placeRow.lane.lastIndexOf('@') + 1);
+            if (!thing.places.has(place)) thing.places.set(place, {
+              place, label: placeLabel[place] ?? place, ...(placeRow.timed ? { start: round(placeRow.start, 2) } : {}),
+              said: placeRow.said ?? null, score: round(placeRow.score),
+            });
+          }
+          thing.moments = payload.moments.map(moment => ({
+            start: round(moment.start, 2), end: round(moment.end, 2), timed: Boolean(moment.timed), said: moment.said ?? null,
+            places: moment.places,
+          }));
+          things.set(key, thing);
+        }
+        const lanesWithRanks = [];
+        let afterLane = '';
+        for (;;) {
+          const page = all('SELECT lane FROM search_fusion_lanes WHERE session = ? AND lane > ? ORDER BY lane LIMIT ?', candidateSession, afterLane, PAGE);
+          lanesWithRanks.push(...page.map(row => row.lane));
+          if (page.length < PAGE) break;
+          afterLane = page.at(-1).lane;
+        }
+        learningLanes = [...new Set([...learningLanes, ...lanesWithRanks])];
+        ranked = top.map(row => {
+          const key = isKeyed(row.identity) ? row.identity.slice(KEYED.length) : `file:${row.identity}`;
+          const thing = things.get(key);
+          return thing ? { ...thing, score: row.score } : null;
+        }).filter(Boolean);
+      }
+    }
+    const described = describeFiles(ranked.filter(thing => thing.identity).map(thing => thing.identity));
+    const results = ranked.map(thing => {
+      const file = thing.identity ? described.get(thing.identity) : null;
+      const first = thing.moments.find(moment => moment.timed) ?? thing.moments[0] ?? { start: 0, end: 0, timed: false, said: null, places: [] };
+      const foundIn = [...thing.places.keys()];
+      return {
+        id: thing.key, source: thing.source, source_label: sourceById[thing.source]?.label ?? thing.source,
+        trust: sourceById[thing.source]?.trust ?? config.trust.unclassified,
+        kind_label: thing.hit.kind_label ?? null,
+        title: file ? file.title : thing.hit.title, name: file ? file.name : thing.hit.title, detail: thing.hit.detail ?? null,
+        ...(file ? { identity: thing.identity, ...file } : { identity: null, file: null, stored: false, bytes: null, open_url: null, media_kind: null, media_type: null, duration: null, path: null }),
+        url: thing.hit.url ?? null, open: thing.hit.open ?? null, at: thing.hit.at ?? null,
+        found_in: foundIn, lanes: foundIn, places: [...thing.places.values()], moments: thing.moments,
+        start: first.start, end: first.end, timed: first.timed, said: first.said ?? [...thing.places.values()].find(place => place.said)?.said ?? null,
+        score: round(thing.score, 5),
+      };
+    });
+    // What this search showed, so a use of one of its files soon after teaches each lane's weight (src/search-answers.mjs).
+    if (answers && question && results.length) {
+      const sat = new Set(satOut.map(item => item.lane));
+      const tookPart = new Set(learningLanes.filter(id => !sat.has(id)));
+      for (const [parent, ids] of participated) if (!given.still_reading?.[parent]) for (const id of ids) if (!sat.has(id)) tookPart.add(id);
+      answers.asked(crypto.randomUUID(), [...tookPart], ranked.filter(thing => thing.identity).map(thing => ({ identity: thing.identity, ranks: thing.ranks })));
+    }
+    return {
+      question, terms,
+      places: config.places, sources: config.sources.map(source => ({ id: source.id, label: source.label, trust: source.trust ?? config.trust.unclassified })),
+      results, unavailable, pending, still_reading: given.still_reading, sat_out: satOut,
+      // Where an answer that was wrong or missing is reported, so it becomes a card someone fixes (src/answer-tools.mjs).
+      ...(config.report ? { report: config.report } : {}),
+    };
+  }
+
+  /**
+   * An answer read through feed position `through` (src/person-store.mjs searchFinish): `ahead` are the feed rows after it,
+   * and `full` says the page of them was full, so more may follow. The index lanes of those rows' kinds are named still
+   * reading and the hits already found are kept; a full page names every index lane. No rows ahead: the partial is unchanged.
+   */
+  function behind(partial, ahead, { places = null, sources = null, matches = null } = {}, full = false) {
+    const kinds = new Set(ahead.map(row => row.kind));
+    const still = { ...partial.still_reading };
+    for (const lane of planned(places, sources, matches)) if (INDEX_MATCHES.has(lane.match) && (full || kinds.has(lane.kind))) still[lane.id] = 1;
+    return { ...partial, still_reading: still };
+  }
+
+  // The follower sends candidate rows to the finisher one stable score page at a time. Both operations keep their
+  // identity/lane tuple in the caller's durable transfer cursor, so a repeated RPC is idempotent.
+  function candidatePage(ref, cursor = {}) {
+    if (!ref || !['nearest', 'sets'].includes(ref.kind) || typeof ref.lane !== 'string' || typeof ref.question !== 'string') throw new TypeError('invalid search candidate reference');
+    return candidatePages.candidatePage(ref, cursor);
+  }
+  function candidateFusionRevision() {
+    sql.exec(`CREATE TABLE IF NOT EXISTS search_fusion_revisions (name TEXT PRIMARY KEY, revision INTEGER NOT NULL DEFAULT 0)`);
+    const exists = name => all("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ? LIMIT 1", name).length > 0;
+    const tables = [
+      ['aliases', 'namespace_aliases'], ['names', 'namespace_names'], ['set_aside', 'namespace_set_aside_names'],
+      ['weights', 'search_weights'],
+    ];
+    for (const [name, table] of tables) {
+      if (!exists(table)) continue;
+      sql.exec(`INSERT OR IGNORE INTO search_fusion_revisions (name, revision) VALUES ('${name}', 0)`);
+      for (const [suffix, action] of [['insert', 'INSERT'], ['update', 'UPDATE'], ['delete', 'DELETE']]) {
+        sql.exec(`CREATE TRIGGER IF NOT EXISTS search_fusion_${name}_${suffix} AFTER ${action} ON ${table} BEGIN
+          UPDATE search_fusion_revisions SET revision = revision + 1 WHERE name = '${name}';
+        END`);
+      }
+    }
+    return JSON.stringify(Object.fromEntries(tables.map(([name, table]) => [name,
+      exists(table) ? all('SELECT revision FROM search_fusion_revisions WHERE name = ? LIMIT 1', name)[0]?.revision ?? 0 : null])));
+  }
+  function ensureCandidateFusion(session, fingerprint) {
+    return candidatePages.ensureFusionFingerprint(session, fingerprint, candidateFusionRevision());
+  }
+  function candidateFusionReady(session, fingerprint) {
+    return candidatePages.fusionReady(session, fingerprint, candidateFusionRevision());
+  }
+  function candidateFusionFingerprint(refs, options = {}) {
+    return JSON.stringify({
+      version: 2,
+      refs: (refs ?? []).map(({ transferred, ...ref }) => ref),
+      places: options.places ?? null, sources: options.sources ?? null, matches: options.matches ?? null,
+      lanes: config.lanes.map(({ id, rank }) => [id, rank]), fusion: config.fusion,
+    });
+  }
+  function resetCandidateFusion(session) {
+    candidatePages.resetFusion(session);
+  }
+  function acceptCandidatePage(session, lane, rows, { k = config.fusion?.k ?? 60, transfer = null, participated = [] } = {}) {
+    if (!Array.isArray(rows) || rows.length > candidatePages.pageSize || !Array.isArray(participated) || participated.length > candidatePages.pageSize
+      || participated.some(id => typeof id !== 'string')) throw new RangeError(`search candidate transfer exceeds ${candidatePages.pageSize}`);
+    const identities = [...new Set(rows.map(row => row.identity).filter(Boolean))];
+    const hidden = hiddenAmong(sql, identities);
+    const canonical = canonicalFiles(identities);
+    const accepted = rows.filter(row => row.identity && !hidden.has(row.identity)).map(row => ({
+      ...row, identity: canonical.get(row.identity) ?? row.identity, lane: row.set_lane || lane,
+    }));
+    const effectiveLanes = [...new Set([...accepted.map(hit => hit.lane), ...participated])];
+    const weights = answers ? answers.weights(effectiveLanes) : {};
+    const descriptors = new Map();
+    for (const laneId of effectiveLanes) {
+      const base = config.lanes.find(item => laneId === item.id || laneId.startsWith(`${item.id}@`));
+      if (!base) continue;
+      const descriptor = { baseRank: base.rank, weight: weights[laneId] ?? 1, order: config.lanes.indexOf(base) };
+      descriptors.set(laneId, descriptor);
+      const saved = all('SELECT base_rank, weight FROM search_fusion_lanes WHERE session = ? AND lane = ? LIMIT 1', session, laneId)[0];
+      if (saved && (saved.base_rank !== descriptor.baseRank || saved.weight !== descriptor.weight)) {
+        const error = new Error('search fusion inputs changed; restart the candidate walk');
+        error.code = 'SEARCH_FUSION_RESTART';
+        throw error;
+      }
+      if (!saved) candidatePages.setFusionLane(session, laneId, descriptor.baseRank, descriptor.weight);
+    }
+    candidatePages.rankCandidatePage(session, accepted, descriptors, { k, transfer });
+  }
+  async function advanceLocalCandidateTransfer(question, partial) {
+    const refs = partial?.candidate_refs ?? [];
+    if (!refs.length) return partial;
+    const fusionSession = partial.fusion_session ?? fusionSessionFor(question);
+    realizeSearchCandidateTransfers(sql);
+    const fingerprint = candidateFusionFingerprint(refs, partial.fusion_scope ?? {});
+    const fusionChanged = ensureCandidateFusion(fusionSession, fingerprint);
+    if (!candidateFusionReady(fusionSession, fingerprint)) {
+      void fusionChanged;
+      partial.candidate_refs = refs.map(ref => ({ ...ref, transferred: false }));
+      const ref = refs[0];
+      if (ref) partial.pending = [...(partial.pending ?? []).filter(item => item.lane !== ref.lane), { lane: ref.lane, source: ref.source, place: ref.place }];
+      return partial;
+    }
+    let advanced = null;
+    for (const ref of refs) {
+      const session = JSON.stringify([String(question ?? '').trim().slice(0, 500), ref.lane, ref.kind, ref.question, Boolean(ref.remote)]);
+      let saved = all('SELECT after_score, after_seq, count, done, source_revision, fusion_session, cursor_json FROM search_candidate_transfers WHERE session = ? LIMIT 1', session)[0];
+      if (saved && saved.fusion_session !== fusionSession) {
+        sql.exec('DELETE FROM search_candidate_transfers WHERE session = ?', session);
+        saved = null;
+      }
+      if (saved?.done) continue;
+      if (!saved) sql.exec('INSERT OR IGNORE INTO search_candidate_transfers (session, lane, kind, source_question, fusion_session) VALUES (?, ?, ?, ?, ?)', session, ref.lane, ref.kind, ref.question, fusionSession);
+      let cursor = saved?.cursor_json ? JSON.parse(saved.cursor_json) : saved ? { score: saved.after_score, seq: saved.after_seq, count: saved.count } : {};
+      let page = candidatePages.candidatePage(ref, cursor);
+      if (saved?.source_revision != null && String(saved.source_revision) !== String(page.revision)) {
+        resetCandidateFusion(fusionSession);
+        partial.candidate_refs = refs.map(item => ({ ...item, transferred: false }));
+        partial.pending = [...(partial.pending ?? []).filter(item => item.lane !== ref.lane), { lane: ref.lane, source: ref.source, place: ref.place }];
+        return partial;
+      }
+      const transfer = { session, afterScore: page.afterScore, afterSeq: page.afterSeq, count: page.count, done: !page.more, sourceRevision: page.revision, cursor: page.cursor };
+      try { acceptCandidatePage(fusionSession, ref.lane, page.rows, { transfer, participated: page.participated }); }
+      catch (error) {
+        if (error?.code !== 'SEARCH_FUSION_RESTART') throw error;
+        resetCandidateFusion(fusionSession);
+        partial.candidate_refs = refs.map(item => ({ ...item, transferred: false }));
+        partial.pending = [...(partial.pending ?? []).filter(item => item.lane !== ref.lane), { lane: ref.lane, source: ref.source, place: ref.place }];
+        return partial;
+      }
+      advanced = { ref, done: !page.more };
+      break;
+    }
+    partial.candidate_refs = refs.map(ref => {
+      const session = JSON.stringify([String(question ?? '').trim().slice(0, 500), ref.lane, ref.kind, ref.question, Boolean(ref.remote)]);
+      const done = all('SELECT done FROM search_candidate_transfers WHERE session = ? LIMIT 1', session)[0]?.done === 1;
+      return { ...ref, transferred: done };
+    });
+    if (advanced && !advanced.done) partial.pending = [...(partial.pending ?? []).filter(item => item.lane !== advanced.ref.lane), {
+      lane: advanced.ref.lane, source: advanced.ref.source, place: advanced.ref.place,
+    }];
+    return partial;
+  }
+
+  // The index service for one store's lanes: `{ action: 'stats' | 'enable' | 'disable' | 'prune', lane? }`.
+  //   stats    each lane (or the one named): its mode, whether it is on, whether it waits (existence seeks, never a walk
+  //            of its backlog), and what it keeps as a count bounded by config.manage.count_most (`at_least` when it
+  //            reaches the bound, so a large lane costs the same as a small one)
+  //   enable / disable   the lane's switch; a disabled lane stops being built and asked, and keeps what it holds
+  //   prune    drops a lane's derived rows, config.manage.prune_page results a call, and answers `more` until it is
+  //            empty; the last page of an enabled lane starts its rebuild from the results
+  // A lane that cannot be switched or pruned (an unknown one, or one this owner keeps no index for) is refused in words.
+  function laneIndex({ action, lane: asked = null } = {}) {
+    const manage = config.manage ?? {};
+    const most = manage.count_most ?? 1000, page = manage.prune_page ?? 200;
+    if (!index) throw new Error('This store keeps no search index.');
+    if (!['stats', 'enable', 'disable', 'prune'].includes(action)) throw new Error('action is stats, enable, disable or prune.');
+    const known = keptLanes();
+    const one = asked === null ? null : known.find(lane => lane.id === asked);
+    if (asked !== null && !one) throw new Error(`${asked} is not an index lane here. They are: ${known.map(lane => lane.id).join(', ')}.`);
+    if (action !== 'stats' && !one) throw new Error(`${action} needs the lane to ${action}.`);
+    const off = switchedOff();
+    const describe = lane => {
+      const waiting = all(`SELECT 1 WHERE EXISTS (SELECT 1 FROM search_changed WHERE lane = ?) OR EXISTS (SELECT 1 FROM search_backfill WHERE lane = ?)
+        OR EXISTS (SELECT 1 FROM search_retired_lane_cleanup WHERE lane = ?) OR EXISTS (SELECT 1 FROM search_set_cleanup WHERE lane = ?) LIMIT 1`, lane.id, lane.id, lane.id, lane.id).length > 0;
+      const held = all('SELECT COUNT(*) AS n FROM (SELECT 1 FROM search_marks WHERE lane = ? LIMIT ?)', lane.id, most + 1)[0].n;
+      return { lane: lane.id, mode: lane.match, kind: lane.kind, enabled: !off.has(lane.id), waiting, kept: held > most ? { at_least: most } : { exact: held } };
+    };
+    if (action === 'stats') return { lanes: (one ? [one] : known).map(describe) };
+    if (action === 'enable' || action === 'disable') {
+      transaction(() => sql.exec('INSERT INTO search_lane_switch (lane, enabled, mode, changed_at) VALUES (?, ?, ?, ?) ON CONFLICT(lane) DO UPDATE SET enabled = excluded.enabled, mode = excluded.mode, changed_at = excluded.changed_at',
+        one.id, action === 'enable' ? 1 : 0, one.match, new Date().toISOString()));
+      loadSwitches();
+      return { lane: one.id, enabled: action === 'enable', mode: one.match };
+    }
+    const marks = all('SELECT identity FROM search_marks WHERE lane = ? ORDER BY identity LIMIT ?', one.id, page + 1);
+    const batch = marks.slice(0, page);
+    transaction(() => {
+      for (const { identity } of batch) {
+        keepers[one.match].forget(one, identity);
+        sql.exec('DELETE FROM search_marks WHERE lane = ? AND identity = ?', one.id, identity);
+      }
+      if (marks.length <= page && !off.has(one.id)) {
+        sql.exec("INSERT INTO search_backfill (lane, kind, phase, cursor, force, sweep) VALUES (?, ?, 'results', '', 1, 0) ON CONFLICT(lane) DO UPDATE SET kind = excluded.kind, phase = 'results', cursor = '', force = 1", one.id, one.kind);
+      }
+    });
+    return { lane: one.id, pruned: batch.length, more: marks.length > page, ...(marks.length <= page && !off.has(one.id) ? { rebuilding: true } : {}) };
+  }
+
+  // The whole search of an owner that keeps the index: its index half, then its finish half. A follower answers the same
+  // way: its index half, then the writer's finish half (src/person-store.mjs searchFinish). An owner with no index runs
+  // finish alone and says every index lane is still reading.
+  async function search(question, options = {}) {
+    const partial = index ? await advanceLocalCandidateTransfer(question, await indexSearch(question, options)) : null;
+    return finish(question, options, partial);
+  }
+
+  return { search, laneIndex, indexSearch, encodeQuestion, finish, behind, backlog, building, fromBuilding, candidatePage, acceptCandidatePage, ensureCandidateFusion, candidateFusionReady, candidateFusionFingerprint, resetCandidateFusion, fusionSession: fusionSessionFor, advanceLocalCandidateTransfer, catchUp, feedStep, feedWaiting, forceBackfill,
+    // An erased record's words leave every record lane and the index segments that held them (parts/record-log erasable.mjs).
+    forgetRecord: id => recordIndex?.forget(id),
+    // How many rows of the record lanes hold all these words for these records (src/erasure-check.mjs): a count only.
+    countWords: (terms, ids) => (recordIndex ? recordIndex.countMatching(terms, ids) : 0),
+    stale: async () => (index ? (await staleLanes()).size + (all('SELECT 1 FROM search_set_cleanup LIMIT 1').length ? 1 : 0) + (all('SELECT 1 FROM search_retired_lane_discovery WHERE complete = 0 LIMIT 1').length ? 1 : 0) + (all('SELECT 1 FROM search_retired_lane_cleanup LIMIT 1').length ? 1 : 0) + (all('SELECT 1 FROM search_encoder_cleanup LIMIT 1').length ? 1 : 0) + (all('SELECT 1 FROM search_walk_cleanup LIMIT 1').length ? 1 : 0) + (all('SELECT 1 FROM search_candidate_cleanup LIMIT 1').length ? 1 : 0) + (all("SELECT 1 FROM search_encoder_walks WHERE spaces <> '{}' LIMIT 1").length ? 1 : 0) + (all('SELECT 1 FROM search_walk_activity WHERE touched_at < ? LIMIT 1', Date.now() - WALK_TTL_MS).length ? 1 : 0) + (vectorIndex.due() ? 1 : 0) : 0),
+    recordStale: async () => (recordIndex ? recordIndex.behind() : false) };
+}
+
+/** The options a route reads for search: `places`, `sources` and `matches` as comma lists, `limit` as a number. */
+export function searchOptions(params) {
+  const list = name => (params.get(name) ? params.get(name).split(',').map(item => item.trim()).filter(Boolean) : null);
+  const limit = Number(params.get('limit'));
+  return { places: list('places'), sources: list('sources'), matches: list('matches'), ...(Number.isInteger(limit) && limit > 0 ? { limit: Math.min(limit, 200) } : {}) };
+}

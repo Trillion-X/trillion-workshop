@@ -14,7 +14,7 @@
 //   2. A decision runs under the method snapshot it was opened with; later edits to the rows never rewrite it.
 //   3. The question's answer_schema is built from the same rows validation reads, so the two cannot disagree.
 import { publicAddressOrNull } from './public-address.mjs';
-import { checksOfBranch, lineageOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
+import { checksOfBranch, lineageOf, parentOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
 
 // A field's shape: its declared kind, or a list of texts when it only says list.
 export const kindOf = spec => spec.kind ?? (spec.list ? 'list' : 'text');
@@ -28,7 +28,8 @@ function loadMethods(methodData, link) {
     if (resolved.has(id)) return resolved.get(id);
     const data = raw.get(id);
     if (!data) throw new Error(`Unknown method ${id}`);
-    const base = data[link] ? resolve(data[link]) : { checks: [], steps: [], preset: {} };
+    const parent = parentOf(data, link);
+    const base = parent ? resolve(parent) : { checks: [], steps: [], preset: {} };
     const method = {
       id: data.id, name: data.name, about: data.about,
       checks: data.checks && Array.isArray(data.checks) ? data.checks : base.checks,
@@ -139,7 +140,11 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
   // default, otherwise the first method.
   const defaultMethodId = (purpose = 'decision') => defaults.get(purpose) ?? defaults.get('decision') ?? methods.keys().next().value;
   const methodOf = record => record.method ?? methods.get(defaultMethodId());
-  const voiceOf = id => voices.get(id) ?? (methodData.find(data => data.id === id)?.[link] ? voiceOf(methodData.find(data => data.id === id)[link]) : { rows: [], avoid: [] });
+  const voiceOf = id => {
+    if (voices.has(id)) return voices.get(id);
+    const parent = parentOf(methodData.find(data => data.id === id), link);
+    return parent ? voiceOf(parent) : { rows: [], avoid: [] };
+  };
 
   // How the decision is told to the person: the method's voice rows, with the phrases each rules out.
   const howToSayIt = record => {

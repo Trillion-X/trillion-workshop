@@ -1,0 +1,37 @@
+// Optional current presentation for the existing edge inbox. Publication never
+// owns inbox bytes, receipts, retry state, request identity or acknowledgement.
+import bootstrap from '../records/share-inbox.json' with { type: 'json' };
+import { resolveMarketplaceContentSource } from './marketplace-content-sources.mjs';
+
+const fields = new Set(['kept_words', 'too_big_words', 'waiting_status', 'refused_status', 'gave_up_reason', 'no_reason']);
+// A stalled optional source cannot hold custody acknowledgement or hide rows.
+// This finite read deadline is an engine latency bound, never a delivery retry.
+const PRESENTATION_WAIT_MS = 250;
+
+export async function readShareInboxPresentation(env, wanted, { read, current, waitMs = PRESENTATION_WAIT_MS } = {}) {
+  const selected = [...new Set(wanted)];
+  if (selected.some(field => !fields.has(field))) throw new TypeError('Choose a declared inbox presentation field.');
+  const states = {}, values = {};
+  const work = Promise.all(selected.map(async field => {
+    try {
+      const result = await resolveMarketplaceContentSource(env, { file: 'records/share-inbox.json', pointer: `/${field}` }, bootstrap[field], { read, current });
+      if (!result.found) states[field] = 'withdrawn';
+      else if (typeof result.value !== 'string' || result.value.length > 4096) states[field] = 'unavailable';
+      else { values[field] = result.value; states[field] = 'available'; }
+    } catch { states[field] = 'unavailable'; }
+  }));
+  let timer;
+  try {
+    await Promise.race([work, new Promise(resolve => { timer = setTimeout(resolve, waitMs); })]);
+    // Copy the completed selection: a late optional read never changes a reply
+    // that already acknowledged independently retained bytes.
+    return { values: { ...values }, states: Object.fromEntries(selected.map(field => [field, states[field] ?? 'unavailable'])) };
+  } finally { clearTimeout(timer); }
+}
+
+export function inboxPresentationMetadata(selected, wanted) {
+  const unavailable = Object.fromEntries(wanted.filter(field => selected.states[field] !== 'available').map(field => [field, selected.states[field]]));
+  if (!Object.keys(unavailable).length) return {};
+  const state = Object.values(unavailable).includes('unavailable') ? 'unavailable' : 'withdrawn';
+  return { presentation: { state, code: `share_inbox_presentation_${state}`, fields: unavailable } };
+}

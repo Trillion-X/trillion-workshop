@@ -1,0 +1,557 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { handleWorkMessages, isWorkMessagesPath } from '../src/work-messages.mjs';
+import { makeTools } from '../../../list-and-run-trillions-tools-for-any-ai/from-old-trillion/src/tools.mjs.held';
+import { NO_AI, sendToAllAis } from '../../../send-one-message-to-all-of-my-ais-at-once/src/send-to-all-ais.mjs';
+import { readFileSync } from 'node:fs';
+import deliveryWords from '../../../hand-off-jobs-between-agents/src/delivery-words.json' with { type: 'json' };
+
+const response = (value, status = 200) => Response.json(value, { status });
+const request = (path, { method = 'GET', body, origin = 'https://app.example' } = {}) => new Request(`https://app.example${path}`, {
+  method, headers: { origin, ...(body ? { 'content-type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}),
+});
+// The Home box's send-all is the account resource's messages:request (src/native-message-account-owner.mjs): one
+// sendToAllAis over the person's own routes. `callOf` reaches those routes the way that owner does, answer or refusal.
+const callOf = person => async (path, body) => {
+  const reply = await person.fetch(new Request(`https://person${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }));
+  const value = await reply.json().catch(() => ({}));
+  if (!reply.ok) throw Object.assign(new Error(value.error ?? `Trillion could not reach ${path}.`), { status: reply.status });
+  return value;
+};
+
+test('message workspace paths are explicit', () => {
+  assert.equal(isWorkMessagesPath('/work/api/messages'), true);
+  assert.equal(isWorkMessagesPath('/work/api/messages/thread'), true);
+  assert.equal(isWorkMessagesPath('/work/api/messages-elsewhere'), false);
+});
+
+test('thread list uses the indexed storage bridge and forwards the cursor unchanged', async () => {
+  const calls = [];
+  const person = { fetch: async () => response({}) };
+  const listConversations = async query => { calls.push(query); return { conversations: [], next_before: 'cursor:two' }; };
+  const result = await handleWorkMessages(request('/work/api/messages/threads?limit=7&before=cursor%3Aone&app=Muse'), { person, origin: 'https://app.example', listConversations });
+  assert.deepEqual(await result.json(), { conversations: [], next_before: 'cursor:two' });
+  assert.deepEqual(calls, [{ app: 'Muse', before: 'cursor:one', limit: '7' }]);
+});
+
+test('the signed-in page marks its messages as typed there, on both the Home box and a conversation reply', async () => {
+  const marks = [];
+  const person = { fetch: async req => {
+    const path = new URL(req.url).pathname;
+    if (req.method === 'POST') await req.json();
+    if (path === '/messages') { marks.push(req.headers.get('x-trillion-typed-on-signed-in-screen')); return response({ recorded: 1, ids: ['message:one'] }); }
+    return response({ event: { event_id: 'event:one' }, receiver: { route: 'push', live: true } });
+  } };
+  await handleWorkMessages(request('/work/api/messages/send', { method: 'POST', body: { app: 'Muse', conversation_id: 'muse-chat', text: 'hello there' } }), { person, origin: 'https://app.example' });
+  assert.deepEqual(marks, ['yes']);
+});
+
+test('sending keeps the exact text before it asks the agent delivery rail to wake a receiver', async () => {
+  const calls = [];
+  const person = { fetch: async req => {
+    const path = new URL(req.url).pathname;
+    const body = req.method === 'POST' ? await req.json() : null;
+    calls.push({ path, body });
+    if (path === '/messages') return response({ recorded: 1, ids: ['message:one'] });
+    if (path === '/agents/events') return response({ event: { event_id: 'event:one' }, delivery: { state: 'waiting' }, receiver: { route: 'push', live: true } });
+    return response({}, 404);
+  } };
+  const result = await handleWorkMessages(request('/work/api/messages/send', {
+    method: 'POST', body: { app: 'Muse', agent_id: 'muse-agent', conversation_id: 'muse-chat', text: '  Keep my exact spacing.  ' },
+  }), { person, origin: 'https://app.example' });
+  assert.equal(result.status, 200);
+  assert.deepEqual(await result.json(), {
+    message_id: 'message:one', recorded: 1,
+    delivery: { state: 'push', message: deliveryWords.sent.push.replace('{app}', 'Muse'), event_id: 'event:one' },
+  });
+  assert.deepEqual(calls.map(call => call.path), ['/messages', '/agents/events']);
+  assert.equal(calls[0].body.messages[0].text, '  Keep my exact spacing.  ');
+  assert.deepEqual(calls[1].body.refs, { message_id: 'message:one' });
+  assert.equal(calls[1].body.next_call.tool, 'read_messages');
+});
+
+// The sender is told what is true for the AI's route (src/agent-delivery.mjs): on the stream route, whether the
+// helper on its computer is listening this moment; with no route, that it reads the message when it next connects.
+for (const [receiver, delivery] of [
+  [{ route: 'next_connection', live: false }, { state: 'next_connection', message: 'Saved for Muse. It will see your message the next time it connects to Trillion.', event_id: null }],
+  [{ route: 'stream', live: true }, { state: 'stream_live', message: 'Sent to Muse. It is on your computer now and its reply will appear here.', event_id: 'event:two' }],
+  [{ route: 'stream', live: false }, { state: 'stream_away', message: 'Muse is not reachable right now, so your message is saved for it. To reach it at once, run node harness/wake-sessions.mjs on the computer it runs on.', event_id: 'event:two' }],
+]) {
+  test(`an AI on the ${receiver.route} route${receiver.route === 'stream' ? (receiver.live ? ' that is listening' : ' that is away') : ''} is described truthfully`, async () => {
+    const person = { fetch: async req => new URL(req.url).pathname === '/messages'
+      ? response({ recorded: 1, ids: ['message:two'] })
+      : response({ event: receiver.route === 'next_connection' ? null : { event_id: 'event:two' }, delivery: receiver.route === 'next_connection' ? null : { state: 'waiting' }, receiver }) };
+    const result = await handleWorkMessages(request('/work/api/messages/send', {
+      method: 'POST', body: { app: 'Muse', agent_id: 'muse-agent', conversation_id: 'muse-chat', text: 'Hi' },
+    }), { person, origin: 'https://app.example' });
+    assert.deepEqual((await result.json()).delivery, delivery);
+  });
+}
+
+test('one Home message is saved once and addressed to every published AI', async () => {
+  const calls = [];
+  const person = { fetch: async req => {
+    const path = new URL(req.url).pathname;
+    const body = await req.json();
+    calls.push({ path, body });
+    if (path === '/agents/find') return response({ agents: [
+      { agent_id: 'one', name: 'One' }, { agent_id: 'two', name: 'Two' },
+    ] });
+    if (path === '/messages') return response({ recorded: 1, ids: ['message:shared'], arrivals: [{ message_id: 'message:shared', decision_case_id: 'case:shared' }] });
+    if (path === '/handoffs') return response({ handoff: { handoff_id: 'h_shared' } });
+    if (path === '/agents/events') return response({ delivery: { state: 'waiting' } });
+    return response({}, 404);
+  } };
+  const body = await sendToAllAis(callOf(person), '  Keep the spacing.  ');
+  assert.equal(body.message_id, 'message:shared');
+  assert.equal(body.delivery.length, 2);
+  assert.deepEqual(calls.map(call => call.path), ['/agents/find', '/messages', '/handoffs', '/agents/events', '/agents/events']);
+  assert.equal(calls[0].body.all, true);
+  assert.deepEqual(calls[1].body.messages, [{ app: 'Trillion', conversation_id: 'trillion:shared', speaker: 'person', text: '  Keep the spacing.  ' }]);
+  // The message is one job either AI may take, linked to the message and its decision, so the box shows it being done.
+  assert.deepEqual(calls[2].body, { job: '  Keep the spacing.  ', said: '  Keep the spacing.  ', once_per: 'message:shared', input: { arrived: { message_id: 'message:shared' } }, case_id: 'case:shared' });
+  assert.equal(body.handoff_id, 'h_shared');
+  assert.deepEqual(calls.slice(3).map(call => call.body.to_agent).sort(), ['one', 'two']);
+  assert.ok(calls.slice(3).every(call => call.body.next_call.arguments.conversation_id === 'trillion:shared'));
+});
+
+test('delivery readback distinguishes a wake-up reaching the AI from the message being read', async () => {
+  const person = { fetch: async req => {
+    assert.equal(new URL(req.url).pathname, '/agents/events/read');
+    assert.deepEqual(await req.json(), { event_id: 'event:four' });
+    return response({ events: [{ state: 'delivered' }] });
+  } };
+  const result = await handleWorkMessages(request('/work/api/messages/delivery?event_id=event%3Afour'), { person, origin: 'https://app.example' });
+  assert.deepEqual(await result.json(), {
+    event_id: 'event:four', state: 'delivered',
+    message: 'Trillion reached the AI. It has not confirmed reading your message.',
+  });
+});
+
+test('workspace writes require this site origin and valid message fields', async () => {
+  const person = { fetch: async () => response({ recorded: 1, ids: ['message:three'] }) };
+  const forbidden = await handleWorkMessages(request('/work/api/messages/send', { method: 'POST', origin: 'https://elsewhere.example', body: { app: 'Muse', conversation_id: 'x', text: 'Hi' } }), { person, origin: 'https://app.example' });
+  assert.equal(forbidden.status, 403);
+  const invalid = await handleWorkMessages(request('/work/api/messages/send', { method: 'POST', body: { app: 'Muse', conversation_id: 'x', text: '' } }), { person, origin: 'https://app.example' });
+  assert.equal(invalid.status, 400);
+});
+
+// The web Home box, the send_to_all_ais MCP tool (which the iPhone calls) and the Workshop tool tool:send-to-all-ais
+// are one owner: src/send-to-all-ais.mjs.
+test('send-all over the person\'s own routes makes exactly the calls the one owner makes, and gives its answer', async () => {
+  const store = () => {
+    const calls = [];
+    const reply = async (path, body) => {
+      calls.push({ path, body });
+      if (path === '/agents/find') return { agents: [{ agent_id: 'one', name: 'One' }, { agent_id: 'two', name: 'Two' }] };
+      if (path === '/messages') return { recorded: 1, ids: ['message:shared'] };
+      if (path === '/agents/events') return body.to_agent === 'two' ? Promise.reject(new Error('unreachable')) : { delivery: { state: 'delivered' } };
+      throw new Error(`unexpected ${path}`);
+    };
+    return { calls, reply };
+  };
+  const web = store();
+  const person = { fetch: async req => {
+    try { return response(await web.reply(new URL(req.url).pathname, await req.json())); }
+    catch (error) { return response({ error: error.message }, 503); }
+  } };
+  const routed = await sendToAllAis(callOf(person), 'Hello all');
+  const direct = store();
+  const owned = await sendToAllAis(direct.reply, 'Hello all');
+  assert.deepEqual(routed, owned);
+  assert.deepEqual(web.calls, direct.calls);
+  assert.deepEqual(owned.delivery, [{ agent_id: 'one', name: 'One', state: 'delivered' }, { agent_id: 'two', name: 'Two', state: 'next_connection' }]);
+  const anchored = store();
+  await sendToAllAis(anchored.reply, 'A reply', { anchor: { record: 'file:private', part: { kind: 'text-range', quote: 'word' } }, reply_to: 'message:parent' });
+  assert.deepEqual(anchored.calls.find(call => call.path === '/messages').body.messages[0].about, [
+    { kind: 'record', id: 'file:private', part: { kind: 'text-range', quote: 'word' } },
+    { kind: 'message', id: 'message:parent' },
+  ]);
+});
+
+test('the send_to_all_ais tool hands its input to the store road that runs the one owner', async () => {
+  const calls = [];
+  const tool = makeTools({ call: async (path, body) => { calls.push({ path, body }); return { message_id: 'message:shared' }; } }).find(item => item.name === 'send_to_all_ais');
+  const files = [{ identity: '1f:' + 'c'.repeat(64) }];
+  assert.deepEqual(await tool.run({ text: 'Hello all', files }), { message_id: 'message:shared' });
+  assert.deepEqual(calls, [{ path: '/messages/send-all', body: { text: 'Hello all', files } }]);
+  // That road is the account resource's messages:request (src/native-owner-routes.json), which runs sendToAllAis; the
+  // person store no longer answers it, and the Workshop tool's account action runs sendToAllAis too.
+  const source = readFileSync(new URL('../src/person-store.mjs', import.meta.url), 'utf8');
+  const routes = JSON.parse(readFileSync(new URL('../../../address-installed-capabilities/src/native-owner-routes.json', import.meta.url), 'utf8')).families;
+  assert.ok(routes.find(row => row.family === 'messages').exact.includes('/messages/send-all'));
+  assert.doesNotMatch(source, /pathname === '\/messages\/send-all'/);
+  assert.match(readFileSync(new URL('../src/native-message-account-owner.mjs', import.meta.url), 'utf8'), /answer = await sendToAllAis\(/);
+  // PersonStore's account actions are its account-action-domain table; the native
+  // account runs the same owner and keeps the files the tool's schema accepts.
+  assert.match(source, /import \{accountActionsFor\} from '\.\/account-action-domain\.mjs'/);
+  assert.match(readFileSync(new URL('../src/account-action-domain.mjs', import.meta.url), 'utf8'), /'send-to-all-ais': async input => this\.sendToAllAis\(input\)/);
+  const native = readFileSync(new URL('../src/standalone-resource-behavior.mjs', import.meta.url), 'utf8');
+  assert.match(native, /'send-to-all-ais':input=>sendAll\(input\.text,input\)/);
+  assert.match(native, /const sendAll=\(text,\{files,mentions,anchor,reply_to,client_id\}=\{\}\)=>sendToAllAis\([\s\S]*?\},text,\{files,mentions,anchor,reply_to,client_id,locate:ownFile\}\);/);
+  assert.match(source, /async sendToAllAis\([^)]*\) \{[\s\S]*?return sendToAllAis\(/);
+  const rows = JSON.parse(readFileSync(new URL('../../../keep-and-wake-ai-sessions-on-this-computer/records/workshop-account-tool-records.json', import.meta.url), 'utf8')).records;
+  assert.deepEqual(rows.find(row => row.payload.id === 'tool:send-to-all-ais').payload.invoke, { kind: 'account-action', action: 'send-to-all-ais' });
+});
+
+test('send-all refuses empty words and an account with no AI, before anything is kept', async () => {
+  const kept = [];
+  const call = async path => { kept.push(path); return path === '/agents/find' ? { agents: [] } : { ids: ['x'] }; };
+  await assert.rejects(sendToAllAis(call, '   '), { status: 400 });
+  await assert.rejects(sendToAllAis(call, 'Hi'), error => error.status === 409 && error.message === NO_AI.message && error.next.label === 'Connect your AI');
+  const own = { message: 'In your own Trillion, your AI picks this up.', next: { label: 'Connect your AI', href: 'https://app.example/account?create' } };
+  await assert.rejects(sendToAllAis(call, 'Hi', { connect: own }), error => error.message === own.message && error.next.href === own.next.href);
+  assert.deepEqual(kept, ['/agents/find', '/agents/find'], 'nothing is kept or sent');
+  const person = { fetch: async () => response({ agents: [] }) };
+  await assert.rejects(sendToAllAis(callOf(person), 'Hi'), error => {
+    assert.equal(error.status, 409);
+    assert.deepEqual(error.next, NO_AI.next, 'the page gets the next step as a button');
+    return true;
+  });
+});
+
+// The composer sends files by reference: each must be one of the person's own, found before anything is kept.
+test('send-all links the person\'s own files in the kept message and names each in every AI\'s wake-up', async () => {
+  const calls = [];
+  const mine = '1f:' + 'a'.repeat(64);
+  const also = '1f:' + 'b'.repeat(64);
+  const person = {
+    namespaceLocate: async identity => ([mine, also].includes(identity) ? { identity } : null),
+    fetch: async req => {
+      const path = new URL(req.url).pathname;
+      const body = await req.json();
+      calls.push({ path, body });
+      if (path === '/agents/find') return response({ agents: [{ agent_id: 'one', name: 'One' }] });
+      if (path === '/messages') return response({ recorded: 1, ids: ['message:files'] });
+      return response({ delivery: { state: 'waiting' } });
+    },
+  };
+  const body = await sendToAllAis(callOf(person), '', { files: [{ identity: mine }, { identity: also }, { identity: mine }], locate: person.namespaceLocate });
+  assert.deepEqual(body.files, [mine, also]);
+  assert.deepEqual(calls[1].body.messages[0].about, [{ kind: 'file', id: mine }, { kind: 'file', id: also }]);
+  assert.equal(calls[1].body.messages[0].text, '');
+  assert.deepEqual(calls[2].body.job, `${mine}\n${also}`, 'a message of files only is handed on as its files');
+  assert.deepEqual(calls[3].body.refs, { message_id: 'message:files', file_1: mine, file_2: also });
+});
+
+test('send-all refuses a file that is not the person\'s own before anything is kept', async () => {
+  const calls = [];
+  const person = {
+    namespaceLocate: async () => null,
+    fetch: async req => { calls.push(new URL(req.url).pathname); return response({ agents: [{ agent_id: 'one' }], ids: ['x'] }); },
+  };
+  const send = (text, files) => sendToAllAis(callOf(person), text, { files, locate: person.namespaceLocate });
+  await assert.rejects(send('Look at this', [{ identity: '1f:' + 'c'.repeat(64) }]), { status: 403 });
+  await assert.rejects(send('Look', ['/Photos/one.png']), { status: 400 });
+  await assert.rejects(send('Look', Array.from({ length: 20 }, (_, index) => ({ identity: `1f:${String(index).padStart(64, '0')}` }))), { status: 400 });
+  assert.deepEqual(calls, []);
+});
+
+// Ordinary browser agent reads: actual native adapters + canonical SQLite agent owner.
+import { build } from 'esbuild';
+import { sqliteHost } from '../src/local-store.mjs';
+import { openRecords } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
+import { agentRecordStore } from '../src/agent-records.mjs';
+import { makeAgents } from '../../../shared-code/src/agents.mjs';
+import { databaseInputIdentity } from '../src/database-resource-composition.mjs';
+import { WorkFailure } from '../../../tweak-live-controls/failure.mjs';
+import { importSource } from './import-source-for-tests.mjs';
+import { workersStandInPlugin } from './workers-stand-in-for-tests.mjs';
+import { builtStandIn } from './built-stand-in-for-tests.mjs';
+
+// Actual browser/native compatibility and command code. These existing test
+// supplies replace only unrelated Worker transport/compiled module imports.
+// This artifact and its runtime setup are UNRUN by the author.
+const nativeBundle = await build({ stdin: {
+  contents: "export { nativeBrowserConsumer } from './src/native-browser-consumer.mjs';",
+  resolveDir: new URL('..', import.meta.url).pathname, sourcefile: 'share-agents-entry.mjs', loader: 'js',
+}, bundle: true, format: 'esm', platform: 'node', write: false, external: ['node:*'],
+loader: { '.wasm': 'binary' }, logLevel: 'error', plugins: [workersStandInPlugin, {
+  name: 'share-agents-built-inputs', setup(builder) {
+    builder.onResolve({ filter: /^\.\.\/dist\/.+\.(wasm|js|txt)$/ }, args => args.path.includes('/held-values/') ? undefined
+      : ({ path: args.path, namespace: 'share-agents-built' }));
+    builder.onLoad({ filter: /.*/, namespace: 'share-agents-built' }, args => builtStandIn(args.path));
+  },
+}] });
+const { nativeBrowserConsumer } = await importSource(nativeBundle.outputFiles[0].text);
+
+
+const inboxOrigin='https://inbox-native.trillion.invalid';
+const inboxUser='inbox-browser-account', owner='inbox-browser-owner';
+function inboxFixture(t) {
+  const host = sqliteHost(':memory:'); t.after(() => host.db.close());
+  const records = openRecords(host.sql, { transaction: host.transaction, hash: databaseInputIdentity });
+  const store = agentRecordStore({ records, transaction: host.transaction });
+  let now = Date.now();
+  const agents = makeAgents({ store, now: () => new Date(now) });
+  agents.publish({ agent_id: 'ready', name: 'Ready agent', description: 'Accepts work', capacity: { max_concurrent: 1, ttl_minutes: 60 } });
+  agents.publish({ agent_id: 'unknown', name: 'Unknown capacity', description: 'Has not reported capacity' });
+  agents.publish({ agent_id: 'full', name: 'Full agent', description: 'Cannot take another job', capacity: { max_concurrent: 0, ttl_minutes: 60 } });
+  agents.publish({ agent_id: 'paused', name: 'Paused agent', description: 'Not taking work', takes_work: false });
+  const session = { userId: inboxUser, id: 'actual-browser-session', created_at: '2026-10-16T06:00:00Z',
+    method: 'passkey', browser_generation: 3 };
+  const calls = { factory: 0, forwarded: [], former: [], source: [], native: [], rights: [], admissions: [] };
+  const f = { agents, store, session, calls, allowed: true, failure: null,
+    advance: minutes => { now += minutes * 60000; } };
+  const terminals = new Map();
+  // Synthetic authority/quota/status/RPC receipts are explicit transport
+  // supplies. Only agent publication/find/capacity storage is canonical SQLite.
+  const book = {
+    ownRecordStatus: async () => ({ ready: 1, generation: 1 }),
+    reserveResourceQuota: async (_owner, _resource, request) => ({ lease: request.id, policy_epoch: 1 }),
+    releaseUnexecutedResourceQuota: async () => ({ released: true }),
+    async executeOwnRecordCommand(actualOwner, resource, operation, input, context) {
+      calls.native.push(structuredClone({ owner: actualOwner, resource, operation, input, context }));
+      assert.equal(actualOwner, owner); assert.equal(resource, '@own-records');
+      assert.ok(['claims:find','claims:readEvents'].includes(operation));
+      if(operation==='claims:find')assert.deepEqual(input,{limit:20});else assert.deepEqual(Object.keys(input),['event_id']);
+      if (f.failure) throw f.failure;
+      // The installed standalone claims:find action invokes this same method.
+      const result = operation==='claims:find' ? agents.find(input,{reader:context.recorder.reader,sources:null}) : agents.readEvents(input);
+      terminals.set(context.permit_id, { state: 'committed', result });
+      return result;
+    },
+    reconcileOwnRecordPermit: async (_owner, _resource, permit) => terminals.get(permit) ?? { state: 'aborted' },
+    readOwnRecordCommandResult: async (_owner, _resource, permit) => terminals.get(permit)?.result,
+    readOwnResourceControlIntent: async () => null,
+  };
+  const gate = {
+    authorizeResource: async input => { calls.rights.push(structuredClone(input)); return { accepted: f.allowed }; },
+    async admit(input) {
+      calls.admissions.push(structuredClone(input));
+      if (!f.allowed) return { accepted: false };
+      if (!input.quota_reservation) return { quota_required: true, commitment: input.commitment };
+      return { accepted: true, commitment: input.commitment, permit: { state: 'pending', target: {
+        operation: input.operation, input_identity: input.input, commitment: input.commitment, quota_reservation: input.quota_reservation,
+      } } };
+    },
+    finishPermit: async () => ({ finished: true }),
+  };
+  const env = {
+    PERSON: {
+      idFromName: account => { assert.equal(account, inboxUser); return { toString: () => owner }; },
+      idFromString: id => id,
+      get: id => { calls.source.push(String(id)); assert.fail('Native find must not enter a former account or carry source'); },
+    },
+    ACCOUNT_CONTROL: { idFromName: name => name, get: name => {
+      assert.equal(name, `gate:${JSON.stringify([owner, `session:${session.id}`, '@own-records'])}`); return gate;
+    } },
+    RECORD_BOOK: { idFromName: name => name, get: name => {
+      assert.equal(name, `own-record-resource:${JSON.stringify([owner, '@own-records'])}`); return book;
+    } },
+  };
+  f.env=env;
+  f.person = { fetch: async request => {
+    calls.former.push(request);
+    return Response.json(new URL(request.url).pathname==='/agents/find'
+      ? {agents:[{agent_id:'former',name:'Former source',description:'Former description',model:'former-model',source_id:'former-source'}]}
+      : {events:[{state:'former-state'}]});
+  } };
+  f.nativeAgentReader = () => {
+    calls.factory++;
+    const native = nativeBrowserConsumer({ env, session, origin: inboxOrigin });
+    return { fetch: async request => {
+      calls.forwarded.push({ url: request.url, method: request.method,
+        headers: Object.fromEntries(request.headers), body: await request.clone().text() });
+      return native.fetch(request);
+    } };
+  };
+  f.read = (rest='/agents', supplies={nativeAgentReader:f.nativeAgentReader}, init={}) => {
+    const url=new URL(inboxOrigin+'/work/api/messages'+rest);
+    const req=new Request(url,{headers:{'x-trillion-user':'spoofed','x-trillion-app':'spoofed-app'},...init});
+    return handleWorkMessages(req,Object.defineProperties({person:f.person,origin:inboxOrigin},Object.getOwnPropertyDescriptors(supplies)));
+  };
+  return f;
+}
+
+test('native inbox agent picker reads current canonical cards and keeps its original projection', async t => {
+  const f=inboxFixture(t);
+  f.agents.publish({agent_id:'ready',name:'Ready agent',description:'Current description',model:'current-model',source_id:'current-source',delivery:{stream:true}});
+  f.agents.presence({agent_id:'ready'});
+  const first=await f.read();assert.equal(first.status,200);
+  const cards=(await first.json()).agents;
+  assert.equal(cards.length,4,'paused cards remain in this original picker');
+  assert.deepEqual(cards.find(card=>card.agent_id==='ready'),{agent_id:'ready',name:'Ready agent',description:'Current description',model:'current-model',source_id:'current-source',delivery:true,present:true});
+  assert.equal(cards.find(card=>card.agent_id==='paused').delivery,false);
+  assert.deepEqual(f.calls.former,[]);assert.deepEqual(f.calls.source,[]);
+  assert.deepEqual(f.calls.native[0].input,{limit:20});
+  assert.equal(f.calls.native[0].operation,'claims:find');
+  assert.equal(f.calls.native[0].context.claims.sign_in,`session:${f.session.id}`);
+  assert.equal(f.calls.native[0].context.recorder.app_basis,'authenticated');
+  assert.equal(f.calls.native[0].context.recorder.browser.user_id,inboxUser);
+  assert.deepEqual(f.calls.forwarded[0],{url:'https://person/agents/find',method:'POST',headers:{'content-type':'application/json','x-trillion-origin':inboxOrigin,'x-trillion-app':'Trillion','x-trillion-typed-on-signed-in-screen':'yes'},body:'{"limit":20}'});
+  f.agents.publish({agent_id:'ready',name:'Renamed current card',description:'Changed canonical description',model:'new-model',delivery:null});
+  f.advance(-16);f.agents.presence({agent_id:'ready'});
+  const changed=(await (await f.read()).json()).agents.find(card=>card.agent_id==='ready');
+  assert.equal(changed.name,'Renamed current card');assert.equal(changed.description,'Changed canonical description');
+  assert.equal(changed.model,'new-model');assert.equal(changed.delivery,false);assert.equal(changed.present,false);
+  assert.deepEqual(f.calls.former,[]);
+});
+
+test('native inbox delivery reads the real event and fresh canonical acknowledgement without former rescue', async t => {
+  const f=inboxFixture(t);
+  f.agents.publish({agent_id:'ready',name:'Ready agent',description:'On this helper',delivery:{stream:true}});
+  const sent=f.agents.sendEvent({type:'message.created',to_agent:'ready',idempotency_key:'inbox-event-once',subject_id:'message:inbox',summary:'Synthetic fixture message'});
+  const path='/delivery?event_id='+encodeURIComponent(sent.event.event_id);
+  assert.deepEqual(await (await f.read(path)).json(),{event_id:sent.event.event_id,state:'waiting',message:deliveryWords.later.waiting});
+  f.agents.ack({event_id:sent.event.event_id,agent_id:'ready',ok:true});
+  assert.deepEqual(await (await f.read(path)).json(),{event_id:sent.event.event_id,state:'delivered',message:deliveryWords.later.delivered});
+  assert.equal(f.calls.native.length,2);assert.ok(f.calls.native.every(call=>call.operation==='claims:readEvents'));
+  assert.deepEqual(f.calls.native.map(call=>call.input),[{event_id:sent.event.event_id},{event_id:sent.event.event_id}]);
+  assert.deepEqual(f.calls.former,[]);assert.deepEqual(f.calls.source,[]);
+});
+
+test('native inbox refusal retains the native status and never substitutes former cards or delivery state', async t => {
+  const f=inboxFixture(t);f.allowed=false;
+  for(const path of ['/agents','/delivery?event_id=event:kept']){
+    const reply=await f.read(path);assert.equal(reply.status,403);assert.equal(typeof (await reply.json()).error,'string');
+  }
+  assert.deepEqual(f.calls.former,[]);assert.equal(f.calls.native.length,0);assert.equal(f.calls.admissions.length,0);
+});
+
+test('native inbox temporary failures preserve their original failure without former reader rescue', async t => {
+  const f=inboxFixture(t);f.failure=new WorkFailure('service-busy','The actual native inbox reader is busy');
+  for(const path of ['/agents','/delivery?event_id=event:kept'])await assert.rejects(()=>f.read(path),error=>error===f.failure);
+  assert.equal(f.calls.native.length,2);assert.deepEqual(f.calls.former,[]);
+});
+
+test('native inbox explicitly invalid supplies fail closed and lazy factory failures keep their identity', async t => {
+  const f=inboxFixture(t);
+  for(const nativeAgentReader of [undefined,null,false,{},()=>null,()=>({fetch:null})]){
+    for(const path of ['/agents','/delivery?event_id=event:kept']){
+      const reply=await f.read(path,{nativeAgentReader});assert.equal(reply.status,503);
+    }
+  }
+  const refused=Object.assign(new Error('The authentic browser was refused'),{status:403});
+  for(const path of ['/agents','/delivery?event_id=event:kept'])await assert.rejects(()=>f.read(path,{nativeAgentReader:()=>{throw refused;}}),error=>error===refused);
+  assert.deepEqual(f.calls.former,[]);assert.equal(f.calls.native.length,0);
+});
+
+test('inbox agent reader selection preserves exact method Origin and missing-event behavior before touching the factory', async t => {
+  const f=inboxFixture(t);
+  const supplies={get nativeAgentReader(){assert.fail('No eligible GET reader should be selected');}};
+  for(const path of ['/agents','/delivery?event_id=event:kept']){
+    assert.equal((await f.read(path,supplies,{method:'POST',headers:{origin:'https://foreign.invalid'},body:'{}'})).status,403);
+    assert.equal((await f.read(path,supplies,{method:'POST',headers:{origin:inboxOrigin},body:'{}'})).status,404);
+    assert.equal((await f.read(path,supplies,{method:'HEAD',headers:{origin:inboxOrigin}})).status,404);
+  }
+  const missing=await f.read('/delivery?event_id=%20%20',supplies);assert.equal(missing.status,400);
+  assert.deepEqual(await missing.json(),{error:'Choose a delivery to check.'});
+  assert.deepEqual(f.calls.former,[]);assert.equal(f.calls.native.length,0);
+});
+
+test('omitting the inbox native supply preserves existing caller reads including the trusted internal requests', async t => {
+  const f=inboxFixture(t);
+  assert.equal((await (await f.read('/agents',{})).json()).agents[0].name,'Former source');
+  assert.deepEqual(await (await f.read('/delivery?event_id=event:former',{})).json(),{event_id:'event:former',state:'former-state',message:deliveryWords.later.waiting});
+  assert.equal(f.calls.factory,0);assert.equal(f.calls.native.length,0);assert.equal(f.calls.former.length,2);
+  for(const req of f.calls.former){assert.equal(req.method,'POST');assert.equal(req.headers.get('x-trillion-origin'),inboxOrigin);assert.equal(req.headers.get('x-trillion-app'),'Trillion');assert.equal(req.headers.get('x-trillion-typed-on-signed-in-screen'),'yes');}
+  assert.deepEqual(await f.calls.former[0].json(),{limit:20});assert.deepEqual(await f.calls.former[1].json(),{event_id:'event:former'});
+});
+
+test('unrelated inbox routes never read the lazy native agent property', async t => {
+  const f=inboxFixture(t);const calls=[];
+  const options={origin:inboxOrigin,get nativeAgentReader(){assert.fail('Only agent GET reads select this property');},
+    person:{fetch:async req=>{calls.push(req);return Response.json({original:true});}},listConversations:query=>({query})};
+  const read=path=>handleWorkMessages(new Request(inboxOrigin+'/work/api/messages'+path),options);
+  assert.deepEqual(await (await read('/threads?limit=7')).json(),{query:{app:null,before:null,limit:'7'}});
+  assert.deepEqual(await (await read('/thread?app=Muse&conversation_id=chat')).json(),{original:true});
+  assert.equal((await read('/unknown')).status,404);assert.equal(calls.length,1);
+});
+
+test('native inbox projections preserve empty names presence boundary delivery words and raw reply errors', async t => {
+  const f=inboxFixture(t);const now=Date.now();
+  const rows=[{agent_id:'empty-name',name:'',source_id:'',delivery:0,last_seen_at:new Date(now-16*60000).toISOString()},
+    {agent_id:'recent',name:'Recent',description:'Current',model:'m',delivery:{stream:true},last_seen_at:new Date(now-14*60000).toISOString()},
+    ...Array.from({length:21},(_,n)=>({agent_id:'raw-'+n,name:'Raw '+n,takes_work:false}))];
+  const read=body=>({nativeAgentReader:()=>({fetch:async()=>Response.json(body)})});
+  const reply=await f.read('/agents',read({agents:rows}));const agents=(await reply.json()).agents;
+  assert.equal(agents.length,23,'the existing projection does not add its own cap or paused filter');
+  assert.deepEqual(agents[0],{agent_id:'empty-name',name:'',source_id:'',delivery:false,present:false});
+  assert.equal(agents[1].present,true);assert.equal(agents[1].delivery,true);
+  const missing=await f.read('/delivery?event_id=event:none',read({events:[]}));assert.equal(missing.status,404);
+  assert.deepEqual(await missing.json(),{error:'That delivery could not be found.'});
+  const denied=await f.read('/agents',{nativeAgentReader:()=>({fetch:async()=>Response.json({error:'Actual owner refused',detail:'retained'},{status:429})})});
+  assert.equal(denied.status,429);assert.deepEqual(await denied.json(),{error:'Actual owner refused',detail:'retained'});
+  assert.deepEqual(f.calls.former,[]);
+});
+
+
+// The real native constructor refuses these categories; omission preserves their existing caller contract.
+test('native inbox reader rejects genuine restricted session categories without implicit former rescue', async t => {
+  for(const flag of ['look_only','viewer','throwaway']){
+    const f=inboxFixture(t);f.session[flag]=true;
+    for(const path of ['/agents','/delivery?event_id=event:restricted'])await assert.rejects(()=>f.read(path),error=>error.status===403);
+    assert.deepEqual(f.calls.former,[]);assert.equal(f.calls.native.length,0);
+    assert.equal((await (await f.read('/agents',{})).json()).agents[0].name,'Former source');
+    assert.equal((await (await f.read('/delivery?event_id=event:restricted',{})).json()).state,'former-state');
+    assert.equal(f.calls.former.length,2);
+  }
+});
+
+
+
+const inboxWorkerSource=readFileSync(new URL('../src/worker.mjs',import.meta.url),'utf8');
+const inboxHostStart=inboxWorkerSource.indexOf('  if (isWorkMessagesPath(url.pathname)) return handleWorkMessages(request, {');
+assert.ok(inboxHostStart>=0);
+const inboxHostEnd=inboxWorkerSource.indexOf('  if (isWorkResponsesPath',inboxHostStart);
+assert.ok(inboxHostEnd>inboxHostStart);
+const invokeInboxWorker=new Function('request','session','env','person','origin','handleWorkMessages','nativeBrowserConsumer','deviceOf','sharedConsumerContext',
+ 'const url=new URL(request.url); const isWorkMessagesPath=()=>true;\n'+inboxWorkerSource.slice(inboxHostStart,inboxHostEnd));
+
+test('actual ordinary Worker inbox host supplies its authentic lazy native constructor arguments',async t=>{
+ const f=inboxFixture(t),device={device_id:'inbox-device'};let constructions=0,shared=0;
+ const sharedContext=own=>{shared++;assert.equal(own.owner,owner);return {...own,execute:()=>assert.fail('Agent reads cannot dispatch a shared command')};};
+ const response=await invokeInboxWorker(new Request(inboxOrigin+'/work/api/messages/agents'),f.session,f.env,f.person,inboxOrigin,
+  (request,options)=>{assert.equal(Object.hasOwn(options,'nativeAgentReader'),true);assert.equal(constructions,0);return handleWorkMessages(request,options);},
+  options=>{constructions++;assert.equal(options.env,f.env);assert.equal(options.session,f.session);assert.equal(options.origin,inboxOrigin);assert.equal(options.device,device);assert.equal(options.sharedContext,sharedContext);return nativeBrowserConsumer(options);},()=>device,sharedContext);
+ assert.equal(response.status,200);assert.equal(constructions,1);assert.equal(shared,1);
+ assert.equal((await response.json()).agents.length,4);assert.deepEqual(f.calls.former,[]);
+ assert.deepEqual(f.calls.native[0].context.recorder.browser.device,device);
+});
+
+test('actual restricted Worker inbox hosts omit the ordinary supplier for both agent reads',async t=>{
+ for(const flag of ['look_only','viewer','throwaway'])for(const path of ['/agents','/delivery?event_id=event:restricted']){
+  const f=inboxFixture(t),session={...f.session,[flag]:true};
+  const response=await invokeInboxWorker(new Request(inboxOrigin+'/work/api/messages'+path),session,f.env,f.person,inboxOrigin,
+   (request,options)=>{assert.equal(Object.hasOwn(options,'nativeAgentReader'),false);return handleWorkMessages(request,options);},
+   ()=>assert.fail('Restricted sessions cannot select the ordinary native reader'),()=>assert.fail('Restricted sessions cannot select an ordinary device'),null);
+  assert.equal(response.status,200);assert.equal(f.calls.former.length,1);assert.equal(f.calls.native.length,0);
+ }
+});
+
+test('a send names its client id as the message place, and a bad client id is refused before anything is kept', async () => {
+  const calls = [];
+  const person = { fetch: async req => {
+    const path = new URL(req.url).pathname;
+    calls.push({ path, body: await req.json() });
+    if (path === '/agents/find') return response({ agents: [{ agent_id: 'one', name: 'One' }] });
+    if (path === '/messages') return response({ recorded: 1, ids: ['message:one'], arrivals: [{ message_id: 'message:one' }] });
+    return response({ delivery: { state: 'waiting' }, handoff: { handoff_id: 'h_one' } });
+  } };
+  const call = async (path, body) => (await person.fetch(new Request(`https://person${path}`, { method: 'POST', body: JSON.stringify(body) }))).json();
+  const send = client_id => sendToAllAis(call, 'yes', { client_id });
+  assert.equal((await send(' 7f3a ')).message_id, 'message:one');
+  assert.equal(calls.find(call => call.path === '/messages').body.messages[0].source_ref, 'client:7f3a');
+  await assert.rejects(send('   '), error => error.status === 400);
+  await assert.rejects(send('x'.repeat(201)), error => error.status === 400);
+  assert.equal(calls.filter(call => call.path === '/messages').length, 1, 'a refused id keeps nothing');
+});
+
+test('a conversation reply sent with a client_id is kept under that place, so sending it again is the same message; a bad id is refused', async () => {
+  const kept = [];
+  const person = { fetch: async req => {
+    const path = new URL(req.url).pathname;
+    const body = req.method === 'POST' ? await req.json() : null;
+    if (path === '/messages') { kept.push(body.messages[0]); return response({ recorded: 1, ids: ['message:one'] }); }
+    return response({ event: { event_id: 'event:one' }, delivery: { state: 'waiting' }, receiver: { route: 'push', live: true } });
+  } };
+  const send = body => handleWorkMessages(request('/work/api/messages/send', { method: 'POST', body: { app: 'Muse', agent_id: 'a', conversation_id: 'muse-chat', text: 'hi', ...body } }), { person, origin: 'https://app.example' });
+  assert.equal((await send({ client_id: ' c-1 ' })).status, 200);
+  assert.equal(kept[0].source_ref, 'client:c-1');
+  await send({});
+  assert.equal('source_ref' in kept[1], false, 'without one the arrival-time guess of src/messages.mjs applies');
+  assert.equal((await send({ client_id: '' })).status, 400);
+  assert.equal((await send({ client_id: 5 })).status, 400);
+  assert.equal(kept.length, 2);
+});

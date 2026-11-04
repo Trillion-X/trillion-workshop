@@ -1,0 +1,199 @@
+// test/said-done.test.mjs
+//
+// The person's own word closes what they already did (src/said-done.mjs): a message of theirs that names an open row
+// of a list whose field settles is asked of the classifier on their own computer, a clear yes settles the row saying
+// why in their words, an unsure answer or none hands the judgement to their AIs, and words that are not theirs close
+// nothing. The classifier is the person's computer; here it is a table of answers for the exact words asked, so each
+// test proves what is asked and what each answer does. Then the same, end to end, on the real person store through the
+// door Claude Code's words take (/inbound), and a row ruled over what the person's Downloads brought closing when the
+// download arrives (src/done-when-facts.json arrived), and the surfaces that skip Done rows.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { rowsNamed, saidDoneSettings, weighSaidDone } from '../src/said-done.mjs';
+import { bootPerson, countedDatabase, memoryBucket } from './fault/simulated-person.mjs';
+import { ownerGrantEffect } from '../src/payment.mjs';
+import settings from '../../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json' with { type: 'json' };
+
+const list = { id: 'chores', label: 'Chores', row_type: 'chores', title_field: 'what', fields: [
+  { id: 'what', kind: 'text' }, { id: 'done_when', kind: 'text' }, { id: 'closed_because', kind: 'text' },
+  { id: 'finish', kind: 'choice', choices: ['Tap done', 'Tell Trillion'] },
+  { id: 'status', kind: 'choice', choices: ['Waiting', 'Done'], settles: ['Done'], starts: 'Waiting' },
+] };
+const rowId = 'record:chores:plugin';
+const now = new Date().toISOString();
+const message = (text, extra = {}) => ({ id: 'message:1', app: 'Claude Code', conversation_id: 'c-1', speaker: 'person', text, at: now, recorded_at: now,
+  about: [{ kind: 'record', id: rowId, via: 'entity-ingest' }], ...extra });
+
+function world(answers, { status = 'Waiting' } = {}) {
+  const asked = [], settled = [], handed = [];
+  const records = { [rowId]: { what: 'Upload the plugin', done_when: 'The plugin is listed in the store', status } };
+  return {
+    asked, settled, handed,
+    io: {
+      read: id => records[id] ?? null,
+      listFor: ({ record_id }) => (record_id.startsWith('record:chores:') ? list : null),
+      ask: async input => { asked.push(input); return answers(input); },
+      settle: async change => { settled.push(change); return { kept: [] }; },
+      handOff: async job => { handed.push(job); return { handoff: { handoff_id: `h_${handed.length}` } }; },
+    },
+  };
+}
+const byWords = table => input => { for (const [words, answer] of table) if (input.state.includes(words)) return answer; return null; };
+
+test('"I already did this last week" settles the row, quoting the person\'s words, with a press the list knows', async () => {
+  const { io, asked, settled, handed } = world(byWords([['I already did this last week', 0.93]]));
+  const result = await weighSaidDone({ message: message('Upload the plugin: I already did this last week.'), ...io });
+  assert.equal(asked.length, 1);
+  assert.match(asked[0].state, /I already did this last week/);
+  assert.match(asked[0].state, /"Upload the plugin"/, 'the row it names is in the question');
+  assert.match(asked[0].state, /The plugin is listed in the store/, 'and what done means for it');
+  assert.equal(asked[0].questions.verdict.instructions, saidDoneSettings.classify.question);
+  assert.deepEqual(settled, [{ list_id: 'chores', row_id: 'plugin', values: {
+    status: 'Done', closed_because: 'You said it was done: "Upload the plugin: I already did this last week." (Claude Code, message:1)', finish: 'Tell Trillion' } }]);
+  assert.equal(handed.length, 0);
+  assert.deepEqual(result.weighed, [{ record_id: rowId, verdict: 'done', probability: 0.93 }]);
+});
+
+test('"how do I do this?" and "remind me later" close nothing and hand nothing on', async () => {
+  for (const [text, p] of [['Upload the plugin: how do I do this?', 0.04], ['Upload the plugin, remind me later', 0.08]]) {
+    const { io, asked, settled, handed } = world(byWords([[text, p]]));
+    const result = await weighSaidDone({ message: message(text), ...io });
+    assert.equal(asked.length, 1, text);
+    assert.equal(settled.length, 0, text);
+    assert.equal(handed.length, 0, text);
+    assert.equal(result.weighed[0].verdict, 'not_said', text);
+  }
+});
+
+test('an AI\'s message naming the row, someone else\'s words, and history brought in are never asked about', async () => {
+  const day = 24 * 60 * 60 * 1000;
+  for (const words of [
+    message('Upload the plugin is done', { speaker: 'ai' }),
+    message('Upload the plugin is done', { speaker: 'Someone (voice-2)' }),
+    message('Upload the plugin is done', { origin: 'scheduled' }),
+    message('Upload the plugin is done', { at: new Date(Date.now() - 3 * day).toISOString() }),
+  ]) {
+    const { io, asked, settled, handed } = world(() => 0.99);
+    assert.deepEqual(await weighSaidDone({ message: words, ...io }), { weighed: [] });
+    assert.equal(asked.length + settled.length + handed.length, 0, JSON.stringify(words));
+  }
+});
+
+test('no classifier answer, or an unsure one, hands the judgement to the person\'s AIs, once per message and row', async () => {
+  for (const [answer, verdict, why] of [[null, 'no_classifier', /did not answer/], [0.5, 'unsure', /was unsure \(0\.50/]]) {
+    const { io, settled, handed } = world(() => answer);
+    const result = await weighSaidDone({ message: message('Upload the plugin, did it ages ago'), ...io });
+    assert.equal(settled.length, 0);
+    assert.equal(handed.length, 1);
+    const [job] = handed;
+    assert.equal(job.priority, saidDoneSettings.hand.priority);
+    assert.ok(job.priority >= 6, 'ahead of ordinary work');
+    assert.equal(job.once_per, `said-done:message:1:${rowId}`);
+    assert.match(job.job, why);
+    assert.match(job.job, /put_list_rows on list chores with rows \[\{ "id": "plugin", "values": \{"status":"Done"/);
+    assert.match(job.job, /read_messages with conversation_id c-1/);
+    assert.deepEqual(job.input.said_done.values.status, 'Done');
+    assert.equal(result.weighed[0].verdict, verdict);
+    assert.equal(result.weighed[0].handoff_id, 'h_1');
+  }
+});
+
+test('a row already settled, a link to no list and a list with nothing that settles are left alone', async () => {
+  const { io, asked } = world(() => 0.99, { status: 'Done' });
+  assert.deepEqual(await weighSaidDone({ message: message('Upload the plugin, done'), ...io }), { weighed: [] });
+  assert.equal(asked.length, 0);
+  const plain = { ...list, fields: list.fields.map(field => ({ ...field, settles: undefined })) };
+  assert.deepEqual(await rowsNamed(message('x'), { read: () => ({ status: 'Waiting' }), listFor: () => plain }), []);
+  assert.deepEqual(await rowsNamed(message('x', { about: [{ kind: 'record', id: 'record:other:1' }] }), { read: () => ({}), listFor: () => null }), []);
+});
+
+test('a long message is asked about the stretch around the words that name the row, never whole', async () => {
+  const long = `${'chatter about the week. '.repeat(200)}Upload the plugin is something I already did last week. ${'more chatter. '.repeat(200)}`;
+  const start = long.indexOf('Upload the plugin');
+  const { io, asked } = world(() => 0.9);
+  await weighSaidDone({ message: message(long, { entity_resolution: { mentions: [{ kind: 'record', id: rowId, list_id: 'chores', start, end: start + 17 }] } }), ...io });
+  assert.ok(asked[0].state.length < saidDoneSettings.text_chars + 400);
+  assert.match(asked[0].state, /I already did last week/);
+});
+
+// End to end on the real person store.
+const headers = { 'x-trillion-origin': 'https://app.gettrillion.ai', 'content-type': 'application/json', 'x-trillion-app': 'Claude Code' };
+async function boot(answerFor) {
+  const { person, settle } = await bootPerson({ database: countedDatabase(), bucket: memoryBucket() });
+  await person.recordEffect(ownerGrantEffect('2099-01-01T00:00:00Z'));
+  const asked = [];
+  // The classifier on the person's computer: the question about a named row is answered from the table; the door's own
+  // question (does this ask for something) is answered yes.
+  person.workshop = () => ({ askInMemory: async ({ input }) => {
+    if (!String(input?.state ?? '').includes('on their own list')) return { answers: { verdict: { noul: 0.9 } } };
+    asked.push(input.state);
+    const answer = answerFor(input.state);
+    return answer === null ? null : { answers: { verdict: { noul: answer } } };
+  } });
+  const post = async (path, body) => {
+    const reply = await person.fetch(new Request(`https://person${path}`, { method: 'POST', headers, body: JSON.stringify(body) }));
+    return { status: reply.status, body: await reply.json() };
+  };
+  await person.waitingOnYou({ settle: false });
+  return { person, settle, post, asked };
+}
+const ask = (what, extra = {}) => ({ what, asked_by: 'Claude Code', status: 'Waiting', added: now, finish: 'Tap done', ...extra });
+const waitingRow = (person, id) => person.lists().read(settings.list.id).rows.find(row => row.id === id);
+const say = (post, text, extra = {}) => post('/inbound', { route: 'Claude Code', source_id: 'chat-1', conversation_id: 'claude-code:chat-1', text, at: new Date().toISOString(), from_person: true, origin: 'human', ...extra });
+
+test('end to end: the person\'s word through the door closes the row it names, and every waiting surface drops it', async () => {
+  const { person, settle, post, asked } = await boot(state => (/already did/.test(state) ? 0.95 : 0.05));
+  assert.equal((await post(`/lists/${settings.list.id}/rows`, { rows: [{ id: 'plugin', values: ask('Upload the ChatGPT plugin') }] })).status, 200);
+  assert.ok((await person.waitingOnYou()).sections.flatMap(section => section.cards).some(card => card.id === 'asks:plugin'));
+
+  assert.equal((await say(post, 'how do I upload the chatgpt plugin?')).status, 200);
+  await settle();
+  assert.equal(waitingRow(person, 'plugin').values.status, 'Waiting', 'a question about it is not a done');
+
+  const said = await say(post, 'i already did upload the chatgpt plugin last week');
+  assert.equal(said.status, 200, JSON.stringify(said.body));
+  await settle();
+  assert.equal(asked.length, 2, 'each of the person\'s messages naming the row was asked about once');
+  const row = waitingRow(person, 'plugin').values;
+  assert.equal(row.status, 'Done');
+  assert.equal(row.finish, 'Tell Trillion');
+  assert.match(row.closed_because, /^You said it was done: "i already did upload the chatgpt plugin last week" \(Claude Code, message:/);
+
+  // Every surface reading what waits skips it now: Home's card, the hold, the queue.
+  const answer = await person.waitingOnYou();
+  assert.equal(answer.sections.flatMap(section => section.cards).some(card => card.id === 'asks:plugin'), false);
+  // An AI putting the same ask again cannot reopen it.
+  const again = await post(`/lists/${settings.list.id}/rows`, { rows: [{ id: 'plugin', values: { status: 'Waiting' } }] });
+  assert.equal(again.status, 200);
+  assert.equal(waitingRow(person, 'plugin').values.status, 'Done');
+});
+
+test('end to end: an AI\'s words naming the row close nothing', async () => {
+  const { person, settle, post, asked } = await boot(() => 0.99);
+  await post(`/lists/${settings.list.id}/rows`, { rows: [{ id: 'plugin', values: ask('Upload the ChatGPT plugin') }] });
+  const reply = await person.fetch(new Request('https://person/messages', { method: 'POST', headers: { ...headers, 'x-trillion-app': 'Proof AI' },
+    body: JSON.stringify({ messages: [{ conversation_id: 'proof:1', app: 'Proof AI', speaker: 'ai', text: 'You already did upload the chatgpt plugin last week', at: new Date().toISOString(), source_ref: 'r-1' }] }) }));
+  assert.equal(reply.status, 200, await reply.clone().text());
+  await settle();
+  assert.equal(asked.length, 0);
+  assert.equal(waitingRow(person, 'plugin').values.status, 'Waiting');
+});
+
+test('a row ruled over what the person\'s Downloads brought closes when the download arrives, by its kind', async () => {
+  const { person, settle, post } = await boot(() => 0.05);
+  const rule = { over: 'arrived', match: 'any', says: 'certificate downloads', tree: { kind: 'group', combinator: 'and', negate: false, rules: [
+    { kind: 'rule', field: 'route', operator: 'is_text', params: { text: 'Downloads' } },
+    { kind: 'rule', field: 'text', operator: 'contains', params: { text: '.cer ' } },
+  ] } };
+  const filed = await post(`/lists/${settings.list.id}/rows`, { rows: [{ id: 'cert', values: ask('Download the signing certificate', { done_when: 'A certificate file is in your Downloads folder', done_when_rule: rule }) }] });
+  assert.equal(filed.status, 200, JSON.stringify(filed.body));
+  assert.equal(filed.body.unchecked, undefined, 'a row with a rule is not named as unchecked');
+  assert.equal(waitingRow(person, 'cert').values.status, 'Waiting');
+  const arrived = await post('/inbound', { route: 'Downloads', source_id: 'Apple Developer Certificate.cer:1', text: 'Downloaded Apple Developer Certificate.cer (1 KB) Oct 9, 2026, 10:58 AM, on this Mac at /Users/example/Downloads/Apple Developer Certificate.cer', at: new Date().toISOString(), from_person: true });
+  assert.equal(arrived.status, 200, JSON.stringify(arrived.body));
+  await settle();
+  await person.waitingOnYou();
+  const row = waitingRow(person, 'cert').values;
+  assert.equal(row.status, 'Done');
+  assert.equal(row.closed_because, 'Checked: certificate downloads');
+});

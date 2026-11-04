@@ -1,0 +1,70 @@
+// src/space-shareable.mjs
+//
+// PURPOSE
+//   The person's own things that can be shared into a space, newest first, one page after an opaque time/id cursor:
+//   GET /spaces/shareable?kind&after (src/person-spaces.mjs), what the Spaces screen's share picker lists. Files are read
+//   from the person's Namespace (/namespace/names), not here.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. What can be shared is src/space-settings.json share_from_private, never a list of its own.
+//   2. Pursuits and decisions come from the person's screen facts (the account's own work screen), messages a bounded
+//      page at a time from their own message records, after the same cursor; nothing is read whole.
+//   3. Messages are offered only to an account that keeps them (payment.mjs keepsDecisions).
+import settings from './space-settings.json' with { type: 'json' };
+import { keepsDecisions } from './payment.mjs';
+import { messages } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
+
+// How each kind of the person's own records is read from their screen facts as a shareable row.
+const SHAREABLE = {
+  pursuit: screen => (screen.pursuits ?? []).map(item => ({ record_id: item.id, title: item.title ?? null, detail: item.now ?? item.after ?? null, at: item.recorded_at ?? null })),
+  decision: screen => (screen.summaries ?? []).map(item => ({ record_id: item.case_id, title: item.goal ?? null, detail: item.decision ?? item.status ?? null, at: item.created_at ?? null })),
+};
+
+const shareCursor = value => `space-share:${encodeURIComponent(JSON.stringify(value))}`;
+function readShareCursor(value) {
+  if (!value?.startsWith('space-share:')) return null;
+  try {
+    const cursor = JSON.parse(decodeURIComponent(value.slice('space-share:'.length)));
+    return typeof cursor?.at === 'string' && typeof cursor?.record_id === 'string' ? cursor : null;
+  } catch { return null; }
+}
+const follows = (row, cursor) => !cursor || row.at < cursor.at || (row.at === cursor.at && row.record_id > cursor.record_id);
+
+/** One page of the person's own messages a share picker may offer, from their message records (`eeaf`). */
+export function shareableMessages(eeaf, { before, limit = 100 } = {}) {
+  const page = messages(eeaf).read({ before, limit });
+  return {
+    items: page.messages.map(({ id, ...message }) => ({
+      record_id: id, title: message.text.slice(0, 300), detail: `${message.speaker} · ${message.app}`,
+      at: message.authored_at ?? message.at,
+    })),
+    next_before: page.next_before,
+  };
+}
+
+/**
+ * screen: the account's own work screen ({ pursuits, summaries, access }); messagesPage({ before, limit }): one page of
+ * shareableMessages. Answers { status, body }: 400 for a kind that cannot be shared, else { kinds, items, next_after }.
+ */
+export function shareablePage({ screen, messagesPage }, { kind = null, after = null } = {}) {
+  const allowed = Object.keys(settings.share_from_private);
+  if (kind && !allowed.includes(kind)) return { status: 400, body: { error: `A ${kind} cannot be shared into a space. What can: ${allowed.join(', ')}, and files.` } };
+  const cursor = readShareCursor(after);
+  const rows = allowed.filter(name => SHAREABLE[name] && (!kind || name === kind))
+    .flatMap(name => SHAREABLE[name](screen).map(row => ({ kind: name, ...row })))
+    .filter(row => follows(row, cursor));
+  let moreMessages = false;
+  if ((!kind || kind === 'message') && screen.access && keepsDecisions(screen.access)) {
+    // IDs in the EEAF message table sort by their authored time. For a cursor on another record, use a bound just
+    // after that timestamp so same-time messages can be ordered by id with every other shareable record.
+    const before = cursor ? (cursor.record_id.startsWith('message:') ? cursor.record_id : `message:${cursor.at}:~`) : undefined;
+    const page = messagesPage({ before, limit: 100 });
+    moreMessages = Boolean(page.next_before);
+    rows.push(...page.items.filter(row => follows({ ...row, at: row.at ?? '' }, cursor)).map(row => ({ kind: 'message', ...row, detail: row.detail ?? null })));
+  }
+  rows.sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? '')) || a.record_id.localeCompare(b.record_id));
+  const items = rows.slice(0, settings.page.default);
+  const hasMore = rows.length > items.length || moreMessages;
+  const last = items.at(-1);
+  return { status: 200, body: { kinds: allowed, items, next_after: hasMore && last ? shareCursor({ at: last.at ?? '', record_id: last.record_id }) : null } };
+}

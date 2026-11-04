@@ -1,0 +1,185 @@
+// Public stories: a private name never reaches a published story, whatever the models do; the pool keeps, lists,
+// filters and takes down stories; and the pages carry their search and sharing facts.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { leaks, privateTerms, redact } from '../src/private-rewrite.mjs';
+import { storyFacts, storyPrivateTerms, writeStory, isStoryId, mintStoryId } from '../src/stories.mjs';
+import { feedPage, storyPage } from '../src/story-pages.mjs';
+import { sqliteHost } from '../src/local-store.mjs';
+import { storyShelf } from '../src/story-shelf.mjs';
+import settings from '../src/story-settings.json' with { type: 'json' };
+
+// The account's own name, the people and places in the decision, an address and a sum of money: none may be published.
+const ACCOUNT_NAME = 'Robin Quillfield';
+const PRIVATE = ['robin', 'quillfield', 'maria', 'oakridge', 'delacroix', 'user-e4ed88d0@example.com', '$4,800'];
+const record = {
+  id: 'case-1',
+  input: {
+    goal: 'Decide whether Robin should move Maria to the Oakridge Tennis Club academy before the spring season',
+    evidence: [
+      { ref: 'a', claim: 'Maria has lost four of her last five matches on her second serve, and coach Delacroix says the grip is the cause.' },
+      { ref: 'b', claim: 'The academy costs $4,800 a term; write to user-e4ed88d0@example.com for the invoice.' },
+    ],
+    options: [
+      { id: 'move', label: 'Move Maria to the academy at Oakridge now' },
+      { id: 'grip', label: 'Keep training at home and fix the second-serve grip first' },
+    ],
+  },
+  decision: { option_id: 'grip', reason: 'The losses come from one fixable stroke, and Delacroix can fix it at home for less.', next_action: 'Book three grip sessions with Delacroix this week.', success_measure: 'Second-serve points won rise above half over the next four matches.' },
+  reports: [{ result: 'met', summary: 'Maria won three of four matches after the grip change.', reported_at: '2026-09-20T10:00:00Z' }],
+};
+const terms = () => storyPrivateTerms(record, [ACCOUNT_NAME, 'user-e4ed88d0@example.com']);
+const published = story => JSON.stringify(story).toLowerCase();
+
+// A stand-in for the platform AI binding: `rewrite(input)` answers the rewriting model, `check(text)` the checking one.
+const fakeAi = ({ rewrite, check = () => ({ identifying: [] }) }) => {
+  const seen = [];
+  return {
+    seen,
+    AI: {
+      async run(model, { messages }) {
+        const [system, user] = messages.map(message => message.content);
+        seen.push(user);
+        const reply = system.startsWith('You try to re-identify') ? check(user) : rewrite(JSON.parse(user));
+        return { response: JSON.stringify(reply) };
+      },
+    },
+  };
+};
+const GOOD = {
+  kind: 'sport-and-training', title: 'Fixing one stroke before changing clubs', summary: 'A young player kept losing on one stroke, so the family fixed the stroke before moving clubs.',
+  situation: 'A junior player kept losing close matches on the second serve. A move to an expensive academy was on the table.',
+  options: ['Move to the academy now', 'Fix the second-serve grip at home first'], chosen: 'Fix the second-serve grip at home first',
+  why: 'The losses came from one fixable stroke, and the fix was cheaper at home.', next_step: 'Book a few grip sessions this week.',
+  measured_by: 'Winning more than half of second-serve points over the next matches.', outcome: 'The player won most of the next matches after the change.',
+};
+
+test('the plain pass finds the account name, the people and places in the text, and the address and money', () => {
+  const found = terms();
+  for (const word of ['robin', 'quillfield', 'maria', 'oakridge', 'delacroix']) assert.ok(found.has(word), word);
+  assert.ok(!found.has('decide') && !found.has('book') && !found.has('keep'), 'a sentence\'s first word is not a name');
+  const cleaned = redact(JSON.stringify(storyFacts(record)), found).toLowerCase();
+  for (const word of PRIVATE) assert.ok(!cleaned.includes(word), `${word} survived redaction`);
+  assert.deepEqual(leaks('Book sessions with a coach this week.', found), []);
+});
+
+test('no model ever sees a private name: the facts are redacted before the rewrite', async () => {
+  const env = fakeAi({ rewrite: () => GOOD });
+  const written = await writeStory(env, record, { terms: terms() });
+  assert.equal(written.shared, true);
+  for (const sent of env.seen) for (const word of PRIVATE) assert.ok(!sent.toLowerCase().includes(word), `the model was sent ${word}`);
+  for (const word of PRIVATE) assert.ok(!published(written.story).includes(word));
+  assert.equal(written.story.outcome.result, 'met');
+  assert.equal(written.story.kind, 'sport-and-training');
+});
+
+test('a rewrite that brings a private name back is never published, even when the checking model sees nothing', async () => {
+  for (const leak of ['Robin', 'QUILLFIELD', 'Maria', 'the Oakridge academy', 'coach Delacroix', 'write to user-e4ed88d0@example.com', 'it cost $4,800']) {
+    const env = fakeAi({ rewrite: () => ({ ...GOOD, situation: `${GOOD.situation} ${leak}.` }), check: () => ({ identifying: [] }) });
+    const written = await writeStory(env, record, { terms: terms() });
+    assert.equal(written.shared, false, `${leak} was published`);
+    for (const word of PRIVATE) assert.ok(!String(written.reason).toLowerCase().includes(word), `the refusal repeats ${word}`);
+  }
+});
+
+// Leaks of the kinds a founder's own decisions carry: companies, legal entities and states, money, places, people,
+// keys, and a company named at the start of a sentence, where the plain proper-name rule cannot see it.
+const founder = {
+  id: 'case-2',
+  input: {
+    goal: 'Bitfield keeps failing, so decide whether Trillion should launch on its own before the Delaware C-corp is formed',
+    evidence: [
+      { ref: 'a', claim: 'Acme Performance Systems LLC holds the Stripe account; revenue is $12k MRR from the bakery school in Miami.' },
+      { ref: 'b', claim: 'Sam said the key sk_' + 'live_51HqLyjWDarjtT1zdp7dcXYZ123 must move to the new entity.' },
+    ],
+    options: [{ id: 'now', label: 'Launch Trillion alone this week' }, { id: 'wait', label: 'Wait for the full Bitfield app' }],
+  },
+  decision: { option_id: 'now', reason: 'Waiting ties the launch to an app that keeps breaking.', next_action: 'Move the paid plan to its own account.', success_measure: 'Ten paying customers in a month.' },
+};
+const FOUNDER_PRIVATE = ['bitfield', 'trillion', 'delaware', 'c-corp', 'acme', 'llc', '$12k', 'miami', 'sam', 'sk_live', 'stripe'];
+
+test('a founder\'s decision reaches no model with its companies, entity, state, money, places, people or keys', async () => {
+  const env = fakeAi({ rewrite: () => GOOD });
+  const written = await writeStory(env, founder, { terms: storyPrivateTerms(founder, ['Sam Rivera', 'Acme']) });
+  assert.equal(written.shared, true);
+  for (const sent of env.seen.slice(0, 1)) for (const word of FOUNDER_PRIVATE) assert.ok(!sent.toLowerCase().includes(word), `the model was sent ${word}`);
+});
+
+test('the checking model is told where stories appear, so a story about the site\'s own makers can be held back', async () => {
+  const env = fakeAi({ rewrite: () => GOOD, check: text => ({ identifying: [] }) });
+  const prompts = [];
+  const run = env.AI.run;
+  env.AI.run = async (model, request) => { prompts.push(request.messages[0].content); return run(model, request); };
+  await writeStory(env, founder, { terms: storyPrivateTerms(founder, []) });
+  assert.ok(prompts.some(prompt => prompt.startsWith('You try to re-identify') && prompt.includes(settings.privacy.publisher_context)));
+});
+
+test('a kind the owner keeps private is never published, however well its words are hidden', async () => {
+  const env = fakeAi({ rewrite: () => ({ ...GOOD, kind: 'products-and-launches' }) });
+  const written = await writeStory(env, founder, { terms: storyPrivateTerms(founder, []), heldKinds: settings.privacy.operator_held_kinds });
+  assert.equal(written.shared, false);
+  assert.match(written.reason, /private/);
+});
+
+test('every kind of founder leak in a rewrite is refused, even when the checking model sees nothing', async () => {
+  const leaksToTry = ['Bitfield kept breaking.', 'They formed a Delaware C-corp.', 'The LLC held the account.', 'It made $12k a month.', 'The school in Miami grew.', 'Their partner Sam agreed.', 'They moved sk_' + 'live_51HqLyjWDarjtT1zdp7dcXYZ123 over.', 'They launched on gettrillion.ai.', 'They used Stripe for payments.', 'Trillion went live.', 'Sam decided fast.'];
+  for (const leak of leaksToTry) {
+    const env = fakeAi({ rewrite: () => ({ ...GOOD, why: `${GOOD.why} ${leak}` }) });
+    const written = await writeStory(env, founder, { terms: storyPrivateTerms(founder, ['Sam Rivera', 'Acme']) });
+    assert.equal(written.shared, false, `published: ${leak}`);
+  }
+});
+
+test('a rewrite that only echoes the redacted facts is refused, and one the checking model flags is refused', async () => {
+  const echo = fakeAi({ rewrite: facts => ({ ...GOOD, situation: facts.context?.join(' ') ?? JSON.stringify(facts) }) });
+  assert.equal((await writeStory(echo, record, { terms: terms() })).shared, false);
+  const flagged = fakeAi({ rewrite: () => GOOD, check: () => ({ identifying: ['a junior player'] }) });
+  assert.equal((await writeStory(flagged, record, { terms: terms() })).shared, false);
+});
+
+test('an unknown kind is filed under the fallback kind, and story ids are opaque BLAKE3-derived hex', async () => {
+  const env = fakeAi({ rewrite: () => ({ ...GOOD, kind: 'astrology' }) });
+  assert.equal((await writeStory(env, record, { terms: terms() })).story.kind, settings.kinds.find(kind => kind.fallback).id);
+  const id = mintStoryId();
+  assert.ok(isStoryId(id) && id !== mintStoryId());
+});
+
+// The shared pool's stories table, on node:sqlite.
+test('the shelf keeps stories newest first, pages and filters them, and a story taken down is gone', async () => {
+  const shelf = storyShelf(sqliteHost(':memory:').sql);
+  const pool = { publishStory: async (id, story) => shelf.publish(id, story), stories: async query => shelf.stories(query), storyCounts: async () => shelf.counts(), story: async id => shelf.story(id), unpublishStory: async id => shelf.unpublish(id), storyIndex: async () => shelf.index() };
+  const ids = [];
+  for (let index = 0; index < 5; index += 1) ids.push(await pool.publishStory(mintStoryId(), { ...GOOD, kind: index % 2 ? 'money' : 'sport-and-training', title: `Story ${index}` }));
+  const first = await pool.stories({ limit: 2 });
+  assert.deepEqual(first.stories.map(story => story.title), ['Story 4', 'Story 3']);
+  const second = await pool.stories({ limit: 2, after: first.next });
+  assert.deepEqual(second.stories.map(story => story.title), ['Story 2', 'Story 1']);
+  assert.deepEqual((await pool.stories({ kind: 'money' })).stories.map(story => story.title), ['Story 3', 'Story 1']);
+  assert.deepEqual(await pool.storyCounts(), { money: 2, 'sport-and-training': 3 });
+  await pool.publishStory(ids[0], { ...GOOD, title: 'Story 0, with its result' });
+  assert.equal((await pool.story(ids[0])).title, 'Story 0, with its result');
+  assert.equal(await pool.unpublishStory(ids[0]), true);
+  assert.equal(await pool.story(ids[0]), null);
+  assert.equal((await pool.storyIndex()).length, 4);
+});
+
+test('a story page carries its title, canonical address, sharing tags, Article and FAQ data, and the plans from the offer rows', async () => {
+  const offers = [
+    { id: 'free', label: "1x'er", options: [], features: [{ included: true, value: '5 decisions/month' }], recommended: false },
+    { id: 'paid', label: 'Trillion X\'er', options: [{ amount_cents: 10000, currency: 'usd', interval: 'month' }], recommended: true },
+  ];
+  const story = { ...GOOD, id: mintStoryId(), outcome: { result: 'met', what_happened: GOOD.outcome }, published_on: '2026-09-27', updated_on: '2026-09-27' };
+  const html = await storyPage({ canonicalOrigin: 'https://gettrillion.ai', story, related: [], offers, accountHref: 'https://app.gettrillion.ai/account' }).text();
+  assert.match(html, new RegExp(`<link rel="canonical" href="https://gettrillion.ai/stories/${story.id}"/>`));
+  assert.match(html, /<h1 class="page-heading">Fixing one stroke before changing clubs<\/h1>/);
+  assert.match(html, /property="og:image" content="https:\/\/gettrillion.ai\/stories\/share.png"/);
+  const data = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map(match => JSON.parse(match[1]));
+  assert.deepEqual(data.map(item => item['@type']), ['Article', 'FAQPage', 'BreadcrumbList']);
+  assert.equal(data[1].mainEntity.length, 4);
+  assert.match(html, /1x&#39;er is free: 5 decisions\/month\./);
+  assert.match(html, /Get Trillion X&#39;er · \$100\/month/);
+  const feed = await feedPage({ canonicalOrigin: 'https://gettrillion.ai', page: { stories: [story], next: 7 }, counts: { 'sport-and-training': 1 }, offers, accountHref: '/account' }).text();
+  assert.match(feed, /data-page-more/);
+  assert.match(feed, /href="\/stories\?after=7"/);
+  assert.match(feed, /"@type":"CollectionPage"/);
+});

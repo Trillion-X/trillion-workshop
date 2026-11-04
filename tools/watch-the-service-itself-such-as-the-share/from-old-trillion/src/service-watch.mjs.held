@@ -1,0 +1,915 @@
+// src/service-watch.mjs
+//
+// Purpose: what the service watches about itself with no person's store in the way (settings in
+// src/service-watch.json). The Worker counts every call it makes to a store (watchedEnv, per store and minute, kept in
+// APP_KV), and each watch row is read by its own owner on its own alarm (makeServiceWatchOwner, one record book per watch,
+// src/book-handlers.mjs 'service-watch', started by startServiceOwners) with the reader the row names: the
+// share of calls each store failed, and whether what landed on main went live (the builds scripts/deploy-worker.mjs
+// keeps against the live version). What each watch saw is kept as its own state (watchStateKey), which the accounts' checks read
+// (tool:read-service-watch, readServiceWatch), and the service's own checks over it (src/service-checks.mjs, each kept
+// and run by its own owner, not in any person's store or one shared loop) run now when a watch changed, so a stopped one is handed to an AI of
+// the account `service_work_setting` names once, with its evidence. Found 2026-10-06: a busy store failed most calls for
+// hours (memory resets) and nothing went live for an hour while a visual check refused every build, and the only
+// watcher ran inside the store that was failing.
+//
+// The usage estimate (reader `service_bill`): the service's own budget rows (src/spend-meter.json, scope service) are checked
+// against what the provider itself counted, read here with the service's own read-only token (a Worker secret the row
+// names) through the provider's request row in parts/service-connections/records.json, priced by src/spend-meter.mjs.
+// A budget heading past its most (pace), near it or reached is a notice told once to the account the row's
+// `service_work_setting` names (whoever runs Trillion), for a row with `tell`, kept as told in APP_KV only once that account took it, so a busy store
+// is told on the next run instead of never. This watch only tells: the stops a reached budget asks for stay with the
+// operator's own meter, which also reads the budgets they set themselves, so its words (`words`, over the meter's)
+// never say that work was stopped. Found 2026-10-06: Cloudflare usage was estimated at $103 to $215 a day for five days
+// against a $25 budget, and the only meter read its numbers inside the store that was spending them.
+// A watch with `hand` (the deploys) does not wait on those checks: when it flips to failing, the AIs of the account
+// `service_work_setting` names (the operator's) are handed one job at once with its words, evidence and how to fix it (handFailing),
+// once per failing episode. Found 2026-10-08: 23 builds in a row were refused by the visual check from 08:52Z to 10:34Z
+// and no AI was told, because the checks' road took hours and ended in an account whose work no AI takes.
+// The estimate's meter and provider invocation code load only when that reader runs, so counting a store call does not
+// load the workshop and its application dependencies before a signed housekeeping request can be checked.
+//
+// Non-negotiable invariants:
+//   1. Counting never changes a call: the store's own answer or error goes back to the caller untouched, and the call
+//      is the same call (its promise is returned as it is, so pipelined calls keep working).
+//   2. Nothing here needs a person's store to measure: counts and state live in APP_KV, the schedule is each watch
+//      owner's own alarm, and no object every watch shares holds it.
+//      Telling an account is the only step that reaches a store, and an account that does not answer is skipped.
+//   3. Watches, thresholds, windows, accounts and words are DATA (src/service-watch.json); a reader is an entry of
+//      READERS named by a row's `read` (what it reads, and its pure judgement), and a watch of an existing kind is a row.
+//   4. A store is named in the evidence by its id (and its name when the Worker made it from one); no call's words or
+//      arguments are kept.
+//
+import settings from '../../../service-watch/src/service-watch.json' with { type: 'json' };
+import { startServiceChecks } from '../../../run-trillions-own-capability-checks-each-on-its-own-schedule-and/from-old-trillion/src/service-checks.mjs.held';
+
+// The account a row's own `setting` names, else the one `service_work_setting` names; null when it is not set.
+const serviceAccount = (env, rules, setting = null) => env[setting ?? rules.service_work_setting] || null;
+import { failureOf } from '../../../tweak-live-controls/failure.mjs';
+import spendData from '../../../shared-code/src/spend-meter.json' with { type: 'json' };
+import { secret } from '../../../start-from-any-landing-page/src/worker-secrets.mjs';
+import { hostOf, addressId } from './resource-host.mjs';
+import { runServiceTool } from './tool-run-call.mjs';
+import { ownRecordBookName } from './own-record-resource.mjs';
+import { tellServiceNotice } from '../../../tell-the-person-of-an-account-something-from-the-service/from-old-trillion/src/service-notice.mjs.held';
+
+const MINUTE = 60_000;
+const PASS_THROUGH = new Set(['then', 'id', 'name', 'toJSON', 'constructor']);
+const minuteOf = ms => new Date(ms - (ms % MINUTE)).toISOString().slice(0, 16);
+const fill = (words, values) => String(words).replace(/\{(\w+)\}/g, (all, key) => (values[key] ?? all));
+
+// ---- counting calls --------------------------------------------------------------------------------------------------
+
+// This isolate's counts: minute -> store id -> { name, calls, failed, last_failure }.
+const tallies = new Map();
+let isolate = null;
+let flushedAt = 0;
+// The wrapper belongs to one request; its original environment is only an identity for completed plain-data caches.
+// Never use this owner to make a call: calls must still go through the current request's counted bindings.
+const environmentOwners = new WeakMap();
+export const environmentOwner = env => environmentOwners.get(env) ?? env;
+/** Associate a derived view with its original cache identity, without sharing bindings or request context. */
+export function associateEnvironmentOwner(view, env) {
+  environmentOwners.set(view, environmentOwner(env));
+  return view;
+}
+
+/** What one call's outcome means: failed when the store did not answer or answered with a failed status. Pure. */
+export function failedOutcome(outcome, rules = settings.calls) {
+  if (outcome.error !== undefined) return rules.failed_codes.includes(failureOf(outcome.error).code);
+  return outcome.answer instanceof Response && rules.failed_statuses.includes(outcome.answer.status);
+}
+
+function count(store, failed, error, now) {
+  const minute = minuteOf(now);
+  if (!tallies.has(minute)) tallies.set(minute, new Map());
+  const stores = tallies.get(minute);
+  const key = store.id;
+  const tally = stores.get(key) ?? { name: store.name ?? null, calls: 0, failed: 0, failure_codes: {}, last_failure: null };
+  tally.calls += 1;
+  if (failed) {
+    tally.failed += 1;
+    tally.failure_codes ??= {};
+    if (error && (typeof error === 'object' || typeof error === 'function')) {
+      const code = failureOf(error).code;
+      tally.failure_codes[code] = (tally.failure_codes[code] ?? 0) + 1;
+    }
+    tally.last_failure = String(error?.message ?? error).slice(0, settings.calls.failure_chars);
+  }
+  stores.set(key, tally);
+}
+
+// KV keeps at most this much metadata per key; a key's counts ride in it so the reader lists them without reading values.
+const METADATA_BYTES = 1024;
+
+/** Writes this isolate's counts (one value per minute it counted, its counts also in the key's metadata), forgetting the
+ *  minutes that are over. */
+export async function flushCalls(kv, now = Date.now(), rules = settings.calls) {
+  isolate ??= crypto.randomUUID();
+  flushedAt = now;
+  const current = minuteOf(now);
+  const writes = [];
+  for (const [minute, stores] of tallies) {
+    const counts = JSON.stringify({ n: Object.fromEntries([...stores].map(([id, tally]) => [id,
+      Object.keys(tally.failure_codes ?? {}).length ? [tally.calls, tally.failed, tally.failure_codes] : [tally.calls, tally.failed],
+    ])) });
+    const metadata = counts.length <= METADATA_BYTES ? JSON.parse(counts) : { more: true };
+    writes.push(kv.put(`${rules.key_prefix}${minute}:${isolate}`, JSON.stringify(Object.fromEntries(stores)), { expirationTtl: rules.keep_minutes * 60, metadata }));
+    if (minute !== current) tallies.delete(minute);
+  }
+  await Promise.all(writes);
+}
+
+// The store whose call failed, or whose explicit refusal the caller turned into an error: its class and the first
+// 10 hex characters of its id. This names the call boundary, not the cause of a nested failure. Keyed by the error
+// object, never written onto it, so the caller receives the same error. The passing_trouble log names the store with it.
+const failedStores = new WeakMap();
+export function failedStore(error) {
+  return failedStores.get(error) ?? null;
+}
+
+/** Attach the actual attempted handle to an otherwise unlabelled error. A diagnostic cannot change a refusal. */
+export function noteStoreFailure(error, binding, handle) {
+  try {
+    if (!error || !['object', 'function'].includes(typeof error) || failedStores.has(error)
+      || typeof binding !== 'string' || !Object.hasOwn(settings.store_classes, binding)) return error;
+    const id = String(handle?.id ?? '');
+    if (/^[0-9a-f]{64}$/i.test(id)) failedStores.set(error, { class: settings.store_classes[binding], id: id.slice(0, 10).toLowerCase() });
+  } catch { /* Observing the attempted handle must never replace the original error. */ }
+  return error;
+}
+
+function countedStub(stub, after, now, { label, counted }) {
+  const store = { id: String(stub.id), name: stub.id?.name ?? null };
+  const record = counted ? (failed, error) => { count(store, failed, error, now()); after(); } : () => {};
+  const labelError = error => {
+    if (error && (typeof error === 'object' || typeof error === 'function')) failedStores.set(error, { class: label, id: store.id.slice(0, 10) });
+  };
+  return new Proxy(stub, {
+    get(target, key) {
+      const value = Reflect.get(target, key);
+      if (typeof key === 'symbol' || PASS_THROUGH.has(key) || typeof value !== 'function') return value;
+      return (...args) => {
+        let result;
+        // Reflect.apply: a stub's method is itself an RPC stub, whose own `apply` would be sent as a call.
+        try { result = Reflect.apply(value, target, args); } catch (error) {
+          record(failedOutcome({ error }), error);
+          labelError(error);
+          throw error;
+        }
+        Promise.resolve(result).then(
+          answer => { const failed = failedOutcome({ answer }); record(failed, failed ? `answered ${answer.status}` : null); },
+          error => { record(failedOutcome({ error }), error); labelError(error); },
+        );
+        return result;
+      };
+    },
+  });
+}
+
+function countedNamespace(namespace, after, now, binding) {
+  return new Proxy(namespace, {
+    get(target, key) {
+      const value = Reflect.get(target, key);
+      if (typeof value !== 'function') return value;
+      if (key === 'get' || key === 'getByName') return (...args) => countedStub(Reflect.apply(value, target, args), after, now, binding);
+      return value.bind(target);
+    },
+  });
+}
+
+/** The Worker's env with every store binding of `store_classes` named by its class, and the stores of `calls.bindings`
+ *  also counted; counts are written at most every `flush_every_ms` through ctx.waitUntil. */
+export function watchedEnv(env, ctx, { now = () => Date.now(), rules = settings.calls } = {}) {
+  if (!env?.APP_KV) return env;
+  const after = () => {
+    const at = now();
+    if (at - flushedAt < rules.flush_every_ms) return;
+    flushedAt = at;
+    ctx?.waitUntil?.(flushCalls(env.APP_KV, at, rules).catch(error => console.error('service watch counts', String(error?.message ?? error))));
+  };
+  const watched = Object.assign(Object.create(env), env);
+  for (const [binding, label] of Object.entries(settings.store_classes)) {
+    if (env[binding]) watched[binding] = countedNamespace(env[binding], after, now, { label, counted: rules.bindings.includes(binding) });
+  }
+  return associateEnvironmentOwner(watched, env);
+}
+
+/** The counts every isolate kept for the minutes in [from, to): [{ id, name, calls, failed, failure_codes, last_failure }]. Counts come
+ *  from the keys' metadata (one list per minute); a value is read only for a key whose counts did not fit, and, with
+ *  `detail_for`, for the keys that counted a failure of a store it names (its name and last failure). */
+export async function readCalls(kv, from, to, rules = settings.calls, { detail_for = null } = {}) {
+  const totals = new Map();
+  const failedIn = new Map();
+  const add = (key, id, calls, failed, failureCodes = {}, tally = null) => {
+    const total = totals.get(id) ?? { id, name: null, calls: 0, failed: 0, failure_codes: {}, last_failure: null };
+    total.calls += calls;
+    total.failed += failed;
+    for (const [code, count] of Object.entries(failureCodes ?? {})) total.failure_codes[code] = (total.failure_codes[code] ?? 0) + count;
+    if (tally) { total.name ??= tally.name ?? null; total.last_failure = tally.last_failure ?? total.last_failure; }
+    totals.set(id, total);
+    if (failed) failedIn.set(id, [...(failedIn.get(id) ?? []), key]);
+  };
+  for (let at = from - (from % MINUTE); at < to; at += MINUTE) {
+    let cursor;
+    do {
+      const page = await kv.list({ prefix: `${rules.key_prefix}${minuteOf(at)}:`, cursor });
+      for (const { name: key, metadata } of page.keys) {
+        if (metadata?.n) { for (const [id, [calls, failed, failureCodes = {}]] of Object.entries(metadata.n)) add(key, id, calls, failed, failureCodes); continue; }
+        for (const [id, tally] of Object.entries(JSON.parse(await kv.get(key) ?? '{}'))) add(key, id, tally.calls, tally.failed, tally.failure_codes, tally);
+      }
+      cursor = page.list_complete ? undefined : page.cursor;
+    } while (cursor);
+  }
+  for (const id of detail_for?.(totals) ?? []) {
+    const total = totals.get(id);
+    for (const key of (failedIn.get(id) ?? []).slice(-3)) {
+      const tally = JSON.parse(await kv.get(key) ?? '{}')[id];
+      if (tally) { total.name ??= tally.name ?? null; total.last_failure = tally.last_failure ?? total.last_failure; }
+    }
+  }
+  return [...totals.values()];
+}
+
+// ---- builds --------------------------------------------------------------------------------------------------------
+
+/** Every build scripts/deploy-worker.mjs kept: [{ commit, run_id?, started_at, outcome, why, finished_at }], oldest first. */
+export async function readBuilds(kv, rules = settings) {
+  const builds = [];
+  let cursor;
+  do {
+    const page = await kv.list({ prefix: rules.builds_key_prefix, cursor });
+    for (const { name } of page.keys) {
+      const build = JSON.parse(await kv.get(name) ?? 'null');
+      if (build?.record_type === 'build-pointer') continue;
+      if (build?.started_at) builds.push(build);
+    }
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+  builds.sort((a, b) => Date.parse(a.started_at) - Date.parse(b.started_at));
+  const latest = builds.at(-1);
+  if (latest?.outcome === 'running' && latest.progress && rules.build_progress_key_prefix) {
+    try {
+      const read = await readOneBuild(kv, latest.commit, rules, latest.run_id ? { run_id: latest.run_id } : null);
+      if (read.build?.progress) latest.progress = read.build.progress;
+      latest.progress_read = read.build_read.progress ?? { state: 'not_observed' };
+    } catch { latest.progress_read = { state: 'unavailable', reason: 'progress_read_failed' }; }
+  }
+  return builds;
+}
+
+// ---- readers -------------------------------------------------------------------------------------------------------
+
+const percent = share => Math.round(share * 1000) / 10;
+
+/** Each reader names what it reads (`inputs`, from APP_KV and the Worker's own facts) and judges it (`judge`, pure):
+ *  { failing, said, evidence }. */
+export const READERS = {
+  store_calls: {
+    inputs: async ({ env, watch, now, rules }) => {
+      const criticalCodes = watch.critical_codes ?? [];
+      return {
+        calls: await readCalls(env.APP_KV, now - watch.window_minutes * MINUTE, now, rules.calls, {
+          // Names and last failures are read only for stores that fail the watch, including a critical code.
+          detail_for: totals => [...totals.values()].filter(store => criticalCodes.some(code => store.failure_codes?.[code] > 0)
+            || (store.calls >= watch.least_calls && store.failed / store.calls > watch.most_failed_share)).map(store => store.id),
+        }),
+      };
+    },
+    judge(watch, { calls }) {
+      const criticalCodes = watch.critical_codes ?? [];
+      const ordinary = calls.filter(store => store.calls >= watch.least_calls).map(store => ({ ...store, share: store.failed / store.calls }));
+      const read = calls.filter(store => store.calls >= watch.least_calls || criticalCodes.some(code => store.failure_codes?.[code] > 0))
+        .map(store => ({ ...store, share: store.calls ? store.failed / store.calls : 0, critical_failures: criticalCodes.filter(code => store.failure_codes?.[code] > 0) }));
+      const failing = read.filter(store => store.critical_failures.length > 0 || store.share > watch.most_failed_share)
+        .sort((a, b) => Number(b.critical_failures.length > 0) - Number(a.critical_failures.length > 0) || b.share - a.share);
+      const worst = failing.slice(0, 5).map(store => {
+        const critical = store.critical_failures.length
+          ? `, critical: ${store.critical_failures.map(code => `${code} ×${store.failure_codes[code]}`).join(', ')}` : '';
+        return `${store.name ?? store.id} ${store.failed}/${store.calls} (${percent(store.share)}%)${critical}${store.last_failure ? `, last: ${store.last_failure}` : ''}`;
+      }).join('; ');
+      const hasCritical = failing.some(store => store.critical_failures.length > 0);
+      const answered = ordinary.length ? percent(1 - Math.max(...ordinary.map(store => store.share))) : 100;
+      return {
+        failing: failing.length > 0,
+        said: fill(hasCritical ? watch.says_critical : failing.length ? watch.says_failing : watch.says_working, { stores: failing.length, most_percent: percent(watch.most_failed_share), window_minutes: watch.window_minutes, worst, answered }),
+        evidence: { stores: failing.slice(0, 20), stores_read: ordinary.length, calls: calls.reduce((sum, store) => sum + store.calls, 0) },
+      };
+    },
+  },
+  deploys: {
+    inputs: async ({ env, watch, now, rules }) => ({
+      builds: await readBuilds(env.APP_KV, rules), live: env.CF_VERSION_METADATA ?? null, now,
+      waiting: JSON.parse(await env.APP_KV.get(watch.waiting_key) ?? 'null'),
+    }),
+    // A commit handed on (scripts/deploy-worker.mjs, served at /deploy-waiting) stays recorded until a live Worker
+    // carries it, so a recorded commit whose window opened more than `most_late_minutes` ago has not gone live.
+    judge(watch, { builds, live, now, waiting = null }) {
+      const liveSince = Date.parse(live?.timestamp ?? '');
+      const since = Number.isFinite(liveSince) ? builds.filter(build => Date.parse(build.started_at) > liveSince) : [];
+      const unserved = since.filter(build => !watch.served_outcomes.includes(build.outcome));
+      const first = unserved[0];
+      const waitingMinutes = first ? Math.round((now - Date.parse(first.started_at)) / MINUTE) : 0;
+      const lateMinutes = Math.round((now - Date.parse(waiting?.ready_at ?? '')) / MINUTE);
+      const late = lateMinutes > watch.most_late_minutes;
+      // Builds the deploy refused, newest first, until one that was not: a run of them means every push is stopped by
+      // the same guard (2026-10-06: seven refusals in 50 minutes over a storage ceiling, inside most_quiet_minutes).
+      const refused = since.slice().reverse().findIndex(build => build.outcome !== 'refused');
+      const refusedInARow = refused === -1 ? since.length : refused;
+      const failing = late || waitingMinutes > watch.most_quiet_minutes || refusedInARow >= watch.most_refused_in_a_row;
+      const last = unserved.at(-1);
+      const liveSinceWords = Number.isFinite(liveSince) ? new Date(liveSince).toISOString() : 'unknown';
+      if (late) return {
+        failing,
+        said: fill(watch.says_late, { commit: waiting.commit.slice(0, 8), ready_at: waiting.ready_at, late_minutes: lateMinutes, live_since: liveSinceWords }),
+        evidence: { live_version: live?.id ?? null, live_since: live?.timestamp ?? null, waiting, builds: unserved.slice(-10) },
+      };
+      return {
+        failing,
+        said: fill(refusedInARow >= watch.most_refused_in_a_row ? watch.says_refused : failing ? watch.says_failing : watch.says_working, {
+          refused: refusedInARow,
+          live_since: liveSinceWords, most_quiet_minutes: watch.most_quiet_minutes,
+          builds: unserved.length, waiting_minutes: waitingMinutes, why: last ? `${last.commit} ${last.outcome ?? 'still running'}: ${last.why ?? ''}`.trim() : '',
+        }),
+        evidence: { live_version: live?.id ?? null, live_since: live?.timestamp ?? null, waiting, builds: unserved.slice(-10) },
+      };
+    },
+  },
+  service_bill: {
+    inputs: async ({ env, watch, now, fetch, matches }) => {
+      const token = secret(env, watch.token_secret);
+      const missing = !token ? watch.token_secret : watch.settings.find(name => !env[name]);
+      if (missing) return { not_set: fill(watch.says_not_set, { name: missing }) };
+      const { spendMeter, periodsAt } = await import('../../../estimate-what-a-persons-services-cost-from/from-old-trillion/src/spend-meter.mjs.held');
+      const period = periodsAt(now, spendData.cycle_day).month;
+      const told = [];
+      const meter = spendMeter({
+        readers: { service: (reading, period, which) => askProvider({ env, watch, reading, period, which, token, fetch }) },
+        matches,
+        tell: async notice => { told.push(notice); },
+        service: () => true,
+        now: () => now,
+        data: { ...spendData, words: { ...spendData.words, ...watch.words }, lines: spendData.lines.filter(line => watch.readings[line.reading.from ?? line.reading.with]), budgets: spendData.budgets.filter(row => row.scope === 'service') },
+      });
+      try { return { answer: await meter.read(), told, period, as_of: new Date(now).toISOString() }; } catch (error) { return { unread: String(error?.message ?? error).slice(0, settings.calls.failure_chars) }; }
+    },
+    judge(watch, { answer, told = [], period, as_of, unread, not_set }) {
+      if (not_set) return { failing: true, said: not_set, evidence: { not_set }, tell: [] };
+      const missing = answer?.items.filter(item => item.kind === 'line' && item.state === 'unread') ?? [];
+      if (unread || missing.length) return { failing: true, said: fill(watch.says_unread, { why: unread ?? `${missing[0].title}: ${missing[0].words}` }), evidence: { unread: unread ?? missing.map(item => item.title) }, tell: [] };
+      const over = answer.budgets.filter(row => row.state !== 'ok');
+      const lines = answer.items.filter(item => item.kind === 'line').sort((a, b) => b.today_dollars - a.today_dollars).slice(0, watch.evidence_lines);
+      const window = { period_start: period.since, period_end: period.until, as_of: `${as_of.slice(0, 16).replace('T', ' ')} UTC` };
+      return {
+        failing: over.length > 0,
+        said: fill(over.length ? watch.says_failing : watch.says_working, { ...window, today: dollars(answer.total.today), month: dollars(answer.total.month), budgets: told.map(notice => `${notice.title} (${notice.body})`).join(' ') }),
+        evidence: { today: answer.today, as_of, period: { since: window.period_start, through: window.period_end }, total: answer.total, budgets: answer.budgets.map(row => ({ id: row.id, state: row.state, used_dollars: row.used_dollars, most_dollars: row.most_dollars })), lines: lines.map(item => ({ line: item.title, today: item.today_dollars, amount: item.today_amount })) },
+        tell: told,
+      };
+    },
+  },
+  // Former names (src/renamed-tools.json): which former tool and agent ids were used in the last quiet_days, from the
+  // operator-wide former_id_used counts. A row unused that long, once counting has run that long, is due for removal.
+  former_names: {
+    inputs: async ({ env, watch, now }) => {
+      const [{ eventsBy, readInteractions, readRange }, { formerNames }] = await Promise.all([import('./interactions.mjs'), import('../../../shared-code/src/renamed-tools.mjs')]);
+      const names = formerNames();
+      const used = eventsBy(await readInteractions(env, readRange(names.quiet_days, now)), { kind: watch.kind, by: 'former_id' });
+      return { names, used, now };
+    },
+    judge(watch, { names, used, now }) {
+      const retireFrom = Date.parse(names.counted_since) + names.quiet_days * 1440 * MINUTE;
+      const inUse = names.ids.filter(id => used[id] > 0);
+      const silent = now >= retireFrom ? names.ids.filter(id => !(used[id] > 0)) : [];
+      const words = { quiet_days: names.quiet_days, counted_since: names.counted_since, retire_from: new Date(retireFrom).toISOString().slice(0, 10),
+        used: inUse.length ? inUse.join(', ') : 'none', silent: silent.join(', ') };
+      return {
+        failing: silent.length > 0,
+        said: fill(silent.length ? watch.says_failing : now < retireFrom ? watch.says_counting : watch.says_working, words),
+        evidence: { counted_since: names.counted_since, quiet_days: names.quiet_days, used: Object.fromEntries(inUse.map(id => [id, used[id]])), silent },
+      };
+    },
+  },
+};
+
+const noRules = async () => { throw new Error('No rule matcher was handed to the service watch.'); };
+const dollars = amount => `$${Number(amount).toFixed(2)}`;
+let providerRows = null;
+
+/** One provider reading for the meter, asked with the service's own token: the reading's request row (the provider's
+ *  connection record and request name, `watch.readings[id]`) filled with the reading's input (a connection field read
+ *  from the Worker setting `watch.connection_fields` names, a period's since or until), every credential placement
+ *  given the token. An answer holding a value at `watch.refused_at` is the provider refusing it: unread, with its words. */
+async function askProvider({ env, watch, reading, period, which, token, fetch }) {
+  const how = watch.readings[which.id];
+  if (!how) return { state: 'unread', error: `This watch does not read ${which.id}.` };
+  providerRows ??= import('../parts/service-connections/records.json', { with: { type: 'json' } }).then(module => module.default.things);
+  const payload = (await providerRows).find(thing => thing.address === how.record)?.payload;
+  const request = payload?.instrument_requests?.[how.request];
+  if (!request) return { state: 'unread', error: `${how.record} has no request ${how.request}.` };
+  const [{ buildInvocation, httpJson }, { valuesAt }] = await Promise.all([
+    import('../../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs'), import('../../../estimate-what-a-persons-services-cost-from/from-old-trillion/src/spend-meter.mjs.held'),
+  ]);
+  const input = Object.fromEntries(Object.entries(reading.input ?? {}).map(([name, from]) => [name, from.period ? period[from.period] : env[watch.connection_fields[from.connection_field]]]));
+  const invocation = await buildInvocation({ ...request, connection_id: payload.connection_id, credential_injections: payload.credential_injections, timeout_ms: payload.timeout_ms }, { input, request: true });
+  const send = async ({ url, method, headers, body, credential_injections, timeout_ms }) => {
+    const placed = { ...headers };
+    for (const { placement } of credential_injections) {
+      if (placement.kind !== 'header') throw new Error(`A ${placement.kind} placement is not one this watch can give its token.`);
+      placed[placement.name] = `${placement.prefix ?? ''}${token}`;
+    }
+    const response = await fetch(url, { method, headers: placed, body, signal: AbortSignal.timeout(timeout_ms) });
+    return { status_code: response.status, body: await response.text() };
+  };
+  const answer = await httpJson({ invocation, send }, fetch);
+  const refused = valuesAt(answer, watch.refused_at)[0];
+  return refused === undefined ? answer : { state: 'unread', error: String(refused).slice(0, settings.calls.failure_chars) };
+}
+
+// ---- the schedule --------------------------------------------------------------------------------------------------
+
+/** Reads every watch, keeps the state (each watch's failing, since, last_worked, said and evidence) and returns it. */
+// A watch with `every_minutes` is read again only once that long has gone since its last read; between reads its last
+// state stands (a provider's analytics are not asked every five minutes). `matches(tree, fields, row)` answers whether a
+// rule tree holds for a row (the Worker hands in its rule tool); a reader that judges by rules is given it.
+export async function readWatches(env, { now = Date.now(), rules = settings, fetch = globalThis.fetch, matches = noRules } = {}) {
+  const kv = env.APP_KV;
+  // Each watch keeps its own state (watchStateKey), written only by that watch's own owner, so no two owners write one
+  // value. The single state every watch once shared is read only for a watch that has no state of its own yet.
+  let shared;
+  const earlier = async id => {
+    const own = JSON.parse(await kv.get(watchStateKey(rules, id)) ?? 'null');
+    if (own) return own;
+    shared ??= JSON.parse(await kv.get(rules.state_key) ?? 'null');
+    return shared?.watches?.[id] ?? null;
+  };
+  const reads = {};
+  const changed = [];
+  for (const watch of rules.watches) {
+    const reader = READERS[watch.read];
+    const was = await earlier(watch.id);
+    let read;
+    if (!reader) read = { failing: true, said: `No reader is named ${watch.read}.`, evidence: {} };
+    else if (was?.read_at && watch.every_minutes && now - Date.parse(was.read_at) < watch.every_minutes * MINUTE) read = was;
+    else {
+      const seen = reader.judge(watch, await reader.inputs({ env, watch, now, rules, fetch, matches }));
+      const at = new Date(now).toISOString();
+      read = {
+        ...seen,
+        evidence: JSON.stringify(seen.evidence),
+        read_at: at,
+        since: seen.failing ? (was?.failing ? was.since : at) : null,
+        last_worked: seen.failing ? (was?.last_worked ?? null) : at,
+      };
+    }
+    read = { ...read, next_at: now + watchEveryMs(rules, watch) };
+    reads[watch.id] = read;
+    if (Boolean(was?.failing) !== Boolean(read.failing)) changed.push(watch.id);
+    await kv.put(watchStateKey(rules, watch.id), JSON.stringify(read));
+  }
+  return { state: { read_at: new Date(now).toISOString(), watches: reads }, changed };
+}
+
+/** Where one watch's own state is kept, and how often its owner reads it. */
+export const watchStateKey = (rules, id) => `${rules.state_key}:${id}`;
+export const watchEveryMs = (rules, watch) => (watch.every_minutes ?? rules.every_minutes) * MINUTE;
+
+// One exact build uses the same retained build owner. Its stream is bounded before decoding or parsing; diagnostic
+// projection has a separate output bound. No screenshot bytes, other KV keys or caller-chosen prefixes are read.
+export const BUILD_READ_LIMITS = Object.freeze({ record_bytes: 131072, output_bytes: 65536, field_bytes: 4096,
+  entries: 64, records: 16, depth: 8, cache_ttl_seconds: 30 });
+const BUILD_FIELDS = new Set(['commit', 'run_id', 'started_at', 'outcome', 'why', 'finished_at', 'failures', 'deployment', 'progress', 'runner']);
+const IMAGE_FIELDS = new Set(['seen', 'picture', 'pictures', 'image', 'images', 'screenshot', 'screenshots', 'bytes_base64', 'content_base64']);
+const encoder = new TextEncoder();
+const byteLength = value => encoder.encode(typeof value === 'string' ? value : JSON.stringify(value)).byteLength;
+
+async function boundedBuildText(stream) {
+  const reader = stream.getReader();
+  const chunks = [];
+  let bytes = 0;
+  try {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      if (!(value instanceof Uint8Array)) throw new TypeError('The build record stream did not return bytes.');
+      if (value.byteLength > BUILD_READ_LIMITS.record_bytes - bytes) {
+        await reader.cancel().catch(() => {});
+        return null;
+      }
+      chunks.push(value);
+      bytes += value.byteLength;
+    }
+  } finally { reader.releaseLock(); }
+  const joined = new Uint8Array(bytes);
+  let offset = 0;
+  for (const chunk of chunks) { joined.set(chunk, offset); offset += chunk.byteLength; }
+  return joined;
+}
+
+function projectBuild(raw, coverage) {
+  const shorten = value => {
+    if (byteLength(value) <= BUILD_READ_LIMITS.field_bytes) return value;
+    coverage.truncated_fields += 1;
+    // Decode a complete UTF-8 prefix without adding replacement characters.
+    const bytes = encoder.encode(value);
+    let end = BUILD_READ_LIMITS.field_bytes;
+    while ((bytes[end] & 0xc0) === 0x80) end -= 1;
+    return new TextDecoder().decode(bytes.subarray(0, end));
+  };
+  const project = (value, depth = 0) => {
+    if (typeof value === 'string') return shorten(value);
+    if (value === null || typeof value === 'boolean' || typeof value === 'number') return value;
+    if (depth >= BUILD_READ_LIMITS.depth) { coverage.omitted_fields += 1; return null; }
+    if (Array.isArray(value)) {
+      coverage.omitted_fields += Math.max(0, value.length - BUILD_READ_LIMITS.records);
+      return value.slice(0, BUILD_READ_LIMITS.records).map(item => project(item, depth + 1));
+    }
+    const entries = Object.entries(value);
+    const kept = [];
+    coverage.omitted_fields += Math.max(0, entries.length - BUILD_READ_LIMITS.entries);
+    for (const [key, item] of entries.slice(0, BUILD_READ_LIMITS.entries)) {
+      if (IMAGE_FIELDS.has(key) || ['__proto__', 'constructor', 'prototype'].includes(key) || byteLength(key) > 128) {
+        coverage.omitted_fields += 1;
+        if (IMAGE_FIELDS.has(key)) coverage.omitted_image_fields += 1;
+        continue;
+      }
+      kept.push([key, project(item, depth + 1)]);
+    }
+    return Object.fromEntries(kept);
+  };
+  const fields = Object.entries(raw).filter(([key]) => BUILD_FIELDS.has(key));
+  coverage.omitted_fields += Object.keys(raw).length - fields.length;
+  return project(Object.fromEntries(fields));
+}
+
+const validBuildRunId = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
+async function readOneBuild(kv, commit, rules, exactRun = null) {
+  const pointerKey = `${rules.builds_key_prefix}${commit}`;
+  if (exactRun && !validBuildRunId(exactRun.run_id)) throw new TypeError('The retained build run identity is invalid.');
+  const exactRunKey = exactRun ? `${pointerKey}:${exactRun.run_id}` : null;
+  const coverage = { source: 'retained_build_record', key: exactRunKey ?? pointerKey, key_reads: 1,
+    consistency: 'eventual', retention_days: rules.builds_keep_days, limits: BUILD_READ_LIMITS,
+    complete: true, omitted_fields: 0, truncated_fields: 0, omitted_image_fields: 0, omitted_records: 0 };
+  const answer = { said: '', read_at: new Date().toISOString(), watches: {}, build_commit: commit,
+    build_status: 'unreadable', build: null, build_read: coverage };
+  // A missing value is only this retained KV read's observation, never proof that the build did not run.
+  const stream = await kv.get(coverage.key, { type: 'stream', cacheTtl: BUILD_READ_LIMITS.cache_ttl_seconds });
+  if (stream === null) {
+    answer.build_status = 'absent';
+    answer.said = `No retained build record was returned for ${commit}. It may be absent, expired or not yet visible in KV.`;
+    return answer;
+  }
+  const bytes = await boundedBuildText(stream);
+  let text;
+  if (bytes === null) coverage.reason = 'record_byte_limit';
+  else {
+    try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
+    catch { coverage.reason = 'invalid_record_encoding'; }
+  }
+  let raw;
+  if (typeof text === 'string') {
+    try { raw = JSON.parse(text); } catch { coverage.reason = 'invalid_record_json'; }
+    if (!coverage.reason) {
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw) ||
+        ['started_at', 'outcome', 'why'].some(key => Object.hasOwn(raw, key) && typeof raw[key] !== 'string') ||
+        (Object.hasOwn(raw, 'finished_at') && raw.finished_at !== null && typeof raw.finished_at !== 'string')) {
+        coverage.reason = 'invalid_record_shape';
+      } else if (raw.commit !== commit) coverage.reason = 'record_commit_mismatch';
+    }
+  }
+  if (!coverage.reason && exactRun && (raw.run_id !== exactRun.run_id || raw.commit !== commit)) coverage.reason = 'run_record_identity_mismatch';
+  // The legacy commit key contains a complete build. New publishers leave a pointer there and retain each run at
+  // commit:UUID. Never interpolate an unvalidated pointer value into a key read.
+  if (!coverage.reason && !exactRun && (Object.hasOwn(raw, 'run_id') || Object.hasOwn(raw, 'record_type'))) {
+    if (raw.record_type !== 'build-pointer' || raw.commit !== commit || !validBuildRunId(raw.run_id)
+      || typeof raw.started_at !== 'string' || !Number.isFinite(Date.parse(raw.started_at))
+      || !['hosted', 'local'].includes(raw.runner)) {
+      coverage.reason = 'invalid_build_pointer';
+    } else {
+      const pointer = raw;
+      const runKey = `${pointerKey}:${pointer.run_id}`;
+      coverage.pointer_key = pointerKey;
+      coverage.key = runKey;
+      coverage.key_reads += 1;
+      const runStream = await kv.get(runKey, { type: 'stream', cacheTtl: BUILD_READ_LIMITS.cache_ttl_seconds });
+      if (runStream === null) coverage.reason = 'run_record_absent';
+      else {
+        const runBytes = await boundedBuildText(runStream);
+        if (runBytes === null) coverage.reason = 'record_byte_limit';
+        else {
+          try { raw = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(runBytes)); }
+          catch { coverage.reason = 'invalid_record_json'; }
+          if (!coverage.reason && (!raw || typeof raw !== 'object' || Array.isArray(raw)
+            || ['started_at', 'outcome', 'why'].some(key => Object.hasOwn(raw, key) && typeof raw[key] !== 'string')
+            || (Object.hasOwn(raw, 'finished_at') && raw.finished_at !== null && typeof raw.finished_at !== 'string'))) {
+            coverage.reason = 'invalid_record_shape';
+          }
+          if (!coverage.reason && (raw.commit !== commit || raw.run_id !== pointer.run_id || raw.started_at !== pointer.started_at || raw.runner !== pointer.runner)) {
+            coverage.reason = 'run_record_identity_mismatch';
+          }
+        }
+      }
+    }
+  }
+  if (coverage.reason) {
+    coverage.complete = false;
+    answer.said = `The retained build record for ${commit} could not be read (${coverage.reason}).`;
+    return answer;
+  }
+  // Running diagnostics have their own key: an in-flight sample cannot overwrite
+  // the final build result. Only this exact commit is read, with the same bounds.
+  if (raw.outcome === 'running' && rules.build_progress_key_prefix) {
+    const progressKey = `${rules.build_progress_key_prefix}${commit}${raw.run_id ? `:${raw.run_id}` : ''}`;
+    coverage.key_reads += 1;
+    coverage.progress = { key: progressKey, state: 'not_observed' };
+    try {
+      const progressStream = await kv.get(progressKey, { type: 'stream', cacheTtl: BUILD_READ_LIMITS.cache_ttl_seconds });
+      if (progressStream !== null) {
+        const progressBytes = await boundedBuildText(progressStream);
+        if (progressBytes === null) coverage.progress = { key: progressKey, state: 'unreadable', reason: 'record_byte_limit' };
+        else {
+          const progress = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(progressBytes));
+          if (progress?.commit !== commit || typeof progress.phase !== 'string' || !Number.isFinite(Date.parse(progress.updated_at))) {
+            coverage.progress = { key: progressKey, state: 'unreadable', reason: 'invalid_progress_record' };
+          } else if (progress.started_at !== raw.started_at || (raw.run_id && (progress.run_id !== raw.run_id || progress.runner !== raw.runner))
+            || (!raw.run_id && progress.run_id !== undefined)) {
+            coverage.progress = { key: progressKey, state: 'unreadable', reason: 'progress_run_mismatch' };
+          } else {
+            raw = { ...raw, progress };
+            coverage.progress = { key: progressKey, state: 'found', updated_at: progress.updated_at,
+              age_ms: Math.max(0, Date.now() - Date.parse(progress.updated_at)) };
+          }
+        }
+      }
+    } catch {
+      coverage.progress = { key: progressKey, state: 'unavailable', reason: 'progress_read_failed' };
+    }
+  }
+  answer.build = projectBuild(raw, coverage);
+  answer.build_status = 'found';
+  answer.said = `Read the retained build record for ${commit}; this does not by itself prove which version is serving.`;
+  while (byteLength(answer) > BUILD_READ_LIMITS.output_bytes - 1024 &&
+    Array.isArray(answer.build.failures?.records) && answer.build.failures.records.length) {
+    answer.build.failures.records.pop();
+    coverage.omitted_records += 1;
+  }
+  if (byteLength(answer) > BUILD_READ_LIMITS.output_bytes - 1024 && Object.hasOwn(answer.build, 'failures')) {
+    delete answer.build.failures;
+    coverage.omitted_fields += 1;
+    coverage.reason = 'diagnostics_output_byte_limit';
+  }
+  if (byteLength(answer) > BUILD_READ_LIMITS.output_bytes - 1024 && Object.hasOwn(answer.build, 'deployment')) {
+    delete answer.build.deployment;
+    coverage.omitted_fields += 1;
+    coverage.reason = 'deployment_output_byte_limit';
+  }
+  if (byteLength(answer) > BUILD_READ_LIMITS.output_bytes - 1024 && Object.hasOwn(answer.build, 'progress')) {
+    delete answer.build.progress;
+    coverage.omitted_fields += 1;
+    coverage.reason = 'progress_output_byte_limit';
+  }
+  coverage.complete = coverage.omitted_fields + coverage.truncated_fields + coverage.omitted_records === 0;
+  return answer;
+}
+
+/** The state the accounts' checks read, or one exact retained build (tool:read-service-watch). */
+export async function readServiceWatch(kv, rules = settings, input = {}) {
+  if (input === null || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key => key !== 'build_commit')) {
+    throw new TypeError('Read the service watch with {} or one build_commit.');
+  }
+  if (Object.hasOwn(input, 'build_commit')) {
+    if (typeof input.build_commit !== 'string' || !/^[a-fA-F0-9]{40}$/.test(input.build_commit)) {
+      throw new TypeError('build_commit must be exactly 40 hexadecimal characters.');
+    }
+    return readOneBuild(kv, input.build_commit.toLowerCase(), rules);
+  }
+  const watches = {};
+  for (const watch of rules.watches) {
+    const own = JSON.parse(await kv.get(watchStateKey(rules, watch.id)) ?? 'null');
+    if (own) watches[watch.id] = own;
+  }
+  // Until a watch's own owner has read, what every watch once shared (rules.state_key) still stands for it; once none
+  // has its own state, that earlier snapshot is the answer as it was kept.
+  const missing = rules.watches.filter(watch => !watches[watch.id]);
+  if (missing.length) {
+    const shared = JSON.parse(await kv.get(rules.state_key) ?? 'null');
+    if (shared && !Object.keys(watches).length) return { said: Object.values(shared.watches ?? {}).map(watch => watch.said).join(' '), ...shared };
+    for (const watch of missing) if (shared?.watches?.[watch.id]) watches[watch.id] = shared.watches[watch.id];
+  }
+  const read = Object.values(watches).map(watch => watch.read_at).filter(Boolean).sort().at(-1) ?? null;
+  return read ? { said: Object.values(watches).map(watch => watch.said).join(' '), read_at: read, watches } : { said: rules.words.no_state, read_at: null, watches: {} };
+}
+
+/** Each notice a watch asks to tell (`tell`, from its last read) goes to the account its row's `tell_setting` names,
+ *  once, in that account's own records (src/service-notice.mjs): kept as told under `told_key_prefix` only after that account took it. A notice told already is handed again
+ *  with `update`, so it shows the last read's words without being sent again. Returns [{ watch, key } | { watch, key,
+ *  error }]. */
+export async function tellNotices(env, state, { rules = settings, tell = (account, notice) => tellServiceNotice(env, account, notice) }) {
+  const told = [];
+  for (const watch of rules.watches) {
+    const account = watch.tell ? serviceAccount(env, rules, watch.tell.setting) : null;
+    for (const notice of (account && state.watches[watch.id]?.tell) || []) {
+      const key = `${rules.told_key_prefix}${notice.key}`;
+      // Told already: the notice still takes the last read's words (a bill's amount so far), sending nothing again.
+      if (await env.APP_KV.get(key)) {
+        await tell(account, { ...notice, update: true }).catch(() => null);
+        continue;
+      }
+      try {
+        await tell(account, notice);
+        await env.APP_KV.put(key, new Date().toISOString(), { expirationTtl: rules.told_keep_days * 86400 });
+        told.push({ watch: watch.id, key: notice.key });
+      } catch (error) {
+        told.push({ watch: watch.id, key: notice.key, error: String(error?.message ?? error).slice(0, rules.calls.failure_chars) });
+      }
+    }
+  }
+  return told;
+}
+
+/** One job of Trillion's own work (a failing watch, a stopped check, a client health issue) handed to the AIs of the
+ *  account `userId`: one handoff in that account's own records (RecordBook handServiceWork), never through its store.
+ *  The same once_per is the same handoff. Returns { handoff_id }. */
+export function handServiceWork(env, userId, work) {
+  const owner = addressId(env, { kind: 'person', key: userId });
+  return hostOf(env, { kind: 'record-book', key: ownRecordBookName(owner, '@own-records') }).handServiceWork(owner, work);
+}
+
+/** A failing watch whose row has `hand` hands the AIs of the account its `setting` names one job per failing episode (the
+ *  watch's `since`), the same run that read it fail: the watch's words, its evidence and how to fix it. Kept as handed under
+ *  `handed_key_prefix` only after that account took it, so a busy store is handed again on the next run, never twice.
+ *  Returns [{ watch, since, handoff_id } | { watch, since, error }]. */
+export async function handFailing(env, state, { rules = settings, hand = (account, work) => handServiceWork(env, account, work) }) {
+  const handed = [];
+  for (const watch of rules.watches) {
+    const account = watch.hand ? serviceAccount(env, rules, watch.hand.setting) : null;
+    const read = state.watches[watch.id];
+    if (!account || !read?.failing) continue;
+    const key = `${rules.handed_key_prefix}${watch.id}:${read.since}`;
+    if (await env.APP_KV.get(key)) continue;
+    const words = { watch: watch.id, since: read.since, said: read.said, evidence: String(read.evidence ?? '').slice(0, watch.hand.evidence_chars) };
+    try {
+      const { handoff_id } = await hand(account, {
+        job: fill(watch.hand.job, words), said: watch.hand.said, outcome: fill(watch.hand.outcome, words),
+        once_per: `service-watch:${watch.id}:${read.since}`, priority: watch.hand.priority,
+      });
+      await env.APP_KV.put(key, handoff_id, { expirationTtl: rules.told_keep_days * 86400 });
+      handed.push({ watch: watch.id, since: read.since, handoff_id });
+    } catch (error) {
+      handed.push({ watch: watch.id, since: read.since, error: String(error?.message ?? error).slice(0, rules.calls.failure_chars) });
+    }
+  }
+  return handed;
+}
+
+/** A watch whose row has `release` starts the commit that waits for its restart window (`waiting_key`, written by
+ *  scripts/deploy-worker.mjs) once the window is open, the way a push would: when the newest commit on the release's branch
+ *  is older than `young_minutes` (no build of it is still deciding), or the window opened `late_minutes` ago with that
+ *  commit still waiting, it adds an empty commit on the branch's newest tree with the account's own connection, so its build
+ *  takes the window. Never when the newest commit is already that empty commit: its build ran and did not go live, and the
+ *  next push repairs it. The commit names exactly one expected parent and the branch moves only by fast-forward, so a push
+ *  meanwhile makes the move fail and the next run tries again on the new head. Kept as released under
+ *  `released_key_prefix` per waiting commit only after the branch moved.
+ *  Returns [{ watch, commit, released, because } | { watch, commit, waits } | { watch, commit, error }]: each run says why it
+ *  released or waited, in the alarm's run log (src/pool.mjs). */
+export async function releaseWaiting(env, { rules = settings, runTool = (account, request) => runServiceTool(env, { origin: 'service-watch', account, request }), now = Date.now(), fetch = globalThis.fetch }) {
+  const released = [];
+  for (const watch of rules.watches) {
+    const release = watch.release;
+    const trigger = release?.build_trigger;
+    const token = trigger ? env[trigger.token_setting] : null;
+    const account = release ? serviceAccount(env, rules, release.setting) : null;
+    if (!account && !token) continue;
+    const waiting = JSON.parse(await env.APP_KV.get(watch.waiting_key) ?? 'null');
+    const readyAt = Date.parse(waiting?.ready_at ?? '');
+    if (!waiting?.commit || !Number.isFinite(readyAt) || readyAt > now) continue;
+    const key = `${rules.released_key_prefix}${watch.id}:${waiting.commit}`;
+    if (await env.APP_KV.get(key)) continue;
+    // The host's own build trigger starts a build of the branch directly: no person's store, repository connection or
+    // empty commit stands between a ready version and its window (2026-10-13: the operator account's store was
+    // overloaded from 04:03Z, so no release started for 27 hours). Only once the window is late_minutes open, so a
+    // build of a newer push that is still deciding keeps the window.
+    if (token) {
+      if (now - readyAt < release.late_minutes * MINUTE) {
+        released.push({ watch: watch.id, commit: waiting.commit, waits: `the window opened ${Math.round((now - readyAt) / 1000)} s ago; a build still deciding may take it` });
+        continue;
+      }
+      try {
+        const account_id = env[trigger.account_setting];
+        const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(account_id)}/builds/triggers/${encodeURIComponent(trigger.trigger_uuid)}/builds`, {
+          method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify({ branch: release.repository.branch }),
+        });
+        const body = await response.json().catch(() => null);
+        if (!response.ok || !body?.success || !body.result?.build_uuid) throw new Error(`build trigger answered ${response.status}: ${JSON.stringify(body?.errors ?? null).slice(0, 200)}`);
+        await env.APP_KV.put(key, body.result.build_uuid, { expirationTtl: rules.told_keep_days * 86400 });
+        released.push({ watch: watch.id, commit: waiting.commit, released: body.result.build_uuid, because: `the window opened ${Math.round((now - readyAt) / MINUTE)} minutes ago with nothing live` });
+        continue;
+      } catch (error) {
+        if (!account) { released.push({ watch: watch.id, commit: waiting.commit, error: String(error?.message ?? error).slice(0, rules.calls.failure_chars) }); continue; }
+      }
+    }
+    const { owner, repo, branch } = release.repository;
+    // Each step is one run of the account's own tool, in that run's own book (src/tool-run-call.mjs runServiceTool).
+    const run = async (tool_id, input, request_key) => {
+      const reply = await runTool(account, { tool_id, input, request_key, wait_seconds: release.tool_wait_seconds, job: release.tool_job });
+      if (reply?.state !== 'completed') throw new Error(`${tool_id} ${reply?.state ?? 'did not answer'}: ${reply?.error?.message ?? ''}`.trim());
+      return reply.output;
+    };
+    try {
+      const head = await run(release.read_tool, { owner, repo, branch }, `${key}:read:${now}`);
+      const newest = head?.commit;
+      if (String(newest?.commit?.message ?? '').trim() === release.message) {
+        released.push({ watch: watch.id, commit: waiting.commit, waits: 'the last release did not go live; the next push repairs it' });
+        continue;
+      }
+      const age = now - Date.parse(newest?.commit?.committer?.date ?? '');
+      const late = now - readyAt >= release.late_minutes * MINUTE;
+      if (age < release.young_minutes * MINUTE && !late) {
+        released.push({ watch: watch.id, commit: waiting.commit, waits: `the newest commit is ${Math.round(age / 1000)} s old; its build is still deciding` });
+        continue;
+      }
+      const made = await run(release.commit_tool, { owner, repo, tree_sha: newest.commit.tree.sha, expected_head: newest.sha, message: release.message }, `${key}:${newest.sha}:commit`);
+      await run(release.move_tool, { owner, repo, branch, commit: made.sha }, `${key}:${made.sha}:move`);
+      await env.APP_KV.put(key, made.sha, { expirationTtl: rules.told_keep_days * 86400 });
+      const because = late ? `the window opened ${Math.round((now - readyAt) / MINUTE)} minutes ago with nothing live` : `the newest commit is ${Math.round(age / MINUTE)} minutes old`;
+      released.push({ watch: watch.id, commit: waiting.commit, released: made.sha, because });
+    } catch (error) {
+      released.push({ watch: watch.id, commit: waiting.commit, error: String(error?.message ?? error).slice(0, rules.calls.failure_chars) });
+    }
+  }
+  return released;
+}
+
+/** One pass of the watches `rules` names (a watch's own owner passes its one watch): read each, tell what it asks to
+ *  tell, hand a failing one to an AI, release a waiting deploy, then wake the owner of each of the service's own checks
+ *  whose watch changed (src/service-checks.mjs: each check is kept, scheduled and run by its own owner). */
+export async function runServiceWatch(env, { now = Date.now(), rules = settings, fetch = globalThis.fetch, matches = noRules, tell = (account, notice) => tellServiceNotice(env, account, notice), hand = (account, work) => handServiceWork(env, account, work), runTool, startChecks = startServiceChecks } = {}) {
+  const { state, changed } = await readWatches(env, { now, rules, fetch, matches });
+  const notices = await tellNotices(env, state, { rules, tell });
+  const handed = await handFailing(env, state, { rules, hand });
+  const released = await releaseWaiting(env, { rules, runTool, now, fetch });
+  let checked = null;
+  try { checked = changed.length ? await startChecks(env, { changed, only_changed: true, now }) : []; }
+  catch (error) { checked = { error: String(error?.message ?? error).slice(0, rules.calls.failure_chars) }; }
+  return { state, changed, checked, notices, handed, released };
+}
+
+// ---- each watch's own owner (src/book-handlers.mjs 'service-watch': one record book per watch, on its own alarm) -----
+
+export const serviceWatchBookName = id => `service-watch:${id}`;
+const oneWatch = (rules, id) => {
+  const watch = rules.watches.find(row => row.id === id);
+  if (!watch) throw new Error('The service keeps no watch by that name.');
+  return { ...rules, watches: [watch] };
+};
+
+/** The owner of one watch: start (keep it, run it when due), wake (run now); its alarm runs it every watchEveryMs.
+ *  run(rules) is the owner wiring's pass over that one watch (runServiceWatch with the Worker's rule tool). */
+export function makeServiceWatchOwner({ list, put, run, rules = settings, now = () => Date.now() }) {
+  const kept = () => list('watch')[0] ?? null;
+  const pass = async id => {
+    const one = oneWatch(rules, id);
+    const at = now();
+    put('watch', { watch: id, next_at: at + watchEveryMs(rules, one.watches[0]) });
+    return run(one, at);
+  };
+  return {
+    async run(operation, { watch } = {}) {
+      if (!['start', 'wake'].includes(operation)) throw new Error('A service watch can be started or woken.');
+      const held = kept();
+      if (held && held.watch !== watch) throw new Error('This owner keeps another service watch.');
+      oneWatch(rules, watch);
+      if (operation === 'start' && held && held.next_at > now()) return { waits_until: held.next_at };
+      return pass(watch);
+    },
+    async maintain() { if (kept()) await pass(kept().watch); },
+    nextAt: () => kept()?.next_at ?? null,
+  };
+}
+
+/** Wakes each watch owner and check owner that never ran or whose alarm was lost (its next run long overdue). The
+ *  Worker asks this at most once per isolate per `starter_minutes`, and the deploy asks it once after the switch, so
+ *  no loop holds the schedule: each owner keeps its own. */
+export async function startServiceOwners(env, { now = Date.now(), rules = settings } = {}) {
+  if (!env?.RECORD_BOOK || !env.APP_KV) return { watches: [], checks: [] };
+  const watches = [];
+  for (const watch of rules.watches) {
+    const state = JSON.parse(await env.APP_KV.get(watchStateKey(rules, watch.id)).catch(() => null) ?? 'null');
+    if (state && Number.isFinite(state.next_at) && state.next_at + watchEveryMs(rules, watch) * 2 >= now) continue;
+    try {
+      await hostOf(env, { kind: 'record-book', key: serviceWatchBookName(watch.id) }).run('service-watch', state ? 'wake' : 'start', { watch: watch.id });
+      watches.push({ watch: watch.id, woke: state ? 'wake' : 'start' });
+    } catch (error) {
+      watches.push({ watch: watch.id, error: String(error?.message ?? error).slice(0, rules.calls.failure_chars) });
+    }
+  }
+  return { watches, checks: await startServiceChecks(env, { now }) };
+}
+
+let startedAt = 0;
+/** startServiceOwners, at most once per isolate per `starter_minutes` (the Worker's requests). */
+export function startServiceOwnersNow(env, { now = Date.now(), rules = settings } = {}) {
+  if (now - startedAt < rules.starter_minutes * MINUTE) return null;
+  startedAt = now;
+  return startServiceOwners(env, { now, rules }).catch(error => { startedAt = 0; console.error('starting the service owners failed', String(error?.message ?? error)); });
+}

@@ -1,0 +1,126 @@
+// test/view-as.test.mjs
+//
+// Letting someone see your Trillion (src/view-as.mjs): nobody looks without the owner's leave (kept in the owner's own
+// store), a look is a read-only look-only sign-in of the owner's account that ends with the leave, stopping the leave
+// makes the owner's store refuse a look open now, and the
+// Privacy screen offers the form, each permission with Stop, and the Trillions the person may look at.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { letLook, looking, lookingSections, makeLookLink, permissions, startLook, stopLetting, takeLookLink, viewAsSettings, ViewAsError } from '../src/view-as.mjs';
+import { lookSessionAllows } from '../src/screen-pictures.mjs';
+
+function memoryKv(seed = {}) {
+  const values = new Map(Object.entries(seed).map(([key, value]) => [key, JSON.stringify(value)]));
+  return {
+    values,
+    async get(key, type) { const value = values.get(key); return value === undefined ? null : (type === 'json' ? JSON.parse(value) : value); },
+    async put(key, value) { values.set(key, String(value)); },
+    async delete(key) { values.delete(key); },
+  };
+}
+
+// Each account's policy directory as its user id reaches it (src/account-policy-name.mjs accountPolicyFor: every call made
+// for that account), keeping its permissions as src/account-control.mjs does (the same `permissions` rules on one row set).
+function memoryPolicies(generation = 3) {
+  const facts = new Map();
+  const of = owner => ({
+    async letLookGrant(row) { facts.set(owner, permissions.grant(facts.get(owner), row)); return row; },
+    async letLookStop(who) { const { row, rows } = permissions.stop(facts.get(owner), who); facts.set(owner, rows); return row; },
+    async letLooking() { return permissions.live(facts.get(owner)).map(({ who, until }) => ({ who, until })); },
+    async letLookPermission(id) { const found = permissions.of(facts.get(owner), id); return found ? { ...found, generation } : null; },
+    async acceptsLook(look) { return permissions.of(facts.get(owner), look.grant)?.viewer === look.viewer; },
+  });
+  return of;
+}
+
+const owner = 'owner-account';
+const viewer = 'viewer-account';
+const seed = () => memoryKv();
+const withEmails = async kv => {
+  const { rememberAccountEmail } = await import('../../../start-from-any-landing-page/src/sign-in-email.mjs');
+  await rememberAccountEmail(kv, viewer, 'viewer@example.com');
+  await rememberAccountEmail(kv, owner, 'owner@example.com');
+  return kv;
+};
+const hash = token => `h-${token}`;
+let counter = 0;
+const random = () => `token-${counter += 1}`;
+
+test('nobody looks without the owner\'s leave, and a leave names a real account other than the owner', async () => {
+  const kv = await withEmails(seed());
+  const policyOf = memoryPolicies();
+  await assert.rejects(letLook({ kv, policyOf, owner, email: 'nobody@example.com', days: 1, nameOf: async () => 'Sam' }), ViewAsError);
+  await assert.rejects(letLook({ kv, policyOf, owner, email: 'owner@example.com', days: 1, nameOf: async () => 'Sam' }), /your own email/);
+  await assert.rejects(letLook({ kv, policyOf, owner, email: 'viewer@example.com', days: 30, nameOf: async () => 'Sam' }), ViewAsError);
+  const { letting_me: none } = await looking({ kv, policy: policyOf(viewer), userId: viewer });
+  assert.equal(none.length, 0);
+  assert.equal(await startLook({ kv, policyOf, id: 'a'.repeat(32), viewer, hash, random }), null, 'a made-up permission opens nothing');
+  assert.equal(await startLook({ kv, policyOf, id: 'a'.repeat(32), owner, viewer, hash, random }), null, 'nor one named for a real owner');
+});
+
+test('a look is a read-only look-only sign-in of the owner, ending with the leave, and stopping the leave ends it', async () => {
+  const kv = await withEmails(seed());
+  const policyOf = memoryPolicies();
+  // The owner's store reads the time itself, so the test's time is now.
+  const now = Date.now();
+  const granted = await letLook({ kv, policyOf, owner, email: 'Viewer@Example.com', days: 1, nameOf: async () => 'Sam', now });
+  assert.equal(granted.who, 'viewer@example.com');
+  const { letting } = await looking({ kv, policy: policyOf(owner), userId: owner, now });
+  assert.deepEqual(letting.map(row => row.who), ['viewer@example.com']);
+  const { letting_me: [row] } = await looking({ kv, policy: policyOf(viewer), userId: viewer, now });
+  assert.equal(row.name, 'Sam');
+  assert.equal(await startLook({ kv, policyOf, id: row.id, viewer: 'someone-else', hash, random, now }), null, 'only the person let look can');
+  const look = await startLook({ kv, policyOf, id: row.id, viewer, hash, random, now });
+  assert.equal(look.owner, owner);
+  assert.equal(Date.parse(look.until), now + viewAsSettings.look_minutes * 60_000, 'a look is short');
+  const saved = await kv.get(`session:${hash(look.token)}`, 'json');
+  assert.deepEqual([saved.userId, saved.look_only, saved.viewer, saved.browser_generation, saved.path, saved.grant], [owner, true, viewer, 3, '/', row.id]);
+  const at = path => new Request(`https://app.gettrillion.ai${path}`);
+  assert.equal(lookSessionAllows(saved, at('/'), now), true);
+  assert.equal(lookSessionAllows(saved, at('/work/api/waiting-on-you'), now), true);
+  assert.equal(lookSessionAllows(saved, new Request('https://app.gettrillion.ai/work/api/account/sharing', { method: 'POST' }), now), false, 'read only');
+  assert.equal(lookSessionAllows(saved, at('/'), Date.parse(look.until) + 1), false, 'it ends');
+  assert.equal(await policyOf(owner).acceptsLook(saved), true, 'the owner\'s policy directory accepts the look while the leave stands');
+  await stopLetting({ kv, policyOf, owner, who: 'viewer@example.com', now });
+  // The look's sign-in may still be read from KV's copies; the owner's store refuses it from the moment it stopped.
+  assert.equal(await policyOf(owner).acceptsLook(saved), false, 'stopping the leave ends the look open now');
+  assert.equal((await looking({ kv, policy: policyOf(viewer), userId: viewer, now })).letting_me.length, 0);
+  assert.equal(await startLook({ kv, policyOf, id: row.id, viewer, hash, random, now }), null);
+  assert.equal(await startLook({ kv, policyOf, id: row.id, owner, viewer, hash, random, now }), null, 'even when the caller names the owner');
+});
+
+test('the Privacy screen offers the form, each permission with Stop, who looked, and the Trillions the person may look at', () => {
+  const until = '2026-10-06T12:00:00Z';
+  const sections = lookingSections({ letting: [{ who: 'a@example.com', until }], letting_me: [{ id: 'b'.repeat(32), name: 'Morgan', until }], looks: [{ name: 'a@example.com', at: '2026-10-05T12:00:00Z', until }] });
+  const [mine, theirs] = sections;
+  assert.equal(mine.rows[0].actions[0].send.path, '/work/api/account/looking/let');
+  assert.deepEqual(mine.rows[0].fields.map(field => field.name), ['email', 'days']);
+  assert.equal(mine.rows[1].actions[0].send.body.who, 'a@example.com');
+  assert.equal(mine.rows[0].actions[1].send.path, '/work/api/account/looking/link', 'a link for someone whose email Trillion does not know');
+  assert.ok(mine.rows[1].actions[0].send.confirm, 'stopping asks first');
+  assert.match(mine.rows[2].title, /a@example.com looked/);
+  assert.equal(theirs.rows[0].actions[0].href, `/view-as/${'b'.repeat(32)}`);
+  assert.equal(lookingSections({}).length, 1, 'no Trillions to look at, no section for them');
+});
+
+test('a look link gives leave to the first signed-in person to open it, once, never the owner', async () => {
+  const kv = seed();
+  const policyOf = memoryPolicies();
+  // The owner's store reads the time itself, so the test's time is now.
+  const now = Date.now();
+  const code = 'c'.repeat(64);
+  const made = await makeLookLink({ kv, owner, days: '3', random: () => code, now });
+  assert.equal(made.code, code);
+  assert.ok(![...kv.values.keys()].some(key => key.includes(code)), 'only the link\'s hash is kept');
+  const nameOf = async id => (id === owner ? 'Sam' : 'Morgan');
+  assert.equal(await takeLookLink({ kv, policyOf, code, viewer: owner, nameOf, now }), null, 'the owner cannot take their own link');
+  const taken = await takeLookLink({ kv, policyOf, code, viewer, nameOf, now });
+  assert.match(taken.id, /^[0-9a-f]{32}$/);
+  assert.equal(taken.owner, owner);
+  assert.equal(await takeLookLink({ kv, policyOf, code, viewer: 'third-account', nameOf, now }), null, 'it works once');
+  const { letting } = await looking({ kv, policy: policyOf(owner), userId: owner, now });
+  assert.deepEqual(letting.map(row => [row.who, Date.parse(row.until) - now]), [['Morgan', 3 * 86_400_000]]);
+  const look = await startLook({ kv, policyOf, ...taken, viewer, hash, random, now });
+  assert.equal(look.owner, owner);
+  await assert.rejects(makeLookLink({ kv, owner, days: '30', random: () => code, now }), ViewAsError);
+});

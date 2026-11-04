@@ -1,0 +1,345 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { keepPublicAppFile } from '../src/public-app-file-store.mjs';
+import { serveSiteWorkerAsset } from '../src/site-worker-assets.mjs';
+import { deliverSiteWorkerEmail, keepSiteWorkerInstallation, runSiteWorkerSchedules, serveSiteWorker, setSiteWorkerInstallationEnabled, siteWorkerInstallation } from '../src/site-worker-installation.mjs';
+
+const maker = `maker:${'a'.repeat(64)}`;
+const installationId = '9357f42414204899b5a323f79c3a03d1';
+
+function environment() {
+  const objects = new Map();
+  const rows = new Map();
+  const routes = new Map();
+  const env = {
+    HOSTED_STATE: {
+      head: async key => objects.get(key) ? { size: objects.get(key).bytes.length } : null,
+      put: async (key, bytes) => { objects.set(key, { bytes: new Uint8Array(bytes) }); },
+      get: async key => {
+        const found = objects.get(key);
+        return found ? { text: async () => new TextDecoder().decode(found.bytes), body: found.bytes } : null;
+      },
+    },
+    APP_KV: { put: async (key, value) => rows.set(key, value), get: async key => JSON.parse(rows.get(key) ?? 'null'),
+      delete: async key => rows.delete(key),
+      list: async ({ prefix }) => ({ keys: [...rows.keys()].filter(key => key.startsWith(prefix)).map(name => ({ name })), list_complete: true }) },
+    SITE_WORKER_LOADER: {}, SITE_WORKER_DATABASE: {},
+    PERSON: { idFromName: id => id, get: owner => ({ readAccountSiteWorker: async (userId, id) => {
+      assert.equal(userId, owner);
+      return { status: 'active', route: JSON.parse(rows.get(`public-app-route:${id}`) ?? 'null') ?? routes.get(id),
+        backend: JSON.parse(rows.get(`public-app-site-worker:${id}`) ?? 'null') };
+    } }) },
+  };
+  return { env, objects, rows, routes };
+}
+
+test('one installation loads only its checked module, assets and scoped bindings', async () => {
+  const { env, routes } = environment();
+  const source = 'export default { fetch() { return new Response("site"); } };';
+  const module = await keepPublicAppFile(env, 'site-worker.js', source, maker);
+  const asset = await keepPublicAppFile(env, 'assets/site.css', 'body { color: black; }', maker);
+  const route = { installation_id: installationId, owner_user_id: 'owner', files: {} };
+  routes.set(installationId, route);
+  const input = { module_file: module, assets: { 'assets/site.css': asset }, compatibility_date: '2026-09-01',
+    compatibility_flags: ['nodejs_compat'], outbound_hosts: ['app.gettrillion.ai'], ai_models: [], enabled: true };
+  const saved = await keepSiteWorkerInstallation(env, route, input, maker);
+  assert.equal(saved.assets, 1);
+  assert.equal((await siteWorkerInstallation(env, installationId)).identity, saved.identity);
+
+  let loaded;
+  env.SITE_WORKER_LOADER.get = (key, code) => {
+    return { getEntrypoint: () => ({ fetch: async () => {
+      loaded = { key, worker: await code() };
+      return new Response('source-executed');
+    } }) };
+  };
+  const binding = () => ({ scoped: true });
+  const exports = { SiteWorkerAssets: binding, SiteWorkerSql: binding, SiteWorkerCache: binding,
+    SiteWorkerOutbound: binding, SiteWorkerAi: binding };
+  const response = await serveSiteWorker(new Request('https://example.test/articles/latest.json'), env, { exports }, route);
+  assert.equal(await response.text(), 'source-executed');
+  assert.match(loaded.key, new RegExp(installationId));
+  assert.equal(loaded.worker.modules['source.js'], source);
+  assert.equal(loaded.worker.env.EMAIL, undefined);
+  assert.equal(loaded.worker.globalOutbound.scoped, true);
+  assert.equal(await (await serveSiteWorker(new Request('https://example.test/assets/site.css'), env, { exports }, route)).text(), 'body { color: black; }');
+});
+
+test('Workerd awaits Loader factories, reuses successful names and retries a failed name', async () => {
+  const { Miniflare, convertV4MiniflareOptions } = await import('miniflare');
+  const { build } = await import('esbuild');
+  const script = `
+      import { runSiteWorker } from './src/site-worker-runtime.mjs';
+      let available = false, factoryRuns = 0;
+      const unavailable = 'The site Worker module is unavailable.';
+      export default {
+        async fetch(request, env) {
+          const url = new URL(request.url);
+          if (url.pathname === '/available' || url.pathname === '/unavailable') {
+            available = url.pathname === '/available'; return new Response(null, { status: 204 });
+          }
+          const name = url.searchParams.get('name') || 'a';
+          try {
+            const response = await runSiteWorker({ loader: env.LOADER, request: new Request('https://loaded.invalid/'),
+              installationId: '${'a'.repeat(32)}', identity: '1f:' + 'd'.repeat(64), configurationIdentity: '1f:' + name.repeat(64),
+              code: async () => {
+                factoryRuns += 1; await Promise.resolve();
+                if (!available) throw new Error(unavailable);
+                return { compatibilityDate: '2026-09-01', mainModule: 'loaded.js',
+                  modules: { 'loaded.js': 'export default { fetch() { return new Response("loaded"); } };' } };
+              },
+            });
+            return new Response(await response.text(), { status: response.status, headers: { 'x-factory-runs': String(factoryRuns) } });
+          } catch (error) {
+            return new Response(error.message, { status: 503, headers: { 'x-factory-runs': String(factoryRuns) } });
+          }
+        },
+      };
+  `;
+  const bundled = await build({ stdin: { contents: script, resolveDir: new URL('..', import.meta.url).pathname,
+    sourcefile: 'site-loader-probe.mjs' }, bundle: true, write: false, format: 'esm', platform: 'browser' });
+  const runtime = new Miniflare(convertV4MiniflareOptions({
+    compatibilityDate: '2026-09-01', modules: true, workerLoaders: { LOADER: {} },
+    script: bundled.outputFiles[0].text,
+  }));
+  const read = name => runtime.dispatchFetch(`https://loader.invalid/read?name=${name}`);
+  try {
+    const failed = await read('a');
+    assert.equal(failed.status, 503);
+    assert.equal(await failed.text(), 'The site Worker module is unavailable.', 'factory failure survives the real Loader boundary');
+    assert.equal(failed.headers.get('x-factory-runs'), '1');
+    await runtime.dispatchFetch('https://loader.invalid/available');
+    const recovered = await read('a');
+    const recoveredText = await recovered.text();
+    assert.equal(recovered.status, 200, recoveredText + ' factories=' + recovered.headers.get('x-factory-runs')); assert.equal(recoveredText, 'loaded');
+    assert.equal(recovered.headers.get('x-factory-runs'), '2', 'a failed name retries its asynchronous factory');
+    const warm = await read('a');
+    assert.equal(warm.status, 200); assert.equal(warm.headers.get('x-factory-runs'), '2');
+    const changed = await read('b');
+    assert.equal(changed.status, 200); assert.equal(changed.headers.get('x-factory-runs'), '3');
+    await runtime.dispatchFetch('https://loader.invalid/unavailable');
+    const failedNew = await read('c');
+    assert.equal(failedNew.status, 503); assert.equal(await failedNew.text(), 'The site Worker module is unavailable.');
+    assert.equal(failedNew.headers.get('x-factory-runs'), '4');
+    await runtime.dispatchFetch('https://loader.invalid/available');
+    const recoveredNew = await read('c');
+    assert.equal(recoveredNew.status, 200); assert.equal(recoveredNew.headers.get('x-factory-runs'), '5');
+  } finally { await runtime.dispose(); }
+});
+
+test('scheduled work runs once for its matching UTC minute and internal routes stay private', async () => {
+  const { env, routes } = environment();
+  const module = await keepPublicAppFile(env, 'site-worker.js', 'export default { scheduled() {} };', maker);
+  const route = { installation_id: installationId, owner_user_id: 'owner', files: {} };
+  routes.set(installationId, route);
+  await env.APP_KV.put(`public-app-route:${installationId}`, JSON.stringify(route));
+  await keepSiteWorkerInstallation(env, route, { module_file: module, assets: {}, compatibility_date: '2026-09-01',
+    compatibility_flags: [], outbound_hosts: [], ai_models: [], crons: ['*/10 * * * *'], enabled: true }, maker);
+  const attached = await siteWorkerInstallation(env, installationId);
+  attached.enabled_at = '2026-10-06T12:00:00Z';
+  await env.APP_KV.put(`public-app-site-worker:${installationId}`, JSON.stringify(attached));
+  const requests = [];
+  env.SITE_WORKER_LOADER.get = () => ({ getEntrypoint: () => ({ fetch: async request => {
+    requests.push({ path: new URL(request.url).pathname, body: await request.json() });
+    return new Response(null, { status: 204 });
+  } }) });
+  env.SITE_WORKER_DATABASE = { idFromName: id => id, get: () => ({ claimSchedule: async (_cron, minute) => {
+    if (env.lastMinute === minute) return null;
+    env.lastMinute = minute;
+    return 'scheduled-claim';
+  }, finishSchedule: async () => true }) };
+  const binding = () => ({});
+  const ctx = { exports: { SiteWorkerAssets: binding, SiteWorkerSql: binding, SiteWorkerCache: binding,
+    SiteWorkerOutbound: binding } };
+  assert.equal(await runSiteWorkerSchedules(env, ctx, Date.parse('2026-10-06T12:11:00Z'), { lookbackMinutes: 5 }), 1);
+  assert.equal(await runSiteWorkerSchedules(env, ctx, Date.parse('2026-10-06T12:11:00Z'), { lookbackMinutes: 5 }), 0);
+  assert.equal(await runSiteWorkerSchedules(env, ctx, Date.parse('2026-10-06T12:12:00Z'), { lookbackMinutes: 5 }), 0);
+  assert.deepEqual(requests, [{ path: '/_trillion_site_worker/scheduled',
+    body: { cron: '*/10 * * * *', scheduledTime: Date.parse('2026-10-06T12:10:00Z') } }]);
+  assert.equal((await serveSiteWorker(new Request('https://example.test/_trillion_site_worker/scheduled'), env, ctx, route)).status, 404);
+});
+
+test('an attached Worker can be enabled and disabled idempotently without changing its configuration', async () => {
+  const { env, rows } = environment();
+  const id = 'e9357f42414204899b5a323f79c3a03d';
+  const route = { installation_id: id, owner_user_id: 'owner', files: {} };
+  const module = await keepPublicAppFile(env, 'site-worker.js', 'export default { scheduled() {} };', maker);
+  await keepSiteWorkerInstallation(env, route, { module_file: module, assets: {}, compatibility_date: '2026-09-01',
+    compatibility_flags: ['nodejs_compat'], outbound_hosts: ['example.test'], ai_models: [],
+    crons: ['*/10 * * * *'], enabled: false }, maker);
+  assert.equal((await siteWorkerInstallation(env, id)).enabled, false, 'attachment defaults can remain offline');
+  assert.equal(rows.has(`public-app-site-worker-scheduled:${id}`), false);
+
+  const before = await siteWorkerInstallation(env, id);
+  const enabled = await setSiteWorkerInstallationEnabled(env, route, true);
+  const enabledReadback = await siteWorkerInstallation(env, id);
+  assert.equal(enabled.enabled, true);
+  assert.equal(enabledReadback.enabled, true);
+  assert.equal(rows.has(`public-app-site-worker-scheduled:${id}`), true, 'enabling registers its existing schedule');
+  assert.deepEqual(enabledReadback.module, before.module);
+  assert.deepEqual(enabledReadback.assets, before.assets);
+  assert.equal(enabledReadback.identity, before.identity);
+  assert.deepEqual(enabledReadback.outbound_hosts, before.outbound_hosts);
+  assert.deepEqual(enabledReadback.crons, before.crons);
+  assert.ok(enabledReadback.enabled_at);
+
+  rows.delete(`public-app-site-worker-scheduled:${id}`); // Model a lost schedule write after the state was saved.
+  const retry = await setSiteWorkerInstallationEnabled(env, route, true);
+  assert.deepEqual(retry, enabled, 'a repeated desired state returns the same persisted result');
+  assert.equal(rows.has(`public-app-site-worker-scheduled:${id}`), true, 'a retry repairs the schedule index');
+  assert.equal((await siteWorkerInstallation(env, id)).enabled_at, enabledReadback.enabled_at, 'a retry does not reset enabled time');
+
+  const disabled = await setSiteWorkerInstallationEnabled(env, route, false);
+  const disabledReadback = await siteWorkerInstallation(env, id);
+  assert.equal(disabled.enabled, false);
+  assert.equal(disabledReadback.enabled, false);
+  assert.equal(disabledReadback.enabled_at, null);
+  assert.equal(rows.has(`public-app-site-worker-scheduled:${id}`), false, 'disabling removes scheduled execution');
+  assert.deepEqual(disabledReadback.module, before.module);
+  assert.deepEqual(disabledReadback.assets, before.assets);
+  assert.deepEqual(disabledReadback.outbound_hosts, before.outbound_hosts);
+  assert.deepEqual(disabledReadback.crons, before.crons);
+  await assert.rejects(setSiteWorkerInstallationEnabled(env, { installation_id: 'f9357f42414204899b5a323f79c3a03d' }, true), /Attach a site Worker/);
+});
+
+test('linked original routes keep the original backend authoritative for fetch, mail and schedules', async () => {
+  const { env, rows } = environment();
+  const route = { installation_id: installationId, owner_user_id: 'owner', files: {}, linked_routes: { '/app': 'https://original.example.com/app' } };
+  const module = await keepPublicAppFile(env, 'site-worker.js', 'export default { fetch() { return new Response("copied"); } };', maker);
+  const input = { module_file: module, assets: {}, compatibility_date: '2026-09-01', compatibility_flags: [],
+    outbound_hosts: [], ai_models: [], crons: ['* * * * *'], receive_email: true, enabled: true };
+  await assert.rejects(keepSiteWorkerInstallation(env, route, input, maker), /Remove links to the original app/);
+  await keepSiteWorkerInstallation(env, { ...route, linked_routes: {} }, input, maker);
+  rows.set(`public-app-route:${installationId}`, JSON.stringify(route));
+  assert.equal(await serveSiteWorker(new Request('https://site.example.com/app'), env, {}, route), null);
+  assert.equal(await deliverSiteWorkerEmail(env, {}, installationId, { to: 'site@example.com' }), false);
+  assert.equal(await runSiteWorkerSchedules(env, {}, Date.parse('2026-10-07T12:00:00Z')), 0);
+  await assert.rejects(setSiteWorkerInstallationEnabled(env, route, true), /Remove links to the original app/);
+});
+
+test('email senders require a platform grant for the installing account', async () => {
+  const { env } = environment();
+  // The grant is a platform setting, not shipped data: this test gives one account a sender through it.
+  env.SITE_WORKER_EMAIL_GRANTS = JSON.stringify([{ user_id: 'granted-user', senders: [{ email: 'sam@example.com', name: 'Sam at Example' }] }]);
+  const module = await keepPublicAppFile(env, 'site-worker.js', 'export default {};', maker);
+  const input = { module_file: module, assets: {}, compatibility_date: '2026-09-01', compatibility_flags: [],
+    outbound_hosts: [], ai_models: [], enabled: false,
+    email_senders: [{ email: 'sam@example.com', name: 'Sam at Example' }] };
+  await assert.rejects(keepSiteWorkerInstallation(env, { installation_id: installationId, owner_user_id: 'another-user', files: {} },
+    input, maker), /cannot send from that address/);
+  const saved = await keepSiteWorkerInstallation(env, { installation_id: installationId,
+    owner_user_id: 'granted-user', files: {} }, input, maker);
+  assert.equal(saved.enabled, false);
+});
+
+test('an enabled site receives incoming mail only after a separate explicit switch', async () => {
+  const { env, routes } = environment();
+  const module = await keepPublicAppFile(env, 'site-worker.js', 'export default { email() {} };', maker);
+  const route = { installation_id: installationId, owner_user_id: 'owner', files: {} };
+  routes.set(installationId, route);
+  await env.APP_KV.put(`public-app-route:${installationId}`, JSON.stringify(route));
+  const input = { module_file: module, assets: {}, compatibility_date: '2026-09-01',
+    compatibility_flags: [], outbound_hosts: [], ai_models: [], crons: [], enabled: true };
+  const mail = { from: 'someone@example.com', to: 'user-35786970@example.com', raw: 'Subject: Proof\r\n\r\nHello' };
+  const requests = [];
+  env.SITE_WORKER_LOADER.get = () => ({ getEntrypoint: () => ({ fetch: async request => {
+    requests.push({ path: new URL(request.url).pathname, body: await request.json() });
+    return new Response(null, { status: 204 });
+  } }) });
+  const binding = () => ({});
+  const ctx = { exports: { SiteWorkerAssets: binding, SiteWorkerSql: binding,
+    SiteWorkerCache: binding, SiteWorkerOutbound: binding } };
+  await keepSiteWorkerInstallation(env, route, input, maker);
+  assert.equal(await deliverSiteWorkerEmail(env, ctx, installationId, mail), false);
+  assert.deepEqual(requests, []);
+  await assert.rejects(keepSiteWorkerInstallation(env, route, { ...input, receive_email: 'yes' }, maker), /invalid/);
+  await keepSiteWorkerInstallation(env, route, { ...input, receive_email: true }, maker);
+  assert.equal(await deliverSiteWorkerEmail(env, ctx, installationId, mail), true);
+  assert.deepEqual(requests, [{ path: '/_trillion_site_worker/email', body: mail }]);
+  await keepSiteWorkerInstallation(env, route, { ...input, receive_email: false }, maker);
+  assert.equal(await deliverSiteWorkerEmail(env, ctx, installationId, mail), false);
+});
+
+test('an installation cannot attach another maker’s module', async () => {
+  const { env } = environment();
+  const foreign = await keepPublicAppFile(env, 'site-worker.js', 'export default {}', `maker:${'b'.repeat(64)}`);
+  await assert.rejects(keepSiteWorkerInstallation(env, { installation_id: installationId, files: {} }, {
+    module_file: foreign, assets: {}, compatibility_date: '2026-09-01', compatibility_flags: [],
+    outbound_hosts: [], ai_models: [], enabled: false,
+  }, maker), /belongs to another app source/);
+});
+
+test('reattaching a pinned source keeps the same installation database and running state', async () => {
+  const { env, rows } = environment();
+  const database = new Map([['kept', 'existing SQLite row']]);
+  let databaseReads = 0;
+  env.SITE_WORKER_DATABASE = { idFromName: id => id, get: id => {
+    databaseReads++;
+    assert.equal(id, installationId);
+    return database;
+  } };
+  const databaseId = env.SITE_WORKER_DATABASE.idFromName(installationId);
+  const route = { installation_id: installationId, owner_user_id: 'owner', files: {} };
+  const originalModule = await keepPublicAppFile(env, 'site-worker.js',
+    'export default { fetch() { return new Response("before"); } };', maker);
+  const original = await keepSiteWorkerInstallation(env, route, { module_file: originalModule, assets: {},
+    compatibility_date: '2026-09-01', compatibility_flags: [], outbound_hosts: [], ai_models: [], enabled: true }, maker);
+  const originalEnabledAt = (await siteWorkerInstallation(env, installationId)).enabled_at;
+  const sourceModule = await keepPublicAppFile(env, 'site-worker.js',
+    'export default { fetch() { return new Response("after"); } };', maker);
+  const source = { schema: 'trillion.site-worker-origin/v1', project_id: 'e'.repeat(32),
+    owner: 'owner', repo: 'site', branch: 'main', commit: 'a'.repeat(40),
+    manifest_path: 'trillion-site-worker.json', manifest_sha: 'b'.repeat(40),
+    files: [{ mount: 'source', repository: 'owner/site', commit: 'a'.repeat(40), path: 'dist/worker.mjs',
+      sha: 'c'.repeat(40), kind: 'worker-module' }] };
+  const reattached = await keepSiteWorkerInstallation(env, route, { module_file: sourceModule, assets: {},
+    compatibility_date: '2026-10-07', compatibility_flags: [], outbound_hosts: [], ai_models: [], enabled: true }, maker, { source });
+  assert.equal(reattached.installation_id, original.installation_id);
+  assert.notEqual(reattached.identity, original.identity);
+  assert.equal(databaseId, installationId);
+  assert.equal(database.get('kept'), 'existing SQLite row');
+  assert.equal(databaseReads, 0);
+  const saved = await siteWorkerInstallation(env, installationId);
+  assert.equal(saved.enabled, true);
+  assert.equal(saved.enabled_at, originalEnabledAt);
+  assert.equal(saved.source.commit, source.commit);
+  assert.equal(JSON.parse(rows.get(`public-app-site-worker:${installationId}`)).identity, reattached.identity);
+});
+
+test('Worker assets keep precedence while installation files survive reattachment', async () => {
+  const { env, routes } = environment();
+  const route = { installation_id: installationId, owner_user_id: 'owner', files: {
+    'assets/site.css': await keepPublicAppFile(env, 'assets/site.css', 'static-css', maker),
+    'assets/keep.js': await keepPublicAppFile(env, 'assets/keep.js', 'installed-file', maker),
+  } };
+  routes.set(installationId, route);
+  const previousModule = await keepPublicAppFile(env, 'site-worker.js', 'export default {};', maker);
+  const firstWorkerAsset = await keepPublicAppFile(env, 'assets/site.css', 'first-worker-css', maker);
+  await keepSiteWorkerInstallation(env, route, { module_file: previousModule, assets: { 'assets/site.css': firstWorkerAsset },
+    compatibility_date: '2026-09-01', compatibility_flags: [], outbound_hosts: [], ai_models: [], enabled: true }, maker);
+
+  const replacementModule = await keepPublicAppFile(env, 'site-worker.js', 'export default {};', maker);
+  const replacementAsset = await keepPublicAppFile(env, 'assets/site.css', 'replacement-worker-css', maker);
+  await keepSiteWorkerInstallation(env, route, { module_file: replacementModule, assets: { 'assets/site.css': replacementAsset },
+    compatibility_date: '2026-10-07', compatibility_flags: [], outbound_hosts: [], ai_models: [], enabled: true }, maker,
+  { source: { schema: 'trillion.site-worker-origin/v1', project_id: 'e'.repeat(32), commit: 'a'.repeat(40),
+    manifest_sha: 'b'.repeat(40), manifest_path: 'trillion-site-worker.json', files: [{ mount: 'source',
+      repository: 'owner/site', commit: 'a'.repeat(40), path: 'dist/worker.mjs', sha: 'c'.repeat(40), kind: 'worker-module' }] } });
+
+  const css = await serveSiteWorker(new Request('https://example.test/assets/site.css'), env, {}, route);
+  assert.equal(await css.text(), 'replacement-worker-css');
+  const kept = await serveSiteWorker(new Request('https://example.test/assets/keep.js'), env, {}, route);
+  assert.equal(await kept.text(), 'installed-file');
+  const attachment = await siteWorkerInstallation(env, installationId);
+  const bindingFallback = await serveSiteWorkerAsset(new Request('https://example.test/assets/keep.js'), env,
+    { installation_id: installationId, assets: attachment.assets }, route);
+  assert.equal(await bindingFallback.text(), 'installed-file');
+  const bindingCollision = await serveSiteWorkerAsset(new Request('https://example.test/assets/site.css'), env,
+    { installation_id: installationId, assets: attachment.assets }, route);
+  assert.equal(await bindingCollision.text(), 'replacement-worker-css');
+  const head = await serveSiteWorker(new Request('https://example.test/assets/keep.js', { method: 'HEAD' }), env, {}, route);
+  assert.equal(head.status, 200);
+  assert.equal(await head.text(), '');
+  assert.equal((await serveSiteWorkerAsset(new Request('https://example.test/assets/keep.js', { method: 'POST' }), env,
+    { installation_id: installationId, assets: attachment.assets }, route)).status, 405);
+});

@@ -1,0 +1,83 @@
+// src/setup-access-records.mjs
+//
+// Purpose: each account's setup-access request (src/setup-access.mjs, labels starting with setup-access.json
+// request_prefix), kept in its own record book, one book per request label, so preparing, reading and fulfilling one
+// account's request reaches only that request's owner: never the operator account's store, and never one book every
+// request shares. The release owner is told of each request by its own tool run in its own store (src/setup-access.mjs
+// queue), the one step that uses that account's own provider connection.
+//
+// Non-Negotiable Invariants:
+//   1. Only a label starting with request_prefix is kept or read, and a book keeps only the one label it was opened
+//      for (its name is setup-access-request:{label}); any other label is refused there.
+//   2. A write names the identity of the value it read (expected_identity, null for none) and is refused when the kept
+//      value differs.
+//   3. adopt brings over a request the operator's store kept before requests had their own books, only where the book
+//      holds none, so a request written there first is never replaced by an older copy.
+//
+//   setupAccessRequestBookName(label) → the book's name
+//   setupAccessRecordsOf(env) → { workspaceRecord(label), putWorkspaceRecords(writes), runTool(origin, request) } | null
+//   adoptSetupAccessRequest(env, { label, value }) → { adopted }
+//   makeSetupAccessRequest({ list, put }) → { run(operation, input) }   operations: read { label },
+//                                                                       put { write }, adopt { label, value }
+import settings from '../../../set-up-my-account/read-data/setup-access.json' with { type: 'json' };
+import { workspaceValueIdentity } from '../../../set-up-my-account/read-data/conflicts.mjs';
+import { serviceRecord } from '../../../publish-the-operators-shared-records-such-as/from-old-trillion/src/service-records.mjs.held';
+import { serviceRecordReader } from '../../../keep-the-services-own-signing-secrets-and-sign-in-app/from-old-trillion/src/service-values.mjs.held';
+import { hostOf } from './resource-host.mjs';
+
+const KEY = 'setup-access-request';
+const identity = value => (value == null ? null : workspaceValueIdentity(value));
+const checked = label => {
+  if (typeof label !== 'string' || !label.startsWith(settings.request_prefix) || label.length > 600) throw new Error('The service keeps no setup-access request by that name.');
+  return label;
+};
+export const setupAccessRequestBookName = label => `setup-access-request:${checked(label)}`;
+
+export function makeSetupAccessRequest({ list, put }) {
+  const kept = () => list(KEY)[0] ?? null;
+  const own = label => {
+    const held = kept();
+    if (held && held.label !== checked(label)) throw new Error('This book keeps another setup-access request.');
+    return held;
+  };
+  return {
+    run(operation, input = {}) {
+      if (operation === 'read') return { value: own(input.label)?.value ?? null };
+      if (operation === 'put') {
+        const write = input.write ?? {};
+        const before = own(write.address_label);
+        if (identity(before?.value ?? null) !== (write.expected_identity ?? null)) return { ok: false, conflicts: [{ address_label: write.address_label }] };
+        put(KEY, { label: write.address_label, value: write.payload ?? null });
+        return { ok: true, written: 1 };
+      }
+      if (operation === 'adopt') {
+        if (own(input.label) || input.value == null) return { adopted: 0 };
+        put(KEY, { label: input.label, value: input.value });
+        return { adopted: 1 };
+      }
+      throw new Error('A setup-access request can be read, written or adopted.');
+    },
+  };
+}
+
+const requestBook = (env, label) => hostOf(env, { kind: 'record-book', key: setupAccessRequestBookName(label) });
+
+export const adoptSetupAccessRequest = (env, { label, value }) => requestBook(env, label).run('setup-access-request', 'adopt', { label, value });
+
+/** What src/setup-access.mjs takes as `operator`: each request from its own book, the policy as the service record the
+ *  operator publishes, and runTool for the release owner's own tool (one run in its own book, src/tool-run-call.mjs).
+ *  Null when this deploy names no operator. */
+export function setupAccessRecordsOf(env, { runTool = serviceRecordReader(env)?.runTool } = {}) {
+  if (!env.OPERATOR_ACCOUNT_ID) return null;
+  return {
+    workspaceRecord: label => (label === settings.policy_record ? serviceRecord(env, label)
+      : requestBook(env, label).run('setup-access-request', 'read', { label }).then(answer => answer?.value ?? null)),
+    // One request is one owner: a call writes one request (src/setup-access.mjs save).
+    putWorkspaceRecords: async writes => {
+      if (!Array.isArray(writes) || writes.length !== 1) throw new Error('Write one setup-access request at a time.');
+      return requestBook(env, writes[0]?.address_label).run('setup-access-request', 'put', { write: writes[0] });
+    },
+    // A prepared request queues the release owner's tool, which uses that account's own provider connection.
+    runTool,
+  };
+}

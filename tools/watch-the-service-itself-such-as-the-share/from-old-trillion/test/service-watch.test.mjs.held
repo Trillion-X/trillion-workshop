@@ -1,0 +1,488 @@
+// test/service-watch.test.mjs: the service's own watch (src/service-watch.mjs) counts store calls without changing
+// them, judges each watch from DATA, keeps since/last_worked across runs and tells accounts that answer.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import settings from '../../../service-watch/src/service-watch.json' with { type: 'json' };
+import { READERS, environmentOwner, flushCalls, readCalls, readServiceWatch, readWatches, runServiceWatch, serviceWatchBookName, startServiceOwners, watchStateKey, watchedEnv } from '../src/service-watch.mjs';
+import { readFileSync } from 'node:fs';
+import { makeServiceCheck, publishServiceCheckState, readServiceCheckStates, serviceCheckBookName, startServiceChecks, withServiceChecks } from '../../../run-trillions-own-capability-checks-each-on-its-own-schedule-and/from-old-trillion/src/service-checks.mjs.held';
+import { recordBooks } from './record-book-for-tests.mjs';
+import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from '../parts/formula-engine/rules/filter-rows-by-rules.mjs';
+
+const { filterRowsByRules } = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../parts/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
+const matches = async (tree, fields, row) => (await filterRowsByRules({ tree, fields, rows: [row] })).matches.length === 1;
+
+// The service's own checks, one owner per check as src/book-handlers.mjs 'service-check' wires each (its rows in memory
+// here, its state published into `kv`), reached through a RECORD_BOOK whose books are those owners, on the test's clock.
+// `account` is what the owner wiring reaches for a tool step or a stop: null when the deploy names no account.
+function checkOwners(kv, now, account) {
+  const owners = new Map();
+  const ownerOf = name => {
+    if (!owners.has(name)) {
+      const rows = new Map();
+      const reach = () => { if (!account) throw new Error('This deploy names no account to run Trillion\'s own work.'); return account; };
+      owners.set(name, makeServiceCheck({ list: prefix => [...rows].filter(([key]) => key.startsWith(prefix)).map(([, value]) => value), put: (key, value) => rows.set(key, value),
+        filterRows: input => filterRowsByRules(input), now, actions: { 'read-service-watch': input => readServiceWatch(kv, undefined, input) },
+        hand: work => reach().handServiceWatchWork(work), runTool: run => reach().runTool(run),
+        publish: (check, state) => publishServiceCheckState(kv, check, state) }));
+    }
+    return owners.get(name);
+  };
+  const RECORD_BOOK = { idFromName: name => name, get: name => ({ run: (kind, operation, input) => { assert.equal(kind, 'service-check'); return ownerOf(name).run(operation, input); } }) };
+  const states = async () => readServiceCheckStates({ APP_KV: kv });
+  const state = async id => (await states()).find(item => item.check === id);
+  return { owners, ownerOf, RECORD_BOOK, states, state };
+}
+const memoryKv = () => {
+  const values = new Map();
+  return {
+    values,
+    metadata: new Map(),
+    reads: 0,
+    async get(key, options) { this.reads += 1; const value = values.get(key) ?? null; return value !== null && (options === 'json' || options?.type === 'json') ? JSON.parse(value) : value; },
+    async put(key, value, options = {}) { values.set(key, value); this.metadata.set(key, options.metadata); },
+    async list({ prefix }) { return { keys: [...values.keys()].filter(key => key.startsWith(prefix)).map(name => ({ name, metadata: this.metadata.get(name) })), list_complete: true }; },
+  };
+};
+const overloaded = () => Object.assign(new Error('Durable Object is overloaded. Too many requests queued.'), { overloaded: true });
+// A stub's method is itself an RPC stub: reading its `apply`, `call` or `bind` is sent as a call (workerd answers "The RPC
+// receiver does not implement the method"), so counting must call it with Reflect.apply.
+const rpcMethod = fn => new Proxy(fn, { get(target, key) { if (['apply', 'call', 'bind'].includes(key)) throw new TypeError(`The RPC receiver does not implement the method "${key}".`); return Reflect.get(target, key); } });
+const fakeNamespace = behaviour => ({
+  idFromName: name => ({ name, toString: () => `id-${name}` }),
+  get(id) { return { id, answer: rpcMethod((...args) => behaviour(id.name, ...args)), fetch: rpcMethod(async () => new Response('busy', { status: 503 })) }; },
+});
+const MIN = 60_000;
+const at = Date.parse('2026-10-06T06:00:30Z');
+
+test('fresh accounting wrappers share only their stable original environment identity', async () => {
+  const raw = { APP_KV: memoryKv(), PERSON: fakeNamespace(async name => ({ ok: name })) };
+  const firstWaits = [], secondWaits = [];
+  const rules = { ...settings.calls, flush_every_ms: 0 };
+  const first = watchedEnv(raw, { waitUntil: promise => firstWaits.push(promise) }, { now: () => at - 3 * MIN, rules });
+  const second = watchedEnv(raw, { waitUntil: promise => secondWaits.push(promise) }, { now: () => at - 2 * MIN, rules });
+  const otherRaw = { ...raw };
+  const other = watchedEnv(otherRaw, null);
+  const nested = watchedEnv(first, null);
+  assert.notEqual(first, second);
+  assert.equal(environmentOwner(raw), raw);
+  assert.equal(environmentOwner(first), raw);
+  assert.equal(environmentOwner(second), raw);
+  assert.equal(environmentOwner(nested), raw);
+  assert.equal(environmentOwner(other), otherRaw);
+  assert.notEqual(environmentOwner(other), environmentOwner(first));
+  assert.equal(environmentOwner(watchedEnv(null, null)), null);
+  await first.PERSON.get(first.PERSON.idFromName('first-request')).answer();
+  assert.equal(firstWaits.length, 1);
+  assert.equal(secondWaits.length, 0);
+  await second.PERSON.get(second.PERSON.idFromName('second-request')).answer();
+  assert.equal(firstWaits.length, 1);
+  assert.equal(secondWaits.length, 1);
+  await Promise.all([...firstWaits, ...secondWaits]);
+  await flushCalls(raw.APP_KV, at, rules);
+});
+
+test('every call to a store is counted per store and minute, and the caller gets the same answer or error', async () => {
+  const kv = memoryKv();
+  const waits = [];
+  let clock = at;
+  const env = watchedEnv({ APP_KV: kv, PERSON: fakeNamespace(async name => { if (name === 'busy') throw overloaded(); return { ok: name }; }) }, { waitUntil: promise => waits.push(promise) }, { now: () => clock });
+  const calm = env.PERSON.get(env.PERSON.idFromName('calm'));
+  const busy = env.PERSON.get(env.PERSON.idFromName('busy'));
+  const promise = calm.answer('x');
+  assert.deepEqual(await promise, { ok: 'calm' });
+  for (let i = 0; i < 4; i += 1) await assert.rejects(busy.answer(), /overloaded/);
+  assert.equal((await busy.fetch()).status, 503);
+  await new Promise(done => setTimeout(done, 0));
+  clock += 31_000;
+  await calm.answer();
+  await new Promise(done => setTimeout(done, 0));
+  await Promise.all(waits);
+  await flushCalls(kv, clock);
+  kv.reads = 0;
+  const totals = await readCalls(kv, at - MIN, at + 2 * MIN);
+  assert.equal(kv.reads, 0, 'counts come from the keys\' metadata, no value is read');
+  assert.deepEqual(totals.map(store => [store.id, store.calls, store.failed]).sort(), [['id-busy', 5, 5], ['id-calm', 2, 0]]);
+  const [busyStore] = (await readCalls(kv, at - MIN, at + 2 * MIN, undefined, { detail_for: () => ['id-busy'] })).filter(store => store.id === 'id-busy');
+  assert.equal(busyStore.name, 'busy', 'a failing store is named from its values');
+  assert.deepEqual(busyStore.failure_codes, { 'service-busy': 4 }, 'HTTP status failures are not misclassified as error codes');
+  assert.match(busyStore.last_failure, /answered 503|overloaded/);
+});
+
+test('one resource-exhausted reset fails the watch even when one hundred other calls succeed', async () => {
+  const kv = memoryKv();
+  let clock = Date.parse('2026-10-08T06:00:30Z');
+  let callsMade = 0;
+  const env = watchedEnv({ APP_KV: kv, PERSON: fakeNamespace(async () => {
+    callsMade += 1;
+    if (callsMade === 1) throw Object.assign(new Error('isolate exceeded its memory limit and was reset'), { failure_code: 'resource-exhausted' });
+    return { ok: true };
+  }) }, null, { now: () => clock });
+  const stub = env.PERSON.get(env.PERSON.idFromName('rare-reset'));
+  await assert.rejects(stub.answer(), /memory limit/);
+  for (let i = 0; i < 100; i += 1) assert.deepEqual(await stub.answer(), { ok: true });
+  await new Promise(done => setTimeout(done, 0));
+  await flushCalls(kv, clock);
+
+  const watch = settings.watches.find(row => row.id === 'stores-answer');
+  const { calls } = await READERS.store_calls.inputs({ env: { APP_KV: kv }, watch, now: clock + 1000, rules: settings });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].calls, 101);
+  assert.equal(calls[0].failed, 1);
+  assert.deepEqual(calls[0].failure_codes, { 'resource-exhausted': 1 });
+  assert.equal(calls[0].name, 'rare-reset');
+  assert.match(calls[0].last_failure, /memory limit/);
+
+  const result = READERS.store_calls.judge(watch, { calls });
+  assert.equal(result.failing, true);
+  assert.match(result.said, /hit a resource limit/);
+  const cpu = READERS.store_calls.judge(watch, { calls: [{ ...calls[0], last_failure: "Durable Object exceeded its CPU time limit and was reset." }] });
+  assert.match(cpu.said, /hit a resource limit/);
+  assert.doesNotMatch(cpu.said, /memory/);
+  assert.match(cpu.evidence.stores[0].last_failure, /CPU time limit/);
+  assert.equal(result.evidence.stores[0].failure_codes['resource-exhausted'], 1);
+  assert.equal(result.evidence.stores[0].name, 'rare-reset');
+  const belowMinimum = READERS.store_calls.judge(watch, { calls: [{ id: 'tiny', calls: 1, failed: 1, failure_codes: { 'resource-exhausted': 1 } }] });
+  assert.equal(belowMinimum.failing, true, 'a critical code fails even below the ordinary minimum call count');
+});
+
+test('legacy two-number call metadata remains readable', async () => {
+  const kv = memoryKv();
+  const legacyAt = Date.parse('2026-10-08T07:00:30Z');
+  const minute = new Date(legacyAt - (legacyAt % MIN)).toISOString().slice(0, 16);
+  await kv.put(`${settings.calls.key_prefix}${minute}:legacy`, JSON.stringify({ 'id-legacy': { calls: 20, failed: 2, name: 'legacy' } }), {
+    metadata: { n: { 'id-legacy': [20, 2] } },
+  });
+  const calls = await readCalls(kv, legacyAt - MIN, legacyAt + MIN, settings.calls);
+  assert.equal(kv.reads, 0);
+  assert.deepEqual(calls, [{ id: 'id-legacy', name: null, calls: 20, failed: 2, failure_codes: {}, last_failure: null }]);
+});
+
+test('ordinary interruptions below the existing failure-share threshold remain healthy', () => {
+  const watch = settings.watches.find(row => row.id === 'stores-answer');
+  const result = READERS.store_calls.judge(watch, { calls: [{
+    id: 'occasional-interruption', calls: 50, failed: 1, failure_codes: { 'service-interrupted': 1 },
+  }] });
+  assert.equal(result.failing, false);
+  assert.match(result.said, /Every store answered at least 98%/);
+});
+
+test('a store failing more than its share of enough calls fails the watch; one with few calls does not', () => {
+  const watch = settings.watches.find(row => row.read === 'store_calls');
+  const quiet = READERS.store_calls.judge(watch, { calls: [{ id: 'a', name: 'few', calls: 3, failed: 3 }, { id: 'b', name: 'fine', calls: 50, failed: 2 }] });
+  assert.equal(quiet.failing, false);
+  const failing = READERS.store_calls.judge(watch, { calls: [{ id: 'c', name: 'operator', calls: 40, failed: 20, last_failure: 'exceeded its memory limit' }] });
+  assert.equal(failing.failing, true);
+  assert.match(failing.said, /operator 20\/40 \(50%\)/);
+  assert.equal(failing.evidence.stores[0].name, 'operator');
+});
+
+test('builds waiting more than forty minutes since the live version went live fail the deploy watch, with the last reason', () => {
+  const watch = settings.watches.find(row => row.read === 'deploys');
+  const live = { id: 'v1', timestamp: '2026-10-06T05:47:05Z' };
+  const builds = [
+    { commit: 'old', started_at: '2026-10-06T05:30:00Z', outcome: 'went-live' },
+    { commit: 'a1', started_at: '2026-10-06T05:50:00Z', outcome: 'refused', why: 'VISUAL CHECK FAILED: 2 views changed' },
+    { commit: 'a2', started_at: '2026-10-06T06:30:00Z', outcome: 'refused', why: 'VISUAL CHECK FAILED: 2 views changed' },
+  ];
+  const stalled = READERS.deploys.judge(watch, { builds, live, now: Date.parse('2026-10-06T07:00:00Z') });
+  assert.equal(stalled.failing, true);
+  assert.match(stalled.said, /a2 refused: VISUAL CHECK FAILED/);
+  const running = builds.map(build => ({ ...build, outcome: 'handed-on' }));
+  assert.equal(READERS.deploys.judge(watch, { builds: running, live, now: Date.parse('2026-10-06T06:25:00Z') }).failing, false);
+  assert.equal(READERS.deploys.judge(watch, { builds: running, live, now: Date.parse('2026-10-06T06:35:00Z') }).failing, true, 'forty minutes without a build going live is stuck');
+  const served = READERS.deploys.judge(watch, { builds: builds.map(build => ({ ...build, outcome: 'already-live' })), live, now: Date.parse('2026-10-06T09:00:00Z') });
+  assert.equal(served.failing, false);
+});
+
+test('a handed-on commit still waiting more than ten minutes after its window opened fails the deploy watch', () => {
+  const watch = settings.watches.find(row => row.read === 'deploys');
+  const live = { id: 'v1', timestamp: '2026-10-06T18:33:51Z' };
+  const waiting = { commit: 'ca355641ea97cb66cbb7f53577f0aee795d01a4c', ready_at: '2026-10-06T18:58:51Z' };
+  const open = READERS.deploys.judge(watch, { builds: [], live, waiting, now: Date.parse('2026-10-06T19:05:00Z') });
+  assert.equal(open.failing, false);
+  const late = READERS.deploys.judge(watch, { builds: [], live, waiting, now: Date.parse('2026-10-06T19:10:00Z') });
+  assert.equal(late.failing, true);
+  assert.match(late.said, /ca355641 was ready to go live at 2026-10-06T18:58:51Z, 11 minutes ago/);
+  assert.equal(READERS.deploys.judge(watch, { builds: [], live, waiting: null, now: Date.parse('2026-10-06T23:00:00Z') }).failing, false);
+});
+
+test('the newest build refused fails the deploy watch at once, with the last reason', () => {
+  const watch = settings.watches.find(row => row.read === 'deploys');
+  const live = { id: 'v1', timestamp: '2026-10-07T00:03:14Z' };
+  const refused = (commit, at) => ({ commit, started_at: at, outcome: 'refused', why: 'GUARD FAILED: store-month' });
+  const builds = [{ commit: 'h1', started_at: '2026-10-07T00:09:47Z', outcome: 'handed-on' }];
+  const now = Date.parse('2026-10-07T00:25:00Z');
+  assert.equal(READERS.deploys.judge(watch, { builds, live, now }).failing, false);
+  const first = READERS.deploys.judge(watch, { builds: [...builds, refused('r1', '2026-10-07T00:11:11Z')], live, now });
+  assert.equal(first.failing, true);
+  assert.match(first.said, /The newest build was refused \(1 in a row\).*r1 refused: GUARD FAILED: store-month/);
+  const next = [...builds, refused('r1', '2026-10-07T00:11:11Z'), { commit: 'h2', started_at: '2026-10-07T00:19:49Z', outcome: 'handed-on' }];
+  assert.equal(READERS.deploys.judge(watch, { builds: next, live, now }).failing, false, 'a later build that was not refused is a new try');
+  const second = READERS.deploys.judge(watch, { builds: [...next, refused('r2', '2026-10-07T00:21:00Z'), refused('r3', '2026-10-07T00:23:54Z')], live, now });
+  assert.match(second.said, /\(2 in a row\)/);
+});
+
+test('the state keeps when a watch started failing and when it last worked, and the owner of a check whose watch changed runs it', async () => {
+  const kv = memoryKv();
+  const rules = { ...settings, watches: settings.watches.filter(row => row.read === 'deploys') };
+  const clock = { at: Date.parse('2026-10-06T07:00:00Z') };
+  const owners = checkOwners(kv, () => clock.at, null);
+  const env = { APP_KV: kv, RECORD_BOOK: owners.RECORD_BOOK, CF_VERSION_METADATA: { id: 'v1', timestamp: '2026-10-06T05:47:05Z' } };
+  await kv.put(`${rules.builds_key_prefix}a1`, JSON.stringify({ commit: 'a1', started_at: '2026-10-06T05:50:00Z', outcome: 'handed-on' }));
+  const first = await readWatches(env, { now: Date.parse('2026-10-06T06:00:00Z'), rules });
+  assert.equal(first.state.watches['deploys-go-live'].failing, false);
+  assert.ok(first.state.watches['deploys-go-live'].last_worked);
+  const tell = () => { throw new Error('no notice is told for the checks'); };
+  const run = await runServiceWatch(env, { now: clock.at, rules, tell });
+  assert.deepEqual(run.changed, ['deploys-go-live']);
+  assert.equal(run.state.watches['deploys-go-live'].since, '2026-10-06T07:00:00.000Z');
+  assert.equal(run.state.watches['deploys-go-live'].last_worked, first.state.watches['deploys-go-live'].last_worked);
+  assert.equal(run.checked.find(item => item.check === 'deploys-go-live').woke, 'changed');
+  assert.equal((await owners.state('deploys-go-live')).state, 'Failing');
+  assert.deepEqual([...owners.owners.keys()], [serviceCheckBookName('deploys-go-live')], 'a watch pass wakes only the owner of the check its change moved; the Worker\'s starter starts the rest');
+  clock.at = Date.parse('2026-10-06T07:05:00Z');
+  const later = await runServiceWatch(env, { now: clock.at, rules, tell });
+  assert.equal(later.state.watches['deploys-go-live'].since, '2026-10-06T07:00:00.000Z');
+  assert.deepEqual(later.changed, []);
+  assert.deepEqual(later.checked, [], 'an owner whose state is published and not overdue runs on its own alarm, not the watch');
+  const read = await readServiceWatch(kv, rules);
+  assert.equal(read.watches['deploys-go-live'].failing, true);
+  assert.match(read.said, /Nothing has gone live since/);
+});
+
+test('every service-watch check reads a fact the watch state has, and the starter checks still load', async () => {
+  const { checkOf, CAPABILITY_CHECKS } = await import('../../../check-every-capability-still-works/src/capability-checks.mjs');
+  for (const check of settings.checks) assert.equal(checkOf(check, CAPABILITY_CHECKS).check, check.check);
+});
+
+test('each check has its own owner, which reads the watch state itself, and a stopped check reaches the operator\'s AIs once', async () => {
+  const kv = memoryKv();
+  let clock = Date.parse('2026-10-08T08:00:00Z');
+  const env = { APP_KV: kv, OPERATOR_ACCOUNT_ID: 'operator', CF_VERSION_METADATA: { id: 'v1', timestamp: '2026-10-08T05:00:00Z' } };
+  await kv.put(`${settings.builds_key_prefix}a1`, JSON.stringify({ commit: 'a1', started_at: '2026-10-08T06:00:00Z', outcome: 'refused', why: 'VISUAL CHECK FAILED: 2 views changed' }));
+  const { changed } = await readWatches(env, { now: clock, rules: { ...settings, watches: settings.watches.filter(row => row.read !== 'service_bill') } });
+  assert.ok(changed.includes('deploys-go-live'));
+  const handed = [];
+  const owners = checkOwners(kv, () => clock, { handServiceWatchWork: async input => { handed.push(input); return { handoff_id: `h_${handed.length}` }; } });
+  const ids = ['deploys-go-live', 'stores-answer', 'service-watch-runs'];
+  const first = await Promise.all(ids.map(check => owners.ownerOf(serviceCheckBookName(check)).run('changed', { check })));
+  assert.equal((await owners.state('deploys-go-live')).state, 'Failing');
+  assert.match((await owners.state('deploys-go-live')).problem, /nothing has gone live since/);
+  assert.equal((await owners.state('stores-answer')).state, 'Working');
+  assert.equal((await owners.state('service-watch-runs')).state, 'Working');
+  assert.equal(first.flatMap(result => result.handed).length, 0, 'one failure is checked again before it is handed');
+  // Each owner's own alarm runs its check when it is due.
+  for (let pass = 0; pass < 6; pass += 1) {
+    clock += 60 * MIN;
+    for (const check of ids) { const owner = owners.ownerOf(serviceCheckBookName(check)); if (owner.nextAt() <= clock) await owner.maintain(); }
+  }
+  const deploys = handed.filter(input => input.once_per.startsWith('service-check:deploys-go-live:'));
+  assert.equal(deploys.length, 1, 'one stop is handed once');
+  assert.equal(new Set(handed.map(input => input.once_per)).size, handed.length, 'no stop is handed twice');
+  assert.match(deploys[0].job, /nothing has gone live since/);
+  assert.match(deploys[0].outcome, /deploys-go-live/);
+  assert.ok((await owners.state('deploys-go-live')).next_at > clock - 60 * MIN, 'the published state says when its owner runs next');
+  await assert.rejects(owners.ownerOf(serviceCheckBookName('deploys-go-live')).run('start', { check: 'stores-answer' }), /keeps another service check/);
+  await assert.rejects(owners.ownerOf(serviceCheckBookName('x')).run('start', { check: 'someones-private-check' }), /keeps no check by that name/);
+});
+
+test('the watch starts only an owner never published, long overdue or whose watch changed', async () => {
+  const kv = memoryKv();
+  const now = Date.parse('2026-10-08T08:00:00Z');
+  const owners = checkOwners(kv, () => now, null);
+  const env = { APP_KV: kv, RECORD_BOOK: owners.RECORD_BOOK };
+  const started = await startServiceChecks(env, { now });
+  assert.deepEqual(started.map(item => item.check).sort(), settings.checks.map(row => row.check).sort(), 'every never-published owner starts');
+  assert.deepEqual(await startServiceChecks(env, { now }), [], 'none again while each is on time');
+  assert.deepEqual((await startServiceChecks(env, { now, changed: ['stores-answer'] })).map(item => [item.check, item.woke]), [['stores-answer', 'changed']]);
+  const late = await owners.state('service-watch-runs');
+  await publishServiceCheckState(kv, 'service-watch-runs', { ...late, next_at: now - 24 * 60 * MIN });
+  assert.deepEqual((await startServiceChecks(env, { now })).map(item => item.check), ['service-watch-runs'], 'an owner whose alarm was lost is started again');
+});
+
+test('the account that runs Trillion sees its checks beside its own, read from their owners', async () => {
+  const kv = memoryKv();
+  const now = Date.parse('2026-10-08T08:00:00Z');
+  const owners = checkOwners(kv, () => now, null);
+  await startServiceChecks({ APP_KV: kv, RECORD_BOOK: owners.RECORD_BOOK }, { now });
+  const own = { said: 'All 1 working.', checks: [{ check: 'my-own-check', label: 'My own check', state: 'Working' }] };
+  const shown = withServiceChecks(own, await owners.states());
+  assert.equal(shown.checks.length, 1 + settings.checks.length);
+  assert.ok(shown.checks.filter(check => check.check !== 'my-own-check').every(check => check.kept_by === 'trillion'));
+  const failing = shown.checks.filter(check => check.state === 'Failing');
+  if (failing.length) assert.match(shown.said, new RegExp(failing[0].label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.deepEqual(withServiceChecks(own, []), own, 'with no published state the answer is unchanged');
+});
+
+test('each owner is its own record book, with its own alarm, and publishes its state', async () => {
+  const kv = memoryKv();
+  const env = { APP_KV: kv, OPERATOR_ACCOUNT_ID: 'operator', PERSON: fakeNamespace(() => { throw new Error('not asked'); }) };
+  env.RECORD_BOOK = recordBooks(env);
+  const check = settings.checks.find(row => row.probe?.action === 'read-service-watch') ?? settings.checks[0];
+  await env.RECORD_BOOK.get(serviceCheckBookName(check.check)).run('service-check', 'start', { check: check.check });
+  assert.deepEqual(env.RECORD_BOOK.names(), [serviceCheckBookName(check.check)]);
+  assert.ok(env.RECORD_BOOK.alarmAt(serviceCheckBookName(check.check)) > Date.now(), 'the owner sets its own next wake');
+  assert.equal((await readServiceCheckStates(env)).find(item => item.check === check.check)?.check, check.check);
+});
+
+test('a failing deploy watch hands the operator account one job at once, with what failed, and not again until a new episode', async () => {
+  const kv = memoryKv();
+  const rules = { ...settings, watches: settings.watches.filter(row => row.read === 'deploys') };
+  const env = { APP_KV: kv, OPERATOR_ACCOUNT_ID: 'operator', CF_VERSION_METADATA: { id: 'v1', timestamp: '2026-10-08T08:40:00Z' } };
+  const handed = [];
+  let busy = true;
+  // The account's own records take the handed work (src/service-watch.mjs handServiceWork); its store is never asked.
+  const hand = async (account, input) => { if (busy) throw new Error('Durable Object is overloaded. Too many requests queued.'); handed.push([account, input]); return { handoff_id: `h_${handed.length}` }; };
+  const tell = account => { throw new Error(`a notice was told to ${account}`); };
+  const build = (commit, at, outcome, why) => kv.put(`${rules.builds_key_prefix}${commit}`, JSON.stringify({ commit, started_at: at, outcome, why }));
+  await build('c0ffee01', '2026-10-08T08:52:00Z', 'refused', 'VISUAL CHECK FAILED: 2 views changed');
+  const first = await runServiceWatch(env, { now: Date.parse('2026-10-08T08:55:00Z'), rules, tell, hand });
+  assert.equal(first.state.watches['deploys-go-live'].failing, true);
+  assert.match(first.handed[0].error, /overloaded/);
+  assert.equal(await kv.get(`${rules.handed_key_prefix}deploys-go-live:2026-10-08T08:55:00.000Z`), null, 'a busy store is not counted as handed');
+  busy = false;
+  const second = await runServiceWatch(env, { now: Date.parse('2026-10-08T09:00:00Z'), rules, tell, hand });
+  assert.deepEqual(second.handed, [{ watch: 'deploys-go-live', since: '2026-10-08T08:55:00.000Z', handoff_id: 'h_1' }]);
+  const [account, input] = handed[0];
+  assert.equal(account, 'operator');
+  assert.equal(input.priority, 6);
+  assert.equal(input.once_per, 'service-watch:deploys-go-live:2026-10-08T08:55:00.000Z');
+  assert.match(input.job, /failing since 2026-10-08T08:55:00\.000Z: The newest build was refused \(1 in a row\)/);
+  assert.match(input.job, /c0ffee01.*VISUAL CHECK FAILED: 2 views changed/);
+  assert.match(input.job, /visual-check\.mjs --accept --from-build/);
+  assert.match(input.job, /deploy-guard-tests\.json/);
+  assert.match(input.outcome, /deploys-go-live reads Working/);
+  await build('c0ffee02', '2026-10-08T09:02:00Z', 'refused', 'VISUAL CHECK FAILED: 2 views changed');
+  const third = await runServiceWatch(env, { now: Date.parse('2026-10-08T09:05:00Z'), rules, tell, hand });
+  assert.deepEqual(third.handed, []);
+  assert.equal(handed.length, 1, 'a failing episode is handed once, not every run');
+  // A build went live, then the next one is refused: a new episode, a new job.
+  await build('c0ffee03', '2026-10-08T09:30:00Z', 'went-live');
+  const live = { ...env, CF_VERSION_METADATA: { id: 'v2', timestamp: '2026-10-08T09:48:00Z' } };
+  const worked = await runServiceWatch(live, { now: Date.parse('2026-10-08T09:50:00Z'), rules, tell, hand });
+  assert.equal(worked.state.watches['deploys-go-live'].failing, false);
+  await build('c0ffee04', '2026-10-08T10:00:00Z', 'refused', 'GUARD FAILED: store-month');
+  const again = await runServiceWatch(live, { now: Date.parse('2026-10-08T10:05:00Z'), rules, tell, hand });
+  assert.equal(again.handed.length, 1);
+  assert.equal(handed.length, 2);
+  assert.match(handed[1][1].job, /c0ffee04.*GUARD FAILED: store-month/);
+  // A watch of a deploy with no operator account set hands nobody.
+  const alone = await runServiceWatch({ APP_KV: memoryKv(), CF_VERSION_METADATA: env.CF_VERSION_METADATA }, { now: Date.parse('2026-10-08T09:00:00Z'), rules, tell, hand });
+  assert.deepEqual(alone.handed, []);
+});
+
+// The bill: what the provider itself counted, asked with the service's own token, priced by the spend meter, and a
+// budget heading past its most told once to whoever runs the service, kept as told only once their store took it.
+const billRules = { ...settings, watches: settings.watches.filter(row => row.read === 'service_bill') };
+const usageAnswer = rowsWritten => ({ data: { viewer: { accounts: [{ durable_objects: [{ sum: { rowsRead: 0, rowsWritten, duration: 0 } }], durable_object_requests: [], durable_object_storage: [], workers: [], workers_ai: [], r2_storage: [], r2_operations: [], kv_operations: [] }] } } });
+const providerAt = (answers, asked) => async (url, init) => {
+  const { variables } = JSON.parse(new TextDecoder().decode(init.body));
+  asked.push({ url, authorization: init.headers.Authorization, variables });
+  return new Response(JSON.stringify(answers(variables)), { status: 200, headers: { 'content-type': 'application/json' } });
+};
+
+test('the bill read from the provider tells whoever runs the service the hour a day heads past its budget, once', async () => {
+  const kv = memoryKv();
+  const env = { APP_KV: kv, CLOUDFLARE_ANALYTICS_TOKEN: 'read-only-token', CLOUDFLARE_ACCOUNT_ID: 'acct', OPERATOR_ACCOUNT_ID: 'operator' };
+  const asked = [];
+  // Today (since = until = the day) wrote 5M rows by 04:00; the month already used its 50M included rows.
+  const fetch = providerAt(({ s, u }) => usageAnswer(s === u ? 5_000_000 : 55_000_000), asked);
+  const tells = [];
+  let busy = true;
+  // The operator account's own records taking the notice (src/service-notice.mjs tellServiceNotice), busy at first.
+  const tell = async (account, notice) => { if (busy) throw new Error('Durable Object is overloaded. Too many requests queued.'); tells.push([account, notice]); };
+  const first = await runServiceWatch(env, { now: Date.parse('2026-10-06T04:00:00Z'), rules: billRules, fetch, matches, tell });
+  const watch = first.state.watches['services-within-budget'];
+  assert.equal(watch.failing, true);
+  assert.match(watch.said, /heading past \$25/);
+  assert.match(watch.said, /2026-10-01 through 2026-10-06/);
+  assert.match(watch.said, /2026-10-06 04:00 UTC/);
+  assert.equal(asked[0].url, 'https://api.cloudflare.com/client/v4/graphql');
+  assert.equal(asked[0].authorization, 'Bearer read-only-token');
+  assert.equal(asked[0].variables.a, 'acct');
+  assert.deepEqual(first.notices.map(row => [row.key, Boolean(row.error)]), [['spend-budget:service-day:2026-10-06:pace', true]], 'a busy store is not counted as told');
+  assert.equal(await kv.get(`${billRules.told_key_prefix}spend-budget:service-day:2026-10-06:pace`), null);
+  const reads = asked.length;
+  busy = false;
+  const second = await runServiceWatch(env, { now: Date.parse('2026-10-06T04:05:00Z'), rules: billRules, fetch, matches, tell });
+  assert.equal(asked.length, reads, 'the provider is asked again only after every_minutes');
+  assert.deepEqual(second.notices.map(row => row.key), ['spend-budget:service-day:2026-10-06:pace']);
+  assert.equal(tells.length, 1);
+  assert.equal(tells[0][0], 'operator');
+  assert.match(tells[0][1].title, /heading past \$25/);
+  assert.match(tells[0][1].body, /At this rate the day ends near/);
+  const third = await runServiceWatch(env, { now: Date.parse('2026-10-06T04:20:00Z'), rules: billRules, fetch, matches, tell });
+  assert.ok(asked.length > reads, 'read again after every_minutes');
+  assert.deepEqual(third.notices, [], 'told once');
+  assert.equal(tells.length, 2, 'a notice told already is handed again only to take the newest words');
+  assert.equal(tells[1][1].key, tells[0][1].key);
+  assert.equal(tells[1][1].update, true);
+  const evidence = JSON.parse(third.state.watches['services-within-budget'].evidence);
+  assert.deepEqual(evidence.period, { since: '2026-10-01', through: '2026-10-06' });
+  assert.equal(evidence.lines[0].line, 'Store rows written');
+  assert.ok(evidence.total.today >= 5);
+});
+
+test('a day within its budget passes, and a bill that cannot be read fails loudly instead of reading as zero', async () => {
+  const quiet = await readWatches({ APP_KV: memoryKv(), CLOUDFLARE_ANALYTICS_TOKEN: 'read-only-token', CLOUDFLARE_ACCOUNT_ID: 'acct' }, { now: Date.parse('2026-10-06T12:00:00Z'), rules: billRules, matches, fetch: providerAt(() => usageAnswer(100_000), []) });
+  assert.equal(quiet.state.watches['services-within-budget'].failing, false);
+  assert.match(quiet.state.watches['services-within-budget'].said, /within every budget/);
+  assert.match(quiet.state.watches['services-within-budget'].said, /2026-10-01 through 2026-10-06/);
+  const asked = [];
+  const unset = await readWatches({ APP_KV: memoryKv(), CLOUDFLARE_ACCOUNT_ID: 'acct' }, { now: Date.parse('2026-10-06T12:00:00Z'), rules: billRules, matches, fetch: providerAt(() => usageAnswer(0), asked) });
+  assert.equal(unset.state.watches['services-within-budget'].failing, true);
+  assert.match(unset.state.watches['services-within-budget'].said, /CLOUDFLARE_ANALYTICS_TOKEN is not set/);
+  assert.equal(asked.length, 0);
+  const refused = await readWatches({ APP_KV: memoryKv(), CLOUDFLARE_ANALYTICS_TOKEN: 'read-only-token', CLOUDFLARE_ACCOUNT_ID: 'acct' }, { now: Date.parse('2026-10-06T12:00:00Z'), rules: billRules, matches, fetch: providerAt(() => ({ data: null, errors: [{ message: 'not authorized for that account' }] }), []) });
+  assert.equal(refused.state.watches['services-within-budget'].failing, true);
+  assert.match(refused.state.watches['services-within-budget'].said, /not authorized for that account/);
+});
+
+test('a service check whose probe runs a tool runs it on the operator\'s account as one service run', async () => {
+  const kv = memoryKv();
+  const asked = [];
+  const now = () => Date.parse('2026-10-08T08:00:00Z');
+  const owners = checkOwners(kv, now, { runTool: async input => { asked.push(input); return { state: 'working', task_id: 'task_1' }; } });
+  const pages = settings.checks.find(check => check.check === 'public-pages-craft');
+  await owners.ownerOf(serviceCheckBookName(pages.check)).run('changed', { check: pages.check });
+  assert.equal(asked.length, 1);
+  assert.equal(asked[0].tool_id, 'tool:critique-a-public-page');
+  assert.equal(asked[0].job, settings.check_stopped.tool_job);
+  assert.equal(asked[0].wait_seconds, pages.probe.input.wait_seconds, 'the run waits as long as the probe says, not longer');
+  assert.notEqual((await owners.state(pages.check)).state, 'Failing');
+  assert.equal(pages.probe.input.wait_seconds, 0, 'a long page run is started and read on a later wake, never held inside a check run');
+  const noneKv = memoryKv();
+  const none = checkOwners(noneKv, now, null);
+  await none.ownerOf(serviceCheckBookName(pages.check)).run('changed', { check: pages.check });
+  assert.equal((await none.state(pages.check)).state, 'Failing', 'with no account to run it, the check reads failing, never skipped');
+});
+
+test('each watch is run by its own owner on its own alarm, started once by the Worker\'s starter, with no shared pool and no cron', async () => {
+  const kv = memoryKv();
+  const env = { APP_KV: kv, CLOUDFLARE_ACCOUNT_ID: 'acct', PERSON: fakeNamespace(() => { throw new Error('not asked'); }) };
+  env.RECORD_BOOK = recordBooks(env);
+  const now = Date.now();
+  const started = await startServiceOwners(env, { now });
+  assert.deepEqual(started.watches.map(item => [item.watch, item.woke]), settings.watches.map(watch => [watch.id, 'start']), JSON.stringify(started.watches));
+  for (const watch of settings.watches) {
+    const due = env.RECORD_BOOK.alarmAt(serviceWatchBookName(watch.id));
+    assert.ok(due > now && Math.abs(due - (now + (watch.every_minutes ?? settings.every_minutes) * MIN)) < 5000, `${watch.id} keeps its own next wake`);
+    assert.ok(await kv.get(watchStateKey(settings, watch.id)), `${watch.id} keeps its own state`);
+  }
+  const state = await readServiceWatch(kv);
+  assert.match(state.watches['services-within-budget'].said, /CLOUDFLARE_ANALYTICS_TOKEN is not set/);
+  assert.equal(state.watches['services-within-budget'].failing, true);
+  assert.deepEqual((await startServiceOwners(env, { now: now + MIN })).watches, [], 'an owner on time is not woken again');
+  const book = env.RECORD_BOOK.get(serviceWatchBookName('services-within-budget'));
+  await book.alarm();
+  assert.ok(env.RECORD_BOOK.alarmAt(serviceWatchBookName('services-within-budget')) >= now, 'its alarm runs it and sets the next wake');
+  // As the shared pool's alarm did before (live 21f6135a7): an owner's alarm runs its watch and sets the next wake
+  // every_minutes on from now. deploys-go-live keeps the default interval.
+  await env.RECORD_BOOK.get(serviceWatchBookName('deploys-go-live')).alarm();
+  const alarmAt = env.RECORD_BOOK.alarmAt(serviceWatchBookName('deploys-go-live'));
+  assert.ok(Math.abs(alarmAt - (Date.now() + settings.every_minutes * MIN)) < 5000);
+  await assert.rejects(book.run('service-watch', 'start', { watch: 'deploys-go-live' }), /another service watch/, 'one owner keeps one watch');
+  assert.doesNotMatch(readFileSync(new URL('../src/pool.mjs', import.meta.url), 'utf8'), /runServiceWatch|'service-watch'/, 'the shared pool does not run the watch');
+});
