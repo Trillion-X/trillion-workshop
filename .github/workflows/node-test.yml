@@ -32,6 +32,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      # The Python tools' request keys and file identities are BLAKE3 (their READMEs' Depends on); without the module
+      # their tests fail rather than skip.
+      - run: python -m pip install blake3
       - run: npm ci
       # The browser tools' tests drive Playwright's Chromium (a devDependency); without it they cannot run at all.
       - run: npx playwright install --with-deps chromium
