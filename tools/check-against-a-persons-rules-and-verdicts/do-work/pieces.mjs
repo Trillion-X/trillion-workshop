@@ -17,7 +17,7 @@
 // Shapes
 //   atomsOf(markdown) -> [{ key, heading_path, text, identity, line }]          (re-exported from its home)
 //   pieceRow(atom, { file?, file_identity? }) -> { id, kind: "piece", says, text, identity, key,
-//     sources: [{ file, section, file_identity, at }], groups: [], kinds: [], checked_by: [] }
+//     sources: [{ file, section, file_identity, at }], tags: [], kinds: [], checked_by: [] }
 //     section: the piece's key in that file; at: the line of that file where the piece starts
 //   pieceRows([{ text, file?, file_identity? }]) -> piece rows, one per identity, sources in reading order
 //   keepPieces({ text? | name?, file?, file_identity? }, door) -> { file, file_identity, pieces, new, sources_added,
@@ -28,7 +28,7 @@
 //      door (read_file, page after page, every page of the same identity), so a file larger than one request body
 //      (the door refuses bodies over 64 KiB) is never sent in one.
 //   5. Its pieces are kept as the person's piece rows, merged over what is kept: a row already kept keeps its
-//      checked_by, no_check, groups and kinds, and gains only the source this file gives it (a source of the same file
+//      checked_by, no_check, tags and kinds, and gains only the source this file gives it (a source of the same file
 //      and section is replaced, never repeated). Every write is conditional on what was read (absent, or the exact value
 //      read), and the writes are cut so each fits one door message as the door carries it. A piece too large for one
 //      write is not kept and is named.
@@ -54,7 +54,7 @@ export function pieceRow(atom, source = {}) {
     identity: atom.identity,
     key: atom.key,
     sources: [{ file: source.file ?? null, section: atom.key, file_identity: source.file_identity ?? null, at: atom.line ?? null }],
-    groups: [],
+    tags: [],
     kinds: [],
     checked_by: [],
   };
@@ -138,8 +138,12 @@ export async function keepPieces(input, door, settings = SETTINGS.split) {
         if (same < 0) { sources.push(source); changed = true; }
         else if (JSON.stringify(sources[same]) !== JSON.stringify(source)) { sources[same] = source; changed = true; }
       }
-      if (!changed) { unchanged += 1; return; }
-      record = { id, type, value: { ...was, sources }, expected: { type, value: was } };
+      // A row kept before pieces carried tags held `groups`, a judge-words selector: it becomes `tags` when rewritten.
+      const { groups, ...rest } = was;
+      const renamed = groups !== undefined;
+      if (renamed && rest.tags === undefined) rest.tags = groups;
+      if (!changed && !renamed) { unchanged += 1; return; }
+      record = { id, type, value: { ...rest, sources }, expected: { type, value: was } };
     }
     const size = carriedBytes(record);
     if (size > settings.write_bytes) { too_large.push({ id: row.id, section: row.key, bytes: size }); return; }
