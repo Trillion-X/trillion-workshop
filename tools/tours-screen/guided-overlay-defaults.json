@@ -1,0 +1,112 @@
+{
+  "schema": "guided-overlay.defaults/v1",
+  "catch_up_reasons_are": "Trigger reasons whose tours do not queue: when several of them would start for one event, only the most urgent starts (the newest of equals), and closing or finishing it marks every one that could show seen, so a person who was away sees one card, not one per opening. A tour the person's show rules hold is not marked seen: it waits for its rule to let it show. When the next one shows (a day after one was closed, only on a schedule, never) is the person's show rules, starting with the editable rule what-is-new-waits-a-day; every one stays in the Tours list, where it can be shown, dismissed or paused.",
+  "catch_up_reasons": ["changed-since-first-tour"],
+  "urgency_is": "How much a tour matters, lowest first: a tour definition names one by id (`urgency`), one that names none is `when_unset`. Of the catch-up tours that would start together, the most urgent starts. Show rules read it as the tour fact `urgency`, so a rule can let urgent tours through while the rest wait.",
+  "progress_read_again_is": "How long, in ms, the tour host waits before asking the person's store again for their progress record when the last read failed (WalkthroughHost.tsx). No tour starts by itself until one read answers; a change the store reports asks again at once.",
+  "progress_read_again_ms": 20000,
+  "urgency": { "levels": [{ "id": "low", "label": "Low" }, { "id": "normal", "label": "Normal" }, { "id": "urgent", "label": "Urgent" }], "when_unset": "normal" },
+  "targeting": {
+    "reopen_every_ms": 800,
+    "retry_timeout_ms": 2500,
+    "retry_interval_ms": 100,
+    "scroll_behavior": "smooth",
+    "scroll_block": "center",
+    "scroll_inline": "nearest"
+  },
+  "spotlight": {
+    "click_behavior": "all",
+    "scrim_color": "rgba(0, 0, 0, 0.52)",
+    "ring_color": "var(--accent-primary, #38bdf8)",
+    "ring_width_px": 3,
+    "ring_glow": "0 0 0 2px rgba(56, 189, 248, 0.22), 0 0 24px rgba(56, 189, 248, 0.38)",
+    "transition_ms": 200,
+    "blur_px": 0
+  },
+  "centered_backdrop": {
+    "opacity": 0.45,
+    "blur_px": 6
+  },
+  "glance": {
+    "tone_variants": {
+      "good": "success",
+      "attention": "warning",
+      "bad": "error",
+      "info": "info",
+      "quiet": "neutral"
+    },
+    "chart_points_max": 24,
+    "chart_tones": {
+      "good": "good",
+      "attention": "warning",
+      "bad": "critical",
+      "info": "info",
+      "quiet": "quiet"
+    }
+  },
+  "picture": {
+    "max_height_px": 460
+  },
+  "words": {
+    "end_label": "End tour",
+    "closing_done_label": "Got it",
+    "do_it_label": "Do it for me"
+  },
+  "act": {
+    "pause_ms": 700
+  },
+  "exit": "close",
+  "buttons": {
+    "advance": {
+      "variant": "primary",
+      "autofocus": true
+    },
+    "done": {
+      "variant": "primary",
+      "autofocus": true
+    },
+    "retry": {
+      "variant": "primary",
+      "autofocus": true
+    },
+    "back": {
+      "variant": "ghost"
+    },
+    "skip": {
+      "variant": "plain"
+    },
+    "close": {
+      "variant": "plain"
+    }
+  },
+  "button_fallback": {
+    "variant": "secondary"
+  },
+  "papers": {
+    "sticky-note": {
+      "background": "#fff3a3",
+      "color": "#3d3300",
+      "radius_px": 4,
+      "rotate_deg": -1.2,
+      "shadow": "0 10px 24px rgba(0,0,0,0.28), 0 2px 4px rgba(0,0,0,0.18)",
+      "font_family": "var(--font-display)"
+    },
+    "notepad": {
+      "background": "#fdfcf7",
+      "color": "#1f2328",
+      "radius_px": 6,
+      "border": "1px solid rgba(0,0,0,0.12)",
+      "shadow": "0 12px 28px rgba(0,0,0,0.25)",
+      "ruled": "repeating-linear-gradient(to bottom, transparent 0, transparent 23px, rgba(80,120,200,0.22) 23px, rgba(80,120,200,0.22) 24px)"
+    },
+    "index-card": {
+      "background": "#ffffff",
+      "color": "#16181d",
+      "radius_px": 3,
+      "rotate_deg": 0.8,
+      "border": "1px solid rgba(0,0,0,0.1)",
+      "shadow": "0 14px 30px rgba(0,0,0,0.3)",
+      "ruled": "linear-gradient(to bottom, transparent 0, transparent 34px, rgba(220,60,60,0.45) 34px, rgba(220,60,60,0.45) 35px, transparent 35px)"
+    }
+  }
+}

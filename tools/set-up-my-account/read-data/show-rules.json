@@ -1,0 +1,262 @@
+{
+  "_what": "Show rules: what decides whether anything Trillion would show (a notice, a tour, a layout, any later surface) shows, stays silent or is hidden, owned by src/workspace/show-rules.mjs. A rule is { id, label, subject, when, effect, until?, time_zone?, by?, made_at?, on? }: `subject` names what it is about (any key under `subjects`, which only gives the facts a person can pick from and their words; a surface passes its own thing whatever its subject), `when` is the formula engine's rule tree (parts/formula-engine/rules) over the subject's facts and the moment's facts below (null: always), `effect` is an `effects` row, and `until` ends it. An effect row marked `changes` (Changed) neither hides nor silences: its rule carries `set`, a list of { path, value } that change the thing's own fields where it holds, so one edit made on the canvas applies to exactly the things its `when` picks (this step, every step of a tour, every tour, a lasso of things) and is taken back by removing the rule. Moment facts: `clock` is now itself; `moment` names a value the caller knows about the moment (where it is shown, the device, whether the page was opened from a link) or one worked out from the time in the rule's own time zone (`hour`, `weekday`, named by `from_time`). `turns` says when that fact changes by itself (hour, day), so a page decides again then. `devices` say which device a page is on, by the first user_agent pattern it matches (an empty pattern matches any). `quick` are the choices offered on the thing itself: `until` as a span (`hours`) or the next time of day (`next_at_hour`), `device` limits the rule to the device it is set on; a quick rule is about things like this one, by the subject's `same_fact`, with the subject's `quick_effect`. `starting_rules` are rules everyone starts with; a person turns one off (or back on) in their own record. A subject marked `changed_only` is changed on the thing itself (Edit on canvas) and never offered for a bare rule in settings. A subject's `menu_heading` heads the menu on the thing; a choice fact's `values_from` says where the settings list reads the values a person can pick (a page `input` record, or a `route` and the `list` path in its answer, with each value's `id` and `label` paths, and a `parent` path when values nest: the controls are offered as the tree their dotted paths make, from every part's declarations). An effect row marked `shows` (Shown) is the strongest: where it holds the thing shows and is not silenced, so one thing a broader rule hides can be shown, for a while. Subject `control` is every control a part draws, named by the dotted path its part declares in its part.json `controls` (`sidebar.position`, `arrangement.header.tabs`, `open.open-beside`); `within` holds the path and every path it sits in, so a rule about `arrangement.header` holds for every control in a pane's header. `edit_rules` are the account's allow/deny rules for changing rules and types, evaluated by the shared rule-decision owner against the authenticated account owner or a named trusted reader, with optional conditions and expiry; absent `edit_rules`, `edit_authority.starting_rules` apply. Types are kept sets of rules (a preset, a kind of member): { id, label, inherits, rules }, a type taking every rule of the types it inherits at any depth. No type ships here: every type is a record a person keeps (`types` in their own show-rules record, switched on by `in_use`), and a giver gives one by sharing it. An account holds the types named in its cohorts (the giver's setup-context record), and a giver's rule carrying `audience` (a rule tree over the account facts, src/work-for-ais.json `facts`) is given to every account it holds for; given rules decide with the person's own and are listed as set for them. Adding a subject, a fact, an effect or a choice is a row here, and a type is a record a person keeps; nothing in code names one.",
+  "record": "show-rules",
+  "edit_authority": {
+    "effects": [
+      { "id": "allow", "label": "Allowed", "outcome": "allow", "strength": 1 },
+      { "id": "deny", "label": "Not allowed", "outcome": "deny", "strength": 2 }
+    ],
+    "actions": ["change_rule", "remove_rule", "toggle_starting", "change_type", "remove_type", "change_edit_rules", "change_assignment", "change_attribute"],
+    "facts": [
+      { "id": "account_owner", "kind": "boolean" },
+      { "id": "actor_kind", "kind": "choice" },
+      { "id": "reader", "kind": "choice" },
+      { "id": "action", "kind": "choice" },
+      { "id": "now", "kind": "date" }
+    ],
+    "starting_rules": [
+      { "id": "account-owner", "effect": "allow", "who": { "kind": "account_owner" }, "actions": ["change_rule", "remove_rule", "toggle_starting", "change_type", "remove_type", "change_edit_rules", "change_assignment", "change_attribute"] }
+    ]
+  },
+  "most_rules": 200,
+  "words": { "turn_back_on": "Show again: {label}", "nothing_yet": "Nothing is silenced or hidden. Use the bell on any notice, tour or layout, or add a rule here.", "add": "Add a rule", "heading": "When things show", "always": "Always", "until": "Until {time}", "starting": "Everyone starts with this", "given": "Set for you: {from}", "profiles": "Profiles you keep" },
+  "sharing": { "_what": "Sharing a kept preset with people (src/workspace/show-rules-admin-screen.tsx): the preset is copied whole, with the presets it inherits, into its own workspace record labelled record_prefix + <preset id> = { label, types }, and src/record-sharing.json door_grant keeps who may read that record. The people a preset is shared with are its group; one person is one account. `words` are the screen's.", "record_prefix": "show-types-shared:", "words": { "heading": "Account visibility", "about": "Choose one of the presets you keep and share it with the people who should see Trillion that way.", "loading": "Loading your presets", "failed": "Your presets could not be read", "preset": "Preset", "none": "You keep no presets yet. Keep one in Settings, under Profiles you keep, then share it here.", "preview": "What they get", "rules": "Rules", "inherits": "Includes", "invite": "Share", "placeholder": "Person or account", "access": "Shared with", "remove": "Stop sharing", "added": "Shared with {principal}. Copy their share key now; it is not shown again.", "copy": "Copy share key", "copied": "Share key copied for {principal}", "share_failed": "The preset could not be shared", "already": "Already shared with {principal}" } },
+  "effects": [
+    { "id": "hide", "label": "Hidden", "strength": 2 },
+    { "id": "silence", "label": "Silenced", "strength": 1 },
+    { "id": "change", "label": "Changed", "strength": 0, "changes": true },
+    { "id": "show", "label": "Shown", "strength": 3, "shows": true }
+  ],
+  "moment_facts": [
+    { "id": "now", "label": "Time", "kind": "date", "clock": true },
+    { "id": "hour", "label": "Hour of the day", "kind": "number", "from_time": "hour", "turns": "hour" },
+    { "id": "weekday", "label": "Day of the week", "kind": "choice", "from_time": "weekday", "turns": "day", "choices": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] },
+    { "id": "device", "label": "Device", "kind": "choice", "moment": "device", "choices": ["phone", "tablet", "computer", "watch"] },
+    { "id": "arrived_by_link", "label": "Opened from a link", "kind": "choice", "moment": "arrived_by_link", "choices": ["yes", "no"] },
+    { "id": "channel", "label": "Where it is shown", "kind": "choice", "moment": "channel" }
+  ],
+  "subjects": {
+    "setup-step": {
+      "label": "Setup steps",
+      "same_fact": "step",
+      "changed_only": true,
+      "strict_facts": true,
+      "knownness_operators": ["is_known", "is_unknown"],
+      "combinators": ["and", "or"],
+      "allowed_effects": ["change"],
+      "change_fields": [
+        { "path": ["required"], "type": "boolean", "authority": "operator" },
+        { "path": ["applicable"], "type": "boolean", "authority": "operator" },
+        { "path": ["order"], "type": "number" },
+        { "path": ["title"], "type": "string", "max_chars": 120 },
+        { "path": ["body"], "type": "string", "max_chars": 2000 },
+        { "path": ["action"], "type": "string", "max_chars": 80 }
+      ],
+      "facts": [
+        { "id": "step", "label": "Setup step", "kind": "choice", "path": ["id"] },
+        { "id": "owner", "label": "Completion owner", "kind": "choice", "path": ["owner"] },
+        { "id": "resource", "label": "Resource", "kind": "choice", "path": ["resource"] },
+        { "id": "account_id", "label": "Account", "kind": "choice", "path": ["account_id"] },
+        { "id": "bucket", "label": "Test group (0 to 99)", "kind": "number", "path": ["bucket"] },
+        { "id": "system", "label": "Current browser system (presentation only)", "kind": "choice", "path": ["system"], "untrusted": true },
+        { "id": "done", "label": "Completed according to its owner", "kind": "boolean", "path": ["done"] },
+        { "id": "available", "label": "Available according to its owner", "kind": "boolean", "path": ["available"] },
+        { "id": "required_for_account", "label": "Required for this account", "kind": "boolean", "from": "required_devices", "path": [], "value_type": "boolean", "default": false, "requires_candidate": true, "candidate_owner": "device" },
+        { "id": "cohorts", "label": "Assigned cohorts", "kind": "tags", "path": ["context", "cohorts"] },
+        { "id": "owned_devices", "label": "Verified owned devices", "kind": "tags", "path": ["context", "owned_devices"] },
+        { "id": "experiments", "label": "Assigned experiments", "kind": "tags", "path": ["context", "experiments"] },
+        { "id": "preferred_devices", "label": "Personally reported devices (presentation only)", "kind": "tags", "path": ["personal_context", "owned_devices"], "untrusted": true },
+        { "id": "preferences", "label": "Personal preferences (presentation only)", "kind": "tags", "path": ["personal_context", "preferences"], "untrusted": true }
+      ]
+    },
+    "notification": {
+      "label": "Notices",
+      "menu_heading": "Silence notices like this",
+      "same_fact": "kind",
+      "quick_effect": "silence",
+      "facts": [
+        { "id": "kind", "label": "Kind", "kind": "choice", "path": ["kind"], "values_from": { "route": "/work/api/tell", "list": ["kinds"], "id": ["id"], "label": ["label"] } },
+        { "id": "title", "label": "Title", "kind": "text", "path": ["title"] },
+        { "id": "times_shown", "label": "Notices like it you were already told", "kind": "number", "path": ["times_shown"] },
+        { "id": "hours_since_last_shown", "label": "Hours since the last one like it", "kind": "number", "path": ["hours_since_last_shown"] }
+      ]
+    },
+    "tour": {
+      "label": "Tours",
+      "menu_heading": "Hide tours like this",
+      "same_fact": "tour",
+      "quick_effect": "hide",
+      "facts": [
+        { "id": "tour", "label": "Tour", "kind": "choice", "path": ["id"] },
+        { "id": "title", "label": "Title", "kind": "text", "path": ["title"] },
+        { "id": "started_by", "label": "Started by", "kind": "choice", "path": ["started_by"], "choices": [{ "id": "itself", "label": "By itself" }, { "id": "asked", "label": "When you ask" }] },
+        { "id": "reason", "label": "Why it shows", "kind": "choice", "path": ["reason"], "choices": [{ "id": "first-use", "label": "First time you use it" }, { "id": "changed-since-first-tour", "label": "What is new" }, { "id": "screen-first-opened", "label": "First time you open a screen" }, { "id": "step-needed", "label": "A step needs you" }, { "id": "replay", "label": "Shown again" }] },
+        { "id": "urgency", "label": "Urgency", "kind": "choice", "path": ["urgency"], "choices": [{ "id": "low", "label": "Low" }, { "id": "normal", "label": "Normal" }, { "id": "urgent", "label": "Urgent" }] },
+        { "id": "hours_since_one_like_it", "label": "Hours since you closed one like it", "kind": "number", "path": ["hours_since_one_like_it"] }
+      ]
+    },
+    "layout": {
+      "label": "Layouts",
+      "menu_heading": "Hide this layout",
+      "same_fact": "layout",
+      "quick_effect": "hide",
+      "facts": [
+        { "id": "layout", "label": "Layout", "kind": "choice", "path": ["id"], "values_from": { "input": "own-layouts", "id": ["id"], "label": ["name"] } },
+        { "id": "name", "label": "Name", "kind": "text", "path": ["name"] }
+      ]
+    },
+    "camera-input": {
+      "label": "Cameras and microphones that always record",
+      "menu_heading": "Pause this input",
+      "same_fact": "input",
+      "quick_effect": "hide",
+      "facts": [
+        { "id": "input", "label": "Input", "kind": "text", "path": ["input"] },
+        { "id": "kind", "label": "Kind", "kind": "choice", "path": ["kind"], "choices": ["camera", "microphone"] }
+      ]
+    },
+    "needs-you": {
+      "label": "What needs you on Home",
+      "menu_heading": "Hide waiting things like this",
+      "same_fact": "kind",
+      "quick_effect": "hide",
+      "facts": [
+        { "id": "kind", "label": "Kind", "kind": "choice", "path": ["kind"], "values_from": { "route": "/work/api/waiting-on-you", "list": ["sections"], "id": ["id"], "label": ["title"] } },
+        { "id": "count", "label": "How many", "kind": "number", "path": ["count"] }
+      ]
+    },
+    "menu-row": {
+      "label": "Menu rows",
+      "menu_heading": "Hide rows like this",
+      "same_fact": "row",
+      "quick_effect": "hide",
+      "facts": [
+        { "id": "row", "label": "Row", "kind": "text", "path": ["id"] },
+        { "id": "label", "label": "Name", "kind": "text", "path": ["label"] },
+        { "id": "source", "label": "Comes from", "kind": "choice", "path": ["source"], "choices": ["tools", "send", "formats"] },
+        { "id": "thing", "label": "Menu of", "kind": "choice", "path": ["thing"], "choices": ["file", "record", "screen"] },
+        { "id": "media_type", "label": "File type", "kind": "text", "path": ["media_type"] },
+        { "id": "bucket", "label": "Test group (0 to 99)", "kind": "number", "path": ["bucket"] }
+      ]
+    },
+    "tour-step": {
+      "label": "Tour steps",
+      "same_fact": "step",
+      "changed_only": true,
+      "facts": [
+        { "id": "tour", "label": "Tour", "kind": "choice", "path": ["tour"] },
+        { "id": "step", "label": "Step", "kind": "choice", "path": ["id"] },
+        { "id": "content_kind", "label": "Kind of step", "kind": "choice", "path": ["content", "content_kind"] },
+        { "id": "tour_by", "label": "Written by", "kind": "choice", "path": ["tour_by"], "choices": ["trillion", "ai"] }
+      ]
+    },
+    "screen": {
+      "label": "Screens",
+      "same_fact": "screen",
+      "changed_only": true,
+      "facts": [
+        { "id": "screen", "label": "Screen", "kind": "choice", "path": ["id"] },
+        { "id": "name", "label": "Name", "kind": "text", "path": ["label"] },
+        { "id": "list", "label": "Sidebar list", "kind": "choice", "path": ["sidebar_collection"] },
+        { "id": "from", "label": "Comes from", "kind": "choice", "path": ["source", "kind"] }
+      ]
+    },
+    "control": {
+      "label": "Controls",
+      "menu_heading": "Hide this control",
+      "same_fact": "control",
+      "quick_effect": "hide",
+      "facts": [
+        { "id": "control", "label": "Control", "kind": "choice", "path": ["control"], "values_from": { "route": "/work/api/show-rules", "list": ["controls"], "id": ["id"], "label": ["label"], "parent": ["parent"] } },
+        { "id": "within", "label": "Control or anything inside it", "kind": "tags", "path": ["within"], "values_from": { "route": "/work/api/show-rules", "list": ["controls"], "id": ["id"], "label": ["label"], "parent": ["parent"] } },
+        {"id": "list_id", "label": "Sidebar list", "kind": "text", "path": ["list_id"]}
+      ]
+    },
+    "feel": {
+      "label": "How things feel",
+      "menu_heading": "Quiet this feel",
+      "same_fact": "moment",
+      "quick_effect": "silence",
+      "facts": [
+        { "id": "moment", "label": "Moment", "kind": "choice", "path": ["moment"] },
+        { "id": "feel", "label": "Feel", "kind": "choice", "path": ["feel"] },
+        { "id": "output", "label": "Touch, sound or motion", "kind": "choice", "path": ["output"], "choices": ["haptic", "sound", "motion"] }
+      ]
+    },
+    "device-copy": {
+      "label": "Kept on this device",
+      "menu_heading": "Keep a copy on devices like this",
+      "same_fact": "copy",
+      "quick_effect": "hide",
+      "facts": [
+        { "id": "copy", "label": "Kept as", "kind": "text", "path": ["copy"] },
+        { "id": "bucket", "label": "Test group (0 to 99)", "kind": "number", "path": ["bucket"] }
+      ]
+    },
+    "arrangement": {
+      "label": "Workspace arrangements",
+      "changed_only": true,
+      "facts": []
+    }
+  },
+  "devices": [
+    { "id": "phone", "label": "phone", "user_agent": "iPhone|iPod|Android.+Mobile" },
+    { "id": "tablet", "label": "tablet", "user_agent": "iPad|Android" },
+    { "id": "computer", "label": "computer", "user_agent": "" }
+  ],
+  "quick": [
+    { "id": "hour", "label": "For 1 hour", "until": { "hours": 1 } },
+    { "id": "tomorrow", "label": "Until tomorrow", "until": { "next_at_hour": 8 } },
+    { "id": "week", "label": "For a week", "until": { "hours": 168 } },
+    { "id": "always", "label": "Always" },
+    { "id": "this-device", "label": "Only on this {device}", "device": true }
+  ],
+  "starting_rules": [
+    {
+      "id": "setup-require-assigned-devices",
+      "label": "Require the devices assigned to this account",
+      "subject": "setup-step",
+      "effect": "change",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [
+        { "kind": "rule", "field": "owner", "operator": "is_any_of", "params": { "values": ["device"] } },
+        { "kind": "rule", "field": "required_for_account", "operator": "is_true", "params": {} }
+      ] },
+      "set": [{ "path": ["required"], "value": true }, { "path": ["applicable"], "value": true }]
+    },
+    {
+      "id": "what-is-new-waits-a-day",
+      "label": "What's new waits a day after you close one, unless it is urgent",
+      "subject": "tour",
+      "effect": "hide",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [
+        { "kind": "rule", "field": "started_by", "operator": "is_any_of", "params": { "values": ["itself"] } },
+        { "kind": "rule", "field": "reason", "operator": "is_any_of", "params": { "values": ["changed-since-first-tour"] } },
+        { "kind": "rule", "field": "urgency", "operator": "is_none_of", "params": { "values": ["urgent"] } },
+        { "kind": "rule", "field": "hours_since_one_like_it", "operator": "is_known", "params": {} },
+        { "kind": "rule", "field": "hours_since_one_like_it", "operator": "less_than", "params": { "value": 20 } }
+      ] }
+    },
+    {
+      "id": "tours-wait-on-links",
+      "label": "Tours that start by themselves wait when you open a link, unless they are urgent",
+      "subject": "tour",
+      "effect": "hide",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [
+        { "kind": "rule", "field": "started_by", "operator": "is_any_of", "params": { "values": ["itself"] } },
+        { "kind": "rule", "field": "arrived_by_link", "operator": "is_any_of", "params": { "values": ["yes"] } },
+        { "kind": "rule", "field": "urgency", "operator": "is_none_of", "params": { "values": ["urgent"] } }
+      ] }
+    },
+    {
+      "id": "feel-sounds-quiet-at-night-on-the-phone",
+      "label": "Sounds stay quiet on the phone from 10 pm to 7 am; touch still plays",
+      "subject": "feel",
+      "effect": "silence",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [
+        { "kind": "rule", "field": "output", "operator": "is_any_of", "params": { "values": ["sound"] } },
+        { "kind": "rule", "field": "device", "operator": "is_any_of", "params": { "values": ["phone"] } },
+        { "kind": "group", "combinator": "and", "negate": true, "rules": [{ "kind": "rule", "field": "hour", "operator": "between", "params": { "min": 7, "max": 21 } }] }
+      ] }
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# The openssl request settings makeCertificate (do-work/this-computers-address.mjs) names, so that no place's own openssl
+# settings choose where the private half goes: with no key file named here, every openssl writes it to its output.
+[req]
+distinguished_name = names
+[names]

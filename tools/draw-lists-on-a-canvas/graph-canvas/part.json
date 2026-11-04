@@ -1,0 +1,8 @@
+{
+  "public": [
+    "show/GraphCanvas.tsx",
+    "show/use-graph-canvas.ts",
+    "show/CanvasView.tsx",
+    "show/types.ts"
+  ]
+}

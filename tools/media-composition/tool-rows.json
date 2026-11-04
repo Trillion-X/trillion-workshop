@@ -160,6 +160,216 @@
      }
     }
    }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::apply-a-pair-state-message",
+   "address": "package::media-composition::tool::apply-a-pair-state-message",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "read_only": true,
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:media-composition",
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false
+    },
+    "id": "tool:apply-a-pair-state-message",
+    "listed_on": "2026-11-03T12:00:00Z",
+    "label": "Apply a device's message to a recording session",
+    "job": "Update a multi-camera recording session when one device (a camera, a watch, a remote control) joins, leaves, reports its state or hands over the primary role",
+    "description": "Give session ({ id, states, primary?, devices? }: states are the states a device can report, the first being where a joining device starts; leave out primary and devices for a new session) and message ({ session, device, type }): type join (role primary or secondary, default secondary), leave, state (state: one of the session's states) or handover (from: the current primary, device: the one taking over). Returns the session after the message. A message for another session, with no device, from a device that never joined, joining twice, taking a primary that is held, handing over from a device that is not primary, naming an unknown state or type, changes nothing and returns the session as it was with ignored { reason, message }. Exactly one device is primary; the primary leaving leaves none. Nothing is kept: hand the returned session in with the next message.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "session",
+      "message"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "session": {
+       "type": "object",
+       "required": [
+        "id",
+        "states"
+       ],
+       "properties": {
+        "id": {
+         "type": "string",
+         "minLength": 1
+        },
+        "states": {
+         "type": "array",
+         "minItems": 1,
+         "items": {
+          "type": "string"
+         }
+        },
+        "primary": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "devices": {
+         "type": "object"
+        }
+       }
+      },
+      "message": {
+       "type": "object",
+       "required": [
+        "session",
+        "device",
+        "type"
+       ],
+       "properties": {
+        "session": {
+         "type": "string"
+        },
+        "device": {
+         "type": "string"
+        },
+        "type": {
+         "type": "string"
+        },
+        "role": {
+         "type": "string",
+         "enum": [
+          "primary",
+          "secondary"
+         ]
+        },
+        "state": {
+         "type": "string"
+        },
+        "from": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "session"
+     ],
+     "properties": {
+      "session": {
+       "type": "object",
+       "required": [
+        "id",
+        "states",
+        "primary",
+        "devices"
+       ]
+      },
+      "ignored": {
+       "type": "object",
+       "required": [
+        "reason"
+       ],
+       "properties": {
+        "reason": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/media-composition"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/media-composition/read-data/session-pairing-tools.mjs",
+      "applyPairStateMessage"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "moved from Trillion-X/trillion src/session-pairing.mjs"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "session": {
+        "id": "session-sample",
+        "states": [
+         "idle",
+         "recording"
+        ]
+       },
+       "message": {
+        "session": "session-sample",
+        "device": "camera-one",
+        "type": "join",
+        "role": "primary"
+       }
+      },
+      "output_selector": "$.session.primary",
+      "contains": "camera-one"
+     }
+    ]
+   }
   }
  ]
 }

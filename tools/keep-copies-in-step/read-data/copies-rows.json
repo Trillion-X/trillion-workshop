@@ -1,0 +1,7 @@
+{
+  "_what": "Where keep-copies-in-step reads and keeps the person's own rows. Every name here is a record kind or id the rows in tool-rows.json are granted. The rules (how often a device row is written again, how many are read, the words of each version) are read-data/catch-up.json, moved with the code.",
+  "devices": { "type": "setting", "id": "setting:catch_up_devices", "_why": "The person's device rows ({ device_id, title, kind, state, waiting, at, seen_at, copy? }), newest first. Stored as a setting, whose value holds the list under `value`." },
+  "kept_apart": { "_why": "The versions two copies changed apart are records of the type read-data/catch-up.mjs names KEPT_APART, one per contested record, each { \"<field or *>|<checksum>\": { record, record_type, field, value } }." },
+  "page_rows": 200,
+  "most_reads": 64
+}
