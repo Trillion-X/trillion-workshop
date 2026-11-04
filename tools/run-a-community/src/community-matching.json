@@ -1,0 +1,58 @@
+{
+  "what_this_is": "The words src/community-matching.mjs hands to each member's own AI when a community pairs people automatically, and the words it answers with. Trillion runs no model for matching: every job goes to the member's own AIs (their Trillion handoffs), who answer through the MCP tools set_matching, score_match_candidates, answer_match (only with their person's own yes or no) and suggest_match_topics. {name} fields are filled from the round. A community's own choices (cadence, group size, what evidence counts) are its `matching` configuration, not these words.",
+  "jobs": {
+    "profile": {
+      "notice": "Help {community} pair you with the right person",
+      "job": "{community} pairs its members automatically, and your person is in it. To be paired, the community needs to know what they are pursuing and what they can give, from what you already know about them (their pursuits with list_pursuits, their files, your memory of them). Call set_matching for community {community_id} with profile.answers: one short answer for each question listed in this job's input under questions (question_id: answer). Also give profile.categories: two to five short words naming the kinds of pursuit they are on (for example fitness, fundraising, hiring). Other members' AIs see these answers when scoring who should meet, so never put an email address, phone number or anything they would not say to a fellow member. Finish with finish_work saying what you filled in."
+    },
+    "score": {
+      "notice": "Score who {name} should meet in {community}",
+      "job": "{community} is pairing its members this round, and your person is in it. This job's input holds what your person said (you) and a short list of other members (candidates), each with what they said, as claims with a claim_ref. For each candidate, judge five things, each a number above 0 and at most 1, only from those claims: complementarity (what they offer meets what your person needs), relevance (it bears on the pursuit your person is on), timing (both can act on it now), ability_to_act (the candidate can really do it) and impact (how far it would move your person's pursuit). For each of the five give a one-sentence reason and the claim_refs it rests on, under you and them. A candidate you have no grounds for, leave out: a missing or uncited factor forms no match. Each reason is shown to both people when they are introduced, so check the reasons with run_tool on tool:check-copy and fix what it finds. Then call score_match_candidates with community_id {community_id}, round_id {round_id} and scores. Finish with finish_work."
+    },
+    "follow_up": {
+      "notice": "Help {name} meet {other}",
+      "job": "Trillion introduced your person to {other} in {community} {days} days ago, because: {why}. They share a one-to-one space ({space_id}) and have not talked there yet. Find a time both are free with find_space_times for space {space_id}, offer your person the best three times in their own time zone, and when they pick one, write it in the space with what the two will talk about first. If your person does not want to meet {other}, call answer_match with community_id {community_id}, match_id {match_id} and yes false. Check the words people read with run_tool on tool:check-copy. Finish with finish_work."
+    },
+    "consent": {
+      "notice": "Would {name} like to meet {other}?",
+      "job": "{community} would like to introduce your person to {other}, because: {why}. This job's input holds what {other} said. Tell your person who {other} is and why the two could help each other, in plain words, and open it for them with show_screen (the input's show_with), where they press Meet or Pass themselves before {answer_by}. Only their own press on that screen says yes; you cannot. If they tell you they do not want to meet {other}, answer for them with answer_match and yes false (the input's no_with). Nobody shares a space or a contact until everyone says yes; if your person does not answer, the introduction ends by itself. Check the words your person reads with run_tool on tool:check-copy. Finish with finish_work."
+    },
+    "topics": {
+      "notice": "Suggest what {name} and {other} could talk about",
+      "job": "Trillion introduced your person to {other} in {community}, because: {why}. They share a one-to-one space ({space_id}). This job's input holds what each of them said. Suggest two to four specific things they could talk about first, each one line, that would move your person's pursuit and help {other} too. Both of them read these lines, so check them with run_tool on tool:check-copy and fix what it finds. Call suggest_match_topics with community_id {community_id}, match_id {match_id} and topics. Finish with finish_work."
+    }
+  },
+  "experiments": {
+    "about": "How a community's matching.experiments run (src/community-matching.mjs): each arm's share is its chance of leading on talks per introduction, never below least_share, and that chance reads the community's latest read_matches matches of the experiment.",
+    "least_share": 0.05,
+    "read_matches": 200
+  },
+  "erasure_page": 200,
+  "follow_up": {
+    "about": "Follow-through on an introduction whose people have not talked (src/community-matching.mjs): at each of after_hours after the match was made (a community may set its own matching.follow_up_hours), each person's AI is handed the follow_up job once; a match that talked or was passed is not followed up again. page bounds how many matches one wake reads.",
+    "after_hours": [48, 120, 240],
+    "page": 100
+  },
+  "consent": {
+    "about": "Introductions are double opt-in (src/community-matching.mjs answerMatch): a closed round only proposes a match, each person answers yes or no through answer_match (a yes only from their own signed-in page, at `screen`; a no from them or their AI), and the one-to-one is made only once everyone said yes. A match nobody finished answering within answer_hours ends as expired (a community may set its own matching.answer_hours). selection is what each person's own matching switch must say for the round to pair them at all (on), and what keeps them out (off).",
+    "answer_hours": 72,
+    "screen": "/spaces/{community_id}",
+    "selection": { "approved_values": ["on"], "veto_values": ["off"] }
+  },
+  "space_title": "{a} and {b}",
+  "introduction_kind": "introduction",
+  "topics_kind": "topics",
+  "words": {
+    "not_on": "Matching is off for you here. Turn it on to be paired automatically.",
+    "no_matching": "This community does not pair its members.",
+    "owner_only": "Only the person who runs this community starts a pairing round.",
+    "no_round": "That pairing round is closed or was not asked of you.",
+    "no_match": "No match with that id is yours.",
+    "contact_in_profile": "A matching answer is seen by other members' AIs, so it cannot hold an email address or phone number.",
+    "introduced": "Trillion introduced you",
+    "yes_or_no": "yes is true to meet, or false for not this time.",
+    "ended": "This introduction has ended, so it cannot be answered any more.",
+    "yes_on_page": "Only your person can say yes to meeting someone, by pressing Meet on their own Trillion screen. Open it for them there; you may still say no for them.",
+    "changed": "This introduction changed since it was shown. Look at it again, then say yes to it as it is now."
+  }
+}

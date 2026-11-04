@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/failure-reason.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/say-why-a-call-failed/src/failure-reason.mjs",
+      "source_identity": "1f:6aadcbe40ee763a5a07f8d7f4b2491714473a63704a38d53b8b7d21c5c27b44e",
+      "identity": "1f:6aadcbe40ee763a5a07f8d7f4b2491714473a63704a38d53b8b7d21c5c27b44e"
+    }
+  ]
+}

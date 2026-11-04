@@ -198,6 +198,27 @@
       "identity": "1f:e93f338c0bc5ea41116f53374543500394c7df5988979668a262dcfeb73b88c9"
     },
     {
+      "from": "src/automation-health.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/automation-health.mjs",
+      "source_identity": "1f:532f7699a727c110cf6158154d76c9c120bd57e0572de18173f7e06c26baafef",
+      "identity": "1f:532f7699a727c110cf6158154d76c9c120bd57e0572de18173f7e06c26baafef"
+    },
+    {
+      "from": "src/brought-in.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/brought-in.json",
+      "source_identity": "1f:4628ac63ad0e81709556c58892164e5ba2f485768bfa12bd371f4496e24c2176",
+      "identity": "1f:4628ac63ad0e81709556c58892164e5ba2f485768bfa12bd371f4496e24c2176"
+    },
+    {
+      "from": "src/cap-change.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/cap-change.json",
+      "source_identity": "1f:6c7bb2c9eaae34909bcb62cbd69c1d48608f69f954610a87cef5f085db23887d",
+      "identity": "1f:6c7bb2c9eaae34909bcb62cbd69c1d48608f69f954610a87cef5f085db23887d"
+    },
+    {
       "from": "src/carried-connections.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/carried-connections.json",

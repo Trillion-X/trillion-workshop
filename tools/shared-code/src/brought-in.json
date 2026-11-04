@@ -1,0 +1,4 @@
+{
+  "_about": "When a record counts as history brought in rather than something happening now: its authored time (authored_at, else at) is at least this many minutes before the time Trillion kept it (recorded_at). A day, so a laptop catching up overnight is still live. Read by src/brought-in.mjs.",
+  "history_after_minutes": 1440
+}

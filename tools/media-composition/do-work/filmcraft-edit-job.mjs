@@ -3,7 +3,7 @@
 // this adapter never reads media, invents a mount path or changes the saved edit.
 // Filmcraft uses254016000000ticks/second. file.import, file.newSequence,
 // timeline.place and file.saveAs are shared by its0.4.0and0.7.2command owners.
-import { sharedReference } from '../../live-namespace/do-work/shared-file-reference.mjs';
+import { sharedReference } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/shared-file-reference.mjs';
 
 const TICKS = 254016000000;
 const IDENTITY = /^1f:[0-9a-f]{64}$/;
