@@ -5,7 +5,8 @@
 // reaches a machine. install runs set-up-the-builder.sh (a builder user, git, Node.js, rust, Caddy serving the feed
 // folder at https://<name>/engine-releases/ and passing push deliveries to the receiver, a firewall), copies this
 // tool's own files there, writes the publish config, makes the signing key once on the builder (it never leaves; its
-// public half is answered), stores the repository token and the push secret as systemd credentials encrypted with
+// public half is answered), makes a read key on the builder for a repository reached over SSH (its public half is
+// answered, to add as a read-only deploy key), stores the repository token and the push secret as systemd credentials encrypted with
 // the builder's own host key, and starts the push receiver service. status reads the receiver, the feed and the last
 // run back.
 //
@@ -86,8 +87,12 @@ const credential = name => `${B.credentials_folder}/${B.service}-${name}`;
 const toolFile = name => `${B.tool_folder}/tools/publish-an-engine-release/do-work/${name}`;
 const PATH = `${B.home}/.cargo/bin:/usr/local/bin:/usr/bin:/bin`;
 
-/** The receiver's systemd unit: its two credentials opened onto descriptors 3 and 4. */
-export function receiverUnit({ hasToken }) {
+/** A repository git reaches over SSH, with the builder's own read key instead of a token. */
+export const overSsh = url => /^(ssh:\/\/|git@)/.test(url);
+const GIT_SSH = `ssh -i ${B.repository_key_file} -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=${B.repository_known_hosts}`;
+
+/** The receiver's systemd unit: its two credentials opened onto descriptors 3 and 4; git uses the builder's read key when `sshKey`. */
+export function receiverUnit({ hasToken, sshKey = false }) {
   return `[Unit]
 Description=Publishes a signed engine release for each push it receives
 After=network-online.target
@@ -99,7 +104,7 @@ User=${B.user}
 Group=${B.user}
 Environment=PATH=${PATH}
 Environment=HOME=${B.home}
-${hasToken ? `LoadCredentialEncrypted=repository-token:${credential('repository-token')}\n` : ''}LoadCredentialEncrypted=push-secret:${credential('push-secret')}
+${sshKey ? `Environment="GIT_SSH_COMMAND=${GIT_SSH}"\n` : ''}${hasToken ? `LoadCredentialEncrypted=repository-token:${credential('repository-token')}\n` : ''}LoadCredentialEncrypted=push-secret:${credential('push-secret')}
 ExecStart=/bin/sh -c 'exec node ${toolFile('receive-pushes.mjs')} serve ${B.config_file} 3<${hasToken ? '"$CREDENTIALS_DIRECTORY/repository-token"' : '/dev/null'} 4<"$CREDENTIALS_DIRECTORY/push-secret"'
 Restart=on-failure
 RestartSec=5
@@ -131,14 +136,18 @@ export async function installBuilder(request, { token = '', secret = '', run = o
   await run(machine, `rm -rf ${q(`${T}.new`)} && install -d -m 0755 ${q(`${T}.new`)} && tar -C ${q(`${T}.new`)} -xzf - && chmod -R a+rX,go-w ${q(`${T}.new`)} && rm -rf ${q(`${T}.old`)} && { test ! -e ${q(T)} || mv ${q(T)} ${q(`${T}.old`)}; } && mv ${q(`${T}.new`)} ${q(T)} && rm -rf ${q(`${T}.old`)}`, tarball());
   await run(machine, `install -d -m 0755 ${q(dirname(B.config_file))} && install -m 0644 /dev/stdin ${q(B.config_file)}`, `${JSON.stringify(builderConfig(request), null, 1)}\n`);
   const key = JSON.parse((await run(machine, `runuser -u ${q(B.user)} -- env PATH=${q(PATH)} node ${q(toolFile('publish-an-engine-release.mjs'))} make-key ${q(B.key_file)}`)).trim().split('\n').at(-1));
+  const sshKey = overSsh(request.repository.url);
+  const deployKey = sshKey
+    ? (await run(machine, `runuser -u ${q(B.user)} -- sh -c ${q(`test -f ${q(B.repository_key_file)} || ssh-keygen -q -t ed25519 -N '' -C ${q(`${B.user}@${request.builder.host_name}`)} -f ${q(B.repository_key_file)}`)} && cat ${q(`${B.repository_key_file}.pub`)}`)).trim()
+    : null;
   await run(machine, `install -d -m 0700 ${q(B.credentials_folder)} && umask 077 && systemd-creds encrypt --name=push-secret - ${q(credential('push-secret'))}`, secret);
   if (token) await run(machine, `umask 077 && systemd-creds encrypt --name=repository-token - ${q(credential('repository-token'))}`, token);
   else await run(machine, `rm -f ${q(credential('repository-token'))}`);
-  await run(machine, `install -m 0644 /dev/stdin /etc/systemd/system/${q(`${B.service}.service`)}`, receiverUnit({ hasToken: Boolean(token) }));
+  await run(machine, `install -m 0644 /dev/stdin /etc/systemd/system/${q(`${B.service}.service`)}`, receiverUnit({ hasToken: Boolean(token), sshKey }));
   const active = (await run(machine, `systemctl daemon-reload && systemctl enable ${q(B.service)} >/dev/null 2>&1; systemctl restart ${q(B.service)} && sleep 2 && systemctl is-active ${q(B.service)}`)).trim();
   const host = request.builder.host_name;
   return {
-    public_key: key.public_key, key_made: key.made,
+    public_key: key.public_key, key_made: key.made, deploy_key: deployKey,
     feed_url: `https://${host}${settings.feed_path}${settings.feed_file}`, receiver_active: active === 'active', feed_status: await feedStatus(host, fetchImpl),
     webhook: { url: `https://${host}${settings.push_path}`, content_type: 'application/json', events: ['push'] },
   };
