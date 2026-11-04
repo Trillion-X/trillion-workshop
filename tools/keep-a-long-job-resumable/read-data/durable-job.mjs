@@ -21,8 +21,10 @@ import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
+/** BLAKE3-256 of the bytes as 64 hex digits, from the one content-identity owner (its `1f:` prefix dropped). */
+const blake3Hex = bytes => makeHashCodeHexFromBytes(bytes).slice(3);
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const expand = (place, home = os.homedir()) => String(place).replace(/^~(?=\/|$)/, home);
@@ -40,7 +42,7 @@ export function createJobs({ settings = jobSettings(), file = expand(settings.fi
   return {
     start({ key, seed = null, version = 1 }) {
       if (!String(key ?? '').trim()) throw fail(settings.words.needs_key);
-      const id = bytesToHex(blake3(new TextEncoder().encode(JSON.stringify(['job', key])))).slice(0, 16);
+      const id = blake3Hex(new TextEncoder().encode(JSON.stringify(['job', key]))).slice(0, 16);
       const found = load().find(entry => entry.id === id);
       if (found) return view(found);
       const job = { id, key, seed, version, state: settings.states.running, chunks: [], expires_at: now() + settings.ttl_seconds * 1000 };
