@@ -1,0 +1,109 @@
+/* parts/screen-look/show/one-at-a-time-queue.css
+   The look of the shared one-at-a-time queue (ui/show/one-at-a-time-queue/OneAtATimeQueue.tsx): one focused column with
+   where the person is ("3 of 214"), then one card with the deck's next two edges showing behind it (Deepstash's
+   onboarding deck), the one way to finish it as the loudest thing on the card, compact context beneath it, and the moves
+   (Back, Open, Later) along the bottom. The next card slides in from the
+   side it comes from; reduced motion turns the slide off. Colours and faces are the page's own tokens; it reflows by
+   its own width (a container query), never the window's. */
+
+/* Keep the incoming card's translated edge out of the page's scroll width during its short transition. */
+.queue { container: queue / inline-size; display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 42rem; margin: 0 auto; padding: 1.25rem 1rem 2rem; box-sizing: border-box; overflow-x: clip; }
+.queue-head, .queue-card-top, .queue-moves { display: flex; align-items: center; gap: .5rem; min-width: 0; }
+.queue h1, .queue h2, .queue p, .queue dl, .queue dd { margin: 0; }
+.queue-title { flex: 1; font-size: 1.0625rem; font-weight: 600; }
+.queue-position, .queue-card-meta { color: var(--color-muted-foreground); font-size: .875rem; font-variant-numeric: tabular-nums; }
+
+/* The deck: the card in front, and up to two edges of the cards after it peeking out below. */
+.queue-deck { position: relative; padding-bottom: .75rem; }
+.queue-deck::before, .queue-deck::after { content: ""; position: absolute; left: 1.5rem; right: 1.5rem; bottom: .375rem; height: 2rem; border: 1px solid var(--color-border); border-radius: 1.125rem; background: var(--color-card); opacity: 0; }
+.queue-deck::after { left: 3rem; right: 3rem; bottom: 0; }
+.queue-deck:not([data-behind="0"])::before { opacity: .9; }
+.queue-deck[data-behind="2"]::after { opacity: .55; }
+.queue-slot { position: relative; z-index: 1; animation: queue-in var(--motion-sheet) var(--ease-enter) both; }
+.queue-slot[data-moving="back"] { --from: -2.5rem; }
+@keyframes queue-in { from { opacity: 0; transform: translateX(var(--from, 2.5rem)) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { .queue-slot { animation: none; } }
+
+.queue-card { min-width: 0; }
+.queue-listing { height: auto; gap: .875rem; padding: 1.25rem; overflow: visible; }
+.queue-listing [data-listing-head] h3 { display: block; -webkit-line-clamp: unset; -webkit-box-orient: unset; overflow: visible; font-family: var(--font-display, inherit); font-size: 1.375rem; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; text-wrap: balance; }
+.queue-listing [data-listing-when] { display: block; overflow: visible; overflow-wrap: anywhere; white-space: normal; color: var(--color-muted-foreground); font-size: .875rem; line-height: 1.4; }
+.queue-listing [data-listing-facts] > li > span:last-child { display: block; min-width: 0; overflow: visible; overflow-wrap: anywhere; white-space: normal; -webkit-box-orient: initial; -webkit-line-clamp: unset; }
+.queue-listing-content { display: flex; flex-direction: column; gap: .875rem; min-width: 0; }
+.queue-listing > [data-slot="listing-actions"] { display: flex; flex-direction: column; align-items: stretch; gap: .875rem; }
+.queue-card-detail { color: var(--color-muted-foreground); font-size: .9375rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.queue-card-body { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.queue-card-clip { display: flex; flex-direction: column; gap: .5rem; }
+.queue-audio-note { display: flex; align-items: flex-start; gap: .5rem; color: var(--color-muted-foreground); font-size: .875rem; line-height: 1.45; }
+.queue-audio-note svg { flex: none; width: 1rem; height: 1rem; margin-top: .125rem; }
+
+/* The way to finish: the one filled press, at its own width (21st.dev Tool Approval 26580: "Allow once" is a pill sized
+   to its words at the start of the footer, the quiet choices beside it), never a slab across the card. */
+.queue-finish, .queue-form, .queue-form .record-hover-form-field { display: flex; flex-direction: column; gap: .5rem; }
+.queue-finish[data-finish="press"] { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.queue-finish-press { min-width: 7.5rem; padding-inline: 1.125rem; font-weight: 600; }
+.queue-form .record-hover-form-send { width: 100%; min-height: 2.75rem; font-weight: 600; }
+.queue-finish[data-finish="press"] .queue-refusal { flex-basis: 100%; }
+
+/* The goal a thing serves: a quiet link under the title, its icon muted, never a boxed chip. */
+.queue-card-links { display: flex; flex-wrap: wrap; gap: .25rem .75rem; margin-top: -.375rem; }
+.queue-card-link { display: inline-flex; align-items: center; gap: .375rem; height: auto; min-height: 0; padding: 0; color: var(--color-muted-foreground); font-size: .875rem; font-weight: 500; }
+.queue-card-link svg { width: .875rem; height: .875rem; opacity: .8; }
+button.queue-card-link:hover { color: var(--color-foreground); }
+
+/* Purpose precedes the owning action surface; the completion condition follows it, always visible. */
+.queue-task-purpose, .queue-task-completion { margin: 0; font-size: .9375rem; line-height: 1.5; overflow-wrap: anywhere; }
+.queue-task-purpose > span, .queue-task-completion > span > span { display: block; margin-bottom: .25rem; color: var(--color-muted-foreground); font-size: .8125rem; }
+.queue-task-completion { display: flex; align-items: flex-start; gap: .625rem; }
+.queue-task-completion > svg { flex: none; width: 1rem; height: 1rem; margin-top: .25rem; color: var(--color-muted-foreground); }
+.queue-form .record-hover-form-label { font-size: .8125rem; font-weight: 500; }
+.queue-form textarea { min-height: 7rem; }
+.queue-refusal, .queue-form .record-hover-form-refusal { color: var(--color-destructive); font-size: .8125rem; }
+.queue-checked { display: flex; gap: .5rem; padding: .75rem .875rem; border-radius: .75rem; background: color-mix(in oklab, var(--color-success, #16a34a) 9%, var(--color-card)); line-height: 1.45; }
+.queue-checked svg, .queue-empty-icon { flex: none; color: var(--color-success, #16a34a); }
+
+.queue-open, .queue-later:not(.queue-open + *) { margin-left: auto; }
+.queue-empty { display: flex; flex-direction: column; align-items: center; gap: .625rem; padding: 3rem 1rem; text-align: center; }
+.queue-empty-icon { width: 3rem; height: 3rem; border-radius: 99px; }
+.queue-empty-title { font-size: 1.25rem; font-weight: 600; }
+
+/* A phone-width pane: a little less room around the card, the reasons stacked under their labels. */
+@container queue (max-width: 30rem) {
+  .queue-listing { padding: 1rem; }
+  .queue-listing [data-listing-head] h3 { font-size: 1.25rem; }
+}
+
+/* One thing alone (`alone`, as the hold shows it): when several are walked, their place between the moves that can be
+   made (Uxcel's "Question 1/25" beside the arrows, Mobbin 4ba413cf); the caller's ways out are the card's own last part,
+   divided from the thing by a hairline like the card's folded explanation, so the card is one composed whole. */
+.queue[data-state="alone"] .queue-title { text-align: center; }
+.queue-alone-moves { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .5rem; }
+.queue-alone-moves > :first-child { justify-self: start; }
+.queue-alone-moves > :last-child { justify-self: end; }
+.queue-head-start, .queue-head-end { display: flex; align-items: center; gap: .25rem; min-width: 0; }
+.queue-head-end { justify-content: flex-end; }
+/* The card's one footer row: the finish press first, the caller's quiet ways out beside it on the same row; whatever
+   a way out opens (its panel, its form) takes the whole width under the row. */
+.queue-card-under { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .125rem; padding-top: 1rem; border-top: 1px solid var(--color-border); }
+.queue-card-under > .queue-finish { flex: none; }
+/* Long forms stay inside the card; the answer rows scroll and the send button follows them. */
+/* Every box from the card down to the answer rows is a bounded column, so the rows scroll inside the card and never
+   spill over what follows the queue on the page (the card's content wrapper is a plain box in ListingCard). */
+.queue-listing:has(.queue-finish[data-many-fields="true"]) { display: flex; flex-direction: column; height: min(72dvh, 50rem); min-height: 0; overflow: visible; }
+.queue-listing:has(.queue-finish[data-many-fields="true"]) [data-listing-content], .queue-listing:has(.queue-finish[data-many-fields="true"]) .queue-listing-content { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.queue-finish[data-many-fields="true"] { flex: 1; min-height: 0; }
+.queue-finish[data-many-fields="true"] .queue-form { display: flex; flex: 1; flex-direction: column; min-height: 0; max-height: none; overflow: hidden; }
+.queue-finish[data-many-fields="true"] .record-hover-form-fields { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: .25rem; scroll-padding-block: .5rem; }
+.queue-finish[data-many-fields="true"] .record-hover-form-actions { flex: none; gap: .5rem; }
+.queue-finish[data-many-fields="true"] .record-hover-form-field { display: grid; grid-template-columns: minmax(0, 1fr) minmax(9rem, .85fr); align-items: center; gap: .375rem .75rem; padding: .75rem; border: 1px solid var(--color-border); border-radius: .875rem; background: color-mix(in oklab, var(--color-muted) 24%, var(--color-card)); }
+.queue-finish[data-many-fields="true"] .record-hover-form-label { grid-column: 1; font-size: .875rem; font-weight: 600; }
+.queue-finish[data-many-fields="true"] .record-hover-form-field-detail, .queue-finish[data-many-fields="true"] .record-hover-form-field-clip { grid-column: 1; }
+.queue-finish[data-many-fields="true"] .record-hover-form-field input, .queue-finish[data-many-fields="true"] .record-hover-form-field textarea, .queue-finish[data-many-fields="true"] .record-hover-form-field select { grid-column: 2; grid-row: 1 / span 3; }
+.queue-finish[data-many-fields="true"] .record-hover-form-send { flex: none; margin-top: .5rem; }
+.queue-form .record-hover-form-field-detail { color: var(--color-muted-foreground); font-size: .8125rem; line-height: 1.4; }
+.queue-form .record-hover-form-field-clip { display: block; }
+
+@container queue (max-width: 30rem) {
+  .queue-finish[data-many-fields="true"] .record-hover-form-field { grid-template-columns: minmax(0, 1fr); }
+  .queue-finish[data-many-fields="true"] .record-hover-form-field input, .queue-finish[data-many-fields="true"] .record-hover-form-field textarea, .queue-finish[data-many-fields="true"] .record-hover-form-field select { grid-column: 1; grid-row: auto; }
+}

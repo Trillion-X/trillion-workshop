@@ -1,0 +1,27 @@
+{
+  "comment": "What a person reads about which of the method's questions helped them, and the numbers that decide when a comparison is shown. `minimum` is the fewest decisions a side of any comparison needs before a share or a before-and-after is stated; below it the screen says `not_enough`. `recent` is how many of the person's latest decisions are compared with the ones before them. Sentences fill {named} parts from counted rows; no number is typed into them.",
+  "minimum": 5,
+  "recent": 5,
+  "heading": "What has helped you",
+  "empty": "Nothing to show yet. Once your AI has worked through a few decisions with Trillion, the questions that changed your answer and how those decisions turned out appear here.",
+  "not_enough": "not enough results yet to compare",
+  "goal": {
+    "heading": "Decisions that hit their goal",
+    "counted": "{met} of {known} decisions with a result hit their goal",
+    "share": "{share}% of decisions with a result hit their goal ({met} of {known})",
+    "waiting": "{waiting} still waiting to hear how they went"
+  },
+  "time": {
+    "heading": "Time from decision to done",
+    "done": "Typical time from deciding to a checked result: {time} (over {count} decisions)",
+    "deciding": "Typical time to decide: {now} for your latest {recent}, {before} for the {earlier} before",
+    "deciding_once": "Typical time to decide: {now} (over {count} decisions)",
+    "goal_change": "Hit their goal: {now} of your latest {recent} with a result, {before} of the {earlier} before"
+  },
+  "questions": {
+    "heading": "Most useful questions for you",
+    "changed": "Changed your answer in {changed} of {asked} decisions",
+    "compare": "When it changed your answer, {changed_met} of {changed_known} hit their goal; when it did not, {unchanged_met} of {unchanged_known}",
+    "limit": 8
+  }
+}

@@ -3503,7 +3503,23 @@
       "output_selector": "$.files_checked",
       "at_least": 1
      }
-    ]
+    ],
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "record:media-voice-cluster",
+          "guard_properties": {
+            "embedding": "numbers",
+            "files": "texts",
+            "id": "text",
+            "kind": "text",
+            "sample_count": "number",
+            "voice_id": "text"
+          }
+        }
+      ]
+    }
    }
   },
   {
@@ -5378,6 +5394,156 @@
        "output_selector": "$.result.bytes"
       },
       "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::suggest-media-cuts",
+   "address": "package::media-composition::tool::suggest-media-cuts",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:suggest-media-cuts",
+    "label": "Suggest cuts from a recording's words",
+    "status": "active",
+    "job": "Propose cuts in a recording from its kept transcript (long silences or filler words), as typed lines a person can watch, with a typed ending when there is nothing to cut",
+    "description": "Give identity (the recording's identity), mode (silent_pauses or filler_words) and transcript (segments with timed words). Returns lines (status, thinking, then complete with remove-span proposals in the recording's own seconds, or an error line NO_TRANSCRIPT, NO_PROPOSALS or FAILED), keep (the answer to keep under the recording, mode and algorithm version) and modes. Hand the kept answer back as kept and the tool answers from it until the algorithm version changes. Nothing is applied: proposals are data.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "identity",
+      "mode",
+      "transcript"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "identity": {
+       "type": "string",
+       "minLength": 1
+      },
+      "mode": {
+       "type": "string"
+      },
+      "transcript": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "kept": {
+       "type": [
+        "object",
+        "null"
+       ]
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "lines",
+      "modes"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "lines": {
+       "type": "array"
+      },
+      "keep": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "modes": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work/suggest-media-cuts.mjs",
+         "read-data/auto-edit.mjs",
+         "read-data/auto-edit.json",
+         "read-data/auto-cleanup.ts",
+         "read-data/suggestion-stream.mjs",
+         "read-data/suggestion-stream.json"
+        ],
+        "at": "/opt/media-composition"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/suggest-media-cuts.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "moved from Trillion-X/trillion parts/media-composition/read-data/auto-edit.mjs, suggestion-stream.mjs and auto-cleanup.ts, with their tests"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "identity": "1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "mode": "filler_words",
+       "transcript": {
+        "segments": [
+         {
+          "words": [
+           {
+            "word": "so",
+            "start": 0,
+            "end": 0.3
+           },
+           {
+            "word": "um",
+            "start": 0.4,
+            "end": 0.6
+           },
+           {
+            "word": "then",
+            "start": 0.7,
+            "end": 1
+           }
+          ]
+         }
+        ]
+       }
+      },
+      "output_selector": "$.keep.entry.proposals[0].reason",
+      "contains": "filler"
      }
     ]
    }

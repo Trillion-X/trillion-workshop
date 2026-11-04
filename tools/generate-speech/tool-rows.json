@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "generate-speech-tool-rows",
-  "what_this_is": "The Workshop row for the generate-speech folder: a script the person's AI runs on the person's own computer to make speech from text with a provider command the person names, and keep what it made.",
+  "what_this_is": "The Workshop rows for the generate-speech folder: saying words in the person's chosen voice with a speech model on their computer and keeping their voices as rows (computer rows), and a script the person's AI runs on the person's own computer to make speech from text with a provider command the person names, and keep what it made.",
   "records": [
     {
       "payload": {
@@ -49,6 +49,44 @@
         "provenance": {
           "source": "ported from bitfield-packages packages/speech-generation: its provider-command contract and result and error shapes, and its local voice provider, with the old engine's records, content store and process descriptors left out"
         }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:say-with-a-voice-model",
+        "status": "active",
+        "label": "Say words in my chosen voice with a speech model on my computer",
+        "job": "Say words out loud in my own cloned voice or a natural neutral one, made on my own computer, and keep the sound in my files",
+        "description": "Makes a sound of `text` with a speech model on the person's computer (read-data/speak.json programs and engines: mlx-audio with Qwen3-TTS for a voice cloned from a reference recording, Kokoro for the neutral voice), in the voice asked for, else the voice chosen for `place` or the chosen voice, else the shared voices in order; a voice that cannot be made is passed over with why. The sound is made at its natural pace and kept in the person's files (/Voice/Said); the answer carries the place's speed for the player to apply with the pitch kept. The person's voices and places are rows of their Voices and Where Trillion speaks lists. Nothing is left on the computer and nothing is sent to a paid service; it never falls back to a system voice. It plays nothing: the sound is a file.",
+        "input_schema": {"type":"object","required":["text"],"additionalProperties":false,"properties":{"text":{"type":"string","minLength":1,"maxLength":2000,"description":"The words to say","x-free-text-because":"The words to say out loud."},"voice":{"type":"string","maxLength":80,"description":"A voice id from tool:voices (default: the place's voice, else the chosen one)"},"place":{"type":"string","maxLength":80,"description":"Where it is said, a row of the Where Trillion speaks list (for example said-out-loud, calls, car)"},"speech_python":{"type":"string","maxLength":400,"description":"The python on this computer that has mlx-audio and soundfile (default: the first found)","x-free-text-because":"A file path on this computer."}}},
+        "output_schema": {"type":"object","required":["file","voice","speed"],"properties":{"file":{"type":"string"},"name":{"type":"string"},"seconds":{"type":"number"},"voice":{"type":"object"},"engine":{"type":"string"},"produced_by":{"type":"string"},"passed_over":{"type":"array"},"speed":{"type":["number","null"]},"text":{"type":"string"}}},
+        "invoke": {"kind":"computer","capabilities":[],"workdir":"/opt/generate-speech","stdout":"json","argv":["node","/opt/records-door/do-work/run-an-export.mjs","/opt/generate-speech/read-data/speak.mjs","say"],"stdin":{"fill":{"from":"input"}},"records":{"fd":3,"rights":[{"kind":"list","id":"list:voices","operations":["records:read","records:write"]},{"kind":"list","id":"list:where-trillion-speaks","operations":["records:read","records:write"]},{"kind":"record:voice","operations":["records:read","records:list","records:write"]},{"kind":"record:speaking-place","operations":["records:read","records:list","records:write"]},{"files":"/Voice","operations":["find_file","read_file","write_file_start","write_file_piece","write_file_finish"]}]},"files":{"package_files":[{"package":"generate-speech","paths":["do-work","read-data"],"at":"/opt/generate-speech"},{"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},{"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},{"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"}]}},
+        "result_selector": "$.result",
+        "needs": {"expected_seconds":60,"network_egress":false,"memory_mb":8192},
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:generate-speech",
+        "provenance": {"source":"generate-speech/read-data/speak.mjs and do-work/speak-with-mlx.py, moved from the product repo's computer/speak.mjs and computer/speak-with-mlx.py"}
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:voices",
+        "status": "active",
+        "label": "My voices",
+        "job": "List, make, choose or remove the voices Trillion speaks to me in",
+        "description": "With nothing, lists the person's voices and which one is chosen; with make: { recording, label?, choose? } makes their own voice from a recording of them in their files (a stretch that ends where a sentence ends, picked by the speech model on this computer) and keeps its reference in /Voice; with choose: id chooses the voice Trillion speaks in; with remove: id removes one of their own voices (its reference stays in their files). Every voice and which one is chosen is a row of their Voices list; the shared voices are kept as rows the first time, so the person can choose them and set their speed.",
+        "input_schema": {"type":"object","additionalProperties":false,"properties":{"make":{"type":"object","additionalProperties":false,"required":["recording"],"properties":{"recording":{"type":"string","maxLength":400,"description":"A recording of the person speaking, a file in their files","x-free-text-because":"A file name in the person's files."},"label":{"type":"string","maxLength":80,"x-free-text-because":"The name the person gives their voice."},"choose":{"type":"boolean"}}},"choose":{"type":"string","maxLength":80,"description":"The voice id to speak in"},"remove":{"type":"string","maxLength":80,"description":"One of the person's own voice ids to remove"},"speech_python":{"type":"string","maxLength":400,"description":"The python on this computer that has mlx-audio and soundfile (default: the first found)","x-free-text-because":"A file path on this computer."}}},
+        "output_schema": {"type":"object","properties":{"chosen":{"type":["string","null"]},"voices":{"type":"array"},"said":{"type":"string"}}},
+        "invoke": {"kind":"computer","capabilities":[],"workdir":"/opt/generate-speech","stdout":"json","argv":["node","/opt/records-door/do-work/run-an-export.mjs","/opt/generate-speech/read-data/speak.mjs","voices"],"stdin":{"fill":{"from":"input"}},"records":{"fd":3,"rights":[{"kind":"list","id":"list:voices","operations":["records:read","records:write"]},{"kind":"list","id":"list:where-trillion-speaks","operations":["records:read","records:write"]},{"kind":"record:voice","operations":["records:read","records:list","records:write"]},{"kind":"record:speaking-place","operations":["records:read","records:list","records:write"]},{"files":"/","operations":["find_file","read_file"]},{"files":"/Voice","operations":["write_file_start","write_file_piece","write_file_finish"]}]},"files":{"package_files":[{"package":"generate-speech","paths":["do-work","read-data"],"at":"/opt/generate-speech"},{"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},{"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},{"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"}]}},
+        "result_selector": "$.result",
+        "needs": {"expected_seconds":60,"network_egress":false,"memory_mb":8192},
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:generate-speech",
+        "provenance": {"source":"generate-speech/read-data/speak.mjs and do-work/speak-with-mlx.py, moved from the product repo's computer/speak.mjs and computer/speak-with-mlx.py"}
       }
     }
   ]

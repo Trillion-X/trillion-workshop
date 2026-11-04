@@ -1,0 +1,81 @@
+{
+  "what_this_is": "Settings for carry-connections.mjs, the program on a person's own computer that connects or carries sources only that computer can reach. Each row in `connections` is one service: its vendor (the service-connections descriptor it answers for, which says `carriedBy`), the module and export that carry or connect it, and that module's own settings and words. Adding a service is a row here plus its module; the program itself never names one.",
+  "origin": "https://app.gettrillion.ai",
+  "keychain_item": "trillion-agent-work-key",
+  "state_folder": "~/.trillion/carry-connections",
+  "agent_id_prefix": "computer-",
+  "skill_prefix": "connection:",
+  "harness": "trillion-carry-connections",
+  "agent_name": "{computer}",
+  "agent_description": "The Trillion helper on {computer}: sends and reads messages through the accounts this computer carries ({carried}).",
+  "capacity": { "max_concurrent": 4, "ttl_minutes": 10 },
+  "connect_skill_prefix": "connectable:",
+  "verbs": {
+    "connect": {"availability": "connectable", "cache": false},
+    "status": {"availability": "connectable", "cache": false},
+    "read_incoming": {"availability": "connectable", "cache": false},
+    "disconnect": {"availability": "connectable"},
+    "revoke": {"availability": "connectable"},
+    "erase_incoming": {"availability": "connectable"},
+    "pause": {"availability": "connectable"},
+    "resume": {"availability": "connectable"},
+    "send": {},
+    "read": {}
+  },
+  "renew_every_minutes": 4,
+  "stale_after_minutes": 10,
+  "kept_results": 200,
+  "live_retry_ms": [1000, 5000, 15000, 60000],
+  "take_gap_ms": 5000,
+  "take_gap_ms_why": "A store changes several times a second while a file uploads, and each change used to send a take; one take per 5 seconds covers them all, so a message this computer sends waits at most 5 seconds more.",
+  "words": {
+    "unknown_verb": "This computer cannot do {verb} for {vendor}.",
+    "not_carried": "This computer does not carry {vendor} right now: {why}",
+    "too_old": "This request waited more than {minutes} minutes, so it was not sent; ask again.",
+    "failed": "It did not work on this computer: {error}"
+  },
+  "connections": [
+    {
+      "vendor": "imessage",
+      "label": "iMessage",
+      "module": "./connections/imessage.mjs",
+      "export": "imessage",
+      "database": "Library/Messages/chat.db",
+      "read_limit": 20,
+      "words": {
+        "no_account": "No iMessage account is signed in to Messages on this Mac.",
+        "asking": "macOS is asking whether the program running the helper may control Messages. Click Allow on that prompt (or turn it on in System Settings > Privacy & Security > Automation), and the helper picks it up within a few minutes.",
+        "automation": "macOS did not let the helper control Messages. Turn it on in System Settings > Privacy & Security > Automation, under the program running the helper, then ask again.",
+        "unknown_recipient": "Messages does not know that phone number or email as an iMessage address.",
+        "not_sent": "Messages did not send it.",
+        "full_disk_access": "macOS did not let the helper read your messages. Turn on Full Disk Access for the program running the helper in System Settings > Privacy & Security > Full Disk Access, then ask again."
+      }
+    },
+    {
+      "vendor": "whatsapp",
+      "label": "WhatsApp",
+      "module": "./connections/whatsapp.mjs",
+      "export": "whatsapp",
+      "session_folder": "~/.trillion/carry-connections/whatsapp",
+      "incoming": {"file": "incoming.sqlite"},
+      "keep": 500,
+      "read_limit": 20,
+      "code_seconds": 60,
+      "reconnect_codes": [408, 428, 503, 515],
+      "reconnect_after_ms": 2000,
+      "revoke_within_ms": 20000,
+      "open_within_ms": 30000,
+      "logged_out_code": 401,
+      "words": {
+        "stopped": "WhatsApp reading was stopped on this computer. Use resume_carried_service to resume it.",
+        "not_linked": "WhatsApp is not linked on this computer yet. Use connect_carried_service to start pairing and leave the phone code step to the person.",
+        "phone_needed": "Tell me the WhatsApp phone number in international format so I can start pairing.",
+        "already_linked": "WhatsApp is already linked on this computer.",
+        "logged_out": "WhatsApp logged this computer out. Use connect_carried_service to start pairing again.",
+        "not_open": "WhatsApp is not connected on this computer right now.",
+        "closed": "WhatsApp closed the connection",
+        "unknown_recipient": "That is not a WhatsApp number: give the country code first, digits only."
+      }
+    }
+  ]
+}

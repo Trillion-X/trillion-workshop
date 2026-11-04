@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/paste-policy.mjs", "read-data/paste-policy.json", "show/paste-sources.ts", "show/paste-sources.json"]
+}

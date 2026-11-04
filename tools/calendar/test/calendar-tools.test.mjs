@@ -22,7 +22,8 @@ const pick = (answer, selector) => selector.slice(1).match(/[^.[\]]+/g).reduce((
 
 test('every row\'s sample run gives what its verify says', () => {
   for (const row of rows.filter(item => Array.isArray(item.verify))) {
-    for (const check of row.verify.filter(item => item.kind === 'sample-run')) {
+    // A sample answered from recorded replies runs only behind the stand-in egress (test/every-process-row-selector.test.mjs).
+    for (const check of row.verify.filter(item => item.kind === 'sample-run' && !item.replies)) {
       assert.ok(JSON.stringify(pick(runByRow(row.id, check.input), check.output_selector)).includes(check.contains), `${row.id}: ${check.output_selector} contains ${check.contains}`);
     }
   }

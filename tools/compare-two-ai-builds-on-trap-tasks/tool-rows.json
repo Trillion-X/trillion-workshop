@@ -1,0 +1,157 @@
+{
+  "kind": "tool-rows",
+  "record_set": "compare-two-ai-builds-on-trap-tasks-tool-rows",
+  "what_this_is": "The Workshop rows of tools/compare-two-ai-builds-on-trap-tasks.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:compare-two-ai-builds-on-trap-tasks",
+        "label": "Compare two AI builds on trap tasks",
+        "status": "active",
+        "job": "Score two builds of an AI's behaviour on the same trap tasks from the calls each run recorded, and say on which tasks they differ",
+        "description": "Give left and right: each arm's trace { arm, runs: [{ task_id, state, calls: [{ tool }] }] }, written from the calls its runs recorded (never from what a run said about itself). Both are scored over the whole trap battery this tool carries (src/behavior-evals.json; each task drawn from a waste or failure class, scored by max_calls, forbids_tool, requires_tool, calls_before and ends_in), or over battery when given. A task an arm has no run for scores 0 and stays in the denominator. Returns arms (score, of, ran, classes, tasks), same_denominator and differ.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "left",
+            "right"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "left": {
+              "type": "object"
+            },
+            "right": {
+              "type": "object"
+            },
+            "battery": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "arms",
+            "same_denominator",
+            "differ"
+          ],
+          "properties": {
+            "arms": {
+              "type": "array"
+            },
+            "same_denominator": {
+              "type": "boolean"
+            },
+            "differ": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/compare-two-ai-builds-on-trap-tasks",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/compare-two-ai-builds-on-trap-tasks/do-work/compare-two-builds.mjs",
+            "compareTwoBuilds"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "compare-two-ai-builds-on-trap-tasks",
+                "paths": [
+                  "src",
+                  "do-work"
+                ],
+                "at": "/opt/compare-two-ai-builds-on-trap-tasks"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:compare-two-ai-builds-on-trap-tasks",
+        "provenance": {
+          "source": "Trillion-X/trillion src/behavior-compare.mjs, scripts/compare-arms.mjs at b92aa549f23873750ec918e86e7ed3896c9c4c0c, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "left": {
+                "arm": "new",
+                "runs": [
+                  {
+                    "task_id": "read-before-write",
+                    "state": "done",
+                    "calls": [
+                      {
+                        "tool": "read_space_record"
+                      },
+                      {
+                        "tool": "write_space_record"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "right": {
+                "arm": "old",
+                "runs": []
+              }
+            },
+            "output_selector": "$.differ",
+            "contains": "read-before-write"
+          }
+        ]
+      }
+    }
+  ]
+}

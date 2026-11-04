@@ -1,0 +1,154 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:gate-telemetry-by-privacy",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:gate-telemetry-by-privacy",
+        "listed_on": "2026-11-03T12:00:00Z",
+        "label": "May telemetry send about this page",
+        "job": "Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is",
+        "description": "Give surface (site, public-page, elsewhere, app or service) and path of the served page, optionally declared (the privacy class its handler declared) and sink (page_script, page_events, client_health or server_events). The class is the longest matching route's; a declared class can only make it more private. A surface and path no route names, or a declared class that is not known, is 'unknown', which feeds no sink. Returns class and sinks (the sinks that class may feed); with sink, also sink and may_send. A sink that is not one of the four is refused.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "surface",
+            "path"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "surface": {
+              "type": "string",
+              "minLength": 1
+            },
+            "path": {
+              "type": "string"
+            },
+            "declared": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sink": {
+              "type": "string",
+              "enum": [
+                "page_script",
+                "page_events",
+                "client_health",
+                "server_events"
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "class",
+            "sinks"
+          ],
+          "properties": {
+            "class": {
+              "type": "string"
+            },
+            "sinks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "sink": {
+              "type": "string"
+            },
+            "may_send": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "gate-telemetry-by-privacy",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/gate-telemetry-by-privacy"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/gate-telemetry-by-privacy",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/gate-telemetry-by-privacy/read-data/gate-tools.mjs",
+            "gateTelemetryRow"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "moved from Trillion-X/trillion src/telemetry-gate.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "surface": "app",
+              "path": "/spaces/team-plans",
+              "sink": "page_events"
+            },
+            "output_selector": "$.class",
+            "contains": "shared-with-others"
+          }
+        ]
+      }
+    }
+  ]
+}

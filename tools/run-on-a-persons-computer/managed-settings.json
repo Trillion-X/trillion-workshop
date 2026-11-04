@@ -1,0 +1,21 @@
+{
+  "_what": "Policy a company deploys to its Macs with a configuration profile, read by computer/managed-settings.mjs. A profile lands as a preferences file for the app's domain; each key listed in `keys` is accepted only with the type given, and every setting is reported with where it came from so the person is told who set it. Keys not listed, or with the wrong type, are ignored and named in `ignored`. A setting is acted on by the owner named in `governs`; adding a key is one row here and a reader in that owner. With no profile nothing is managed and every behaviour is unchanged.",
+  "domain": "ai.gettrillion.macos",
+  "sources": [
+    { "id": "managed profile", "file": "/Library/Managed Preferences/{domain}.plist" },
+    { "id": "managed profile for this person", "file": "~/Library/Managed Preferences/{domain}.plist" },
+    { "id": "test override", "file": "~/.trillion/managed-settings.json", "json": true }
+  ],
+  "keys": {
+    "local_models": { "type": "boolean", "governs": "computer/local-models.mjs", "what": "false stops this Mac answering model calls with models served on it" },
+    "updates": { "type": "boolean", "governs": "the Trillion Mac app updater", "what": "false stops automatic updates" },
+    "allowed_ais": { "type": "string-list", "governs": "the AIs the person may connect", "what": "ids of the AIs that may be connected; empty or absent allows all" },
+    "sign_in_methods": { "type": "string-list", "governs": "sign-in", "what": "the sign-in methods offered; empty or absent offers all" },
+    "usage_sharing": { "type": "boolean", "governs": "usage and improvement data", "what": "false keeps usage data on this Mac" }
+  },
+  "words": {
+    "off": "Your organisation turned {key} off on this Mac ({source}).",
+    "ignored_type": "{key} must be {type}.",
+    "ignored_key": "{key} is not a setting this app reads."
+  }
+}

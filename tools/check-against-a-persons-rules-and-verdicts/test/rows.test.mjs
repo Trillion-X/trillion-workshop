@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
 const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
@@ -13,10 +14,11 @@ const at = (value, selector) => selector.replace(/^\$\.?/, '').split(/\.|\[(\d+)
 const run = (argv, input) => spawnSync(process.execPath, argv, { cwd: folder, input: JSON.stringify(input), encoding: 'utf8' });
 
 for (const row of rows) {
-  test(`${row.id} answers its own sample on the last line`, () => {
+  test(`${row.id} answers its own sample on the last line`, async () => {
     for (const sample of row.verify.filter(item => item.kind === 'sample-run')) {
-      const ran = run(row.invoke.argv.slice(1), sample.input);
-      assert.equal(ran.status, 0, ran.stderr);
+      // A sample that seeds records runs as the container does, with the stand-in records door holding them.
+      const ran = sample.records ? await runRow(row, sample.input, { records: sample.records }) : run(row.invoke.argv.slice(1), sample.input);
+      assert.equal(ran.status ?? ran.code, 0, ran.stderr ?? ran.stdout);
       const answer = at(JSON.parse(ran.stdout.trim().split('\n').at(-1)), row.result_selector);
       assert.ok(String(at(answer, sample.output_selector)).includes(sample.contains), JSON.stringify(answer));
     }

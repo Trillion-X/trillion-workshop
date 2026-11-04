@@ -1,0 +1,30 @@
+{
+  "what_this_is": "Settings for sync-contacts.zsh and sync-contacts.js: where Trillion is, which Keychain item holds the person's key, how this Mac names itself as a source and as the computer that carries it, the list people land in unless the setup names another, how many people go in one request, how often it runs and resends everything, and every line it prints. The person's own choices (which list) live beside it in sync-contacts-setup.json.",
+  "origin": "https://app.gettrillion.ai",
+  "keychain_item": "trillion-agent-work-key",
+  "source": { "id": "mac-contacts", "label": "Mac Contacts" },
+  "list": { "id": "people", "label": "People" },
+  "batch_size": 200,
+  "every_seconds": 1800,
+  "resend_all_every_hours": 24,
+  "watch": "Library/Application Support/AddressBook",
+  "folder": "Library/Application Support/Trillion",
+  "launch_agent": "ai.gettrillion.sync-contacts",
+  "carrier": {
+    "skill": { "id": "connection:mac-contacts", "name": "Mac Contacts" },
+    "description": "Sends the contacts on this Mac to the person's Trillion list. It keeps contacts only; it does not send or read messages.",
+    "ttl_minutes": 90
+  },
+  "words": {
+    "installed": "Mac Contacts is on. Your contacts go to your {list} list now, then whenever they change and every 30 minutes.",
+    "ask_key": "Paste your Trillion key (from Account > Personal keys > Make a new key), then press Return:",
+    "no_key": "Trillion's key is not in this Mac's Keychain. Run the setup line from Connections > Mac Contacts again.",
+    "refused_key": "Trillion did not accept the key in this Mac's Keychain. Make a new key in Account > Personal keys, run `security delete-generic-password -s trillion-agent-work-key`, then run the setup line again.",
+    "no_access": "Trillion cannot read your contacts. Open System Settings > Privacy & Security > Contacts, allow osascript, then run the setup line again.",
+    "not_sent": "Your contacts were not sent: {reason}. They are sent again on the next run.",
+    "sent": "{changed} of {people} contacts sent to {list}: {added} added, {updated} updated.",
+    "nothing_new": "No contact changed since the last run.",
+    "not_a_job": "This Mac only sends your contacts to Trillion; it cannot do \"{job}\".",
+    "removed": "Mac Contacts is off on this Mac. Your people stay in your Trillion list."
+  }
+}

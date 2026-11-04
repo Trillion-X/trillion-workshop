@@ -1,0 +1,8 @@
+{
+  "units": [
+    {"id": "minute", "label": "minutes", "milliseconds": 60000},
+    {"id": "hour", "label": "hours", "milliseconds": 3600000},
+    {"id": "day", "label": "days", "milliseconds": 86400000},
+    {"id": "week", "label": "weeks", "milliseconds": 604800000}
+  ]
+}

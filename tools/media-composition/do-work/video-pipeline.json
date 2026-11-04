@@ -1,0 +1,114 @@
+{
+  "_what": "Staged video work that survives a stop (video-pipeline.mjs). A pipeline is a row in `pipelines` of named stages. A stage row: `id`, `name` (the words the person sees), `needs` (stage ids that must be done first), `weight` (its share of the run's progress), `retry` ({ max, wait_ms }: the same stage is tried again after a failure that may be retried, as its own recorded attempt), `requires` ({ stage, field, equals }: the stage does not run until that earlier stage's result holds that value, so space is freed only after the server has confirmed what it keeps), `finalize` (a handler name run on the next start when a stop left this stage half done). Handlers are handed in by the caller, so this file names no tool, format or place. A run is a file that is rewritten before and after every stage; stopping at any moment and starting again continues from the first stage that is not done.",
+  "report_dir": ".trillion/video-runs",
+  "pipelines": [
+    {
+      "id": "cut-to-events",
+      "name": "Cut a recording to its best moments",
+      "stages": [
+        {
+          "id": "detect",
+          "name": "Finding the moments",
+          "weight": 3,
+          "retry": {
+            "max": 1,
+            "wait_ms": 1000
+          }
+        },
+        {
+          "id": "cut",
+          "name": "Choosing what to keep",
+          "needs": [
+            "detect"
+          ],
+          "weight": 1
+        },
+        {
+          "id": "render",
+          "name": "Making the video",
+          "needs": [
+            "cut"
+          ],
+          "weight": 5,
+          "retry": {
+            "max": 2,
+            "wait_ms": 2000
+          },
+          "finalize": "finalize_render"
+        },
+        {
+          "id": "upload",
+          "name": "Sending it",
+          "needs": [
+            "render"
+          ],
+          "weight": 3,
+          "retry": {
+            "max": 3,
+            "wait_ms": 5000
+          }
+        },
+        {
+          "id": "free_local",
+          "name": "Freeing space on this Mac",
+          "needs": [
+            "upload"
+          ],
+          "weight": 0.5,
+          "requires": {
+            "stage": "upload",
+            "field": "confirmed",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "cut-to-file",
+      "name": "Cut a recording to its best moments and keep the file",
+      "stages": [
+        {
+          "id": "detect",
+          "name": "Finding the moments",
+          "weight": 3,
+          "retry": {
+            "max": 1,
+            "wait_ms": 1000
+          }
+        },
+        {
+          "id": "cut",
+          "name": "Choosing what to keep",
+          "needs": [
+            "detect"
+          ],
+          "weight": 1
+        },
+        {
+          "id": "render",
+          "name": "Making the video",
+          "needs": [
+            "cut"
+          ],
+          "weight": 5,
+          "retry": {
+            "max": 2,
+            "wait_ms": 2000
+          }
+        }
+      ]
+    }
+  ],
+  "part_size": 8388608,
+  "words": {
+    "unknown_pipeline": "No pipeline named {id} is kept.",
+    "unknown_run": "No run named {id} is kept.",
+    "no_handler": "Nothing is set up to do {stage}.",
+    "blocked": "{stage} waits until {needs} says {field} is {equals}.",
+    "failed": "{stage} did not finish: {error}",
+    "interrupted": "{stage} was stopped part way and is being finished.",
+    "done": "Finished.",
+    "working": "{stage} ({percent}% of the work).",
+    "part_unconfirmed": "{count} of {total} parts are not confirmed yet."
+  }
+}

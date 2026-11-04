@@ -1,0 +1,44 @@
+{
+  "what_this_is": "How the look editor draws each value of a look as a tuning control: which control each kind of value uses, the small picture a number gets from the variable it sets, and the faces offered for a font. Adding a kind of value, a picture or a face is a row here. `choices_by_key` lists the fixed values of a text value that is not a font (density), drawn as plain choices.",
+  "widget_by_kind": {
+    "color": "color",
+    "number": "slider",
+    "text": "choices"
+  },
+  "samples": [
+    {
+      "css_variable_prefix": "--font-size-",
+      "sample": {
+        "css_property": "font-size",
+        "unit": "px",
+        "text": "Aa"
+      }
+    },
+    {
+      "css_variable_prefix": "--radius",
+      "sample": {
+        "css_property": "border-radius",
+        "unit": "px",
+        "text": ""
+      }
+    }
+  ],
+  "number_unit": "px",
+  "text_choices_drawn_with": "font-family",
+  "font_faces": [
+    "Instrument Sans",
+    "SF Pro Text",
+    "Recoleta",
+    "Trillion",
+    "Inter",
+    "Georgia",
+    "ui-monospace"
+  ],
+  "choices_by_key": {
+    "density": [
+      "compact",
+      "standard",
+      "comfortable"
+    ]
+  }
+}

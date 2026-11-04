@@ -364,6 +364,103 @@ export const pageCraftMeasures = String.raw`(async ({ rules, selectors, freshDay
         return Number.isFinite(video.duration) && video.duration <= 0 ? { values: { ...base, kind: 'video_empty' }, element: video } : null;
       });
     },
+    // F-1117: the rendered frame. The first screen names the page; every long section has a title; sections side by side
+    // carry about the same amount; no stretch of the page is blank; the side margins match.
+    first_screen_title: rule => {
+      const titles = [...document.querySelectorAll(selectors.page_titles)].filter(shown);
+      if (titles.some(element => element.getBoundingClientRect().top < vh * rule.within_screens)) return [];
+      const first = titles[0];
+      return [{ values: { kind: first ? 'below' : 'none', text: first ? words(first).slice(0, 60) : 'no title', screens: rule.within_screens }, element: first }];
+    },
+    untitled_section: rule => all(selectors.sections).map(section => {
+      if (section.getAttribute('aria-label') || section.getAttribute('aria-labelledby')) return null;
+      if ([...section.querySelectorAll(selectors.section_titles)].some(shown)) return null;
+      const text = words(section);
+      const count = text.split(' ').filter(Boolean).length;
+      return count >= rule.min_words ? { values: { text: text.slice(0, 60), words: count }, element: section } : null;
+    }),
+    lopsided_sections: rule => {
+      const contentHeight = element => { const range = document.createRange(); range.selectNodeContents(element); return range.getBoundingClientRect().height; };
+      const hits = [];
+      for (const row of all(selectors.section_rows)) {
+        const columns = [...row.children].filter(shown).filter(child => words(child).length > 0);
+        if (columns.length < 2) continue;
+        const boxes = columns.map(column => column.getBoundingClientRect());
+        const sideBySide = boxes.every((box, at) => at === 0 || (box.left >= boxes[at - 1].right - 1 && Math.min(box.bottom, boxes[at - 1].bottom) - Math.max(box.top, boxes[at - 1].top) > 0));
+        if (!sideBySide) continue;
+        const heights = columns.map(contentHeight);
+        const tallest = Math.max(...heights), shortest = Math.min(...heights);
+        if (shortest <= 0 || tallest - shortest < rule.min_difference_px || tallest / shortest <= rule.max_ratio) continue;
+        const short = columns[heights.indexOf(shortest)];
+        hits.push({ values: { text: words(short).slice(0, 60), tallest: Math.round(tallest), shortest: Math.round(shortest), ratio: (tallest / shortest).toFixed(1), max_ratio: rule.max_ratio }, element: row });
+      }
+      return hits;
+    },
+    blank_stretch: rule => {
+      const content = all(selectors.content_marks).filter(element => !element.matches(selectors.overflow_ignored) && (element.matches(selectors.content_mark_media) || ownText(element)));
+      const spans = content.map(element => { const box = element.getBoundingClientRect(); return [box.top + scrollY, box.bottom + scrollY, element]; }).sort((a, b) => a[0] - b[0]);
+      const hits = [];
+      let reach = spans.length ? spans[0][1] : 0;
+      for (const [top, bottom, element] of spans) {
+        if (top - reach > vh * rule.max_screens) hits.push({ values: { text: words(element).slice(0, 60) || element.tagName.toLowerCase(), px: Math.round(top - reach), screens: ((top - reach) / vh).toFixed(1), max_screens: rule.max_screens }, element });
+        reach = Math.max(reach, bottom);
+      }
+      return hits;
+    },
+    side_margins: rule => {
+      const frame = all(selectors.page_frame)[0];
+      if (!frame) return [];
+      const box = frame.getBoundingClientRect();
+      const left = Math.round(box.left), right = Math.round(vw - box.right);
+      if (box.width >= vw - 1 || Math.abs(left - right) <= rule.max_difference_px) return [];
+      return [{ values: { text: words(frame).slice(0, 60), left, right, max_px: rule.max_difference_px }, element: frame }];
+    },
+    // F-1119: run with prefers-reduced-motion: reduce (critique-a-page.mjs reloads the page for it). Text on the first screen
+    // that is still invisible then waits for an animation that will never run.
+    reduced_motion_hidden: rule => {
+      const hidden = [...document.querySelectorAll(selectors.text)].filter(element => {
+        if (!ownText(element) || element.closest(selectors.overflow_ignored)) return false;
+        const box = element.getBoundingClientRect();
+        if (box.width < 2 || box.height < 2 || box.top >= vh || box.bottom <= 0) return false;
+        let opacity = 1;
+        for (let node = element; node && node.nodeType === 1; node = node.parentElement) opacity *= Number(getComputedStyle(node).opacity);
+        return opacity < rule.min_opacity || getComputedStyle(element).visibility === 'hidden';
+      });
+      // One finding per hidden block: text inside a block already named is not named again.
+      return hidden.filter(element => !hidden.some(other => other !== element && other.contains(element))).map(element => ({ values: { text: words(element).slice(0, 60) || (element.textContent || '').trim().slice(0, 60) }, element }));
+    },
+    // F-1149: accessible names are control_name; these are the Tab order, the heading order and the page's own metadata.
+    heading_order: rule => {
+      const levelOf = element => Number(element.getAttribute('aria-level')) || Number(element.tagName.slice(1)) || 2;
+      const headings = [...document.querySelectorAll(selectors.all_headings)].filter(element => shown(element) || element.matches('h1'));
+      const hits = [];
+      const ones = headings.filter(element => levelOf(element) === 1);
+      if (ones.length > rule.most_h1) hits.push({ values: { kind: 'many_h1', text: words(ones[1]).slice(0, 60), count: ones.length }, element: ones[1] });
+      if (headings.length && levelOf(headings[0]) !== 1) hits.push({ values: { kind: 'first_not_h1', text: words(headings[0]).slice(0, 60), level: levelOf(headings[0]) }, element: headings[0] });
+      headings.forEach((element, at) => {
+        if (at === 0) return;
+        const before = levelOf(headings[at - 1]), level = levelOf(element);
+        if (level > before + 1) hits.push({ values: { kind: 'skipped', text: words(element).slice(0, 60), level, before }, element });
+      });
+      return hits;
+    },
+    tab_order: rule => {
+      const hits = [];
+      for (const element of document.querySelectorAll('[tabindex]')) {
+        const index = Number(element.getAttribute('tabindex'));
+        if (index > 0 && shown(element)) hits.push({ values: { kind: 'positive', text: (words(element) || element.getAttribute('aria-label') || element.tagName.toLowerCase()).slice(0, 60), index }, element });
+      }
+      for (const element of document.querySelectorAll(selectors.focusable)) {
+        if (element.disabled || Number(element.getAttribute('tabindex')) < 0 || !shown(element)) continue;
+        if (element.closest('[aria-hidden="true"]')) hits.push({ values: { kind: 'hidden_focus', text: (words(element) || element.getAttribute('aria-label') || element.tagName.toLowerCase()).slice(0, 60) }, element });
+      }
+      return hits;
+    },
+    page_metadata: rule => rule.required.flatMap(need => {
+      const node = document.querySelector(need.selector);
+      const value = node ? (need.attribute ? node.getAttribute(need.attribute) : node.textContent) : null;
+      return String(value ?? '').trim() ? [] : [{ values: { kind: 'missing', text: need.name, selector: need.selector } }];
+    }),
   };
   const found = [];
   for (const rule of rules) {
