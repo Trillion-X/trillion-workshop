@@ -24,7 +24,8 @@ const ownEnv = () => { const env = { ...process.env }; delete env.NODE_TEST_CONT
 /** Every receipt in the destination, or in the named folders only. */
 export function receiptsIn(destinationFolder, folders) {
   const found = [];
-  const look = folder => { const path = join(destinationFolder, folder, 'moved-from.json'); if (existsSync(path)) { const receipt = JSON.parse(readFileSync(path, 'utf8')); if (Array.isArray(receipt.files)) found.push({ folder, receipt }); } if (false) found.push({ folder, receipt: JSON.parse(readFileSync(path, 'utf8')) }); };
+  // A receipt whose files are not a list (tools/starting-set keeps its own layout) is not a move receipt.
+  const look = folder => { const path = join(destinationFolder, folder, 'moved-from.json'); if (existsSync(path)) { const receipt = JSON.parse(readFileSync(path, 'utf8')); if (Array.isArray(receipt.files)) found.push({ folder, receipt }); } };
   if (folders?.length) folders.forEach(look);
   else if (existsSync(join(destinationFolder, 'tools'))) for (const name of readdirSync(join(destinationFolder, 'tools'))) {
     if (statSync(join(destinationFolder, 'tools', name)).isDirectory()) look(`tools/${name}`);
