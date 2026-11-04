@@ -1,0 +1,42 @@
+{
+  "_what": "The product settings file start-a-place writes on a computer (do-work/start-a-place.mjs `productSettings`) and names in the place service's PRODUCT_SETTINGS (trillion-rust src/account_files/identity.json `launch_setting`, since trillion-rust 3b2a4d10; shape tests/fixtures/product-settings.json). Every value is the one the engines on the computers compiled in before that commit, copied from trillion-rust 3b2a4d10^: `word`, the hosts, `brand_mark_path` and `restore_placeholder_owner` from src/account_files/identity.json; `secret_home` from src/secrets/credential-home.json `app_secrets` (`home` and `items`); `root_credentials_folder` and `carried_from` from that same file; `tools_source` from src/runtime/workshop/tool-runs.json `workshop.source` (`repository`, `branch`, `first_start_commit`, `resolve`, `resolve_accept`, `archive`, and as `source_hosts` the hosts its resolve and archive addresses reach). `word` never changes for a product that has data: it is the vault's key context. No `hosting_app_report` (a place is not the hosting app: its report is its place config's `report`) and no `host_event_kinds` (a Linux place has no Mac shell sending events, and trillion-rust bac30d37, the feed's newest release, does not declare that section and would refuse the file).",
+  "word": "trillion",
+  "site_host": "gettrillion.ai",
+  "app_host": "app.gettrillion.ai",
+  "brand_mark_path": "/brand/current/mark.svg",
+  "restore_placeholder_owner": "trillion-local-owner",
+  "secret_home": {
+    "home": {
+      "kind": "keychain",
+      "program": "/usr/bin/security",
+      "unnamed_account": "{word}",
+      "missing_status": 44
+    },
+    "items": {
+      "account_key": "{word}-agent-work-key",
+      "device_key": "{word}-resource-connection-key"
+    }
+  },
+  "root_credentials_folder": ".bitfield/credentials",
+  "tools_source": {
+    "repository": "Trillion-X/trillion-workshop",
+    "branch": "main",
+    "first_start_commit": "7588b8c8444db58708a6baa9587416039f809cc6",
+    "resolve": "https://api.github.com/repos/{repository}/commits/{branch}",
+    "resolve_accept": "application/vnd.github.sha",
+    "archive": "https://codeload.github.com/{repository}/tar.gz/{commit}",
+    "source_hosts": [
+      "api.github.com",
+      "codeload.github.com"
+    ]
+  },
+  "carried_from": {
+    "snapshot_address": "catalog::credentials-vault::state",
+    "sealed_under_address": "held-values::sealed-under-root",
+    "root_binding": "HELD_VALUES_ROOT_KEY",
+    "root_identity_context": "trillion held values root identity",
+    "person_key_context": "trillion held values person key",
+    "source": "old-worker",
+    "record": "carried-from-old-worker"
+  }
+}

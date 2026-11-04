@@ -1,0 +1,6 @@
+{
+  "_what": "The signed engine release feed every computer start-a-place starts or updates follows, written as the place config's `release_feed` (trillion-rust src/native_entry/computer.rs, src/native_entry/computer/releases.rs) when the request names none. `urls` is the feed tools/publish-an-engine-release publishes, `public_keys` the key its builder's install printed (both public: the feed is served to anyone and the key only verifies). `releases` is the folder the engine downloads releases into and keeps its `current` pointer in; it is inside /var/lib/place, the one folder the place service may write, so no ReadWritePaths is added. Since trillion-rust #120 a computer runs `<releases>/current` itself; the service unit start-a-place writes starts it too when it is there (`placeUnit`).",
+  "urls": ["https://engine-releases.gettrillion.ai/engine-releases/feed.json"],
+  "public_keys": ["d9e305a98d6a7001db6f493d17100a799050bf9ade9e3f1e9eb0d9c59d322fb9"],
+  "releases": "/var/lib/place/releases"
+}

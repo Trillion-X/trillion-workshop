@@ -12,9 +12,17 @@
 // provider's credential (the row's vault_key), descriptor 4 the name provider's. They never reach argv, a file, the
 // environment or the answer.
 //
-// usage: start-a-place.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | remove LEASE_FILE
+// Every computer it starts or updates gets the product settings file the engine reads (PRODUCT_SETTINGS, trillion-rust
+// 3b2a4d10; its values are read-data/product-settings.json), a service unit naming it, and the signed release feed
+// (read-data/release-feed.json) in its place config, so the computer adopts releases and runs <releases>/current
+// itself (trillion-rust #120). `update` does the same to a computer that already serves: it keeps the three files as
+// they were, installs the new ones, restarts and checks; if the service does not come up, or its sign-up page does not
+// answer 200 at its public name, the old files are put back (do-work/update-a-computer.sh). `rollback` puts one
+// update's old files back by hand.
+//
+// usage: start-a-place.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE STAMP | remove LEASE_FILE
 import { readFileSync, createReadStream } from 'node:fs';
-import { isAbsolute, dirname, resolve as resolvePath } from 'node:path';
+import { isAbsolute, dirname, basename, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
@@ -23,6 +31,10 @@ import {
 } from './rent-a-machine.mjs';
 
 const SETUP = fileURLToPath(new URL('./set-up-the-machine.sh', import.meta.url));
+const UPDATE = fileURLToPath(new URL('./update-a-computer.sh', import.meta.url));
+const readData = name => JSON.parse(readFileSync(new URL(`../read-data/${name}`, import.meta.url), 'utf8'));
+export const SETTINGS = readData('settings.json');
+const COMPUTER = SETTINGS.computer;
 const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
 const absolute = (path, what) => {
   if (typeof path !== 'string' || !isAbsolute(path)) throw Object.assign(new Error(`${what} must be an absolute path.`), { exit: 2 });
@@ -78,6 +90,68 @@ export function releaseFeed(feed) {
   return structuredClone(feed);
 }
 
+/** The feed the request names, the shipped one (read-data/release-feed.json) when it names none, or none for `null`. */
+export function feedOf(request) {
+  if (request.release_feed === null) return null;
+  if (request.release_feed !== undefined) return releaseFeed(request.release_feed);
+  const { _what, ...shipped } = readData(SETTINGS.release_feed);
+  return releaseFeed(shipped);
+}
+
+/** The product settings file the engine reads (trillion-rust src/account_files/identity.rs): read-data's, checked for the
+ * fields every engine since 3b2a4d10 needs, as the bytes written on the computer. */
+export function productSettings(values = readData(SETTINGS.product_settings)) {
+  for (const key of ['word', 'site_host', 'app_host', 'brand_mark_path', 'restore_placeholder_owner']) {
+    if (typeof values[key] !== 'string' || !values[key]) throw refused(`The product settings need a ${key}.`);
+  }
+  if (!/^[a-z0-9-]+$/.test(values.word)) throw refused('The product settings word is lowercase letters, digits and dashes.');
+  const text = `${JSON.stringify(values, null, 2)}\n`;
+  if (Buffer.byteLength(text) > 65536) throw refused('The product settings are larger than the engine reads (65536 bytes).');
+  return text;
+}
+
+/** The place service unit. The engine is the release `<releases>/current` names when that release is there (the feed's
+ * newest the computer adopted), else the one /opt/place/current names (the release start-a-place installed). Since
+ * trillion-rust #120 an older copy starts current in its own place anyway; an engine from before that stops with exit
+ * code 0 after a switch, so the service restarts always, and its next start is current. PRODUCT_SETTINGS names the
+ * product settings file (`COMPUTER.product_settings`); the data folder setting is kept for engines from before
+ * 3b2a4d10. A releases folder outside /var/lib/place is added to ReadWritePaths (the service runs ProtectSystem=strict). */
+export function placeUnit({ hostName, engine, releases }) {
+  const word = /^[A-Za-z0-9._-]+$/, path = /^(\/[A-Za-z0-9._-]+)+$/;
+  if (!/^[A-Za-z0-9.-]+$/.test(hostName ?? '')) throw refused('The host name is letters, digits, dots and dashes.');
+  if (!word.test(engine.file ?? '') || !/^[A-Z][A-Z0-9_]*$/.test(engine.data_env ?? '') || !/^[A-Za-z0-9._/-]+$/.test(engine.data_dir ?? '')) throw refused('engine.file, engine.data_env and engine.data_dir are plain names.');
+  if (releases && (!path.test(releases) || releases.split('/').some(part => part === '.' || part === '..'))) throw refused('The releases folder is an absolute path of plain names.');
+  const writable = ['/var/lib/place', ...(releases && !`${releases}/`.startsWith('/var/lib/place/') ? [releases] : [])];
+  // `$$` is systemd's literal dollar: the shell, not systemd, reads R and E.
+  const current = releases ? `[ -x ${releases}/current/${SETTINGS.program} ] && R=$$(readlink -f ${releases}/current) E=${SETTINGS.program}; ` : '';
+  return `[Unit]
+Description=A place that keeps accounts (${hostName})
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=place
+Group=place
+WorkingDirectory=/var/lib/place
+ExecStart=/bin/sh -c 'R=$$(readlink -f /opt/place/current) E=${engine.file}; ${current}exec env ${engine.data_env}="$$R/${engine.data_dir}" ${COMPUTER.product_settings_setting}=${COMPUTER.product_settings} "$$R/$$E" serve ${COMPUTER.config}'
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=${writable.join(' ')}
+ProtectHome=true
+PrivateTmp=true
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target
+`;
+}
+
 /** The places a new account's rows name by default, as the request gives them. */
 export function defaultPlaces(places) {
   if (!places || typeof places !== 'object' || Array.isArray(places)) throw refused('default_places must be { holders: [place ids], answering: [place ids], voters?: [place ids] }.');
@@ -95,7 +169,8 @@ export async function placeConfig(machine, request, price, run = onMachine) {
   const reach = `https://${request.name.host_name}`, config = structuredClone(request.place_config ?? {});
   Object.assign(config, { listen: `127.0.0.1:${request.port}`, accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: request.public_origin ?? reach });
   config.report = { ...config.report, reach, ...(price && { cost_per_month_cents: price.cents }) };
-  if (request.release_feed !== undefined) config.release_feed = releaseFeed(request.release_feed);
+  const feed = feedOf(request);
+  if (feed) config.release_feed = feed;
   if (request.default_places !== undefined) config.default_places = defaultPlaces(request.default_places);
   for (const from of request.config_from_release ?? []) {
     const value = JSON.parse(await run(machine, `cat ${q(`/opt/place/current/${from.file}`)}`))[from.key];
@@ -118,20 +193,30 @@ async function signUpStatus(hostName, { fetchImpl, wait, tries }) {
   return status;
 }
 
-const asEngine = (engine, argv) => `runuser -u place -- env ${engine.data_env}=/opt/place/current/${q(engine.data_dir)} /opt/place/current/${q(engine.file)} ${argv.map(q).join(' ')}`;
+const asEngine = (engine, argv) => `runuser -u place -- env ${engine.data_env}=/opt/place/current/${q(engine.data_dir)} ${COMPUTER.product_settings_setting}=${q(COMPUTER.product_settings)} /opt/place/current/${q(engine.file)} ${argv.map(q).join(' ')}`;
 
 /** The folder the engine adopts feed releases into, when the request's release_feed names one by absolute path: the
  * place service runs with ProtectSystem=strict, so set-up makes this folder writable for it. */
-export const adoptFolder = request => (typeof request.release_feed?.releases === 'string' && request.release_feed.releases.startsWith('/') ? request.release_feed.releases.replace(/(.)\/$/, '$1') : null);
+export const adoptFolder = request => {
+  const releases = request.release_feed === undefined ? feedOf(request)?.releases : request.release_feed?.releases;
+  return typeof releases === 'string' && releases.startsWith('/') ? releases.replace(/(.)\/$/, '$1') : null;
+};
+
+/** Write the product settings file and the service unit, and reload systemd. */
+async function writeServiceFiles(machine, request, hostName, run) {
+  await run(machine, `install -d -m 0755 ${q(dirname(COMPUTER.product_settings))} && install -m 0644 /dev/stdin ${q(COMPUTER.product_settings)}`, productSettings());
+  await run(machine, `install -m 0644 /dev/stdin ${q(COMPUTER.unit)} && systemctl daemon-reload`, placeUnit({ hostName, engine: request.engine, releases: adoptFolder(request) }));
+}
 
 /** Set the machine up, install the release, write the config, start serving, and read it all back. */
 async function serve(machine, request, price, { run, ...deps }) {
   const engine = request.engine, adopt = adoptFolder(request);
   await run(machine, `sh -s -- ${[request.name.host_name, request.port, engine.file, engine.data_env, engine.data_dir, ...(adopt ? [adopt] : [])].map(q).join(' ')}`, readFileSync(SETUP));
   const release = await installRelease(machine, engine, run);
+  await writeServiceFiles(machine, request, request.name.host_name, run);
   const config = await placeConfig(machine, request, price, run);
   await run(machine, 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json', `${JSON.stringify(config, null, 1)}\n`);
-  const placeId = engine.id_argv ? (await run(machine, `cd /var/lib/place && ${asEngine(engine, [...engine.id_argv, '/var/lib/place/place.json'])}`)).trim() : null;
+  const placeId = engine.id_argv ? (await run(machine, `cd /var/lib/place && ${asEngine(engine, [...engine.id_argv, COMPUTER.config])}`)).trim() : null;
   await run(machine, 'systemctl enable place.service >/dev/null 2>&1; systemctl restart place.service && sleep 3 && systemctl is-active place.service');
   return { release, placeId, signUp: await signUpStatus(request.name.host_name, deps) };
 }
@@ -153,7 +238,8 @@ export async function rentAMachine(request, { machineToken, nameToken, fetchImpl
 }
 
 export async function startAPlace(request, { machineToken, nameToken, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
-  if (request.release_feed !== undefined) releaseFeed(request.release_feed);
+  feedOf(request);
+  productSettings();
   if (request.default_places !== undefined) defaultPlaces(request.default_places);
   const { machine, price, arch, lease, host_name } = await rentAMachine(request, { machineToken, nameToken, fetchImpl, wait, run });
   const served = await serve(machine, request, price, { run, fetchImpl, wait, tries });
@@ -166,6 +252,42 @@ export async function installOnPlace(leaseFile, request, { fetchImpl = fetch, wa
   const release = await installRelease(machine, request.engine, run);
   await run(machine, 'systemctl restart place.service && sleep 3 && systemctl is-active place.service');
   return { release, sign_up_status: await signUpStatus(lease.hostName ?? request.name.host_name, { fetchImpl, wait, tries }) };
+}
+
+const updateArgs = (operation, stamp, releases, settle = COMPUTER.settle_seconds) => ['sh', '-s', '--', operation, stamp, COMPUTER.config, COMPUTER.unit, COMPUTER.product_settings, COMPUTER.backups, releases, String(settle)].map((word, i) => (i < 4 ? word : q(word))).join(' ');
+
+/** Give a computer that already serves the product settings file, the unit that names it and the release feed in its
+ * config: the files are staged in `<backups>/<stamp>/new`, then update-a-computer.sh keeps the old ones in
+ * `<backups>/<stamp>/old`, installs, restarts and checks the service, and puts the old ones back if it does not come up.
+ * The sign-up page at the computer's public name is read last; if it does not answer 200 the old files are put back
+ * here too. The config is the computer's own with only `release_feed` set: nothing else in it changes. */
+export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 12, run = onMachine, settle, stamp = `update-${new Date().toISOString().replace(/[:.]/g, '-')}` } = {}) {
+  const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
+  const hostName = lease.hostName ?? request.name?.host_name, feed = feedOf(request), settings = productSettings();
+  if (!feed) throw refused('An update writes the release feed; release_feed: null names none.');
+  const config = JSON.parse(await run(machine, `cat ${q(COMPUTER.config)}`));
+  config.release_feed = feed;
+  const unit = placeUnit({ hostName, engine: request.engine, releases: feed.releases });
+  const staged = `${COMPUTER.backups}/${stamp}/new`;
+  await run(machine, `install -d -m 0700 ${q(staged)}`);
+  for (const [file, text] of [[COMPUTER.config, `${JSON.stringify(config, null, 1)}\n`], [COMPUTER.unit, unit], [COMPUTER.product_settings, settings]]) {
+    await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/${basename(file)}`)}`, text);
+  }
+  try { await run(machine, updateArgs('apply', stamp, feed.releases, settle), readFileSync(UPDATE)); }
+  catch (error) { throw Object.assign(new Error(`The update did not start and was rolled back (${COMPUTER.backups}/${stamp}/old): ${error.message}`), { rolled_back: true }); }
+  const signUp = hostName ? await signUpStatus(hostName, { fetchImpl, wait, tries }) : null;
+  if (hostName && signUp !== 200) {
+    await run(machine, updateArgs('rollback', stamp, feed.releases, settle), readFileSync(UPDATE));
+    throw Object.assign(new Error(`https://${hostName}/sign-up answered ${signUp} after the update, so it was rolled back (${COMPUTER.backups}/${stamp}/old).`), { rolled_back: true });
+  }
+  return { stamp, backup: `${COMPUTER.backups}/${stamp}/old`, product_settings: COMPUTER.product_settings, release_feed: feed, sign_up_status: signUp };
+}
+
+/** Put one update's old files back by hand: its stamp names the backup. */
+export async function rollBackAComputer(leaseFile, request, stamp, { run = onMachine, settle } = {}) {
+  const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
+  await run(machine, updateArgs('rollback', stamp, feedOf(request)?.releases ?? readData(SETTINGS.release_feed).releases, settle), readFileSync(UPDATE));
+  return { stamp, rolled_back: true };
 }
 
 /** The monthly price the request's machine would cost, read before anything is rented. */
@@ -209,21 +331,24 @@ async function pipe(fd) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const [operation, first, second] = process.argv.slice(2);
-  const usage = 'usage: start-a-place.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | remove LEASE_FILE (machine credential on fd 3, name credential on fd 4)';
+  const [operation, first, second, third] = process.argv.slice(2);
+  const usage = 'usage: start-a-place.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE STAMP | remove LEASE_FILE (machine credential on fd 3, name credential on fd 4)';
+  const onLease = ['install', 'update', 'rollback'].includes(operation);
   const json = path => readRequest(resolvePath(path));
   try {
-    if (!first || !['price', 'rent', 'start', 'status', 'install', 'remove'].includes(operation) || (operation === 'install') !== Boolean(second)) throw Object.assign(new Error(usage), { exit: 2 });
+    if (!first || !['price', 'rent', 'start', 'status', 'install', 'update', 'rollback', 'remove'].includes(operation) || onLease !== Boolean(second) || (operation === 'rollback') !== Boolean(third)) throw Object.assign(new Error(usage), { exit: 2 });
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : readLease(resolvePath(first));
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
-    const needsMachine = operation !== 'install' && Boolean(machineProvider(asked ? json(first).machine.provider : lease.provider).base);
+    const needsMachine = !onLease && Boolean(machineProvider(asked ? json(first).machine.provider : lease.provider).base);
     const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '' };
     const answer = operation === 'price' ? await priceOfAPlace(json(first), tokens)
       : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price }) => ({ lease, host_name, arch, price }))
       : operation === 'start' ? await startAPlace(json(first), tokens)
       : operation === 'status' ? await placeStatus(resolvePath(first), tokens)
         : operation === 'install' ? await installOnPlace(resolvePath(first), json(second))
-          : await removeAPlace(resolvePath(first), tokens);
+          : operation === 'update' ? await updateAComputer(resolvePath(first), json(second))
+            : operation === 'rollback' ? await rollBackAComputer(resolvePath(first), json(second), third)
+              : await removeAPlace(resolvePath(first), tokens);
     process.stdout.write(`${JSON.stringify(answer)}\n`);
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
