@@ -10,20 +10,6 @@
       "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/scripts/waiting-controls.mjs",
       "source_identity": "1f:09af68acc56a6834409b73e4fc6278685d52dd24c249f598cc9de38f282be644",
       "identity": "1f:7e2040afca253dccd2439488191cc17d435fc366bb968efb09d7d43c85f4d665"
-    },
-    {
-      "from": "src/workspace/addresses.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/src/workspace/addresses.mjs",
-      "source_identity": "1f:846683e62a83158fca7617c755afb840bd6cc84943363c482298496aa1adb0f1",
-      "identity": "1f:6a8a532b37fc0b2f536647cb856eba16c15edd33db514d060da7fe279f43e5db"
-    },
-    {
-      "from": "src/workspace/screens.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/src/workspace/screens.mjs",
-      "source_identity": "1f:f0ed2de02fce29b48abfd428ca7c5803bb99b1afb8bad71692dda7cec6454d27",
-      "identity": "1f:f03341b66d9ff05877e280c1f4356ddb14a1f2d5918cdc8b43cc29a54dab01fc"
     }
   ]
 }

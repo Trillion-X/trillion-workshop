@@ -4,7 +4,7 @@ import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { rational, multiplyAmounts, divideAmounts, priceUsageTree } from '../../take-payments/read-data/resource-usage.mjs';
 import { pinServiceResourceTerms, serviceUsageResources } from '../../shared-code/src/service-resource-pricing.mjs';
-import { offerUsage, offerWithUsage, usageAtPrice } from '../../shared-code/src/usage-meters.mjs';
+import { offerUsage, offerWithUsage, usageAtPrice } from '../../price-and-sell-by-contract/src/usage-meters.mjs';
 
 export const usageQuoteIdentity = value => bytesToHex(blake3(new TextEncoder().encode(JSON.stringify(value))));
 

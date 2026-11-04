@@ -368,13 +368,6 @@
       "reused": true
     },
     {
-      "from": "src/responses.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/src/responses.mjs",
-      "source_identity": "1f:1a7792f82e5d8c69d2200d3618d71eb075aaea1a18b9b78899a9af4cb08b85e6",
-      "identity": "1f:ff1d7c24ec14aae8462cdbb488be88d44a606e649ec169da42c13517b7cec3a1"
-    },
-    {
       "from": "src/saved-instruction-provenance.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/saved-instruction-provenance.json",
@@ -497,13 +490,6 @@
       "source_identity": "1f:bce56b995981b340f3f8ff298dfe4bb766549e79ea1d948d0b96d846ccc745e2",
       "identity": "1f:69cf609201df4b0db386033f4805ebee195ef8aab4a76532fff70aeff7ee2994",
       "reused": true
-    },
-    {
-      "from": "src/usage-meters.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/src/usage-meters.mjs",
-      "source_identity": "1f:70db817bc8b564fa8cd188039ec826e30f5b02187d68506c7f1042c57b605289",
-      "identity": "1f:22bd7419b1ea2f77cd1ac9c1dfb5c48fa644651181e13bd913502a497b846a0a"
     },
     {
       "from": "src/web-push.mjs",

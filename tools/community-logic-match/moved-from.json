@@ -5,20 +5,6 @@
   "calls": [],
   "files": [
     {
-      "from": "src/community-logic/match/bounded-candidates.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/community-logic-match/src/community-logic/match/bounded-candidates.mjs",
-      "source_identity": "1f:b3389493789e5b40aeeb61003dcabcb837d834b438d5faf98a72c4aed81afd51",
-      "identity": "1f:b3389493789e5b40aeeb61003dcabcb837d834b438d5faf98a72c4aed81afd51"
-    },
-    {
-      "from": "src/community-logic/match/match-intake-evidence.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/community-logic-match/src/community-logic/match/match-intake-evidence.mjs",
-      "source_identity": "1f:8a3d06d57fbba500bbdb56de4a8cab1e73b52ebb2a7dbab90df9f2c6ba839c3c",
-      "identity": "1f:e34795c50e1f069ac4c29036999442391518a89def9ac2f2ad994d40d43cccbc"
-    },
-    {
       "from": "src/community-logic/match/select-pairs.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/community-logic-match/src/community-logic/match/select-pairs.mjs",

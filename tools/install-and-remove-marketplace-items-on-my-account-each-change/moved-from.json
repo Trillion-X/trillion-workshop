@@ -5,13 +5,6 @@
   "calls": [],
   "files": [
     {
-      "from": "src/marketplace-configurations.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/install-and-remove-marketplace-items-on-my-account-each-change/src/marketplace-configurations.mjs",
-      "source_identity": "1f:b7b73102ddd68e06de9900a4d4241145400c06444b24077a2b0ec517c196ff71",
-      "identity": "1f:e522efb20c5be859e61a22b953b489c79d0a3226ab0c6da1b512ecf79c93001a"
-    },
-    {
       "from": "src/native-marketplace-installations.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/install-and-remove-marketplace-items-on-my-account-each-change/src/native-marketplace-installations.mjs",

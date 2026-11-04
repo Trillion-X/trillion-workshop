@@ -18,8 +18,8 @@
 
 import settings from '../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json' with { type: 'json' };
 import { controlOf } from '../../hold-one-thing-until-done/read-data/needs-you-hold.mjs';
-import { placeOfAddress } from '../src/workspace/addresses.mjs';
-import surfaces from '../src/workspace/screens.mjs';
+import { placeOfAddress } from '../../hand-off-jobs-between-agents/src/workspace/addresses.mjs';
+import surfaces from '../../shared-code/src/workspace/screens.mjs';
 
 /** Whether a screen's description draws anything to press: an action, a switch or a field, anywhere in it. */
 export function pressable(description) {

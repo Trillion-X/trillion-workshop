@@ -5,13 +5,6 @@
   "calls": [],
   "files": [
     {
-      "from": "src/let-go-of-table.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/move-the-rows-a-persons-store-kept-in-tables/src/let-go-of-table.mjs",
-      "source_identity": "1f:a1f98764c7a2592e62e36c8902ad032e49bdda7fe0c533d0490ece04c0e5ab52",
-      "identity": "1f:41158b1402ba5c461ce1c14c010c480d6f5ce4b08de52dd9b9261967796bea2d"
-    },
-    {
       "from": "src/tables-into-records.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/move-the-rows-a-persons-store-kept-in-tables/src/tables-into-records.mjs",

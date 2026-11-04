@@ -23,7 +23,7 @@
 //
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js';
-import { secret } from './worker-secrets.mjs';
+import { secret } from '../../start-from-any-landing-page/src/worker-secrets.mjs';
 
 const encoder = new TextEncoder();
 const CONTEXT = encoder.encode('trillion shared field match');

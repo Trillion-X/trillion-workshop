@@ -43,7 +43,7 @@ import settings from '../../hand-off-jobs-between-agents/src/notices.json' with 
 export { settings as noticeSettings };
 import { alsoSay } from '../../organize-my-files/src/tool-reply.mjs';
 import { keptList } from '../../keep-a-short-list/src/kept-list.mjs';
-import { handoffNotice } from './handoff-notice.mjs';
+import { handoffNotice } from '../../hand-off-jobs-between-agents/src/handoff-notice.mjs';
 
 const LIST = 'notices';
 const READERS = 'notice-readers';

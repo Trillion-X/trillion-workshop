@@ -17,7 +17,7 @@
 //   4. A failed send throws, so the store's scheduler sets the day aside and tries it again; the day is marked counted
 //      only after the tool answered.
 //
-import { historyDays, offerUsage, unitsAbove, usageRow } from '../../shared-code/src/usage-meters.mjs';
+import { historyDays, offerUsage, unitsAbove, usageRow } from '../../price-and-sell-by-contract/src/usage-meters.mjs';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 // Sent a little after midnight UTC, so the day it counts is over everywhere the provider looks.
