@@ -1,0 +1,31 @@
+{
+  "_what": "The places besides its own a screen can be opened, offered wherever a screen is (a sidebar row's menu and hover card, a Find anything result): each `request` is laid over the open request (parts/ui/show/placeable-surface-intent), as a pane beside the one in use (`placement`) or a new floating window (`open_placement`: its layer, its size, and `anchor`, where its centre sits as fractions of the screen). Clicking opens a screen in its own place; these are the others. A new place is one row.",
+  "choices": [
+    {
+      "id": "open-beside",
+      "label": "Open in new pane",
+      "icon": "Columns2",
+      "request": {
+        "placement": "right"
+      }
+    },
+    {
+      "id": "open-as-window",
+      "label": "Open as a floating window",
+      "icon": "PictureInPicture2",
+      "request": {
+        "open_placement": {
+          "layer": "overlay",
+          "size": {
+            "width": 760,
+            "height": 560
+          },
+          "anchor": {
+            "x": 0.5,
+            "y": 0.5
+          }
+        }
+      }
+    }
+  ]
+}

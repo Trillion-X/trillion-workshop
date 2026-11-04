@@ -26,15 +26,15 @@
 //      (authority operator) gives.
 //
 
-import data from './workspace/show-rules.json' with { type: 'json' };
-import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { changedRecord, everyRule, givenEditRules, givenRules, profileRules, ruleProblem, showDecision, typeProblem, typesOf } from './workspace/show-rules.mjs';
-import { compileRules, ruleVocabulary } from '../parts/formula-engine/rules/compile-rules.mjs';
-import setupSettings from './setup-steps.json' with { type: 'json' };
-import { DECLARED_CONTROLS } from '../parts/ui/show/show-rules/declared-controls.mjs';
-import { ACCOUNT_RULE_FIELDS, accountFacts, accountRuleFields, createdAtFor, declaredAccountTags } from './work-for-ais.mjs';
-import { decideRuleEffects } from './rule-decisions.mjs';
-import { failureOf } from './failure.mjs';
+import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
+import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { changedRecord, everyRule, givenEditRules, givenRules, profileRules, ruleProblem, showDecision, typeProblem, typesOf } from '../../set-up-my-account/read-data/show-rules.mjs';
+import { compileRules, ruleVocabulary } from '../../formula-engine/rules/compile-rules.mjs';
+import setupSettings from '../../set-up-my-account/read-data/setup-steps.json' with { type: 'json' };
+import { DECLARED_CONTROLS } from './declared-controls.mjs';
+import { ACCOUNT_RULE_FIELDS, accountFacts, accountRuleFields, createdAtFor, declaredAccountTags } from './account-facts.mjs';
+import { decideRuleEffects } from '../../set-up-my-account/read-data/rule-decisions.mjs';
+import { failureOf } from '../../set-up-my-account/read-data/failure.mjs';
 
 export const isShowRulesPath = path => path === '/show-rules' || path.startsWith('/show-rules/');
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);

@@ -1,0 +1,64 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DECIDE-WHEN-THINGS-SHOW-DOOR",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:finish:simple-workspace-by-rules, 2026-11-03: show rules become a Workshop tool a person, an AI and a wake can run",
+  "message_multihash": "1f:506f4df492083e12871b2d1ecb81cef87dc15e8c34357f473359f1b231a596ff",
+  "quote": "it coudl all be confiurable thorugh hte workflwo trigger formuela engiens ... to drastically rduce the comlexityand capcbclties of the s the sdiabr and screen arnamgent"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "see, keep, take away, switch and share a person's show rules and kept presets over their own show-rules record through their records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/decide-when-things-show/do-work/show-rules.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/decide-when-things-show/read-data/",
+   "why": "This tool's moved code (ports/show-rules-store.json): trillion src/show-rules-store.mjs makeShowRules read (190f72754e line 461), set (484) and remove (525), byte for byte but for imports. do-work/show-rules.mjs only reads the person's records through the door, hands them to that store, and answers what it would write."
+  },
+  {
+   "repository": "trillion",
+   "path": "src/workspace/show-rules-admin-screen.tsx",
+   "why": "a2e1365f33 lines 123-145 and 170: sharing a kept preset is its copy show-types-shared:<id> = { label, types } and its grant sharing:<that label> = { record, people: [{ principal, key_blake3 }], changed_at }, a shr_ key whose BLAKE3 alone is kept, a person already named refused, and stop sharing taking the person out of the grant. That screen draws the page; these rows answer the same records for an AI and a wake."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "see, keep, take away, switch and share a person's show rules and kept presets over their own show-rules record through their records door",
+    "see when things show through the records door",
+    "keep a show rule over the person's own record",
+    "share a kept show type"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "seeWhenThingsShow",
+    "keepAShowRule",
+    "switchAKeptShowType",
+    "shareAKeptShowType"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "6f84ed4"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/decide-when-things-show/test/show-rules.test.mjs"
+  ]
+ }
+}
