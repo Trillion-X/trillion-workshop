@@ -5,9 +5,9 @@
   "commit": "5dc302be373027de2185edcf1d6137fd4cca3552"
  },
  "counts": {
-  "to_move": 1176,
+  "to_move": 988,
   "moved": 481,
-  "being_moved": 1
+  "being_moved": 189
  },
  "rows": [
   {
@@ -2148,1130 +2148,1506 @@
   },
   {
    "path": "dev/bitfield-docs/ai-space-projection-wake-cost-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/ai-space-projection-wake-cost-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:a75e4b20a82b6e484a96142ea07f8f7f95ddc1ee31d702a03f2dcf43c78589b1); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/amie-availability-integrated-owners.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/amie-availability-integrated-owners.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:f10534422b931e104cf45fda3e736891ca4a013f7a41be322c09b62d8ae8c18f); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/anatomy-marketplace-source.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/anatomy-marketplace-source.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:2c2b62c2e2df82f1e80422c94ec5009295218888773e2b2a399b5fed8cc2305a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/article-preparation-shared-owners.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/article-preparation-shared-owners.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:9c02752945b0760ad0e5d084e0c8de00ba26da5d6e51a76983efd2fbdc853dd6); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/audit-durable-delivery-and-account-recovery.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/audit-durable-delivery-and-account-recovery.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:b81c7722a63b104fb764f19a6a8d2925247fe8ea2a846164f11611e7c1c1128a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/audit-engine-and-extension-repairs.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/audit-engine-and-extension-repairs.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:1a9a3912f390abee950071453a51e3db9e7624799144e545c68c84812d020b79); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/audit-storage-current-source.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/audit-storage-current-source.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:a9b353512c1ad8969260320e70e7cc645c75abe5d4421386b5756228ea061cf8); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/broadcast-selected-waiting-counts.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/broadcast-selected-waiting-counts.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:9d43a686ad007e7eba3e4d5fed9a0ddb38762b4f13098e6d5e9aa2dd88dd503b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/build-progress-current-checks-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/build-progress-current-checks-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e76647fb6cdabab6bc56e9220c5d8c1fd5d18fd73326f2da3fb9e9940d184e82); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/camera-recording-content-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/camera-recording-content-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:62ab35737f4ed427d4e72830bd0d9afba44794ac8e061f6425c36de016d17764); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/capacity-entry-recovery-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/capacity-entry-recovery-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:dc6e89f3e25dc65ca301a0fc3ff8d9252fd29e03ccf49acffa01535ee481a6af); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/capacity-reusable-pages.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/capacity-reusable-pages.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:9ede648e9fb995427167c0cba5cc8da46da28191a1b7eca1bbc4ffc6589dc596); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/capacity-warning-request-admission.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/capacity-warning-request-admission.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:cb9a8b8d476f851ffc1720dafe1931d0ec0bfdfcc466b4a244f18f0745e2487e); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/capture-provenance-speaker-carry.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/capture-provenance-speaker-carry.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:d050251d1d362ff4b29c752fe5950ae6fe3972325d7b253937166ef6543e83e7); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/card-source-retention-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/card-source-retention-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e8dc0184f4c6824df61a7b772697eb87673c8197fef9ef53519cec446fba7ed1); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/carried-program-discovery-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/carried-program-discovery-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:79095ed3b771f80dffead5a1a6bb85643fb25cb812e7fbb99805155aa988dc9b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/cold-erasure-key-metadata-batching.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/cold-erasure-key-metadata-batching.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:24b33e67c52bce8e701fb66d43d8a79ed48c580e30970b7d21b0030f75b36c6d); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/community-schedule-bounded-discovery-release.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/community-schedule-bounded-discovery-release.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:ea28380ace5bfc38d45546a6ebb2eeee7a02f1c7ec56f5674e6a4bed6327b9d7); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/community-schedule-page-reads-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/community-schedule-page-reads-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:d71b5963f56526f1ea67defc8bd0759a03ffb8b6c53eb62c038cbc52d6c4284a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/company-attachment-selections.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/company-attachment-selections.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:14c1f7a98c5cb86db62b5d1b8e6c8f4b2de1ce8d4285796482b3f1f118686195); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/configuration-route-short-module-release.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/configuration-route-short-module-release.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:740043fba0d70cc6390b9d2bc7f47dd02feec926c7619a35ff1bc696675ecd89); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/controls-mail-tour-release.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/controls-mail-tour-release.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:21e645a7bd20cbcc6ac93463f326a7caa457d83345c894a387789f247b1017f3); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/controls-preview-shared-outline.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/controls-preview-shared-outline.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:47489f445ea20a8778c9774f7b5d553008746c1760ac1c2b243f023d9ff85c2f); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/copy-page-inline-key-metadata.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/copy-page-inline-key-metadata.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:bfead8a80a69862ea4525e292b5b4da5c7eed86d3be7982cc0c5ad5cfb8fab31); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/copy-page-key-owner-proof.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/copy-page-key-owner-proof.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:8807953253e2fabfbd1e5cd6a0bcc6f0b4ee0c6ae15cec7ef89fe11d74bfb83d); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/copy-requested-bucket-stability.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/copy-requested-bucket-stability.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:988d9e3aff018aac9ab5305aaee91e7b8754763f4ccdb32d4cea7df9b2fb8b98); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/css-resource-shared-public-owner.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/css-resource-shared-public-owner.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:6a1f4012981ae809e0c442f6f8d676a1755384b2b5e18c30c9e72a634abe36be); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/current-erasure-keys-batch-reader.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/current-erasure-keys-batch-reader.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:264e64d4f8d2766b41aa4d0cad8ff07bd9acb36de1e49a9ee2d8bdce14c53d8b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/customer-index-declarations-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/customer-index-declarations-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:f234b383cae99e72cfc590a935a17695eb17ef2e0b8da5ecb4cab0ebccfcc842); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/delivery-hydration-live-residual-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/delivery-hydration-live-residual-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:437b9a6e1c816f59de4a64e231a9891341df00dc6854b283e2f1ea90a8877a03); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/deploy-guard-file-cost.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/deploy-guard-file-cost.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:df2ecf5decc13a5c5bd68a48716952c641572a0cf26db3659c2c965ef1394374); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/deploy-provider-snapshot-recovery.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/deploy-provider-snapshot-recovery.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e1f7e205658e6f2ed8592713f3112e6b620e4580e3fc4e820d0722b63efb642c); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/device-copy-progress.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/device-copy-progress.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:12a277fe428c7a81f97accbc2b5054e2fc076d65f60a81b33e97196ed5a2d390); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/directory-range-reader-frontiers.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/directory-range-reader-frontiers.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:fe981d6ed181eb1c50154ec9a9c863855528e9ef86c39a1a6a7db0378b690274); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/dynamic-interface-implementation-2026-10-13.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/dynamic-interface-implementation-2026-10-13.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:d4f67faf9ff5aba6820ac48d9bfbe26000d50eb911ead9741a689ae8ade4d2d8); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/dynamic-interface-joint-constraints-2026-10-13.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/dynamic-interface-joint-constraints-2026-10-13.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:5272aba14970ab30acc2f630a401832f4a62b83618fcf9bb957a6af48374e387); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/dynamic-interface-live-continuation-2026-10-14.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/dynamic-interface-live-continuation-2026-10-14.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:7214d784f54c9aa60c4191ef5312c1f5ac3893654918adb2a3181bd0199079ca); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/dynamic-interface-reference-and-architecture-2026-10-13.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/dynamic-interface-reference-and-architecture-2026-10-13.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:1b2f25128bce19c85a4553d410fd973a581411a24e812c44267ba3d4ccfa6153); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/exact-range-projection-budget-progress-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/exact-range-projection-budget-progress-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:b8636fa2c6d00c677ddf20f51fd48a582fabab50db650a9a7e5bba9327015c15); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/execution-wrapper-batched-fixture-release-2026-10-13.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/execution-wrapper-batched-fixture-release-2026-10-13.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:922714b7a624c25d9f678fa8540e96029367ffa24d7b62b630360bd159b2325a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/fallback-speaker-selected-words-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/fallback-speaker-selected-words-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:9335375be65fc8bfcb45c55973ca277952f49b13f7bf91d8dc91aa4beb1061de); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/field-cost-baseline-and-notary-entry-boundaries-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/field-cost-baseline-and-notary-entry-boundaries-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:9304650cd4c073c94b66b3993f4229aadcb36e9d3cdb53a1f7484cc908ae299d); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/file-classification-release-fixture.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/file-classification-release-fixture.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:109bd291ad35aacabd893dc77a95e380d4b326806c68fae3040efc4cabd8f883); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/filmcraft-public-port-release-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/filmcraft-public-port-release-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:8dca2c86b195a68a38563b360d69aa7a550b075400e121adaf4e59125be1e265); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/finite-range-active-run-groups-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/finite-range-active-run-groups-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:77340f10c82ee3986c78e5f4b9e2013404f9c35912fc83b522f477f4bbc3ee70); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/full-store-entry-recovery-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/full-store-entry-recovery-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:bce0faf435506c38d8ad84217d43b89e0748bb23f7d08b30b957d493a77dacc3); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/grouped-frontier-recovery-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/grouped-frontier-recovery-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:f83d90bb639d5a473c38d181361d2575c0d3c00802215da891d95a41051fc0c0); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/grouped-seek-recovery-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/grouped-seek-recovery-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e0fb093912096b6a038fd87a0b6224119b0df892607ef7b0bb099ce914bd2548); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/handoff-card-title-query-bound-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/handoff-card-title-query-bound-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:b2cfb1592342f1095b64e59b58a824cd735866134522bc674b7cf1a9d7f8f2df); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/handoff-history-workerd-witness-callback-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/handoff-history-workerd-witness-callback-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:11c933ae5376e33968f3b3cb04d3c60f5a73af848a82017075fd52c15631866b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/handoff-take-review-due-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/handoff-take-review-due-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e110a2aa4fe3bfd5aca3f3fcb72337b6b45cb6f47bc1740f66429eab7b271284); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/handoff-verified-json-memory-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/handoff-verified-json-memory-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:41a5a8409f65b9455c4be856508d566925a7df1ceb248fb2ee2e363c4183dfc8); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/hosted-browser-provision-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/hosted-browser-provision-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:2d66ca19ec1c708f31c08c857265147a15e0f014fce802510c7531ef2d83a437); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/hosted-tour-baseline-recovery-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/hosted-tour-baseline-recovery-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:39569bca270d75e8641fee1d0c607d6da22a65eec17bd526bb710afe4cb709bd); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/inbound-root-admission-release-2026-10-13.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/inbound-root-admission-release-2026-10-13.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:046c7f36a4898013da9736092aa774afa8be0f9483d9ff47cd49932a552b99f1); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/index-group-fairness-and-fixed-frontier-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/index-group-fairness-and-fixed-frontier-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:7c011e3cc7457f28422325b443736bde10779fec7a22a19ff02cb0d850e9d3f3); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/indexed-meta-discovery-release-2026-10-13.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/indexed-meta-discovery-release-2026-10-13.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:6a255219e13ccc97c545275aff9a1013234cf906e30b810e569e15fd6b20715b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/inflight-fold-backlog-drain-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/inflight-fold-backlog-drain-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:6b34958a09c4b6b8026816210168104f6299afeeeea316122e2acdec13b0bc6b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/interrupted-alarm-recovery-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/interrupted-alarm-recovery-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:9b67c693270dfc0672454ab5ab9723e688d75bdbb3ad8ccd91707e777e31817d); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/job-attribution-release-fixture.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/job-attribution-release-fixture.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:8c5465ce4947424d5a054dcb263f2e73e9f2f7fe634f160c9423c2eefed9eaa1); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/keep-running-invalidation-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/keep-running-invalidation-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:49a0c12e832bab47dbb7c64a89cfc0adbc31d6cfab0598efa36176cbaf2b8658); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/kept-page-value-lengths-2026-10-13.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/kept-page-value-lengths-2026-10-13.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:50f1357df0b8e9ae6bf95740156c37bf33a4ad41d32969e5fe5367e82896f283); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/kept-range-successor-fence-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/kept-range-successor-fence-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:3f4bfaca0a537f12acfe99e6750791fd13165555b61bf12928aecc8c56cd0274); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/kept-runs-batch-fences-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/kept-runs-batch-fences-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:0712fd1a52688911ebe9155078c1322847c597c5c9101f80e47cba109a3725c1); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/kept-runs-live-cursor-page-retention-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/kept-runs-live-cursor-page-retention-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:56888b37cfaafb77a432818c0cf189a3a6afc8bd78a008b082d280ecba4975cb); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/kept-runs-physical-cursor-release.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/kept-runs-physical-cursor-release.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:3435ec924c174e22b8a0d07ae0e3f4ff9e0980a5a1662a42ddf193869fec17e4); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/kept-seed-accounting-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/kept-seed-accounting-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:47536b21b968d01cf7bfc31252c79e208b6b76f857e7e4997683ca1bb7f8047a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/kept-successor-cache-proof-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/kept-successor-cache-proof-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:dd747be017325b718dc7b07f3c7b4b3c557ef1e28d25503c524f320a38ff44df); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/list-workflow-actions-and-timed-publication.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/list-workflow-actions-and-timed-publication.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:8b6414939d7e9905700697129d307a4de42afd9981956665274fb9d00a41a488); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/live-controls-verifier-source-pin.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/live-controls-verifier-source-pin.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:d4af65f8ba3ae9c3450658f28f84e96142e3eee884523e6a53ebadae206a153b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/live-deployment-check-targets-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/live-deployment-check-targets-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:2f9f89800481e5814d557c83ce4a3ecadd602e903d857b3a40fabc1b5878f544); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/local-choice-retention-count-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/local-choice-retention-count-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:f1f78408ac3de3e080471eb4aaee23c5add79f0860acd914fca411a0664a176a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/mac-configuration-carry-release.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/mac-configuration-carry-release.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e5f580915f3cec78b0986988b81a86d7df7e37338f0f2dfb20f39156070d2cb2); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/mac-extension-provisioning.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/mac-extension-provisioning.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:92b2e20b42cf5994c92a95a5efbe798993b065c5de4c50e57470154ccd5eee8b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/macos-release-owner.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/macos-release-owner.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:c89743cdd6d53bb4efaa734aaadbf2a22ed011882d12fa0efa8fe2e128150f8f); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/macos-signing-keychain-access.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/macos-signing-keychain-access.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e0e461ce28987a67a04b5340e1924476af30a9b8a3ab9da8d1ee092931a42197); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/member-field-cache-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/member-field-cache-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e2ad0e3db4434309f70f140bb066c4e95d917ec0c5a1c0fe9bfb279771eb4053); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/member-fields-many-and-lazy-clips-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/member-fields-many-and-lazy-clips-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:5370d3b84e1a3c49f098870abb0da07e4afd4b857f87af32f3798cc2c61fbf5e); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/message-batch-root-matching.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/message-batch-root-matching.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:c8b9423936fdb49888c89b7584781eabd6365ee2fd73735d47406e2314330030); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/message-speaker-delta-pages.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/message-speaker-delta-pages.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:9b3df021fcdfb1b8d8e6811d1baf184f0048c89f7728d3441beabdbf19cb5a9c); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/meter-admission-fixture-owner-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/meter-admission-fixture-owner-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:d06cda44e567b7d0715a70f2eec30766682fd9362acbb8042d5607697aed8288); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/meter-external-admission-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/meter-external-admission-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:a43d07365a0d75669c286d6656b6da86f859910f5a33927214b627c442650542); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/multipart-log-replay-stream-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/multipart-log-replay-stream-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:a310382f913480224fde58cb8a8d788fdcd50ff96d0b6f6855dfeb4bf46eb8b5); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/namespace-control-deadline.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/namespace-control-deadline.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:30ef6d7ef763418fd0b84e3938fdedfe0bbd8cbc75e3c59ba83134e3e5914750); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/namespace-name-batch-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/namespace-name-batch-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e36c03afbf9a0ed647a40da4c7fff814209fd9dd24b0399de588398b8a02bc74); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/namespace-private-byte-preparation.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/namespace-private-byte-preparation.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:b02f268933ce42b42f0a4375223100a41f54359ff1e458f4e9709717ab17e5e9); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/namespace-recipient-byte-cache-and-origin-cleanup.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/namespace-recipient-byte-cache-and-origin-cleanup.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:2781b2992adfd7cda998a13237bb818344a5f8cb3e43c4a7aae0c0702c295c04); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/namespace-request-bounded-reads-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/namespace-request-bounded-reads-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:7b7519a651529a04c04a88d3e48b8c8bdb8d9c6fda433924d641079fd201aafe); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/namespace-storage-descriptor-reuse.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/namespace-storage-descriptor-reuse.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:8be3735b26ea0447f126f9715c4c4edd60a1aff13d7359586892d23aac3a0070); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/namespace-whole-files-phases-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/namespace-whole-files-phases-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:21129175b968a867bd489d8b80ee4de52ef6bb2aec5c4536f7153e6ab7f45cae); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-account-reconciliation.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-account-reconciliation.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e2246f2bd1e223717d947e61f5fbf5e2479dd2def7b627e3d697f4245abe6e10); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-advancing-small-reads.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-advancing-small-reads.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:03dd1be4572a75a89ff7a78f842d69d3106c829c2a6e8f88eae4bdacfd02d878); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-automation-original-commit-2026-10-15.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-automation-original-commit-2026-10-15.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:f13db21955bae3be05e3471b91095322d71ad806241a9df88e1ce1463ee2effc); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-automation-run-now-original-recovery-2026-10-15.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-automation-run-now-original-recovery-2026-10-15.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:b728fb2b6e4e80080920d4e63c02fac534f7f468e0af570ae0f6293bbc97b9b5); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-carried-automation-original-outcome-2026-10-15.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-carried-automation-original-outcome-2026-10-15.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:f5e3b337288aea3724df6a13c98eabc8b65d3209fdf906f9bca6d3a3677dbea1); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-complete-result-source.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-complete-result-source.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:1f7fefa6a4fb57f23de0c2d69ee0e3bd619823f8107b4f363faf6776ced74a83); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-configuration-api-origin-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-configuration-api-origin-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:79d4daccc40f64ea911a7760e54d28b58f5a4fe3a7b4d73d7c5ba66c40e8cb93); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-enumeration-progress.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-enumeration-progress.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:b6eed99296fd5c36f978407dde48d6002c6f830c8dfba3a3dd437d553e6e2446); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-final-refusal-replay-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-final-refusal-replay-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:9a7670e700c097d01613e82a0ec5058c0149545dfdc30b87b0b63847dfa2d30f); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-handoff-history-recovery.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-handoff-history-recovery.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:ef9a16263e35710c4a0d54239dd8c4659ec973e693da43d8c1a4ba3abb37c59e); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-http-range-demands.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-http-range-demands.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:4275e704cf37106b739ebadf820ce0c9e4dc51830e5254463f51f42c8917ce4b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-independent-read-sequences.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-independent-read-sequences.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:2d773a48f92d74e9f5cf3874c437c7ca36beb75ee14852a94289850263e03b5a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-local-mutation-original-outcomes-2026-10-15.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-local-mutation-original-outcomes-2026-10-15.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:dfb772f5297b4432ec50a2bdf3c108aeb50593f5df1a60c77b8d5943d0639bbc); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-looks-bounded-consumption-2026-10-15.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-looks-bounded-consumption-2026-10-15.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:52b9d2a014d803608fc03ebed6732fb1fa871c4e6af4e6baed991a521aa14a3f); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-read-database-flush.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-read-database-flush.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:17b6698920865a8a9e060ce9b24dfe45fa4510bf5d7db789d7003b17a83bb110); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-reference-stable-attributes.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-reference-stable-attributes.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:f024c4918dd661b8ab284dec250cbd976531d704556aeab3014da8c3c37dfff6); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-release-prerequisites.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-release-prerequisites.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:35992f017c94d1307c721b180a3795fd50d038822db73fbd470c71f3b425496f); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-same-lease-refusal.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-same-lease-refusal.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:2ea2fbeaa2feed6d5c9fdc9639d7c6b0145d81444ce16bf88300e8a48852fc64); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/native-startup-http-status-recovery-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/native-startup-http-status-recovery-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:f00c32dfd049b8d7025fb59e61cf98840709e282e2c3a5a0f657c25d737d5f1e); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/network-social-addressed-owners-2026-10-15.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/network-social-addressed-owners-2026-10-15.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e1ae1cff664ac15f5a4b56c35070043ac99758942473e7e053e2c096f0164384); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/neutral-revision-native-import-closure.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/neutral-revision-native-import-closure.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:ccf98c04c1916cfcec2e7cf79696f565c4dddd57069d56806b9852ba90ca444a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/neutral-schema-accounting-release-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/neutral-schema-accounting-release-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:f8c94283d9fb0a427cac4d7484e1dad539e2506d94632db45a018f9e3e446785); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/neutral-write-revision-accounting-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/neutral-write-revision-accounting-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:8fb0ebb71e98bec04d9da4782e15cf921aaaf665d8f22226c73ed41106a3b372); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/open-work-projection-release-2026-10-13.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/open-work-projection-release-2026-10-13.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:0ac3885e74dd6194932663febdfc3eb5d55e11586abd4e951b288a71f0ff0ef2); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/ordinary-kept-seek-query-preservation.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/ordinary-kept-seek-query-preservation.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:6691860b318a366b57649879971ea554c3fb33402a0ebcaab96dd74e3a8115c6); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/own-ai-schedule-cost.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/own-ai-schedule-cost.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e8c9be01fba4c8fa3c729bc2c13ff5e9677e8de0432362a6b2cfeee603412b7c); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/packed-range-existence-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/packed-range-existence-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:a1289f12c1d4788539ecd6519f8190ce2e803adb2e02df0c86d605646bcf18fe); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/page-reclaim-deploy-guards-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/page-reclaim-deploy-guards-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:d869655ea3a69a88a15df0f82d57955862e3bc548c1d5d06d8150bc7e25fcd6a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/partial-capture-index-positive-reads-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/partial-capture-index-positive-reads-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:b9fe64b0b612dad28e93494d38a3bfea8227bb7bbd0a1c819d0a4e5f3f1796c2); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/post-reviewed-value-approval.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/post-reviewed-value-approval.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:c41c3733d81f00e49dd03f516c2c34c7fc4fec503062e362ee40290853cda337); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/receiver-filing-control.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/receiver-filing-control.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:ab97938fc5b49c20e8550f64e15ee71f835d2becc084e6918c1406c326242ed8); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/record-content-byte-encoding.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/record-content-byte-encoding.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:fa0aa692fffe4ee71b60c09f7dd1ff7d9c2eab884cbaa1d350ce382b889d373b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/record-copy-bucket-directory.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/record-copy-bucket-directory.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:4d8094a7d69784775542f506ff5f86eb09cbacd5316a9a562d15e895efbfffc6); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/record-copy-phase-attribution-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/record-copy-phase-attribution-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:2cf23ce36543103e9ba09ea2600997e3274763b58beda0525b52575d24315e9c); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/record-feed-streaming-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/record-feed-streaming-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:a5a286bc446ae3126e1dc74208abbfd4cba807f6ace66c4012363fcdeb250ef9); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/record-index-partial-coverage-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/record-index-partial-coverage-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:1efa35c9caa7f38449777eadc1e4751fffa04f9ecdd028b0a5412582906e6333); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/record-log-key-only-range-selection-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/record-log-key-only-range-selection-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:eb1ef9788744c8773078418f6a83d1965c162f3a9892bdf9aecad46d4724a2b0); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/record-log-merge-projection-fairness-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/record-log-merge-projection-fairness-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:ff0978179a736285b7f24fe00daa5ddaf5f1a7a24cf7986f2df562c823412546); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/record-log-raw-field-batching-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/record-log-raw-field-batching-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:deacb0fae67c2eafcf7153b67eff05008d811907a1fc093f3f3161329866dc04); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/record-sizing-and-expansion-allocation-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/record-sizing-and-expansion-allocation-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:673017ffe6cc1d2279ef59ca1db0fd7d8ca04b7b0dfe8847996919c4f85e73bf); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/replay-checkpoint-snapshot.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/replay-checkpoint-snapshot.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:1285a5ccdb815779bb99d94288418edd34c8f62c7f5506ba676394bcc1d56153); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/route-budget-timed-background-2026-10-13.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/route-budget-timed-background-2026-10-13.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:616e410e4e8ebad870632ca11aa4ccab1317e80181e1c6dcf6a28141f5fb828b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/rpc-phase-recovery-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/rpc-phase-recovery-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:00d806cd00434bd9600aaee5cbb3ff72c634ff5485e76510f73105e8c7e7a7e8); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/saved-view-display-release-fixture.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/saved-view-display-release-fixture.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:cbd174fdcfeb9ab054a131c744b61abb3f4a793b0e3c7abcc3073092d932cc71); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/scalar-budget-progress-cost.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/scalar-budget-progress-cost.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:22cfd60391705dc57bf0ff2f54db749d97ec82930ce12ca7c8890a43ddd664c7); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/scheduler-admission-recovery.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/scheduler-admission-recovery.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:1cc4d3677fe5e7144554c15d2fe1c27cb47a5edb032de6abfd4a84e701e91b31); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/scheduler-overlapping-arm-recovery-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/scheduler-overlapping-arm-recovery-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:9a711e05cf485d83f9a1e8158216b6ab92d565f6c7addfac638343b8cae7d8d3); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/scheduler-pending-source-status-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/scheduler-pending-source-status-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:bd79e77378b8a5aee1a94f834b6d1bcba4b2a9c4c3fd13c080af76527d2f1388); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/scheduler-source-data-evidence-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/scheduler-source-data-evidence-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:fad2639072a6625a81821c52a9a4fdc2bdac40a40ef110f0986e6b521366d0d3); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/scheduler-wake-boundary-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/scheduler-wake-boundary-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:dd455a973459bc88d9eb746a1613aa914aaca644ebc2df7a0d4f4361cc0fa729); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/search-constructor-remote-probes-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/search-constructor-remote-probes-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:2d4ba1da64b8391057bf14db9ef4c4cb1a7a016dab55de26e267965725a0e8a9); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/search-execution-scope-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/search-execution-scope-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:15cfae7f2ecc7314da945af1dc712e289d02d9fc7f7bbf17b6d2aeb50226bda6); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/search-fts-rank-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/search-fts-rank-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:5fa5c8da5b5c9b52b646f319cace5a1ea447988d1c3b11922cc76d131b65478b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/search-planned-readiness-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/search-planned-readiness-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:858ed06c49bd19c56fbb8719fa8ae4d6674514c8c0b96bdf6e2c318b9ebf63d2); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/search-record-wake-retention-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/search-record-wake-retention-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:3879861c3f5617712421b83ee0df3eb2df6615fd67c60d7c07af6d02a2187ec3); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/seeded-uuid-fault-release-2026-10-13.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/seeded-uuid-fault-release-2026-10-13.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:fbd150c87459a8c1161bb492082ed7af99863e577b90fbf3e5f5705cce08b558); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/selection-range-cache-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/selection-range-cache-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:021a825799b31ff5c0710be37865957169ebcc6be1c515dd1314c1ea46b4cfd7); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/setup-finished-request-projection-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/setup-finished-request-projection-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:a0b27860ebeda527acb3e02a6eb5163b581abb46a5985ea326ce08ee1bea3c60); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/setup-finished-work-admission-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/setup-finished-work-admission-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:6f9c3b4d3dcbf4be700c574ab453e6b4206dd7b101886326353e15857116859e); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/setup-namespace-bookkeeping-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/setup-namespace-bookkeeping-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:7ee4ba463ff7036276f6606516ea92712799005279cdc4e99c5befe45ea1d601); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/setup-time-index-scalar-presence.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/setup-time-index-scalar-presence.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:db699e7a47ccd019eed974f56771959bd919c207ea72e7dac80494face34b446); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/shared-json-keys-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/shared-json-keys-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:fc3ef251df563fb016df7edf86d5fc9b24dbaff3e5925f4beca9f0a473dda22a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/shared-miss-allocation-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/shared-miss-allocation-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:db640fa5a0a96145b06d279bb33910cf0545cbecc67bad7059892f5551b77d0f); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/show-rule-edit-authority.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/show-rule-edit-authority.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:6db2e5f85827fe404016ca07ef63246c1ed38188f38aa81ebe78db05dd8b68e7); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/sites-frappe-builder.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/sites-frappe-builder.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:6903ad842fa56ed81196459dc13e0896e9eec7cc4ee42d6060f8773bb67699bf); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/sites-shared-import-live-proof.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/sites-shared-import-live-proof.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:0a3a1c6219bc79612f9bb704e20f20948a6a84e567037599d44f64eeb559ced3); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/source-finish-opened-metadata.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/source-finish-opened-metadata.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:66800fbcff6c18730717b7f4d4ee0a36946c2d58543fa3a50009af4bea79959d); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/space-describe-route-inventory-2026-10-13.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/space-describe-route-inventory-2026-10-13.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:801976e87c679876021c10a7a5433a09623b78f72aaa750a4fb07e0cbda1c322); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/sparse-grouped-reverse-admission-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/sparse-grouped-reverse-admission-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e199469cc7ad7f60d9271b1c2ce8bc31fb7936e07912a45d7476d7d2ffeecec4); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/spend-policy-publication-recovery.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/spend-policy-publication-recovery.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:6b45c92773240fd8a7e2663c1efe9a5065d5c8f8724bba03fe36eadb466b5112); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/sql-cost-frozen-clock-evidence-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/sql-cost-frozen-clock-evidence-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:13ef236a6ad8dff6dbfefd068ada300a43a852d9ea31f9c6e97f949ffd9b3872); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/startup-optional-catalog-and-current-gates.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/startup-optional-catalog-and-current-gates.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:f803c46c03ee7aa8820a5e4df1d6fce45e8c7642eab92f5799d1896960fd2e9e); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/story-content-admission.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/story-content-admission.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:79133514c8a9426f44231236d9912b6341d71f631a124ea48ea3d30bbe4575b7); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/table-admission-first-pending.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/table-admission-first-pending.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:ca0d4dafcffdd4f378f6b80587bbc2e3451ee7e4636c66f0711eab16433d025a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/table-build-active-rebuild-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/table-build-active-rebuild-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:ac3cb2eb35e6a7f38122e28916f50213260d5993f5661bc4e5e67ae0ed30bb13); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/table-build-read-amplification-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/table-build-read-amplification-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:1253ac6700fe28fb8edfc5c008fedc6cc92982ae004bd3ade167e574ceb51d09); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/task-version-byte-admission-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/task-version-byte-admission-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:68c4b9ef835b313cd1cbd0ad01412eb6887178fe90fdde9f1c24d87e691ee5fa); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/tied-message-progress-and-selected-field-cost-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/tied-message-progress-and-selected-field-cost-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:413be6a81cad2bb0129fcf4a742a5b0a96c6ec1046acef7f002b1fa542bf12fe); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/tour-durable-progress.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/tour-durable-progress.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:364caa2569612b00218718ed2a740b7908a9caa322d0a320004efaf5e092f30b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/typed-owner-refusals.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/typed-owner-refusals.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:ef405ddebc62fc45b4c8a0186ace39d61238d673eabd067a7651b9d4a0e4630c); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/unexpected-owner-status-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/unexpected-owner-status-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:ad266997f337fbc200caf88c19b05613a849524af8d7346661f212da650d8718); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/verified-page-reclaim-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/verified-page-reclaim-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:208619d58e417f63ef2465fe19014e42077f02410bb53cd9322a89fed34a2c75); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/voice-guesses-title-projection.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/voice-guesses-title-projection.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:045eed010390da3c33063ed861799810b71579177c5a7c6994653b1835d61038); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/voice-session-group-bounds-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/voice-session-group-bounds-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:7452f3b4ba4c6572f1032c4474859bb76680d1545d7e5d44b7afef8d6a2883b5); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/voices-group-directory-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/voices-group-directory-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:11e026f6247dbde7bc35c06fad88bc410b20b3d3accb87d8266667a72620f401); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/waiting-stuck-work-card-projection-2026-10-10.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/waiting-stuck-work-card-projection-2026-10-10.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:1563b82577c794a358cd1a322a891674826f1b0197387ad01441ef83b8ddbb8b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/walk-cursor-memory-recovery-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/walk-cursor-memory-recovery-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:8ac59b9ababd9923f6dc36583e5b0e9975d7b06b3978b04d81cf56f534a5c8a3); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/weigher-queue-ownership-2026-10-11.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/weigher-queue-ownership-2026-10-11.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:b45f1b9ae16a9bd8395c765f24709e3af74036d66e6c600c2a89bc06f0226604); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/workflow-authenticated-actors.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/workflow-authenticated-actors.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:241c339f10f5d6592a3591b4c877b8c64fa08c1d0a332bebbdeddd16027fb0f8); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/workflow-catalog-read-errors.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/workflow-catalog-read-errors.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:e9a8d69970573aec383526011eea19a2d3fab55e3dea1d5773c09621519f10c9); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/workflow-output-display.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/workflow-output-display.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:bdcd961f443afc104758233ea7ecfc81ad360eff46a140765f1322bd29e773a5); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/workflow-terminal-failure-recovery.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/workflow-terminal-failure-recovery.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:85fd57a10744a9bf3288028475453270ab105d6a64e4642613d17f0b40496493); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/workshop-deferred-control-test-release.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/workshop-deferred-control-test-release.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:6272a6b94838de660871eaa226aff1ad7fa27357efeca57ab9f0da89648ffa9d); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/workshop-history-final-source-lease-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/workshop-history-final-source-lease-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:8edc339bbeeae12eba6d4c9947be0b6759994c8524ac6798abb1b6896a93ec1b); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/workshop-history-sql-expanded-byte-limit-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/workshop-history-sql-expanded-byte-limit-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:92a85c32cf3d5a258c74cd61fedcb08c559775e1e2c34543a3a20d1fdad35a8d); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/workshop-retained-task-admission.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/workshop-retained-task-admission.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:64ff97d6bce9d00680f2a5d8ff158df28285d3e48f7488929d02c2e1d94fa8c0); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/bitfield-docs/workshop-task-history-large-row-2026-10-12.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/bitfield-docs/workshop-task-history-large-row-2026-10-12.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:dde5eee9d104ebb69862ef47991310b5c9473a3eaa230c3c86f8e4de3070663a); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
    "path": "dev/deleted-code-homes.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/dev/deleted-code-homes.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/44",
+   "evidence": "Was to_move: no copy, receipt, retired-paths row or open PR named it (checked trillion-apps, trillion-workshop #182 #199, trillion-rust #102 #141 #162 #164). Copied byte for byte at 5dc302be37 (cmp equal; 1f:f3389d1e25cf5310c4530b721ea5a41a408dc50671a15da3b1c797d9e9fc81ff); receipt row in trillion-apps/from-old-trillion/moved-from.json on branch claude/old-trillion-sweep-dev (draft PR #44, not merged). Private repo because it names the owner and his local paths.",
    "group": "dev"
   },
   {
