@@ -1,0 +1,16 @@
+{
+  "_what": "How edits of one recording are kept as versions beside the untouched original (media-versions.mjs). Every edit is rendered as a NEW version from the original; the original is version 1 and is never changed. `min_gap_seconds` is the shortest time between two publishes of one recording, `min_seconds` the shortest edit worth publishing. `words` say each refusal in plain words.",
+  "min_gap_seconds": 60,
+  "min_seconds": 5,
+  "original": { "id": "original", "label": "Original" },
+  "words": {
+    "RENDERING": "A version of this recording is still being made. Wait for it to finish, then publish again.",
+    "PUBLISHING": "Another version of this recording is being published. Wait for it to finish.",
+    "TOO_SOON": "A version of this recording was published a moment ago. Wait {wait_seconds} seconds, then publish again.",
+    "TOO_SHORT": "This edit is shorter than {min_seconds} seconds, which is too short to publish.",
+    "DUPLICATE": "A version with the id \"{id}\" already exists.",
+    "NOT_FOUND": "This recording has no version \"{id}\".",
+    "ORIGINAL": "The original is kept as it was made and cannot be removed.",
+    "DEFAULT": "This is the version people see by default. Choose another default first."
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "_what": "Camera models and their supported live network routes. A route describes the transport and the camera's physical setup; Trillion receives the stream itself (src/camera-live.mjs, one Cloudflare Stream live input per named camera); the receiver and recording code only consume the route fields. The shipped catalog is empty: a camera's profile is a person's own setup and lives in that person's account data.",
+  "devices": []
+}

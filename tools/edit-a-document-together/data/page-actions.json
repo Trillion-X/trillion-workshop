@@ -1,0 +1,78 @@
+[
+  {
+    "id": "rename",
+    "label": "Edit title",
+    "icon": "Pencil",
+    "group": "page",
+    "opensItem": true
+  },
+  {
+    "id": "spacing",
+    "label": "Page layout",
+    "icon": "SlidersHorizontal",
+    "group": "page",
+    "opensItem": true
+  },
+  {
+    "id": "versions",
+    "label": "Version history",
+    "icon": "History",
+    "group": "page",
+    "history": true,
+    "opensItem": true
+  },
+  {
+    "id": "duplicate",
+    "label": "Duplicate",
+    "icon": "Copy",
+    "group": "organize",
+    "opensItem": true
+  },
+  {
+    "id": "reorder",
+    "label": "Move",
+    "icon": "ArrowUpDown",
+    "group": "organize",
+    "items": [
+      {
+        "id": "move-up",
+        "label": "Up one position",
+        "icon": "ArrowUp",
+        "order": {
+          "offset": -1
+        }
+      },
+      {
+        "id": "move-down",
+        "label": "Down one position",
+        "icon": "ArrowDown",
+        "order": {
+          "offset": 1
+        }
+      },
+      {
+        "id": "move-to-top",
+        "label": "To first position",
+        "icon": "ArrowUpToLine",
+        "order": {
+          "edge": "start"
+        }
+      },
+      {
+        "id": "move-to-bottom",
+        "label": "To last position",
+        "icon": "ArrowDownToLine",
+        "order": {
+          "edge": "end"
+        }
+      }
+    ]
+  },
+  {
+    "id": "delete",
+    "label": "Delete",
+    "icon": "Trash2",
+    "tone": "destructive",
+    "group": "destructive"
+  }
+]

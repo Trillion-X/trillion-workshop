@@ -1,0 +1,15 @@
+/* parts/screen-look/show/file-tree.css
+ * How the shared file tree looks (ui/show/file-tree/FileTree.tsx): a soft highlight that glides
+ * under the pointer, chosen rows tinted with the focus colour, and a folder being dropped on
+ * outlined with the words for what the drop will do. Spring timing lives in FileTree.
+ * Reference: 21st.dev #20042 "Animated File Tree Primitives" (unlumen). */
+:root{
+  --file-tree-accent:var(--border-focus,var(--color-primary,#3b82f6));
+}
+.file-tree{color:var(--text-primary)}
+.file-tree-highlight{background:var(--glass-bg-hover,color-mix(in srgb,var(--text-primary) 6%,transparent))}
+.file-tree-row:focus-visible{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--file-tree-accent) 60%,transparent)}
+.file-tree-row-chosen{background:color-mix(in srgb,var(--file-tree-accent) 14%,transparent)}
+.file-tree-row-dropping{background:color-mix(in srgb,var(--file-tree-accent) 12%,transparent);box-shadow:inset 0 0 0 1.5px var(--file-tree-accent)}
+.file-tree-drop-words{color:var(--file-tree-accent)}
+.file-tree-row[draggable="true"]{cursor:default}

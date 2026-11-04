@@ -1,0 +1,69 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LIVE-USAGE-READINGS",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "cloud job 2026-11-03: the engine counts the three billed meters on live accounts, and take-payments bills them",
+    "message_multihash": "1f:ae734aaa498560bc98ad74865cbda09aebea7e98358700d12466f4308ba7fc4b",
+    "quote": "Port old trillion's meter definitions one to one. Move code, never rewrite it."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "path": "src/usage-meters.mjs",
+      "lines": [
+        172,
+        188
+      ],
+      "multihash": "1f:60901510b0a00d776fa75b5213e4f527cb288924954cc29049b72f637049d883",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T18:00:00Z",
+        "deleted_with": "the old trillion change that removes usageReadings with src/plan-usage.mjs, its one caller, once take-payments settles live usage"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/take-payments/do-work/live-usage.mjs",
+      "baseline_commit_message": "Live usage, step one: the older owner's usage readings copied byte for byte"
+    }
+  ],
+  "preserve": [
+    "each reading is answered by its own named reader, and a name no reader answers refuses the whole read",
+    "a work amount that is not a nonnegative number refuses the day instead of counting it",
+    "the readings a day is counted with are read when the day is counted, never guessed"
+  ],
+  "allowed_deltas": [
+    "the readers read the account's own usage day row the engine writes (trillion-rust src/namespace/usage.rs, the files door operation usage_days), not the store's own stored-bytes and priced work-dollars readers",
+    "work-cost reads the engine's work milliseconds, priced by the seller's rows and supplier invoice in settlement, not store rows priced at listed rates",
+    "a third reader, source-bytes, for resource:source-bytes",
+    "a reading the engine did not write is null (no observation), never zero",
+    "the readings become resource-usage-observation rows settled by the existing settleSharedResourceCost, not Stripe meter events (plan-usage.mjs)"
+  ],
+  "banned_substitutions": [
+    "a price, margin or plan read from the engine",
+    "a day observed while the engine still counts it",
+    "a missing day filled with zero"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T21:30:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:60901510b0a00d776fa75b5213e4f527cb288924954cc29049b72f637049d883",
+    "target_multihash_at_baseline": "1f:60901510b0a00d776fa75b5213e4f527cb288924954cc29049b72f637049d883",
+    "commit": "9aaeef6b1b8f967e75eb39157a98d7ca3e0a706c"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export async function usageReadings",
+      "No reader answers the usage reading"
+    ],
+    "test_refs": [
+      "tools/take-payments/test/live-usage.test.mjs closed live days become immutable observations and settle at cost x 1.3 with the ported default rule",
+      "tools/take-payments/test/live-usage.test.mjs included units come off before excess, and a day the engine never wrote is named, never zero"
+    ]
+  }
+}

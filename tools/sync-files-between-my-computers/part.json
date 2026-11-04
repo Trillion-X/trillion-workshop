@@ -1,0 +1,8 @@
+{
+  "public": [
+    "do-work/lan-peers.mjs",
+    "do-work/folder-bindings.mjs",
+    "do-work/drive-sync-status.mjs",
+    "do-work/sync-files.json"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "_what": "The vocabulary a look uses so a colour-adapting extension (Dark Reader, a forced-colours or high-contrast mode) cannot pull a surface and its words apart, as DATA. An extension decides from how a variable is USED whether it is a background or a text colour, so no variable plays both parts: a ground is only ever a background or a fill, words are only ever a text colour, a mark is only ever a line or a shape that carries no words. A surface that holds words is an HTML background (never an SVG fill, which an extension reads as a text colour), and its words are a words variable named for the ground they sit on. Each look declares every name below (src/themes/<look>/*.css); a part reads a name with the older variable as its fallback, so a look that has not yet declared one is drawn as before.",
+  "grounds": ["ground-page", "ground-card", "ground-surface", "ground-ink", "ground-accent", "ground-light", "ground-island"],
+  "words": {
+    "words-on-card": "ground-card",
+    "words-on-page": "ground-page",
+    "words-on-card-quiet": "ground-card",
+    "words-secondary": "ground-page",
+    "words-accent": "ground-page",
+    "words-on-accent": "ground-accent",
+    "words-on-ink": "ground-ink",
+    "words-primary": "ground-page",
+    "words-emphasis": "ground-page",
+    "words-on-island": "ground-island"
+  },
+  "marks": ["mark-line", "mark-accent", "mark-light", "mark-quiet"],
+  "least_contrast": { "words": 4.5, "large_words": 3 },
+  "ink_for_words": "A brand colour bright enough for a line may be too light for words or for a filled control with white words on it; a look names a deeper ink for those (the site's --thread-ink) and keeps the bright one for marks."
+}

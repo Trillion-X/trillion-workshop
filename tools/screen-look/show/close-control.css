@@ -1,0 +1,19 @@
+/* parts/screen-look/show/close-control.css
+ * The one close look every close wears (a pane's close, a tab's close): wherever it is shown it is a red X on a faint
+ * red ground, and pointing at, tapping, pressing or focusing it deepens the ground. The red is the look's own error
+ * colour, so a look that changes it changes every close at once.
+ */
+.close-control {
+  color: var(--color-error, #e5484d);
+  background-color: color-mix(in srgb, var(--color-error, #e5484d) 10%, transparent);
+  border-radius: var(--radius-control, 6px);
+  transition: color .15s, background-color .15s;
+}
+.close-control:is(:focus-visible, [data-touch-hover], [data-touch-press]) {
+  background-color: color-mix(in srgb, var(--color-error, #e5484d) 20%, transparent);
+}
+@media (hover: hover) {
+  .close-control:hover {
+    background-color: color-mix(in srgb, var(--color-error, #e5484d) 20%, transparent);
+  }
+}

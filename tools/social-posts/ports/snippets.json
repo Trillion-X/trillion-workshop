@@ -1,0 +1,94 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SOCIAL-POSTS-SNIPPETS-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "move the product modules of old trillion src/ (part 5 of 5) into Trillion-X/trillion-workshop tools. Move code, never rewrite it. Port the correct parts one to one with their original tests and assertions."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/snippets.mjs",
+   "multihash": "1f:4786c140e187626c5ad850e6a6cb8dd82dafa24a89b3021863186fe47fc1fbea",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/social-posts.mjs (the caller, with src/social-post-tools.mjs and src/work-posts.mjs) and then deletes src/snippets.mjs, src/snippets.json and test/snippets.test.mjs"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "src/snippets.json",
+   "multihash": "1f:abe1a490cc3182e8f4100856d1833721e79d1033bf2804ca98008c311692b6eb",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/social-posts.mjs (the caller, with src/social-post-tools.mjs and src/work-posts.mjs) and then deletes src/snippets.mjs, src/snippets.json and test/snippets.test.mjs"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/social-posts/read-data/snippets.mjs"
+  },
+  {
+   "path": "tools/social-posts/read-data/snippets.json"
+  }
+ ],
+ "preserve": [
+  "the record type, the blank's pattern, every size and every word are data",
+  "using a snippet changes nothing but its use count and last use; its words are never rewritten by a use",
+  "a blank with a value is filled everywhere it appears; a blank with none is left as written and named back in left_blank",
+  "saving with expected_set_at is refused when the snippet was saved since that read",
+  "a snippet is never sent anywhere by being saved, found or used"
+ ],
+ "allowed_deltas": [
+  "the eeaf is the person's own snippet records, read, listed and written through the records door by read-data/drafts-over-door.mjs; each record read is written back only if still as read"
+ ],
+ "banned_substitutions": [
+  "a rewritten copy of this job",
+  "a second live copy kept in Trillion-X/trillion after its deleted_by"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:4786c140e187626c5ad850e6a6cb8dd82dafa24a89b3021863186fe47fc1fbea",
+  "target_multihash_at_baseline": "1f:4786c140e187626c5ad850e6a6cb8dd82dafa24a89b3021863186fe47fc1fbea",
+  "recorded_at": "2026-11-03T21:00:00Z",
+  "rows": [
+   {
+    "path": "tools/social-posts/read-data/snippets.mjs",
+    "source_multihash": "1f:4786c140e187626c5ad850e6a6cb8dd82dafa24a89b3021863186fe47fc1fbea",
+    "target_multihash_at_baseline": "1f:4786c140e187626c5ad850e6a6cb8dd82dafa24a89b3021863186fe47fc1fbea"
+   },
+   {
+    "path": "tools/social-posts/read-data/snippets.json",
+    "source_multihash": "1f:abe1a490cc3182e8f4100856d1833721e79d1033bf2804ca98008c311692b6eb",
+    "target_multihash_at_baseline": "1f:abe1a490cc3182e8f4100856d1833721e79d1033bf2804ca98008c311692b6eb"
+   }
+  ],
+  "commit": "708f61ded4a5f6cf20350bd84addbd7f463e2e9a"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.8,
+  "required_mechanisms": [
+   "export class SnippetError",
+   "export function makeSnippets",
+   "function save(",
+   "function list(",
+   "function use(",
+   "function remove(",
+   "left_blank"
+  ],
+  "test_refs": [
+   "tools/social-posts/test/snippets.test.mjs",
+   "tools/social-posts/test/drafts-over-door.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

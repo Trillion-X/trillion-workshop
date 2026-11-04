@@ -1,0 +1,23 @@
+{
+  "_what": "How the work an actor wrote is told apart from the work that stayed (src/kept-work.mjs). A text's versions, oldest first, each with who wrote it (the change's actor `by`), are broken into lines; a line is credited to whoever first wrote it, by the BLAKE3 identity of the line (`normalize` says how a line is made comparable), and the credit is kept only for lines still in the newest version. `blank_lines` counts empty lines as nobody's. `credit_by` names the actor field credit goes by. `track` says which writes are attributed as they happen (src/kept-work.mjs makeKeptWork): a record whose type starts with one of `type_prefixes` and whose value holds text in one of `fields` has its lines credited to the actor of the write, at most `max_lines` lines kept per record field.",
+  "credit_by": "by",
+  "nobody": "unattributed",
+  "normalize": {
+    "trim": true,
+    "collapse_spaces": true,
+    "lowercase": false
+  },
+  "blank_lines": "ignored",
+  "identity_chars": 24,
+  "track": {
+    "type_prefixes": [
+      "record:"
+    ],
+    "fields": [
+      "text",
+      "body",
+      "notes"
+    ],
+    "max_lines": 400
+  }
+}

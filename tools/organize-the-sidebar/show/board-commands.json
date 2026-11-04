@@ -1,0 +1,306 @@
+{
+  "_what": "The board's commands as one table (parts/ui/show/command-table): each row's title, the keys that run it, other words that find it in the command palette, its default score and, when the palette offers it, the section and icon it files under. The keyboard shortcuts sheet (\"?\"), the palette rows for these commands and the tips that name a shortcut are all made from this file (board-shortcuts.ts, GroupBoardPanel.tsx), so they cannot drift apart. Every row is VERIFIED against a real key handler in GroupBoardPanel (L116); adding or removing a board shortcut is editing the handler AND its row here. Key names: mod, shift, opt are drawn with `glyphs`; any other is drawn as written.",
+  "glyphs": {
+    "mod": "⌘",
+    "shift": "⇧",
+    "opt": "⌥"
+  },
+  "groups": [
+    {
+      "heading": "Edit",
+      "rows": [
+        {
+          "id": "undo",
+          "title": "Undo",
+          "keys": [
+            "mod",
+            "Z"
+          ]
+        },
+        {
+          "id": "redo",
+          "title": "Redo",
+          "keys": [
+            "mod",
+            "shift",
+            "Z"
+          ]
+        },
+        {
+          "id": "duplicate",
+          "title": "Duplicate",
+          "keys": [
+            "mod",
+            "D"
+          ],
+          "aliases": [
+            "copy here",
+            "clone"
+          ]
+        },
+        {
+          "id": "copy",
+          "title": "Copy",
+          "keys": [
+            "mod",
+            "C"
+          ]
+        },
+        {
+          "id": "cut",
+          "title": "Cut",
+          "keys": [
+            "mod",
+            "X"
+          ]
+        },
+        {
+          "id": "paste",
+          "title": "Paste",
+          "keys": [
+            "mod",
+            "V"
+          ]
+        },
+        {
+          "id": "copy-style",
+          "title": "Copy style",
+          "keys": [
+            "opt",
+            "mod",
+            "C"
+          ]
+        },
+        {
+          "id": "paste-style",
+          "title": "Paste style",
+          "keys": [
+            "opt",
+            "mod",
+            "V"
+          ]
+        },
+        {
+          "id": "delete",
+          "title": "Delete",
+          "keys": [
+            "⌫"
+          ],
+          "aliases": [
+            "remove",
+            "trash"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Select",
+      "rows": [
+        {
+          "id": "select-all",
+          "title": "Select all",
+          "keys": [
+            "mod",
+            "A"
+          ],
+          "aliases": [
+            "everything"
+          ]
+        },
+        {
+          "id": "clear-selection",
+          "title": "Clear selection",
+          "keys": [
+            "Esc"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Arrange",
+      "rows": [
+        {
+          "id": "group",
+          "title": "Group",
+          "keys": [
+            "mod",
+            "G"
+          ],
+          "aliases": [
+            "combine"
+          ]
+        },
+        {
+          "id": "ungroup",
+          "title": "Ungroup",
+          "keys": [
+            "mod",
+            "shift",
+            "G"
+          ]
+        },
+        {
+          "id": "bring-forward",
+          "title": "Bring forward",
+          "keys": [
+            "mod",
+            "]"
+          ]
+        },
+        {
+          "id": "send-backward",
+          "title": "Send backward",
+          "keys": [
+            "mod",
+            "["
+          ]
+        },
+        {
+          "id": "bring-to-front",
+          "title": "Bring to front",
+          "keys": [
+            "mod",
+            "shift",
+            "]"
+          ]
+        },
+        {
+          "id": "send-to-back",
+          "title": "Send to back",
+          "keys": [
+            "mod",
+            "shift",
+            "["
+          ]
+        },
+        {
+          "id": "nudge",
+          "title": "Nudge",
+          "keys": [
+            "←",
+            "↑",
+            "→",
+            "↓"
+          ]
+        },
+        {
+          "id": "nudge-10",
+          "title": "Nudge ×10",
+          "keys": [
+            "shift",
+            "←↑→↓"
+          ]
+        },
+        {
+          "id": "constrain-drag-to-axis",
+          "title": "Constrain drag to axis",
+          "keys": [
+            "shift",
+            "drag"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "View",
+      "rows": [
+        {
+          "id": "zoom-in",
+          "title": "Zoom in",
+          "keys": [
+            "+"
+          ]
+        },
+        {
+          "id": "zoom-out",
+          "title": "Zoom out",
+          "keys": [
+            "−"
+          ]
+        },
+        {
+          "id": "zoom-to-fit",
+          "title": "Zoom to fit",
+          "keys": [
+            "shift",
+            "1"
+          ],
+          "palette": {
+            "section": "View",
+            "icon": "Scan"
+          },
+          "aliases": [
+            "fit",
+            "zoom all",
+            "show everything"
+          ],
+          "score": 2
+        },
+        {
+          "id": "zoom-to-selection",
+          "title": "Zoom to selection",
+          "keys": [
+            "shift",
+            "2"
+          ]
+        },
+        {
+          "id": "reset-zoom",
+          "title": "Reset zoom",
+          "keys": [
+            "shift",
+            "0"
+          ],
+          "palette": {
+            "section": "View",
+            "icon": "Minimize2",
+            "label": "Reset zoom to 100%"
+          },
+          "aliases": [
+            "100%",
+            "actual size"
+          ]
+        },
+        {
+          "id": "toggle-minimap",
+          "title": "Toggle minimap",
+          "keys": [
+            "M"
+          ],
+          "aliases": [
+            "overview",
+            "map"
+          ]
+        },
+        {
+          "id": "command-palette",
+          "title": "Command palette",
+          "keys": [
+            "mod",
+            "K"
+          ],
+          "aliases": [
+            "search commands"
+          ]
+        },
+        {
+          "id": "keyboard-shortcuts",
+          "title": "Keyboard shortcuts",
+          "keys": [
+            "?"
+          ],
+          "palette": {
+            "section": "Help",
+            "icon": "Keyboard"
+          },
+          "aliases": [
+            "hotkeys",
+            "keys",
+            "cheat sheet"
+          ],
+          "score": 1
+        }
+      ]
+    }
+  ]
+}

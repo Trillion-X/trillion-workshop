@@ -1,0 +1,4 @@
+{
+  "what_this_is": "How many arrangements the Layouts picker keeps by itself. When a person switches away from an arrangement that matches no starter or kept layout, it is kept under a name made from its screens; the oldest self-kept ones beyond this count are let go. Pinned and renamed layouts are never let go.",
+  "keep_at_most": 8
+}

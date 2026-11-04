@@ -1,0 +1,9 @@
+{
+  "public": [
+    "do-work/wasm-sqlite-host.mjs",
+    "do-work/device-copy-worker.mjs",
+    "do-work/device-copy.mjs",
+    "do-work/account-copy.mjs",
+    "do-work/frame-compression.mjs"
+  ]
+}

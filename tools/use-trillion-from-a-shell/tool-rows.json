@@ -1,0 +1,36 @@
+{
+  "kind": "package-set-records",
+  "record_set": "use-trillion-from-a-shell-tool-rows",
+  "what_this_is": "The Workshop row for the use-trillion-from-a-shell folder: the `trillion` command any AI that can run a shell uses to see the person's AIs and their AI jobs, hand and take work, and list and run Workshop tools, with no MCP connection of its own.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:use-trillion-from-a-shell",
+        "label": "Use Trillion from any AI's shell: the trillion command (runs on your computer)",
+        "job": "Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own",
+        "description": "The `trillion` command. Every command is ONE call of the engine's one MCP tool (run_resource_operation) at the account's door: the Trillion Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `trillion` on the PATH and writes the skill for each AI app here; whoami, who, publish, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; tools and call list and run Workshop tools; op runs any engine operation. The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `trillion update` names who updates it: the command never updates itself.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["arguments"],
+          "properties": {
+            "arguments": { "type": "array", "items": { "type": "string" }, "description": "The trillion command's own arguments, each one word (for example [\"who\"], [\"tools\"], [\"call\", \"tool:...\", \"{...}\"])." }
+          }
+        },
+        "output_schema": { "type": "object", "description": "What the command prints; a refusal says which door refused and why, with a non-zero exit code." },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "node tools/use-trillion-from-a-shell/do-work/trillion.mjs {arguments}",
+          "needs": ["node 22 or later", "the person's own Trillion sign-in (trillion login, or the Mac app's key)"],
+          "say": "This runs on the person's own computer from the root of the Workshop checkout. Run `trillion setup` once (it signs in in the browser and puts the command on the PATH), then `trillion help`. Never print or pass the key on a command line. Report what the command printed."
+        },
+        "maker": "maker:use-trillion-from-a-shell",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Moved from Trillion-X/trillion harness/trillion.mjs, trillion.json, trillion-skill.md, ag-ui-agent.mjs, ag-ui-wire.mjs and local-door.mjs (record:library:rea:F-0829, F-0183)" }
+      }
+    }
+  ]
+}
