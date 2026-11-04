@@ -3,12 +3,12 @@ import test from 'node:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { eeafStore } from '../parts/eeaf/do-work/eeaf-sqlite-store.mjs';
-import { openRecords, setRecordEngine } from '../src/record-engine.mjs';
-import { availabilityLinkEeafStore } from '../../booking-slots-and-invitations/do-work/availability-link-eeaf-store.mjs';
+import { eeafStore } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs';
+import { openRecords, setRecordEngine } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
+import { availabilityLinkEeafStore } from '../do-work/availability-link-eeaf-store.mjs';
 import { identityOf } from '../../shared-code/src/typed-operation-contract.mjs';
-import { sqliteHost } from '../src/local-store.mjs';
-import { createAvailabilityLinkOwner } from '../../booking-slots-and-invitations/do-work/availability-link-owner.ts';
+import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
+import { createAvailabilityLinkOwner } from '../do-work/availability-link-owner.ts';
 import { readAt } from '../../record-log/do-work/record-time.mjs';
 
 const identity = value => identityOf(value);
