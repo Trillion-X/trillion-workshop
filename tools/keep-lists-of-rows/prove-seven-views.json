@@ -1,0 +1,38 @@
+{
+  "_what": "DATA for prove-seven-views.mjs: where a computer's sign-up and sign-in are (trillion-rust src/native_entry/computer/signup.rs, src/account/sign_in/pages.rs), the records the web shell's list road keeps (trillion-apps web/src/workspace/list-records.ts over records-door.ts), the list screen's address, and the views the proof switches through with what the page shows for each. Every selector names the file it was read from.",
+  "sign_up": {
+    "page": "/sign-up",
+    "name_input": "#passkey-name",
+    "button": "button[data-passkey][data-purpose=\"sign-up\"]",
+    "finish": "/sign-up/finish",
+    "_from": "trillion-rust src/account/sign_in/pages.rs sign_up(): the page posts /sign-up/options then /sign-up/finish, whose answer is { address }; the account is then reached under /a/<address>."
+  },
+  "sign_in": {
+    "page": "/sign-in",
+    "button": "button[data-passkey]",
+    "_from": "trillion-rust src/native_entry/computer/signup.rs: the person signs in at /a/<address>/sign-in after sign-up; the same page script presses navigator.credentials.get and goes to data-next or /."
+  },
+  "records": {
+    "write": "/work/api/records",
+    "read": "/work/api/door/records:read",
+    "list": "/work/api/door/records:list",
+    "list_type": "list",
+    "view_type": "list-view",
+    "_from": "trillion-apps web/src/workspace/records-door.ts (writeRecords, readRecord, listRecordsFrom) and list-records.ts (makeList: list:<id> of type list; putRows: record:<row_type>:<row>; saveView: list-view:<list>:<view> { list_id, view, order })."
+  },
+  "list_screen": {
+    "address": "/lists/{list}",
+    "view_query": "view",
+    "_from": "trillion-apps web/src/workspace/lists-screen.tsx: the list a /lists/<list> address names, opened on ?view=<id> when named, else the open saved view's display.as."
+  },
+  "views": [
+    { "step": "grid", "as": "table", "label": "Table", "shows": "[data-testid=\"visual-database-table\"], table", "_from": "lists-screen.tsx drawnAs 'table'; parts/keep-lists-of-rows/show/VisualDatabaseSurface.tsx data-testid visual-database-table" },
+    { "step": "board", "as": "board", "label": "Board", "shows": "[data-board-of]", "_from": "web/test/every-view-nxn-browser.test.mjs boardCard: [data-board-of]" },
+    { "step": "timeline", "as": "timeline", "label": "Timeline", "shows": "[role=\"tab\"][aria-selected=\"true\"]:has-text(\"Timeline\"), button[aria-pressed=\"true\"]:has-text(\"Timeline\")", "_from": "trillion-workshop tools/keep-lists-of-rows/source-data/views-offered-to-every-list.json id timeline (kind timeline); the shell's switcher marks the drawn view" },
+    { "step": "schedule", "as": "gantt", "label": "Gantt", "shows": "[role=\"tab\"][aria-selected=\"true\"]:has-text(\"Gantt\"), button[aria-pressed=\"true\"]:has-text(\"Gantt\")", "_from": "views-offered-to-every-list.json id gantt (kind schedule), drawn by show/views/ScheduleView.tsx" },
+    { "step": "form", "as": "form", "label": "Form", "shows": "[role=\"tab\"][aria-selected=\"true\"]:has-text(\"Form\"), button[aria-pressed=\"true\"]:has-text(\"Form\")", "_from": "views-offered-to-every-list.json id form (kind form), drawn by show/views/FormView.tsx" },
+    { "step": "node graph", "as": "nodegraph", "label": "Node graph", "shows": "[role=\"tab\"][aria-selected=\"true\"]:has-text(\"Node graph\"), button[aria-pressed=\"true\"]:has-text(\"Node graph\")", "_from": "keep-lists-of-rows README: the nodegraph kind is drawn where a descriptor names it and is NOT offered to every list, so this step is expected to fail until a list offers it" },
+    { "step": "metric", "as": "summary", "label": "Summary", "shows": "[data-testid=\"metric-view\"], [data-testid=\"summary-view\"]", "_from": "views-offered-to-every-list.json id summary (kind metric); MetricView.tsx data-testid metric-view, VisualDatabaseSurface.tsx summary-view" }
+  ],
+  "wait_ms": 20000
+}
