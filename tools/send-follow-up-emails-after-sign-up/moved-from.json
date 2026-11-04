@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/follow-up-emails.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/send-follow-up-emails-after-sign-up/src/follow-up-emails.json",
+      "source_identity": "1f:3871f0fad88e1aa40f764de6ab99c8e6f251eb984140ad8449f0deb7f3e2d6b9",
+      "identity": "1f:3871f0fad88e1aa40f764de6ab99c8e6f251eb984140ad8449f0deb7f3e2d6b9"
+    }
+  ]
+}

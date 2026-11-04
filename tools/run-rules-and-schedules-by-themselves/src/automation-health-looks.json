@@ -1,0 +1,324 @@
+{
+  "_what": "How the health of each source that feeds a person's automations is read and shown (src/automation-health.mjs, the Workshop tool tool:read-source-health; gathered by src/automations.mjs readHealth, shown on the Automations screen). The periods arrivals are counted over, and which one runs are counted over; each kind of source (carrier: something written elsewhere brought through the one door, src/inbound.mjs; event-source: a connected account's events, src/events.mjs; schedule), with its words and how long it may stay silent before it counts as quiet (null: no silence is expected of it); the carriers always shown, even before anything arrived from them; the words for a source nothing has arrived from and for an arrival that started nothing; which fields of an arrival name it; what each state a run ends in counts as, and which results mean a run worked (it finished, or it started and is still going: a failure before it is over) and which is a failure; errors said in plain words; and the states a source can be in, each with its words, tone and the rules (a formula-engine rule tree over `fields`, operators from parts/formula-engine/rules/rule-operators.json) that put a source in it. The first state whose rules hold is the source's state, so their order matters; a state with rules null holds for every source. Adding a kind of source, a state, a period, a carrier or a plainer error is a row here. A source shows Working only when something really arrived, or a run really finished, inside its kind's working_within_hours; a run still 'working' after stuck_after_hours counts as failed (stuck_words). A carrier that needs a reader (kinds.*.needs_reader) and has none reads 'No reader set up' (idle_words); any other source with no recent arrival reads 'Nothing recent', with idle_words saying since when.",
+  "periods": [
+    {
+      "id": "24h",
+      "label": "Last 24 hours",
+      "hours": 24
+    },
+    {
+      "id": "7d",
+      "label": "Last 7 days",
+      "hours": 168
+    }
+  ],
+  "runs_counted_over": "7d",
+  "kinds": {
+    "carrier": {
+      "label": "Written elsewhere",
+      "expect_within_hours": 168,
+      "working_within_hours": 72,
+      "needs_reader": true
+    },
+    "event-source": {
+      "label": "A connected account",
+      "expect_within_hours": 168,
+      "working_within_hours": 72
+    },
+    "schedule": {
+      "label": "Schedule",
+      "expect_within_hours": null,
+      "working_within_hours": null
+    }
+  },
+  "carriers_offered": [
+    "Apple Notes",
+    "Voice Memos",
+    "Email"
+  ],
+  "nothing_yet": "Nothing has arrived from {label} yet",
+  "started_nothing": "Nothing was started for it",
+  "reader_item_grace_minutes": 10,
+  "reader_stale_after_hours": 1,
+  "poll_grace_minutes": 1,
+  "poll_words": {
+    "missing": "{label} is connected but has no next read scheduled.",
+    "overdue": "{label} has missed its next read. Its last arrival does not establish that reading is still running.",
+    "pending": "{count} event(s) from {label} are kept but their rules have not started successfully. They remain queued for retry.",
+    "gap": "{label} stopped accepting its earlier cursor. New items may arrive, but the missed interval has not been reconciled."
+  },
+  "reader_words": {
+    "behind": "An item seen on {computer} has not arrived in Trillion yet.",
+    "stale": "{computer} has not reported its reading recently.",
+    "status": "{computer}: {status}",
+    "failed": "{computer}: {error}"
+  },
+  "title_fields": [
+    "title",
+    "subject",
+    "text"
+  ],
+  "title_words_most": 120,
+  "run_results": {
+    "succeeded": "succeeded",
+    "completed": "succeeded",
+    "finished": "succeeded",
+    "ran now": "succeeded",
+    "failed": "failed",
+    "stuck": "failed",
+    "working": "working",
+    "scheduled": "working"
+  },
+  "run_result_otherwise": "working",
+  "worked_results": [
+    "succeeded",
+    "working"
+  ],
+  "failure_result": "failed",
+  "result_looks": {
+    "succeeded": {
+      "label": "Worked",
+      "tone": "success"
+    },
+    "failed": {
+      "label": "Failed",
+      "tone": "error"
+    },
+    "working": {
+      "label": "Still going",
+      "tone": "info"
+    }
+  },
+  "silence_words": {
+    "within": "within expected",
+    "longer": "longer than expected",
+    "not_expected": "not expected"
+  },
+  "plain_errors": [
+    {
+      "contains": "401",
+      "words": "The connected account turned the sign-in down. Connect it again."
+    },
+    {
+      "contains": "403",
+      "words": "The connected account does not allow this. Check what it lets Trillion do."
+    },
+    {
+      "contains": "429",
+      "words": "The service asked Trillion to slow down. It is tried again later."
+    },
+    {
+      "contains": "timed out",
+      "words": "It took too long to answer."
+    },
+    {
+      "contains": "paid plan",
+      "words": "This needs a paid plan."
+    },
+    {
+      "contains": "reset because its code was updated",
+      "words": "Trillion was being updated while it read this. It reads it again on its next turn."
+    },
+    {
+      "contains": "does not implement the method \"call\"",
+      "words": "A fault in Trillion stopped this, so nothing was started for it."
+    },
+    {
+      "contains": "does not implement the method \"apply\"",
+      "words": "A fault in Trillion stopped this, so nothing was started for it."
+    },
+    {
+      "contains": "does not implement the method \"bind\"",
+      "words": "A fault in Trillion stopped this, so nothing was started for it."
+    },
+    {
+      "contains": "does not implement the method",
+      "words": "Trillion was being updated while this arrived, so nothing was started for it."
+    }
+  ],
+  "error_words_most": 240,
+  "fields": [
+    {
+      "id": "connected",
+      "kind": "choice"
+    },
+    {
+      "id": "silence",
+      "kind": "choice"
+    },
+    {
+      "id": "failures_since_it_worked",
+      "kind": "number"
+    },
+    {
+      "id": "reader_issue",
+      "kind": "choice"
+    },
+    {
+      "id": "setup_issue",
+      "kind": "choice"
+    },
+    {
+      "id": "recent_activity",
+      "kind": "choice"
+    },
+    {
+      "id": "reader_present",
+      "kind": "choice"
+    }
+  ],
+  "states": [
+    {
+      "id": "not-connected",
+      "label": "Not connected",
+      "tone": "neutral",
+      "label_by_kind": {
+        "schedule": "Off",
+        "carrier": "Not set up"
+      },
+      "rules": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "connected",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "no"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "setup_issue",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "no"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "failing",
+      "label": "Failing",
+      "tone": "error",
+      "rules": {
+        "kind": "group",
+        "combinator": "or",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "failures_since_it_worked",
+            "operator": "greater_than",
+            "params": {
+              "value": 0
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "reader_issue",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "yes"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "quiet",
+      "label": "Quiet",
+      "tone": "warning",
+      "rules": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "silence",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "longer than expected"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "healthy",
+      "label": "Working",
+      "tone": "success",
+      "rules": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "recent_activity",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "yes"
+              ]
+            }
+          }
+        ]
+      },
+      "why": "Working needs a real arrival or finished run inside the kind's working window; nothing else counts."
+    },
+    {
+      "id": "no-reader",
+      "label": "No reader set up",
+      "tone": "warning",
+      "rules": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "reader_present",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "no"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "nothing-recent",
+      "label": "Nothing recent",
+      "tone": "neutral",
+      "label_by_kind": {
+        "schedule": "Not run recently"
+      },
+      "rules": null
+    }
+  ],
+  "stuck_after_hours": 6,
+  "stuck_words": "It started but has not finished.",
+  "idle_words": {
+    "since": "Nothing has arrived since {time}.",
+    "never": "Nothing has arrived yet.",
+    "no_reader": "No reader is set up for {label}. Nothing has arrived since {time}.",
+    "no_reader_never": "No reader is set up for {label}, and nothing has arrived yet."
+  },
+  "in_progress_result": "working",
+  "finished_result": "succeeded"
+}
