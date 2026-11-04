@@ -10,5 +10,5 @@ Files of old trillion whose job is this tool's (connect the original repository 
 | `src/source-project-tools.mjs` | `src/source-project-tools.mjs` | loads here |
 | `test/source-project-edit.test.mjs` | `test/source-project-edit.test.mjs` | runs here: 12/12 pass |
 | `test/source-project-host.test.mjs` | `test/source-project-host.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports test/source-project-workshop-for-tests.mjs (at the tag, not moved here yet), src/account-app-state.mjs (at the tag, not moved here yet), src/local-store.mjs (at the tag, not moved here yet), test/app (already gone at the tag) |
-| `test/source-project-preview.test.mjs` | `test/source-project-preview.test.mjs` | runs here: 5/5 pass |
+| `test/source-project-preview.test.mjs` | `../../refresh-one-page-of-a-copied-site-from-its-original/test/source-project-preview.test.mjs` | home already: carried beside its file by PR #178 |
 | `test/source-project-tools.test.mjs` | `test/source-project-tools.test.mjs` | runs here: 3/3 pass |
