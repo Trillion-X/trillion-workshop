@@ -1,6 +1,6 @@
-// tools/check-against-a-persons-rules-and-verdicts: a document split into pieces (do-work/pieces.mjs), and the row a
-// person keeps for each. The atom tests are old trillion's test/method-sources.test.mjs, moved one to one; the rest
-// are on made-up text only.
+// tools/check-against-a-persons-rules-and-verdicts: a document split into pieces (do-work/pieces.mjs, whose atomsOf is
+// read from tools/documents-as-list-rows), and the row a person keeps for each. The first test is old trillion's
+// test/method-sources.test.mjs:46, moved one to one; the rest are on made-up text only.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -30,24 +30,24 @@ test('an identity is 1f: and the BLAKE3 of the whitespace-folded text, so spacin
 
 test('a piece row carries its id, lead, text, identity, key and where it stands, with nothing checked yet', () => {
   const [atom] = atomsOf('## Made-up part\n\n**Made-up lead.** Then the rest.\n');
-  const row = pieceRow(atom, { file: 'made-up.md', file_identity: '1f:' + 'a'.repeat(64), at: 1 });
+  const row = pieceRow(atom, { file: 'made-up.md', file_identity: '1f:' + 'a'.repeat(64) });
   assert.deepEqual(row, {
     id: `piece-${atom.identity.slice(3, 27)}`, kind: 'piece', says: 'Made-up lead', text: '**Made-up lead.** Then the rest.', identity: atom.identity,
-    key: 'Made-up part / Made-up lead', sources: [{ file: 'made-up.md', section: 'Made-up part / Made-up lead', file_identity: '1f:' + 'a'.repeat(64), at: 1 }],
+    key: 'Made-up part / Made-up lead', sources: [{ file: 'made-up.md', section: 'Made-up part / Made-up lead', file_identity: '1f:' + 'a'.repeat(64), at: 3 }],
     groups: [], kinds: [], checked_by: [],
   });
   assert.equal(row.id.length, 'piece-'.length + 24);
   assert.equal('no_check' in row, false);
 });
 
-test('two files holding the same text are one row with two sources, each with its own section, file identity and place', () => {
+test('two files holding the same text are one row with two sources, each with its own section, file identity and line', () => {
   const rows = pieceRows([
     { text: '## First\n\nShared made-up words.\n\nOnly in one.\n', file: 'one.md' },
     { text: 'Opening.\n\n## Second\n\nShared made-up words.\n', file: 'two.md', file_identity: '1f:' + 'b'.repeat(64) },
   ]);
   assert.deepEqual(rows.map(row => row.says), ['Shared made-up words.', 'Only in one.', 'Opening.']);
   const shared = rows[0];
-  assert.deepEqual(shared.sources.map(source => [source.file, source.section, source.at]), [['one.md', 'First / Shared made-up words.', 1], ['two.md', 'Second / Shared made-up words.', 2]]);
+  assert.deepEqual(shared.sources.map(source => [source.file, source.section, source.at]), [['one.md', 'First / Shared made-up words.', 3], ['two.md', 'Second / Shared made-up words.', 5]]);
   assert.match(shared.sources[0].file_identity, /^1f:[0-9a-f]{64}$/);
   assert.equal(shared.sources[1].file_identity, '1f:' + 'b'.repeat(64));
 });

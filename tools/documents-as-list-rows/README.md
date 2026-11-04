@@ -199,7 +199,7 @@ A row's value is `key` (heading path plus the piece's lead), `heading_path`, `b3
 | `read-data/folder-files.mjs` | The `files` of one folder on the person's computer: names only in a listing, bytes with their identity, and the identity-checked write. |
 | `read-data/namespace-files.mjs` | The `files` of the person's Namespace, through the run's records door: names from list_files, bytes from read_file by name; no write. |
 | `read-data/split.mjs` | Splitting documents into one document per item by a mapping. |
-| `read-data/atoms.mjs` | The atoms rule: a document cut into pieces, and a mapping's pieces as rows, one per identity. |
+| `read-data/atoms.mjs` | The atoms rule: a document cut into pieces (`atomsOf`, with `lead`, a piece's bold opening or first words, exported), and a mapping's pieces as rows, one per identity. Public: `tools/check-against-a-persons-rules-and-verdicts` makes its piece rows from `atomsOf`. |
 | `read-data/rows.mjs` | The functions the rows run: `readDocumentRows`, `changeDocumentRows`, `splitIntoDocuments`, `cutIntoRecords`. |
 | `read-data/json-items.mjs` | The `json-items` row source: one JSON file whose array at one path holds many items, each item a row (`readJsonItemRows`: its keys as they are, its JSON text `copy.text`, that text's identity `copy.identity`, the file's `file.mtime`), and `changeJsonItemRows`, which writes or removes one item only while it is still the one read and keeps the rest of the file. read-a-list-view's list-copy keeps a list and such a file the same both ways. |
 | `do-work/documents.mjs` | The command line above. |
@@ -209,4 +209,4 @@ A row's value is `key` (heading path plus the piece's lead), `heading_path`, `b3
 
 **Depends on:** Node, `tools/content-identity` (BLAKE3 identities, with `@noble/hashes`), and for the Namespace row `tools/records-door` (`run-an-export.mjs` and its `door.files`).
 
-**Depended on by:** a list whose `row_sources` names the `documents` source.
+**Depended on by:** a list whose `row_sources` names the `documents` source; `tools/check-against-a-persons-rules-and-verdicts` `do-work/pieces.mjs` (`atomsOf`, `lead`).
