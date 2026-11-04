@@ -1,0 +1,56 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-REPLAY-RECORDED-WRITES-FROM-TRANSCRIPTS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "lane brief: replay recorded writes from the AIs' transcripts",
+  "message_multihash": "1f:6653bf69922279f6656116e225afe44619ef258417abbc050395ac0ef2de4bed",
+  "quote": "Take every records:write input. Keep only calls whose result succeeded. Keep the newest per record id, by the transcript timestamp. A null value means a removal."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "replay recorded writes from transcripts: bring back the rows an account's AIs wrote, from the records:write calls their transcripts prove succeeded, newest per record, through the records door",
+ "sources": [],
+ "targets": [
+  { "path": "tools/use-trillion-from-a-shell/do-work/replay-recorded-writes.mjs", "note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own path, the target the contract claims" }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/use-trillion-from-a-shell/", "note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own path",
+   "why": "This tool itself: its command program passes its own argument parser, home expansion and settings, so shell lines are read as the command reads them, and --write goes through the command's own client and request keys."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "replay recorded writes from transcripts: bring back the rows an account's AIs wrote, from the records:write calls their transcripts prove succeeded, newest per record, through the records door",
+    "replay recorded writes from transcripts",
+    "bring back rows written by AIs from their transcripts"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "replay-from-transcripts",
+    "replay.{0,12}recorded.{0,12}writes"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "182998eaa410aa8eaa75daf29595b84ebed999da"
+    },
+    {
+     "repository": "trillion",
+     "commit": "30f9541f796ea80cd872c8afc871225d6db25b32"
+    },
+    {
+     "repository": "trillion-rust",
+     "commit": "a766888d9f6d11a78f419f6b8c28d42d33b59d7d"
+    }
+   ]
+  },
+  "test_refs": ["tools/use-trillion-from-a-shell/test/replay-recorded-writes.test.mjs"], "test_refs_note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own test"
+ }
+}
